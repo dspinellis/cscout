@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.50 2003/06/19 11:11:01 dds Exp $
+ * $Id: parse.y,v 1.51 2003/06/21 13:46:48 dds Exp $
  *
  */
 
@@ -1147,7 +1147,12 @@ jump_statement:
 
 /* Gcc __asm__  syntax */
 assembly_statement: 
-	GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt ')'
+	GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')'
+	;
+
+asm_operands_opt:
+	/* Empty */
+	| ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt
 	;
 
 asm_operand_list_opt: 
@@ -1190,6 +1195,7 @@ external_definition:
 			[ YYVALID; Function::exit(); Block::param_clear(); ]
         | declaration
 			[ YYVALID; Block::param_clear(); ]
+	| assembly_statement
         ;
 
 function_definition:
