@@ -3,9 +3,11 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.31 2004/07/29 18:37:05 dds Exp $
+ * $Id: fileid.cpp,v 1.32 2004/07/30 17:19:03 dds Exp $
  */
 
+#include <fstream>
+#include <stack>
 #include <map>
 #include <iostream>
 #include <string>
@@ -28,6 +30,7 @@
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
+#include "fchar.h"
 #include "error.h"
 
 int Fileid::counter;		// To generate ids
@@ -214,7 +217,8 @@ Fileid::set_readonly(bool r)
 }
 
 Filedetails::Filedetails(string n, bool r) :
-	name(n), m_compilation_unit(false)
+	name(n),
+	m_compilation_unit(false)
 {
 	set_readonly(r);
 }
@@ -281,6 +285,28 @@ Fileid::files(bool sorted)
 	if (sorted)
 		sort(r.begin(), r.end(), fname_order());
 	return (r);
+}
+
+void
+Filedetails::process_line(bool processed)
+{
+	int lnum = Fchar::get_line_num() - 1;
+	int s = processed_lines.size();
+	if (DP())
+		cout << "Process line " << lnum << "\n";
+	if (s == lnum)
+		// New line processed
+		processed_lines.push_back(processed);
+	else if (s > lnum)
+		processed_lines[lnum] = (processed_lines[lnum] || processed);
+	else {
+		// We somehow missed a line
+		if (DP()) {
+			cout << "Line number = " << lnum << "\n";
+			cout << "Vector size = " << s << "\n";
+		}
+		assert(0);
+	}
 }
 
 #ifdef UNIT_TEST

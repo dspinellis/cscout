@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.12 2004/07/23 06:55:38 dds Exp $
+ * $Id: metrics.cpp,v 1.13 2004/07/30 17:19:03 dds Exp $
  */
 
 #include <iostream>
@@ -42,6 +42,7 @@ string Metrics::metric_names[] = {
 	"Number of lines",
 	"Length of longest line",
 	"Number of C strings",
+	"Number of unprocessed lines",
 
 	"Number of defined functions",
 	"Number of preprocessor directives",

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.29 2004/07/23 06:55:38 dds Exp $
+ * $Id: fchar.cpp,v 1.30 2004/07/30 17:19:03 dds Exp $
  */
 
 #include <iostream>
@@ -100,12 +100,14 @@ again:
 	case '\\':			// \newline splicing
 		c2 = in.get();
 		if (c2 == '\n') {
+			Fchar::get_fileid().process_line(!Pdtoken::skipping());
 			line_number++;
 			goto again;
 		} else if (c2 == '\r') {
 			// DOS/WIN32 cr-lf EOL
 			c3 = in.get();
 			if (c3 == '\n') {
+				Fchar::get_fileid().process_line(!Pdtoken::skipping());
 				line_number++;
 				goto again;
 			}
@@ -133,6 +135,7 @@ again:
 		default: in.putback(c3); in.putback(c2); return;
 		}
 	case '\n':
+		Fchar::get_fileid().process_line(!Pdtoken::skipping());
 		line_number++;
 		break;
 	}

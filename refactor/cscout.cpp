@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.93 2004/07/30 09:58:45 dds Exp $
+ * $Id: cscout.cpp,v 1.94 2004/07/30 17:19:03 dds Exp $
  */
 
 #include <map>
@@ -224,6 +224,7 @@ file_analyze(Fileid fi)
 	ifstream in;
 	bool has_unused = false;
 	const string &fname = fi.get_path();
+	int line_number = 0;
 
 	cout << "Post-processing " << fname << "\n";
 	in.open(fname.c_str(), ios::binary);
@@ -278,8 +279,11 @@ file_analyze(Fileid fi)
 			}
 		}
 		fi.metrics().process_char((char)val);
-		if ((char)val == '\n')
+		if ((char)val == '\n') {
 			fi.add_line_end(ti.get_streampos());
+			if (!fi.is_processed(++line_number))
+				fi.metrics().add_unprocessed();
+		}
 	}
 	if (DP())
 		cout << "nchar = " << fi.metrics().get_nchar() << '\n';
@@ -288,7 +292,6 @@ file_analyze(Fileid fi)
 }
 
 // Display the contents of a file in hypertext form
-// Set show_unused to only mark unused identifiers
 static void
 file_hypertext(FILE *of, Fileid fi, bool eval_query)
 {
@@ -296,6 +299,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 	const string &fname = fi.get_path();
 	bool at_bol = true;
 	int line_number = 1;
+	bool mark_unprocessed = !!swill_getvar("marku");
 
 	/*
 	 * In theory this could be handled by adding a class
@@ -339,6 +343,8 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			break;
 		if (at_bol) {
 			fprintf(of,"<a name=\"%d\"></a>", line_number);
+			if (mark_unprocessed && !fi.is_processed(line_number))
+				fprintf(of, "<span class=\"unused\">");
 			if (show_line_number) {
 				char buff[50];
 				sprintf(buff, "%5d ", line_number);
@@ -384,6 +390,8 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		fprintf(of, "%s", html((char)val));
 		if ((char)val == '\n') {
 			at_bol = true;
+			if (mark_unprocessed && !fi.is_processed(line_number))
+				fprintf(of, "</span>");
 			line_number++;
 		}
 	}
@@ -464,6 +472,13 @@ html_head(FILE *of, const string fname, const string title, const char *prehead 
 		"<html>\n"
 		"<head>\n"
 		"<meta name=\"GENERATOR\" content=\"CScout %s - %s\">\n"
+		"<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">"
+		"<style type=\"text/css\" >"
+		"<!--"
+		"  .unused  { color: red }"
+		"-->"
+		"</style>"
+		"</head>"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -1500,6 +1515,7 @@ index_page(FILE *of, void *data)
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statments&qf=1\">Writable .c files without any statements</a>\n", em_nstatement, Query::ec_eq, em_nstatement);
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", em_nstring, Query::ec_gt, em_nstring);
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", em_nincfile, Query::ec_gt, em_nincfile);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&n=Writable+Files+Containing+Unprocessed+Regions&qf=1\">Writable files containing unprocessed regions</a>\n", em_uline, Query::ec_gt, em_uline);
 		fprintf(of, "<li> <a href=\"fquery.html\">Specify new file query</a>\n"
 		"</ul>\n");
 
@@ -1570,6 +1586,7 @@ file_page(FILE *of, void *p)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(of, "</ul>\n</ul><h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
+	fprintf(of, "<li> <a href=\"src.html?id=%s&marku=1\">Source code with unprocessed regions marked</a>\n", fname.str().c_str());
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%s&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", fname.str().c_str(), is_readonly);
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%s&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", fname.str().c_str(), is_lscope);
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=fun&id=%s&match=Y&writable=1&ro=1&n=Source+Code+With+Hyperlinks+to+Function+and+Macro+Declarations\">Source code with hyperlinks to function and macro declarations</a>\n", fname.str().c_str());

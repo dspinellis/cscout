@@ -1,4 +1,9 @@
-$Id: todo,v 1.55 2004/07/29 18:37:05 dds Exp $
+$Id: todo,v 1.56 2004/07/30 17:19:03 dds Exp $
+
+Remember to update SWILL/Source/SWILL/mime.o in the Unix distributions.
+
+Document function functionality (remember, it is more than
+the function section).
 
 Maintain file coverage analysis (%) as a metric
 
@@ -27,8 +32,6 @@ function specifier:
 type qualifier:
 	restrict
 
-Document function functionality (remember, it is more than
-the function section).
 
 Borland configuration file
 Solaris compilation
@@ -75,7 +78,6 @@ Windows.
 7) My comments on the generated html are obviously first impressions:
 a) I would like to see context information such as date and command in
 "CScout Main Page".
-b) Rearrange that page so it renders on 1 screen.
 c) I think you should define many of the terms used in the html.
 Examples: "Comment characters" - characters in comments; "line
 comments"; "block comments"; "lines" - before or after processing \

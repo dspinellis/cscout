@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: filemetrics.h,v 1.11 2004/07/23 06:55:38 dds Exp $
+ * $Id: filemetrics.h,v 1.12 2004/07/30 17:19:03 dds Exp $
  */
 
 #ifndef METRICS_
@@ -33,6 +33,7 @@ enum e_metric {
 	em_nline,		// Number of lines
 	em_maxlinelen,		// Maximum number of characters in a line
 	em_nstring,		// Number of character strings
+	em_uline,		// Number of unprocessed lines
 
 // During processing (once based on processed)
 	em_nfunction,		// Defined functions (function_brace_begin)
@@ -76,6 +77,8 @@ public:
 	void process_char(char c);
 	// Called for every identifier
 	void process_id(const string &s);
+	// Called when encountering unprocessed lines
+	void add_unprocessed() { count[em_uline]++; }
 
 	// Manipulate the processing-based metrics
 	void add_ppdirective() { if (!processed) count[em_nppdirective]++; }

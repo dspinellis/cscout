@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.27 2004/07/24 10:44:23 dds Exp $
+ * $Id: pdtoken.h,v 1.28 2004/07/30 17:19:03 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -83,6 +83,8 @@ public:
 	static void file_switch() { at_bol = true; };
 	// Return the macro where a given token resides
 	static MCall *get_body_token_macro_mcall(Tokid t);
+	// Return true if we are currently skipping due to conditional compilation
+	static bool skipping() { return skiplevel != 0; }
 };
 
 

@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.24 2004/07/29 18:37:05 dds Exp $
+ * $Id: fileid.h,v 1.25 2004/07/30 17:19:03 dds Exp $
  */
 
 #ifndef FILEID_
@@ -51,6 +51,7 @@ public:
 };
 
 class Fileid;
+class Fchar;
 
 typedef map <Fileid, IncDetails> FileIncMap;
 
@@ -64,6 +65,8 @@ private:
 	// Line end offsets; collected during postprocessing
 	// when we are generating warning reports
 	vector <streampos> line_ends;
+	// Lines that were processed (rather than skipped)
+	vector <bool> processed_lines;;
 	FileIncMap includes;	// Files we include
 	FileIncMap includers;	// Files that include us
 
@@ -83,7 +86,8 @@ public:
 	void set_required(bool r) { m_required = r; }
 	bool compilation_unit() const { return m_compilation_unit; }
 	void set_compilation_unit(bool r) { m_compilation_unit = r; }
-
+	void process_line(bool processed);
+	bool is_processed(int line) const { return processed_lines[line - 1]; };
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered
 	void add_line_end(streampos p) { line_ends.push_back(p); }
@@ -156,6 +160,10 @@ public:
 	// Get/set compilation_unit property (for include files)
 	void set_compilation_unit(bool v) { i2d[id].set_compilation_unit(v); }
 	bool compilation_unit() const { return i2d[id].compilation_unit(); }
+	// Mark a line as processed
+	void process_line(bool processed) {i2d[id].process_line(processed); }
+	// Return true if a line is processed
+	bool is_processed(int line) const { return i2d[id].is_processed(line); };
 
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered
