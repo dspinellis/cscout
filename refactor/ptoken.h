@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.7 2001/09/01 05:29:12 dds Exp $
+ * $Id: ptoken.h,v 1.8 2001/09/08 18:12:48 dds Exp $
  */
 
 #ifndef PTOKEN_
@@ -34,7 +34,7 @@ public:
 	Ptoken() {nonreplaced = false; };
 	// Accessor methods
 	inline const string& get_val() const { return (val); };
-	inline can_replace() const { return !nonreplaced; };
+	inline bool can_replace() const { return !nonreplaced; };
 	inline void set_nonreplaced() { nonreplaced = true; };
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Ptoken &t);
