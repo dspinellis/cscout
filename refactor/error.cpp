@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.4 2001/10/27 09:59:07 dds Exp $
+ * $Id: error.cpp,v 1.5 2001/10/27 16:42:38 dds Exp $
  */
 
 #include <iostream>
@@ -38,7 +38,11 @@ Error::error(enum e_error_level level, string msg, bool showloc = true)
 	cerr << msg << "\n";
 	switch (level) {
 	case E_WARN: num_warnings++; break;
-	case E_ERR: num_errors++; break;
+	case E_ERR: 
+		num_errors++;
+		if (num_errors > 100)
+			Error::error(E_FATAL, "error count exceeds 100; exiting", false);
+		break;
 	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
 	case E_FATAL: exit(1);
 	}

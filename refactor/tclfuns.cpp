@@ -3,7 +3,7 @@
  *
  * Tcl interface functions
  *
- * $Id: tclfuns.cpp,v 1.5 2001/10/27 14:31:48 dds Exp $
+ * $Id: tclfuns.cpp,v 1.6 2001/10/27 16:42:38 dds Exp $
  */
 
 #include "appinit.h"
@@ -187,9 +187,17 @@ Error::error(enum e_error_level level, string msg, bool showloc = true)
 	out += msg;
 	Et_EvalF(global_interp, "showerror \"%q\"", out.c_str());
 	switch (level) {
-	case E_WARN: num_warnings++; break;
-	case E_ERR: num_errors++; break;
-	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
+	case E_WARN:
+		num_warnings++;
+		break;
+	case E_ERR: 
+		num_errors++; 
+		if (num_errors > 100)
+			Error::error(E_FATAL, "error count exceeds 100; exiting", false);
+		break;
+	case E_INTERNAL: 
+		num_errors++; 
+		break;	// Should have an assertion before
 	case E_FATAL: 
 		num_errors++;
 		throw Fatal(); 
