@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.20 2003/06/01 08:57:34 dds Exp $
+ * $Id: tokid.cpp,v 1.21 2003/07/29 21:31:14 dds Exp $
  */
 
 #include <iostream>
@@ -24,10 +24,10 @@
 #include "token.h"
 #include "eclass.h"
 
-TE_map Tokid::tm;
+
+mapTokidEclass Tokid::tm;		// Map from tokens to their equivalence
 
 mapTokidEclass tokid_map;		// Dummy; used for printing
-mapTokidEclass TE_map::tm;
 
 ostream&
 operator<<(ostream& o,const Tokid t)
@@ -41,7 +41,7 @@ operator<<(ostream& o,const mapTokidEclass& t)
 {
 	mapTokidEclass::const_iterator i;
 
-	for (i = Tokid::tm.tm.begin(); i != Tokid::tm.tm.end(); i++) {
+	for (i = Tokid::tm.begin(); i != Tokid::tm.end(); i++) {
 		// Convert Tokids into Tparts to also display their content
 		Tokid t = (*i).first;
 		Eclass e = *((*i).second);
@@ -59,9 +59,9 @@ Tokid::clear()
 	mapTokidEclass::const_iterator i;
 	set <Eclass *> es;
 
-	if (DP()) cout << "Have " << Tokid::tm.tm.size() << " tokids\n";
+	if (DP()) cout << "Have " << Tokid::tm.size() << " tokids\n";
 	// First create a set of all ecs
-	for (i = Tokid::tm.tm.begin(); i != Tokid::tm.tm.end(); i++)
+	for (i = Tokid::tm.begin(); i != Tokid::tm.end(); i++)
 		es.insert((*i).second);
 	// Then free them
 	if (DP()) cout << "Deleting " << es.size() << " classes\n";
@@ -71,7 +71,7 @@ Tokid::clear()
 		delete (*si);
 	}
 	// Finally, clear the map
-	tm.tm.clear();
+	tm.clear();
 }
 
 dequeTpart
@@ -79,9 +79,9 @@ Tokid::constituents(int l)
 {
 	Tokid t = *this;
 	dequeTpart r;
-	mapTokidEclass::const_iterator e = tm.tm.find(t);
+	mapTokidEclass::const_iterator e = tm.find(t);
 
-	if (e == Tokid::tm.tm.end()) {
+	if (e == Tokid::tm.end()) {
 		// No EC defined, create a new one
 		new Eclass(t, l);
 		Tpart tp(t, l);
@@ -102,8 +102,8 @@ Tokid::constituents(int l)
 		if (l == 0)
 			return (r);
 		t += covered;
-		e = tm.tm.find(t);
-		assert(e != Tokid::tm.tm.end());
+		e = tm.find(t);
+		assert(e != Tokid::tm.end());
 	}
 }
 
@@ -113,9 +113,9 @@ Tokid::set_ec_attribute(enum e_attribute a, int l) const
 {
 	Tokid t = *this;
 	dequeTpart r;
-	mapTokidEclass::const_iterator e = tm.tm.find(t);
+	mapTokidEclass::const_iterator e = tm.find(t);
 
-	if (e == Tokid::tm.tm.end()) {
+	if (e == Tokid::tm.end()) {
 		// No EC defined, create a new one
 		Eclass *e = new Eclass(t, l);
 		e->set_attribute(a);
@@ -130,8 +130,8 @@ Tokid::set_ec_attribute(enum e_attribute a, int l) const
 		if (l == 0)
 			return;
 		t += covered;
-		e = tm.tm.find(t);
-		assert(e != Tokid::tm.tm.end());
+		e = tm.find(t);
+		assert(e != Tokid::tm.end());
 	}
 }
 

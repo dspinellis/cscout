@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.15 2003/07/28 20:09:31 dds Exp $
+ * $Id: tokid.h,v 1.16 2003/07/29 21:31:14 dds Exp $
  */
 
 #ifndef TOKID_
@@ -35,9 +35,7 @@ typedef map <Tokid, Eclass *> mapTokidEclass;
 
 class Tokid {
 private:
-	//static map <Tokid, Eclass *> tm;		// Map from tokens to their equivalence
-	// The compiler barfs on the above, so we encapsulate it as a class
-	static TE_map tm;
+	static mapTokidEclass tm;	// Map from tokens to their equivalence
 					// classes
 	Fileid fi;			// File
 	offset_t offs;			// Offset
@@ -86,7 +84,7 @@ public:
 	inline const string& get_path() const { return fi.get_path(); }
 	inline Fileid get_fileid() const { return fi; }
 	inline streampos get_streampos() const { return (streampos)offs; }
-
+	static map <Tokid, Eclass *>::size_type map_size() { return tm.size(); }
 };
 
 // Print dequeTokid sequences
@@ -152,14 +150,14 @@ operator <(const class Tokid a, const class Tokid b)
 inline Eclass *
 Tokid::get_ec() const
 {
-	return tm.tm[*this];
+	return tm[*this];
 }
 
 inline Eclass *
 Tokid::check_ec() const
 {
-	mapTokidEclass::const_iterator i = tm.tm.find(*this);
-	if (i == tm.tm.end())
+	mapTokidEclass::const_iterator i = tm.find(*this);
+	if (i == tm.end())
 		return NULL;
 	else
 		return ((*i).second);
@@ -168,32 +166,32 @@ Tokid::check_ec() const
 inline void
 Tokid::set_ec(Eclass *ec) const
 {
-	tm.tm[*this] = ec;
+	tm[*this] = ec;
 }
 
 inline void
 Tokid::erase_ec(mapTokidEclass::iterator i) const
 {
-	tm.tm.erase(i);
+	tm.erase(i);
 }
 
 inline void
 Tokid::erase_ec(Eclass *e) const
 {
-	mapTokidEclass::iterator i = tm.tm.find(*this);
-	assert(i != tm.tm.end());
-	tm.tm.erase(i);
+	mapTokidEclass::iterator i = tm.find(*this);
+	assert(i != tm.end());
+	tm.erase(i);
 }
 
 inline mapTokidEclass::iterator
 Tokid::find_ec() const
 {
-	return tm.tm.find(*this);
+	return tm.find(*this);
 }
 
 inline mapTokidEclass::iterator
 Tokid::end_ec()
 {
-	return tm.tm.end();
+	return tm.end();
 }
 #endif /* TOKID_ */
