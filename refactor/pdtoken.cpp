@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.36 2001/09/02 15:29:26 dds Exp $
+ * $Id: pdtoken.cpp,v 1.37 2001/09/02 15:45:20 dds Exp $
  */
 
 #include <iostream>
@@ -286,6 +286,26 @@ Pdtoken::process_if()
 }
 
 void
+Pdtoken::process_ifdef(bool isndef)
+{
+	if (skiplevel)
+		skiplevel++;
+	else {
+		Pltoken t;
+
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != IDENTIFIER)
+			Error::error(E_WARN, "#ifdef argument is not an identifier");
+		bool eval_res = Pdtoken::macros_find(t.get_val()) != Pdtoken::macros_end();
+		if (isndef)
+			eval_res = !eval_res;
+		iftaken.push(eval_res);
+		skiplevel = eval_res ? 0 : 1;
+	}
+}
+
+
+void
 Pdtoken::process_elif()
 {
 	if (iftaken.empty()) {
@@ -475,9 +495,9 @@ Pdtoken::process_directive()
 	else if (t.get_val() == "if")
 		process_if();
 	else if (t.get_val() == "ifdef")
-		process_if();
+		process_ifdef(false);
 	else if (t.get_val() == "ifndef")
-		process_if();
+		process_ifdef(true);
 	else if (t.get_val() == "elif")
 		process_elif();
 	else if (t.get_val() == "else")
