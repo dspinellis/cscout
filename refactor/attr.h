@@ -3,13 +3,14 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.6 2002/12/26 12:46:24 dds Exp $
+ * $Id: attr.h,v 1.7 2003/05/24 14:41:13 dds Exp $
  */
 
 #ifndef ATTR_
 #define ATTR_
 
 // Attributes that can be set for an EC
+// Keep in sync with attribute_names[]
 enum e_attribute {
 	is_readonly,		// Read-only; true if any member
 				// comes from an ro file
@@ -38,11 +39,13 @@ private:
 	vector <bool> attr;		// Attributes and projects
 					// Hopefully specialized to 1 bit/val
 	void fix_size() { if (attr.size() < size) attr.resize(size, false); }
+	static string attribute_names[];
 public:
 	// Add another attribute (typically project)
 	static void add_attribute() { size++; }
 	// Return the number of active attributes
 	static size_type get_num_attributes() { return size; }
+	static const string &name(int n) { return attribute_names[n]; }
 	Attributes() : attr(size, false) {}
 	void set_attribute(int v) { fix_size(); attr[v] = true; }
 	void set_attribute_val(int v, bool n) { fix_size(); attr[v] = n; }

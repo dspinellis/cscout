@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.7 2002/12/26 12:46:24 dds Exp $
+ * $Id: attr.cpp,v 1.8 2003/05/24 14:41:13 dds Exp $
  */
 
 #include <map>
@@ -33,6 +33,23 @@ int Project::projid = attr_max - 1;
 map<string, int> Project::projids;
 vector<string> Project::projnames(attr_max);
 
+// Keep this in sync with the enumeration
+string Attributes::attribute_names[] = {
+	"Read-only",
+
+	"Tag for struct/union/enum",
+	"Member of struct/union",
+	"Label",
+	"Ordinary identifier",
+
+	"Macro",
+	"Macro argument",
+
+	"File scope",
+	"Project scope",
+
+	"Typedef",
+};
 
 void
 Project::set_current_project(const string &name)

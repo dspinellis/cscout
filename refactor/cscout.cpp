@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.15 2003/05/24 10:35:29 dds Exp $
+ * $Id: cscout.cpp,v 1.16 2003/05/24 14:41:13 dds Exp $
  */
 
 #include <map>
@@ -342,7 +342,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.15 2003/05/24 10:35:29 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.16 2003/05/24 14:41:13 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -507,6 +507,133 @@ roids_page(FILE *of,  void *p)
 	html_tail(of);
 }
 
+// Identifier query page
+static void
+iquery_page(FILE *of,  void *p)
+{
+	html_head(of, "iquery", "Identifier Query");
+	fputs("<FORM ACTION=\"xiquery.html\" METHOD=\"GET\">\n"
+	"<input type=\"checkbox\" name=\"writable\" value=\"1\" CHECKED>Writable<br>\n", of);
+	for (int i = 0; i < attr_max; i++)
+		fprintf(of, "<input type=\"checkbox\" name=\"a%d\" value=\"1\">%s<br>\n", i, 
+			Attributes::name(i).c_str());
+	fputs(
+	"<input type=\"checkbox\" name=\"xfile\" value=\"1\">Crosses file bounary<br>\n"
+	"<input type=\"checkbox\" name=\"unused\" value=\"1\">Unused<br>\n"
+	"<p>\n"
+	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any marked\n"
+	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
+	"<input type=\"radio\" name=\"match\" value=\"L\">Match all marked\n"
+	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
+	"<input type=\"radio\" name=\"match\" value=\"E\">Exclude marked\n"
+	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
+	"<input type=\"radio\" name=\"match\" value=\"T\" >Exact match\n"
+	"<br><hr>\n"
+	"<table>\n"
+	"<tr><td>\n"
+	"Identifier names should match RE\n"
+	"</td><td>\n"
+	"<INPUT TYPE=\"text\" NAME=\"iname\" SIZE=20 MAXLENGTH=256>\n"
+	"</td></tr>\n"
+	"<tr><td>\n"
+	"Select identifiers from filenames matching RE\n"
+	"</td><td>\n"
+	"<INPUT TYPE=\"text\" NAME=\"fname\" SIZE=20 MAXLENGTH=256>\n"
+	"</td></tr>\n"
+	"</table>\n"
+	"<hr>\n"
+	"<p><INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Search\">\n"
+	"</FORM>\n"
+	, of);
+	html_tail(of);
+}
+
+// Process an identifier query
+static void
+xiquery_page(FILE *of,  void *p)
+{
+	Sids sorted_ids;
+	char match_type;
+	vector <bool> match(attr_max);
+	bool xfile = !!swill_getvar("xfile");
+	bool unused = !!swill_getvar("unused");
+	bool writable = !!swill_getvar("writable");
+
+	html_head(of, "xiquery", "Identifier Query Results");
+
+	char *m;
+	if (!(m = swill_getvar("match"))) {
+		fprintf(of, "Missing value: match");
+		return;
+	}
+	match_type = *m;
+
+	for (int i = 0; i < attr_max; i++) {
+		ostringstream varname;
+
+		varname << "a" << i;
+		match[i] = !!swill_getvar(varname.str().c_str());
+		if (DP())
+			cout << "v=[" << varname.str() << "] m=" << match[i] << "\n";
+	}
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if (current_project && !(*i).first->get_attribute(current_project)) 
+			continue;
+		bool add;
+		switch (match_type) {
+		case 'Y':	// anY
+			add = false;
+			for (int j = 0; j < attr_max; j++)
+				if (match[j] && (*i).first->get_attribute(j)) {
+					add = true;
+					break;
+				}
+			add = (add || (xfile && (*i).second.get_xfile()));
+			add = (add || (unused && (*i).first->get_size() == 1));
+			add = (add || (writable && !(*i).first->get_attribute(is_readonly)));
+			break;
+		case 'L':	// alL
+			add = true;
+			for (int j = 0; j < attr_max; j++)
+				if (match[j] && !(*i).first->get_attribute(j)) {
+					add = false;
+					break;
+				}
+			add = (add && (!xfile || (*i).second.get_xfile()));
+			add = (add && (!unused || (*i).first->get_size() == 1));
+			add = (add && (!writable || !(*i).first->get_attribute(is_readonly)));
+			break;
+		case 'E':	// excludE
+			add = true;
+			for (int j = 0; j < attr_max; j++)
+				if (match[j] && (*i).first->get_attribute(j)) {
+					add = false;
+					break;
+				}
+			add = (add && (!xfile || !(*i).second.get_xfile()));
+			add = (add && (!unused || !(*i).first->get_size() == 1));
+			add = (add && (!writable || (*i).first->get_attribute(is_readonly)));
+			break;
+		case 'T':	// exactT
+			add = true;
+			for (int j = 0; j < attr_max; j++)
+				if (match[j] != (*i).first->get_attribute(j)) {
+					add = false;
+					break;
+				}
+			add = (add && (xfile == (*i).second.get_xfile()));
+			add = (add && (unused == (*i).first->get_size() == 1));
+			add = (add && (writable == !(*i).first->get_attribute(is_readonly)));
+			break;
+		}
+		if (add)
+			sorted_ids.insert(&*i);
+	}
+	display_sorted_ids(of, sorted_ids);
+	fputs("<p>You can bookmark this page to save the respective query<p>", of);
+	html_tail(of);
+}
+
 // Display an identifier property
 static void
 show_id_prop(FILE *fo, const string &name, bool val)
@@ -538,16 +665,9 @@ identifier_page(FILE *fo, void *p)
 	}
 	html_head(fo, "id", string("Identifier: ") + html(id.get_id()));
 	fprintf(fo, "<FORM ACTION=\"id.html\" METHOD=\"GET\">\n<ul>\n");
-	show_id_prop(fo, "Read-only", e->get_attribute(is_readonly));
-	show_id_prop(fo, "Macro", e->get_attribute(is_macro));
-	show_id_prop(fo, "Macro argument", e->get_attribute(is_macroarg));
-	show_id_prop(fo, "Ordinary identifier", e->get_attribute(is_ordinary));
-	show_id_prop(fo, "Tag for struct/union/enum", e->get_attribute(is_suetag));
-	show_id_prop(fo, "Member of struct/union", e->get_attribute(is_sumember));
-	show_id_prop(fo, "Label", e->get_attribute(is_label));
-	show_id_prop(fo, "Typedef", e->get_attribute(is_typedef));
-	show_id_prop(fo, "File scope", e->get_attribute(is_cscope));
-	show_id_prop(fo, "Project scope", e->get_attribute(is_lscope));
+	for (int i = 0; i < attr_max; i++)
+		show_id_prop(fo, Attributes::name(i), e->get_attribute(i));
+	show_id_prop(fo, "Crosses file boundary", id.get_xfile());
 	show_id_prop(fo, "Unused", e->get_size() == 1);
 	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
 	if (DP()) {
@@ -775,6 +895,7 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"upids.html\">Unused project-scoped writable identifiers</a>\n"
 		"<li> <a href=\"ufids.html\">Unused file-scoped writable identifiers</a>\n"
 		"<li> <a href=\"umids.html\">Unused macro writable identifiers</a>\n"
+		"<li> <a href=\"iquery.html\">Identifier query</a>\n"
 		"</ul>"
 		"<h2>Operations</h2>"
 		"<ul>\n"
@@ -989,7 +1110,7 @@ main(int argc, char *argv[])
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		ostringstream fname;
 		fname << (*i).get_id();
-		bool has_unused = file_analyze(*i);
+		/* bool has_unused = */ file_analyze(*i);
 	}
 
 
@@ -1050,6 +1171,8 @@ main(int argc, char *argv[])
 	swill_handle("usrc.html", unused_source_page, NULL);
 	swill_handle("file.html", file_page, NULL);
 
+	swill_handle("iquery.html", iquery_page, NULL);
+	swill_handle("xiquery.html", xiquery_page, NULL);
 	swill_handle("aids.html", aids_page, NULL);
 	swill_handle("roids.html", roids_page, NULL);
 	swill_handle("wids.html", wids_page, NULL);
