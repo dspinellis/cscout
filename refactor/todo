@@ -1,7 +1,5 @@
-$Id: todo,v 1.30 2003/06/04 18:37:03 dds Exp $
+$Id: todo,v 1.31 2003/06/22 19:13:43 dds Exp $
 
-Web page
-documentation
 Borland configuration file
 Solaris compilation
 experiment with hashmap performance
@@ -10,30 +8,14 @@ ceescape (swill) front end:
 
 Allow interruptions in id queries
 
-ANSI defs 
-LINE 
-FILE 
-DATE  "Mar 25 1821"
-TIME "12:34:56"
-STDC 1
-ANSI headers
-assert
-ctype
-errno
-float
-limits
-locale
-math
-setjmp
-signal
-stdarg
-stddef
-stdio
-string
-time
+lex preprocessor / hooks
 
+getopt and usage
+-v (version + pointer to licensing)
+-d directory for configuration files
+-p portno (must be > 1024)
 
-yacc and lex preprocessor / hooks
+C99 extensions
 
 Convert color to cgi/command-line
 
