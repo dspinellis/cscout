@@ -8,13 +8,13 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.6 2001/09/10 12:17:32 dds Exp $
+ * $Id: token.h,v 1.7 2001/10/27 06:51:00 dds Exp $
  */
 
 #ifndef TOKEN_
 #define TOKEN_
 
-// A token part
+// A token part; the smallest unit that is recognised for replacement
 class Tpart {
 private:
 	Tokid ti;		// Token part identifier
