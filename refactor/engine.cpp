@@ -3,7 +3,7 @@
  *
  * Processing engine driver program
  *
- * $Id: engine.cpp,v 1.1 2001/09/13 18:47:08 dds Exp $
+ * $Id: engine.cpp,v 1.2 2001/09/14 07:56:41 dds Exp $
  */
 
 #include <iostream>
@@ -30,6 +30,9 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "debug.h"
+#include "ctoken.h"
+#include "type.h"
+#include "stab.h"
 
 main(int argc, char *argv[])
 {
@@ -39,5 +42,7 @@ main(int argc, char *argv[])
 	Debug::db_read();
 	Fchar::push_input("defs.h");
 
+	Block::scope_enter();	// Linkage unit
+	Block::scope_enter();	// Compilation unit
 	return (parse_parse());
 }
