@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.106 2004/08/08 17:58:49 dds Exp $
+ * $Id: cscout.cpp,v 1.107 2004/08/09 08:01:08 dds Exp $
  */
 
 #include <map>
@@ -583,10 +583,7 @@ local_access(FILE *fo)
 #ifdef COMMERCIAL
 #define prohibit_remote_access(file)
 #else
-#define prohibit_remote_access(file) do { \
-		if (!local_access(file)) \
-			return; \
-	} while (0)
+#define prohibit_remote_access(file) do { if (!local_access(file)) return; } while (0)
 #endif
 
 // Call before the start of a file list
