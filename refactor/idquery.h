@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.4 2004/07/27 14:45:56 dds Exp $
+ * $Id: idquery.h,v 1.5 2004/08/08 17:58:49 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -16,8 +16,9 @@ class Identifier {
 	string newid;		// New identifier name
 	bool xfile;		// True if it crosses files
 	bool replaced;		// True if newid has been set
+	bool active;		// True if the replacement is active
 public:
-	Identifier(Eclass *e, const string &s) : id(s), replaced(false) {
+	Identifier(Eclass *e, const string &s) : id(s), replaced(false), active(true) {
 		xfile = e->sorted_files().size() > 1;
 	}
 	Identifier() {}
@@ -26,7 +27,9 @@ public:
 	string get_newid() const { return newid; }
 	bool get_xfile() const { return xfile; }
 	bool get_replaced() const { return replaced; }
+	bool get_active() const { return active; }
 	void set_xfile(bool v) { xfile = v; }
+	void set_active(bool v) { active = v; }
 	// To create nicely ordered sets
 	inline bool operator ==(const Identifier b) const {
 		return (this->id == b.id);

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.105 2004/08/08 09:16:32 dds Exp $
+ * $Id: cscout.cpp,v 1.106 2004/08/08 17:58:49 dds Exp $
  */
 
 #include <map>
@@ -89,6 +89,9 @@ static bool report;			// Generate a warning report
 static int portno = 8081;		// Port number (-p n)
 
 static Fileid input_file_id;
+
+// Set to true when the user has specified the application to exit
+static bool must_exit = false;
 
 
 // Identifiers to monitor (-m parameter)
@@ -457,7 +460,8 @@ file_replace(FILE *of, Fileid fid)
 		if ((ec = ti.check_ec()) &&
 		    ec->is_identifier() &&
 		    (idi = ids.find(ec)) != ids.end() &&
-		    (*idi).second.get_replaced()) {
+		    idi->second.get_replaced() &&
+		    idi->second.get_active()) {
 			int len = ec->get_len();
 			for (int j = 1; j < len; j++)
 				(void)in.get();
@@ -561,14 +565,28 @@ local_access(FILE *fo)
 	if (peer && strcmp(peer, "127.0.0.1") == 0)
 		return true;
 	else {
-		html_head(fo, "Remote access", "Remote access not allowed");
-		fprintf(fo, "This function can not be executed from a remote host.\n");
-		fprintf(fo, "Make sure you are accessing cscout as localhost or 127.0.0.1.");
+		html_head(fo, "Remote access", "Remote Access not Allowed");
+		fputs("This function is expensive or potentially disruptive."
+			"This free version of CScout does not allow its execution from a remote host.\n"
+			"Make sure you are accessing CScout as localhost or 127.0.0.1.", fo);
 		html_tail(fo);
 		return false;
 	}
 #endif
 }
+#endif
+
+/*
+ * Prohibit remote access to the free version of CScout
+ * The commercial version has an ACL.
+ */
+#ifdef COMMERCIAL
+#define prohibit_remote_access(file)
+#else
+#define prohibit_remote_access(file) do { \
+		if (!local_access(file)) \
+			return; \
+	} while (0)
 #endif
 
 // Call before the start of a file list
@@ -986,17 +1004,14 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 static void
 xiquery_page(FILE *of,  void *p)
 {
+	prohibit_remote_access(of);
+
 	Sids sorted_ids;
 	IFSet sorted_files;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
 	IdQuery query(of, file_icase, current_project);
-
-#ifndef COMMERCIAL
-		if (!local_access(of))
-			return;
-#endif
 
 	if (!query.is_valid()) {
 		html_tail(of);
@@ -1031,17 +1046,14 @@ xiquery_page(FILE *of,  void *p)
 static void
 xfunquery_page(FILE *of,  void *p)
 {
+	prohibit_remote_access(of);
+
 	Sfuns sorted_funs;
 	IFSet sorted_files;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
 	FunQuery query(of, file_icase, current_project);
-
-#ifndef COMMERCIAL
-		if (!local_access(of))
-			return;
-#endif
 
 	if (!query.is_valid())
 		return;
@@ -1063,7 +1075,6 @@ xfunquery_page(FILE *of,  void *p)
 		display_sorted(of, sorted_funs);
 	}
 	if (q_file)
-		// XXX Move to a function
 		display_files(of, query, sorted_files);
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
@@ -1089,10 +1100,7 @@ identifier_page(FILE *fo, void *p)
 	char *subst;
 	Identifier &id = ids[e];
 	if ((subst = swill_getvar("sname"))) {
-#ifndef COMMERCIAL
-		if (!local_access(fo))
-			return;
-#endif
+		prohibit_remote_access(fo);
 		// Passing subst directly core-dumps under
 		// gcc version 2.95.4 20020320 [FreeBSD 4.7]
 		string ssubst(subst);
@@ -1132,7 +1140,8 @@ identifier_page(FILE *fo, void *p)
 			fprintf(fo, "</ol><br />\n");
 	}
 	if (id.get_replaced())
-		fprintf(fo, "<li> Substituted with: [%s]\n", id.get_newid().c_str());
+		fprintf(fo, "<li> Substituted with: [%s] (%s)\n", id.get_newid().c_str(),
+		id.get_active() ? "active" : "inactive");
 	if (!e->get_attribute(is_readonly)) {
 		fprintf(fo, "<li> Substitute with: \n"
 			"<INPUT TYPE=\"text\" NAME=\"sname\" SIZE=10 MAXLENGTH=256> "
@@ -1377,6 +1386,8 @@ Do not show No in identifier properties (option)
 void
 set_options_page(FILE *fo, void *p)
 {
+	prohibit_remote_access(fo);
+
 	if (string(swill_getvar("set")) == "Cancel") {
 		index_page(fo, p);
 		return;
@@ -1414,6 +1425,8 @@ set_options_page(FILE *fo, void *p)
 static void
 save_options_page(FILE *fo, void *p)
 {
+	prohibit_remote_access(fo);
+
 	html_head(fo, "save_options", "Options Save");
 	#ifdef unix
 	(void)mkdir(".cscout", 0777);
@@ -1530,6 +1543,8 @@ single_function_graph(FILE *fo)
 static void
 cgraph_page(FILE *fo, bool html)
 {
+	prohibit_remote_access(fo);
+
 	char buff1[256], buff2[256];
 
 	buff1[0] = buff2[0] = 0;
@@ -1597,6 +1612,8 @@ cgraph_html_page(FILE *fo, void *p)
 static void
 cgraph_dot_page(FILE *fo, char *type)
 {
+	prohibit_remote_access(fo);
+
 	bool fun_name = (cgraph_show != 'e');
 	bool file_name = (cgraph_show == 'f');
 	bool path_name = (cgraph_show == 'p');
@@ -1650,6 +1667,8 @@ cgraph_dot_page(FILE *fo, char *type)
 static void
 cgraph_svg_page(FILE *fo, void *p)
 {
+	prohibit_remote_access(fo);
+
 	char svg[256];		// SVG file name
 	char dot[256];		// dot file name
 	char cmd[1024];		// dot command
@@ -1703,10 +1722,7 @@ select_project_page(FILE *fo, void *p)
 void
 set_project_page(FILE *fo, void *p)
 {
-#ifndef COMMERCIAL
-	if (!local_access(fo))
-		return;
-#endif
+	prohibit_remote_access(fo);
 
 	if (!swill_getargs("i(projid)", &current_project)) {
 		fprintf(fo, "Missing value");
@@ -1775,6 +1791,7 @@ index_page(FILE *of, void *data)
 		"<ul>\n"
 		"<li> <a href=\"options.html\">Global options</a>\n"
 		" - <a href=\"save_options.html\">save global options</a>\n"
+		"<li> <a href=\"replacements.html\">Identifier replacements</a>\n"
 		"<li> <a href=\"sproject.html\">Select active project</a>\n"
 		"<li> <a href=\"save.html\">Save changes and continue</a>\n"
 		"<li> <a href=\"sexit.html\">Exit - saving changes</a>\n"
@@ -1907,15 +1924,66 @@ logo_page(FILE *fo, void *p)
 	Logo::logo(fo);
 }
 
-static bool must_exit = false;
+static void
+replacements_page(FILE *of, void *p)
+{
+	prohibit_remote_access(of);
+	html_head(of, "replacements", "Identifier Replacements");
+	cout << "Creating identifier list\n";
+	fputs("<p><form action=\"xreplacements.html\" method=\"get\">\n"
+		"<table><tr><th>Identifier</th><th>Replacement</th><th>Active</th></tr>\n"
+	, of);
+
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		progress(i, ids);
+		if (i->second.get_replaced()) {
+			fputs("<tr><td>", of);
+			html(of, *i);
+			fprintf(of,
+				"</td><td><input type=\"text\" name=\"r%p\" value=\"%s\" size=\"10\" maxlength=\"256\"></td>"
+				"<td><input type=\"checkbox\" name=\"a%p\" value=\"1\" %s></td></tr>\n",
+				&(i->second), i->second.get_newid().c_str(),
+				&(i->second), i->second.get_active() ? "checked" : "");
+		}
+	}
+	cout << '\n';
+	fputs("</table><p><INPUT TYPE=\"submit\" name=\"repl\" value=\"OK\">\n", of);
+	html_tail(of);
+}
+
+// Process an identifier replacements form
+static void
+xreplacements_page(FILE *of,  void *p)
+{
+	prohibit_remote_access(of);
+
+	cout << "Creating identifier list\n";
+
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		progress(i, ids);
+		if (i->second.get_replaced()) {
+			char varname[128];
+			sprintf(varname, "r%p", &(i->second));
+			char *subst;
+			if ((subst = swill_getvar(varname))) {
+				string ssubst(subst);
+				i->second.set_newid(ssubst);
+			}
+
+			sprintf(varname, "a%p", &(i->second));
+			i->second.set_active(!!swill_getvar(varname));
+		}
+	}
+	cout << '\n';
+	index_page(of, p);
+}
+
 
 void
 write_quit_page(FILE *of, void *exit)
 {
-#ifndef COMMERCIAL
-	if (!local_access(of))
-		return;
-#endif
+	prohibit_remote_access(of);
+
 	if (exit)
 		html_head(of, "quit", "CScout exiting");
 	else
@@ -1925,7 +1993,7 @@ write_quit_page(FILE *of, void *exit)
 	cout << "Examing identifiers for replacement\n";
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
-		if ((*i).second.get_replaced()) {
+		if (i->second.get_replaced() && i->second.get_active()) {
 			Eclass *e = (*i).first;
 			IFSet ifiles = e->sorted_files();
 			process.insert(ifiles.begin(), ifiles.end());
@@ -1950,10 +2018,8 @@ write_quit_page(FILE *of, void *exit)
 void
 quit_page(FILE *of, void *p)
 {
-#ifndef COMMERCIAL
-	if (!local_access(of))
-		return;
-#endif
+	prohibit_remote_access(of);
+
 	html_head(of, "quit", "CScout exiting");
 	fprintf(of, "No changes were saved.");
 	fprintf(of, "<p>Bye...</body></html>");
@@ -2233,6 +2299,8 @@ main(int argc, char *argv[])
 
 	if (!compile_only) {
 		swill_handle("sproject.html", select_project_page, 0);
+		swill_handle("replacements.html", replacements_page, 0);
+		swill_handle("xreplacements.html", xreplacements_page, NULL);
 		swill_handle("options.html", options_page, 0);
 		swill_handle("soptions.html", set_options_page, 0);
 		swill_handle("save_options.html", save_options_page, 0);
