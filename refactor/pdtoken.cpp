@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.89 2004/07/24 10:44:23 dds Exp $
+ * $Id: pdtoken.cpp,v 1.90 2004/07/24 17:25:36 dds Exp $
  */
 
 #include <iostream>
@@ -1071,10 +1071,13 @@ MCall *
 Pdtoken::get_body_token_macro_mcall(Tokid t)
 {
 	mapMacroBody::const_iterator i;
-	cout << "Looking for " << t << " in " << macro_body_tokens.size() << " macro body elements\n";
-	cout << "Map contents:\n";
-	for (i = macro_body_tokens.begin(); i != macro_body_tokens.end(); i++)
+
+	if (DP()) {
+		cout << "Looking for " << t << " in " << macro_body_tokens.size() << " macro body elements\n";
+		cout << "Map contents:\n";
+		for (i = macro_body_tokens.begin(); i != macro_body_tokens.end(); i++)
 		cout << i->first << "\n";
+	}
 	i = macro_body_tokens.find(t);
 	if (i == macro_body_tokens.end())
 		return NULL;
