@@ -1,4 +1,4 @@
-$Id: todo,v 1.54 2004/07/29 14:33:53 dds Exp $
+$Id: todo,v 1.55 2004/07/29 18:37:05 dds Exp $
 
 Maintain file coverage analysis (%) as a metric
 
@@ -27,27 +27,8 @@ function specifier:
 type qualifier:
 	restrict
 
-Document function graph
-	Do not crash in undeclared function identifiers
-
-Function information
-	Per file: Declared functions and function-like macros
-	Functions
-		Function metrics
-		All functions
-		Project-scoped writable functions
-		File-scoped writable functions
-		Functions that are never called
-		Functions called only once
-		Call graph
-			With function names
-			With function and file names
-			With function and file path names
-		Call graph in GraphViz dot format
-			Without function names
-			With function names
-			With function and file names
-			With function and file path names
+Document function functionality (remember, it is more than
+the function section).
 
 Borland configuration file
 Solaris compilation
@@ -63,6 +44,8 @@ lex preprocessor / hooks
 	#pragma nosync (default. Input is parsed, but unify is a null op)
 
 C99 extensions
+
+errno monitoring
 
 Convert color to cgi/command-line
 

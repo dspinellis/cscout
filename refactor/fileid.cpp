@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.30 2004/07/23 06:55:38 dds Exp $
+ * $Id: fileid.cpp,v 1.31 2004/07/29 18:37:05 dds Exp $
  */
 
 #include <map>
@@ -187,6 +187,17 @@ const string&
 Fileid::get_path() const
 {
 	return i2d[id].get_name();
+}
+
+const string
+Fileid::get_fname() const
+{
+	const string &path = i2d[id].get_name();
+	string::size_type slash = path.find_last_of("/\\");
+	if (slash == string::npos)
+		return string(path);
+	else
+		return string(path, slash + 1);
 }
 
 

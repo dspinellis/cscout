@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.23 2004/07/25 14:11:24 dds Exp $
+ * $Id: fileid.h,v 1.24 2004/07/29 18:37:05 dds Exp $
  */
 
 #ifndef FILEID_
@@ -133,6 +133,7 @@ public:
 	Fileid() { *this = Fileid::anonymous; };
 	// Return the full file path of a given id
 	const string& get_path() const;
+	const string get_fname() const;
 	// Handle the read-only file detail information
 	bool get_readonly() const;
 	void set_readonly(bool r);
