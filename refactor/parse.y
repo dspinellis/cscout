@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.11 2001/09/14 10:09:51 dds Exp $
+ * $Id: parse.y,v 1.12 2001/09/14 15:48:59 dds Exp $
  *
  */
 
@@ -662,11 +662,19 @@ labeled_statement:
         | DEFAULT ':' statement
         ;
 
+brace_begin: '{' 
+			{ Block::enter(); }
+	;
+
+brace_end: '}' 
+			{ Block::exit(); }
+	;
+
 compound_statement:
-        '{' '}'
-        | '{' declaration_list '}'
-        | '{' statement_list '}'
-        | '{' declaration_list statement_list '}'
+        brace_begin brace_end
+        | brace_begin declaration_list brace_end
+        | brace_begin statement_list brace_end
+        | brace_begin declaration_list statement_list brace_end
         ;
 
 declaration_list:
@@ -698,7 +706,7 @@ iteration_statement:
 
 jump_statement:
         GOTO identifier_or_typedef_name ';'
-		{ label_define($2.get_token()); }
+		{ label_use($2.get_token()); }
         | CONTINUE ';'
         | BREAK ';'
         | RETURN comma_expression_opt ';'
