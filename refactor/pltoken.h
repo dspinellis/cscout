@@ -21,7 +21,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.2 2001/08/18 22:01:19 dds Exp $
+ * $Id: pltoken.h,v 1.3 2001/08/18 22:02:57 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -49,13 +49,13 @@ void
 Pltoken::getnext()
 {
 	int n;
-	Fchar cn1 = Fchar::empty;
+	C cn1 = C::empty;
 
 again:
-	Fchar c0;
+	C c0;
 	switch (c0.get_char()) {
 	/* 
-	 * Single character Fchar operators and punctuators 
+	 * Single character C operators and punctuators 
 	 * ANSI 3.1.5 p. 32 and 3.1.6 p. 33
 	 */
 	case '\n':	// Needed for processing directives
@@ -68,15 +68,15 @@ again:
 		val = (char)(code = c0.get_char());
 		break;
 	/* 
-	 * Double character Fchar tokens with more than 2 different outcomes 
+	 * Double character C tokens with more than 2 different outcomes 
 	 * (e.g. +, +=, ++)
 	 */
 	case '+':
-		cn1 = Fchar();
+		cn1 = C();
 		switch (cn1.get_char()) {
 		case '+': val = "++"; code = INC_OP; break;
 		case '=': val = "+="; code = ADD_ASSIGN; break;
-		default:  Fchar::putback(cn1); val = (char)(code = '+'); break;
+		default:  C::putback(cn1); val = (char)(code = '+'); break;
 		}
 		break;
 #ifdef ndef
@@ -164,7 +164,7 @@ again:
 		}
 		delete (c0);
 		break;
-	case '#':	/* Fchar-preprocessor token only */
+	case '#':	/* C-preprocessor token only */
 		incpp = true;			// Overkill, but good enough
 		cn1 = in_get();
 		if (cn1->get_char() == '=') {
@@ -204,7 +204,7 @@ again:
 		break;
 	case '<':
 		if (incpp) {
-			// Fchar preprocessor #include <filename>
+			// C preprocessor #include <filename>
 			cn = NULL;
 			cn1 = c0;
 			do {
@@ -324,13 +324,13 @@ again:
 #endif // ndef
 	/* 
 	 * Convert whitespace into a single token; whitespace is needed
-	 * by the Fchar preprocessor.
+	 * by the C preprocessor.
 	 */
 	case ' ': case '\t': case '\v': case '\f': case '\r':
 		do {
-			c0 = Fchar();
+			c0 = C();
 		} while (c0.get_char() != EOF && isspace(c0.get_char()));
-		Fchar::putback(c0);
+		C::putback(c0);
 		val = " ";
 		code = SPACE;
 		break;
@@ -363,7 +363,7 @@ again:
 		Tokid base = c0.get_tokid();
 		Tokid follow = base;
 		for (;;) {
-			cn1 = Fchar();
+			cn1 = C();
 			follow++;
 			if (cn1.get_char() == EOF ||
 		            (!isalnum(cn1.get_char()) && cn1.get_char() != '_'))
@@ -377,7 +377,7 @@ again:
 			}
 			val += cn1.get_char();
 		}
-		Fchar::putback(cn1);
+		C::putback(cn1);
 		dequeTokid new_tokids = base.constituents(follow - base);
 		copy(new_tokids.begin(), new_tokids.end(), back_inserter(parts));
 		// Later it will become TYPE_NAME, IDENTIFIER, or reserved word
@@ -425,7 +425,7 @@ again:
 	case '"':
 	string_literal:
 		if (incpp) {
-			// Fchar preprocessor #include "filename"
+			// C preprocessor #include "filename"
 			cn = NULL;
 			cn1 = c0;
 			do {
