@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.3 2004/07/24 07:56:06 dds Exp $
+ * $Id: call.cpp,v 1.4 2004/07/24 10:44:23 dds Exp $
  */
 
 #include <map>
@@ -51,9 +51,30 @@ Call::fun_map Call::all;
 void
 Call::register_call(Call *f)
 {
+	register_call(f->get_tokid(), f);
+}
+
+// The current function makes a call to id
+void
+Call::register_call(const Id *id)
+{
+	register_call(id->get_token(), id);
+}
+
+// The current function (token t) makes a call to id
+void
+Call::register_call(const Token &t, const Id *id)
+{
+	register_call(t.constituents().begin()->get_tokid(), id->get_fcall());
+}
+
+// The current function (tokid t) makes a call to f
+void
+Call::register_call(Tokid t, Call *f)
+{
 	if (!current_fun)
 		return;
-	const Macro *m = Pdtoken::get_body_token_macro(f->get_tokid());
+	MCall *m = Pdtoken::get_body_token_macro_mcall(t);
 	Call *caller;
 
 	if (m)
@@ -61,15 +82,12 @@ Call::register_call(Call *f)
 		 * f appears in a macro body, so this is a call
 		 * from the macro to the function.
 		 */
-		caller = m->get_mcall();
+		caller = m;
 	else
 		// Function to function call
 		caller = current_fun;
 
-	caller->add_call(f);
-	f->add_caller(caller);
-	if (DP())
-		cout << caller->name << " calls " << f->name << "\n";
+	register_call(caller, f);
 }
 
 // From calls to
@@ -111,4 +129,13 @@ Call::clear_visit_flags()
 {
 	for (const_fmap_iterator_type i = all.begin(); i != all.end(); i++)
 		i->second->visited = false;
+}
+
+Call *
+Call::get_call(Tokid t)
+{
+	const_fmap_iterator_type f = all.find(t);
+	if (DP())
+		cout << "Get call for " << t << " returns " << f->second << "\n";
+	return f == all.end() ? NULL : f->second;
 }

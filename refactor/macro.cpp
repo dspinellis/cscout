@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.25 2004/07/24 06:54:37 dds Exp $
+ * $Id: macro.cpp,v 1.26 2004/07/24 10:44:23 dds Exp $
  */
 
 #include <iostream>
@@ -395,6 +395,8 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		mapArgval args;			// Map from formal name to value
 		bool do_stringize;
 
+		if (DP())
+			cout << "Expanding " << m << " inside " << caller << "\n";
 		if (caller && caller->is_function)
 			// Macro to macro call
 			Call::register_call(caller->get_mcall(), m.get_mcall());
@@ -630,7 +632,7 @@ Macro::register_macro_body(mapMacroBody &map) const
 {
 	for (dequePtoken::const_iterator i = value.begin(); i != value.end(); i++)
 		for (dequeTpart::const_iterator j = i->get_parts_begin(); j != i->get_parts_end(); j++)
-			map[j->get_tokid()] = this;
+			map[j->get_tokid()] = this->mcall;
 }
 
 // Constructor
@@ -638,5 +640,9 @@ Macro::Macro( const Ptoken& name, bool id) :
 	name_token(name),
 	is_defined(id)
 {
-	mcall = new MCall(name, name.get_name());
+	mcall = dynamic_cast<MCall *>(Call::get_call(name.get_parts_begin()->get_tokid()));
+	if (!mcall)
+		mcall = new MCall(name, name.get_name());
+	if (DP())
+		cout << "Mcall is " << mcall << "\n";
 }

@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.3 2004/07/24 07:56:06 dds Exp $
+ * $Id: call.h,v 1.4 2004/07/24 10:44:23 dds Exp $
  */
 
 #ifndef CALL_
@@ -43,8 +43,15 @@ protected:
 	Tokid tokid;
 
 public:
+	// The current function makes a call to id
+	static void register_call(const Id *id);
 	// The current function makes a call to f
 	static void register_call(Call *f);
+	// The current function (token t) makes a call to f
+	static void register_call(const Token &t, const Id *id);
+	// The current function (tokid t) makes a call to f
+	static void register_call(Tokid t, Call *f);
+
 	// A call from from to to
 	static void register_call(Call *from, Call *to);
 
@@ -55,6 +62,9 @@ public:
 	typedef fun_map::const_iterator const_fmap_iterator_type;
 	static const_fmap_iterator_type fbegin() { return all.begin(); }
 	static const_fmap_iterator_type fend() { return all.end(); }
+
+	// Get a call site for a given Tokid
+	static Call *get_call(Tokid t);
 
 	const string &get_name() const { return name; }
 	bool contains(Eclass *e) const;

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.88 2004/07/24 06:54:37 dds Exp $
+ * $Id: pdtoken.cpp,v 1.89 2004/07/24 10:44:23 dds Exp $
  */
 
 #include <iostream>
@@ -381,7 +381,7 @@ void
 Pdtoken::create_undefined_macro(const Ptoken &name)
 {
 	name.set_ec_attribute(is_undefined_macro);
-	macros[name.get_val()] = Macro(name, false);
+	macros.insert(mapMacro::value_type(name.get_val(), Macro(name, false)));
 }
 
 void
@@ -731,7 +731,7 @@ Pdtoken::process_define()
 			if (DP()) cout << (*i).second;
 		} else
 			Token::unify((*i).second.get_name_token(), nametok);
-	macros[name] = m;
+	macros.insert(mapMacro::value_type(name, m));
 	m.register_macro_body(macro_body_tokens);
 	if (DP()) cout << "Macro define " << m;
 }
@@ -1067,6 +1067,20 @@ Pdtoken::process_directive()
 }
 
 
+MCall *
+Pdtoken::get_body_token_macro_mcall(Tokid t)
+{
+	mapMacroBody::const_iterator i;
+	cout << "Looking for " << t << " in " << macro_body_tokens.size() << " macro body elements\n";
+	cout << "Map contents:\n";
+	for (i = macro_body_tokens.begin(); i != macro_body_tokens.end(); i++)
+		cout << i->first << "\n";
+	i = macro_body_tokens.find(t);
+	if (i == macro_body_tokens.end())
+		return NULL;
+	else
+		return i->second;
+}
 
 #ifdef UNIT_TEST
 

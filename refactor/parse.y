@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.93 2004/07/23 06:55:38 dds Exp $
+ * $Id: parse.y,v 1.94 2004/07/24 10:44:23 dds Exp $
  *
  */
 
@@ -349,7 +349,7 @@ primary_expression:
 					Token::unify(id->get_token(), $1.get_token());
 					$$ = id->get_type();
 					if ($$.is_function())
-						FCall::register_call(id->get_fcall());
+						FCall::register_call($1.get_token(), id);
 				} else {
 					/*
 					 * @error

@@ -1,4 +1,4 @@
-$Id: todo,v 1.47 2004/07/24 06:54:37 dds Exp $
+$Id: todo,v 1.48 2004/07/24 10:44:23 dds Exp $
 
 Handle conditional compilation!!!!
 Each conditional compilation statement can be trivially handled by creating
@@ -41,6 +41,7 @@ Document function graph
 		Memory management of macro calls
 		Unification through seperate linking
 	We probably need to think hard about an eclass based implementation
+	Do not crash in undeclared function identifiers
 
 Function information
 	Per file: Defined functions and function-like macros

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.39 2004/07/23 06:55:38 dds Exp $
+ * $Id: type.cpp,v 1.40 2004/07/24 10:44:23 dds Exp $
  */
 
 #include <iostream>
@@ -105,7 +105,7 @@ Tidentifier::call() const
 	obj_define(this->get_token(), function_returning(basic(b_int)));
 	Id const *id = obj_lookup(this->get_name());
 	assert(id);
-	FCall::register_call(id->get_fcall());
+	FCall::register_call(this->get_token(), id);
 	/*
 	 * @error
 	 * An undeclared identifier is used as a function

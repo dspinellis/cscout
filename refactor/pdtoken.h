@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.26 2004/07/24 06:54:37 dds Exp $
+ * $Id: pdtoken.h,v 1.27 2004/07/24 10:44:23 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -82,13 +82,7 @@ public:
 	// boundaries, even when they lack an explicit newline at their end
 	static void file_switch() { at_bol = true; };
 	// Return the macro where a given token resides
-	static const Macro * get_body_token_macro(Tokid t) {
-		mapMacroBody::const_iterator i = macro_body_tokens.find(t);
-		if (i == macro_body_tokens.end())
-			return NULL;
-		else
-			return i->second;
-	}
+	static MCall *get_body_token_macro_mcall(Tokid t);
 };
 
 
