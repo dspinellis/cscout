@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.4 2002/09/17 10:53:02 dds Exp $
+ * $Id: attr.cpp,v 1.5 2002/12/15 17:40:01 dds Exp $
  */
 
 #include <map>
@@ -28,7 +28,7 @@
 // Leave space for a single project-attribute
 int Attributes::size = attr_max + 1;
 
-int Project::projid = attr_max - 1;
+int Project::projid = attr_max;
 // Maps between ids and names
 map<string, int> Project::projids;
 vector<string> Project::projnames(attr_max);
