@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.13 2001/09/21 14:14:19 dds Exp $
+ * $Id: type.h,v 1.14 2001/09/22 07:13:00 dds Exp $
  */
 
 #ifndef TYPE_
@@ -65,7 +65,7 @@ protected:
 	virtual void set_storage_class(Type t);	// Set typedef's underlying storage class to t
 	virtual enum e_storage_class get_storage_class() const;// Return the declaration's storage class
 	virtual void add_member(const Token &tok, const Type &typ);
-	virtual Type get_default_specifier();
+	virtual Type get_default_specifier() const;
 	virtual void merge_with(Type t);
 	virtual const Stab& get_members() const;
 
