@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.8 2002/09/13 13:00:56 dds Exp $
+ * $Id: color.cpp,v 1.9 2002/09/28 13:22:40 dds Exp $
  */
 
 #include <iostream>
@@ -21,6 +21,7 @@
 
 
 #include "cpp.h"
+#include "metrics.h"
 #include "attr.h"
 #include "ytab.h"
 #include "fileid.h"
@@ -78,7 +79,8 @@ main(int argc, char *argv[])
 		}
 		Block::enter();	// Compilation unit
 		Fchar::set_input(argv[i]);
-		Fchar::push_input("/home/dds/src/refactor/defs.h");
+		Fchar::push_input("/dds/src/research/ie/refactor/wdefs.h");
+		Fchar::push_input("/dds/src/research/ie/refactor/wincs.h");
 		Pdtoken::macros_clear();
 		if (parse_parse() != 0)
 			exit(1);
@@ -112,7 +114,7 @@ main(int argc, char *argv[])
 		if (in.is_open())
 			in.close();
 		in.clear();		// Otherwise flags are dirty and open fails
-		in.open(argv[i]);
+		in.open(argv[i], ios::binary);
 		if (in.fail()) {
 			perror(argv[i]);
 			exit(1);
