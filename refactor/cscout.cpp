@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.41 2003/06/15 15:57:38 dds Exp $
+ * $Id: cscout.cpp,v 1.42 2003/06/15 16:36:45 dds Exp $
  */
 
 #include <map>
@@ -129,6 +129,7 @@ private:
 	string str_fre, str_ire;// Original REs
 	regex_t fre, ire;	// Compiled REs
 	bool match_fre, match_ire;
+	bool exclude_ire;	// Exclude matched identifiers
 	// Attribute match specs
 	vector <bool> match;
 	// Other query arguments
@@ -776,7 +777,9 @@ iquery_page(FILE *of,  void *p)
 	"<br><hr>\n"
 	"<table>\n"
 	"<tr><td>\n"
-	"Identifier names should match RE\n"
+	"Identifier names should "
+	"(<input type=\"checkbox\" name=\"xire\" value=\"1\"> not) \n"
+	" match RE\n"
 	"</td><td>\n"
 	"<INPUT TYPE=\"text\" NAME=\"ire\" SIZE=20 MAXLENGTH=256>\n"
 	"</td></tr>\n"
@@ -830,6 +833,7 @@ IdQuery::IdQuery(FILE *of, bool e, bool r) :
 	xfile = !!swill_getvar("xfile");
 	unused = !!swill_getvar("unused");
 	writable = !!swill_getvar("writable");
+	exclude_ire = !!swill_getvar("xire");
 
 	// Compile regular expression specs
 	char *s;
@@ -894,6 +898,8 @@ IdQuery::url()
 		r += "&writable=1";
 	if (match_ire)
 		r += "&ire=" + ::url(str_ire);
+	if (exclude_ire)
+		r += "&xire=1";
 	if (match_fre)
 		r += "&fre=" + ::url(str_fre);
 	for (int i = 0; i < attr_max; i++) {
@@ -921,7 +927,8 @@ IdQuery::eval(const IdPropElem &i)
 		return (i.first == ec);
 	if (current_project && !i.first->get_attribute(current_project)) 
 		return false;
-	if (match_ire && regexec(&ire, i.second.get_id().c_str(), 0, NULL, 0) == REG_NOMATCH)
+	int retval = exclude_ire ? 0 : REG_NOMATCH;
+	if (match_ire && regexec(&ire, i.second.get_id().c_str(), 0, NULL, 0) == retval)
 		return false;
 	bool add;
 	switch (match_type) {
