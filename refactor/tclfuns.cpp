@@ -3,7 +3,7 @@
  *
  * Tcl interface functions
  *
- * $Id: tclfuns.cpp,v 1.4 2001/10/27 13:46:12 dds Exp $
+ * $Id: tclfuns.cpp,v 1.5 2001/10/27 14:31:48 dds Exp $
  */
 
 #include "appinit.h"
@@ -43,6 +43,12 @@
 #include "type.h"
 #include "stab.h"
 
+// This is set to have erorr handling know the interpeter used
+static Tcl_Interp *global_interp;
+// Fatal error exception
+class Fatal {};
+
+
 /*
  * Function to call from Tcl to instrument the parsing
  * of C source code.
@@ -71,7 +77,13 @@ int ET_COMMAND_push_input(ET_TCLARGS)
 		Et_ResultF(interp, "wrong # args: should be \"%s FILENAME\"", argv[0]);
 		return TCL_ERROR;
 	}
-	Fchar::push_input(argv[1]);
+	global_interp = interp;
+	try {
+		Fchar::push_input(argv[1]);
+		Tcl_SetResult(interp, "0", TCL_STATIC);
+	} catch (Fatal) {
+		Tcl_SetResult(interp, "1", TCL_STATIC);
+	}
 	return TCL_OK;
 }
 
@@ -81,7 +93,13 @@ int ET_COMMAND_set_input(ET_TCLARGS)
 		Et_ResultF(interp, "wrong # args: should be \"%s FILENAME\"", argv[0]);
 		return TCL_ERROR;
 	}
-	Fchar::set_input(argv[1]);
+	global_interp = interp;
+	try {
+		Fchar::set_input(argv[1]);
+		Tcl_SetResult(interp, "0", TCL_STATIC);
+	} catch (Fatal) {
+		Tcl_SetResult(interp, "1", TCL_STATIC);
+	}
 	return TCL_OK;
 }
 
@@ -116,14 +134,10 @@ int ET_COMMAND_workspace_clear(ET_TCLARGS)
 	return TCL_OK;
 }
 
-static Tcl_Interp *parse_interp;
-
-class Fatal {};
-
 int ET_COMMAND_parse(ET_TCLARGS)
 {
 	int parse_parse();
-	parse_interp = interp;
+	global_interp = interp;
 	try {
 		if (parse_parse() == 0)
 			Tcl_SetResult(interp, "0", TCL_STATIC);
@@ -171,12 +185,14 @@ Error::error(enum e_error_level level, string msg, bool showloc = true)
 	case E_FATAL: out += "fatal error: "; break;
 	}
 	out += msg;
-	Et_EvalF(parse_interp, "showerror \"%q\"", out.c_str());
+	Et_EvalF(global_interp, "showerror \"%q\"", out.c_str());
 	switch (level) {
 	case E_WARN: num_warnings++; break;
 	case E_ERR: num_errors++; break;
 	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
-	case E_FATAL: throw Fatal(); break;
+	case E_FATAL: 
+		num_errors++;
+		throw Fatal(); 
 	}
 	if (DP()) cout << "Error: " << out << "\n";
 }
