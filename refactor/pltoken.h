@@ -22,7 +22,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.9 2001/08/20 18:00:41 dds Exp $
+ * $Id: pltoken.h,v 1.10 2001/08/21 12:28:28 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -38,6 +38,7 @@ private:
 	static enum e_cpp_context context;
 public:
 	template <class C> void getnext();
+	template <class C> void getnext_nospc();
 	static void set_context(enum e_cpp_context c) { context = c; };
 };
 
@@ -434,6 +435,15 @@ Pltoken::getnext()
 	default:
 		val = (char)(code = c0.get_char());
 	}
+}
+
+template <class C>
+void
+Pltoken::getnext_nospc()
+{
+	do {
+		getnext<C>();
+	} while (code == SPACE);
 }
 
 #endif // PLTOKEN
