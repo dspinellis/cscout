@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.61 2003/08/16 15:54:43 dds Exp $
+ * $Id: cscout.cpp,v 1.62 2003/08/16 21:36:42 dds Exp $
  */
 
 #include <map>
@@ -1582,7 +1582,7 @@ warning_report()
 		  "T:writable:obj:pscope" }, // xfile is implicitly 0
 	};
 
-	for (int i = 0; i < sizeof(reports) / sizeof(reports[0]); i++) {
+	for (unsigned i = 0; i < sizeof(reports) / sizeof(reports[0]); i++) {
 		IdQuery query(reports[i].query);
 
 		assert(query.is_valid());
