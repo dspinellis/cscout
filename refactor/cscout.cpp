@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.94 2004/07/30 17:19:03 dds Exp $
+ * $Id: cscout.cpp,v 1.95 2004/07/31 12:35:38 dds Exp $
  */
 
 #include <map>
@@ -1260,6 +1260,54 @@ set_options_page(FILE *fo, void *p)
 		index_page(fo, p);
 }
 
+// Save options in .cscout
+static void
+save_options_page(FILE *fo, void *p)
+{
+	FILE *f= fopen(".cscout", "w");
+	html_head(fo, "save_options", "Options Saved");
+	if (f == NULL) {
+		perror(".cscout");
+		fprintf(fo, "Unable to open the file .cscout");
+		return;
+	}
+	fprintf(f, "remove_fp=%d\n", remove_fp);
+	fprintf(f, "sort_rev=%d\n", Query::sort_rev);
+	fprintf(f, "show_true=%d\n", show_true);
+	fprintf(f, "show_line_number=%d\n", show_line_number);
+	fprintf(f, "file_icase=%d\n", file_icase);
+	fprintf(f, "cgraph_type=%c\n", cgraph_type);
+	fprintf(f, "cgraph_show=%c\n", cgraph_show);
+	fprintf(f, "tab_width=%d\n", tab_width);
+	fclose(f);
+	fprintf(fo, "Options have been saved in the file ./.cscout.");
+	fprintf(fo, "They will be loaded when CScout is executed again in this directory.");
+	html_tail(fo);
+}
+
+// Load options from ./.cscout
+static void
+load_options(const char *fname)
+{
+	FILE *f= fopen(fname, "r");
+	if (f == NULL) {
+		perror(fname);
+		fprintf(stderr, "Will use default options\n");
+		return;
+	}
+	int bval;
+	fscanf(f, "remove_fp=%d\n", &bval); remove_fp = (bool)bval;
+	fscanf(f, "sort_rev=%d\n", &bval); Query::sort_rev = (bool)bval;
+	fscanf(f, "show_true=%d\n", &bval); show_true = (bool)bval;
+	fscanf(f, "show_line_number=%d\n", &bval); show_line_number = (bool)bval;
+	fscanf(f, "file_icase=%d\n", &bval); file_icase = (bool)bval;
+	fscanf(f, "cgraph_type=%c\n", &cgraph_type);
+	fscanf(f, "cgraph_show=%c\n", &cgraph_show);
+	fscanf(f, "tab_width=%d\n", &tab_width);
+	fclose(f);
+	fprintf(stderr, "Options loaded from ./.cscout\n");
+}
+
 void
 file_metrics_page(FILE *fo, void *p)
 {
@@ -1555,6 +1603,7 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<h2>Operations</h2>"
 		"<ul>\n"
 		"<li> <a href=\"options.html\">Global options</a>\n"
+		" - <a href=\"save_options.html\">save global options</a>\n"
 		"<li> <a href=\"sproject.html\">Select active project</a>\n"
 		"<li> <a href=\"sexit.html\">Exit - saving changes</a>\n"
 		"<li> <a href=\"qexit.html\">Exit - ignore changes</a>\n"
@@ -1912,6 +1961,7 @@ usage(char *fname)
 		"\t-c\tProcess the file and exit\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
+		"\t-o file\tLoad options from file (instead of ./.cscout)\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
 		"\t-r\tGenerate an identifier and include file warning report\n"
@@ -1941,7 +1991,8 @@ main(int argc, char *argv[])
 #endif
 
 
-	while ((c = getopt(argc, argv, "crvEp:m:")) != EOF)
+	bool options_loaded = false;
+	while ((c = getopt(argc, argv, "crvEp:m:o:")) != EOF)
 		switch (c) {
 		case 'E':
 			preprocess = true;
@@ -1960,6 +2011,12 @@ main(int argc, char *argv[])
 			if (!optarg)
 				usage(argv[0]);
 			monitor = IdQuery(optarg);
+			break;
+		case 'o':
+			if (!optarg)
+				usage(argv[0]);
+			options_loaded = true;
+			load_options(optarg);
 			break;
 		case 'r':
 			report = true;
@@ -1983,6 +2040,9 @@ main(int argc, char *argv[])
 			usage(argv[0]);
 		}
 
+
+	if (!options_loaded)
+		load_options(".cscout");
 
 	// We require exactly one argument
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
@@ -2022,6 +2082,7 @@ main(int argc, char *argv[])
 		swill_handle("sproject.html", select_project_page, 0);
 		swill_handle("options.html", options_page, 0);
 		swill_handle("soptions.html", set_options_page, 0);
+		swill_handle("save_options.html", save_options_page, 0);
 		swill_handle("sexit.html", write_quit_page, 0);
 		swill_handle("qexit.html", quit_page, 0);
 	}
