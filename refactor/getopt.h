@@ -1,5 +1,5 @@
 /*
- * $Id: getopt.h,v 1.1 2003/07/07 13:36:54 dds Exp $
+ * $Id: getopt.h,v 1.2 2003/07/07 23:08:25 dds Exp $
  */
  
 #ifdef __cplusplus
@@ -8,7 +8,7 @@ extern "C" {
 
 extern char	*optarg;	/* Global argument pointer. */
 extern int	optind;		/* Global argv index. */
-int getopt(int argc, char *argv[], char *optstring);
+int getopt(int argc, char * const argv[], const char *optstring);
 
 #ifdef __cplusplus
 };
