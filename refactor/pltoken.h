@@ -22,7 +22,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.7 2001/08/20 17:05:40 dds Exp $
+ * $Id: pltoken.h,v 1.8 2001/08/20 17:54:13 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -303,14 +303,14 @@ Pltoken::getnext()
 		break;
 	/* Could be a long character or string */
 	case 'L':
-		c0.getnext();
-		switch (c0.get_char()) {
+		c1.getnext();
+		switch (c1.get_char()) {
 		case '\'':
 			goto char_literal;
 		case '"':
 			goto string_literal;
 		default:
-			C::putback(c0);
+			C::putback(c1);
 			goto identifier;
 		}
 	case '_': case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': 
@@ -369,7 +369,7 @@ Pltoken::getnext()
 			val += c0.get_char();
 			n++;
 		}
-		val = CHAR_LITERAL;
+		code = CHAR_LITERAL;
 		if (n == 0)
 			Error::error(E_WARN, "Empty character literal");
 		if (c0.get_char() == EOF)
