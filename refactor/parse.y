@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.84 2003/08/16 11:33:46 dds Exp $
+ * $Id: parse.y,v 1.85 2003/08/16 14:04:12 dds Exp $
  *
  */
 
@@ -1330,6 +1330,7 @@ labeled_statement:
         identifier_or_typedef_name ':'
 		{ label_define($1.get_token()); }
         | CASE constant_expression ':'
+        | CASE constant_expression ELLIPSIS constant_expression ':'
         | DEFAULT ':'
         ;
 
