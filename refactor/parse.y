@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.55 2003/06/21 15:06:35 dds Exp $
+ * $Id: parse.y,v 1.56 2003/06/22 17:42:44 dds Exp $
  *
  */
 
@@ -1661,7 +1661,7 @@ yacc_variable_suffix:
 
 equal_opt:
 	/* Empty */
-	'='
+	| '='
 	;
 
 %%
