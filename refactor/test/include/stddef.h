@@ -1,4 +1,8 @@
-/*	$NetBSD: stddef.h,v 1.4 1994/10/26 00:56:26 cgd Exp $	*/
+/* 
+ * CScout ANSI C generic include file 
+ * $Id: stddef.h,v 1.2 2003/06/18 17:35:52 dds Exp $
+ */
+
 
 /*-
  * Copyright (c) 1990 The Regents of the University of California.
