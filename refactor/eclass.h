@@ -9,13 +9,11 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.3 2001/08/17 11:57:20 dds Exp $
+ * $Id: eclass.h,v 1.4 2001/08/17 12:21:42 dds Exp $
  */
 
 #ifndef ECLASS_
 #define ECLASS_
-
-typedef deque <Tokid> dequeTokid;
 
 class Eclass {
 private:
