@@ -1,16 +1,20 @@
-$Id: todo,v 1.20 2003/05/27 19:57:35 dds Exp $
+$Id: todo,v 1.21 2003/05/28 12:18:56 dds Exp $
 
 Web page
 documentation
 Borland configuration file
 Solaris compilation
+experiment with hashmap performance
 
 ceescape (swill) front end:
 
+Add option to show file with global unused writable identifiers marked
+Add option to show files containing strings
+Use query name in show with marked identifiers pages
 
 Show project and workspace metrics
 
-yacc and lex preprocessor
+yacc and lex preprocessor / hooks
 
 Convert color to cgi/command-line
 
