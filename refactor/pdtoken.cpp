@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.45 2001/09/03 10:15:26 dds Exp $
+ * $Id: pdtoken.cpp,v 1.46 2001/09/03 10:26:26 dds Exp $
  */
 
 #include <iostream>
@@ -515,7 +515,7 @@ Pdtoken::process_define()
 		lead = false;
 		m.value_push_back(t);
 		mapToken::const_iterator i;
-		if ((i = args.find(t.get_val())) != args.end())
+		if (t.get_code() == IDENTIFIER && (i = args.find(t.get_val())) != args.end())
 			unify(t, (*i).second);
 		t.template getnext<Fchar>();
 	}
