@@ -1,13 +1,14 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.9 2001/09/10 13:48:54 dds Exp $
+# $Id: Makefile,v 1.10 2001/09/12 09:51:09 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.tab.o ctoken.o macro.o \
 parse.o type.o stab.o
 
+YACC=btyacc
 CC=g++
 CPPFLAGS=-pipe -g
 
@@ -41,9 +42,11 @@ eval.tab.c: eval.y
 	$(YACC) -b eval -p eval_ eval.y
 
 parse.cpp: parse.y
+	#$(YACC) -d -b parse parse.y
+	#sed 's/yy/parse_/g' parse_tab.c >parse.cpp
 	$(YACC) -d -b parse -p parse_ parse.y
-	mv parse.tab.c parse.cpp
-	grep define parse.tab.h >ytab.h
+	mv parse_tab.c parse.cpp
+	grep 'define ' parse_tab.h >ytab.h
 	perl tokname.pl ytab.h tokname.cpp
 
 # Test
