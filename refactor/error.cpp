@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.5 2001/10/27 16:42:38 dds Exp $
+ * $Id: error.cpp,v 1.6 2002/09/04 11:08:14 dds Exp $
  */
 
 #include <iostream>
@@ -13,6 +13,7 @@
 #include <stack>
 #include <deque>
 #include <map>
+#include <vector>
 
 #include "fileid.h"
 #include "cpp.h"
