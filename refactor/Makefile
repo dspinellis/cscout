@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.12 2001/09/14 08:26:06 dds Exp $
+# $Id: Makefile,v 1.13 2001/09/15 16:23:41 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -44,8 +44,11 @@ eval.cpp: eval.y
 	mv eval_tab.c eval.cpp
 
 parse.cpp: parse.y
-	$(YACC) -d -b parse -p parse_ parse.y
+	$(YACC) -b parse -p parse_ parse.y
 	mv parse_tab.c parse.cpp
+
+tokname.cpp: ytoken.h
+	$(YACC) -d -b parse -p parse_ parse.y
 	grep 'define ' parse_tab.h >ytab.h
 	perl tokname.pl ytab.h tokname.cpp
 
