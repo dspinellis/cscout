@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.31 2004/07/23 06:55:38 dds Exp $
+ * $Id: type.h,v 1.32 2004/07/25 12:46:11 dds Exp $
  */
 
 #ifndef TYPE_
@@ -222,6 +222,7 @@ public:
 	bool is_valid() const		{ return p->is_valid(); }
 	bool is_basic() const		{ return p->is_basic(); }
 	bool is_padbit() const		{ return p->is_padbit(); }
+	bool is_static() const		{ return p->is_static(); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
 	bool is_array() const		{ return p->is_array(); }

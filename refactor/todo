@@ -1,4 +1,4 @@
-$Id: todo,v 1.51 2004/07/25 11:47:35 dds Exp $
+$Id: todo,v 1.52 2004/07/25 12:46:11 dds Exp $
 
 Maintain file coverage analysis (%) as a metric
 
@@ -44,6 +44,8 @@ Function information
 		All functions
 		Project-scoped writable functions
 		File-scoped writable functions
+		Functions that are never called
+		Functions called only once
 		Call graph
 		Call graph in GraphViz dot format
 			Without function names
