@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.12 2003/07/08 08:48:12 dds Exp $
+# $Id: cswc.pl,v 1.13 2003/10/13 07:46:16 dds Exp $
 #
 
 # Syntax:
@@ -42,7 +42,7 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.12 $';
+	my $rel = '$Revision: 1.13 $';
 	$rel =~ s/\//;
 	$rel =~ s/\$//;
 	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
@@ -168,7 +168,11 @@ sub beginunit
 		print "#pragma block_enter\n";
 		print "#pragma clear_defines\n";
 		print "#pragma clear_include\n";
-		print "#include \"$instdir/cscout_defs.h\"\n";
+		if ($opt_E) {
+			print "#include \"$instdir/cscout_defs.h\"\n";
+		} else {
+			print "#pragma process \"$instdir/cscout_defs.h\"\n";
+		}
 	}
 }
 
