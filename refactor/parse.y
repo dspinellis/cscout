@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.70 2003/08/02 20:14:16 dds Exp $
+ * $Id: parse.y,v 1.71 2003/08/03 07:48:25 dds Exp $
  *
  */
 
@@ -936,6 +936,7 @@ member_declaration:
 		{ $$ = $1; }
         | member_default_declaring_list ';'
 		{ $$ = $1; }
+	| ';'
         ;
 
 member_default_declaring_list:        /* doesn't redeclare typedef */
