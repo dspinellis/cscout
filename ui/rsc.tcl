@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.11 2001/09/29 18:08:08 dds Exp $
+# $Id: rsc.tcl,v 1.12 2001/09/29 19:19:59 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -104,9 +104,9 @@ menu $m -tearoff 0
 .menu add cascade -label "Insert" -menu $m -underline 0
 $m add command -label "Project" -command insert_project
 $m add separator
-$m add command -label "File to Project"
-$m add command -label "Directory files to Project"
-$m add command -label "Hierarchy files to Project"
+$m add command -label "File to Project" -command insert_file
+$m add command -label "Directory Files to Project"
+$m add command -label "Hierarchy Files to Project"
 $m add command -label "File to all Projects"
 
 
@@ -243,8 +243,6 @@ iwidgets::hierarchy $tabfiles.hier -querycommand "get_workspace %n" -alwaysquery
 -selectbackground blue -selectcommand "select_workspace {%n} %s"
 pack $tabfiles.hier -expand yes -fill both
 
-# Default selection is the workspace
-$tabfiles.hier selection add wp
 
 ######################################################
 # Matched Files
@@ -416,17 +414,34 @@ proc ierror {msg} {
 proc select_workspace {uid sel} {
 	global tabfiles
 	global out
+
+	# Update selection
 	$tabfiles.hier selection clear
 	$tabfiles.hier selection add $uid
+
+	# Update settings tab
 	if {[regexp ^wp $uid]} {
+		# A workspace entry has been selected; enable settings
 		$out.l pageconfigure Settings -state normal
 		settings_refresh
 	} else {
 		$out.l pageconfigure Settings -state disabled
 		$out.l select Output
 	}
-		
+
+	# Enable/disable project menus based on selection
+	if {[regexp {^wp/[^/]*$} $uid]} {
+		set projstate normal
+	} else {
+		set projstate disabled
+	}
+	.menu.edit entryconfigure "Remove Project" -state $projstate
+	.menu.edit entryconfigure "Rename Project" -state $projstate
+	.menu.insert entryconfigure "File to Project" -state $projstate
+	.menu.insert entryconfigure "Directory Files to Project" -state $projstate
+	.menu.insert entryconfigure "Hierarchy Files to Project" -state $projstate
 }
+
 
 # Called to populate the workspace hierarchy
 proc get_workspace {uid} {
@@ -446,7 +461,18 @@ proc get_workspace {uid} {
 	} elseif {$uid == "wp"} {
 		set r {}
 		foreach i [array names name] {
-			lappend r [list $i $name($i) branch]
+			if {[regexp {^wp/[^/]*$} $i]} {
+				lappend r [list $i $name($i) branch]
+			}
+		}
+		return $r
+	} elseif {[regexp {^wp/[^/]*$} $uid]} {
+		# uid is of the type wp/project
+		set r {}
+		foreach i [array names name] {
+			if {[regexp "^$uid/" $i]} {
+				lappend r [list $i $name($i) branch]
+			}
 		}
 		return $r
 	} else {
@@ -495,6 +521,9 @@ proc emancipate {entry} {
 	if {![info exists macro($entry)]} {
 		# So far we have been inheriting our parent; get our own
 		set parent [parent $entry]
+		if {![info exists macro($parent)]} {
+			emancipate $parent
+		}
 		set readonly($entry) $readonly($parent)
 		set dir($entry) $dir($parent)
 		set macro($entry) $macro($parent)
@@ -502,13 +531,27 @@ proc emancipate {entry} {
 	}
 }
 
+# Return the current workspace selection
+proc wp_getentry {} {
+	global tabfiles
+
+	return [lindex [$tabfiles.hier selection get] 0]
+}
+
+# Return the current project (assume that a project is selected)
+proc wp_getproject {} {
+	set entry [wp_getentry]
+	regsub {^wp/} $entry {} entry
+	regsub {/.*} $entry {} entry
+	return $entry
+}
+
 # Add a new macro in an entry's settings
 proc macro_add {} {
-	global tabfiles
 	global macro
 
 	if {[.dialog_macro_define activate]} {
-		set entry [lindex [$tabfiles.hier selection get] 0]
+		set entry [wp_getentry]
 		emancipate $entry
 		lappend macro($entry) [.dialog_macro_define get]
 	}
@@ -517,13 +560,12 @@ proc macro_add {} {
 
 # Delete a macro definition
 proc macro_delete {} {
-	global tabfiles
 	global tabsettings
 	global macro
 
-	set entry [lindex [$tabfiles.hier selection get] 0]
 	set sel [$tabsettings.mi.macro.list curselection]
 	if {$sel != {}} {
+		set entry [wp_getentry]
 		emancipate $entry
 		set macro($entry) [lreplace $macro($entry) $sel $sel]
 	}
@@ -533,11 +575,10 @@ proc macro_delete {} {
 
 # Refresh the Settings tab contents based on the current workspace selection
 proc settings_refresh {} {
-	global tabfiles
 	global tabsettings
 	global macro
 
-	set entry [lindex [$tabfiles.hier selection get] 0]
+	set entry [wp_getentry]
 	while {![info exists macro($entry)]} {
 		# We are inheriting our parent
 		set entry [parent $entry]
@@ -546,4 +587,29 @@ proc settings_refresh {} {
 	foreach i $macro($entry) {
 		$tabsettings.mi.macro.list insert end $i
 	}
+}
+
+# Default selection is the workspace
+select_workspace wp 0
+
+# Insert file to a project
+proc insert_file {} {
+	global name
+	global tabfiles
+	set filename [tk_getOpenFile -filetypes {{"C Source Files" {.c}}}]
+	if {$filename != ""} {
+		# Invoke dialog box to get the project's name
+		set projname [wp_getproject]
+		tk_messageBox -icon info -message "Projname: $projname" -type ok
+		if {[info exists name(wp/$projname/$filename)]} {
+			ierror "File $filename is already used in this project"
+			return
+		}
+		set name(wp/$projname/$filename) $filename
+		# Expand is needed to internally refresh _nodes so that we do not
+		# get a node does not exist error!
+		$tabfiles.hier expand wp/$projname
+		$tabfiles.hier refresh wp/$projname
+	}	
+	# else cancelled
 }
