@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.19 2002/09/13 10:38:20 dds Exp $
+# $Id: Makefile,v 1.20 2002/09/14 17:52:13 dds Exp $
 #
 
 # Common object files
@@ -29,13 +29,17 @@ test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
 test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
 test/empty.c test/def.c test/conddef.c test/concat-empty.c
 
-all: webmap
+all: workdb
+#all: webmap
 #all: color
 #all: engine
 #all: simple_cpp
 
 simple_cpp: simple_cpp.o $(OBJ) $(STANDOBJ)
 	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) $(STANDOBJ) simple_cpp.o
+
+workdb: workdb.o $(STANDOBJ) $(OBJ)
+	$(CC) $(CPPFLAGS) -o workdb $(STANDOBJ) $(OBJ) workdb.o
 
 webmap: webmap.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o webmap $(STANDOBJ) $(OBJ) webmap.o
