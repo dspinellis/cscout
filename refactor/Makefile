@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.59 2003/11/17 13:02:46 dds Exp $
+# $Id: Makefile,v 1.60 2003/12/08 09:16:32 dds Exp $
 #
 
 #
@@ -160,8 +160,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.59 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/11/17 13:02:46 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.60 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/12/08 09:16:32 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -197,6 +197,9 @@ rdist-freefall:
 
 rdist-istlab:
 	tar cvf - $(SRC) | $(SSH) istlab tar -C src/cscout -xvf -
+
+rdist-debian:
+	tar cvf - $(SRC) | $(SSH) debian tar -C src/cscout -xvf -
 
 lf: mkdir
 	chmod +w $(SRC)
