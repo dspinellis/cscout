@@ -25,7 +25,7 @@
  * #include "ytab.h"
  * #include "pltoken.h"
  *
- * $Id: pdtoken.h,v 1.4 2001/08/23 19:41:42 dds Exp $
+ * $Id: pdtoken.h,v 1.5 2001/08/24 12:12:13 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -36,6 +36,9 @@ class Pdtoken;
 typedef list<Pdtoken> listPdtoken;
 
 typedef deque<Pltoken> dequePltoken;
+typedef list<Pltoken> listPltoken;
+typedef set<string> setstring;
+typedef map<string, listPltoken> mapArgval;
 
 // A macro definition
 class Macro {
@@ -58,7 +61,6 @@ private:
 	static bool at_bol;			// At beginning of line
 
 	static void process_directive();	// Handle a cpp directive
-	static void expand_macro(Pltoken m);	// Expand a macro
 	static void eat_to_eol();		// Consume input including \n
 	static void process_include();		// Handle a #include
 	static void process_define();		// Handle a #define
@@ -76,6 +78,7 @@ public:
 	void getnext();
 	// Clear the defined macro table (when changing compilation unit)
 	static void clear_macros() { macros.clear(); }
+	friend bool macro_replace(listPdtoken& tokens, listPdtoken::iterator pos, setstring& tabu, bool get_more);
 };
 
 inline bool

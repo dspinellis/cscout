@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.7 2001/08/23 20:53:27 dds Exp $
+ * $Id: pdtoken.cpp,v 1.8 2001/08/24 12:12:13 dds Exp $
  */
 
 #include <iostream>
@@ -14,6 +14,7 @@
 #include <iterator>
 #include <fstream>
 #include <list>
+#include <set>
 #include <cassert>
 
 #include "cpp.h"
@@ -26,6 +27,7 @@
 #include "error.h"
 #include "pltoken.h"
 #include "pdtoken.h"
+#include "tchar.h"
 
 bool Pdtoken::at_bol = true;
 listPdtoken Pdtoken::expand;
@@ -35,6 +37,7 @@ void
 Pdtoken::getnext()
 {
 	Pltoken t;
+	setstring tabu;				// For macro replacement
 
 expand_get:
 	if (!expand.empty()) {
@@ -63,20 +66,15 @@ again:
 		*this = t;
 		break;
 	case IDENTIFIER:
-		if (macros.find(t.get_val()) != macros.end()) {
-			expand_macro(t);
-			goto expand_get;
-		}
+		expand.push_front(t);
+		tabu.clear();
+		macro_replace(expand, expand.begin(), tabu, true);
+		goto expand_get;
 		// FALLTRHOUGH
 	default:
 		*this = t;
 		break;
 	}
-}
-
-void
-Pdtoken::expand_macro(Pltoken t)
-{
 }
 
 // Consume input up to (and including) the first \n
@@ -243,12 +241,9 @@ Pdtoken::process_directive()
 		Error::error(E_ERR, "Unknown preprocessor directive: " + t.get_val());
 }
 
-typedef list<Pltoken> listPltoken;
-typedef set<string> setstring;
-typedef map<string, listPltoken> mapArgval;
 
 static bool
-gather_args(listPltoken::iterator pos, const dequePltoken& formal_args, mapArgval& args, bool get_more)
+gather_args(listPdtoken::iterator pos, const dequePltoken& formal_args, mapArgval& args, bool get_more)
 {
 }
 
@@ -261,22 +256,23 @@ gather_args(listPltoken::iterator pos, const dequePltoken& formal_args, mapArgva
  * Return true if a  replacemement was made
  */
 bool
-macro_replace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, bool get_more)
+macro_replace(listPdtoken& tokens, listPdtoken::iterator pos, setstring& tabu, bool get_more)
 {
 	mapMacro::const_iterator mi;
-	Macro& m;
-	iterator expand_end;
-	string& name = (*pos).get_val();
-	if ((mi = macros.find(name)) == macros.end() || tabu.find(name) != tabu.end())
+	const string& name = (*pos).get_val();
+	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
 		return (false);
-	listPlotken::iterator expand_start = pos + 1;	// For rescan
+	listPdtoken::iterator expand_start = pos;
+	expand_start++;
 	tokens.erase(pos);
-	pos = expand_start();
+	pos = expand_start;
 	tabu.insert(name);
-	m = *mi;
+	const Macro& m = (*mi).second;
 	if (m.is_function) {
-		int nargs = m.formal_args.count();
+		const int nargs = m.formal_args.size();
 		mapArgval args;			// Map from formal name to value
+		bool do_stringize;
+
 		gather_args(pos, m.formal_args, args, get_more);
 		dequePltoken::const_iterator i;
 		// Substitute with macro's replacement value
@@ -284,12 +280,13 @@ macro_replace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, b
 			// Is it a stringizing operator ?
 			if ((*i).get_code() == '#') {
 				if (i + 1 == m.value.end()) {
-					Error:error(E_ERR,  "Application of macro \"" + name + "\": operator # at end of macro pattern");
+					Error::error(E_ERR,  "Application of macro \"" + name + "\": operator # at end of macro pattern");
 					return (false);
 				}
 				do_stringize = true;
 				i++;
-			}
+			} else
+				do_stringize = false;
 			mapArgval::const_iterator ai;
 			// Is it a formal argument?
 			if ((ai = args.find((*i).get_val())) != args.end()) {
@@ -300,7 +297,7 @@ macro_replace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, b
 				     ((*(i - 1)).get_code() != '#' &&
 				      (*(i - 1)).get_code() != CPP_CONCAT)) &&
 				    (i + 1 == m.value.end() ||
-				     (*(i + 1)).get_code != CPP_CONCAT))
+				     (*(i + 1)).get_code() != CPP_CONCAT))
 					// Allowed, macro replace the parameter
 					macro_replace((*ai).second, (*ai).second.begin(), tabu, false);
 				if (do_stringize)
@@ -326,8 +323,9 @@ macro_replace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, b
 		if (ti + 1 != tokens.end() && ti + 2 != tokens.end() &&
 		    (*(ti + 1)).get_code() == CPP_CONCAT) {
 			next = ti + 3;
-			Schar::push_input(*ti);
-			Schar::push_input(*(ti + 2));
+			Tchar::push_input(*ti);
+			Tchar::push_input(*(ti + 2));
+			Tchar::rewind_input();
 			tokens.erase(ti, next);
 			for (;;) {
 				Pltoken t;
