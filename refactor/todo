@@ -1,4 +1,4 @@
-$Id: todo,v 1.24 2003/05/28 18:27:13 dds Exp $
+$Id: todo,v 1.25 2003/05/31 08:19:21 dds Exp $
 
 Web page
 documentation
@@ -8,7 +8,8 @@ experiment with hashmap performance
 
 ceescape (swill) front end:
 
-Show project and workspace metrics
+Display progress in id queries and allow interruptions
+Do not allow id queries from remote hosts in free version
 
 yacc and lex preprocessor / hooks
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.7 2003/05/27 17:46:33 dds Exp $
+ * $Id: metrics.cpp,v 1.8 2003/05/31 08:19:21 dds Exp $
  */
 
 #include <iostream>
@@ -15,13 +15,14 @@
 #include <stack>
 #include <set>
 #include <vector>
+#include <sstream>		// ostringstream
 #include <list>
 #include <errno.h>
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "tokmap.h"
@@ -47,7 +48,8 @@ string Metrics::metric_names[] = {
 };
 
 // Global metrics
-MetricsSummary msum;
+IdMetricsSummary id_msum;
+FileMetricsSummary file_msum;
 
 // Called for every identifier
 void 
@@ -130,59 +132,20 @@ void
 IdCount::add(Eclass *ec, UnaryFunction f)
 {
 	total = f(total);
-	// The four C namespaces
-	if (ec->get_attribute(is_suetag))
-		suetag = f(suetag);
-	if (ec->get_attribute(is_sumember))
-		sumember = f(sumember);
-	if (ec->get_attribute(is_label))
-		label = f(label);
-	if (ec->get_attribute(is_ordinary)) {
-		ordinary = f(ordinary);
-		if (ec->get_attribute(is_typedef))
-			xtypedef = f(xtypedef);
-		else {
-			if (ec->get_attribute(is_cscope))
-				cscope = f(cscope);
-			if (ec->get_attribute(is_lscope))
-				lscope = f(lscope);
-		}
-	}
-	if (ec->get_attribute(is_macro))
-		macro = f(macro);
-	if (ec->get_attribute(is_macroarg))
-		macroarg = f(macroarg);
-	if (ec->get_size() == 1)
-		unused = f(unused);
+	// This counts typedefs as being file scope
+	for (int i = 0; i < attr_max; i++)
+		if (ec->get_attribute(i))
+			count[i] = f(count[i]);
 }
 
 // Update file-based summary
+template <class BinaryFunction>
 void
-FileCount::add(Fileid &fi)
+FileCount::add(Fileid &fi, BinaryFunction f)
 {
 	nfile++;
-	nchar += fi.metrics().get_nchar();
-	nlcomment += fi.metrics().get_nlcomment();
-	nbcomment += fi.metrics().get_nbcomment();
-	nline += fi.metrics().get_nline();
-	if (fi.metrics().get_maxlinelen() > maxlinelen)
-		maxlinelen = fi.metrics().get_maxlinelen();
-	nccomment += fi.metrics().get_nccomment();
-	nspace += fi.metrics().get_nspace();
-	nstring += fi.metrics().get_nstring();
-	nfunction += fi.metrics().get_nfunction();
-	nppdirective += fi.metrics().get_nppdirective();
-	nincfile += fi.metrics().get_nincfile();
-	nstatement += fi.metrics().get_nstatement();
-}
-
-// Create file-based summary
-void
-MetricsSummary::summarize_files()
-{
-	vector <Fileid> files = Fileid::sorted_files();
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
-		rw[(*i).get_readonly()].fc.add(*i);
+	for (int i = 0; i < metric_max; i++)
+		count[i] = f(fi.metrics().get_metric(i), count[i]);
 }
 
 struct add_one : public unary_function<int, int>
@@ -211,16 +174,26 @@ struct set_min : public unary_function<int, int>
       int operator()(int x) { return (x < n && x > 0) ? x : n; }
 };
 
+struct get_max : public binary_function<int, int, int>
+{
+      int operator()(int x, int y) { return (x < y) ? y : x; }
+};
+
+struct get_min : public binary_function<int, int, int>
+{
+      int operator()(int x, int y) { return (x > y) ? y : x; }
+};
+
 // Called for each identifier occurence (all)
 void
-MetricsSummary::add_id(Eclass *ec)
+IdMetricsSummary::add_id(Eclass *ec)
 {
 	rw[ec->get_attribute(is_readonly)].all.add(ec, add_one());
 }
 
 // Called for each unique identifier occurence (EC)
 void
-MetricsSummary::add_unique_id(Eclass *ec)
+IdMetricsSummary::add_unique_id(Eclass *ec)
 {
 	rw[ec->get_attribute(is_readonly)].once.add(ec, add_one());
 	rw[ec->get_attribute(is_readonly)].len.add(ec, add_n(ec->get_len()));
@@ -228,62 +201,91 @@ MetricsSummary::add_unique_id(Eclass *ec)
 	rw[ec->get_attribute(is_readonly)].minlen.add(ec, set_min(ec->get_len()));
 }
 
+// Create file-based summary
+void
+FileMetricsSummary::summarize_files()
+{
+	vector <Fileid> files = Fileid::sorted_files();
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+		rw[(*i).get_attribute(is_readonly)].total.add((*i), plus<int>());
+		rw[(*i).get_attribute(is_readonly)].min.add((*i), get_min());
+		rw[(*i).get_attribute(is_readonly)].max.add((*i), get_max());
+	}
+}
+
+static string
+avg(int v, int n)
+{
+	if (!n)
+		return "-";
+	ostringstream r;
+	r << v / n;
+	return r.str();
+}
 
 ostream&
-operator<<(ostream& o,const IdCount &i)
+operator<<(ostream& o, const FileMetricsSet &mi)
 {
-	o << 
-		"total " << i.total << '\n' <<
-		"suetag " << i.suetag << '\n' <<
-		"sumember " << i.sumember << '\n' <<
-		"label " << i.label << '\n' <<
-		"ordinary " << i.ordinary << '\n' <<
-		"macro " << i.macro << '\n' <<
-		"macroarg " << i.macroarg << '\n' <<
-		"cscope " << i.cscope << '\n' <<
-		"lscope " << i.lscope << '\n' <<
-		"typedef " << i.xtypedef << '\n' <<
-		"unused " << i.unused << '\n';
+	FileMetricsSet &m = (FileMetricsSet &)mi;
+
+	o << "Number of files: " << m.total.nfile << "<p>\n";
+	o << "<table border=1>"
+		"<tr><th>" "File metric" "</th>"
+		"<th>" "Total" "</th>"
+		"<th>" "Min" "</th>"
+		"<th>" "Max" "</th>"
+		"<th>" "Avg" "</th></tr>\n";
+	for (int i = 0; i < metric_max; i++)
+		o << "<tr><td>" << Metrics::name(i) << "</td>"
+			"<td>" << m.total.get_metric(i) << "</td>"
+			"<td>" << m.min.get_metric(i) << "</td>"
+			"<td>" << m.max.get_metric(i) << "</td>"
+			"<td>" << avg(m.total.get_metric(i), m.total.nfile) << "</td></tr>\n";
+	o << "</table>\n";
 	return o;
 }
 
 ostream&
-operator<<(ostream& o,const FileCount &fc)
+operator<<(ostream& o, const IdMetricsSet &mi)
 {
-	o <<
-		"nfile " << fc.nfile << '\n' <<
-		"nchar " << fc.nchar << '\n' <<
-		"nlcomment " << fc.nlcomment << '\n' <<
-		"nbcomment " << fc.nbcomment << '\n' <<
-		"nline " << fc.nline << '\n' <<
-		"maxlinelen " << fc.maxlinelen << '\n' <<
-		"nccomment " << fc.nccomment << '\n' <<
-		"nspace " << fc.nspace << '\n' <<
-		"nstring " << fc.nstring << '\n' <<
-		"nfunction " << fc.nfunction << '\n' <<
-		"nppdirective " << fc.nppdirective << '\n' <<
-		"nincfile " << fc.nincfile << '\n' <<
-		"nstatement " << fc.nstatement << '\n';
+	IdMetricsSet &m = (IdMetricsSet &)mi;
+
+	o << "<table border=1>"
+		"<tr><th>" "Identifier class" "</th>"
+		"<th>" "Distinct # ids" "</th>"
+		"<th>" "Total # ids" "</th>"
+		"<th>" "Avg length" "</th>"
+		"<th>" "Min length" "</th>"
+		"<th>" "Max length" "</th></tr>\n";
+	o << "<tr><td>" "All identifiers" "</td>"
+		"<td>" << m.once.total << "</td>"
+		"<td>" << m.all.total << "</td>"
+		"<td>" << avg(m.len.total, m.once.total) << "</td>"
+		"<td>" << m.minlen.total << "</td>"
+		"<td>" << m.maxlen.total << "</td></tr>\n";
+	for (int i = is_readonly + 1; i < attr_max; i++)
+		o << "<tr><td>" << Attributes::name(i) << "</td>"
+			"<td>" << m.once.get_count(i) << "</td>"
+			"<td>" << m.all.get_count(i) << "</td>"
+			"<td>" << avg(m.len.get_count(i), m.once.get_count(i)) << "</td>"
+			"<td>" << m.minlen.get_count(i) << "</td>"
+			"<td>" << m.maxlen.get_count(i) << "</td></tr>\n";
+	o << "</table>\n";
 	return o;
 }
 
 ostream&
-operator<<(ostream& o,const MetricsSet &m)
+operator<<(ostream& o, const FileMetricsSummary &ms)
 {
-	o << 
-		"file\n" << m.fc <<
-		"once\n" << m.once <<
-		"len\n" << m.len <<
-		"maxlen\n" << m.maxlen <<
-		"minlen\n" << m.minlen <<
-		"all\n" << m.all;
+	o << "<h2>Writable Files</h2>\n" << ms.rw[false];
+	o << "<h2>Read-only Files</h2>\n" << ms.rw[true];
 	return o;
 }
 
 ostream&
-operator<<(ostream& o,const MetricsSummary &ms)
+operator<<(ostream& o, const IdMetricsSummary &ms)
 {
-	o << "Writable\n" << ms.rw[false];
-	o << "Read-only\n" << ms.rw[true];
+	o << "<h2>Writable Identifiers</h2>\n" << ms.rw[false];
+	o << "<h2>Read-only Identifiers</h2>\n" << ms.rw[true];
 	return o;
 }

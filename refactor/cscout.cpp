@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.33 2003/05/28 18:27:13 dds Exp $
+ * $Id: cscout.cpp,v 1.34 2003/05/31 08:19:21 dds Exp $
  */
 
 #include <map>
@@ -278,7 +278,7 @@ file_analyze(Fileid fi)
 			// Identifiers we can mark
 			if (ec->is_identifier()) {
 				// Update metrics
-				msum.add_id(ec);
+				id_msum.add_id(ec);
 				// Add to the map
 				string s;
 				s = (char)val;
@@ -429,7 +429,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.33 2003/05/28 18:27:13 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.34 2003/05/31 08:19:21 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -445,7 +445,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.33 2003/05/28 18:27:13 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.34 2003/05/31 08:19:21 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -1077,7 +1077,7 @@ options_page(FILE *fo, void *p)
 {
 	html_head(fo, "options", "Global Options");
 	fprintf(fo, "<FORM ACTION=\"soptions.html\" METHOD=\"GET\">\n");
-	fprintf(fo, "<input type=\"checkbox\" name=\"remove_fp\" value=\"1\" %s>Remove common path prefix from files<br>\n", (remove_fp ? "checked" : ""));
+	fprintf(fo, "<input type=\"checkbox\" name=\"remove_fp\" value=\"1\" %s>Remove common path prefix in file lists<br>\n", (remove_fp ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (sort_rev ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"file_icase\" value=\"1\" %s>Case-insensitive file name regular expression match<br>\n", (file_icase ? "checked" : ""));
@@ -1111,6 +1111,26 @@ set_options_page(FILE *fo, void *p)
 		options_page(fo, p);
 	else
 		index_page(fo, p);
+}
+
+void
+file_metrics_page(FILE *fo, void *p)
+{
+	html_head(fo, "fmetrics", "File Metrics");
+	ostringstream mstring;
+	mstring << file_msum;
+	fputs(mstring.str().c_str(), fo);
+	html_tail(fo);
+}
+
+void
+id_metrics_page(FILE *fo, void *p)
+{
+	html_head(fo, "idmetrics", "Identifier Metrics");
+	ostringstream mstring;
+	mstring << id_msum;
+	fputs(mstring.str().c_str(), fo);
+	html_tail(fo);
 }
 
 // Display all projects, allowing user to select
@@ -1149,8 +1169,9 @@ index_page(FILE *of, void *data)
 {
 	html_head(of, "index", "CScout Home");
 	fprintf(of, 
-		"<h2>File Queries</h2>\n"
+		"<h2>Files</h2>\n"
 		"<ul>\n"
+		"<li> <a href=\"fmetrics.html\">File Metrics</a>\n"
 		"<li> <a href=\"xfquery.html?ro=1&writable=1&match=Y&n=All+Files&qf=1\">All files</a>\n"
 		"<li> <a href=\"xfquery.html?ro=1&match=Y&n=Read-only+Files&qf=1\">Read-only files</a>\n"
 		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n");
@@ -1161,8 +1182,10 @@ index_page(FILE *of, void *data)
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", em_nincfile, ec_gt, em_nincfile);
 		fprintf(of, "<li> <a href=\"fquery.html\">Specify new file query</a>\n"
 		"</ul>\n"
-		"<h2>Identifier Queries</h2>\n"
-		"<ul>\n");
+		"<h2>Identifiers</h2>\n"
+		"<ul>\n"
+		"<li> <a href=\"idmetrics.html\">Identifier Metrics</a>\n"
+		);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&match=Y&qi=1&n=All+Identifiers\">All identifiers</a>\n", is_readonly);
 	fprintf(of, "<li> <a href=\"xiquery.html?a%d=1&match=Y&qi=1&n=Read-only+Identifiers\">Read-only identifiers</a>\n", is_readonly);
 	fputs("<li> <a href=\"xiquery.html?writable=1&match=Y&qi=1&n=Writable+Identifiers\">Writable identifiers</a>\n"
@@ -1393,12 +1416,12 @@ main(int argc, char *argv[])
 		fname << (unsigned)e;
 
 		// Update metrics
-		msum.add_unique_id(e);
+		id_msum.add_unique_id(e);
 	}
 
 
 	// Update fle metrics
-	msum.summarize_files();
+	file_msum.summarize_files();
 
 #ifdef COMMERCIAL
 	license_check("");
@@ -1409,7 +1432,8 @@ main(int argc, char *argv[])
 	 * up 50 cross-file identifiers 
 	 */
 	ostringstream mstring;
-	mstring << msum;
+	mstring << file_msum;
+	mstring << id_msum;
 	mstring << "\nxids: ";
 	int count = 0;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
@@ -1448,6 +1472,8 @@ main(int argc, char *argv[])
 	swill_handle("xfquery.html", xfquery_page, NULL);
 
 	swill_handle("id.html", identifier_page, NULL);
+	swill_handle("fmetrics.html", file_metrics_page, NULL);
+	swill_handle("idmetrics.html", id_metrics_page, NULL);
 	swill_handle("setproj.html", set_project_page, NULL);
 	swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
 

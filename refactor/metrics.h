@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  * 
- * $Id: metrics.h,v 1.6 2003/05/24 18:52:20 dds Exp $
+ * $Id: metrics.h,v 1.7 2003/05/31 08:19:21 dds Exp $
  */
 
 #ifndef METRICS_
@@ -44,7 +44,7 @@ enum e_metric {
 
 class Metrics {
 private:
-	vector <int> count;	// Metric counts
+	vector <int> count;	// File metric counts
 
 // Helper variables
 	bool processed;		// True after file has been processed
@@ -63,14 +63,11 @@ private:
 
 public:
 	Metrics() :
-		count(metric_max),
+		count(metric_max, 0),
 		processed(false),
 		currlinelen(0),
 		cstate(s_normal)
-	{
-		for (vector <int>::iterator i = count.begin(); i != count.end(); i++)
-			*i = 0;
-	}
+	{}
 
 	// Return the name given the enumeration member
 	static const string &name(int n) { return metric_names[n]; }
@@ -118,114 +115,95 @@ public:
 };
 
 class Eclass;
+class FileMetricsSet;
+class IdMetricsSet;
 
 // A class for keeping taly of various identifier type counts
 class IdCount {
 private:
 	int total;
-	// The four C namespaces
-	int suetag;		// Struct/union/enum tag
-	int sumember;		// Struct/union member
-	int label;		// Goto label
-	int ordinary;		// Ordinary identifier
-
-	int macro;		// Macro
-	int macroarg;		// Macro argument
-	// The following are valid if is_ordinary is true:
-	int cscope;		// Compilation-unit (file) scoped 
-				// identifier  (static)
-	int lscope;		// Linkage-unit scoped identifier
-	int xtypedef;		// Typedef
-	int unused;		// True if EC size == 1
+	vector <int> count;		// Counts per identifier attribute
 public:
 	IdCount() :
 		total(0),
-		suetag(0),
-		sumember(0),
-		label(0),
-		ordinary(0),
-		macro(0),
-		macroarg(0),
-		cscope(0),
-		lscope(0),
-		xtypedef(0),
-		unused(0)
+		count(attr_max, 0)
 	{}
+	int get_count(int i) { return count[i]; }
 	// Adjust class members according to the attributes of EC
 	// using function object f
 	template <class UnaryFunction>
-	void IdCount::add(Eclass *ec, UnaryFunction f);
-	friend ostream& operator<<(ostream& o,const IdCount &i);
+	void add(Eclass *ec, UnaryFunction f);
+	friend ostream& operator<<(ostream& o, const IdMetricsSet &m);
 };
 
 class Fileid;
+class IdMetricsSet;
 
 // Counting file details 
 class FileCount {
 private:
 	// Totals for all files
 	int nfile;		// Number of unique files
-	int nchar;		// Number of characters
-	int nlcomment;		// Number of line comments
-	int nbcomment;		// Number of block comments
-	int nline;		// Number of lines
-	int maxlinelen;		// Maximum number of characters in a line
-	int nccomment;		// Comment characters
-	int nspace;		// Space characters
-	int nstring;		// Number of character strings
-	int nfunction;		// Defined functions (function_brace_begin)
-	int nppdirective;	// Number of cpp directives
-	int nincfile;		// Number of directly included files
-	int nstatement;		// Number of statements
+	vector <int> count;	// File metric counts
 public:
-	FileCount() :
+	FileCount(int v = 0) :
 		nfile(0),
-		nchar(0),
-		nlcomment(0),
-		nbcomment(0),
-		nline(0),
-		maxlinelen(0),
-		nccomment(0),
-		nspace(0),
-		nstring(0),
-
-		nfunction(0),
-		nppdirective(0),
-		nincfile(0),
-		nstatement(0)
+		count(metric_max, v)
 	{}
+	int get_metric(int i) { return count[i]; }
 	// Add the details of file fi
-	void add(Fileid &fi);
-	friend ostream& operator<<(ostream& o,const FileCount &fc);
+	template <class BinaryFunction>
+	void add(Fileid &fi, BinaryFunction f);
+	friend ostream& operator<<(ostream& o, const FileMetricsSet &m);
 };
 
-// One such set is kept for readable and writable files
-class MetricsSet {
-	friend class MetricsSummary;
-	FileCount fc;	// File details
+// One such set is kept for readable and writable identifiers
+class IdMetricsSet {
+	friend class IdMetricsSummary;
 	IdCount once;	// Each identifier EC is counted once
 	IdCount len;	// Use the len of each EC
 	IdCount maxlen;	// Maximum length for each type
 	IdCount minlen;	// Minimum length for each type
 	IdCount all;	// Each identifier counted for every occurance in a file
 public:
-	friend ostream& operator<<(ostream& o,const MetricsSet &m);
+	friend ostream& operator<<(ostream& o, const IdMetricsSet &m);
+};
+
+// One such set is kept for readable and writable files
+class FileMetricsSet {
+	friend class FileMetricsSummary;
+	FileCount total;// File details, total
+	FileCount min;	// File details, min across files
+	FileCount max;	// File details, max across files
+public:
+	FileMetricsSet() :
+		min(numeric_limits<int>::max())
+	{}
+	friend ostream& operator<<(ostream& o, const FileMetricsSet &m);
 };
 
 // This can be kept per project and globally
-class MetricsSummary {
-	MetricsSet rw[2];			// For read-only and writable cases
+class IdMetricsSummary {
+	IdMetricsSet rw[2];			// For read-only and writable cases
 public:
-	// Create file-based summary
-	void summarize_files();	
 	// Called for every identifier occurence
 	void add_id(Eclass *ec);
 	// Called for every unique identifier occurence (EC)
 	void add_unique_id(Eclass *ec);
-	friend ostream& operator<<(ostream& o,const MetricsSummary &ms);
+	friend ostream& operator<<(ostream& o,const IdMetricsSummary &ms);
+};
+
+// This can be kept per project and globally
+class FileMetricsSummary {
+	FileMetricsSet rw[2];			// For read-only and writable cases
+public:
+	// Create file-based summary
+	void summarize_files();	
+	friend ostream& operator<<(ostream& o,const FileMetricsSummary &ms);
 };
 
 // Global metrics
-extern MetricsSummary msum;
+extern IdMetricsSummary id_msum;
+extern FileMetricsSummary file_msum;
 
 #endif /* METRICS_ */
