@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  * 
- * $Id: filemetrics.h,v 1.7 2003/05/31 08:19:21 dds Exp $
+ * $Id: filemetrics.h,v 1.8 2003/06/02 13:51:01 dds Exp $
  */
 
 #ifndef METRICS_
@@ -176,9 +176,7 @@ class FileMetricsSet {
 	FileCount min;	// File details, min across files
 	FileCount max;	// File details, max across files
 public:
-	FileMetricsSet() :
-		min(numeric_limits<int>::max())
-	{}
+	FileMetricsSet();
 	friend ostream& operator<<(ostream& o, const FileMetricsSet &m);
 };
 

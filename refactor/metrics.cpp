@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.8 2003/05/31 08:19:21 dds Exp $
+ * $Id: metrics.cpp,v 1.9 2003/06/02 13:51:01 dds Exp $
  */
 
 #include <iostream>
@@ -17,6 +17,8 @@
 #include <vector>
 #include <sstream>		// ostringstream
 #include <list>
+#include <climits>		// INT_MAX
+//#include <limits>		// numeric_limits
 #include <errno.h>
 
 #include "cpp.h"
@@ -211,6 +213,13 @@ FileMetricsSummary::summarize_files()
 		rw[(*i).get_attribute(is_readonly)].min.add((*i), get_min());
 		rw[(*i).get_attribute(is_readonly)].max.add((*i), get_max());
 	}
+}
+
+FileMetricsSet::FileMetricsSet() :
+	min(INT_MAX)
+// When my Linux upgrades from gcc 2.96
+//	min(numeric_limits<int>::max())
+{
 }
 
 static string
