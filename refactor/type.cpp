@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.10 2001/09/21 14:14:19 dds Exp $
+ * $Id: type.cpp,v 1.11 2001/09/22 07:13:10 dds Exp $
  */
 
 #include <iostream>
@@ -88,8 +88,7 @@ Type_node::get_token() const
 {
 	static Ctoken c;
 	Error::error(E_INTERNAL, "attempt to get token value of a non-identifier");
-	if (DP())
-		this->print(cerr);
+	this->print(cerr);
 	return c;
 }
 
@@ -97,6 +96,7 @@ Type
 Type_node::clone() const
 {
 	Error::error(E_INTERNAL, "unable to clone type");
+	this->print(cerr);
 	return Type();
 }
 
@@ -104,6 +104,7 @@ Tbasic *
 Type_node::tobasic()
 {
 	Error::error(E_INTERNAL, "unknown tobasic() conversion");
+	this->print(cerr);
 	return NULL;
 }
 
@@ -112,6 +113,7 @@ Type_node::get_name() const
 {
 	static string s("unknown");
 	Error::error(E_INTERNAL, "attempt to get the name of a non-identifier");
+	this->print(cerr);
 	return s;
 }
 
@@ -127,6 +129,7 @@ Type
 Type_node::type() const
 {
 	Error::error(E_INTERNAL, "object is not a typedef or identifier");
+	this->print(cerr);
 	return basic(b_undeclared);
 }
 
@@ -135,6 +138,7 @@ enum e_storage_class
 Type_node::get_storage_class() const
 {
 	Error::error(E_INTERNAL, "object has no storage class");
+	this->print(cerr);
 	return c_unspecified;
 }
 
@@ -142,6 +146,8 @@ const Id *
 Type_node::member(const string& s) const
 {
 	Error::error(E_ERR, "invalid member access: not a structure or union");
+	if (DP())
+		this->print(cerr);
 	return NULL;
 }
 
@@ -288,7 +294,7 @@ Ttag::print(ostream &o) const
 void
 Tsu::print(ostream &o) const
 {
-	o << members;
+	o << "struct/union " << members;
 }
 
 void
@@ -467,18 +473,21 @@ void
 Type_node::set_storage_class(Type t)
 {
 	Error::error(E_INTERNAL, "object can not set storage class");
+	this->print(cerr);
 }
 
 void
 Type_node::add_member(const Token &tok, const Type &typ)
 {
 	Error::error(E_INTERNAL, "add_member: object is not a structure/union");
+	this->print(cerr);
 }
 
 Type
-Type_node::get_default_specifier()
+Type_node::get_default_specifier() const
 {
 	Error::error(E_INTERNAL, "get_default_specifier: object is not a structure/union");
+	this->print(cerr);
 	return basic();
 }
 
@@ -486,7 +495,7 @@ void
 Type_node::merge_with(Type t)
 {
 	Error::error(E_INTERNAL, "merge_with: object is not a structure/union");
-	cout << "A: " << Type(this) << "\n";
-	cout << "B: " << t << "\n";
+	cerr << "A: " << Type(this) << "\n";
+	cerr << "B: " << t << "\n";
 }
 
