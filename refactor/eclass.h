@@ -9,7 +9,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.7 2001/08/31 16:13:14 dds Exp $
+ * $Id: eclass.h,v 1.8 2001/10/27 09:59:07 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -21,7 +21,11 @@ class Eclass {
 private:
 	int len;			// Identifier length
 	setTokid members;		// Class members
+	bool ro;			// Read-only; true if any member
+					// comes from an ro file
+	string replacement;		// Replacement value when editing
 public:
+
 	// An equivalence class shall know its length
 	inline Eclass(int len);
 	// It can be constructed from an initiall Tokid
@@ -35,10 +39,15 @@ public:
 	// After the merger the values of a and b are undefined
 	friend Eclass *merge(Eclass *a, Eclass *b);
 	// Return length
-	int get_len() { return len; };
+	int get_len() { return len; }
 	// Return number of members
-	int get_size() { return members.size(); };
+	int get_size() { return members.size(); }
 	friend ostream& operator<<(ostream& o,const Eclass& ec);
+	// Other accessor functions
+	bool get_readonly() const { return ro; }
+	void set_readonly(bool v) { ro = v; }
+	string get_replacement() const { return replacement; }
+	void set_replacement(const string& s) { replacement = s; }
 };
 
 inline

@@ -9,7 +9,7 @@
  * #include <map>
  * #include <string>
  *
- * $Id: fileid.h,v 1.2 2001/08/16 09:16:06 dds Exp $
+ * $Id: fileid.h,v 1.3 2001/10/27 09:59:07 dds Exp $
  */
 
 #ifndef FILEID_
@@ -17,9 +17,22 @@
 
 
 using namespace std;
+//
+// Details we keep for each file
+class Filedetails {
+private:
+	string name;		// File name
+	bool ro;		// Read-only
+public:
+	Filedetails(string n, bool r) : name(n), ro(r) {}
+	Filedetails() {}
+	const string& get_name() const { return name; }
+	bool get_readonly() const { return ro; }
+	void set_readonly(bool r) { ro = r; }
+};
 
 typedef map <string, int> FI_uname_to_id;
-typedef map <int, string> FI_id_to_path;
+typedef map <int, Filedetails> FI_id_to_details;
 
 class Fileid {
 private:
@@ -27,7 +40,7 @@ private:
 
 	static int counter;		// To generate ids
 	static FI_uname_to_id u2i;	// From unique name to id
-	static FI_id_to_path i2p;	// From id to full path
+	static FI_id_to_details i2d;	// From id to file details
 
 	// Construct a new Fileid given a name and id value
 	// Only used internally for creating the anonymous id
@@ -41,7 +54,10 @@ public:
 	// Construct an anonymous Fileid
 	Fileid() { *this = Fileid::anonymous; };
 	// Return the full file path of a given id
-	string get_path() const;
+	const string& get_path() const;
+	// Handle the read-only file detail information
+	bool get_readonly() const;
+	void set_readonly(bool r);
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
 };

@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.10 2001/08/25 20:28:45 dds Exp $
+ * $Id: tokid.h,v 1.11 2001/10/27 09:59:07 dds Exp $
  */
 
 #ifndef TOKID_
@@ -66,8 +66,10 @@ public:
 	dequeTpart Tokid::constituents(int l);
 	// Print the contents of the class map
 	friend ostream& operator<<(ostream& o,const map <Tokid, Eclass *>& dummy);
+	// Return true if the underlying file is read-only
+	bool get_readonly() const { return fi.get_readonly(); }
 	// Accessor functions
-	inline string get_path() const { return fi.get_path(); }
+	inline const string& get_path() const { return fi.get_path(); }
 	inline Fileid get_fileid() const { return fi; }
 	inline streampos get_streampos() const { return (streampos)offs; }
 

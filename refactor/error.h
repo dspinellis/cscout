@@ -8,7 +8,7 @@
  * #include <string>
  * #include "tokid.h"
  *
- * $Id: error.h,v 1.2 2001/10/24 12:24:30 dds Exp $
+ * $Id: error.h,v 1.3 2001/10/27 09:59:07 dds Exp $
  */
 
 #ifndef ERROR_
@@ -26,7 +26,7 @@ private:
 	static int num_errors;
 	static int num_warnings;
 public:
-	static void error(enum e_error_level level, string msg);
+	static void error(enum e_error_level level, string msg, bool showloc = true);
 	static int get_num_errors() {return num_errors;}
 	static int get_num_warnings() {return num_warnings;}
 };

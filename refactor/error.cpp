@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.3 2001/10/24 12:24:30 dds Exp $
+ * $Id: error.cpp,v 1.4 2001/10/27 09:59:07 dds Exp $
  */
 
 #include <iostream>
@@ -25,9 +25,10 @@ int Error::num_warnings;
 
 
 void
-Error::error(enum e_error_level level, string msg)
+Error::error(enum e_error_level level, string msg, bool showloc = true)
 {
-	cerr << Fchar::get_path() << "(" << Fchar::get_line_num() << "): ";
+	if (showloc)
+		cerr << Fchar::get_path() << "(" << Fchar::get_line_num() << "): ";
 	switch (level) {
 	case E_WARN: cerr << "warning: "; break;
 	case E_ERR: cerr << "error: "; break;

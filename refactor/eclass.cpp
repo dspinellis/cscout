@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.10 2001/09/01 07:15:08 dds Exp $
+ * $Id: eclass.cpp,v 1.11 2001/10/27 09:59:07 dds Exp $
  */
 
 #include <iostream>
@@ -14,6 +14,7 @@
 #include <cassert>
 
 #include "cpp.h"
+#include "debug.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"
@@ -26,8 +27,8 @@ merge(Eclass *a, Eclass *b)
 
 	if (a == b)
 		return a;
-	//if (a->len != b->len) 
-		// cout << "merge a=" << a << *a << " b=" << b << *b << "\n";
+	if (DP() && a->len != b->len) 
+		cout << "merge a=" << a << *a << " b=" << b << *b << "\n";
 	assert(a->len == b->len);
 	// It is more efficient to append the small at the end of the large one
 	if (a->members.size() > b->members.size()) {
@@ -41,6 +42,8 @@ merge(Eclass *a, Eclass *b)
 	setTokid::const_iterator i;
 	for (i = small->members.begin(); i != small->members.end(); i++)
 		large->add_tokid(*i);
+	// If one is read-only; the result is too
+	large->ro = (small->ro || large->ro);
 	delete small;
 	return (large);
 }
@@ -49,15 +52,19 @@ Eclass *
 Eclass::split(int pos)
 {
 	int oldchars = pos + 1;		// Characters to retain in the old EC
-	// cout << "Split " << this << " pos=" << pos << *this;
+	if (DP())
+		cout << "Split " << this << " pos=" << pos << *this;
 	assert(oldchars < len);
 	Eclass *e = new Eclass(len - oldchars);
 	setTokid::const_iterator i;
 	for (i = members.begin(); i != members.end(); i++)
 		e->add_tokid(*i + oldchars);
+	e->ro = ro;
 	len = oldchars;
-	// cout << "Split A: " << *e;
-	// cout << "Split B: " << *this;
+	if (DP()) {
+		cout << "Split A: " << *e;
+		cout << "Split B: " << *this;
+	}
 	return (e);
 }
 
@@ -78,6 +85,7 @@ Eclass::add_tokid(Tokid t)
 {
 	members.insert(t);
 	t.set_ec(this);
+	ro = (t.get_readonly() || ro);
 }
 
 #ifdef UNIT_TEST
