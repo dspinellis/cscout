@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.17 2002/09/17 10:53:02 dds Exp $
+ * $Id: fchar.cpp,v 1.18 2002/10/03 10:39:05 dds Exp $
  */
 
 #include <iostream>
@@ -82,10 +82,17 @@ again:
 		if (c2 == '\n') {
 			line_number++;
 			goto again;
-		} else {
-			in.putback(c2);
-			return;
+		} else if (c2 == '\r') {
+			// DOS/WIN32 cr-lf EOL
+			c3 = in.get();
+			if (c3 == '\n') {
+				line_number++;
+				goto again;
+			}
+			in.putback(c3);
 		}
+		in.putback(c2);
+		return;
 	case '?':			// Trigraph handling
 		c2 = in.get();
 		if (c2 != '?') {
