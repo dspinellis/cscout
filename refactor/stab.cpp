@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.27 2003/08/17 12:40:59 dds Exp $
+ * $Id: stab.cpp,v 1.28 2003/11/16 21:50:29 dds Exp $
  */
 
 #include <map>
@@ -202,7 +202,6 @@ obj_define(const Token& tok, Type typ)
 	// Identifiers with extern scope are also added to the linkage unit
 	// definitions.  These are not searched, but are used for unification
 	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
-		Id const * id;
 		if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())))
 			Token::unify(id->get_token(), tok);
 		else
