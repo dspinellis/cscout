@@ -3,13 +3,14 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.38 2001/09/02 16:01:40 dds Exp $
+ * $Id: pdtoken.cpp,v 1.39 2001/09/02 17:41:45 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
+#include <vector>
 #include <stack>
 #include <iterator>
 #include <fstream>
@@ -38,6 +39,7 @@ bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;
 mapMacro Pdtoken::macros;		// Defined macros
 stackbool Pdtoken::iftaken;		// Taken #ifs
+vectorstring Pdtoken::include_path;	// Files in include path
 int Pdtoken::skiplevel = 0;		// Level of enclosing #ifs when skipping
 
 
@@ -357,11 +359,82 @@ Pdtoken::process_endif()
 	eat_to_eol();
 }
 
+// Return true if we can open a given file
+static bool
+can_open(const string& s)
+{
+	ifstream in;
+	bool ret;
+	in.open(s.c_str());
+	if (!in.fail()) {
+		in.close();
+		return (true);
+	} else
+		return (false);
+}
+
 void
 Pdtoken::process_include()
 {
+	Pltoken t;
+	listPtoken tokens;
+
+	// Get tokens till end of line
 	Pltoken::set_context(cpp_include);
-	eat_to_eol();
+	bool start = true;
+	do {
+		t.template getnext<Fchar>();
+		tokens.push_back(t);
+	} while (t.get_code() != EOF && t.get_code() != '\n');
+	// Remove leading space
+	tokens.erase(tokens.begin(), find_if(tokens.begin(), tokens.end(), not1(mem_fun_ref(&Ptoken::is_space))));
+	if (tokens.size() == 0) {
+		Error::error(E_ERR, "Empty #include directive");
+		return;
+	}
+	Ptoken f = *(tokens.begin());
+	if (f.get_code() != PATHFNAME && f.get_code() != ABSFNAME) {
+		// Need to macro process
+		// 1. Macro replace
+		setstring tabu;
+		macro_replace_all(tokens, tokens.end(), tabu, false);
+		// cout << "Replaced after macro :\n";
+		// copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
+		// 2. Rescan through Tchar
+		Tchar::clear();
+		for (listPtoken::const_iterator i = tokens.begin(); i != tokens.end(); i++)
+			Tchar::push_input(*i);
+		Tchar::rewind_input();
+		Pltoken::set_context(cpp_include);
+		t.template getnext<Tchar>();
+		f = t;
+	}
+	if (f.get_code() == EOF) {
+		Error::error(E_ERR, "Empty #include directive");
+		return;
+	}
+
+	if (f.get_code() != PATHFNAME && f.get_code() != ABSFNAME) {
+		Error::error(E_ERR, "Invalid #include syntax");
+		cout << f;
+		return;
+	}
+
+	if (f.get_code() == ABSFNAME)
+		if (can_open(f.get_val())) {
+			Fchar::push_input(f.get_val());
+			return;
+		}
+	vectorstring::const_iterator i;
+	for (i = include_path.begin(); i != include_path.end(); i++) {
+		string fname = *i + "/" + f.get_val();
+		// cout << "Try open " << fname << "\n";
+		if (can_open(fname)) {
+			Fchar::push_input(fname);
+			return;
+		}
+	}
+	Error::error(E_ERR, "Unable to open include file " + f.get_val());
 }
 
 void

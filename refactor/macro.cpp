@@ -3,13 +3,14 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.1 2001/09/02 15:02:00 dds Exp $
+ * $Id: macro.cpp,v 1.2 2001/09/02 17:41:45 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
+#include <vector>
 #include <stack>
 #include <iterator>
 #include <fstream>

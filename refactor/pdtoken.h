@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.17 2001/09/02 15:45:20 dds Exp $
+ * $Id: pdtoken.h,v 1.18 2001/09/02 17:41:45 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -20,6 +20,7 @@ typedef list<Ptoken> listPtoken;
 typedef set<string> setstring;
 typedef map<string, listPtoken> mapArgval;
 typedef stack<bool> stackbool;
+typedef vector<string> vectorstring;
 
 class Macro;
 
@@ -33,6 +34,8 @@ private:
 	static bool at_bol;			// At beginning of line
 	static stackbool iftaken;		// Taken #ifs
 	static int skiplevel;			// Level of enclosing #ifs
+
+	static vectorstring include_path;	// Include file path
 
 	static void process_directive();	// Handle a cpp directive
 	static void eat_to_eol();		// Consume input including \n
@@ -55,8 +58,12 @@ public:
 
 	// Clear the defined macro table (when changing compilation unit)
 	static void macros_clear() { macros.clear(); }
+	// Find a macro given its name
 	static mapMacro::const_iterator macros_find(const string& s) { return macros.find(s); }
+	// Undefined macro returned by find
 	static mapMacro::const_iterator macros_end() { return macros.end(); }
+	// Add an element in the include path
+	static add_include(const string& s) { include_path.push_back(s); };
 };
 
 

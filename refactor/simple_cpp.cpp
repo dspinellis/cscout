@@ -4,13 +4,14 @@
  * Simple preprocessor.  
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.5 2001/09/02 15:01:23 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.6 2001/09/02 17:41:45 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
+#include <vector>
 #include <stack>
 #include <iterator>
 #include <fstream>
@@ -33,6 +34,10 @@
 main(int argc, char *argv[])
 {
 	Fchar::set_input(argv[1]);
+
+#ifdef unix
+	Pdtoken::add_include("/usr/include");
+#endif
 
 	for (;;) {
 		Pdtoken t;
