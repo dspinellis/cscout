@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.72 2003/08/03 08:23:34 dds Exp $
+ * $Id: parse.y,v 1.73 2003/08/03 08:59:28 dds Exp $
  *
  */
 
@@ -482,7 +482,13 @@ multiplicative_expression:
 additive_expression:
         multiplicative_expression
         | additive_expression '+' multiplicative_expression
-			{ $$ = $1; }
+			{
+				/* Propagate pointer property */
+				if ($3.is_ptr())
+					$$ = $3;
+				else 
+					$$ = $1;
+			}
         | additive_expression '-' multiplicative_expression
 			{
 				if ($1.is_ptr() && $3.is_ptr())
