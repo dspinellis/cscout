@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: cscout.cpp,v 1.1 2002/11/09 16:58:00 dds Exp $
+ * $Id: cscout.cpp,v 1.2 2002/12/20 07:09:16 dds Exp $
  */
 
 #include <map>
@@ -53,6 +53,7 @@
 class Identifier {
 	Eclass *ec;		// Equivalence class it belongs to
 	string id;		// Identifier name
+	string newid;		// New identifier name
 public:
 	Identifier() {}
 	Identifier(Eclass *e, const string &s) : ec(e), id(s) {}
@@ -73,7 +74,6 @@ public:
 
 // Modifiable identifiers stored as a vector
 class MIdentifier : public Identifier {
-	bool xfile;		// True if it crosses files
 public:
 	MIdentifier(Identifier i) : xfile(false), Identifier(i) {}
 	MIdentifier() : xfile(false) {}
@@ -253,7 +253,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.1 2002/11/09 16:58:00 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.2 2002/12/20 07:09:16 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -537,6 +537,11 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"upids.html\">Unused project-scoped writable identifiers</a>\n"
 		"<li> <a href=\"ufids.html\">Unused file-scoped writable identifiers</a>\n"
 		"<li> <a href=\"umids.html\">Unused macro writable identifiers</a>\n"
+		"</ul>"
+		"<h2>Operations</h2>"
+		"<ul>\n"
+		"<li> <a href=\"sexit.html\">Exit - saving changes</a>\n"
+		"<li> <a href=\"qexit.html\">Exit - ignore changes</a>\n"
 		"</ul>");
 	html_tail(of);
 }
