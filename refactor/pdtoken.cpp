@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.41 2001/09/03 08:14:27 dds Exp $
+ * $Id: pdtoken.cpp,v 1.42 2001/09/03 09:08:48 dds Exp $
  */
 
 #include <iostream>
@@ -579,6 +579,22 @@ Pdtoken::process_pragma()
 {
 	if (skiplevel >= 1)
 		return;
+	Pltoken t;
+
+	if (skiplevel >= 1)
+		return;
+	t.template getnext_nospc<Fchar>();
+	if (t.get_code() != IDENTIFIER || t.get_val() != "includepath") {
+		eat_to_eol();
+		return;
+	}
+	t.template getnext_nospc<Fchar>();
+	if (t.get_code() != STRING_LITERAL) {
+		eat_to_eol();
+		return;
+	}
+	Pdtoken::add_include(t.get_val());
+	if (DP()) cout << "Include path " << t.get_val() << "\n";
 	eat_to_eol();
 }
 
