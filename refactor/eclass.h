@@ -9,7 +9,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.4 2001/08/17 12:21:42 dds Exp $
+ * $Id: eclass.h,v 1.5 2001/08/17 12:56:58 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -26,11 +26,12 @@ public:
 	inline Eclass(Tokid t, int len);
 	// Add t to the class; also updates the Tokmap
 	void add_tokid(Tokid t);
+	// Split an equivalence class after the (0-based) character position
+	// pos returning the new EC receiving the split Tokids
+	Eclass *split(int pos);
 	// Merge two equivalence classes returning the resulting one
 	// After the merger the values of a and b are undefined
 	friend Eclass *merge(Eclass *a, Eclass *b);
-	// Split an equivalence class at character position pos
-	friend void split(Eclass *ec, int pos);
 	// Return length
 	int get_len() { return len; };
 	friend ostream& operator<<(ostream& o,const Eclass& ec);

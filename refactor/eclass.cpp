@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include <deque>
+#include <cassert>
 
 #include "cpp.h"
 #include "fileid.h"
@@ -13,6 +14,7 @@ merge(Eclass *a, Eclass *b)
 {
 	Eclass *small, *large;
 
+	assert(a->len == b->len);
 	// It is more efficient to append the small at the end of the large one
 	if (a->members.size() > b->members.size()) {
 		large = a;
@@ -29,9 +31,17 @@ merge(Eclass *a, Eclass *b)
 	return (large);
 }
 
-void
-split(Eclass *ec, int pos)
+Eclass *
+Eclass::split(int pos)
 {
+	int oldchars = pos + 1;		// Characters to retain in the old EC
+	assert(oldchars < len);
+	Eclass *e = new Eclass(len - oldchars);
+	dequeTokid::iterator i;
+	for (i = members.begin(); i != members.end(); i++)
+		e->add_tokid(*i + oldchars);
+	len = oldchars;
+	return (e);
 }
 
 ostream&
@@ -54,6 +64,7 @@ Eclass::add_tokid(Tokid t)
 }
 
 #ifdef UNIT_TEST
+// cl -GX -DWIN32 -c tokid.cpp fileid.cpp
 // cl -GX -DWIN32 -DUNIT_TEST eclass.cpp tokid.obj fileid.obj kernel32.lib
 
 main()
@@ -75,6 +86,10 @@ main()
 
 	Eclass *enew = merge(&e1, &e2);
 	cout << "merged:\n" << *enew;
+
+	Eclass *es = enew->split(2);
+	cout << "split 0:\n" << *enew << "\n";
+	cout << "split 2:\n" << *es << "\n";
 
 	return (0);
 }
