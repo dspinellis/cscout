@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.43 2003/06/15 17:02:31 dds Exp $
+ * $Id: cscout.cpp,v 1.44 2003/06/16 19:40:51 dds Exp $
  */
 
 #include <map>
@@ -816,19 +816,20 @@ IdQuery::IdQuery(FILE *of, bool e, bool r) :
 		name = qname;
 
 	// Identifier EC match
-	if (!swill_getargs("p(ec)", &ec))
+	if (!swill_getargs("p(ec)", &ec)) {
 		ec = NULL;
 
-	// Type of boolean match
-	char *m;
-	if (!ec && !(m = swill_getvar("match"))) {
-		fprintf(of, "Missing value: match");
-		html_tail(of);
-		valid = return_val = false;
-		lazy = true;
-		return;
+		// Type of boolean match
+		char *m;
+		if (!(m = swill_getvar("match"))) {
+			fprintf(of, "Missing value: match");
+			html_tail(of);
+			valid = return_val = false;
+			lazy = true;
+			return;
+		}
+		match_type = *m;
 	}
-	match_type = *m;
 
 	xfile = !!swill_getvar("xfile");
 	unused = !!swill_getvar("unused");
