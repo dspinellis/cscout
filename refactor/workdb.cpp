@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.7 2002/09/17 16:20:37 dds Exp $
+ * $Id: workdb.cpp,v 1.8 2002/09/24 08:57:49 dds Exp $
  */
 
 #include <map>
@@ -116,12 +116,12 @@ insert_eclass(ofstream &of, Eclass *e, const string &name)
 	sql_bool(e->get_attribute(is_cscope)) << ',' <<
 	sql_bool(e->get_attribute(is_lscope)) << ',' <<
 	sql_bool(e->get_size() == 1) << 
-	")\n";
+	");\n";
 	// The projects each EC belongs to
 	for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
 			of << "INSERT INTO IDPROJ VALUES(" << 
-			(unsigned)e << ',' << j << ")\n";
+			(unsigned)e << ',' << j << ");\n";
 }
 
 // Add the contents of a file to the Tokens and Strings tables
@@ -163,12 +163,12 @@ file_dump(ofstream &of, Fileid fid)
 			fid.metrics().process_id(s);
 			of << "INSERT INTO TOKENS VALUES(" << fid.get_id() <<
 			"," << (unsigned)ti.get_streampos() << "," << 
-			(unsigned)ec << ")\n";
+			(unsigned)ec << ");\n";
 			if (plain.length() > 0) {
 				of << "INSERT INTO STRINGS VALUES(" << 
 				fid.get_id() <<
 				"," << (unsigned)plainstart.get_streampos() <<
-				",'" << plain << "')\n";
+				",'" << plain << "');\n";
 				plain.erase();
 			}
 			plainstart = Tokid(fid, in.tellg());
@@ -180,7 +180,7 @@ file_dump(ofstream &of, Fileid fid)
 	if (plain.length() > 0)
 		of << "INSERT INTO STRINGS VALUES(" << fid.get_id() <<
 		"," << (unsigned)plainstart.get_streampos() <<
-		",'" << plain << "')\n";
+		",'" << plain << "');\n";
 }
 
 main(int argc, char *argv[])
@@ -202,42 +202,42 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 	fo <<
-		"DROP TABLE TOKENS IF EXISTS\n"
-		"DROP TABLE STRINGS IF EXISTS\n"
-		"DROP TABLE IDPROJ IF EXISTS\n"
-		"DROP TABLE FILEPROJ IF EXISTS\n"
-		"DROP TABLE IDS IF EXISTS\n"
-		"DROP TABLE PROJECTS IF EXISTS\n"
-		"DROP TABLE FILES IF EXISTS\n"
+		"DROP TABLE TOKENS;\n"
+		"DROP TABLE STRINGS;\n"
+		"DROP TABLE IDPROJ;\n"
+		"DROP TABLE FILEPROJ;\n"
+		"DROP TABLE IDS;\n"
+		"DROP TABLE PROJECTS;\n"
+		"DROP TABLE FILES;\n"
 
 		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME VARCHAR,"
-		"READONLY BIT,\n"
-		"MACRO BIT,\n"
-		"MACROARG BIT,\n"
-		"ORDINARY BIT,\n"
-		"SUETAG BIT,\n"
-		"SUMEMBER BIT,\n"
-		"LABEL BIT,\n"
-		"TYPEDEF BIT,\n"
-		"CSCOPE BIT,\n"
-		"LSCOPE BIT,\n"
-		"UNUSED BIT)\n"
+		"READONLY \"boolean\",\n"
+		"MACRO \"boolean\",\n"
+		"MACROARG \"boolean\",\n"
+		"ORDINARY \"boolean\",\n"
+		"SUETAG \"boolean\",\n"
+		"SUMEMBER \"boolean\",\n"
+		"LABEL \"boolean\",\n"
+		"TYPEDEF \"boolean\",\n"
+		"CSCOPE \"boolean\",\n"
+		"LSCOPE \"boolean\",\n"
+		"UNUSED \"boolean\");\n"
 
-		"CREATE TABLE TOKENS(FID INTEGER,OFFSET INTEGER,EID INTEGER,\n"
-		"PRIMARY KEY(FID, OFFSET), FOREIGN KEY (EID) REFERENCES IDS)\n"
+		"CREATE TABLE TOKENS(FID INTEGER,FOFFSET INTEGER,EID INTEGER,\n"
+		"PRIMARY KEY(FID, FOFFSET), FOREIGN KEY (EID) REFERENCES IDS);\n"
 
-		"CREATE TABLE STRINGS(FID INTEGER,OFFSET INTEGER,TEXT VARCHAR,"
-		"PRIMARY KEY(FID, OFFSET))\n"
+		"CREATE TABLE STRINGS(FID INTEGER,FOFFSET INTEGER,TEXT VARCHAR,"
+		"PRIMARY KEY(FID, FOFFSET));\n"
 
-		"CREATE TABLE PROJECTS(PID INTEGER PRIMARY KEY,NAME VARCHAR)\n"
+		"CREATE TABLE PROJECTS(PID INTEGER PRIMARY KEY,NAME VARCHAR);\n"
 
 		"CREATE TABLE IDPROJ(EID INTEGER ,PID INTEGER,\n"
 		"FOREIGN KEY (EID) REFERENCES IDS,\n"
-		"FOREIGN KEY (PID) REFERENCES PROJECTS)\n"
+		"FOREIGN KEY (PID) REFERENCES PROJECTS);\n"
 
 		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,"
 		"NAME VARCHAR,\n"
-		"RO BIT,\n"
+		"RO \"boolean\",\n"
 		"NCHAR INTEGER,\n"
 		"NLCOMMENT INTEGER,\n"
 		"NBCOMMENT INTEGER,\n"
@@ -249,11 +249,11 @@ main(int argc, char *argv[])
 		"NFUNCTION INTEGER,\n"
 		"NPPDIRECTIVE INTEGER,\n"
 		"NINCFILE INTEGER,\n"
-		"NSTATEMENT INTEGER)\n"
+		"NSTATEMENT INTEGER);\n"
 
 		"CREATE TABLE FILEPROJ(FID INTEGER ,PID INTEGER,\n"
 		"FOREIGN KEY (FID) REFERENCES FILES,\n"
-		"FOREIGN KEY (PID) REFERENCES PROJECTS)\n"
+		"FOREIGN KEY (PID) REFERENCES PROJECTS);\n"
 		"";
 
 	// Project names
@@ -261,7 +261,7 @@ main(int argc, char *argv[])
 	Project::proj_map_type::const_iterator pm;
 	for (pm = m.begin(); pm != m.end(); pm++)
 		fo << "INSERT INTO PROJECTS VALUES(" << 
-		(*pm).second << ",'" << (*pm).first << "')\n";
+		(*pm).second << ",'" << (*pm).first << "');\n";
 
 	// Details for each file 
 	// As a side effect populate the EC identifier member
@@ -282,12 +282,12 @@ main(int argc, char *argv[])
 		(*i).metrics().get_nppdirective() << ',' <<
 		(*i).metrics().get_nincfile() << ',' <<
 		(*i).metrics().get_nstatement() <<
-		")\n";
+		");\n";
 		// The projects this file belongs to
 		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
 			if ((*i).get_attribute(j))
 				fo << "INSERT INTO FILEPROJ VALUES(" << 
-				(*i).get_id() << ',' << j << ")\n";
+				(*i).get_id() << ',' << j << ");\n";
 	}
 
 	return (0);
