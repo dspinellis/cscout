@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.7 2003/06/05 09:36:37 dds Exp $
+# $Id: cswc.pl,v 1.8 2003/06/12 16:29:56 dds Exp $
 #
 
 # Syntax:
@@ -112,11 +112,11 @@ sub endunit
 		}
 	}
 	if (defined($dir{$unit})) {
-		print "#pragma echo \"Exiting directory $dir{$unit}\\n\"\n";
+		print "#pragma echo \"Exiting directory $dir{$unit}\\n\"\n" unless ($cpp);
 		print "#pragma popd\n";
 	}
 	print "#pragma block_exit\n" unless($unit eq 'workspace' || $unit eq 'directory');
-	print "#pragma echo \"Done processing $unit $name\\n\"\n";
+	print "#pragma echo \"Done processing $unit $name\\n\"\n" unless ($cpp);
 	$unit = pop(@units);
 	$name = pop(@names);
 }
@@ -131,7 +131,7 @@ sub beginunit
 	undef $defines{$unit};
 	undef $ipaths{$unit};
 	print "// $unit $name\n";
-	print "#pragma echo \"Processing $unit $name\\n\"\n";
+	print "#pragma echo \"Processing $unit $name\\n\"\n" unless ($cpp);
 	if ($unit eq 'project') {
 		print "#pragma project \"$name\"\n";
 		print "#pragma block_enter\n";
@@ -149,6 +149,6 @@ sub directory
 {
 	my($dir) = @_;
 	$dir{$unit} = $dir;
-	print "#pragma echo \"Entering directory $dir\n\"\n";
+	print "#pragma echo \"Entering directory $dir\n\"\n" unless ($cpp);
 	print "#pragma pushd \"$dir\"\n";
 }

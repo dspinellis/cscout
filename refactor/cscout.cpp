@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.38 2003/06/04 18:37:03 dds Exp $
+ * $Id: cscout.cpp,v 1.39 2003/06/12 16:29:56 dds Exp $
  */
 
 #include <map>
@@ -1451,7 +1451,7 @@ simple_cpp()
 void
 usage()
 {
-	cerr << "usage: cscout [-P] filename\n";
+	cerr << "usage: cscout [-E] filename\n";
 	exit(1);
 }
 
@@ -1465,7 +1465,7 @@ main(int argc, char *argv[])
 
 	if (argc < 2)
 		usage();
-	if (string(argv[1]) == "-P") {
+	if (string(argv[1]) == "-E") {
 		if (argc < 3)
 			usage();
 		Fchar::set_input(argv[2]);
