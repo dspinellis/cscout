@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.48 2001/09/14 07:48:37 dds Exp $
+ * $Id: pdtoken.cpp,v 1.49 2001/10/27 13:07:22 dds Exp $
  */
 
 #include <iostream>
@@ -97,8 +97,10 @@ again:
 		*this = t;
 		break;
 	case EOF:
-		if (!iftaken.empty())
+		if (!iftaken.empty()) {
 			Error::error(E_ERR, "EOF while processing #if directive");
+			iftaken.clear();
+		}
 		*this = t;
 		break;
 	}
