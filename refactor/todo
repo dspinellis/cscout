@@ -1,18 +1,11 @@
-$Id: todo,v 1.6 2002/09/13 10:47:55 dds Exp $
+$Id: todo,v 1.7 2002/09/14 17:52:22 dds Exp $
 
-Fix typedef bug?
-#pragma ro_prefix
+Create separate databsse table with the newlines
 
-
-Store for each EC
+Store for each EC and file
 	A bag of projects it belongs to (#pragma project foo)
 	(the above also per file)
 	The above can be stored as a bitvector
-Use stab to
-	Display unused symbols
-		per file
-		per project
-	Collect metrics
 Collect metrics (and get them over the web)
 	Project name
 	URL
