@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.12 2001/10/27 13:35:18 dds Exp $
+ * $Id: tokid.cpp,v 1.13 2001/10/27 14:32:08 dds Exp $
  */
 
 #include <iostream>
@@ -14,6 +14,7 @@
 #include <cassert>
 
 #include "cpp.h"
+#include "debug.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
@@ -54,13 +55,19 @@ Tokid::clear()
 	mapTokidEclass::const_iterator i;
 	set <Eclass *> es;
 
+	if (DP()) cout << "Have " << Tokid::tm.tm.size() << " tokids\n";
 	// First create a set of all ecs
 	for (i = Tokid::tm.tm.begin(); i != Tokid::tm.tm.end(); i++)
 		es.insert((*i).second);
 	// Then free them
+	if (DP()) cout << "Deleting " << es.size() << " classes\n";
 	set <Eclass *>::const_iterator si;
-	for (si = es.begin(); si != es.end(); i++)
-		delete *si;
+	for (si = es.begin(); si != es.end(); si++) {
+		if (DP()) cout << "Delete class " << *si << "\n";
+		delete (*si);
+	}
+	// Finally, clear the map
+	tm.tm.clear();
 }
 
 dequeTpart
@@ -79,7 +86,8 @@ Tokid::constituents(int l)
 	}
 	// Make r be the Tparts of the ECs covering our tokid t
 	for (;;) {
-		// cout << "Tokid = " << (e->first) << " Eclass = " << e->second << "\n" << (*(e->second)) << "\n";
+		if (DP())
+			cout << "Tokid = " << (e->first) << " Eclass = " << e->second << "\n" << (*(e->second)) << "\n";
 		int covered = (e->second)->get_len();
 		Tpart tp(t, covered);
 		r.push_back(tp);
