@@ -1,14 +1,15 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.10 2001/09/12 09:51:09 dds Exp $
+# $Id: Makefile,v 1.11 2001/09/14 07:43:44 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
-ptoken.o tchar.o token.o tokid.o tokname.o eval.tab.o ctoken.o macro.o \
+ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o
 
 YACC=btyacc
+#YACC=yacc
 CC=g++
 CPPFLAGS=-pipe -g
 
@@ -38,19 +39,18 @@ error.o: pltoken.h
 pdtoken.o: pltoken.h
 simple_cpp.o: pltoken.h
 
-eval.tab.c: eval.y
+eval.cpp: eval.y
 	$(YACC) -b eval -p eval_ eval.y
+	mv eval_tab.c eval.cpp
 
 parse.cpp: parse.y
-	#$(YACC) -d -b parse parse.y
-	#sed 's/yy/parse_/g' parse_tab.c >parse.cpp
 	$(YACC) -d -b parse -p parse_ parse.y
 	mv parse_tab.c parse.cpp
 	grep 'define ' parse_tab.h >ytab.h
 	perl tokname.pl ytab.h tokname.cpp
 
 # Test
-cpptest: cpp-test $(CPPTEST)
+cpptest: cpp-test $(CPPTEST) simple_cpp
 	for i in $(CPPTEST) ; do echo -n $$i && cpp-test $$i && echo ' ok' ; done
 
 hellotest: simple_cpp test/hello.c
