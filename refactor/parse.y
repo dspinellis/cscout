@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.64 2003/07/29 17:02:04 dds Exp $
+ * $Id: parse.y,v 1.65 2003/07/31 23:57:38 dds Exp $
  *
  */
 
@@ -59,6 +59,89 @@ void parse_error(char *s)
 {
 	Error::error(E_ERR, "syntax error");
 }
+
+/*
+ * A stack needed for handling C99 designators
+ * The stack's top always contains the type of the 
+ * element that can be designated.
+ */
+typedef struct {
+	int ordinal;		// Structure element ordinal number
+	Type t;			// Initialized element's type
+} Designator;
+
+static stack <Designator> designator_stack;
+
+// The initial initialized element
+static Type initialized_element;
+
+// Initialize the designator stack
+static void
+designator_init(Type t)
+{
+	assert(designator_stack.empty());
+	initialized_element = t.type();
+	if (DP())
+		cout << "Type is " << t << "\n";
+}
+
+// An opening brace within a designator context
+static void
+designator_open()
+{
+	Designator d;
+
+	d.ordinal = 0;
+	if (designator_stack.empty()) 
+		d.t = initialized_element;
+	else if (designator_stack.top().t.is_array())
+		d.t = designator_stack.top().t.subscript();
+	else if (designator_stack.top().t.is_su()) {
+		Id const *id = designator_stack.top().t.member(designator_stack.top().ordinal);
+		if (id)
+			d.t = id->get_type();
+		else {
+			/*
+			 * @error
+			 * Attempting to sequantially reference a structure
+			 * or union element past the number of elements
+			 * that have been declared for that object
+			 */
+			Error::error(E_ERR, "Excess element in structure or union");
+			d.t = basic(b_undeclared);
+		}
+	} else {
+		/*
+		 * @error
+		 * An initializer for a scalar value contained braces
+		 */
+		Error::error(E_ERR, "Braces around scalar initializer");
+		d.t = basic(b_undeclared);
+	}
+	if (DP())
+		cout << "New designator " << d.t << "\n";
+	designator_stack.push(d);
+}
+
+// An comma within a designator context
+static void
+designator_next()
+{
+	if (!designator_stack.empty()) 
+		designator_stack.top().ordinal++;
+}
+
+
+// An closing brace within a designator context
+static void
+designator_close()
+{
+	if (!designator_stack.empty()) 
+		designator_stack.pop();
+	else
+		; // The error will be reported as a syntax error
+}
+
 
 
 #define YYSTYPE_CONSTRUCTOR
@@ -158,6 +241,7 @@ static bool yacc_typing;
 %type <t> postfix_identifier_declarator
 %type <t> unary_identifier_declarator
 %type <t> identifier_declarator
+%type <t> designator
 
 /* Needed for yacc */
 %type <t> INT_CONST
@@ -558,6 +642,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
 		{
 			$2.set_abstract($1);
 			$2.declare();
+			designator_init($2);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -565,6 +650,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
         | type_qualifier_list identifier_declarator
 		{
 			$2.declare();
+			designator_init($2);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -572,6 +658,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
 		{
 			$3.set_abstract($1);
 			$3.declare();
+			designator_init($3);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -583,6 +670,7 @@ declaring_list:
 		{
 			$2.set_abstract($1);
 			$2.declare();
+			designator_init($2);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -591,6 +679,7 @@ declaring_list:
 		{
 			$2.set_abstract($1);
 			$2.declare();
+			designator_init($2);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -598,6 +687,7 @@ declaring_list:
 		{
 			$3.set_abstract($1);
 			$3.declare();
+			designator_init($3);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -1058,16 +1148,77 @@ initializer_opt:
         | '=' initializer
         ;
 
+initializer_open:
+	'{'
+		{ designator_open(); }
+	;
+
+initializer_close:
+	'}'
+		{ designator_close(); }
+	;
+
 initializer:
-        '{' initializer_list '}'
-        | '{' initializer_list ',' '}'
+        | initializer_open initializer_list initializer_comma initializer_close
+        | initializer_open initializer_list initializer_close
         | assignment_expression
         ;
 
 initializer_list:
-        initializer
-        | initializer_list ',' initializer
+        initializer_member
+        | initializer_list initializer_comma initializer_member
         ;
+
+initializer_comma:
+	','
+		{ designator_next(); }
+	;
+
+initializer_member:
+	initializer
+	| designator '=' initializer
+	;
+
+/* C99 feature */
+designator:
+        '[' constant_expression ']'
+		{
+			if (designator_stack.empty()) 
+				$$ = basic(b_undeclared);
+			else
+				$$ = designator_stack.top().t.subscript();
+		}
+        | '.' member_name
+		{
+			Id const *id = designator_stack.top().t.member($2.get_name());
+			if (id) {
+				$$ = id->get_type();
+				if (DP())
+					cout << ". returns " << $$ << "\n";
+				assert(id->get_name() == $2.get_name());
+				unify($2.get_token(), id->get_token());
+			} else {
+				Error::error(E_ERR, "structure or union does not have a member " + $2.get_name());
+				$$ = basic(b_undeclared);
+			}
+		}
+        | designator '[' constant_expression ']'
+		{ $$ = $1.subscript(); }
+        | designator '.' member_name
+		{
+			Id const *id = $1.member($3.get_name());
+			if (id) {
+				$$ = id->get_type();
+				if (DP())
+					cout << ". returns " << $$ << "\n";
+				assert(id->get_name() == $3.get_name());
+				unify($3.get_token(), id->get_token());
+			} else {
+				Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
+				$$ = basic(b_undeclared);
+			}
+		}
+	;
 
 
 /*************************** STATEMENTS *******************************/

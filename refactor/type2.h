@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.11 2003/07/29 13:54:42 dds Exp $
+ * $Id: type2.h,v 1.12 2003/07/31 23:57:38 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -22,6 +22,7 @@ public:
 	Type deref() const { return of; }
 	Type subscript() const { return of; }
 	bool is_ptr() const { return true; }
+	bool is_array() const { return true; }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { of.set_storage_class(t); }
@@ -78,33 +79,40 @@ class Stab;
 // Structure or Union
 class Tsu: public Type_node {
 private:
-	Stab members;
+	Stab members_by_name;
+	vector <Id> members_by_ordinal;
 	Type default_specifier;	// Used while declaring a series of members
 	Tstorage sclass;
 public:
 	Tsu(const Token &tok, const Type &typ, const Type &spec) { 
 		tok.set_ec_attribute(is_sumember);
 		if (DP()) cout << "Adding member " << tok << "\n";
-		members.define(tok, typ); 
+		members_by_name.define(tok, typ); 
+		members_by_ordinal.push_back(Id(tok, typ));
 		default_specifier = spec; 
 	}
 	Tsu(const Type &spec) { default_specifier = spec; }
-	Tsu(const Stab& m, const Type& ds, const Tstorage& sc) :
-		members(m), default_specifier(ds), sclass(sc) {}
 	Tsu() {}
 	virtual ~Tsu() {}
 	bool is_su() const { return true; }
-	Type clone() const { return Type(new Tsu(members, default_specifier, sclass)); }
+	Type clone() const { return Type(new Tsu(*this)); }
 	void add_member(const Token &tok, const Type &typ) { 
 		if (DP()) cout << "Adding member " << tok << "\n";
 		tok.set_ec_attribute(is_sumember);
-		members.define(tok, typ); 
+		members_by_name.define(tok, typ); 
+		members_by_ordinal.push_back(Id(tok, typ));
 	}
 	Type get_default_specifier() const { return default_specifier; }
-	void merge_with(Type t) { members.merge_with(t.get_members()) ; }
+	void merge_with(Type t) { members_by_name.merge_with(t.get_members()) ; }
 	Id const* member(const string& s) const 
-		{ return members.lookup(s); }
-	const Stab& get_members() const { return members; }
+		{ return members_by_name.lookup(s); }
+	Id const* member(unsigned n) const {
+		if (n >= members_by_ordinal.size())
+			return NULL;
+		else
+			return &(members_by_ordinal[n]);
+	}
+	const Stab& get_members() const { return members_by_name; }
 	void print(ostream &o) const;
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
@@ -143,6 +151,10 @@ public:
 	const Ctoken& get_token() const { return t; }
 	const string& get_name() const { return t.get_name(); }
 	Type type() const { return of; }
+	Id const* member(const string& s) const 
+		{ return of.member(s); }
+	Id const* member(unsigned n) const
+		{ return of.member(n); }
 	Type call() const;			// Function (undeclared)
 	void print(ostream &o) const;
 	void set_abstract(Type t);

@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.23 2003/07/29 22:16:51 dds Exp $
+ * $Id: type.h,v 1.24 2003/07/31 23:57:38 dds Exp $
  */
 
 #ifndef TYPE_
@@ -55,6 +55,7 @@ protected:
 	virtual Type type() const;		// Identifier
 	virtual Type clone() const;		// Deep copy
 	virtual Id const* member(const string& name) const;	// Structure and union
+	virtual Id const* member(unsigned n) const;	// Structure and union
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
 	virtual bool is_su() const { return false; }// True for struct/union
 	virtual bool is_valid() const { return true; }// False for undeclared
@@ -62,6 +63,7 @@ protected:
 	virtual bool is_padbit() const { return false; }// True for pad bit field
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
+	virtual bool is_array() const { return false; }	// True for arrays
 	virtual const string& get_name() const;	// True for identifiers
 	virtual const Ctoken& get_token() const;// True for identifiers
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
@@ -169,6 +171,7 @@ public:
 	bool is_padbit() const		{ return p->is_padbit(); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
+	bool is_array() const		{ return p->is_array(); }
 	const string& get_name() const	{ return p->get_name(); }
 	const Ctoken& get_token() const { return p->get_token(); }
 	enum e_storage_class get_storage_class() const 
@@ -181,6 +184,8 @@ public:
 	const Stab& get_members() const	{ return p->get_members(); }
 	Id const* member(const string& name) const	// Structure and union
 					{ return p->member(name); }
+	Id const* member(unsigned n) const	// Structure and union
+					{ return p->member(n); }
 	friend Type merge(Type a, Type b) { return a.p->merge(b.p->tobasic()); }
 };
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.28 2003/07/29 13:54:42 dds Exp $
+ * $Id: type.cpp,v 1.29 2003/07/31 23:57:38 dds Exp $
  */
 
 #include <iostream>
@@ -175,6 +175,15 @@ Type_node::member(const string& s) const
 }
 
 const Id *
+Type_node::member(unsigned n) const
+{
+	Error::error(E_ERR, "invalid member access: not a structure or union");
+	if (DP())
+		this->print(cerr);
+	return NULL;
+}
+
+const Id *
 Tincomplete::member(const string& s) const
 {
 	const Id *id = tag_lookup(scope_level, t.get_name());
@@ -338,7 +347,7 @@ Tsu::print(ostream &o) const
 {
 	sclass.print(o);
 
-	o << "struct/union " << members;
+	o << "struct/union " << members_by_name;
 }
 
 void
