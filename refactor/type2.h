@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.1 2001/09/21 20:49:09 dds Exp $
+ * $Id: type2.h,v 1.2 2001/09/22 07:38:52 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -78,6 +78,9 @@ public:
 	Tsu(const Token &tok, const Type &typ, const Type &spec) 
 		{ members.define(tok, typ); default_specifier = spec; }
 	Tsu(const Type &spec) { default_specifier = spec; }
+	Tsu(const Stab& m, const Type& ds, const Tstorage& sc) :
+		members(m), default_specifier(ds), sclass(sc) {}
+	Type clone() const { return Type(new Tsu(members, default_specifier, sclass)); }
 	void add_member(const Token &tok, const Type &typ)
 		{ members.define(tok, typ); }
 	Type get_default_specifier() const { return default_specifier; }
