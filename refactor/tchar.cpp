@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.5 2001/09/01 05:57:55 dds Exp $
+ * $Id: tchar.cpp,v 1.6 2001/09/02 17:40:47 dds Exp $
  */
 
 #include <iostream>
@@ -98,5 +98,15 @@ Tchar::clear()
 void
 Tchar::push_input(const Ptoken& p)
 {
-	iq.push_back(p);
+	switch (p.get_code()) {
+	case STRING_LITERAL:
+		iq.push_back(Ptoken(STRING_LITERAL, "\"" + p.get_val() + "\""));
+		break;
+	case CHAR_LITERAL:
+		iq.push_back(Ptoken(CHAR_LITERAL, "\'" + p.get_val() + "\'"));
+		break;
+	default:
+		iq.push_back(p);
+		break;
+	}
 }
