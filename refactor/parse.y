@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.78 2003/08/03 16:33:05 dds Exp $
+ * $Id: parse.y,v 1.79 2003/08/11 09:36:37 dds Exp $
  *
  */
 
@@ -402,7 +402,7 @@ postfix_expression:
 					if (DP())
 						cout << ". returns " << $$ << "\n";
 					assert(id->get_name() == $3.get_name());
-					unify($3.get_token(), id->get_token());
+					unify(id->get_token(), $3.get_token());
 				} else {
 					/*
 					 * @error
@@ -424,7 +424,7 @@ postfix_expression:
 				if (id) {
 					$$ = id->get_type();
 					assert(id->get_name() == $3.get_name());
-					unify($3.get_token(), id->get_token());
+					unify(id->get_token(), $3.get_token());
 				} else {
 					Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
 					$$ = basic(b_undeclared);
@@ -1254,7 +1254,7 @@ initializer_member:
 			Id const *id = designator_stack.top().t.member($1.get_name());
 			if (id) {
 				assert(id->get_name() == $1.get_name());
-				unify($1.get_token(), id->get_token());
+				unify(id->get_token(), $1.get_token());
 			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $1.get_name());
 		}
@@ -1277,7 +1277,7 @@ designator:
 				if (DP())
 					cout << ". returns " << $$ << "\n";
 				assert(id->get_name() == $2.get_name());
-				unify($2.get_token(), id->get_token());
+				unify(id->get_token(), $2.get_token());
 			} else {
 				Error::error(E_ERR, "structure or union does not have a member " + $2.get_name());
 				$$ = basic(b_undeclared);
@@ -1293,7 +1293,7 @@ designator:
 				if (DP())
 					cout << ". returns " << $$ << "\n";
 				assert(id->get_name() == $3.get_name());
-				unify($3.get_token(), id->get_token());
+				unify(id->get_token(), $3.get_token());
 			} else {
 				Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
 				$$ = basic(b_undeclared);
@@ -1775,7 +1775,7 @@ yacc_tag:
 					if (DP())
 						cout << ". returns " << id->get_type() << "\n";
 					assert(id->get_name() == $2.get_name());
-					unify($2.get_token(), id->get_token());
+					unify(id->get_token(), $2.get_token());
 				} else {
 					/*
 					 * @error

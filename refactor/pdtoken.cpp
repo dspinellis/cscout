@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.82 2003/08/01 14:52:30 dds Exp $
+ * $Id: pdtoken.cpp,v 1.83 2003/08/11 09:36:37 dds Exp $
  */
 
 #include <iostream>
@@ -308,7 +308,7 @@ eval()
 		if (DP()) cout << "val:" << val << "\n";
 		mapMacro::const_iterator mi = Pdtoken::macros_find(val);
 		if (mi != Pdtoken::macros_end())
-			unify(*arg, (*mi).second.get_name_token());
+			unify((*mi).second.get_name_token(), *arg);
 		else
 			Pdtoken::create_undefined_macro(*arg);
 		eval_tokens.erase(i, last);
@@ -405,7 +405,7 @@ Pdtoken::process_ifdef(bool isndef)
 			// Heuristic; assume macro, even if it is not defined
 			Pdtoken::create_undefined_macro(t);
 		else
-			unify(t, (*i).second.get_name_token());
+			unify((*i).second.get_name_token(), t);
 		bool eval_res = Pdtoken::macro_is_defined(i);
 		if (isndef)
 			eval_res = !eval_res;
@@ -698,7 +698,7 @@ Pdtoken::process_define()
 		m.value_push_back(t);
 		mapToken::const_iterator i;
 		if (t.get_code() == IDENTIFIER && (i = args.find(t.get_val())) != args.end())
-			unify(t, (*i).second);
+			unify((*i).second, t);
 		t.template getnext<Fchar>();
 	}
 	m.value_rtrim();
@@ -715,7 +715,7 @@ Pdtoken::process_define()
 			Error::error(E_WARN, "Duplicate (different) macro definition of macro " + name);
 			if (DP()) cout << (*i).second;
 		} else
-			unify(nametok, (*i).second.get_name_token());
+			unify((*i).second.get_name_token(), nametok);
 	macros[name] = m;
 	if (DP()) cout << "Macro define " << m;
 }
@@ -735,7 +735,7 @@ Pdtoken::process_undef()
 	}
 	mapMacro::iterator mi;
 	if ((mi = Pdtoken::macros.find(t.get_val())) != Pdtoken::macros.end()) {
-		unify(t, (*mi).second.get_name_token());
+		unify((*mi).second.get_name_token(), t);
 		Pdtoken::macros.erase(mi);
 	}
 	eat_to_eol();
