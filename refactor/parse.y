@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.91 2003/12/05 07:42:31 dds Exp $
+ * $Id: parse.y,v 1.92 2004/07/23 06:20:27 dds Exp $
  *
  */
 
@@ -55,7 +55,9 @@
 #include "type2.h"
 #include "debug.h"
 #include "fdep.h"
+#include "call.h"
 #include "fcall.h"
+#include "mcall.h"
 
 void parse_error(char *s)
 {

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.71 2003/12/07 10:44:24 dds Exp $
+ * $Id: cscout.cpp,v 1.72 2004/07/23 06:20:27 dds Exp $
  */
 
 #include <map>
@@ -57,7 +57,9 @@
 #include "license.h"
 #include "fdep.h"
 #include "version.h"
+#include "call.h"
 #include "fcall.h"
+#include "mcall.h"
 
 #ifdef COMMERCIAL
 #include "des.h"
@@ -1225,10 +1227,10 @@ identifier_page(FILE *fo, void *p)
 	fprintf(fo, "</ul>\n");
 	if (e->get_attribute(is_function)) {
 		fprintf(fo, "<li> Occurs in function name(s): \n<ol>\n");
-		for (FCall::const_fiterator_type i = FCall::fbegin(); i != FCall::fend(); i++) {
+		for (Call::const_fiterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 			if ((*i)->contains(e)) {
 				fprintf(fo, "\n<li>");
-				html_string(fo, (*i)->get_name(), (*i)->get_declaration());
+				html_string(fo, (*i)->get_name(), (*i)->get_tokid());
 				fprintf(fo, " - <a href=\"fun.html?f=%p\">function page</a>", *i);
 			}
 		}
@@ -1271,7 +1273,7 @@ identifier_page(FILE *fo, void *p)
 void
 function_page(FILE *fo, void *p)
 {
-	FCall *f;
+	Call *f;
 	if (!swill_getargs("p(f)", &f)) {
 		fprintf(fo, "Missing value");
 		return;
@@ -1279,7 +1281,7 @@ function_page(FILE *fo, void *p)
 	html_head(fo, "fun", string("Function: ") + html(f->get_name()));
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> Associated identifier: ");
-	Tokid t = f->get_declaration();
+	Tokid t = f->get_tokid();
 	html_string(fo, f->get_name(), t);
 	fprintf(fo, "\n<li> Declared in file <a href=\"file.html?id=%u\">%s</a>",
 		t.get_fileid().get_id(),
@@ -1321,12 +1323,12 @@ function_page(FILE *fo, void *p)
  * associated children functions.
  */
 void
-list_functions(FILE *fo, FCall *f, 
-	FCall::const_fiterator_type (FCall::*fbegin)() const,
-	FCall::const_fiterator_type (FCall::*fend)() const,
+list_functions(FILE *fo, Call *f, 
+	Call::const_fiterator_type (Call::*fbegin)() const,
+	Call::const_fiterator_type (Call::*fend)() const,
 	bool recurse)
 {
-	FCall::const_fiterator_type i;
+	Call::const_fiterator_type i;
 
 	f->set_visited();
 	for (i = (f->*fbegin)(); i != (f->*fend)(); i++) {
@@ -1341,7 +1343,7 @@ list_functions(FILE *fo, FCall *f,
 void
 funlist_page(FILE *fo, void *p)
 {
-	FCall *f;
+	Call *f;
 	if (!swill_getargs("p(f)", &f)) {
 		fprintf(fo, "Missing value");
 		return;
@@ -1365,24 +1367,24 @@ funlist_page(FILE *fo, void *p)
 		return;
 	}
 	// Pointers to the ...begin and ...end methods
-	FCall::const_fiterator_type (FCall::*fbegin)() const;
-	FCall::const_fiterator_type (FCall::*fend)() const;
+	Call::const_fiterator_type (Call::*fbegin)() const;
+	Call::const_fiterator_type (Call::*fend)() const;
 	switch (*ltype) {
 	case 'u':
 	case 'U':
-		fbegin = &FCall::caller_begin;
-		fend = &FCall::caller_end;
+		fbegin = &Call::caller_begin;
+		fend = &Call::caller_end;
 		fprintf(fo, "List of %s calling functions\n", calltype);
 		break;
 	case 'd':
 	case 'D':
-		fbegin = &FCall::call_begin;
-		fend = &FCall::call_end;
+		fbegin = &Call::call_begin;
+		fend = &Call::call_end;
 		fprintf(fo, "List of %s called functions\n", calltype);
 		break;
 	}
 	fprintf(fo, "<ul>\n");
-	FCall::clear_visit_flags();
+	Call::clear_visit_flags();
 	list_functions(fo, f, fbegin, fend, recurse);
 	fprintf(fo, "</ul>\n");
 	html_tail(fo);
@@ -1458,13 +1460,13 @@ void
 cgraph_page(FILE *fo, void *p)
 {
 	html_head(fo, "cgraph", "Call Graph");
-	FCall::const_fiterator_type fun, call;
-	for (fun = FCall::fbegin(); fun != FCall::fend(); fun++)
+	Call::const_fiterator_type fun, call;
+	for (fun = Call::fbegin(); fun != Call::fend(); fun++)
 		for (call = (*fun)->call_begin(); call != (*fun)->call_end(); call++)
 			fprintf(fo, "%s:%s %s:%s <br />\n",
-			    (*fun)->get_declaration().get_fileid().get_path().c_str(),
+			    (*fun)->get_tokid().get_fileid().get_path().c_str(),
 			    (*fun)->get_name().c_str(),
-			    (*call)->get_declaration().get_fileid().get_path().c_str(),
+			    (*call)->get_tokid().get_fileid().get_path().c_str(),
 			    (*call)->get_name().c_str());
 	html_tail(fo);
 }

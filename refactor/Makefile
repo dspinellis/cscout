@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.60 2003/12/08 09:16:32 dds Exp $
+# $Id: Makefile,v 1.61 2004/07/23 06:20:27 dds Exp $
 #
 
 #
@@ -13,7 +13,7 @@
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
-getopt.o error.o fdep.o fcall.o
+getopt.o error.o fdep.o fcall.o call.o
 
 ifndef ARCH
 ARCH=i386
@@ -160,8 +160,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.60 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/12/08 09:16:32 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.61 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2004/07/23 06:20:27 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

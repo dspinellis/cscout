@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.37 2003/11/17 13:02:46 dds Exp $
+ * $Id: type.cpp,v 1.38 2004/07/23 06:20:27 dds Exp $
  */
 
 #include <iostream>
@@ -36,7 +36,9 @@
 #include "stab.h"
 #include "type2.h"
 #include "debug.h"
+#include "call.h"
 #include "fcall.h"
+#include "mcall.h"
 
 
 Type&

@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2003 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.6 2003/12/05 07:42:31 dds Exp $
+ * $Id: fcall.cpp,v 1.7 2004/07/23 06:20:27 dds Exp $
  */
 
 #include <map>
@@ -36,27 +36,19 @@
 #include "type.h"
 #include "stab.h"
 #include "fdep.h"
+#include "call.h"
 #include "fcall.h"
 #include "eclass.h"
 
-// Function currently being parsed
-FCall *FCall::current_fun = NULL;
 
-// Set of all functions
-FCall::fun_container FCall::all;
-
-// Set the funciton currently being parsed
-void
-FCall::set_current_fun(const Type &t)
+// Constructor
+FCall::FCall(const Token& tok, Type typ, const string &s) :
+		Call(s),
+		declaration(tok.get_parts_begin()->get_tokid()),
+		type(typ),
+		defined(false)
 {
-	Id const *id = obj_lookup(t.get_name());
-	assert(id);
-	current_fun = id->get_fcall();
-	assert(current_fun);
-	current_fun->definition = t.get_token().get_parts_begin()->get_tokid();
-	current_fun->defined = true;
-	if (DP())
-		cout << "Current function " << id->get_name() << "\n";
+	all.insert(this);
 }
 
 /*
@@ -72,47 +64,16 @@ FCall::set_current_fun(const Id *id)
 	current_fun->definition = Tokid();
 }
 
-// The current function makes a call to f
+// Set the function currently being parsed
 void
-FCall::register_call(FCall *f)
+FCall::set_current_fun(const Type &t)
 {
-	if (!current_fun)
-		return;
-	current_fun->add_call(f);
-	f->add_caller(current_fun);
+	Id const *id = obj_lookup(t.get_name());
+	assert(id);
+	current_fun = id->get_fcall();
+	assert(current_fun);
+	current_fun->definition = t.get_token().get_parts_begin()->get_tokid();
+	current_fun->defined = true;
 	if (DP())
-		cout << current_fun->declaration << " calls " << f->declaration << "\n";
-}
-
-// Constructor
-FCall::FCall(const Token& tok, Type typ, const string &s) :
-		name(s), 
-		declaration(tok.get_parts_begin()->get_tokid()), 
-		type(typ),
-		defined(false)
-{
-	all.insert(this);
-}
-
-// Return true if e appears in the eclasses comprising out name
-bool
-FCall::contains(Eclass *e) const
-{
-	int len = name.length();
-	Tokid t = declaration;
-	for (int pos = 0; pos < len;) {
-		Eclass *e2 = t.get_ec();
-		if (e == e2)
-			return true;
-		t += e2->get_len();
-		pos += e2->get_len();
-	}
-	return false;
-}
-
-void
-FCall::clear_visit_flags()
-{
-	for (const_fiterator_type i = all.begin(); i != all.end(); i++)
-		(*i)->visited = false;
+		cout << "Current function " << id->get_name() << "\n";
 }

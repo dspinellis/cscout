@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.32 2003/12/04 20:03:08 dds Exp $
+ * $Id: stab.cpp,v 1.33 2004/07/23 06:20:27 dds Exp $
  */
 
 #include <map>
@@ -36,7 +36,9 @@
 #include "type.h"
 #include "stab.h"
 #include "fdep.h"
+#include "call.h"
 #include "fcall.h"
+#include "mcall.h"
 
 
 int Block::current_block = -1;
