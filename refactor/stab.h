@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.8 2001/09/22 16:56:02 dds Exp $
+ * $Id: stab.h,v 1.9 2001/10/27 13:35:18 dds Exp $
  */
 
 #ifndef STAB_
@@ -82,6 +82,7 @@ public:
 	static const int cu_block = 1;	// Compilation unit definitions: 1
 	static void enter();
 	static void exit();
+	static void clear();		// Clear all block-related information
 
 	/*
 	 * Special block for handling function parameters.

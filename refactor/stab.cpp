@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.9 2001/09/22 11:46:18 dds Exp $
+ * $Id: stab.cpp,v 1.10 2001/10/27 13:35:18 dds Exp $
  */
 
 #include <map>
@@ -93,6 +93,14 @@ Block::param_clear(void)
 {
 	param_block.obj.clear();
 	param_block.tag.clear();
+}
+
+void
+Block::clear()
+{
+	param_clear();
+	scope_block.clear();
+	current_block = -1;
 }
 
 /*

@@ -3,7 +3,7 @@
  *
  * Tcl interface functions
  *
- * $Id: tclfuns.cpp,v 1.2 2001/10/27 13:33:04 dds Exp $
+ * $Id: tclfuns.cpp,v 1.3 2001/10/27 13:35:18 dds Exp $
  */
 
 #include "appinit.h"
@@ -107,6 +107,14 @@ int ET_COMMAND_macros_clear(ET_TCLARGS)
 	return TCL_OK;
 }
 
+int ET_COMMAND_workspace_clear(ET_TCLARGS)
+{
+	Tokid::clear();
+	Fileid::clear();
+	Block::clear();
+	return TCL_OK;
+}
+
 static Tcl_Interp *parse_interp;
 
 class Fatal {};
@@ -128,13 +136,13 @@ int ET_COMMAND_parse(ET_TCLARGS)
 
 int ET_COMMAND_num_errors(ET_TCLARGS)
 {
-	Et_ResultF(interp, "%d", get_num_errors());
+	Et_ResultF(interp, "%d", Error::get_num_errors());
 	return TCL_OK;
 }
 
 int ET_COMMAND_num_warnings(ET_TCLARGS)
 {
-	Et_ResultF(interp, "%d", get_num_warnings());
+	Et_ResultF(interp, "%d", Error::get_num_warnings());
 	return TCL_OK;
 }
 

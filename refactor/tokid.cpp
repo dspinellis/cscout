@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.11 2001/08/31 16:13:14 dds Exp $
+ * $Id: tokid.cpp,v 1.12 2001/10/27 13:35:18 dds Exp $
  */
 
 #include <iostream>
@@ -45,6 +45,22 @@ operator<<(ostream& o,const mapTokidEclass& t)
 		o << e << "\n\n";
 	}
 	return o;
+}
+
+// Clear the map of tokid equivalence classes
+void
+Tokid::clear()
+{
+	mapTokidEclass::const_iterator i;
+	set <Eclass *> es;
+
+	// First create a set of all ecs
+	for (i = Tokid::tm.tm.begin(); i != Tokid::tm.tm.end(); i++)
+		es.insert((*i).second);
+	// Then free them
+	set <Eclass *>::const_iterator si;
+	for (si = es.begin(); si != es.end(); i++)
+		delete *si;
 }
 
 dequeTpart

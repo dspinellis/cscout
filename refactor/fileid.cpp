@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.6 2001/10/27 09:59:07 dds Exp $
+ * $Id: fileid.cpp,v 1.7 2001/10/27 13:35:18 dds Exp $
  */
 
 #include <map>
@@ -23,6 +23,15 @@ int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
 FI_id_to_details Fileid::i2d;	// From id to file details
 Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
+
+// Clear the maps
+void
+Fileid::clear()
+{
+	u2i.clear();
+	i2d.clear(); 
+	Fileid::anonymous = Fileid("ANONYMOUS", 0);
+}
 
 #ifdef WIN32
 #include <windows.h>
@@ -125,12 +134,12 @@ Fileid::get_readonly() const
 	return i2d[id].get_readonly();
 }
 
-
 void
 Fileid::set_readonly(bool r)
 {
 	i2d[id].set_readonly(r);
 }
+
 #ifdef UNIT_TEST
 // cl -GX -DWIN32 -DUNIT_TEST fileid.cpp kernel32.lib
 

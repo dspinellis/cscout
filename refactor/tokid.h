@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.11 2001/10/27 09:59:07 dds Exp $
+ * $Id: tokid.h,v 1.12 2001/10/27 13:35:18 dds Exp $
  */
 
 #ifndef TOKID_
@@ -64,6 +64,8 @@ public:
 	inline void set_ec(Eclass *ec);
 	// Returns the Tokids participating in all ECs for a token of length l
 	dequeTpart Tokid::constituents(int l);
+	// Clear the map of tokid equivalence classes
+	static void clear();
 	// Print the contents of the class map
 	friend ostream& operator<<(ostream& o,const map <Tokid, Eclass *>& dummy);
 	// Return true if the underlying file is read-only
