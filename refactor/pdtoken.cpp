@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.10 2001/08/24 13:17:53 dds Exp $
+ * $Id: pdtoken.cpp,v 1.11 2001/08/24 13:58:30 dds Exp $
  */
 
 #include <iostream>
@@ -243,10 +243,85 @@ Pdtoken::process_directive()
 }
 
 
-static bool
-gather_args(listPtoken::iterator pos, const dequePtoken& formal_args, mapArgval& args, bool get_more)
+static Ptoken
+arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool want_space)
 {
+	if (want_space) {
+		if (pos != tokens.end())
+			return (*pos++);
+		if (get_more) {
+			Pltoken t;
+			t.template getnext_nospc<Fchar>();
+			return (t);
+		}
+		return Ptoken(EOF, "");
+	} else {
+		while (pos != tokens.end() && ((*pos).get_code() == SPACE || (*pos).get_code() == '\n')) {
+			pos++;
+			if (pos != tokens.end())
+				return (*pos++);
+		}
+		if (get_more) {
+			Pltoken t;
+			do {
+				t.template getnext_nospc<Fchar>();
+			} while (t.get_code() != EOF && 
+			       (t.get_code() == SPACE || t.get_code() == '\n'));
+			return (t);
+		}
+		return Ptoken(EOF, "");
+	}
 }
+				
+/*
+ * Get the macro arguments specified in formal_args, initiallly from pos,
+ * then, if get_more is true, from pltoken<fchar>.getnext.
+ * Build the map from formal name to argument value args.
+ * Return true if ok, false on error.
+ */
+static bool
+gather_args(listPtoken& tokens, listPtoken::iterator& pos, const dequePtoken& formal_args, mapArgval& args, bool get_more)
+{
+	Ptoken t;
+	t = arg_token(tokens, pos, get_more, false);
+	if (t.get_code() != '(') {
+		Error::error(E_ERR, "Open bracket expected for function-like macro");
+		return false;
+	}
+	dequePtoken::const_iterator i;
+	for (i = formal_args.begin(); i != formal_args.end(); i++) {
+		listPtoken& v = args[(*i).get_val()];
+		char term = (i + 1 == formal_args.end()) ? ')' : ',';
+		int bracket = 0;
+		// Get a single argument
+		for (;;) {
+			t = arg_token(tokens, pos, get_more, true);
+			if (bracket == 0 && t.get_code() == term)
+				break;
+			switch (t.get_code()) {
+			case '(':
+				bracket++;
+				break;
+			case ')':
+				bracket--;
+				break;
+			case EOF:
+				Error::error(E_ERR, "EOF while reading function macro arguments");
+				return (false);
+			}
+			v.push_back(t);
+		}
+	}
+	if (formal_args.size() == 0) {
+		t = arg_token(tokens, pos, get_more, false);
+		if (t.get_code() != ')') {
+			Error::error(E_ERR, "Close bracket expected for function-like macro");
+			return false;
+		}
+	}
+	return (true);
+}
+
 
 // Return s with all \ and " characters \ escaped
 static string
@@ -270,6 +345,7 @@ escape(const string& s)
  * Convert a list of tokens into a string as specified by the # operator
  * Multiple spaces are converted to a single space, \ and " are
  * escaped
+ * XXX strip initial and final spaces?
  */
 static Ptoken
 stringize(const listPtoken& ts)
@@ -323,11 +399,12 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 	tabu.insert(name);
 	const Macro& m = (*mi).second;
 	if (m.is_function) {
-		const int nargs = m.formal_args.size();
 		mapArgval args;			// Map from formal name to value
 		bool do_stringize;
 
-		gather_args(pos, m.formal_args, args, get_more);
+		expand_start = pos;
+		gather_args(tokens, pos, m.formal_args, args, get_more);
+		tokens.erase(expand_start, pos);
 		dequePtoken::const_iterator i;
 		// Substitute with macro's replacement value
 		for(i = m.value.begin(); i != m.value.end(); i++) {
