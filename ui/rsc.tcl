@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.19 2001/10/05 10:31:07 dds Exp $
+# $Id: rsc.tcl,v 1.20 2001/10/05 13:21:44 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -406,7 +406,7 @@ iwidgets::promptdialog .dialog_ipath_define -title "Include Path" -modality appl
 ######################################################
 # Global variables
 
-# Settings per workspace node (e.g. wp/demo/main.c)
+# Settings per workspace node (e.g. wpdemomain.c)
 # Read-only
 set readonly(wp) 1
 # Working directory
@@ -424,7 +424,7 @@ set fileholder(wp) 0
 # Read-only
 set readonly(int) 1
 # Working directory
-set dir(int) /
+set dir(int) 
 # Preprocessor macros
 set macro(int) {__STDC__}
 # Preprocessor include paths
@@ -473,7 +473,7 @@ proc select_workspace {uid sel} {
 	}
 
 	# Enable/disable project menus based on selection
-	if {[regexp {^wp/[^/]*$} $uid]} {
+	if {[regexp {^wp[^]*$} $uid]} {
 		set projstate normal
 	} else {
 		set projstate disabled
@@ -498,6 +498,8 @@ proc select_workspace {uid sel} {
 proc get_workspace {uid} {
 	global name
 	global tabfiles
+	global fileholder
+
 	if {$uid == ""} {
 			# uid Text branch/leaf
 		return {
@@ -512,17 +514,21 @@ proc get_workspace {uid} {
 	} elseif {$uid == "wp"} {
 		set r {}
 		foreach i [array names name] {
-			if {[regexp {^wp/[^/]*$} $i]} {
+			if {[regexp {^wp[^]*$} $i]} {
 				lappend r [list $i $name($i) branch]
 			}
 		}
 		return [lsort $r]
-	} elseif {[regexp {^wp/[^/]*$} $uid]} {
-		# uid is of the type wp/project
+	} elseif {[regexp {^wp} $uid]} {
+		# uid is of the type wpproject ...
 		set r {}
 		foreach i [array names name] {
-			if {[regexp "^$uid/" $i]} {
-				lappend r [list $i $name($i) branch]
+			if {[regexp "^$uid\[^\]*$" $i]} {
+				if {$fileholder($i)} {
+					lappend r [list $i $name($i) branch]
+				} else {
+					lappend r [list $i $name($i) leaf]
+				}
 			}
 		}
 		return [lsort $r]
@@ -540,16 +546,16 @@ proc insert_project {} {
 	if {[.dialog_project_name activate]} {
 		# Invoke dialog box to get the project's name
 		set projname [.dialog_project_name get]
-		if {[info exists name(wp/$projname)]} {
+		if {[info exists name(wp$projname)]} {
 			ierror "Project $projname is already defined in this workspace"
 			return
 		}
-		if {[regexp {/} $projname]} {
-			ierror "Project names can not contain an embedded slash"
+		if {[regexp {} $projname]} {
+			ierror "Project names can not contain an embedded separator"
 			return
 		}
-		set name(wp/$projname) $projname
-		set fileholder(wp/$projname) 1
+		set name(wp$projname) $projname
+		set fileholder(wp$projname) 1
 		# Expand is needed to internally refresh _nodes so that we do not
 		# get a node does not exist error!
 		$tabfiles.hier expand wp
@@ -560,7 +566,7 @@ proc insert_project {} {
 
 # Return an entry's parent node
 proc parent {entry} {
-	regsub {/[^/]*$} $entry {} parent
+	regsub {[^]*$} $entry {} parent
 	return $parent
 }
 
@@ -589,7 +595,7 @@ proc entry_clearsub {} {
 
 	set thisentry [wp_getentry]
 	foreach i [array names name] {
-		if {[regexp "^$thisentry/" $i] && [info exists macro($i)]} {
+		if {[regexp "^$thisentry" $i] && [info exists macro($i)]} {
 			unset readonly($i)
 			unset dir($i)
 			unset macro($i)
@@ -597,6 +603,16 @@ proc entry_clearsub {} {
 		}
 	}
 	settings_refresh
+}
+
+# Return true if entry is part of directory dir
+proc dir_entry {dir ent} {
+	if {[file exists /nul.xyzzy]} {
+		# Windows; case insensitive
+		return [expr ![string compare -nocase [string range $ent 0 [expr [string length $dir] - 1]] $dir]]
+	} else {
+		return [expr [string range $ent 0 [expr [string length $dir] - 1]] == $dir]
+	}
 }
 
 # Create settings for an entry, independent from its parent
@@ -624,14 +640,6 @@ proc wp_getentry {} {
 	global tabfiles
 
 	return [lindex [$tabfiles.hier selection get] 0]
-}
-
-# Return the current project (assume that a project is selected)
-proc wp_getproject {} {
-	set entry [wp_getentry]
-	regsub {^wp/} $entry {} entry
-	regsub {/.*} $entry {} entry
-	return $entry
 }
 
 # Add a new macro in an entry's settings
@@ -694,6 +702,48 @@ proc wp_getsettings {} {
 	return $entry
 }
 
+# Return true if entry is a directory
+proc isdir {entry} {
+	global fileholder
+
+	return [expr $fileholder($entry) && [regexp {^wp.*} $entry]];
+}
+
+# Return true if path is absolute
+proc isabs {path} {
+	return [expr [regexp {^/} $path] || [regexp {^[a-zA-Z]:/} $path]];
+}
+
+
+# Return the current entry's directory
+proc wp_getdir {} {
+	global dir
+	global name
+
+	set tail {}
+	set entry [wp_getentry]
+	while {![info exists dir($entry)]} {
+		if {[isdir $entry]} {
+			if {[isabs $name($entry)]} {
+				return $name($entry)$tail
+			} else {
+				if {$tail == {}} {
+					set tail $name($entry)
+				} else {
+					set tail $name($entry)/$tail
+				}
+			}
+		}
+		# We are inheriting our parent
+		set entry [parent $entry]
+	}
+	if {$tail == {}} {
+		return $dir($entry)
+	} else {
+		return $dir($entry)/$tail
+	}
+}
+
 # Return an entry for changing settings 
 proc wp_getmodsettings {} {
 	set entry [wp_getentry]
@@ -724,11 +774,11 @@ proc settings_refresh {} {
 	}
 
 	# Set directory
-	$tabsettings.dir.ent configure -text $dir($entry)
+	$tabsettings.dir.ent configure -text [wp_getdir]
 	
 	# Enable/disable the clear this entry button
 	set thisentry [wp_getentry]
-	if {[info exists macro($thisentry)] && [regexp / $thisentry]} {
+	if {[info exists macro($thisentry)] && [regexp  $thisentry]} {
 		$tabsettings.clearme configure -state normal
 	} else {
 		$tabsettings.clearme configure -state disabled
@@ -737,7 +787,7 @@ proc settings_refresh {} {
 	$tabsettings.clearsub configure -state disabled
 	foreach i [array names name] {
 #tk_messageBox -icon info -message "Thisentry:$thisentry i:$i" -type ok
-		if {[regexp "^$thisentry/" $i] && [info exists macro($i)]} {
+		if {[regexp "^$thisentry" $i] && [info exists macro($i)]} {
 			$tabsettings.clearsub configure -state normal
 			break
 		}
@@ -756,24 +806,24 @@ proc insert_file {} {
 	global dir
 	global fileholder
 
-	set mydir $dir([wp_getsettings])
+	set mydir [wp_getdir]
 	set filename [tk_getOpenFile -initialdir $mydir -filetypes {{"C Source Files" {.c}}}]
 	if {$filename != ""} {
-		set projname [wp_getproject]
-		if {$mydir == [string range $filename 0 [expr [string length $mydir] - 1]]} {
+		set entry [wp_getentry]
+		if {[dir_entry $mydir $filename]} {
 			# We can make it relative
 			set filename [string range $filename [expr [string length $mydir] + 1] end]
 		}
-		if {[info exists name(wp/$projname/$filename)]} {
+		if {[info exists name($entry$filename)]} {
 			ierror "File $filename is already used in this project"
 			return
 		}
-		set name(wp/$projname/$filename) $filename
-		set fileholder(wp/$projname) 0
+		set name($entry$filename) $filename
+		set fileholder($entry$filename) 0
 		# Expand is needed to internally refresh _nodes so that we do not
 		# get a node does not exist error!
-		$tabfiles.hier expand wp/$projname
-		$tabfiles.hier refresh wp/$projname
+		$tabfiles.hier expand $entry
+		$tabfiles.hier refresh $entry
 	}	
 	# else cancelled
 }
@@ -812,7 +862,7 @@ proc save_workspace_to {filename} {
 	
 	set f [open $filename w]
 	puts $f "#RSC 1.1 Workspace"
-	puts $f "#$Id: rsc.tcl,v 1.19 2001/10/05 10:31:07 dds Exp $"
+	puts $f {#$Id: rsc.tcl,v 1.20 2001/10/05 13:21:44 dds Exp $}
 	puts $f [list array set name [array get name]]
 	puts $f [list array set readonly [array get readonly]]
 	puts $f [list array set dir [array get dir]]
@@ -854,25 +904,25 @@ proc insert_dir_files {} {
 	global dir
 	global fileholder
 
-	set mydir $dir([wp_getsettings])
+	set mydir [wp_getdir]
 	set mydir [tk_chooseDirectory -title "Directory to search for .c files" \
 		-initialdir $mydir -mustexist true]
 	if {$mydir != ""} {
-		set projname [wp_getproject]
+		set entry [wp_getentry]
 		foreach filename [glob -nocomplain -directory $mydir -types {f} {*.[Cc]}] {
-			if {$mydir == [string range $filename 0 [expr [string length $mydir] - 1]]} {
+			if {[dir_entry $mydir $filename]} {
 				# We can make it relative
 				set filename [string range $filename [expr [string length $mydir] + 1] end]
 			}
-			if {![info exists name(wp/$projname/$filename)]} {
-				set name(wp/$projname/$filename) $filename
+			if {![info exists name($entry$filename)]} {
+				set name($entry$filename) $filename
 			}
-			set fileholder(wp/$projname) 0
+			set fileholder($entry$filename) 0
 		}
 		# Expand is needed to internally refresh _nodes so that we do not
 		# get a node does not exist error!
-		$tabfiles.hier expand wp/$projname
-		$tabfiles.hier refresh wp/$projname
+		$tabfiles.hier expand $entry
+		$tabfiles.hier refresh $entry
 	}	
 	# else cancelled
 }
@@ -883,7 +933,7 @@ proc set_entry_directory {} {
 	global tabfiles
 	global dir
 
-	set mydir $dir([wp_getsettings])
+	set mydir [wp_getdir]
 	set newdir [tk_chooseDirectory -title "Working directory" -initialdir $mydir ]
 	if {$newdir != ""} {
 		set entry [wp_getmodsettings]
@@ -900,29 +950,31 @@ proc insert_directory {} {
 	global tabfiles
 	global dir
 
-	set mydir $dir([wp_getsettings])
+	set mydir [wp_getdir]
 	set newdir [tk_chooseDirectory -title "Directory to add" \
 		-initialdir $mydir -mustexist false]
 	if {$newdir != ""} {
-		set thisentry [wp_getentry]
-		if {$mydir == [string range $newdir 0 [expr [string length $mydir] - 1]]} {
+		set entry [wp_getentry]
+		if {[dir_entry $mydir $newdir]} {
 			# We can make it relative
 			set newdir [string range $newdir [expr [string length $mydir] + 1] end]
+			# Tags with empty names can't be defined; use dot instead
+			if {$newdir == {}} { set newdir . }
 		}
-		if {[info exists name(wp/$thisentry/$mydir)]} {
-			ierror "Directory $mydir is already defined here"
+		if {[info exists name($entry$newdir)]} {
+			ierror "Directory $newdir is already defined here"
 			return
 		}
-		if {[regexp {/} $mydir]} {
-			ierror "Project names can not contain an embedded slash"
+		if {[regexp {} $newdir]} {
+			ierror "Direcctories can not contain an embedded separator"
 			return
 		}
-		set name(wp/$thisentry/$mydir) $mydir
-		set fileholder(wp/$thisentry/$mydir) 1
+		set name($entry$newdir) $newdir
+		set fileholder($entry$newdir) 1
 		# Expand is needed to internally refresh _nodes so that we do not
 		# get a node does not exist error!
-		$tabfiles.hier expand wp
-		$tabfiles.hier refresh wp
+		$tabfiles.hier expand $entry
+		$tabfiles.hier refresh $entry
 	}	
 	# else cancelled
 }
