@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.17 2002/09/04 16:54:47 dds Exp $
+# $Id: Makefile,v 1.18 2002/09/09 17:55:54 dds Exp $
 #
 
 # Common object files
@@ -19,6 +19,7 @@ YACC=btyacc
 #YACC=yacc
 CC=g++
 CPPFLAGS=-pipe -g
+#CPPFLAGS=-pipe -O2
 TINCLUDE=/opt/ajuba/TclPro1.4/include
 
 CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
