@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.110 2004/08/09 11:12:39 dds Exp $
+ * $Id: cscout.cpp,v 1.111 2004/08/09 11:29:31 dds Exp $
  */
 
 #include <map>
@@ -1468,6 +1468,8 @@ save_options_page(FILE *fo, void *p)
 	out << "cgraph_type: " << cgraph_type << "\n";
 	out << "cgraph_show: " << cgraph_show << "\n";
 	out << "tab_width: " << tab_width << "\n";
+	out << "sfile_re_string: " << sfile_re_string << "\n";
+	out << "sfile_repl_string: " << sfile_repl_string << "\n";
 	out.close();
 	fprintf(fo, "Options have been saved in the file \".cscout/options\".");
 	fprintf(fo, "They will be loaded when CScout is executed again in this directory.");
@@ -1489,21 +1491,33 @@ load_options()
 		string val;
 		in >> val;
 		if (val == "fname_in_context:")
-			 in >> fname_in_context;
+			in >> fname_in_context;
 		else if (val == "sort_rev:")
-			 in >> Query::sort_rev;
+			in >> Query::sort_rev;
 		else if (val == "show_true:")
-			 in >> show_true;
+			in >> show_true;
 		else if (val == "show_line_number:")
-			 in >> show_line_number;
+			in >> show_line_number;
 		else if (val == "file_icase:")
-			 in >> file_icase;
+			in >> file_icase;
 		else if (val == "cgraph_type:")
-			 in >> cgraph_type;
+			in >> cgraph_type;
 		else if (val == "cgraph_show:")
-			 in >> cgraph_show;
+			in >> cgraph_show;
 		else if (val == "tab_width:")
-			 in >> tab_width;
+			in >> tab_width;
+		else if (val == "sfile_re_string:") {
+			in >> sfile_re_string;
+			int r;
+			if ((r = regcomp(&sfile_re, sfile_re_string.c_str(), REG_EXTENDED))) {
+				char buff[1024];
+				regerror(r, &sfile_re, buff, sizeof(buff));
+				fprintf(stderr, "Filename regular expression error: %s", buff);
+				sfile_re_string.clear();
+			}
+		}
+		else if (val == "sfile_repl_string:")
+			in >> sfile_repl_string;
 		else if (val.empty())
 			;
 		else
