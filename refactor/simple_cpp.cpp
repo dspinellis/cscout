@@ -4,7 +4,7 @@
  * Simple preprocessor.  
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.7 2001/09/03 08:14:16 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.8 2001/09/03 08:38:13 dds Exp $
  */
 
 #include <iostream>
@@ -37,6 +37,7 @@ main(int argc, char *argv[])
 	Fchar::set_input(argv[1]);
 
 	Debug::db_read();
+	Fchar::push_input("defs.h");
 
 #ifdef unix
 	Pdtoken::add_include("/usr/include");
