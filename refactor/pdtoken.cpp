@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.40 2001/09/03 07:50:51 dds Exp $
+ * $Id: pdtoken.cpp,v 1.41 2001/09/03 08:14:27 dds Exp $
  */
 
 #include <iostream>
@@ -125,7 +125,7 @@ static listPtoken eval_tokens;
 long eval_result;
 
 int
-eval_lex()
+eval_lex_real()
 {
 	extern long eval_lval;
 	const char *num;
@@ -142,7 +142,7 @@ again:
 	case PP_NUMBER:
 		num = t.get_val().c_str();
 		eval_lval = strtol(num, &endptr, 0);
-		if (*endptr == 0)
+		if (*endptr == 0 || *endptr == 'l' || *endptr =='L')
 			return (INT_CONST);
 		else
 			return (FLOAT_CONST);	// Should be flagged as error
@@ -163,16 +163,15 @@ again:
 	}
 }
 
-#ifdef ndef
-// Used for debugging the eval_lex function after renaming it to eval_lex_real
+// Used for debugging
 int
 eval_lex()
 {
 	int l = eval_lex_real();
-	cout << "Eval lex returns " << l << "\n";
+	if (DP())
+		cout << "Eval lex returns " << Token(l) << "\n";
 	return (l);
 }
-#endif
 
 /*
  * Read tokens comprising a cpp expression up to the newline and return
