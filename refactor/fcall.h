@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.8 2004/07/23 06:55:38 dds Exp $
+ * $Id: fcall.h,v 1.9 2004/07/24 07:56:06 dds Exp $
  */
 
 #ifndef FCALL_
@@ -17,8 +17,7 @@
 // C function calling information
 class FCall : public Call {
 private:
-	Tokid declaration;		// Function's first declaration
-					// (could also be reference if implicitly declared)
+	Tokid definition;		// Function's definition
 	Type type;			// Function's type
 	bool defined;			// True if the function has been defined
 public:
@@ -28,11 +27,8 @@ public:
 	static void set_current_fun(const Type &t);
 	static void set_current_fun(const Id *id);
 
-	Tokid get_declaration() const { return declaration; }
-	virtual Tokid get_tokid() const { return declaration; }
-
+	virtual Tokid get_definition() const { return definition; }
 	virtual bool is_defined() const { return defined; }
-
 	FCall(const Token& t, Type typ, const string &s);
 
 	virtual ~FCall() {}

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.2 2004/07/24 06:54:37 dds Exp $
+ * $Id: call.cpp,v 1.3 2004/07/24 07:56:06 dds Exp $
  */
 
 #include <map>
@@ -45,7 +45,7 @@
 FCall *Call::current_fun = NULL;
 
 // Set of all functions
-Call::fun_container Call::all;
+Call::fun_map Call::all;
 
 // The current function makes a call to f
 void
@@ -83,18 +83,11 @@ Call::register_call(Call *from, Call *to)
 }
 
 // Constructor
-Call::Call(const string &s) :
-		name(s)
-{
-	all.insert(this);
-}
-
-// Constructor
 Call::Call(const string &s, Tokid t) :
 		name(s),
-		definition(t)
+		tokid(t)
 {
-	all.insert(this);
+	all[t] = this;
 }
 
 // Return true if e appears in the eclasses comprising our name
@@ -116,6 +109,6 @@ Call::contains(Eclass *e) const
 void
 Call::clear_visit_flags()
 {
-	for (const_fiterator_type i = all.begin(); i != all.end(); i++)
-		(*i)->visited = false;
+	for (const_fmap_iterator_type i = all.begin(); i != all.end(); i++)
+		i->second->visited = false;
 }

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.74 2004/07/24 06:55:23 dds Exp $
+ * $Id: cscout.cpp,v 1.75 2004/07/24 07:56:06 dds Exp $
  */
 
 #include <map>
@@ -1227,11 +1227,11 @@ identifier_page(FILE *fo, void *p)
 	fprintf(fo, "</ul>\n");
 	if (e->get_attribute(is_function)) {
 		fprintf(fo, "<li> Occurs in function name(s): \n<ol>\n");
-		for (Call::const_fiterator_type i = Call::fbegin(); i != Call::fend(); i++) {
-			if ((*i)->contains(e)) {
+		for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
+			if (i->second->contains(e)) {
 				fprintf(fo, "\n<li>");
-				html_string(fo, (*i)->get_name(), (*i)->get_tokid());
-				fprintf(fo, " - <a href=\"fun.html?f=%p\">function page</a>", *i);
+				html_string(fo, i->second->get_name(), i->first);
+				fprintf(fo, " - <a href=\"fun.html?f=%p\">function page</a>", i->second);
 			}
 		}
 		fprintf(fo, "</ol><br />\n");
@@ -1460,19 +1460,20 @@ void
 cgraph_page(FILE *fo, void *p)
 {
 	html_head(fo, "cgraph", "Call Graph");
-	Call::const_fiterator_type fun, call;
+	Call::const_fmap_iterator_type fun;
+	Call::const_fiterator_type call;
 	for (fun = Call::fbegin(); fun != Call::fend(); fun++) {
-		for (call = (*fun)->call_begin(); call != (*fun)->call_end(); call++)
+		for (call = fun->second->call_begin(); call != fun->second->call_end(); call++)
 			fprintf(fo, "%s:%s calls %s:%s <br />\n",
-			    (*fun)->get_tokid().get_fileid().get_path().c_str(),
-			    (*fun)->get_name().c_str(),
-			    (*call)->get_tokid().get_fileid().get_path().c_str(),
+			    fun->second->get_site().get_fileid().get_path().c_str(),
+			    fun->second->get_name().c_str(),
+			    (*call)->get_site().get_fileid().get_path().c_str(),
 			    (*call)->get_name().c_str());
-		for (call = (*fun)->caller_begin(); call != (*fun)->caller_end(); call++)
+		for (call = fun->second->caller_begin(); call != fun->second->caller_end(); call++)
 			fprintf(fo, "%s:%s called-by %s:%s <br />\n",
-			    (*fun)->get_tokid().get_fileid().get_path().c_str(),
-			    (*fun)->get_name().c_str(),
-			    (*call)->get_tokid().get_fileid().get_path().c_str(),
+			    fun->second->get_site().get_fileid().get_path().c_str(),
+			    fun->second->get_name().c_str(),
+			    (*call)->get_site().get_fileid().get_path().c_str(),
 			    (*call)->get_name().c_str());
 	}
 	html_tail(fo);

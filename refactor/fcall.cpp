@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.8 2004/07/24 06:54:37 dds Exp $
+ * $Id: fcall.cpp,v 1.9 2004/07/24 07:56:06 dds Exp $
  */
 
 #include <map>
@@ -43,8 +43,7 @@
 
 // Constructor
 FCall::FCall(const Token& tok, Type typ, const string &s) :
-		Call(s),
-		declaration(tok.get_parts_begin()->get_tokid()),
+		Call(s, tok.get_parts_begin()->get_tokid()),
 		type(typ),
 		defined(false)
 {
