@@ -14,7 +14,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.13 2002/09/17 10:53:02 dds Exp $
+ * $Id: fileid.h,v 1.14 2002/10/02 10:53:50 dds Exp $
  */
 
 #ifndef FILEID_
@@ -30,7 +30,7 @@ private:
 public:
 	Attributes attr;
 	class Metrics m;
-	Filedetails(string n, bool r) : name(n) {}
+	Filedetails(string n, bool r) : name(n) { set_readonly(r); }
 	Filedetails() {}
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
