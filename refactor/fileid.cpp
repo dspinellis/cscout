@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.14 2002/09/05 10:38:04 dds Exp $
+ * $Id: fileid.cpp,v 1.15 2002/09/07 10:14:01 dds Exp $
  */
 
 #include <map>
@@ -43,14 +43,37 @@ Fileid::clear()
 #ifdef WIN32
 #include <windows.h>
 
+// Return a Windows error code as a string
+static string
+werror(LONG err)
+{
+	LPVOID lpMsgBuf;
+
+	FormatMessage( 
+	    FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+	    FORMAT_MESSAGE_FROM_SYSTEM | 
+	    FORMAT_MESSAGE_IGNORE_INSERTS,
+	    NULL,
+	    err,		// GetLastError() does not seem to work reliably
+	    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+	    (LPTSTR) &lpMsgBuf,
+	    0,
+	    NULL 
+	);
+	string s((const char *)lpMsgBuf);
+	LocalFree(lpMsgBuf);
+	return s;
+}
+
 static const char *
 get_uniq_fname_string(const char *name)
 {
 	static char buff[4096];
 	LPTSTR nptr;
 
-	if (GetFullPathName(name, sizeof(buff), buff, &nptr) != 0) {
-		string s(name);
+	int n = GetFullPathName(name, sizeof(buff), buff, &nptr);
+	if (n > sizeof(buff) || n == 0) {	// No space or other error!
+		string s = string(name) + ": " + werror(GetLastError());
 		Error::error(E_FATAL, "Unable to get path of file " + s, false);
 	}
 	return (buff);
