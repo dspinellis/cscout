@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.32 2002/09/05 16:29:02 dds Exp $
+ * $Id: parse.y,v 1.33 2002/09/05 16:46:06 dds Exp $
  *
  */
 
@@ -475,47 +475,53 @@ declaration:
 
 default_declaring_list:  /* Can't  redeclare typedef names */
 	/* static volatile @ a[3] @ = { 1, 2, 3} */
-        declaration_qualifier_list identifier_declarator initializer_opt
+        declaration_qualifier_list identifier_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
 			$$ = $2;	// Pass-on qualifier
 		}
+						 initializer_opt
 	/* volatile @ a[3] @ = { 1, 2, 3} */
-        | type_qualifier_list identifier_declarator initializer_opt
+        | type_qualifier_list identifier_declarator
 		{
 			$2.declare();
 			$$ = $1;	// Pass-on qualifier
 		}
-        | default_declaring_list ',' identifier_declarator initializer_opt
+						 initializer_opt
+        | default_declaring_list ',' identifier_declarator
 		{
 			$3.set_abstract($1);
 			$3.declare();
 			$$ = $1;	// Pass-on qualifier
 		}
+						 initializer_opt
         ;
 
 declaring_list:
 	/* static int @ FILE @ = 42 (note reuse of typedef name) */
-        declaration_specifier declarator initializer_opt
+        declaration_specifier declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
 			$$ = $1;	// Pass-on qualifier
 		}
+						 initializer_opt
 	/* int @ FILE @ = 42 */
-        | type_specifier declarator initializer_opt
+        | type_specifier declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
 			$$ = $1;	// Pass-on qualifier
 		}
-        | declaring_list ',' declarator initializer_opt
+						 initializer_opt
+        | declaring_list ',' declarator
 		{
 			$3.set_abstract($1);
 			$3.declare();
 			$$ = $1;	// Pass-on qualifier
 		}
+						 initializer_opt
         ;
 
 /* Includes storage class */
@@ -1017,45 +1023,60 @@ external_definition:
 
 function_definition:
 	/* foo(int a, int b) @ { } (and many illegal constructs) */
-                                     identifier_declarator function_body
+                                     identifier_declarator
 		{ $1.declare(); }
-        | declaration_specifier      identifier_declarator function_body
+					function_body
+        | declaration_specifier      identifier_declarator
 		{ $2.set_abstract($1); $2.declare(); }
-        | type_specifier             identifier_declarator function_body
+					function_body
+        | type_specifier             identifier_declarator
 		{ $2.set_abstract($1); $2.declare(); }
-        | declaration_qualifier_list identifier_declarator function_body
+					function_body
+        | declaration_qualifier_list identifier_declarator
 		{ $2.set_abstract($1); $2.declare(); }
-        | type_qualifier_list        identifier_declarator function_body
+					function_body
+        | type_qualifier_list        identifier_declarator
 		{ $2.declare(); }
+					function_body
 
 	/* foo(a, b) @ { } */
-        |                            old_function_declarator function_body
+        |                            old_function_declarator
 		{ $1.declare(); }
-        | declaration_specifier      old_function_declarator function_body
+					function_body
+        | declaration_specifier      old_function_declarator
 		{ $2.set_abstract($1); $2.declare(); }
-        | type_specifier             old_function_declarator function_body
+					function_body
+        | type_specifier             old_function_declarator
 		{ $2.set_abstract($1); $2.declare(); }
-        | declaration_qualifier_list old_function_declarator function_body
+					function_body
+        | declaration_qualifier_list old_function_declarator
 		{ $2.set_abstract($1); $2.declare(); }
-        | type_qualifier_list        old_function_declarator function_body
+					function_body
+        | type_qualifier_list        old_function_declarator
 		{ $2.declare(); }
+					function_body
 
 	/* foo(a, b) @ int a; int b; @ { } */
         |                            old_function_declarator 
-		{ Block::param_use(); } declaration_list function_body
+		{ Block::param_use(); } declaration_list
 		{ $1.declare(); }
+					function_body
         | declaration_specifier      old_function_declarator
-		{ Block::param_use(); } declaration_list function_body
+		{ Block::param_use(); } declaration_list
 		{ $2.set_abstract($1); $2.declare(); }
+					function_body
         | type_specifier             old_function_declarator
-		{ Block::param_use(); } declaration_list function_body
+		{ Block::param_use(); } declaration_list
 		{ $2.set_abstract($1); $2.declare(); }
+					function_body
         | declaration_qualifier_list old_function_declarator
-		{ Block::param_use(); } declaration_list function_body
+		{ Block::param_use(); } declaration_list
 		{ $2.set_abstract($1); $2.declare(); }
+					function_body
         | type_qualifier_list        old_function_declarator
-		{ Block::param_use(); } declaration_list function_body
+		{ Block::param_use(); } declaration_list
 		{ $2.declare(); }
+					function_body
         ;
 
 declarator:
