@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.25 2001/09/01 05:57:55 dds Exp $
+ * $Id: pdtoken.cpp,v 1.26 2001/09/01 07:24:56 dds Exp $
  */
 
 #include <iostream>
@@ -15,7 +15,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <algorithm>
 #include <cassert>
 
 #include "cpp.h"
@@ -441,7 +440,7 @@ stringize(const listPtoken& ts)
 			break;
 		default:
 			seen_space = false;
-			res += escape((*pi).get_val());
+			res += (*pi).get_val();
 			break;
 		}
 	}
