@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.9 2003/05/24 18:30:05 dds Exp $
+ * $Id: attr.h,v 1.10 2003/05/27 19:57:35 dds Exp $
  */
 
 #ifndef ATTR_
@@ -53,6 +53,17 @@ public:
 	void set_attribute_val(int v, bool n) { fix_size(); attr[v] = n; }
 	bool get_attribute(int v)
 		{ fix_size(); return attr[v]; }
+	// Return true if the set attributes specify an identifier
+	bool is_identifier() {
+		return
+			attr[is_ordinary] ||
+			attr[is_sumember] ||
+			attr[is_suetag] ||
+			attr[is_macro] ||
+			attr[is_macroarg] ||
+			attr[is_undefined_macro] ||
+			attr[is_label];
+	}
 	void merge_with(Attributes &b) {
 		this->fix_size();
 		b.fix_size();

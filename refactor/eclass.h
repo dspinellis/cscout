@@ -11,7 +11,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.16 2002/09/15 16:46:15 dds Exp $
+ * $Id: eclass.h,v 1.17 2003/05/27 19:57:35 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -47,6 +47,7 @@ public:
 	set <Fileid, fname_order> sorted_files();
 	void set_attribute(int v) { attr.set_attribute(v); }
 	bool get_attribute(int v) { return attr.get_attribute(v); }
+	bool is_identifier() { return attr.is_identifier(); }
 	void merge_attributes(Eclass *b) { attr.merge_with(b->attr); }
 };
 

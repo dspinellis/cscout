@@ -1,4 +1,4 @@
-$Id: todo,v 1.19 2003/05/27 17:48:55 dds Exp $
+$Id: todo,v 1.20 2003/05/27 19:57:35 dds Exp $
 
 Web page
 documentation
@@ -7,7 +7,6 @@ Solaris compilation
 
 ceescape (swill) front end:
 
-Do not show reserved words as identifiers
 
 Show project and workspace metrics
 

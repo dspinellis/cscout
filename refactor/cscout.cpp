@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.27 2003/05/27 17:48:42 dds Exp $
+ * $Id: cscout.cpp,v 1.28 2003/05/27 19:57:35 dds Exp $
  */
 
 #include <map>
@@ -257,7 +257,7 @@ file_analyze(Fileid fi)
 			break;
 		Eclass *ec;
 		// Identifiers we can mark
-		if ((ec = ti.check_ec())) {
+		if ((ec = ti.check_ec()) && ec->is_identifier()) {
 			// Update metrics
 			msum.add_id(ec);
 			// Add to the map
@@ -306,7 +306,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			break;
 		Eclass *ec;
 		// Identifiers we can mark
-		if ((ec = ti.check_ec()) && query.need_eval()) {
+		if ((ec = ti.check_ec()) && ec->is_identifier() && query.need_eval()) {
 			string s;
 			s = (char)val;
 			int len = ec->get_len();
@@ -359,6 +359,7 @@ file_replace(Fileid fid)
 		IdProp::const_iterator idi;
 		// Identifiers that should be replaced
 		if ((ec = ti.check_ec()) &&
+		    ec->is_identifier() &&
 		    (idi = ids.find(ec)) != ids.end() &&
 		    (*idi).second.get_replaced()) {
 			int len = ec->get_len();
@@ -396,7 +397,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.27 2003/05/27 17:48:42 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.28 2003/05/27 19:57:35 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -412,7 +413,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.27 2003/05/27 17:48:42 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.28 2003/05/27 19:57:35 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -1180,6 +1181,7 @@ query_source_page(FILE *of, void *p)
 	const string &pathname = i.get_path();
 	fname << i.get_id();
 	html_head(of, "qsrc", string("Source with queried identifiers marked: ") + html(pathname));
+	fputs("<p>(Use the tab key to move to each marked identifier.)<p>", of);
 	file_hypertext(of, i, true);
 	html_tail(of);
 }
