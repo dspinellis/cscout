@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.53 2003/08/11 14:16:05 dds Exp $
+# $Id: Makefile,v 1.54 2003/08/16 11:31:22 dds Exp $
 #
 
 # Common object files
@@ -145,8 +145,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.53 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/11 14:16:05 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.54 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/16 11:31:22 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -177,6 +177,7 @@ rdist-spiti-ssh:
 	tar cvf - $(SRC) | ssh spiti tar -C src/cscout -xvf -
 
 rdist-freefall:
+	plink freefall "mkdir src/cscout ; chmod 700 src/cscout"
 	tar -cvf - $(SRC) | gzip -c | plink freefall tar -C src/cscout -xzvf -
 
 rdist-istlab:
