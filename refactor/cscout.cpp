@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.10 2003/05/16 13:08:46 dds Exp $
+ * $Id: cscout.cpp,v 1.11 2003/05/16 19:42:44 dds Exp $
  */
 
 #include <map>
@@ -310,7 +310,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.10 2003/05/16 13:08:46 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.11 2003/05/16 19:42:44 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -329,6 +329,28 @@ html_tail(FILE *of)
 		"</body>"
 		"</html>\n");
 }
+
+#ifndef COMMERCIAL
+/*
+ * Return TRUE if the access if from the local host
+ * Used to safeguard dangerous operations such as renaming and exiting
+ */
+static bool
+local_access(FILE *fo)
+{
+	char *peer = swill_getpeerip();
+
+	if (peer && strcmp(peer, "127.0.0.1") == 0)
+		return true;
+	else {
+		html_head(fo, "Remote access", "Remote access not allowed");
+		fprintf(fo, "This function can not be executed from a remote host.");
+		fprintf(fo, "Make sure you are accessing cscout as localhost or 127.0.0.1.");
+		html_tail(fo);
+		return false;
+	}
+}
+#endif
 
 // Display a filename on an html file
 static void
@@ -445,6 +467,10 @@ identifier_page(FILE *fo, void *p)
 	char *subst;
 	Identifier &id = ids[e];
 	if ((subst = swill_getvar("sname"))) {
+#ifndef COMMERCIAL
+		if (!local_access(fo))
+			return;
+#endif
 		// Passing subst directly core-dumps under
 		// gcc version 2.95.4 20020320 [FreeBSD 4.7]
 		string ssubst(subst);
@@ -621,6 +647,10 @@ select_project_page(FILE *fo, void *p)
 void
 set_project_page(FILE *fo, void *p)
 {
+#ifndef COMMERCIAL
+	if (!local_access(fo))
+		return;
+#endif
 	void index_page(FILE *of, void *data);
 
 	if (!swill_getargs("i(projid)", &current_project)) {
@@ -734,6 +764,10 @@ static bool must_exit = false;
 void
 write_quit_page(FILE *of, void *p)
 {
+#ifndef COMMERCIAL
+	if (!local_access(of))
+		return;
+#endif
 	// Determine files we need to process
 	IFSet process;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
@@ -756,11 +790,67 @@ write_quit_page(FILE *of, void *p)
 void
 quit_page(FILE *of, void *p)
 {
+#ifndef COMMERCIAL
+	if (!local_access(of))
+		return;
+#endif
 	html_head(of, "quit", "CScout exiting");
 	fprintf(of, "No changes were saved.");
 	fprintf(of, "<p>Bye...</body></html>");
 	must_exit = true;
 }
+
+#ifdef COMMERCIAL
+/*
+ * Parse the access control list .cscout_acl.
+ * The ACL is searched in three different directories:
+ * ., $CSCOUT_HOME, and $HOME
+ */
+static void
+parse_acl()
+{
+	
+	ifstream in;
+	string ad, host;
+	vector <char *> dirs;
+	dirs.push_back(".");
+	dirs.push_back(getenv("CSCOUT_HOME"));
+	dirs.push_back(getenv("HOME"));
+	vector <char *>::const_iterator i;
+	string fname;
+
+	for (i = dirs.begin(); i != dirs.end(); i++) {
+		if (!*i)
+			continue;
+		fname = string(*i) + "/.cscout_acl";
+		in.open(fname.c_str());
+		if (in.fail())
+			in.clear();
+		else {
+			cout << "Parsing ACL from " << fname << "\n";
+			for (;;) {
+				in >> ad;
+				if (in.eof())
+					break;
+				in >> host;
+				if (ad == "A") {
+					cout << "Allow from IP address " << host << "\n";
+					swill_allow(host.c_str());
+				} else if (ad == "D") {
+					cout << "Deny from IP address " << host << "\n";
+					swill_deny(host.c_str());
+				} else
+					cout << "Bad ACL specification " << ad << " " << host << "\n";
+			}
+			break;
+		}
+	}
+	if (i == dirs.end()) {
+		cout << "No ACL found.  Only localhost access will be allowed.\n";
+		swill_allow("127.0.0.1");
+	}
+}
+#endif
 
 int
 main(int argc, char *argv[])
@@ -775,8 +865,9 @@ main(int argc, char *argv[])
 
 	license_init();
 
-	// Only localhost access
-	swill_allow("127.0.0.1");
+#ifdef COMMERCIAL
+	parse_acl();
+#endif
 
 	// Pass 1: process master file loop
 	Fchar::set_input(argv[1]);
@@ -784,11 +875,9 @@ main(int argc, char *argv[])
 		t.getnext();
 	while (t.get_code() != EOF);
 
-	license_check();
 	// Pass 2: Create web pages
 	vector <Fileid> files = Fileid::sorted_files();
 
-	swill_handle("index.html", index_page, 0);
 	swill_handle("sproject.html", select_project_page, 0);
 	swill_handle("sexit.html", write_quit_page, 0);
 	swill_handle("qexit.html", quit_page, 0);
@@ -797,26 +886,12 @@ main(int argc, char *argv[])
 	swill_handle("wfiles.html", wfiles_page, &files);
 
 	// Populate the EC identifier member
-	for (vector <Fileid>::iterator i = files.begin() - CORRECTION_FACTOR + license_offset; i != files.end(); i++) {
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		ostringstream fname;
 		fname << (*i).get_id();
 		bool has_unused = file_analyze(*i);
 	}
 
-	swill_handle("src.html", source_page, NULL);
-	swill_handle("usrc.html", unused_source_page, NULL);
-	swill_handle("file.html", file_page, NULL);
-
-	swill_handle("aids.html", aids_page, NULL);
-	swill_handle("roids.html", roids_page, NULL);
-	swill_handle("wids.html", wids_page, NULL);
-	swill_handle("xids.html", xids_page, NULL);
-	swill_handle("upids.html", upids_page, NULL);
-	swill_handle("ufids.html", ufids_page, NULL);
-	swill_handle("umids.html", umids_page, NULL);
-
-	swill_handle("id.html", identifier_page, NULL);
-	swill_handle("setproj.html", set_project_page, NULL);
 
 	// Set xfile and  metrics for each identifier
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
@@ -835,8 +910,50 @@ main(int argc, char *argv[])
 	// Update fle metrics
 	msum.summarize_files();
 
-	ofstream mf("metrics.txt");
-	mf << msum;
+#ifdef COMMERCIAL
+	license_check("");
+#else
+	/* 
+	 * Send the metrics
+	 * up to 10 project names
+	 * up 50 cross-file identifiers 
+	 */
+	ostringstream mstring;
+	mstring << msum;
+	mstring << "\nxids: ";
+	int count = 0;
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if ((*i).second.get_xfile() == true)
+			mstring << (*i).second.get_id() << ' ';
+		if (count++ > 100)
+			break;
+	}
+	mstring << "\nprojnames: ";
+	count = 0;
+	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++) {
+		mstring << Project::get_projname(j) << ' ';
+		if (count++ > 10)
+			break;
+	}
+	mstring << "\n";
+	license_check(mstring.str().c_str());
+#endif
+
+	swill_handle("src.html", source_page, NULL);
+	swill_handle("usrc.html", unused_source_page, NULL);
+	swill_handle("file.html", file_page, NULL);
+
+	swill_handle("aids.html", aids_page, NULL);
+	swill_handle("roids.html", roids_page, NULL);
+	swill_handle("wids.html", wids_page, NULL);
+	swill_handle("xids.html", xids_page, NULL);
+	swill_handle("upids.html", upids_page, NULL);
+	swill_handle("ufids.html", ufids_page, NULL);
+	swill_handle("umids.html", umids_page, NULL);
+
+	swill_handle("id.html", identifier_page, NULL);
+	swill_handle("setproj.html", set_project_page, NULL);
+	swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
 
 	// Serve web pages
 	cout << "We are now ready to serve you at http://localhost:8081\n";

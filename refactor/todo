@@ -1,10 +1,14 @@
-$Id: todo,v 1.15 2003/04/07 18:13:41 dds Exp $
+$Id: todo,v 1.16 2003/05/16 19:42:44 dds Exp $
 
 ceescape (swill) front end:
+Show identifiers in alphabetical order
+Remove common path prefix from files (option)
 Generic query for files, identifiers
+Do not show No in identifier properties (option)
+Sort identifiers from end to start (option)
+Options page
+Show project and workspace metrics
 
-Convert metrics to XML and use appropriate file to view them
-Send metrics to web server
 Convert color to cgi/command-line
 
 Convert the _asm handling into generic handlers for excluding line and
