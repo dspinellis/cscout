@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.3 2004/07/27 14:45:56 dds Exp $
+ * $Id: funquery.h,v 1.4 2004/07/29 14:33:53 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -41,6 +41,9 @@ private:
 	bool defined;		// True if a definition was found
 	int ncallers;		// Number of callers
 	int ncallerop;		// Operator for comparing them
+
+	Call *call;		// True if call matches
+				// No other evaluation takes place
 
 	string name;		// Query name
 	Attributes::size_type current_project;	// Restrict evaluation to this project

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.86 2004/07/27 21:02:11 dds Exp $
+ * $Id: cscout.cpp,v 1.87 2004/07/29 14:33:53 dds Exp $
  */
 
 #include <map>
@@ -293,12 +293,12 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 	bool have_funq, have_idq;
 	char *qtype = swill_getvar("qt");
 	have_funq = have_idq = false;
-	if (strcmp(qtype, "fun") == 0) {
-		funq = FunQuery(of, file_icase, current_project, eval_query);
-		have_funq = true;
-	} else if (strcmp(qtype, "id") == 0) {
+	if (!qtype || strcmp(qtype, "id") == 0) {
 		idq = IdQuery(of, file_icase, current_project, eval_query);
 		have_idq = true;
+	} else if (strcmp(qtype, "fun") == 0) {
+		funq = FunQuery(of, file_icase, current_project, eval_query);
+		have_funq = true;
 	} else {
 		fprintf(stderr, "Unknown query type (try adding &qt=id to the URL).\n");
 		return;
@@ -1043,7 +1043,7 @@ function_page(FILE *fo, void *p)
 	}
 	html_head(fo, "fun", string("Function: ") + html(f->get_name()) + " (" + f->entity_type_name() + ')');
 	fprintf(fo, "<ul>\n");
-	fprintf(fo, "<li> Associated identifier: ");
+	fprintf(fo, "<li> Associated identifier(s): ");
 	Tokid t = f->get_tokid();
 	html_string(fo, f->get_name(), t);
 	if (f->is_declared()) {
@@ -1055,6 +1055,9 @@ function_page(FILE *fo, void *p)
 		int lnum = t.get_fileid().line_number(t.get_streampos());
 		fprintf(fo, " <a href=\"src.html?id=%s#%d\">line %d</a><br />(and possibly in other places)\n",
 			fname.str().c_str(), lnum, lnum);
+			fprintf(fo, " - <a href=\"qsrc.html?qt=fun&id=%u&match=Y&call=%p&n=Declaration+of+%s\">marked source</a>",
+				t.get_fileid().get_id(),
+				f, f->get_name().c_str());
 	}
 	if (f->is_defined()) {
 		t = f->get_definition();
@@ -1312,7 +1315,7 @@ index_page(FILE *of, void *data)
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
 		"</ul>"
-		"<h2>Functions</h2>\n"
+		"<h2>Functions and Macros</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"cgraph.html\">Call graph</a>\n"
 		"<li> <a href=\"funquery.html\">Specify new function query</a>\n"
@@ -1351,6 +1354,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "</ul>\n</ul><h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%s&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", fname.str().c_str(), is_readonly);
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%s&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", fname.str().c_str(), is_lscope);
+	fprintf(of, "<li> <a href=\"qsrc.html?qt=fun&id=%s&match=Y&writable=1&ro=1&n=Source+Code+With+Hyperlinks+to+Function+and+Macro+Declarations\">Source code with hyperlinks to function and macro declarations</a>\n", fname.str().c_str());
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%s&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", fname.str().c_str());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%s&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", fname.str().c_str());
@@ -1390,7 +1394,7 @@ query_source_page(FILE *of, void *p)
 		html_head(of, "qsrc", string(qname) + ": " + html(pathname));
 	else
 		html_head(of, "qsrc", string("Source with queried elements marked: ") + html(pathname));
-	fputs("<p>(Use the tab key to move to each marked identifier.)<p>", of);
+	fputs("<p>(Use the tab key to move to each marked element.)<p>", of);
 	file_hypertext(of, i, true);
 	html_tail(of);
 }

@@ -1,4 +1,4 @@
-$Id: todo,v 1.53 2004/07/25 13:35:22 dds Exp $
+$Id: todo,v 1.54 2004/07/29 14:33:53 dds Exp $
 
 Maintain file coverage analysis (%) as a metric
 
@@ -31,14 +31,7 @@ Document function graph
 	Do not crash in undeclared function identifiers
 
 Function information
-	Per file: Defined functions and function-like macros
-	Per function:
-		Functions that call this function
-		Functions this function calls
-		All functions that call this function
-		All functions this function calls
-		Note: function calls through pointers are not included
-		in the call graph.
+	Per file: Declared functions and function-like macros
 	Functions
 		Function metrics
 		All functions

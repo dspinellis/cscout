@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.7 2004/07/27 21:02:11 dds Exp $
+ * $Id: funquery.cpp,v 1.8 2004/07/29 14:33:53 dds Exp $
  */
 
 #include <map>
@@ -57,6 +57,7 @@
 // Construct an object based on URL parameters
 FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :
 	Query(!e, r, true),
+	call(NULL),
 	current_project(cp)
 {
 	if (lazy)
@@ -68,6 +69,10 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	char *qname = swill_getvar("n");
 	if (qname && *qname)
 		name = qname;
+
+	// Function call declaration direct match
+	if (!swill_getargs("p(call)", &call))
+		call = NULL;
 
 	// Type of boolean match
 	char *m;
@@ -106,6 +111,12 @@ FunQuery::url() const
 {
 	string r("qt=fun&match=");
 	r += Query::url(string(1, match_type));
+	if (call) {
+		char buff[256];
+
+		sprintf(buff, "&call=%p", call);
+		r += buff;
+	}
 	if (cfun)
 		r += "&cfun=1";
 	if (macro)
@@ -154,6 +165,9 @@ FunQuery::eval(const Call *c)
 {
 	if (lazy)
 		return return_val;
+
+	if (call)
+		return (c == call);
 
 	Eclass *ec = c->get_tokid().get_ec();
 	if (current_project && !ec->get_attribute(current_project))
