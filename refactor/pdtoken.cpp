@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.39 2001/09/02 17:41:45 dds Exp $
+ * $Id: pdtoken.cpp,v 1.40 2001/09/03 07:50:51 dds Exp $
  */
 
 #include <iostream>
@@ -34,6 +34,7 @@
 #include "pdtoken.h"
 #include "tchar.h"
 #include "ctoken.h"
+#include "debug.h"
 
 bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;
@@ -227,7 +228,7 @@ eval()
 		last++;
 		// We are about to erase it
 		string val = (*arg).get_val();
-		// cout << "val:" << val << "\n";
+		if (DP()) cout << "val:" << val << "\n";
 		mapMacro::const_iterator mi = Pdtoken::macros_find(val);
 		if (mi != Pdtoken::macros_end())
 			unify(*arg, (*mi).second.get_name_token());
@@ -247,13 +248,15 @@ eval()
 	     (i = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<int>(),IDENTIFIER), mem_fun_ref(&Ptoken::get_code)))) != eval_tokens.end(); )
 	     	*i = Ptoken(PP_NUMBER, "0");
 	eval_ptr = eval_tokens.begin();
-	// cout << "Tokens before parsing:\n";
-	// copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+	if (DP()) {
+		cout << "Tokens before parsing:\n";
+		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+	}
 	if (eval_parse() != 0) {
 		Error::error(E_ERR, "Syntax error in preprocessor expression");
 		return 1;
 	}
-	// cout << "Eval returns: " << eval_result << "\n";
+	if (DP()) cout << "Eval returns: " << eval_result << "\n";
 	return (eval_result);
 }
 
@@ -379,6 +382,8 @@ Pdtoken::process_include()
 	Pltoken t;
 	listPtoken tokens;
 
+	if (skiplevel >= 1)
+		return;
 	// Get tokens till end of line
 	Pltoken::set_context(cpp_include);
 	bool start = true;
@@ -398,8 +403,10 @@ Pdtoken::process_include()
 		// 1. Macro replace
 		setstring tabu;
 		macro_replace_all(tokens, tokens.end(), tabu, false);
-		// cout << "Replaced after macro :\n";
-		// copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
+		if (DP()) {
+			cout << "Replaced after macro :\n";
+			copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
+		}
 		// 2. Rescan through Tchar
 		Tchar::clear();
 		for (listPtoken::const_iterator i = tokens.begin(); i != tokens.end(); i++)
@@ -416,7 +423,7 @@ Pdtoken::process_include()
 
 	if (f.get_code() != PATHFNAME && f.get_code() != ABSFNAME) {
 		Error::error(E_ERR, "Invalid #include syntax");
-		cout << f;
+		if (DP()) cout << f;
 		return;
 	}
 
@@ -428,7 +435,7 @@ Pdtoken::process_include()
 	vectorstring::const_iterator i;
 	for (i = include_path.begin(); i != include_path.end(); i++) {
 		string fname = *i + "/" + f.get_val();
-		// cout << "Try open " << fname << "\n";
+		if (DP()) cout << "Try open " << fname << "\n";
 		if (can_open(fname)) {
 			Fchar::push_input(fname);
 			return;
@@ -446,6 +453,8 @@ Pdtoken::process_define()
 	mapToken args;
 	Pltoken t;
 
+	if (skiplevel >= 1)
+		return;
 	Pltoken::set_context(cpp_define);
 	t.template getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
@@ -501,13 +510,15 @@ Pdtoken::process_define()
 		t.template getnext<Fchar>();
 	}
 	m.value_rtrim();
-	// cout << "Macro definition :\n";
-	// copy(m.value.begin(), m.value.end(), ostream_iterator<Ptoken>(cout));
+
 	// Check that the new macro is not different from an older definition
 	mapMacro::const_iterator i = macros.find(name);
-	if (i != macros.end() && (*i).second != m)
-		Error::error(E_WARN, "Duplicate (different) macro definition");
+	if (i != macros.end() && (*i).second != m) {
+		Error::error(E_WARN, "Duplicate (different) macro definition of macro " + name);
+		if (DP()) cout << (*i).second;
+	}
 	macros[name] = m;
+	if (DP()) cout << "Macro define " << m;
 }
 
 void
@@ -515,6 +526,8 @@ Pdtoken::process_undef()
 {
 	Pltoken t;
 
+	if (skiplevel >= 1)
+		return;
 	t.template getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
 		Error::error(E_ERR, "Invalid macro name");
@@ -534,6 +547,8 @@ Pdtoken::process_line()
 {
 	static bool supress = false;
 
+	if (skiplevel >= 1)
+		return;
 	if (!supress) {
 		Error::error(E_WARN, "Processing automatically generated file; #line directive ignored.");
 		Error::error(E_WARN, "(further #line warning messages supressed)");
@@ -548,6 +563,8 @@ Pdtoken::process_error()
 	string msg;
 	Pltoken t;
 
+	if (skiplevel >= 1)
+		return;
 	for (;;) {
 		t.template getnext<Fchar>();
 		if (t.get_code() == EOF || t.get_code() == '\n')
@@ -561,6 +578,8 @@ Pdtoken::process_error()
 void
 Pdtoken::process_pragma()
 {
+	if (skiplevel >= 1)
+		return;
 	eat_to_eol();
 }
 
