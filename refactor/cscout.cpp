@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.18 2003/05/24 16:46:13 dds Exp $
+ * $Id: cscout.cpp,v 1.19 2003/05/24 17:57:50 dds Exp $
  */
 
 #include <map>
@@ -87,8 +87,7 @@ typedef map <Eclass *, Identifier> IdProp;
  * Function object to compare IdProp identifier pointers
  * Will compare from end to start if sort_rev is set
  */
-struct idcmp
-{
+struct idcmp : public binary_function <const IdProp::value_type *, const IdProp::value_type *, bool> {
 	bool operator()(const IdProp::value_type *i1, const IdProp::value_type *i2) const
 	{
 		if (sort_rev) {
@@ -342,7 +341,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.18 2003/05/24 16:46:13 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.19 2003/05/24 17:57:50 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -453,7 +452,10 @@ afiles_page(FILE *fo, vector <Fileid> *files)
 	html_tail(fo);
 }
 
-
+/*
+ * Display the sorted identifiers, taking into account the reverse sort property
+ * for properly aligning the output.
+ */
 static void
 display_sorted_ids(FILE *of, const Sids &sorted_ids)
 {
@@ -508,7 +510,8 @@ iquery_page(FILE *of,  void *p)
 	"</td></tr>\n"
 	"</table>\n"
 	"<hr>\n"
-	"<p><INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Search identifiers\">\n"
+	"<p><INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
+	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
 	, of);
 	html_tail(of);
@@ -519,11 +522,14 @@ static void
 xiquery_page(FILE *of,  void *p)
 {
 	Sids sorted_ids;
+	IFSet sorted_files;
 	char match_type;
 	vector <bool> match(attr_max);
 	bool xfile = !!swill_getvar("xfile");
 	bool unused = !!swill_getvar("unused");
 	bool writable = !!swill_getvar("writable");
+	bool q_id = !!swill_getvar("qi");
+	bool q_file = !!swill_getvar("qf");
 
 	html_head(of, "xiquery", "Identifier Query Results");
 
@@ -534,6 +540,7 @@ xiquery_page(FILE *of,  void *p)
 	}
 	match_type = *m;
 
+	// Store match specifications in a vector
 	for (int i = 0; i < attr_max; i++) {
 		ostringstream varname;
 
@@ -542,12 +549,13 @@ xiquery_page(FILE *of,  void *p)
 		if (DP())
 			cout << "v=[" << varname.str() << "] m=" << match[i] << "\n";
 	}
+
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		if (current_project && !(*i).first->get_attribute(current_project)) 
 			continue;
 		bool add;
 		switch (match_type) {
-		case 'Y':	// anY
+		case 'Y':	// anY match
 			add = false;
 			for (int j = 0; j < attr_max; j++)
 				if (match[j] && (*i).first->get_attribute(j)) {
@@ -558,7 +566,7 @@ xiquery_page(FILE *of,  void *p)
 			add = (add || (unused && (*i).first->get_size() == 1));
 			add = (add || (writable && !(*i).first->get_attribute(is_readonly)));
 			break;
-		case 'L':	// alL
+		case 'L':	// alL match
 			add = true;
 			for (int j = 0; j < attr_max; j++)
 				if (match[j] && !(*i).first->get_attribute(j)) {
@@ -569,7 +577,7 @@ xiquery_page(FILE *of,  void *p)
 			add = (add && (!unused || (*i).first->get_size() == 1));
 			add = (add && (!writable || !(*i).first->get_attribute(is_readonly)));
 			break;
-		case 'E':	// excludE
+		case 'E':	// excludE match
 			add = true;
 			for (int j = 0; j < attr_max; j++)
 				if (match[j] && (*i).first->get_attribute(j)) {
@@ -580,7 +588,7 @@ xiquery_page(FILE *of,  void *p)
 			add = (add && (!unused || !((*i).first->get_size() == 1)));
 			add = (add && (!writable || (*i).first->get_attribute(is_readonly)));
 			break;
-		case 'T':	// exactT
+		case 'T':	// exactT match
 			add = true;
 			for (int j = 0; j < attr_max; j++)
 				if (match[j] != (*i).first->get_attribute(j)) {
@@ -592,10 +600,29 @@ xiquery_page(FILE *of,  void *p)
 			add = (add && (writable == !(*i).first->get_attribute(is_readonly)));
 			break;
 		}
-		if (add)
+		if (q_id && add)
 			sorted_ids.insert(&*i);
+		if (q_file && add) {
+			IFSet f = (*i).first->sorted_files();
+			sorted_files.insert(f.begin(), f.end());
+		}
 	}
-	display_sorted_ids(of, sorted_ids);
+	if (q_id) {
+		fputs("<h2>Matching Identifiers</h2>\n", of);
+		display_sorted_ids(of, sorted_ids);
+	}
+	if (q_file) {
+		fputs("<h2>Matching Files</h2>\n", of);
+		fprintf(of, "<ul>\n");
+		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !f.get_attribute(current_project)) 
+				continue;
+			fprintf(of, "\n<li>");
+			html_file(of, *i);
+		}
+		fprintf(of, "\n</ul>\n");
+	}
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
 }
