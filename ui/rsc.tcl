@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.21 2001/10/15 09:46:17 dds Exp $
+# $Id: rsc.tcl,v 1.22 2001/10/20 23:08:35 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -434,6 +434,12 @@ set name(int) {Internal Settings}
 # True if entry can contain files
 set fileholder(int) 0
 
+# Other settings
+set fileholder(dep) 0
+set fileholder(ro) 0
+set fileholder(wr) 0
+set fileholder(edit) 0
+set fileholder(all) 0
 
 ######################################################
 # Subroutines
@@ -862,7 +868,7 @@ proc save_workspace_to {filename} {
 	
 	set f [open $filename w]
 	puts $f "#RSC 1.1 Workspace"
-	puts $f {#$Id: rsc.tcl,v 1.21 2001/10/15 09:46:17 dds Exp $}
+	puts $f {#$Id: rsc.tcl,v 1.22 2001/10/20 23:08:35 dds Exp $}
 	puts $f [list array set name [array get name]]
 	puts $f [list array set readonly [array get readonly]]
 	puts $f [list array set dir [array get dir]]
