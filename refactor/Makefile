@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.32 2003/05/31 08:20:08 dds Exp $
+# $Id: Makefile,v 1.33 2003/06/03 08:26:16 dds Exp $
 #
 
 # Common object files
@@ -50,6 +50,9 @@ all: cscout.exe
 
 simple_cpp: simple_cpp.o $(OBJ) $(STANDOBJ)
 	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) $(STANDOBJ) simple_cpp.o
+
+simple_cpp.exe: simple_cpp.o $(OBJ) $(STANDOBJ)
+	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) $(STANDOBJ) simple_cpp.o  -L. -lsill -lws2_32 -lregex
 
 workdb: workdb.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o workdb $(STANDOBJ) $(OBJ) workdb.o
@@ -105,6 +108,10 @@ license.o: license.c
 des.o: des.c
 	gcc -c $(CPPFLAGS) des.c
 
+# Create error message documentation
+mkerr:
+       perl mkerr.pl >../doc/error.xml
+
 # Test
 cpptest: cpp-test $(CPPTEST) simple_cpp
 	for i in $(CPPTEST) ; do echo -n $$i && cpp-test $$i && echo ' ok' ; done
@@ -123,3 +130,4 @@ boottest: simple_cpp
 rdist:
 	tar cvf - $(SRC) | plink jonathan tar -C src/cscout -xvf -
 	tar cvf - $(SRC) | plink spiti tar -C src/cscout -xvf -
+
