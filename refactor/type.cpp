@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.35 2003/09/29 14:35:02 dds Exp $
+ * $Id: type.cpp,v 1.36 2003/09/29 18:10:08 dds Exp $
  */
 
 #include <iostream>
@@ -175,7 +175,7 @@ Type_node::get_storage_class() const
 	return c_unspecified;
 }
 
-Tqualifier::qualifiers_t
+qualifiers_t
 Type_node::get_qualifiers() const
 {
 	Error::error(E_INTERNAL, "object has no associated qualifiers");
@@ -224,7 +224,7 @@ Tincomplete::member(const string& s) const
 }
 
 Type
-basic(enum e_btype t, enum e_sign s, enum e_storage_class sc, Tqualifier::qualifiers_t q)
+basic(enum e_btype t, enum e_sign s, enum e_storage_class sc, qualifiers_t q)
 {
 	return Type(new Tbasic(t, s, sc, q));
 }
@@ -310,7 +310,7 @@ Tstorage::print(ostream &o) const
 }
 
 void
-Tqualifier::print(ostream &o) const
+QType_node::print(ostream &o) const
 {
 	if (qualifiers & q_const) o << "const ";
 	if (qualifiers & q_volatile) o << "volatile ";
@@ -320,8 +320,8 @@ Tqualifier::print(ostream &o) const
 void
 Tbasic::print(ostream &o) const
 {
-
 	sclass.print(o);
+	QType_node::print(o);
 
 	switch (sign) {
 	case s_none: break;
@@ -343,7 +343,6 @@ Tbasic::print(ostream &o) const
 	case b_padbit: o << "padbit "; break;
 	case b_undeclared: o << "UNDECLARED "; break;
 	}
-	qualifier.print(o);
 }
 
 void
@@ -374,7 +373,7 @@ void
 Tsu::print(ostream &o) const
 {
 	sclass.print(o);
-	qualifier.print(o);
+	QType_node::print(o);
 
 	o << "struct/union " << members_by_name;
 }
@@ -383,7 +382,7 @@ void
 Tincomplete::print(ostream &o) const
 {
 	sclass.print(o);
-	qualifier.print(o);
+	QType_node::print(o);
 
 	o << "struct/union " << t.get_name() << "(incomplete) ";
 }
@@ -392,7 +391,7 @@ void
 Tenum::print(ostream &o) const
 {
 	sclass.print(o);
-	qualifier.print(o);
+	QType_node::print(o);
 
 	o << "enum ";
 }
@@ -485,7 +484,7 @@ Tbasic::merge(Tbasic *b)
 		c = this->sclass.get_storage_class();
 	}
 
-	q = (enum e_qualifier)(this->qualifier.get_qualifiers() | b->qualifier.get_qualifiers());
+	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
 	if (DP()) {
 		cout << "merge a=" << Type(this->clone()) << "\nmerge b=" << 
 			Type(b) << "\nmerge r=" <<  Type(basic(t, s, c, q)) << "\n";
@@ -544,6 +543,29 @@ Tpointer::merge(Tbasic *b)
 
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
 	return Type(new Tpointer(to, q));
+}
+
+Type
+Tarray::merge(Tbasic *b)
+{
+	enum e_qualifier q;
+
+	if (b == NULL)
+		return Type_node::merge(b);
+	if (!b->is_abstract() ||
+	    b->get_storage_class() != c_unspecified) {
+		/*
+		 * @error
+		 * The type specifier or storage class can not be applied on 
+		 * an array
+		 */
+		Error::error(E_ERR, "illegal application of type attributes on an array");
+		if (DP())
+			cout << "merge a=" << Type(this) << "\nmerge b=" << Type(b) << "\n";
+	}
+
+	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
+	return Type(new Tarray(of, q));
 }
 
 Type
@@ -648,7 +670,7 @@ Tbasic::set_abstract(Type t)
 		 * was already given
 		 */
 		Error::error(E_ERR, "invalid type specification for basic type");
-	qualifier.set_qualifiers(t.get_qualifiers());
+	set_qualifiers(t.get_qualifiers());
 	if (DP())
 		this->print(cerr);
 }
@@ -726,7 +748,7 @@ Type::declare()
 Type 
 Tbasic::clone() const
 {
-	return Type(new Tbasic(type, sign, sclass.get_storage_class(), qualifier.get_qualifiers()));
+	return Type(new Tbasic(type, sign, sclass.get_storage_class(), get_qualifiers()));
 }
 
 void

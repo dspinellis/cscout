@@ -5,21 +5,20 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.18 2003/09/29 14:35:02 dds Exp $
+ * $Id: type2.h,v 1.19 2003/09/29 18:10:08 dds Exp $
  */
 
 #ifndef TYPE2_
 #define TYPE2_
 
 // Array of ...
-class Tarray: public Type_node {
+class Tarray: public QType_node {
 private:
 	Type of;
-	Tqualifier qualifier;
 public:
-	Tarray(Type t, Tqualifier::qualifiers_t q = q_none) : of(t), qualifier(q) {}
+	Tarray(Type t, qualifiers_t q = q_none) : QType_node(q), of(t) {}
 	virtual ~Tarray() {}
-	Type clone() const { return Type(new Tarray(of.clone(), qualifier.get_qualifiers())); }
+	Type clone() const { return Type(new Tarray(of.clone(), get_qualifiers())); }
 	Type deref() const { return of; }
 	Type subscript() const { return of; }
 	bool is_ptr() const { return true; }
@@ -28,34 +27,23 @@ public:
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { of.set_storage_class(t); }
 	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
-	void add_qualifiers(Type t) {qualifier.add_qualifiers(t.get_qualifiers()); }
-	bool qualified_unused() const { return qualifier.qualified_unused(); }
-	bool qualified_const() const { return qualifier.qualified_const(); }
-	bool qualified_volatile() const { return qualifier.qualified_volatile(); }
-	Tqualifier::qualifiers_t get_qualifiers() const { return qualifier.get_qualifiers(); }
 	Type merge(Tbasic *b);
 };
 
 // Pointer to ...
-class Tpointer: public Type_node {
+class Tpointer: public QType_node {
 private:
 	Type to;
-	Tqualifier qualifier;
 public:
-	Tpointer(Type t, Tqualifier::qualifiers_t q = q_none) : to(t), qualifier(q) {}
+	Tpointer(Type t, qualifiers_t q = q_none) :  QType_node(q), to(t) {}
 	virtual ~Tpointer() {}
-	Type clone() const { return Type(new Tpointer(to.clone(), qualifier.get_qualifiers())); }
+	Type clone() const { return Type(new Tpointer(to.clone(), get_qualifiers())); }
 	Type deref() const { return to; }
 	Type subscript() const { return to; }
 	bool is_ptr() const { return true; }
 	Type call() const { return to.call(); }
 	void set_storage_class(Type t) { to.set_storage_class(t); }
 	enum e_storage_class get_storage_class() const {return to.get_storage_class(); }
-	void add_qualifiers(Type t) {qualifier.add_qualifiers(t.get_qualifiers()); }
-	bool qualified_unused() const { return qualifier.qualified_unused(); }
-	bool qualified_const() const { return qualifier.qualified_const(); }
-	bool qualified_volatile() const { return qualifier.qualified_volatile(); }
-	Tqualifier::qualifiers_t get_qualifiers() const { return qualifier.get_qualifiers(); }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	Type merge(Tbasic *b);
@@ -81,39 +69,32 @@ public:
 	bool qualified_const() const { return returning.qualified_const(); }
 	bool qualified_volatile() const { return returning.qualified_volatile(); }
 	bool qualified_unused() const { return returning.qualified_unused(); }
-	Tqualifier::qualifiers_t get_qualifiers() const { return returning.get_qualifiers(); }
+	qualifiers_t get_qualifiers() const { return returning.get_qualifiers(); }
 };
 
 // Enumeration
-class Tenum: public Type_node {
+class Tenum: public QType_node {
 private:
 	Tstorage sclass;
-	Tqualifier qualifier;
 public:
-	Tenum(enum e_storage_class sc = c_unspecified, Tqualifier::qualifiers_t q = q_none) : 
-		sclass(sc), qualifier(q)  {}
-	Type clone() const { return Type(new Tenum(sclass.get_storage_class(), qualifier.get_qualifiers()));}
+	Tenum(enum e_storage_class sc = c_unspecified, qualifiers_t q = q_none) : 
+		 QType_node(q), sclass(sc) {}
+	Type clone() const { return Type(new Tenum(sclass.get_storage_class(), get_qualifiers()));}
 	void print(ostream &o) const;
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
-	void add_qualifiers(Type t) {qualifier.add_qualifiers(t.get_qualifiers()); }
-	bool qualified_unused() const { return qualifier.qualified_unused(); }
-	bool qualified_const() const { return qualifier.qualified_const(); }
-	bool qualified_volatile() const { return qualifier.qualified_volatile(); }
-	Tqualifier::qualifiers_t get_qualifiers() const { return qualifier.get_qualifiers(); }
 	Type merge(Tbasic *b);
 };
 
 class Stab;
 
 // Structure or Union
-class Tsu: public Type_node {
+class Tsu: public QType_node {
 private:
 	Stab members_by_name;
 	vector <Id> members_by_ordinal;
 	Type default_specifier;	// Used while declaring a series of members
 	Tstorage sclass;
-	Tqualifier qualifier;
 public:
 	Tsu(const Token &tok, const Type &typ, const Type &spec) { 
 		tok.set_ec_attribute(is_sumember);
@@ -122,18 +103,18 @@ public:
 		members_by_ordinal.push_back(Id(tok, typ));
 		default_specifier = spec; 
 	}
-	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc, Tqualifier::qualifiers_t q) :
-			members_by_name(mbn),
+	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc, qualifiers_t q) :
+			 QType_node(q),
+			 members_by_name(mbn),
 			members_by_ordinal(mbo),
 			default_specifier(ds),
-			sclass(sc),
-			qualifier(q)
+			sclass(sc)
 			{}
 	Tsu(const Type &spec) { default_specifier = spec; }
 	Tsu() {}
 	virtual ~Tsu() {}
 	bool is_su() const { return true; }
-	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class(), qualifier.get_qualifiers())); }
+	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class(), get_qualifiers())); }
 	void add_member(const Token &tok, const Type &typ) { 
 		if (DP()) cout << "Adding member " << tok << "\n";
 		tok.set_ec_attribute(is_sumember);
@@ -159,42 +140,31 @@ public:
 	void print(ostream &o) const;
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
-	void add_qualifiers(Type t) { qualifier.add_qualifiers(t); }
-	bool qualified_const() const { return qualifier.qualified_const(); }
-	bool qualified_volatile() const { return qualifier.qualified_volatile(); }
-	bool qualified_unused() const { return qualifier.qualified_unused(); }
-	Tqualifier::qualifiers_t get_qualifiers() const { return qualifier.get_qualifiers(); }
 	Type merge(Tbasic *b);
 };
 //
 // Incomplete structure or union reference
-class Tincomplete: public Type_node {
+class Tincomplete: public QType_node {
 private:
 	Ctoken t;
 	Tstorage sclass;
 	int scope_level;		// Level to lookup for complete definitions
-	Tqualifier qualifier;
 public:
 	Tincomplete(const Ctoken& tok, int l) : t(tok), scope_level(l) {}
-	Tincomplete(const Ctoken& tok, enum e_storage_class sc, int l, Tqualifier::qualifiers_t q) : 
+	Tincomplete(const Ctoken& tok, enum e_storage_class sc, int l, qualifiers_t q) : 
+		QType_node(q),
 		t(tok), 
 		sclass(sc), 
-		scope_level(l),
-		qualifier(q)
+		scope_level(l)
 		{}
 	virtual ~Tincomplete() {}
-	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), scope_level, qualifier.get_qualifiers())); }
+	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), scope_level, get_qualifiers())); }
 	Id const* member(const string& s) const;
 	void print(ostream &o) const;
 	const Ctoken& get_token() const { return t; }
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 	bool is_incomplete() const { return true; }
-	void add_qualifiers(Type t) {qualifier.add_qualifiers(t.get_qualifiers()); }
-	bool qualified_unused() const { return qualifier.qualified_unused(); }
-	bool qualified_const() const { return qualifier.qualified_const(); }
-	bool qualified_volatile() const { return qualifier.qualified_volatile(); }
-	Tqualifier::qualifiers_t get_qualifiers() const { return qualifier.get_qualifiers(); }
 	Type merge(Tbasic *b);
 };
 
@@ -226,7 +196,7 @@ public:
 	bool qualified_const() const { return of.qualified_const(); }
 	bool qualified_volatile() const { return of.qualified_volatile(); }
 	bool qualified_unused() const { return of.qualified_unused(); }
-	Tqualifier::qualifiers_t get_qualifiers() const { return of.get_qualifiers(); }
+	qualifiers_t get_qualifiers() const { return of.get_qualifiers(); }
 };
 
 // Goto label
