@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.5 2001/08/20 17:22:34 dds Exp $
+ * $Id: fchar.h,v 1.6 2001/08/20 21:12:04 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -32,6 +32,7 @@ typedef stack <fchar_context> stackFchar_context;
 
 class Fchar;
 
+// For pushback; two token stack needed to parse the "..."
 typedef stack <Fchar> stackFchar;
 
 class Fchar {
