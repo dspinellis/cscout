@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.12 2003/07/28 20:09:31 dds Exp $
+ * $Id: attr.cpp,v 1.13 2003/08/17 12:40:59 dds Exp $
  */
 
 #include <map>
@@ -50,6 +50,7 @@ string Attributes::attribute_names[] = {
 	"Project scope",
 
 	"Typedef",
+	"Enumeration constant",
 };
 
 // Keep this in sync with the enumeration
@@ -69,6 +70,7 @@ string Attributes::attribute_short_names[] = {
 	"pscope",
 
 	"typedef",
+	"enumconst",
 };
 
 void

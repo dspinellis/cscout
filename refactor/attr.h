@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.11 2003/07/28 20:09:31 dds Exp $
+ * $Id: attr.h,v 1.12 2003/08/17 12:40:59 dds Exp $
  */
 
 #ifndef ATTR_
@@ -28,6 +28,7 @@ enum e_attribute {
 				// identifier  (static)
 	is_lscope,		// Linkage-unit scoped identifier
 	is_typedef,		// Typedef
+	is_enum,		// Enumeration member
 
 	attr_max,		// From here-on we store projects
 };
