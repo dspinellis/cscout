@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.12 2002/09/04 10:50:05 dds Exp $
+ * $Id: fchar.cpp,v 1.13 2002/09/07 10:21:30 dds Exp $
  */
 
 #include <iostream>
@@ -37,7 +37,7 @@ Fchar::set_input(const string& s)
 	if (in.is_open())
 		in.close();
 	in.clear();		// Otherwise flags are dirty and open fails
-	in.open(s.c_str());
+	in.open(s.c_str(), ios::binary);
 	if (in.fail())
 		Error::error(E_FATAL, s + ": " + string(strerror(errno)), false);
 	fi = Fileid(s);
