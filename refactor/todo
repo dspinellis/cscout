@@ -1,0 +1,36 @@
+$Id: todo,v 1.1 2002/09/09 17:59:27 dds Exp $
+
+Store for each EC
+	its namespace (tag, label, struct members, ordinary, macro arg, macro)
+	its highest visibility (block, file, global)
+	A bag of project it belongs to (#pragma project foo)
+	(the above also per file)
+	The above can be stored as a bitvector
+Use stab to
+	Display unused symbols
+		per function
+		per file
+		per project
+	Collect metrics
+Collect metrics (and get them over the web)
+	Project name
+	URL
+	Identifier length
+		Function
+		File
+		Project
+	Comments
+	Lines
+	Line length
+	Files
+	Directly / indirectly included files
+	Which r/o functions were called (library facilities)
+	Number of functions (per file, global, static)
+Save/load database
+Optimize (hash for map)
+Separate engine driver from post-processor
+Create obfuscator
+Create editor
+Run obfuscator on big programs
+Report identifiers only used once
+Verify memory management
