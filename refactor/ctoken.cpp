@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.20 2003/06/19 11:11:01 dds Exp $
+ * $Id: ctoken.cpp,v 1.21 2003/06/23 09:17:42 dds Exp $
  */
 
 #include <map>
@@ -35,7 +35,6 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
-#include "parse_tab.h"
 
 /*
  * Return the character value of a string containing a C character
