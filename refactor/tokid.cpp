@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.14 2002/09/04 17:00:10 dds Exp $
+ * $Id: tokid.cpp,v 1.15 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <iostream>
@@ -17,6 +17,7 @@
 #include "cpp.h"
 #include "debug.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "token.h"
 #include "eclass.h"
@@ -96,6 +97,34 @@ Tokid::constituents(int l)
 		assert(l >= 0);
 		if (l == 0)
 			return (r);
+		t += covered;
+		e = tm.tm.find(t);
+		assert(e != Tokid::tm.tm.end());
+	}
+}
+
+// Set the Tokid's equivalence class attribute
+void
+Tokid::set_ec_attribute(enum e_attribute a, int l) const
+{
+	Tokid t = *this;
+	dequeTpart r;
+	mapTokidEclass::const_iterator e = tm.tm.find(t);
+
+	if (e == Tokid::tm.tm.end()) {
+		// No EC defined, create a new one
+		Eclass *e = new Eclass(t, l);
+		e->set_attribute(a);
+		return;
+	}
+	// Set the ECs covering our tokid t
+	for (;;) {
+		int covered = (e->second)->get_len();
+		(e->second)->set_attribute(a);
+		l -= covered;
+		assert(l >= 0);
+		if (l == 0)
+			return;
 		t += covered;
 		e = tm.tm.find(t);
 		assert(e != Tokid::tm.tm.end());

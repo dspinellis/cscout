@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.10 2002/09/04 17:00:10 dds Exp $
+ * $Id: token.cpp,v 1.11 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <iostream>
@@ -17,6 +17,7 @@
 
 #include "cpp.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"
@@ -54,11 +55,19 @@ Token::constituents() const
 	dequeTpart r;
 	dequeTpart::const_iterator i;
 	for (i = parts.begin(); i != parts.end(); i++) {
-		//cout << "Constituents of " << *i << "\n";
+		if (DP()) cout << "Constituents of " << *i << "\n";
 		dequeTpart c = (*i).get_tokid().constituents((*i).get_len());
 		copy(c.begin(), c.end(), back_inserter(r));
 	}
 	return (r);
+}
+
+void 
+Token::set_ec_attribute(enum e_attribute a) const
+{
+	dequeTpart::const_iterator i;
+	for (i = parts.begin(); i != parts.end(); i++)
+		(*i).get_tokid().set_ec_attribute(a, (*i).get_len());
 }
 
 void

@@ -6,10 +6,12 @@
  *
  * Include synopsis:
  * #include <deque>
+ * #include <vector>
+ * #include "attr.h"
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.13 2002/09/06 06:40:51 dds Exp $
+ * $Id: eclass.h,v 1.14 2002/09/11 11:32:15 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -21,10 +23,9 @@ class Eclass {
 private:
 	int len;			// Identifier length
 	setTokid members;		// Class members
-	bool ro;			// Read-only; true if any member
-					// comes from an ro file
+	vector <bool> attr;		// Attributes and projects
+					// Hopefully specialized to 1 bit/val
 public:
-
 	// An equivalence class shall know its length
 	inline Eclass(int len);
 	// It can be constructed from an initiall Tokid
@@ -43,21 +44,21 @@ public:
 	int get_size() { return members.size(); }
 	friend ostream& operator<<(ostream& o,const Eclass& ec);
 	// Other accessor functions
-	bool get_readonly() const { return ro; }
-	void set_readonly(bool v) { ro = v; }
 	const setTokid & get_members(void) const { return members; }
 	set <Fileid, fname_order> sorted_files();
+	void set_attribute(enum e_attribute v) { attr[v] = true; }
+	bool get_attribute(enum e_attribute v) { return attr[v]; }
 };
 
 inline
 Eclass::Eclass(int l)
-	: len(l), ro(false)
+: len(l), attr(attr_max, false)
 {
 }
 
 inline
 Eclass::Eclass(Tokid t, int l)
-	: len(l), ro(false)
+: len(l), attr(attr_max, false)
 {
 	add_tokid(t);
 }

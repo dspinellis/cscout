@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.12 2002/09/07 09:47:15 dds Exp $
+ * $Id: stab.cpp,v 1.13 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <map>
@@ -20,6 +20,7 @@
 #include "cpp.h"
 #include "debug.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "token.h"
 #include "ytab.h"
@@ -109,6 +110,7 @@ Block::clear()
 void
 obj_define(const Token& tok, Type typ)
 {
+	tok.set_ec_attribute(is_ordinary);
 	enum e_storage_class sc = typ.get_storage_class();
 	Id const * id;
 
@@ -134,16 +136,23 @@ obj_define(const Token& tok, Type typ)
 			sc = sc2;
 		}
 	}
-	if (Block::current_block == Block::cu_block) {
+	if (DP())
+		cout << "Type of " << tok << " is " << typ << (typ.is_typedef() ? " (typedef)\n" : "\n");
+	if (Block::get_scope_level() == Block::cu_block) {
 		// Special rules for definitions at file scope
 		// ANSI 3.1.2.2 p. 22
 		if (sc == c_static) {
+			tok.set_ec_attribute(is_cscope);
 			if (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name())) {
 				if (id->get_type().get_storage_class() == c_unspecified)
 					Error::error(E_ERR, "conflicting declarations for identifier " + id->get_name());
 				unify(id->get_token(), tok);
 			}
-		}
+		} else if (sc == c_typedef) {
+			tok.set_ec_attribute(is_cscope);
+			tok.set_ec_attribute(is_typedef);
+		} else
+			tok.set_ec_attribute(is_lscope);
 	} else {
 		// Definitions at function block scope
 		if (sc != c_extern &&
@@ -171,6 +180,7 @@ obj_define(const Token& tok, Type typ)
 void
 tag_define(const Token& tok, const Type& typ)
 {
+	tok.set_ec_attribute(is_suetag);
 	static Stab Block::*tagptr = &Block::tag;
 	if (DP())
 		cout << "Define tag [" << tok.get_name() << "]: " << typ << "\n";
@@ -224,6 +234,7 @@ Stab::define(const Token& tok, const Type& typ)
 void
 label_define(const Token& tok)
 {
+	tok.set_ec_attribute(is_label);
 	Id const *id = Function::label.lookup(tok.get_name());
 	if (id) {
 		if (id->get_type().is_valid())

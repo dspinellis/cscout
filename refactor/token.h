@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.7 2001/10/27 06:51:00 dds Exp $
+ * $Id: token.h,v 1.8 2002/09/11 11:32:15 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -55,6 +55,8 @@ public:
 	// Iterators for accessing the token parts
 	inline dequeTpart::const_iterator get_parts_begin() const;
 	inline dequeTpart::const_iterator get_parts_end() const;
+	// Set the token's equivalence class attribute
+	void set_ec_attribute(enum e_attribute a) const;
 };
 
 /* Given two Tokid sequences corresponding to two tokens

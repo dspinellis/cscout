@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.11 2002/09/07 10:21:30 dds Exp $
+ * $Id: webmap.cpp,v 1.12 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <map>
@@ -30,6 +30,7 @@
 #include "cpp.h"
 #include "ytab.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "token.h"
 #include "ptoken.h"
@@ -116,11 +117,13 @@ static set <Identifier> ids;
 
 // Display the contents of a file in hypertext form
 // As a side-effect add identifier into ids
-static void
-file_hypertext(ofstream &of, string fname)
+// Return true if the file contains unused identifiers
+static bool
+file_hypertext(ofstream &of, ofstream &uof, string fname)
 {
 	ifstream in;
 	Fileid fi;
+	bool has_unused = false;
 
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
@@ -137,7 +140,12 @@ file_hypertext(ofstream &of, string fname)
 		if ((val = in.get()) == EOF)
 			break;
 		Eclass *ec;
-		if ((ec = ti.check_ec()) && ec->get_size() > 1) {
+		// Identifiers worth marking
+		if ((ec = ti.check_ec()) && (
+		    ec->get_size() > 1 || (ec->get_attribute(is_readonly) == FALSE && (
+		      ec->get_attribute(is_lscope) || 
+		      ec->get_attribute(is_cscope) || 
+		      ec->get_attribute(is_macro))))) {
 			string s;
 			s = (char)val;
 			int len = ec->get_len();
@@ -146,11 +154,17 @@ file_hypertext(ofstream &of, string fname)
 			Identifier i(ec, s);
 			ids.insert(i);
 			html_id(of, i);
-			continue;
+			if (ec->get_size() == 1) {
+				html_id(uof, i);
+				has_unused = true;
+			}
+		} else {
+			of << html((char)val);
+			uof << html((char)val);
 		}
-		of << html((char)val);
 	}
 	in.close();
+	return has_unused;
 }
 
 // Create a new HTML file with a given filename and title
@@ -165,7 +179,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.11 2002/09/07 10:21:30 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.12 2002/09/11 11:32:15 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -213,7 +227,7 @@ main(int argc, char *argv[])
 
 	// Pass 2: Create web pages
 	vector <Fileid> files = Fileid::sorted_files();
-	ofstream fo;
+	ofstream fo, usfo, sfo;
 
 	#ifdef unix
 	(void)mkdir("html", 0777);
@@ -231,6 +245,9 @@ main(int argc, char *argv[])
 		"<li> <a href=\"roids.html\">Read-only identifiers</a>\n"
 		"<li> <a href=\"wids.html\">Writable identifiers</a>\n"
 		"<li> <a href=\"xids.html\">File-spanning identifiers</a>\n"
+		"<li> <a href=\"upids.html\">Unused Project-scoped Writable Identifiers</a>\n"
+		"<li> <a href=\"ufids.html\">Unused File-scoped Writable Identifiers</a>\n"
+		"<li> <a href=\"umids.html\">Unused Macro Writable Identifiers</a>\n"
 		"</ul>";
 	html_tail(fo);
 
@@ -277,13 +294,19 @@ main(int argc, char *argv[])
 		html_head(fo, (string("f") + fname.str()).c_str(), string("File: ") + html(pathname));
 		fo << "<ul>\n";
 		fo << "<li> Read-only: " << ((*i).get_readonly() ? "Yes" : "No") << "\n";
-		fo << "<li> <a href=\"s" << fname.str() << ".html\">Source code</a>\n";
-		fo << "</ul>\n";
-
-		html_tail(fo);
 		// File source listing
-		html_head(fo, (string("s") + fname.str()).c_str(), string("Source: ") + html(pathname));
-		file_hypertext(fo, pathname);
+		html_head(sfo, (string("s") + fname.str()).c_str(), string("Source: ") + html(pathname));
+		if ((*i).get_readonly() == FALSE)
+			html_head(usfo, (string("u") + fname.str()).c_str(), string("Source (with unused identifiers marked): ") + html(pathname));
+		bool has_unused = file_hypertext(sfo, usfo, pathname);
+		html_tail(sfo);
+		if ((*i).get_readonly() == FALSE)
+			html_tail(usfo);
+		fo << "<li> Contains unused identifiers: " << (has_unused ? "Yes" : "No") << "\n";
+		fo << "<li> <a href=\"s" << fname.str() << ".html\">Source code</a>\n";
+		if (has_unused)
+			fo << "<li> <a href=\"u" << fname.str() << ".html\">Source code (with unused identifiers marked)</a>\n";
+		fo << "</ul>\n";
 		html_tail(fo);
 	}
 
@@ -302,7 +325,7 @@ main(int argc, char *argv[])
 	html_head(fo, "roids", "Read-only Identifiers");
 	fo << "<ul>";
 	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
-		if ((*i).get_ec()->get_readonly() == true) {
+		if ((*i).get_ec()->get_attribute(is_readonly) == true) {
 			fo << "\n<li>";
 			html_id(fo, *i);
 		}
@@ -317,7 +340,17 @@ main(int argc, char *argv[])
 		fname << (unsigned)(*i).get_ec();
 		html_head(fo, (string("i") + fname.str()).c_str(), string("Identifier: ") + html((*i).get_id()));
 		fo << "<ul>\n";
-		fo << "<li> Read-only: " << ((*i).get_ec()->get_readonly() ? "Yes" : "No") << "\n";
+		fo << "<li> Read-only: " << ((*i).get_ec()->get_attribute(is_readonly) ? "Yes" : "No") << "\n";
+		fo << "<li> Macro: " << ((*i).get_ec()->get_attribute(is_macro) ? "Yes" : "No") << "\n";
+		fo << "<li> Macro argument: " << ((*i).get_ec()->get_attribute(is_macroarg) ? "Yes" : "No") << "\n";
+		fo << "<li> Ordinary identifier: " << ((*i).get_ec()->get_attribute(is_ordinary) ? "Yes" : "No") << "\n";
+		fo << "<li> Tag for struct/union/enum: " << ((*i).get_ec()->get_attribute(is_suetag) ? "Yes" : "No") << "\n";
+		fo << "<li> Member of struct/union: " << ((*i).get_ec()->get_attribute(is_sumember) ? "Yes" : "No") << "\n";
+		fo << "<li> Label: " << ((*i).get_ec()->get_attribute(is_label) ? "Yes" : "No") << "\n";
+		fo << "<li> Typedef: " << ((*i).get_ec()->get_attribute(is_typedef) ? "Yes" : "No") << "\n";
+		fo << "<li> File scope: " << ((*i).get_ec()->get_attribute(is_cscope) ? "Yes" : "No") << "\n";
+		fo << "<li> Project scope: " << ((*i).get_ec()->get_attribute(is_lscope) ? "Yes" : "No") << "\n";
+		fo << "<li> Unused: " << ((*i).get_ec()->get_size() == 1 ? "Yes" : "No") << "\n";
 		fo << "</ul>\n";
 		typedef set <Fileid, fname_order> IFSet;
 		IFSet ifiles = (*i).get_ec()->sorted_files();
@@ -325,7 +358,7 @@ main(int argc, char *argv[])
 		fo << "<h2>Dependent Files (Writable)</h2>\n";
 		fo << "<ul>\n";
 		for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
-			if ((*i).get_ec()->get_readonly() == false) {
+			if ((*j).get_readonly() == false) {
 				fo << "\n<li>";
 				html_file(fo, (*j).get_path());
 			}
@@ -360,7 +393,7 @@ main(int argc, char *argv[])
 	html_head(fo, "wids", "Writable Identifiers");
 	fo << "<ul>";
 	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
-		if ((*i).get_ec()->get_readonly() == false) {
+		if ((*i).get_ec()->get_attribute(is_readonly) == false) {
 			fo << "\n<li>";
 			html_id(fo, *i);
 		}
@@ -373,7 +406,7 @@ main(int argc, char *argv[])
 	fo << "<ul>";
 	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
 		if ((*i).get_xfile() == true &&
-		    (*i).get_ec()->get_readonly() == false) {
+		    (*i).get_ec()->get_attribute(is_readonly) == false) {
 			fo << "\n<li>";
 			html_id(fo, *i);
 		}
@@ -381,6 +414,53 @@ main(int argc, char *argv[])
 	fo << "\n</ul>\n";
 	html_tail(fo);
 
+	// Unused project-scoped writable identifiers
+	html_head(fo, "upids", "Unused Project-scoped Writable Identifiers");
+	fo << "<ul>";
+	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
+		Eclass *e = (*i).get_ec();
+		if (
+		    e->get_size() == 1 &&
+		    e->get_attribute(is_lscope) == true &&
+		    e->get_attribute(is_readonly) == false) {
+			fo << "\n<li>";
+			html_id(fo, *i);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
+	// Unused file-scoped writable identifiers
+	html_head(fo, "ufids", "Unused File-scoped Writable Identifiers");
+	fo << "<ul>";
+	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
+		Eclass *e = (*i).get_ec();
+		if (
+		    e->get_size() == 1 &&
+		    e->get_attribute(is_cscope) == true &&
+		    e->get_attribute(is_readonly) == false) {
+			fo << "\n<li>";
+			html_id(fo, *i);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
+	// Unused macro writable identifiers
+	html_head(fo, "umids", "Unused Macro Writable Identifiers");
+	fo << "<ul>";
+	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
+		Eclass *e = (*i).get_ec();
+		if (
+		    e->get_size() == 1 &&
+		    e->get_attribute(is_macro) == true &&
+		    e->get_attribute(is_readonly) == false) {
+			fo << "\n<li>";
+			html_id(fo, *i);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
 
 	return (0);
 }

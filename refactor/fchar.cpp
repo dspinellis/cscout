@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.13 2002/09/07 10:21:30 dds Exp $
+ * $Id: fchar.cpp,v 1.14 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <iostream>
@@ -20,6 +20,7 @@
 #include "cpp.h"
 #include "debug.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "fchar.h"
 #include "error.h"

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.7 2002/09/07 09:47:15 dds Exp $
+ * $Id: error.cpp,v 1.8 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <iostream>
@@ -15,8 +15,9 @@
 #include <map>
 #include <vector>
 
-#include "fileid.h"
 #include "cpp.h"
+#include "attr.h"
+#include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
 #include "error.h"

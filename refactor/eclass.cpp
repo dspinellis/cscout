@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.15 2002/09/07 09:47:15 dds Exp $
+ * $Id: eclass.cpp,v 1.16 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <iostream>
@@ -18,6 +18,7 @@
 #include "cpp.h"
 #include "debug.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"
@@ -40,15 +41,17 @@ merge(Eclass *a, Eclass *b)
 		little = a;
 	}
 
-	setTokid::const_iterator i;
-	for (i = little->members.begin(); i != little->members.end(); i++)
+	for (setTokid::const_iterator i = little->members.begin(); i != little->members.end(); i++)
 		large->add_tokid(*i);
 	// If one is read-only; the result is too
-	large->ro = (little->ro || large->ro);
+	for (int i = 0; i < attr_max; i++)
+		large->attr[i] = (little->attr[i] || large->attr[i]);
 	delete little;
 	return (large);
 }
 
+// Split an equivalence class after the (0-based) character position
+// pos returning the new EC receiving the split Tokids
 Eclass *
 Eclass::split(int pos)
 {
@@ -57,10 +60,9 @@ Eclass::split(int pos)
 		cout << "Split " << this << " pos=" << pos << *this;
 	assert(oldchars < len);
 	Eclass *e = new Eclass(len - oldchars);
-	setTokid::const_iterator i;
-	for (i = members.begin(); i != members.end(); i++)
+	for (setTokid::const_iterator i = members.begin(); i != members.end(); i++)
 		e->add_tokid(*i + oldchars);
-	e->ro = ro;
+	e->attr = attr;
 	len = oldchars;
 	if (DP()) {
 		cout << "Split A: " << *e;
@@ -86,7 +88,7 @@ Eclass::add_tokid(Tokid t)
 {
 	members.insert(t);
 	t.set_ec(this);
-	ro = (t.get_readonly() || ro);
+	attr[is_readonly] = (t.get_readonly() || attr[is_readonly]);
 }
 
 // Return a sorted vector of all files used

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ptoken.cpp,v 1.5 2002/09/04 17:00:10 dds Exp $
+ * $Id: ptoken.cpp,v 1.6 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <iostream>
@@ -17,6 +17,7 @@
 #include "cpp.h"
 #include "ytab.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "token.h"
 #include "ptoken.h"

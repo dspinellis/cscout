@@ -3,7 +3,7 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.4 2002/09/04 17:00:10 dds Exp $
+ * $Id: eval.y,v 1.5 2002/09/11 11:32:15 dds Exp $
  *
  */
 
@@ -21,8 +21,9 @@
 #include <vector>
 #include <map>
 
-#include "fileid.h"
 #include "cpp.h"
+#include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "fchar.h"
 #include "error.h"

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.18 2002/09/07 09:47:15 dds Exp $
+ * $Id: type.cpp,v 1.19 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <iostream>
@@ -19,10 +19,10 @@
 
 #include "ytab.h"
 
-#include "fileid.h"
-#include "fileid.h"
 #include "cpp.h"
+#include "debug.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"
@@ -160,7 +160,7 @@ Tincomplete::member(const string& s) const
 {
 	const Id *id = tag_lookup(scope_level, t.get_name());
 	if (!id) {
-		Error::error(E_ERR, "member access in incomplete struct/union");
+		Error::error(E_ERR, string("member access in incomplete struct/union: ") + t.get_name());
 		if (DP())
 			this->print(cerr);
 		return NULL;

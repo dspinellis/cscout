@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.18 2002/09/05 13:33:59 dds Exp $
+ * $Id: type.h,v 1.19 2002/09/11 11:32:15 dds Exp $
  */
 
 #ifndef TYPE_
@@ -71,6 +71,7 @@ protected:
 	virtual const Stab& get_members() const;
 
 	bool is_typedef() const { return get_storage_class() == c_typedef; }// True for typedefs
+	bool is_static() const { return get_storage_class() == c_static; }// True for typedefs
 public:
 	// For merging
 	virtual Type merge(Tbasic *b);

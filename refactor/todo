@@ -1,14 +1,16 @@
-$Id: todo,v 1.1 2002/09/09 17:59:27 dds Exp $
+$Id: todo,v 1.2 2002/09/11 11:32:15 dds Exp $
+
+Unify macro definitions with same name pltoken.cpp 548
 
 Store for each EC
-	its namespace (tag, label, struct members, ordinary, macro arg, macro)
-	its highest visibility (block, file, global)
+	its namespace 
+	(*tag, *label, *struct members, *ordinary, *macro arg, *macro)
+	*its highest visibility (block, file, global)
 	A bag of project it belongs to (#pragma project foo)
 	(the above also per file)
 	The above can be stored as a bitvector
 Use stab to
 	Display unused symbols
-		per function
 		per file
 		per project
 	Collect metrics

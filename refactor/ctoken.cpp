@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.11 2002/09/07 09:47:15 dds Exp $
+ * $Id: ctoken.cpp,v 1.12 2002/09/11 11:32:15 dds Exp $
  */
 
 #include <map>
@@ -20,6 +20,7 @@
 #include "cpp.h"
 #include "debug.h"
 #include "fileid.h"
+#include "attr.h"
 #include "tokid.h"
 #include "token.h"
 #include "ytab.h"
