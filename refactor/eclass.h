@@ -9,7 +9,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.2 2001/08/17 11:49:31 dds Exp $
+ * $Id: eclass.h,v 1.3 2001/08/17 11:57:20 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -33,6 +33,8 @@ public:
 	friend Eclass *merge(Eclass *a, Eclass *b);
 	// Split an equivalence class at character position pos
 	friend void split(Eclass *ec, int pos);
+	// Return length
+	int get_len() { return len; };
 	friend ostream& operator<<(ostream& o,const Eclass& ec);
 };
 
