@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.6 2001/09/22 15:26:04 dds Exp $
+ * $Id: color.cpp,v 1.7 2002/09/03 13:27:31 dds Exp $
  */
 
 #include <iostream>
@@ -17,11 +17,7 @@
 #include <list>
 #include <set>
 #include <cassert>
-#ifdef unix
 #include <cstdio>		// perror
-#else
-#include <cstdlib>		// perror
-#endif
 
 
 #include "cpp.h"
