@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.12 2002/09/09 17:35:44 dds Exp $
+ * $Id: stab.h,v 1.13 2002/09/10 14:45:18 dds Exp $
  */
 
 #ifndef STAB_
@@ -14,14 +14,14 @@
  * Four namespaces:
  * 1. Label names:
  *    Disambinuated by the syntax of label declaration and
- *    used, stored in Function::label
+ *    used, stored in Function::label, defined using label_define
  * 2. Tags for struct, union, enum:
  *    Disambiguated by following the respective keyword
- *    and stored in Block.tag
+ *    and stored in Block.tag, defined using tag_define
  * 3. Members of structures and unions
- *    One per structure or uionon, disambiguated by the type
+ *    One per structure or union, disambiguated by the type
  *    of the expression used to access it.
- *    Stored in Tsu.members.
+ *    Stored in Tsu.members, defined using members.define.
  * 4. All other objects
  *    AKA ordinary identifiers, stored in Block.obj
  */
