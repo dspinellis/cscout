@@ -3,12 +3,13 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.8 2001/08/22 19:33:33 dds Exp $
+ * $Id: eclass.cpp,v 1.9 2001/08/31 16:13:14 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
+#include <set>
 #include <deque>
 #include <cassert>
 
@@ -23,6 +24,8 @@ merge(Eclass *a, Eclass *b)
 {
 	Eclass *small, *large;
 
+	if (a == b)
+		return a;
 	//if (a->len != b->len) cout << "merge a=" << *a << " b=" << *b << "\n";
 	assert(a->len == b->len);
 	// It is more efficient to append the small at the end of the large one
@@ -34,7 +37,7 @@ merge(Eclass *a, Eclass *b)
 		small = a;
 	}
 
-	dequeTokid::const_iterator i;
+	setTokid::const_iterator i;
 	for (i = small->members.begin(); i != small->members.end(); i++)
 		large->add_tokid(*i);
 	delete small;
@@ -47,7 +50,7 @@ Eclass::split(int pos)
 	int oldchars = pos + 1;		// Characters to retain in the old EC
 	assert(oldchars < len);
 	Eclass *e = new Eclass(len - oldchars);
-	dequeTokid::const_iterator i;
+	setTokid::const_iterator i;
 	for (i = members.begin(); i != members.end(); i++)
 		e->add_tokid(*i + oldchars);
 	len = oldchars;
@@ -57,7 +60,7 @@ Eclass::split(int pos)
 ostream&
 operator<<(ostream& o,const Eclass& ec)
 {
-	dequeTokid::const_iterator i;
+	setTokid::const_iterator i;
 
 	for (i = ec.members.begin(); i != ec.members.end(); i++) {
 		Tpart p(*i, ec.len);
@@ -69,7 +72,7 @@ operator<<(ostream& o,const Eclass& ec)
 void
 Eclass::add_tokid(Tokid t)
 {
-	members.push_front(t);
+	members.insert(t);
 	t.set_ec(this);
 }
 

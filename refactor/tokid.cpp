@@ -3,13 +3,14 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.10 2001/08/22 19:33:33 dds Exp $
+ * $Id: tokid.cpp,v 1.11 2001/08/31 16:13:14 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
+#include <set>
 #include <cassert>
 
 #include "cpp.h"
@@ -62,6 +63,7 @@ Tokid::constituents(int l)
 	}
 	// Make r be the Tparts of the ECs covering our tokid t
 	for (;;) {
+		// cout << "Tokid = " << (e->first) << " Eclass = " << e->second << "\n" << (*(e->second)) << "\n";
 		int covered = (e->second)->get_len();
 		Tpart tp(t, covered);
 		r.push_back(tp);

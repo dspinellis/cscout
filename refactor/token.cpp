@@ -3,13 +3,14 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.5 2001/08/22 19:33:33 dds Exp $
+ * $Id: token.cpp,v 1.6 2001/08/31 16:13:14 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
+#include <set>
 #include <cassert>
 #include <fstream>
 
@@ -50,6 +51,7 @@ Token::constituents() const
 	dequeTpart r;
 	dequeTpart::const_iterator i;
 	for (i = parts.begin(); i != parts.end(); i++) {
+		//cout << "Constituents of " << *i << "\n";
 		dequeTpart c = (*i).get_tokid().constituents((*i).get_len());
 		copy(c.begin(), c.end(), back_inserter(r));
 	}
@@ -93,6 +95,7 @@ homogenize(const dequeTpart &a, const dequeTpart &b)
 void
 unify(const Token &a, const Token &b)
 {
+	// cout << "Unify " << a << " and " << b << "\n";
 	// Get the constituent Tokids; they may have grown more than the parts
 	dequeTpart ac = a.constituents();
 	dequeTpart bc = b.constituents();

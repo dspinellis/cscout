@@ -9,16 +9,18 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.6 2001/08/25 20:28:25 dds Exp $
+ * $Id: eclass.h,v 1.7 2001/08/31 16:13:14 dds Exp $
  */
 
 #ifndef ECLASS_
 #define ECLASS_
 
+typedef set<Tokid> setTokid;
+
 class Eclass {
 private:
 	int len;			// Identifier length
-	dequeTokid members;		// Class members
+	setTokid members;		// Class members
 public:
 	// An equivalence class shall know its length
 	inline Eclass(int len);
