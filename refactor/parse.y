@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.52 2003/06/21 13:58:52 dds Exp $
+ * $Id: parse.y,v 1.53 2003/06/21 14:06:00 dds Exp $
  *
  */
 
@@ -1517,7 +1517,7 @@ yacc_name_list_declaration:
 			obj_define($2.get_token(), basic(b_int, s_none, c_static));
 			$$ = $1;
 		}
-	| yacc_name_list_declaration yacc_opt_comma yacc_name_number
+	| yacc_name_list_declaration comma_opt yacc_name_number
 		{
 			YaccTypeMap::const_iterator i = yacc_type.find($3.get_name());
 			if (i != yacc_type.end() && (*i).second.is_valid())
@@ -1527,11 +1527,6 @@ yacc_name_list_declaration:
 			obj_define($3.get_token(), basic(b_int, s_none, c_static));
 			$$ = $1;
 		}
-	;
-
-yacc_opt_comma:
-	/* Empty */
-	| ','
 	;
 
 yacc_name_number:
@@ -1593,7 +1588,7 @@ yacc_id_action_list:
 	/* Empty */
 	| yacc_id_action_list yacc_name
 		{ yacc_dollar.push_back($2.get_name()); }
-        | yacc_id_action_list { parse_yacc_defs = false; } compound_statement 
+        | yacc_id_action_list { parse_yacc_defs = false; } equal_opt compound_statement 
 		{
 			parse_yacc_defs = true; 
 			yacc_dollar.push_back("_ACTION_"); 
@@ -1603,7 +1598,7 @@ yacc_id_action_list:
 yacc_prec:
 	/* Empty */
 	| YPREC yacc_name
-	| YPREC yacc_name { parse_yacc_defs = false; } compound_statement
+	| YPREC yacc_name { parse_yacc_defs = false; } equal_opt yacc_compound_statement
 		{ parse_yacc_defs = true; }
 	;
 
@@ -1649,6 +1644,11 @@ yacc_variable_suffix:
 	'$'
 	| INT_CONST
 	| '-' INT_CONST
+	;
+
+equal_opt:
+	/* Empty */
+	'='
 	;
 
 %%
