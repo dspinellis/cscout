@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.6 2001/08/18 15:30:47 dds Exp $
+ * $Id: eclass.cpp,v 1.7 2001/08/21 20:06:47 dds Exp $
  */
 
 #include <iostream>
@@ -22,6 +22,7 @@ merge(Eclass *a, Eclass *b)
 {
 	Eclass *small, *large;
 
+	//if (a->len != b->len) cout << "merge a=" << *a << " b=" << *b << "\n";
 	assert(a->len == b->len);
 	// It is more efficient to append the small at the end of the large one
 	if (a->members.size() > b->members.size()) {
