@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.3 2001/08/21 19:25:25 dds Exp $
+ * $Id: token.cpp,v 1.4 2001/08/21 20:07:36 dds Exp $
  */
 
 #include <iostream>
@@ -58,14 +58,23 @@ homogenize(const dequeTpart &a, const dequeTpart &b)
 	while (ai != a.end() && bi != b.end()) {
 		alen = ae->get_len();
 		blen = be->get_len();
+		// cout << "alen=" << alen << " blen=" << blen << "\n";
 		if (blen < alen) {
-			ae = ae->split(blen);
+			ae = ae->split(blen - 1);
 			bi++;
+			if (bi != b.end())
+				be = (*bi).get_tokid().get_ec();
 		} else if (alen < blen) {
-			be = be->split(alen);
+			be = be->split(alen - 1);
 			ai++;
+			if (ai != a.end())
+				ae = (*ai).get_tokid().get_ec();
 		} else if (alen == blen) {
 			ai++;
+			if (ai != a.end())
+				ae = (*ai).get_tokid().get_ec();
+			if (bi != b.end())
+				be = (*bi).get_tokid().get_ec();
 			bi++;
 		}
 	}
@@ -78,10 +87,12 @@ unify(const Token &a, const Token &b)
 	dequeTpart ac = a.constituents();
 	dequeTpart bc = b.constituents();
 	// Make the constituents of same length
+	//cout << "Before homogenization: " << "\n" << "a=" << a << "\n" << "b=" << b << "\n";
 	homogenize(ac, bc);
 	// Get the constituents again; homogenizing may have changed them
 	ac = a.constituents();
 	bc = b.constituents();
+	// cout << "After homogenization: " << "\n" << "a=" << ac << "\n" << "b=" << bc << "\n";
 	// Now merge the corresponding ECs
 	dequeTpart::const_iterator ai, bi;
 	for (ai = ac.begin(), bi = bc.begin(); ai != ac.end(); ai++, bi++)
