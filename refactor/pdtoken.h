@@ -25,7 +25,7 @@
  * #include "ytab.h"
  * #include "pltoken.h"
  *
- * $Id: pdtoken.h,v 1.5 2001/08/24 12:12:13 dds Exp $
+ * $Id: pdtoken.h,v 1.6 2001/08/24 12:49:26 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -35,17 +35,17 @@ class Pdtoken;
 
 typedef list<Pdtoken> listPdtoken;
 
-typedef deque<Pltoken> dequePltoken;
-typedef list<Pltoken> listPltoken;
+typedef deque<Ptoken> dequePtoken;
+typedef list<Ptoken> listPtoken;
 typedef set<string> setstring;
-typedef map<string, listPltoken> mapArgval;
+typedef map<string, listPtoken> mapArgval;
 
 // A macro definition
 class Macro {
 public:
 	bool is_function;		// True if it is a function-macro
-	dequePltoken formal_args;	// Formal arguments (names)
-	dequePltoken value;		// Macro value
+	dequePtoken formal_args;	// Formal arguments (names)
+	dequePtoken value;		// Macro value
 	inline friend bool operator ==(const Macro& a, const Macro& b);
 	inline friend bool operator !=(const Macro& a, const Macro& b) { return !(a == b); };
 };
@@ -57,7 +57,7 @@ enum e_if_type {if_plain, if_def, if_ndef, if_elif};
 class Pdtoken: public Ptoken {
 private:
 	static mapMacro macros;			// Defined macros
-	static listPdtoken expand;		// Expanded input
+	static listPtoken expand;		// Expanded input
 	static bool at_bol;			// At beginning of line
 
 	static void process_directive();	// Handle a cpp directive
@@ -78,7 +78,7 @@ public:
 	void getnext();
 	// Clear the defined macro table (when changing compilation unit)
 	static void clear_macros() { macros.clear(); }
-	friend bool macro_replace(listPdtoken& tokens, listPdtoken::iterator pos, setstring& tabu, bool get_more);
+	friend bool macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, bool get_more);
 };
 
 inline bool

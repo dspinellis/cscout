@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.4 2001/08/21 18:29:45 dds Exp $
+ * $Id: token.h,v 1.5 2001/08/24 12:49:26 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -46,6 +46,9 @@ public:
 	dequeTpart Token::constituents() const;
 	// Send it on ostream
 	friend ostream& operator<<(ostream& o,const Token &t);
+	// Iterators for accessing the token parts
+	inline dequeTpart::const_iterator get_parts_begin() const;
+	inline dequeTpart::const_iterator get_parts_end() const;
 };
 
 /* Given two Tokid sequences corresponding to two tokens
@@ -58,5 +61,17 @@ void homogenize(const dequeTokid &a, const dequeTokid &b);
 
 // Unify the constituent equivalence classes for a and b
 void unify(const Token &a, const Token &b);
+
+dequeTpart::const_iterator
+Token::get_parts_begin() const
+{
+	return parts.begin();
+}
+
+dequeTpart::const_iterator
+Token::get_parts_end() const
+{
+	return parts.end();
+}
 
 #endif /* TOKEN_ */

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.8 2001/08/24 12:12:13 dds Exp $
+ * $Id: pdtoken.cpp,v 1.9 2001/08/24 12:49:26 dds Exp $
  */
 
 #include <iostream>
@@ -30,7 +30,7 @@
 #include "tchar.h"
 
 bool Pdtoken::at_bol = true;
-listPdtoken Pdtoken::expand;
+listPtoken Pdtoken::expand;
 mapMacro Pdtoken::macros;			// Defined macros
 
 void
@@ -41,7 +41,8 @@ Pdtoken::getnext()
 
 expand_get:
 	if (!expand.empty()) {
-		*this = expand.front();
+		Pdtoken n(expand.front());
+		*this = n;
 		expand.pop_front();
 		return;
 	}
@@ -243,7 +244,12 @@ Pdtoken::process_directive()
 
 
 static bool
-gather_args(listPdtoken::iterator pos, const dequePltoken& formal_args, mapArgval& args, bool get_more)
+gather_args(listPtoken::iterator pos, const dequePtoken& formal_args, mapArgval& args, bool get_more)
+{
+}
+
+static Ptoken
+stringize(const listPtoken &ts)
 {
 }
 
@@ -256,13 +262,13 @@ gather_args(listPdtoken::iterator pos, const dequePltoken& formal_args, mapArgva
  * Return true if a  replacemement was made
  */
 bool
-macro_replace(listPdtoken& tokens, listPdtoken::iterator pos, setstring& tabu, bool get_more)
+macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, bool get_more)
 {
 	mapMacro::const_iterator mi;
 	const string& name = (*pos).get_val();
 	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
 		return (false);
-	listPdtoken::iterator expand_start = pos;
+	listPtoken::iterator expand_start = pos;
 	expand_start++;
 	tokens.erase(pos);
 	pos = expand_start;
@@ -274,7 +280,7 @@ macro_replace(listPdtoken& tokens, listPdtoken::iterator pos, setstring& tabu, b
 		bool do_stringize;
 
 		gather_args(pos, m.formal_args, args, get_more);
-		dequePltoken::const_iterator i;
+		dequePtoken::const_iterator i;
 		// Substitute with macro's replacement value
 		for(i = m.value.begin(); i != m.value.end(); i++) {
 			// Is it a stringizing operator ?
@@ -297,10 +303,14 @@ macro_replace(listPdtoken& tokens, listPdtoken::iterator pos, setstring& tabu, b
 				     ((*(i - 1)).get_code() != '#' &&
 				      (*(i - 1)).get_code() != CPP_CONCAT)) &&
 				    (i + 1 == m.value.end() ||
-				     (*(i + 1)).get_code() != CPP_CONCAT))
+				     (*(i + 1)).get_code() != CPP_CONCAT)) {
 					// Allowed, macro replace the parameter
-					macro_replace((*ai).second, (*ai).second.begin(), tabu, false);
-				if (do_stringize)
+					// in temporary var arg, and
+					// copy that back to the main
+					listPtoken arg((*ai).second.begin(), (*ai).second.end());
+					macro_replace(arg, arg.begin(), tabu, false);
+					copy(arg.begin(), arg.end(), inserter(tokens, pos));
+				} else if (do_stringize)
 					tokens.insert(pos, stringize((*ai).second));
 				else
 					copy((*ai).second.begin(), (*ai).second.end(), inserter(tokens, pos));
@@ -308,7 +318,7 @@ macro_replace(listPdtoken& tokens, listPdtoken::iterator pos, setstring& tabu, b
 				// Not a formal argument, plain replacement
 				// Check for misplaced # operator (3.8.3.2)
 				if (do_stringize)
-					Error:error(E_WARN, "Application of macro \"" + name + "\": operator # only valid before macro parameters");
+					Error::error(E_WARN, "Application of macro \"" + name + "\": operator # only valid before macro parameters");
 				tokens.insert(pos, *i);
 			}
 		}
@@ -318,24 +328,30 @@ macro_replace(listPdtoken& tokens, listPdtoken::iterator pos, setstring& tabu, b
 	}
 
 	// Check and apply CPP_CONCAT (ANSI 3.8.3.3)
-	listPlotken::iterator ti, next;
-	for (ti = tokens.begin(); ti != tokens.end(); ti = next)
-		if (ti + 1 != tokens.end() && ti + 2 != tokens.end() &&
-		    (*(ti + 1)).get_code() == CPP_CONCAT) {
-			next = ti + 3;
+	listPtoken::iterator ti, next;
+	listPtoken::iterator tadv, t2;
+	for (ti = tokens.begin(); ti != tokens.end(); ti = next) {
+		tadv = ti;
+		if (++tadv != tokens.end() && 
+		    (*(tadv)).get_code() == CPP_CONCAT &&
+		    (t2 = ++tadv) != tokens.end()) {
+			next = ++tadv;
 			Tchar::push_input(*ti);
-			Tchar::push_input(*(ti + 2));
+			Tchar::push_input(*(t2));
 			Tchar::rewind_input();
 			tokens.erase(ti, next);
 			for (;;) {
 				Pltoken t;
-				t.template getnext<Schar>();
+				t.template getnext<Tchar>();
 				if (t.get_code() == EOF)
 					break;
 				tokens.insert(next, t);
 			}
-		} else
-			next = ti + 1;
+		} else {
+			next = ti;
+			next++;
+		}
+	}
 	
 	// Continously rescan the sequence while replacements are made
 	for (;;) {
