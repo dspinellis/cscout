@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.4 2001/08/21 20:06:07 dds Exp $
+ * $Id: pdtoken.cpp,v 1.5 2001/08/23 09:30:43 dds Exp $
  */
 
 #include <iostream>
@@ -111,6 +111,7 @@ Pdtoken::process_endif()
 void
 Pdtoken::process_include()
 {
+	Pltoken::set_context(cpp_include);
 	eat_to_eol();
 }
 
@@ -123,6 +124,7 @@ Pdtoken::process_define()
 	mapToken args;
 	Pltoken t;
 
+	Pltoken::set_context(cpp_define);
 	t.template getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
 		Error::error(E_ERR, "Invalid macro name");

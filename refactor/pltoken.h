@@ -22,7 +22,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.12 2001/08/21 18:59:38 dds Exp $
+ * $Id: pltoken.h,v 1.13 2001/08/23 09:30:43 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -66,7 +66,7 @@ Pltoken::getnext()
 	 * ANSI 3.1.5 p. 32 and 3.1.6 p. 33
 	 */
 	case '\n':	// Needed for processing directives
-		//incpp = false;
+		context = cpp_normal;
 		// FALLTRHOUGH
 	case '[': case ']': case '(': case ')': 
 	case '~': case '?': case ':': case ',': case ';':
@@ -165,7 +165,7 @@ Pltoken::getnext()
 	case '#':	/* C-preprocessor token only */
 		// incpp = true;		// Overkill, but good enough
 		c0.getnext();
-		if (c0.get_char() == '#') {
+		if (context == cpp_define && c0.get_char() == '#') {
 			val = "##";
 			code = CPP_CONCAT;
 		} else {
