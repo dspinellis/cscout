@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# Compare simple_cpp against cc
+#
+# $Id: cpp-test,v 1.1 2003/07/19 13:37:43 dds Exp $
+#
+
+gcc -ansi -E $1 | grep -v '^#' | grep -v '^[ 	]*$' >cc.out &&
+./cscout.exe -E $1 >simple_cpp.out &&
+diff --ignore-all-space --ignore-blank-lines --ignore-matching='^# [0-9]' simple_cpp.out cc.out
