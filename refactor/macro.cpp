@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.17 2003/08/02 10:52:41 dds Exp $
+ * $Id: macro.cpp,v 1.18 2003/08/02 11:33:08 dds Exp $
  */
 
 #include <iostream>
@@ -487,7 +487,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			// Find left non-space operand
 			for (i = ti; i != tokens.begin(); ) {
 				i--;
-				if (!(*i).is_space()) {
+				if (!(*i).is_space() && (*i).get_code() != CPP_CONCAT) {
 					left = i;
 					break;
 				}
@@ -497,7 +497,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 				i++;
 				if (i == tokens.end() || i == pos)
 					break;
-				if (!(*i).is_space()) {
+				if (!(*i).is_space() && (*i).get_code() != CPP_CONCAT) {
 					right = i;
 					break;
 				}
