@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.60 2003/08/15 16:08:57 dds Exp $
+ * $Id: cscout.cpp,v 1.61 2003/08/16 15:54:43 dds Exp $
  */
 
 #include <map>
@@ -58,10 +58,11 @@
 #include "fdep.h"
 #include "version.h"
 
-// Global options
+// Global Web options
 static bool remove_fp;			// Remove common file prefix
 static bool sort_rev;			// Reverse sort of identifier names
 static bool show_true;			// Only show true identifier properties
+static bool show_line_number;		// Annotate source with line numbers
 static bool file_icase;			// File name case-insensitive match
 static int tab_width = 8;		// Tab width for code output
 
@@ -277,7 +278,6 @@ html_string(FILE *of, string s)
 		fputs(html(*i), of);
 }
 
-
 // Display an identifier hyperlink
 static void
 html_id(FILE *of, const IdProp::value_type &i)
@@ -366,6 +366,8 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 	ifstream in;
 	const string &fname = fi.get_path();
 	IdQuery query(of, eval_query);
+	bool at_bol = true;
+	int line_number = 1;
 
 	if (DP())
 		cout << "Write to " << fname << "\n";
@@ -384,6 +386,19 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		ti = Tokid(fi, in.tellg());
 		if ((val = in.get()) == EOF)
 			break;
+		if (at_bol) {
+			if (show_line_number) {
+				char buff[50];
+				sprintf(buff, "%5d ", line_number);
+				// Do not go via HTML string to keep tabs ok
+				for (char *s = buff; *s; s++)
+					if (*s == ' ')
+						fputs("&nbsp;", of);
+					else
+						fputc(*s, of);
+			}
+			at_bol = false;
+		}
 		Eclass *ec;
 		// Identifiers we can mark
 		if ((ec = ti.check_ec()) && ec->is_identifier() && query.need_eval()) {
@@ -401,6 +416,10 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			continue;
 		}
 		fprintf(of, "%s", html((char)val));
+		if ((char)val == '\n') {
+			at_bol = true;
+			line_number++;
+		}
 	}
 	in.close();
 	fputs("<hr></code>", of);
@@ -497,6 +516,9 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
+		" - Web: "
+		"<a href=\"http://www.spinellis.gr/cscout\">Home</a>\n"
+		"<a href=\"http://www.spinellis.gr/cscout/doc/index.html\">Manual</a>\n"
 		"<br><hr><font size=-1>CScout %s - %s</font>\n"
 		"</body>"
 		"</html>\n", Version::get_revision().c_str(),
@@ -1219,6 +1241,7 @@ options_page(FILE *fo, void *p)
 	fprintf(fo, "<input type=\"checkbox\" name=\"remove_fp\" value=\"1\" %s>Remove common path prefix in file lists<br>\n", (remove_fp ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (sort_rev ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
+	fprintf(fo, "<input type=\"checkbox\" name=\"show_line_number\" value=\"1\" %s>Show line numbers in source listings<br>\n", (show_line_number ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"file_icase\" value=\"1\" %s>Case-insensitive file name regular expression match<br>\n", (file_icase ? "checked" : ""));
 	fprintf(fo, "<p>Code listing tab width <input type=\"text\" name=\"tab_width\" size=3 maxlength=3 value=\"%d\"><br>\n", tab_width);
 /*
@@ -1243,6 +1266,7 @@ set_options_page(FILE *fo, void *p)
 	remove_fp = !!swill_getvar("remove_fp");
 	sort_rev = !!swill_getvar("sort_rev");
 	show_true = !!swill_getvar("show_true");
+	show_line_number = !!swill_getvar("show_line_number");
 	file_icase = !!swill_getvar("file_icase");
 	if (!swill_getargs("I(tab_width)", &tab_width) || tab_width <= 0)
 		tab_width = 8;
@@ -1306,7 +1330,7 @@ set_project_page(FILE *fo, void *p)
 void
 index_page(FILE *of, void *data)
 {
-	html_head(of, "index", "CScout Home");
+	html_head(of, "index", "CScout Main Page");
 	fprintf(of, 
 		"<h2>Files</h2>\n"
 		"<ul>\n"
