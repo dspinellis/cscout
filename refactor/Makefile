@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.35 2003/06/16 15:25:07 dds Exp $
+# $Id: Makefile,v 1.36 2003/06/16 20:22:40 dds Exp $
 #
 
 # Common object files
@@ -32,9 +32,17 @@ TCLOBJ=tclfuns.o
 YACC=btyacc
 #YACC=yacc
 CC=g++
+# AUEB development flags
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
+
+# Local development flags
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DOFFICE_SERVER
-CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION
+
+# Production flags
+CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION -static
+
+# Realistic debug flags
+#CPPFLAGS=-pipe -O2 -g -DSPINELLIS_SERVER -DPRODUCTION
 
 CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
 test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
@@ -121,8 +129,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.35 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/06/16 15:25:07 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.36 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/06/16 20:22:40 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
