@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.22 2002/12/26 12:46:24 dds Exp $
+ * $Id: fileid.cpp,v 1.23 2002/12/26 16:22:43 dds Exp $
  */
 
 #include <map>
@@ -75,7 +75,7 @@ get_uniq_fname_string(const char *name)
 	static char buff[4096];
 	LPTSTR nptr;
 
-	int n = GetFullPathName(name, sizeof(buff), buff, &nptr);
+	unsigned n = GetFullPathName(name, sizeof(buff), buff, &nptr);
 	if (n > sizeof(buff) || n == 0) {	// No space or other error!
 		string s = string(name) + ": " + werror(GetLastError());
 		Error::error(E_FATAL, "Unable to get path of file " + s, false);
