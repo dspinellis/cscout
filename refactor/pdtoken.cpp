@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.76 2003/07/16 21:58:06 dds Exp $
+ * $Id: pdtoken.cpp,v 1.77 2003/07/19 12:30:44 dds Exp $
  */
 
 #include <iostream>
@@ -65,6 +65,7 @@ Pdtoken::getnext()
 {
 	Pltoken t;
 	setstring tabu;				// For macro replacement
+	listPtoken::iterator dummy;
 
 expand_get:
 	if (!expand.empty()) {
@@ -138,7 +139,8 @@ again:
 		}
 		expand.push_front(t);
 		tabu.clear();
-		macro_replace(expand, expand.begin(), tabu, true);
+		dummy = expand.begin();
+		macro_replace(expand, expand.begin(), tabu, true, dummy);
 		goto expand_get;
 		// FALLTRHOUGH
 	default:

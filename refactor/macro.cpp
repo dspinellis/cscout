@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.12 2003/06/01 09:03:06 dds Exp $
+ * $Id: macro.cpp,v 1.13 2003/07/19 12:30:44 dds Exp $
  */
 
 #include <iostream>
@@ -224,6 +224,22 @@ macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
 }
 
 /*
+ * The range [start, end) is about to be erased.
+ * Ensure that valid_iterator will not be invalidated by advancing it to the
+ * end.
+ */
+static void
+revalidate(listPtoken::iterator& valid_iterator, listPtoken::iterator start, listPtoken::iterator end)
+{
+	for (listPtoken::iterator i = start; i != end; i++)
+		if (i == valid_iterator) {
+			valid_iterator = end;
+			return;
+		}
+}
+
+
+/*
  * Macro replace all tokens in the sequence from tokens.begin() up to the 
  * "end" iterator
  */
@@ -236,7 +252,7 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
 	if (DP()) cout << "Enter replace_all\n";
 	for (ti = tokens.begin(); ti != end; ) {
 		if ((*ti).get_code() == IDENTIFIER)
-			ti = macro_replace(tokens, ti, tabu, get_more);
+			ti = macro_replace(tokens, ti, tabu, get_more, end);
 		else
 			ti++;
 	}
@@ -250,20 +266,23 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
  * Macros that are members of the tabu set are not expanded to avoid
  * infinite recursion.
  * If get_more is true, more data can be retrieved from Pltoken::get_next
+ * valid_iterator is an iterator in tokens.  macro_replace will keep this
+ * iterator valid, even when it could have been invalidated by removing elements
+ * from tokens.
  * Return the first position in tokens sequence that was not 
  * examined or replaced.
  */
 listPtoken::iterator
-macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more)
+macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, listPtoken::iterator& valid_iterator)
 {
 	mapMacro::const_iterator mi;
 	const string name = (*pos).get_val();
-	#ifdef ndef
-	cout << "macro_replace: [" << name << "] tabu: ";
-	for (setstring::const_iterator si = tabu.begin(); si != tabu.end(); si++)
-		cout << *si << " ";
-	cout << "\n";
-	#endif
+	if (DP()) {
+		cout << "macro_replace: [" << name << "] tabu: ";
+		for (setstring::const_iterator si = tabu.begin(); si != tabu.end(); si++)
+			cout << *si << " ";
+		cout << "\n";
+	}
 	mi = Pdtoken::macros_find(name);
 	if (!Pdtoken::macro_is_defined(mi) || !(*pos).can_replace())
 		return (++pos);
@@ -305,6 +324,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		expand_start = pos;
 		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more))
 			return (pos);
+		revalidate(valid_iterator, expand_start, pos);
 		tokens.erase(expand_start, pos);
 		dequePtoken::const_iterator i;
 		// Substitute with macro's replacement value
@@ -401,6 +421,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			}
 			if (DP()) cout << "concat A:" << *left << "B: " << *right << "\n";
 			Tchar::rewind_input();
+			revalidate(valid_iterator, left, next);
 			tokens.erase(left, next);
 			for (;;) {
 				Pltoken t;
@@ -416,7 +437,11 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		}
 	}
 	tabu.insert(name);
-	if (DP()) cout << "Rescan-" << name << "\n";
+	if (DP()) {
+		cout << "Rescan-" << name << " for:\n";
+		copy(tokens.begin(), pos, ostream_iterator<Ptoken>(cout));
+		cout << "tokens\n";
+	}
 	macro_replace_all(tokens, pos, tabu, get_more);
 	if (DP()) cout << "Rescan ends\n";
 	return (pos);
