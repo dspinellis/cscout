@@ -12,7 +12,7 @@
  * #include "cpp.h"
  * #include "fileid.h"
  *
- * $Id: tokid.h,v 1.6 2001/08/18 06:58:25 dds Exp $
+ * $Id: tokid.h,v 1.7 2001/08/18 16:58:20 dds Exp $
  */
 
 #ifndef TOKID_
@@ -40,6 +40,7 @@ public:
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Tokid t);
 	inline friend bool operator ==(const class Tokid a, const class Tokid b);
+	inline friend bool operator !=(const class Tokid a, const class Tokid b);
 	inline friend bool operator <(const class Tokid a, const class Tokid b);
 	// Advance i character positions
 	inline Tokid& operator +=(int i);
@@ -109,6 +110,13 @@ operator ==(const class Tokid a, const class Tokid b)
 {
 	return (a.fi == b.fi && a.offs == b.offs);
 }
+
+inline bool
+operator !=(const class Tokid a, const class Tokid b)
+{
+	return (!(a == b));
+}
+
 
 inline bool
 operator <(const class Tokid a, const class Tokid b)
