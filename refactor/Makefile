@@ -1,16 +1,23 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.1 2001/08/26 05:23:29 dds Exp $
+# $Id: Makefile,v 1.2 2001/09/02 09:23:14 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o \
-ptoken.o tchar.o token.o tokid.o tokname.o
-CC=g++
-CPPFLAGS=-g
+ptoken.o tchar.o token.o tokid.o tokname.o eval.tab.o ctoken.o
 
-all: color
-#all: simple_cpp
+CC=g++
+CPPFLAGS=-pipe -g
+
+CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
+test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
+test/nested.c test/mkfun.c test/ansi-p92.c \
+test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
+test/stresc.c  test/ansi-p93-l34.c
+
+#all: color
+all: simple_cpp
 
 simple_cpp: simple_cpp.o $(OBJ)
 	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) simple_cpp.o
@@ -18,5 +25,15 @@ simple_cpp: simple_cpp.o $(OBJ)
 color: color.o $(OBJ)
 	$(CC) $(CPPFLAGS) -o color $(OBJ) color.o
 
+# Some important dependencies
+color.o: pltoken.h
+error.o: pltoken.h
+pdtoken.o: pltoken.h
+simple_cpp.o: pltoken.h
+
+eval.tab.c: eval.y
+	$(YACC) -b eval -p eval_ eval.y
+
 # Test
-# diff --ignore-all-space --ignore-blank-lines --ignore-matching='^# [0-9]'
+cpptest: cpp-test $(CPPTEST)
+	for i in $(CPPTEST) ; do echo -n $$i && cpp-test $$i && echo ' ok' ; done
