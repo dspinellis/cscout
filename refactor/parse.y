@@ -4,14 +4,17 @@
  * Based on work by James A. Roskind; see comments at the end of this file.
  * Grammar obtained from http://www.empathy.com/pccts/roskind.html 
  *
- * Type inference engine.  Note that for the purposes of this work we do not
+ * Declarations and type checking engine.  
+ * Note that for the purposes of this work we do not
  * need to keep precise track of types, esp. implicit arithmetic conversions.
- * Type inference is used:
- * a) To identify the structure or union to use for member access
- * b) As a sanity check for (a)
- * c) To avoid mistages cause by ommitting part of the inference mechanism
+ * Type checking is used:
+ * 1) To identify the structure or union to use for member access
+ * 2) As a sanity check for (1)
+ * 3) To avoid mistages caused by ommitting arbitrary part of the type checking 
+ *    mechanism
+ * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.16 2001/09/21 08:56:31 dds Exp $
+ * $Id: parse.y,v 1.17 2001/09/21 09:55:13 dds Exp $
  *
  */
 
@@ -234,7 +237,7 @@ postfix_expression:
 member_name:
         IDENTIFIER
         | TYPEDEF_NAME
-        ;
+        ; /* Default rules */
 
 argument_expression_list:
         assignment_expression
@@ -281,7 +284,7 @@ multiplicative_expression:
         | multiplicative_expression '*' cast_expression
         | multiplicative_expression '/' cast_expression
         | multiplicative_expression '%' cast_expression
-        ;
+        ; /* Default rules */
 
 additive_expression:
         multiplicative_expression
@@ -299,7 +302,7 @@ shift_expression:
         additive_expression
         | shift_expression LEFT_OP additive_expression
         | shift_expression RIGHT_OP additive_expression
-        ;
+        ; /* Default rules */
 
 relational_expression:
         shift_expression
@@ -324,17 +327,17 @@ equality_expression:
 and_expression:
         equality_expression
         | and_expression '&' equality_expression
-        ;
+        ; /* Default rules */
 
 exclusive_or_expression:
         and_expression
         | exclusive_or_expression '^' and_expression
-        ;
+        ; /* Default rules */
 
 inclusive_or_expression:
         exclusive_or_expression
         | inclusive_or_expression '|' exclusive_or_expression
-        ;
+        ; /* Default rules */
 
 logical_and_expression:
         inclusive_or_expression
@@ -357,7 +360,7 @@ conditional_expression:
 assignment_expression:
         conditional_expression
         | unary_expression assignment_operator assignment_expression
-        ;
+        ; /* Default rules */
 
 assignment_operator:
         '='
@@ -381,7 +384,7 @@ comma_expression:
 
 constant_expression:
         conditional_expression
-        ;
+        ; /* Default rules */
 
     /* The following was used for clarity */
 comma_expression_opt:
