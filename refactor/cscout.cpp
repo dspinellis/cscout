@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.92 2004/07/30 09:17:57 dds Exp $
+ * $Id: cscout.cpp,v 1.93 2004/07/30 09:58:45 dds Exp $
  */
 
 #include <map>
@@ -63,6 +63,7 @@
 #include "query.h"
 #include "idquery.h"
 #include "funquery.h"
+#include "logo.h"
 
 #ifdef COMMERCIAL
 #include "des.h"
@@ -453,7 +454,7 @@ file_replace(Fileid fid)
 
 // Create a new HTML file with a given filename and title
 static void
-html_head(FILE *of, const string fname, const string title)
+html_head(FILE *of, const string fname, const string title, const char *prehead = "")
 {
 	swill_title(title.c_str());
 	if (DP())
@@ -466,10 +467,10 @@ html_head(FILE *of, const string fname, const string title)
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
-		"<h1>%s</h1>\n",
+		"<h1>%s%s</h1>\n",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str(),
-		title.c_str(), title.c_str());
+		title.c_str(), prehead, title.c_str());
 }
 
 // And an HTML file end
@@ -1485,8 +1486,9 @@ set_project_page(FILE *fo, void *p)
 void
 index_page(FILE *of, void *data)
 {
-	html_head(of, "index", "CScout Main Page");
+	html_head(of, "index", "Scout Main Page", "<img src=\"logo.gif\"> ");
 	fprintf(of,
+		"<table><tr><td valign=\"top\">\n"
 		"<h2>Files</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"fmetrics.html\">File Metrics</a>\n"
@@ -1499,8 +1501,24 @@ index_page(FILE *of, void *data)
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", em_nstring, Query::ec_gt, em_nstring);
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", em_nincfile, Query::ec_gt, em_nincfile);
 		fprintf(of, "<li> <a href=\"fquery.html\">Specify new file query</a>\n"
+		"</ul>\n");
+
+	fprintf(of, "<h2>Functions and Macros</h2>\n"
+		"<ul>\n");
+	fprintf(of, "<li> <a href=\"cgraph%s?all=1\">Function and macro call graph</a>", cgraph_suffix());
+	fprintf(of, "<li> <a href=\"cgraph%s\">Non-static function call graph</a>", cgraph_suffix());
+	fprintf(of, "<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All Functions</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&pscope=1&match=L&ncallerop=0&ncallers=&n=Project-scoped+Writable+Functions&qi=x\">Project-scoped writable functions</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&fscope=1&match=L&ncallerop=0&ncallers=&n=File-scoped+Writable+Functions&qi=x\">File-scoped writable functions</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=0&n=Writable+Functions+that+Are+Not+Directly+Called&qi=x\">Writable functions that are not directly called</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=1&n=Writable+Functions+that+Are++Called+Exactly+Once&qi=x\">Writable functions that are called exactly once</a>\n"
+		"<li> <a href=\"funquery.html\">Specify new function query</a>\n"
 		"</ul>\n"
-		"<h2>Identifiers</h2>\n"
+	);
+
+	fprintf(of, "</td><td valign=\"top\">\n");
+
+	fprintf(of, "<h2>Identifiers</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"idmetrics.html\">Identifier Metrics</a>\n"
 		);
@@ -1516,24 +1534,17 @@ index_page(FILE *of, void *data)
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
 		"</ul>"
-		"<h2>Functions and Macros</h2>\n"
-		"<ul>\n");
-	fprintf(of, "<li> <a href=\"cgraph%s?all=1\">Function and macro call graph</a>", cgraph_suffix());
-	fprintf(of, "<li> <a href=\"cgraph%s\">Non-static function call graph</a>", cgraph_suffix());
-	fprintf(of, "<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All Functions</a>\n"
-		"<li> <a href=\"xfunquery.html?writable=1&pscope=1&match=L&ncallerop=0&ncallers=&n=Project-scoped+Writable+Functions&qi=x\">Project-scoped writable functions</a>\n"
-		"<li> <a href=\"xfunquery.html?writable=1&fscope=1&match=L&ncallerop=0&ncallers=&n=File-scoped+Writable+Functions&qi=x\">File-scoped writable functions</a>\n"
-		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=0&n=Writable+Functions+that+Are+Not+Directly+Called&qi=x\">Writable functions that are not directly called</a>\n"
-		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=1&n=Writable+Functions+that+Are++Called+Exactly+Once&qi=x\">Writable functions that are called exactly once</a>\n"
-		"<li> <a href=\"funquery.html\">Specify new function query</a>\n"
-		"</ul>\n"
-		"<h2>Operations</h2>"
+	);
+
+	fprintf(of, "<h2>Operations</h2>"
 		"<ul>\n"
 		"<li> <a href=\"options.html\">Global options</a>\n"
 		"<li> <a href=\"sproject.html\">Select active project</a>\n"
 		"<li> <a href=\"sexit.html\">Exit - saving changes</a>\n"
 		"<li> <a href=\"qexit.html\">Exit - ignore changes</a>\n"
-		"</ul>");
+		"</ul>"
+		"</td></tr></table>\n"
+	);
 	html_tail(of);
 }
 
@@ -1647,6 +1658,12 @@ query_include_page(FILE *of, void *p)
 	html_file_end(of);
 	fputs("</ul>\n", of);
 	html_tail(of);
+}
+
+static void
+logo_page(FILE *fo, void *p)
+{
+	Logo::logo(fo);
 }
 
 static bool must_exit = false;
@@ -2077,6 +2094,7 @@ main(int argc, char *argv[])
 		swill_handle("cgraph_dot.txt", cgraph_dot_page, "txt");
 		swill_handle("cgraph.svg", cgraph_svg_page, NULL);
 		swill_handle("setproj.html", set_project_page, NULL);
+		swill_handle("logo.gif", logo_page, NULL);
 		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
 	}
 

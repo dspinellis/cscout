@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.64 2004/07/25 14:47:53 dds Exp $
+# $Id: Makefile,v 1.65 2004/07/30 09:58:45 dds Exp $
 #
 
 #
@@ -13,7 +13,8 @@
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
-getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o
+getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
+logo.o
 
 ifndef ARCH
 ARCH=i386
@@ -35,7 +36,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h call.cpp call.h idquery.cpp idquery.h \
-	query.cpp query.h funquery.cpp funquery.h
+	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h
 
 # Stand-alone object files
 STANDOBJ=error.o
@@ -161,8 +162,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.64 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2004/07/25 14:47:53 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.65 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2004/07/30 09:58:45 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -221,5 +222,14 @@ istlab-server:
 spiti-server:
 	cc -o /usr/local/www/cgi-bin/ccheck -DSERVER des.c license.c
 
+logo.cpp: logo.gif
+	echo '#include <stdio.h>' >logo.cpp
+	echo '#include "logo.h"' >>logo.cpp
+	echo 'const char Logo::logo_bytes[] = {' >>logo.cpp
+	od -vb logo.gif | sed 's/^.......//;s/^ /0/;s/ /,0/g;s/$$/,/;s/^,$$//' >>logo.cpp
+	echo '};' >>logo.cpp
+	echo -n 'int Logo::len = sizeof(Logo::logo_bytes);' >>logo.cpp
+#	wc -c logo.gif >>logo.cpp
+#	echo ';' >>logo.cpp
 wc:
 	wc -l $(SRC)
