@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.46 2003/06/22 23:27:04 dds Exp $
+ * $Id: cscout.cpp,v 1.47 2003/06/23 09:18:44 dds Exp $
  */
 
 #include <map>
@@ -263,7 +263,7 @@ html_string(FILE *of, string s)
 static void
 html_id(FILE *of, const IdProp::value_type &i)
 {
-	fprintf(of, "<a href=\"id.html?id=%u\">", (unsigned)(i.first));
+	fprintf(of, "<a href=\"id.html?id=%p\">", i.first);
 	html_string(of, (i.second).get_id());
 	fputs("</a>", of);
 }
@@ -885,11 +885,10 @@ IdQuery::url()
 	string r("match=");
 	r += ::url(string(1, match_type));
 	if (ec) {
-		ostringstream idval;
+		char buff[256];
 
-		r += "&ec=";
-		idval << (unsigned int) ec;
-		r += idval.str();
+		sprintf(buff, "&ec=%p", ec);
+		r += buff;
 	}
 	if (xfile)
 		r += "&xfile=1";
@@ -1101,7 +1100,7 @@ identifier_page(FILE *fo, void *p)
 		fprintf(fo, "<li> Substitute with: \n"
 			"<INPUT TYPE=\"text\" NAME=\"sname\" SIZE=10 MAXLENGTH=256> "
 			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Substitute\">\n");
-		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%u\">\n", (unsigned)e);
+		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", e);
 	}
 	fprintf(fo, "</ul>\n");
 	IFSet ifiles = e->sorted_files();
@@ -1110,18 +1109,18 @@ identifier_page(FILE *fo, void *p)
 	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++)
 		if ((*j).get_readonly() == false) {
 			html_file(fo, (*j).get_path());
-			fprintf(fo, " - <a href=\"qsrc.html?id=%u&ec=%u&n=Identifier+%s\">marked source</a>",
+			fprintf(fo, " - <a href=\"qsrc.html?id=%u&ec=%p&n=Identifier+%s\">marked source</a>",
 				(*j).get_id(),
-				(unsigned int)e, id.get_id().c_str());
+				e, id.get_id().c_str());
 		}
 	html_file_end(fo);
 	fprintf(fo, "<h2>Dependent Files (All)</h2>\n");
 	html_file_begin(fo);
 	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
 		html_file(fo, (*j).get_path());
-		fprintf(fo, " - <a href=\"qsrc.html?id=%u&ec=%u&n=Identifier+%s\">marked source</a>",
+		fprintf(fo, " - <a href=\"qsrc.html?id=%u&ec=%p&n=Identifier+%s\">marked source</a>",
 			(*j).get_id(),
-			(unsigned int)e, id.get_id().c_str());
+			e, id.get_id().c_str());
 	}
 	html_file_end(fo);
 	fprintf(fo, "</FORM>\n");
@@ -1508,12 +1507,8 @@ main(int argc, char *argv[])
 	swill_handle("qexit.html", quit_page, 0);
 
 	// Populate the EC identifier member
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		ostringstream fname;
-		fname << (*i).get_id();
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
 		/* bool has_unused = */ file_analyze(*i);
-	}
-
 
 	// Set xfile and  metrics for each identifier
 	cout << "Processing identifiers\n";
@@ -1522,10 +1517,6 @@ main(int argc, char *argv[])
 		Eclass *e = (*i).first;
 		IFSet ifiles = e->sorted_files();
 		(*i).second.set_xfile(ifiles.size() > 1);
-
-		ostringstream fname;
-		fname << (unsigned)e;
-
 		// Update metrics
 		id_msum.add_unique_id(e);
 	}
