@@ -4,7 +4,7 @@
  * Simple preprocessor.  
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.4 2001/08/31 11:06:36 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.5 2001/09/02 15:01:23 dds Exp $
  */
 
 #include <iostream>
@@ -27,6 +27,7 @@
 #include "fchar.h"
 #include "error.h"
 #include "pltoken.h"
+#include "macro.h"
 #include "pdtoken.h"
 
 main(int argc, char *argv[])

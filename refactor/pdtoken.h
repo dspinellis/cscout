@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.15 2001/09/02 14:20:54 dds Exp $
+ * $Id: pdtoken.h,v 1.16 2001/09/02 15:01:23 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -21,16 +21,7 @@ typedef set<string> setstring;
 typedef map<string, listPtoken> mapArgval;
 typedef stack<bool> stackbool;
 
-// A macro definition
-class Macro {
-public:
-	Ptoken name_token;		// Name (used for unification)
-	bool is_function;		// True if it is a function-macro
-	dequePtoken formal_args;	// Formal arguments (names)
-	dequePtoken value;		// Macro value
-	friend bool operator ==(const Macro& a, const Macro& b);
-	inline friend bool operator !=(const Macro& a, const Macro& b) { return !(a == b); };
-};
+class Macro;
 
 typedef map<string, Macro> mapMacro;
 
@@ -38,6 +29,7 @@ class Pdtoken: public Ptoken {
 private:
 	static mapMacro macros;			// Defined macros
 	static listPtoken expand;		// Expanded input
+
 	static bool at_bol;			// At beginning of line
 	static stackbool iftaken;		// Taken #ifs
 	static int skiplevel;			// Level of enclosing #ifs
@@ -61,10 +53,11 @@ public:
 	Pdtoken(const Ptoken &pt) : Ptoken(pt) {};
 	Pdtoken() {};
 	void getnext();
+
 	// Clear the defined macro table (when changing compilation unit)
-	static void clear_macros() { macros.clear(); }
-	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more);
-	friend int eval();
+	static void macros_clear() { macros.clear(); }
+	static mapMacro::const_iterator macros_find(const string& s) { return macros.find(s); }
+	static mapMacro::const_iterator macros_end() { return macros.end(); }
 };
 
 

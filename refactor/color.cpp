@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.2 2001/08/31 12:53:44 dds Exp $
+ * $Id: color.cpp,v 1.3 2001/09/02 15:01:23 dds Exp $
  */
 
 #include <iostream>
@@ -32,6 +32,7 @@
 #include "fchar.h"
 #include "error.h"
 #include "pltoken.h"
+#include "macro.h"
 #include "pdtoken.h"
 #include "eclass.h"
 
@@ -64,7 +65,7 @@ main(int argc, char *argv[])
 	// Pass 1: scan files
 	for (i = 1; i < argc; i++) {
 		Fchar::set_input(argv[i]);
-		Pdtoken::clear_macros();
+		Pdtoken::macros_clear();
 		for (;;) {
 			Pdtoken t;
 
