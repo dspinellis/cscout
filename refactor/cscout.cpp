@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.14 2003/05/24 07:28:56 dds Exp $
+ * $Id: cscout.cpp,v 1.15 2003/05/24 10:35:29 dds Exp $
  */
 
 #include <map>
@@ -50,6 +50,11 @@
 #include "stab.h"
 #include "license.h"
 
+// Global options
+static bool remove_fp;			// Remove common file prefix
+static bool sort_rev;			// Reverse sort of identifier names
+static bool show_true;			// Only show true identifier properties
+
 // Our identifiers to store as a map
 class Identifier {
 	string id;		// Identifier name
@@ -76,15 +81,36 @@ public:
 	}
 };
 
-typedef set <Fileid, fname_order> IFSet;
 typedef map <Eclass *, Identifier> IdProp;
+
+/*
+ * Function object to compare IdProp identifier pointers
+ * Will compare from end to start if sort_rev is set
+ */
+struct idcmp
+{
+	bool operator()(const IdProp::value_type *i1, const IdProp::value_type *i2) const
+	{
+		if (sort_rev) {
+			const string &s1 = (*i1).second.get_id();
+			const string &s2 = (*i2).second.get_id();
+			string::const_reverse_iterator j1, j2;
+
+			for (j1 = s1.rbegin(), j2 = s2.rbegin();
+			     j1 != s1.rend() && j2 != s2.rend(); j1++, j2++)
+				if (*j1 != *j2)
+					return *j1 < *j2;
+			return j1 == s1.rend() && j2 != s2.rend();
+		} else
+			return (*i1).second.get_id().compare((*i2).second.get_id()) < 0;
+	}
+};
+
+typedef set <Fileid, fname_order> IFSet;
+typedef multiset <const IdProp::value_type *, idcmp> Sids;
+
 static IdProp ids; 
 static Attributes::size_type current_project;
-
-// Global options
-static bool remove_fp;			// Remove common file prefix
-static bool sort_rev;			// Reverse sort of identifier names
-static bool show_true;			// Only show true identifier properties
 
 void index_page(FILE *of, void *data);
 
@@ -316,7 +342,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.14 2003/05/24 07:28:56 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.15 2003/05/24 10:35:29 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -427,19 +453,39 @@ afiles_page(FILE *fo, vector <Fileid> *files)
 	html_tail(fo);
 }
 
+
+static void
+display_sorted_ids(FILE *of, const Sids &sorted_ids)
+{
+	if (sort_rev)
+		fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
+	else
+		fputs("<p>\n", of);
+
+	for (Sids::iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
+		html_id(of, **i);
+		fputs("<br>\n", of);
+	}
+
+	if (sort_rev)
+		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
+	else
+		fputs("</p>\n", of);
+}
+
 // All identifiers
 void
 aids_page(FILE *of, void *p)
 {
+	Sids sorted_ids;
+
 	html_head(of, "aids", "All Identifiers");
-	fprintf(of, "<ul>\n");
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		if (current_project && !(*i).first->get_attribute(current_project)) 
 			continue;
-		fprintf(of, "\n<li>");
-		html_id(of, *i);
+		sorted_ids.insert(&*i);
 	}
-	fprintf(of, "\n</ul>\n");
+	display_sorted_ids(of, sorted_ids);
 	html_tail(of);
 }
 
