@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.22 2002/09/17 10:53:02 dds Exp $
+ * $Id: type.cpp,v 1.23 2002/12/26 16:24:54 dds Exp $
  */
 
 #include <iostream>
@@ -271,6 +271,7 @@ Tbasic::print(ostream &o) const
 	case b_float: o << "float "; break;
 	case b_double: o << "double "; break;
 	case b_ldouble: o << "long double "; break;
+	case b_padbit: o << "padbit "; break;
 	case b_undeclared: o << "UNDECLARED "; break;
 	}
 }
