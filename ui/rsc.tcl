@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.10 2001/09/29 15:49:37 dds Exp $
+# $Id: rsc.tcl,v 1.11 2001/09/29 18:08:08 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -314,11 +314,10 @@ label $tabsettings.mi.macro.lab -text "Macro definitions" -anchor w
 
 iwidgets::scrolledlistbox $tabsettings.mi.macro.list \
     -selectmode single 
-$tabsettings.mi.macro.list insert 0 "/usr/include"
 
 frame $tabsettings.mi.macro.commands
-button $tabsettings.mi.macro.commands.add -text "Add" -width 10
-button $tabsettings.mi.macro.commands.delete -text "Delete" -width 10
+button $tabsettings.mi.macro.commands.add -text "Add" -width 10 -command macro_add
+button $tabsettings.mi.macro.commands.delete -text "Delete" -width 10 -command macro_delete
 pack	$tabsettings.mi.macro.commands.add $tabsettings.mi.macro.commands.delete \
 	-side left -anchor e -expand no
 
@@ -336,7 +335,6 @@ label $tabsettings.mi.ipath.lab -text "Include paths" -anchor e
 
 iwidgets::scrolledlistbox $tabsettings.mi.ipath.list \
     -selectmode single 
-$tabsettings.mi.ipath.list insert 0 "/usr/include"
 
 frame $tabsettings.mi.ipath.commands
 button $tabsettings.mi.ipath.commands.add -text "Add" -width 10
@@ -380,18 +378,35 @@ pack $taboutput.text -side left -expand yes -fill both
 # Modal dialogs
 
 # Project name
-iwidgets::promptdialog .projname -title "Insert Project to Workspace" -modality application \
+iwidgets::promptdialog .dialog_project_name -title "Insert Project to Workspace" -modality application \
     -labeltext "Project name:" -separator false
-.projname hide Apply
-.projname hide Help
+.dialog_project_name hide Apply
+.dialog_project_name hide Help
+
+# Macro definition
+iwidgets::promptdialog .dialog_macro_define -title "Preprocessor Macro Definition" -modality application \
+    -labeltext "#define " -separator false
+.dialog_macro_define hide Apply
+.dialog_macro_define hide Help
 
 ######################################################
 # Global variables
+
+# Settings per workspace node (e.g. wp/demo/main.c)
+# Read-only
+set readonly(wp) 1
+# Working directory
+set dir(wp) {}
+# Preprocessor macros
+set macro(wp) {}
+# Preprocessor include paths
+set ipath(wp) {}
 
 
 ######################################################
 # Subroutines
 
+# Display an error dialog box with the given mesage
 proc ierror {msg} {
 	tk_messageBox -icon error -type ok -title "Error" -message $msg
 }
@@ -405,6 +420,7 @@ proc select_workspace {uid sel} {
 	$tabfiles.hier selection add $uid
 	if {[regexp ^wp $uid]} {
 		$out.l pageconfigure Settings -state normal
+		settings_refresh
 	} else {
 		$out.l pageconfigure Settings -state disabled
 		$out.l select Output
@@ -412,6 +428,7 @@ proc select_workspace {uid sel} {
 		
 }
 
+# Called to populate the workspace hierarchy
 proc get_workspace {uid} {
 	global name
 	global tabfiles
@@ -438,12 +455,13 @@ proc get_workspace {uid} {
 }
 
 
+# Called from the menu insert_project command
 proc insert_project {} {
 	global name
 	global tabfiles
-	if {[.projname activate]} {
-		# A project is: name settings ?file? ...
-		set projname [.projname get]
+	if {[.dialog_project_name activate]} {
+		# Invoke dialog box to get the project's name
+		set projname [.dialog_project_name get]
 		if {[info exists name(wp/$projname)]} {
 			ierror "Project $projname is already defined in this workspace"
 			return
@@ -461,3 +479,71 @@ proc insert_project {} {
 	# else cancelled
 }
 
+# Return an entry's parent node
+proc parent {entry} {
+	regsub {/[^/]*} $entry {} parent
+	return $parent
+}
+
+# Create settings for an entry, independent from its parent
+proc emancipate {entry} {
+	global readonly
+	global dir
+	global macro
+	global ipath
+
+	if {![info exists macro($entry)]} {
+		# So far we have been inheriting our parent; get our own
+		set parent [parent $entry]
+		set readonly($entry) $readonly($parent)
+		set dir($entry) $dir($parent)
+		set macro($entry) $macro($parent)
+		set ipath($entry) $ipath($parent)
+	}
+}
+
+# Add a new macro in an entry's settings
+proc macro_add {} {
+	global tabfiles
+	global macro
+
+	if {[.dialog_macro_define activate]} {
+		set entry [lindex [$tabfiles.hier selection get] 0]
+		emancipate $entry
+		lappend macro($entry) [.dialog_macro_define get]
+	}
+	settings_refresh
+}
+
+# Delete a macro definition
+proc macro_delete {} {
+	global tabfiles
+	global tabsettings
+	global macro
+
+	set entry [lindex [$tabfiles.hier selection get] 0]
+	set sel [$tabsettings.mi.macro.list curselection]
+	if {$sel != {}} {
+		emancipate $entry
+		set macro($entry) [lreplace $macro($entry) $sel $sel]
+	}
+	settings_refresh
+}
+
+
+# Refresh the Settings tab contents based on the current workspace selection
+proc settings_refresh {} {
+	global tabfiles
+	global tabsettings
+	global macro
+
+	set entry [lindex [$tabfiles.hier selection get] 0]
+	while {![info exists macro($entry)]} {
+		# We are inheriting our parent
+		set entry [parent $entry]
+	}
+	$tabsettings.mi.macro.list delete 0 end
+	foreach i $macro($entry) {
+		$tabsettings.mi.macro.list insert end $i
+	}
+}
