@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.7 2001/08/20 17:22:34 dds Exp $
+ * $Id: fchar.cpp,v 1.8 2001/09/02 17:24:19 dds Exp $
  */
 
 #include <iostream>
@@ -42,6 +42,7 @@ Fchar::set_input(const string& s)
 		exit(1);
 	}
 	fi = Fileid(s);
+	// cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;
 }
 
@@ -69,6 +70,7 @@ Fchar::simple_getnext()
 	int c2, c3;
 again:
 	ti = Tokid(fi, in.tellg());
+	// cout << "simple_getnext ti: " << ti << "\n";
 	val = in.get();
 	switch (val) {
 	backslash:
