@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ptoken.cpp,v 1.2 2001/08/24 14:18:24 dds Exp $
+ * $Id: ptoken.cpp,v 1.3 2001/08/24 14:43:25 dds Exp $
  */
 
 #include <iostream>
@@ -33,7 +33,7 @@ ostream& operator<<(ostream& o,const listPtoken &t)
 	listPtoken::const_iterator i;
 
 	for (i = t.begin(); i != t.end(); i++)
-		o << *i;
+		o << (*i).get_val();
 	return (o);
 }
 
