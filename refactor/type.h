@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.22 2003/07/29 13:54:42 dds Exp $
+ * $Id: type.h,v 1.23 2003/07/29 22:16:51 dds Exp $
  */
 
 #ifndef TYPE_
@@ -48,6 +48,7 @@ private:
 protected:
 	Type_node() : use(1) {}
 
+	virtual ~Type_node() {}
 	virtual Type subscript() const;		// Arrays and pointers
 	virtual Type deref() const;		// Arrays and pointers
 	virtual Type call() const;		// Function
