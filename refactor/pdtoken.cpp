@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.12 2001/08/24 14:46:24 dds Exp $
+ * $Id: pdtoken.cpp,v 1.13 2001/08/24 17:00:06 dds Exp $
  */
 
 #include <iostream>
@@ -130,6 +130,7 @@ Pdtoken::process_define()
 		eat_to_eol();
 		return;
 	}
+	m.name_token = t;
 	name = t.get_val();
 	t.template getnext<Fchar>();	// Space is significant: a(x) vs a (x)
 	m.is_function = false;
@@ -394,6 +395,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
 		return (false);
 	// cout << "replacing for " << name << "\n";
+	unify(*pos, (*mi).second.name_token);
 	listPtoken::iterator expand_start = pos;
 	expand_start++;
 	tokens.erase(pos);

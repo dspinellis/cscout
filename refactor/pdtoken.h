@@ -25,7 +25,7 @@
  * #include "ytab.h"
  * #include "pltoken.h"
  *
- * $Id: pdtoken.h,v 1.6 2001/08/24 12:49:26 dds Exp $
+ * $Id: pdtoken.h,v 1.7 2001/08/24 17:00:06 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -43,6 +43,7 @@ typedef map<string, listPtoken> mapArgval;
 // A macro definition
 class Macro {
 public:
+	Ptoken name_token;		// Name (used for unification)
 	bool is_function;		// True if it is a function-macro
 	dequePtoken formal_args;	// Formal arguments (names)
 	dequePtoken value;		// Macro value
