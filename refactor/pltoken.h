@@ -22,7 +22,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.10 2001/08/21 12:28:28 dds Exp $
+ * $Id: pltoken.h,v 1.11 2001/08/21 18:29:45 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -335,7 +335,7 @@ Pltoken::getnext()
 		         	break;
 			if (c0.get_tokid() != follow) {
 				// Discontinuity; save the Tokids we have
-				dequeTokid new_tokids = base.constituents(follow - base);
+				dequeTpart new_tokids = base.constituents(follow - base);
 				copy(new_tokids.begin(), new_tokids.end(),
 				     back_inserter(parts));
 				follow = base = c0.get_tokid();
@@ -343,7 +343,7 @@ Pltoken::getnext()
 			val += c0.get_char();
 		}
 		C::putback(c0);
-		dequeTokid new_tokids = base.constituents(follow - base);
+		dequeTpart new_tokids = base.constituents(follow - base);
 		copy(new_tokids.begin(), new_tokids.end(), back_inserter(parts));
 		// Later it will become TYPE_NAME, IDENTIFIER, or reserved word
 		code = IDENTIFIER;

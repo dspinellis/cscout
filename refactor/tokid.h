@@ -11,8 +11,9 @@
  * #include <iostream>
  * #include "cpp.h"
  * #include "fileid.h"
+ * #include "fileid.h"
  *
- * $Id: tokid.h,v 1.7 2001/08/18 16:58:20 dds Exp $
+ * $Id: tokid.h,v 1.8 2001/08/21 18:29:45 dds Exp $
  */
 
 #ifndef TOKID_
@@ -22,7 +23,9 @@ class TE_map;
 class Eclass;
 
 class Tokid;
+class Tpart;
 typedef deque <Tokid> dequeTokid;
+typedef deque <Tpart> dequeTpart;
 
 class Tokid {
 private:
@@ -55,7 +58,7 @@ public:
 	// use Eclass:add_tokid, not this method in all other contexts
 	inline void set_ec(Eclass *ec);
 	// Returns the Tokids participating in all ECs for a token of length l
-	dequeTokid Tokid::constituents(int l);
+	dequeTpart Tokid::constituents(int l);
 	// Print the contents of the class map
 	friend ostream& operator<<(ostream& o,const map <Tokid, Eclass *>& dummy);
 	// Accessor functions

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.1 2001/08/18 15:29:45 dds Exp $
+ * $Id: token.cpp,v 1.2 2001/08/21 18:29:45 dds Exp $
  */
 
 #include <iostream>
@@ -15,8 +15,16 @@
 #include "cpp.h"
 #include "fileid.h"
 #include "tokid.h"
+#include "eclass.h"
 #include "token.h"
 #include "ytab.h"
+
+ostream& 
+operator<<(ostream& o,const Tpart &t)
+{
+	cout << t.ti << "[l=" << t.len << "]";
+	return o;
+}
 
 ostream& 
 operator<<(ostream& o,const Token &t)
@@ -26,6 +34,73 @@ operator<<(ostream& o,const Token &t)
 	return o;
 }
 
+dequeTpart
+Token::constituents() const
+{
+	dequeTpart r;
+	dequeTpart::const_iterator i;
+	for (i = parts.begin(); i != parts.end(); i++) {
+		dequeTpart c = (*i).get_tokid().constituents((*i).get_len());
+		copy(c.begin(), c.end(), back_inserter(r));
+	}
+	return (r);
+}
+
+void
+homogenize(const dequeTpart &a, const dequeTpart &b)
+{
+	dequeTpart::const_iterator ai = a.begin();
+	dequeTpart::const_iterator bi = b.begin();
+	Eclass *ae = (*ai).get_tokid().get_ec();
+	Eclass *be = (*bi).get_tokid().get_ec();
+	int alen, blen;
+
+	while (ai != a.end() && bi != b.end()) {
+		alen = ae->get_len();
+		blen = be->get_len();
+		if (blen < alen) {
+			ae = ae->split(blen);
+			bi++;
+		} else if (alen < blen) {
+			be = be->split(alen);
+			ai++;
+		} else if (alen == blen) {
+			ai++;
+			bi++;
+		}
+	}
+}
+
+void
+unify(const Token &a, const Token &b)
+{
+	// Get the constituent Tokids; they may have grown more than the parts
+	dequeTpart ac = a.constituents();
+	dequeTpart bc = b.constituents();
+	// Make the constituents of same length
+	homogenize(ac, bc);
+	// Get the constituents again; homogenizing may have changed them
+	ac = a.constituents();
+	bc = b.constituents();
+	// Now merge the corresponding ECs
+	dequeTpart::const_iterator ai, bi;
+	for (ai = ac.begin(), bi = bc.begin(); ai != ac.end(); ai++, bi++)
+		merge((*ai).get_tokid().get_ec(), (*ai).get_tokid().get_ec());
+	assert(bi == bc.end());
+}
+
+ostream&
+operator<<(ostream& o,const dequeTpart& dt)
+{
+	dequeTpart::const_iterator i;
+
+	for (i = dt.begin(); i != dt.end(); i++) {
+		o << *i;
+		if (i + 1 != dt.end())
+			o << ", ";
+	}
+	return (o);
+}
 
 #ifdef UNIT_TEST
 // cl -GX -DWIN32 -c eclass.cpp fileid.cpp tokid.cpp tokname.cpp

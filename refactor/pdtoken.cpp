@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.2 2001/08/21 08:35:16 dds Exp $
+ * $Id: pdtoken.cpp,v 1.3 2001/08/21 18:29:45 dds Exp $
  */
 
 #include <iostream>
@@ -117,7 +117,62 @@ Pdtoken::process_include()
 void
 Pdtoken::process_define()
 {
-	eat_to_eol();
+	Macro m;
+	string name;
+	typedef map <string, Token> mapToken;	// To unify args with body
+	mapToken args;
+	Pltoken t;
+
+	t.template getnext_nospc<Fchar>();
+	if (t.get_code() != IDENTIFIER) {
+		Error::error(E_ERR, "Invalid macro name");
+		eat_to_eol();
+		return;
+	}
+	name = t.get_val();
+	t.template getnext<Fchar>();	// Space is significant: a(x) vs a (x)
+	m.is_function = false;
+	if (t.get_code() == '(') {
+		// Function-like macro
+		m.is_function = true;
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != ')')
+			// Formal args follow; gather them
+			for (;;) {
+				if (t.get_code() != IDENTIFIER) {
+					Error::error(E_ERR, "Invalid macro parameter name");
+					eat_to_eol();
+					return;
+				}
+				args[t.get_val()] = t;
+				m.formal_args.push_back(t);
+				t.template getnext_nospc<Fchar>();
+				if (t.get_code() == ')')
+					break;
+				if (t.get_code() != ',') {
+					Error::error(E_ERR, "Invalid macro parameter punctuation");
+					eat_to_eol();
+					return;
+				}
+				t.template getnext_nospc<Fchar>();
+			}
+	}
+	// Continue gathering macro body
+	// Space is significant for comparing same definitions!
+	for (;;) {
+		t.template getnext<Fchar>();
+		if (t.get_code() == '\n')
+			break;
+		m.value.push_back(t);
+		mapToken::const_iterator i;
+		if ((i = args.find(t.get_val())) != args.end())
+			unify(t, (*i).second);
+	}
+	// Check that the new macro is not different from an older definition
+	mapMacro::const_iterator i = macros.find(name);
+	if (i != macros.end() && (*i).second != m)
+		Error::error(E_WARN, "Duplicate (different) macro definition");
+	macros[name] = m;
 }
 
 void
@@ -150,9 +205,7 @@ Pdtoken::process_directive()
 	Pltoken t;
 	bool if_val;
 
-	do {
-		t.template getnext<Fchar>();
-	} while (t.get_code() == SPACE);
+	t.template getnext_nospc<Fchar>();
 	if (t.get_code() == '\n')		// Empty directive
 		return;
 	if (t.get_code() != IDENTIFIER) {
@@ -193,7 +246,7 @@ Pdtoken::process_directive()
 
 main()
 {
-	Fchar::set_input("test/toktest.c");
+	Fchar::set_input("test/pdtest.c");
 
 	for (;;) {
 		Pdtoken t;
@@ -203,6 +256,7 @@ main()
 			break;
 		cout << t;
 	}
+	cout << tokid_map;
 
 	return (0);
 }

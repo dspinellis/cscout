@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.3 2001/08/18 21:56:31 dds Exp $
+ * $Id: ptoken.h,v 1.4 2001/08/21 18:29:45 dds Exp $
  */
 
 #ifndef PTOKEN_
@@ -32,6 +32,12 @@ public:
 	inline const string& get_val() const { return (val); };
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Ptoken &t);
+	inline friend bool operator ==(const Ptoken& a, const Ptoken& b);
 };
+
+bool operator ==(const Ptoken& a, const Ptoken& b)
+{
+	return (a.val == b.val);
+}
 
 #endif /* PTOKEN_ */

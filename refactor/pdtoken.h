@@ -25,7 +25,7 @@
  * #include "ytab.h"
  * #include "pltoken.h"
  *
- * $Id: pdtoken.h,v 1.2 2001/08/21 08:35:16 dds Exp $
+ * $Id: pdtoken.h,v 1.3 2001/08/21 18:29:45 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -38,11 +38,14 @@ typedef list<Pdtoken> listPdtoken;
 typedef deque<Pltoken> dequePltoken;
 typedef map<string, dequePltoken> mapArgval;
 
+// A macro definition
 class Macro {
 public:
 	bool is_function;		// True if it is a function-macro
 	dequePltoken formal_args;	// Formal arguments (names)
 	dequePltoken value;		// Macro value
+	inline friend bool operator ==(const Macro& a, const Macro& b);
+	inline friend bool operator !=(const Macro& a, const Macro& b) { return !(a == b); };
 };
 
 typedef map<string, Macro> mapMacro;
@@ -75,5 +78,13 @@ public:
 	// Clear the defined macro table (when changing compilation unit)
 	static void clear_macros() { macros.clear(); }
 };
+
+inline bool
+operator ==(const Macro& a, const Macro& b)
+{
+	return (a.is_function == b.is_function && 
+		a.formal_args == b.formal_args &&
+		a.value == b.value);
+}
 
 #endif // PDTOKEN

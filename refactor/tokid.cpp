@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.8 2001/08/18 15:30:47 dds Exp $
+ * $Id: tokid.cpp,v 1.9 2001/08/21 18:29:45 dds Exp $
  */
 
 #include <iostream>
@@ -15,6 +15,7 @@
 #include "cpp.h"
 #include "fileid.h"
 #include "tokid.h"
+#include "token.h"
 #include "eclass.h"
 
 TE_map Tokid::tm;
@@ -41,23 +42,25 @@ operator<<(ostream& o,const mapTokidEclass& t)
 	return o;
 }
 
-dequeTokid
+dequeTpart
 Tokid::constituents(int l)
 {
 	Tokid t = *this;
-	dequeTokid r;
+	dequeTpart r;
 	mapTokidEclass::const_iterator e = tm.tm.find(t);
 
 	if (e == Tokid::tm.tm.end()) {
 		// No EC defined, create a new one
 		new Eclass(t, l);
-		r.push_back(t);
+		Tpart tp(t, l);
+		r.push_back(tp);
 		return (r);
 	}
-	// Make r be the tokids of the ECs covering our tokid t
+	// Make r be the Tparts of the ECs covering our tokid t
 	for (;;) {
-		r.push_back(t);
 		int covered = (e->second)->get_len();
+		Tpart tp(t, covered);
+		r.push_back(tp);
 		l -= covered;
 		assert(l >= 0);
 		if (l == 0)
@@ -116,7 +119,7 @@ main()
 	// Test for the constituent
 	Tokid x(Fileid("main.cpp"), 20);
 
-	dequeTokid dt = x.constituents(10);
+	dequeTpart dt = x.constituents(10);
 	cout << "Initial dt: " << dt << "\n";
 	cout << "Split EC: " << *x.get_ec()->split(2);
 	dt = x.constituents(10);
