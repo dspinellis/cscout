@@ -1,9 +1,9 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.30 2003/05/26 08:55:23 dds Exp $
+# $Id: Makefile,v 1.31 2003/05/27 17:47:16 dds Exp $
 #
- -DPRODUCTION
+
 # Common object files
 OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
