@@ -1,9 +1,9 @@
 /* 
- * (C) Copyright 2001 Diomidis Spinellis.
+ * (C) Copyright 2001-2003 Diomidis Spinellis.
  *
- * Color identifiers by their equivalence classes
+ * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.3 2002/12/25 15:45:33 dds Exp $
+ * $Id: cscout.cpp,v 1.4 2002/12/25 18:49:43 dds Exp $
  */
 
 #include <map>
@@ -18,13 +18,14 @@
 #include <set>
 #include <cassert>
 #include <sstream>		// ostringstream
-#include <cstdio>		// perror
+#include <cstdio>		// perror, rename
 
 #include "swill.h"
 
 #ifdef unix
 #include <sys/types.h>		// mkdir
 #include <sys/stat.h>		// mkdir
+#include <unistd.h>		// unlink
 #else
 #include <io.h>			// mkdir 
 #endif
@@ -61,7 +62,10 @@ public:
 	}
 	Identifier() {}
 	string get_id() const { return id; }
+	string set_newid(const string &s) { newid = s; replaced = true; }
+	string get_newid() const { return newid; }
 	bool get_xfile() const { return xfile; }
+	bool get_replaced() const { return replaced; }
 	void set_xfile(bool v) { xfile = v; }
 	// To create nicely ordered sets
 	inline bool operator ==(const Identifier b) const {
@@ -234,6 +238,67 @@ file_hypertext(FILE *of, Fileid fi, bool show_unused)
 	in.close();
 }
 
+// Go through the file doing any replacements needed
+// Return the numebr of replacements made
+static int
+file_replace(Fileid fid)
+{
+	string plain;
+	Tokid plainstart;
+	ifstream in;
+	ofstream out;
+
+	in.open(fid.get_path().c_str(), ios::binary);
+	if (in.fail()) {
+		perror(fid.get_path().c_str());
+		exit(1);
+	}
+	string ofname = fid.get_path() + ".repl";
+	out.open(ofname.c_str(), ios::binary);
+	if (out.fail()) {
+		perror(ofname.c_str());
+		exit(1);
+	}
+	cout << "Processing file " << fid.get_path() << "\n";
+	int replacements = 0;
+	// Go through the file character by character
+	for (;;) {
+		Tokid ti;
+		int val, len;
+
+		ti = Tokid(fid, in.tellg());
+		if ((val = in.get()) == EOF)
+			break;
+		Eclass *ec;
+		IdProp::const_iterator idi;
+		// Identifiers that should be replaced
+		if ((ec = ti.check_ec()) &&
+		    (idi = ids.find(ec)) != ids.end() &&
+		    (*idi).second.get_replaced()) {
+			int len = ec->get_len();
+			for (int j = 1; j < len; j++)
+				(void)in.get();
+			out << (*idi).second.get_newid();
+			replacements++;
+		} else {
+			out << (char)val;
+		}
+	}
+	// Needed for Windows
+	in.close();
+	out.close();
+	// Should actually be an assertion
+	if (replacements) {
+		string cmd("ceescape_checkout " + fid.get_path());
+		system(cmd.c_str());
+		unlink(fid.get_path().c_str());
+		rename(ofname.c_str(), fid.get_path().c_str());
+		string cmd2("ceescape_checkin " + fid.get_path());
+		system(cmd2.c_str());
+	}
+	return replacements;
+}
+
 // Create a new HTML file with a given filename and title
 static void
 html_head(FILE *of, const string fname, const string title)
@@ -245,7 +310,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.3 2002/12/25 15:45:33 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.4 2002/12/25 18:49:43 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -365,9 +430,12 @@ identifier_page(FILE *fo, void *p)
 		fprintf(fo, "Missing value");
 		return;
 	}
-	const Identifier &id = ids[e];
+	char *subst;
+	Identifier &id = ids[e];
+	if (subst = swill_getvar("sname"))
+		id.set_newid(subst);
 	html_head(fo, "id", string("Identifier: ") + html(id.get_id()));
-	fprintf(fo, "<ul>\n");
+	fprintf(fo, "<FORM ACTION=\"id.html\" METHOD=\"GET\">\n<ul>\n");
 	fprintf(fo, "<li> Read-only: %s\n", e->get_attribute(is_readonly) ? "Yes" : "No");
 	fprintf(fo, "<li> Macro: %s\n", e->get_attribute(is_macro) ? "Yes" : "No");
 	fprintf(fo, "<li> Macro argument: %s\n", e->get_attribute(is_macroarg) ? "Yes" : "No");
@@ -384,6 +452,14 @@ identifier_page(FILE *fo, void *p)
 		if (e->get_attribute(j))
 			fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(fo, "</ul>\n");
+	if (id.get_replaced())
+		fprintf(fo, "<li> Substituted with: [%s]\n", id.get_newid().c_str());
+	if (!e->get_attribute(is_readonly)) {
+		fprintf(fo, "<li> Substitute with: \n"
+			"<INPUT TYPE=\"text\" NAME=\"sname\" SIZE=10 MAXLENGTH=256> "
+			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Substitute\">\n");
+		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%u\">\n", (unsigned)e);
+	}
 	fprintf(fo, "</ul>\n");
 	IFSet ifiles = e->sorted_files();
 	fprintf(fo, "<h2>Dependent Files (Writable)</h2>\n");
@@ -401,23 +477,7 @@ identifier_page(FILE *fo, void *p)
 		html_file(fo, (*j).get_path());
 	}
 	fprintf(fo, "</ul>\n");
-#ifdef ndef
-	fo << "<h2>Substitution Script</h2>\n";
-	fo << "<pre>\n";
-	const setTokid & toks = e->get_members();
-	Fileid ofid;
-	for (setTokid::const_iterator j = toks.begin(); j != toks.end(); j++) {
-		if (ofid != (*j).get_fileid()) {
-			fo << "f " << (*j).get_fileid().get_path() << "\n";
-			ofid = (*j).get_fileid();
-		}
-		fo << "s " << 
-			(*j).get_streampos() << ' ' <<
-			e->get_len() << ' ' <<
-			"NEWID\n";
-	}
-	fo << "</pre>\n";
-#endif
+	fprintf(fo, "</FORM>\n");
 	html_tail(fo);
 }
 
@@ -611,12 +671,37 @@ unused_source_page(FILE *of, void *p)
 	html_tail(of);
 }
 
+static bool must_exit = false;
+
+void
+write_quit_page(FILE *of, void *p)
+{
+	// Determine files we need to process
+	IFSet process;
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if ((*i).second.get_replaced()) {
+			Eclass *e = (*i).first;
+			IFSet ifiles = e->sorted_files();
+			process.insert(ifiles.begin(), ifiles.end());
+		}
+	}
+	// Now do the replacements
+	int replacements = 0;
+	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++)
+		replacements += file_replace(*i);
+	html_head(of, "quit", "Ceescape exiting");
+	fprintf(of, "A total of %d replacements were made in %d files.", replacements, process.size());
+	fprintf(of, "<p>Bye...</body></html>");
+	must_exit = true;
+}
+
 void
 quit_page(FILE *of, void *p)
 {
 	html_head(of, "quit", "Ceescape exiting");
-	fprintf(of, "No changes saved.");
-	html_tail(of);
+	fprintf(of, "No changes were saved.");
+	fprintf(of, "<p>Bye...</body></html>");
+	must_exit = true;
 }
 
 main(int argc, char *argv[])
@@ -624,7 +709,7 @@ main(int argc, char *argv[])
 	Pdtoken t;
 
 	Debug::db_read();
-	if (!swill_init(8080)) {
+	if (!swill_init(8081)) {
 		cerr << "Couldn't initialize the SWILL server.\n";
 		exit(1);
 	}
@@ -641,6 +726,8 @@ main(int argc, char *argv[])
 	vector <Fileid> files = Fileid::sorted_files();
 
 	swill_handle("index.html", index_page, 0);
+	swill_handle("sexit.html", write_quit_page, 0);
+	swill_handle("qexit.html", quit_page, 0);
 	swill_handle("afiles.html", afiles_page, &files);
 	swill_handle("rofiles.html", rofiles_page, &files);
 	swill_handle("wfiles.html", wfiles_page, &files);
@@ -687,7 +774,8 @@ main(int argc, char *argv[])
 	mf << msum;
 
 	// Serve web pages
-	for (;;)
+	cout << "We are now ready to serve you at http://localhost:8081\n";
+	while (!must_exit)
 		swill_serve();
 
 	return (0);

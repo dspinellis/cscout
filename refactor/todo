@@ -1,7 +1,6 @@
-$Id: todo,v 1.12 2002/12/25 17:44:10 dds Exp $
+$Id: todo,v 1.13 2002/12/25 18:49:43 dds Exp $
 
 ceescape (swill) front end:
-Add change identifier and save options
 View unused and global identifiers per file
 View projects, files per project
 Generic query for files, identifiers
