@@ -1,17 +1,25 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.13 2001/09/15 16:23:41 dds Exp $
+# $Id: Makefile,v 1.14 2001/10/24 13:03:00 dds Exp $
 #
 
-OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
+# Common object files
+OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o
+
+# Stand-alone object files
+STANDOBJ=error.o
+
+# Tcl object files
+TCLOBJ=tclfuns.o
 
 YACC=btyacc
 #YACC=yacc
 CC=g++
 CPPFLAGS=-pipe -g
+TINCLUDE=/opt/ajuba/TclPro1.4/include
 
 CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
 test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
@@ -24,14 +32,14 @@ all: color
 #all: engine
 #all: simple_cpp
 
-simple_cpp: simple_cpp.o $(OBJ)
-	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) simple_cpp.o
+simple_cpp: simple_cpp.o $(OBJ) $(STANDOBJ)
+	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) $(STANDOBJ) simple_cpp.o
 
-color: color.o $(OBJ)
-	$(CC) $(CPPFLAGS) -o color $(OBJ) color.o
+color: color.o $(STANDOBJ) $(OBJ)
+	$(CC) $(CPPFLAGS) -o color $(STANDOBJ) $(OBJ) color.o
 
-engine: engine.o $(OBJ)
-	$(CC) $(CPPFLAGS) -o engine $(OBJ) engine.o
+engine: engine.o $(STANDOBJ) $(OBJ)
+	$(CC) $(CPPFLAGS) -o engine $(STANDOBJ) $(OBJ) engine.o
 
 # Some important dependencies
 color.o: pltoken.h
@@ -64,4 +72,14 @@ hellotest: simple_cpp test/hello.c
 boottest: simple_cpp
 	simple_cpp simple_cpp.cpp >simple_cpp.i
 	g++ -c simple_cpp.i
-	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) simple_cpp.o
+	$(CC) $(CPPFLAGS) -o simple_cpp $(STANDOBJ) $(OBJ) simple_cpp.o
+
+appinit.h:
+	mktclapp -header >appinit.h
+
+tclfuns.o: tclfuns.cpp appinit.h
+	$(CC) $(CFLAGS) -I$(TINCLUDE) -c tclfuns.cpp
+
+refactor.a: $(TCLOBJ) $(OBJ)
+	ar cur refactor.a $(TCLOBJ) $(OBJ)
+	ranlib refactor.a
