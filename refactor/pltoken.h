@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.19 2001/09/21 09:12:25 dds Exp $
+ * $Id: pltoken.h,v 1.20 2001/09/23 06:50:08 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -397,10 +397,13 @@ Pltoken::getnext()
 				val += '\\';
 				// Consume one character after the backslash
 				c0.getnext();
+				if (c0.get_char() == EOF) {
+					Error::error(E_ERR, "End of file in string literal");
+					break;
+				}
 				val += c0.get_char();
-				// And let the loop decide with the next one
-				c0.getnext();
 				// We will deal with escapes later
+				continue;
 			}
 			if (c0.get_char() == EOF || c0.get_char() == '"')
 				break;
