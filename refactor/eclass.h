@@ -9,7 +9,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.11 2002/09/05 10:38:04 dds Exp $
+ * $Id: eclass.h,v 1.12 2002/09/05 19:21:45 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -38,13 +38,14 @@ public:
 	// After the merger the values of a and b are undefined
 	friend Eclass *merge(Eclass *a, Eclass *b);
 	// Return length
-	int get_len() { return len; }
+	int get_len() const { return len; }
 	// Return number of members
 	int get_size() { return members.size(); }
 	friend ostream& operator<<(ostream& o,const Eclass& ec);
 	// Other accessor functions
 	bool get_readonly() const { return ro; }
 	void set_readonly(bool v) { ro = v; }
+	const setTokid & get_members(void) const { return members; }
 	set <Fileid, fname_order> sorted_files();
 };
 

@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.8 2002/09/05 10:38:37 dds Exp $
+ * $Id: webmap.cpp,v 1.9 2002/09/05 19:21:45 dds Exp $
  */
 
 #include <map>
@@ -166,7 +166,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.8 2002/09/05 10:38:37 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.9 2002/09/05 19:21:45 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -276,7 +276,7 @@ main(int argc, char *argv[])
 		const string &pathname = (*i).get_path();
 		fname << (*i).get_id();
 		string sfname(fname.str(), fname.pcount());
-		html_head(fo, (string("f") + sfname).c_str(), html(pathname));
+		html_head(fo, (string("f") + sfname).c_str(), string("File: ") + html(pathname));
 		fo << "<ul>\n";
 		fo << "<li> Read-only: " << ((*i).get_readonly() ? "Yes" : "No") << "\n";
 		fo << "<li> <a href=\"s" << sfname << ".html\">Source code</a>\n";
@@ -284,7 +284,7 @@ main(int argc, char *argv[])
 
 		html_tail(fo);
 		// File source listing
-		html_head(fo, (string("s") + sfname).c_str(), html(pathname));
+		html_head(fo, (string("s") + sfname).c_str(), string("Source: ") + html(pathname));
 		file_hypertext(fo, pathname);
 		html_tail(fo);
 	}
@@ -320,7 +320,7 @@ main(int argc, char *argv[])
 		strstream fname;
 		fname << (unsigned)(*i).get_ec();
 		string sfname(fname.str(), fname.pcount());
-		html_head(fo, (string("i") + sfname).c_str(), html((*i).get_id()));
+		html_head(fo, (string("i") + sfname).c_str(), string("Identifier: ") + html((*i).get_id()));
 		fo << "<ul>\n";
 		fo << "<li> Read-only: " << ((*i).get_ec()->get_readonly() ? "Yes" : "No") << "\n";
 		fo << "</ul>\n";
@@ -343,6 +343,21 @@ main(int argc, char *argv[])
 			html_file(fo, (*j).get_path());
 		}
 		fo << "</ul>\n";
+		fo << "<h2>Substitution Script</h2>\n";
+		fo << "<pre>\n";
+		const setTokid & toks = (*i).get_ec()->get_members();
+		Fileid ofid;
+		for (setTokid::const_iterator j = toks.begin(); j != toks.end(); j++) {
+			if (ofid != (*j).get_fileid()) {
+				fo << "f " << (*j).get_fileid().get_path() << "\n";
+				ofid = (*j).get_fileid();
+			}
+			fo << "s " << 
+				(*j).get_streampos() << ' ' <<
+				(*i).get_ec()->get_len() << ' ' <<
+				"NEWID\n";
+		}
+		fo << "</pre>\n";
 
 		html_tail(fo);
 	}
