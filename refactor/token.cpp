@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.8 2001/09/03 08:33:47 dds Exp $
+ * $Id: token.cpp,v 1.9 2001/09/10 12:34:13 dds Exp $
  */
 
 #include <iostream>
@@ -42,7 +42,7 @@ operator<<(ostream& o,const Tpart &t)
 ostream& 
 operator<<(ostream& o,const Token &t)
 {
-	cout << "Token code:" << t.name() << "(" << t.code << ")\n";
+	cout << "Token code:" << t.name() << "(" << t.code << "):[" << t.val << "]\n";
 	cout << "Parts:" << t.parts << "\n";
 	return o;
 }
