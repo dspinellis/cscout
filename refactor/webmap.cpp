@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.16 2002/09/17 07:55:39 dds Exp $
+ * $Id: webmap.cpp,v 1.17 2002/09/17 10:53:02 dds Exp $
  */
 
 #include <map>
@@ -30,9 +30,9 @@
 
 #include "cpp.h"
 #include "ytab.h"
+#include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
-#include "attr.h"
 #include "tokid.h"
 #include "token.h"
 #include "ptoken.h"
@@ -191,7 +191,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.16 2002/09/17 07:55:39 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.17 2002/09/17 10:53:02 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -339,7 +339,11 @@ main(int argc, char *argv[])
 		(*i).metrics().get_nstatement() <<
 		"\n<li> Contains unused identifiers: " << 
 		(has_unused ? "Yes" : "No") <<
-		"\n<li> <a href=\"s" 
+		"\n<li> Used in project(s): \n<ul>";
+		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+			if ((*i).get_attribute(j))
+				fo << "<li>" << Project::get_projname(j) << "\n";
+		fo << "</ul>\n<li> <a href=\"s" 
 		<< fname.str() << ".html\">Source code</a>\n";
 		if (has_unused)
 			fo << "<li> <a href=\"u" << fname.str() << ".html\">Source code (with unused identifiers marked)</a>\n";
@@ -376,21 +380,26 @@ main(int argc, char *argv[])
 		ostringstream fname;
 		fname << (unsigned)(*i).get_ec();
 		html_head(fo, (string("i") + fname.str()).c_str(), string("Identifier: ") + html((*i).get_id()));
+		Eclass *e = (*i).get_ec();
 		fo << "<ul>\n";
-		fo << "<li> Read-only: " << ((*i).get_ec()->get_attribute(is_readonly) ? "Yes" : "No") << "\n";
-		fo << "<li> Macro: " << ((*i).get_ec()->get_attribute(is_macro) ? "Yes" : "No") << "\n";
-		fo << "<li> Macro argument: " << ((*i).get_ec()->get_attribute(is_macroarg) ? "Yes" : "No") << "\n";
-		fo << "<li> Ordinary identifier: " << ((*i).get_ec()->get_attribute(is_ordinary) ? "Yes" : "No") << "\n";
-		fo << "<li> Tag for struct/union/enum: " << ((*i).get_ec()->get_attribute(is_suetag) ? "Yes" : "No") << "\n";
-		fo << "<li> Member of struct/union: " << ((*i).get_ec()->get_attribute(is_sumember) ? "Yes" : "No") << "\n";
-		fo << "<li> Label: " << ((*i).get_ec()->get_attribute(is_label) ? "Yes" : "No") << "\n";
-		fo << "<li> Typedef: " << ((*i).get_ec()->get_attribute(is_typedef) ? "Yes" : "No") << "\n";
-		fo << "<li> File scope: " << ((*i).get_ec()->get_attribute(is_cscope) ? "Yes" : "No") << "\n";
-		fo << "<li> Project scope: " << ((*i).get_ec()->get_attribute(is_lscope) ? "Yes" : "No") << "\n";
-		fo << "<li> Unused: " << ((*i).get_ec()->get_size() == 1 ? "Yes" : "No") << "\n";
-		fo << "</ul>\n";
+		fo << "<li> Read-only: " << (e->get_attribute(is_readonly) ? "Yes" : "No") << "\n";
+		fo << "<li> Macro: " << (e->get_attribute(is_macro) ? "Yes" : "No") << "\n";
+		fo << "<li> Macro argument: " << (e->get_attribute(is_macroarg) ? "Yes" : "No") << "\n";
+		fo << "<li> Ordinary identifier: " << (e->get_attribute(is_ordinary) ? "Yes" : "No") << "\n";
+		fo << "<li> Tag for struct/union/enum: " << (e->get_attribute(is_suetag) ? "Yes" : "No") << "\n";
+		fo << "<li> Member of struct/union: " << (e->get_attribute(is_sumember) ? "Yes" : "No") << "\n";
+		fo << "<li> Label: " << (e->get_attribute(is_label) ? "Yes" : "No") << "\n";
+		fo << "<li> Typedef: " << (e->get_attribute(is_typedef) ? "Yes" : "No") << "\n";
+		fo << "<li> File scope: " << (e->get_attribute(is_cscope) ? "Yes" : "No") << "\n";
+		fo << "<li> Project scope: " << (e->get_attribute(is_lscope) ? "Yes" : "No") << "\n";
+		fo << "<li> Unused: " << (e->get_size() == 1 ? "Yes" : "No") << "\n";
+		fo << "<li> Appears in project(s): \n<ul>\n";
+		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+			if (e->get_attribute(j))
+				fo << "<li>" << Project::get_projname(j) << "\n";
+		fo << "</ul>\n</ul>\n";
 		typedef set <Fileid, fname_order> IFSet;
-		IFSet ifiles = (*i).get_ec()->sorted_files();
+		IFSet ifiles = e->sorted_files();
 		(*i).set_xfile(ifiles.size() > 1);
 		fo << "<h2>Dependent Files (Writable)</h2>\n";
 		fo << "<ul>\n";
@@ -410,7 +419,7 @@ main(int argc, char *argv[])
 		fo << "</ul>\n";
 		fo << "<h2>Substitution Script</h2>\n";
 		fo << "<pre>\n";
-		const setTokid & toks = (*i).get_ec()->get_members();
+		const setTokid & toks = e->get_members();
 		Fileid ofid;
 		for (setTokid::const_iterator j = toks.begin(); j != toks.end(); j++) {
 			if (ofid != (*j).get_fileid()) {
@@ -419,7 +428,7 @@ main(int argc, char *argv[])
 			}
 			fo << "s " << 
 				(*j).get_streampos() << ' ' <<
-				(*i).get_ec()->get_len() << ' ' <<
+				e->get_len() << ' ' <<
 				"NEWID\n";
 		}
 		fo << "</pre>\n";

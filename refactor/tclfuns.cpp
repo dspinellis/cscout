@@ -3,7 +3,7 @@
  *
  * Tcl interface functions
  *
- * $Id: tclfuns.cpp,v 1.6 2001/10/27 16:42:38 dds Exp $
+ * $Id: tclfuns.cpp,v 1.7 2002/09/17 10:53:02 dds Exp $
  */
 
 #include "appinit.h"
@@ -28,6 +28,8 @@
 
 #include "cpp.h"
 #include "ytab.h"
+#include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"

@@ -3,7 +3,7 @@
  *
  * Processing engine driver program
  *
- * $Id: engine.cpp,v 1.2 2001/09/14 07:56:41 dds Exp $
+ * $Id: engine.cpp,v 1.3 2002/09/17 10:53:02 dds Exp $
  */
 
 #include <iostream>
@@ -19,6 +19,8 @@
 #include <cassert>
 
 #include "cpp.h"
+#include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"

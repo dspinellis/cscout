@@ -1,7 +1,7 @@
 /*
  * Create a token map file
  *
- * $Id: tokmap.cpp,v 1.2 2002/09/13 10:47:55 dds Exp $
+ * $Id: tokmap.cpp,v 1.3 2002/09/17 10:53:02 dds Exp $
  */
 
 #include <iostream>
@@ -11,6 +11,8 @@
 #include <list>
 
 #include "cpp.h"
+#include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.21 2002/09/17 07:55:39 dds Exp $
+ * $Id: type.cpp,v 1.22 2002/09/17 10:53:02 dds Exp $
  */
 
 #include <iostream>
@@ -22,8 +22,8 @@
 #include "cpp.h"
 #include "debug.h"
 #include "metrics.h"
-#include "fileid.h"
 #include "attr.h"
+#include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"

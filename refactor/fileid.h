@@ -11,9 +11,10 @@
  * #include <vector>
  * #include <list>
  *
+ * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.12 2002/09/17 07:55:39 dds Exp $
+ * $Id: fileid.h,v 1.13 2002/09/17 10:53:02 dds Exp $
  */
 
 #ifndef FILEID_
@@ -26,14 +27,14 @@ using namespace std;
 class Filedetails {
 private:
 	string name;		// File name (complete path)
-	bool ro;		// Read-only
 public:
+	Attributes attr;
 	class Metrics m;
-	Filedetails(string n, bool r) : name(n), ro(r) {}
+	Filedetails(string n, bool r) : name(n) {}
 	Filedetails() {}
 	const string& get_name() const { return name; }
-	bool get_readonly() const { return ro; }
-	void set_readonly(bool r) { ro = r; }
+	bool get_readonly() { return attr.get_attribute(is_readonly); }
+	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
 };
 
 typedef map <string, int> FI_uname_to_id;
@@ -76,6 +77,9 @@ public:
 	static void add_ro_prefix(string prefix) { ro_prefix.push_back(prefix); }
 	// Return a reference to the Metrics class
 	Metrics &metrics() { return i2d[id].m; }
+	// Get /set attributes
+	void set_attribute(int v) { i2d[id].attr.set_attribute(v); }
+	bool get_attribute(int v) { return i2d[id].attr.get_attribute(v); }
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);

@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.5 2002/09/17 09:27:45 dds Exp $
+ * $Id: workdb.cpp,v 1.6 2002/09/17 10:53:02 dds Exp $
  */
 
 #include <map>
@@ -23,8 +23,8 @@
 #include "cpp.h"
 #include "ytab.h"
 #include "metrics.h"
-#include "fileid.h"
 #include "attr.h"
+#include "fileid.h"
 #include "tokid.h"
 #include "token.h"
 #include "ptoken.h"
@@ -205,46 +205,56 @@ main(int argc, char *argv[])
 		"DROP TABLE TOKENS IF EXISTS\n"
 		"DROP TABLE STRINGS IF EXISTS\n"
 		"DROP TABLE IDPROJ IF EXISTS\n"
+		"DROP TABLE FILEPROJ IF EXISTS\n"
 		"DROP TABLE IDS IF EXISTS\n"
 		"DROP TABLE PROJECTS IF EXISTS\n"
 		"DROP TABLE FILES IF EXISTS\n"
 
 		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME VARCHAR,"
-		"readonly BIT, \n"
-		"macro BIT, \n"
-		"macroarg BIT, \n"
-		"ordinary BIT, \n"
-		"suetag BIT, \n"
-		"sumember BIT, \n"
-		"label BIT, \n"
-		"typedef BIT, \n"
-		"cscope BIT, \n"
-		"lscope BIT, \n"
-		"unused BIT)\n"
+		"READONLY BIT,\n"
+		"MACRO BIT,\n"
+		"MACROARG BIT,\n"
+		"ORDINARY BIT,\n"
+		"SUETAG BIT,\n"
+		"SUMEMBER BIT,\n"
+		"LABEL BIT,\n"
+		"TYPEDEF BIT,\n"
+		"CSCOPE BIT,\n"
+		"LSCOPE BIT,\n"
+		"UNUSED BIT)\n"
+
 		"CREATE TABLE TOKENS(FID INTEGER,OFFSET INTEGER,EID INTEGER,\n"
 		"PRIMARY KEY(FID, OFFSET), FOREIGN KEY (EID) REFERENCES IDS)\n"
+
 		"CREATE TABLE STRINGS(FID INTEGER,OFFSET INTEGER,TEXT VARCHAR,"
 		"PRIMARY KEY(FID, OFFSET))\n"
+
 		"CREATE TABLE PROJECTS(PID INTEGER PRIMARY KEY,NAME VARCHAR)\n"
+
 		"CREATE TABLE IDPROJ(EID INTEGER ,PID INTEGER,\n"
 		"FOREIGN KEY (EID) REFERENCES IDS,\n"
 		"FOREIGN KEY (PID) REFERENCES PROJECTS)\n"
-		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,"
-		"NAME VARCHAR,"
-		"RO BIT,"
-		"NCHAR INTEGER,"
-		"NLCOMMENT INTEGER,"
-		"NBCOMMENT INTEGER,"
-		"NLINE INTEGER,"
-		"MAXLINELEN INTEGER,"
-		"NCCOMMENT INTEGER,"
-		"NSPACE INTEGER,"
 
-		"NFUNCTION INTEGER,"
-		"NPPDIRECTIVE INTEGER,"
-		"NINCFILE INTEGER,"
-		"NSTATEMENT INTEGER"
-		")\n";
+		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,"
+		"NAME VARCHAR,\n"
+		"RO BIT,\n"
+		"NCHAR INTEGER,\n"
+		"NLCOMMENT INTEGER,\n"
+		"NBCOMMENT INTEGER,\n"
+		"NLINE INTEGER,\n"
+		"MAXLINELEN INTEGER,\n"
+		"NCCOMMENT INTEGER,\n"
+		"NSPACE INTEGER,\n"
+
+		"NFUNCTION INTEGER,\n"
+		"NPPDIRECTIVE INTEGER,\n"
+		"NINCFILE INTEGER,\n"
+		"NSTATEMENT INTEGER)\n"
+
+		"CREATE TABLE FILEPROJ(FID INTEGER ,PID INTEGER,\n"
+		"FOREIGN KEY (FID) REFERENCES FILES,\n"
+		"FOREIGN KEY (PID) REFERENCES PROJECTS)\n"
+		"";
 
 	// Project names
 	const Project::proj_map_type &m = Project::get_project_map();
@@ -273,6 +283,11 @@ main(int argc, char *argv[])
 		(*i).metrics().get_nincfile() << ',' <<
 		(*i).metrics().get_nstatement() <<
 		")\n";
+		// The projects this file belongs to
+		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+			if ((*i).get_attribute(j))
+				fo << "INSERT INTO FILEPROJ VALUES(" << 
+				(*i).get_id() << ',' << j << ")\n";
 	}
 
 	return (0);

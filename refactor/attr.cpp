@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.3 2002/09/17 07:55:39 dds Exp $
+ * $Id: attr.cpp,v 1.4 2002/09/17 10:53:02 dds Exp $
  */
 
 #include <map>
@@ -21,8 +21,8 @@
 #include "cpp.h"
 #include "debug.h"
 #include "metrics.h"
-#include "fileid.h"
 #include "attr.h"
+#include "fileid.h"
 
 
 // Leave space for a single project-attribute
