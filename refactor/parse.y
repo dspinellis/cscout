@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.27 2001/09/22 16:56:02 dds Exp $
+ * $Id: parse.y,v 1.28 2002/09/05 12:02:09 dds Exp $
  *
  */
 
@@ -753,6 +753,7 @@ member_declarator:
 	/* *a[3] */
 	/* a : 5 */
         declarator bit_field_size_opt
+		{ $$ = $1; }
         | bit_field_size
 		/* Padding bit field */
 		{ $$ = basic(); }
@@ -761,6 +762,7 @@ member_declarator:
 member_identifier_declarator:
 	/* a[3]; also typedef names */
         identifier_declarator bit_field_size_opt
+		{ $$ = $1; }
         | bit_field_size
 		/* Padding bit field */
 		{ $$ = basic(); }

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.15 2001/09/22 16:56:02 dds Exp $
+ * $Id: type.cpp,v 1.16 2002/09/05 12:02:09 dds Exp $
  */
 
 #include <iostream>
@@ -468,6 +468,8 @@ Tidentifier::set_abstract(Type t)
 			Error::error(E_ERR, "pointer not an abstract type");
 	} else
 		of.set_abstract(t);
+	if (DP())
+		this->print(cerr);
 }
 
 void
