@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.13 2002/09/11 12:00:43 dds Exp $
+ * $Id: webmap.cpp,v 1.14 2002/09/13 10:58:37 dds Exp $
  */
 
 #include <map>
@@ -179,7 +179,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.13 2002/09/11 12:00:43 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.14 2002/09/13 10:58:37 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -244,7 +244,7 @@ main(int argc, char *argv[])
 		"<li> <a href=\"aids.html\">All identifiers</a>\n"
 		"<li> <a href=\"roids.html\">Read-only identifiers</a>\n"
 		"<li> <a href=\"wids.html\">Writable identifiers</a>\n"
-		"<li> <a href=\"xids.html\">File-spanning identifiers</a>\n"
+		"<li> <a href=\"xids.html\">File-spanning writable identifiers</a>\n"
 		"<li> <a href=\"upids.html\">Unused Project-scoped Writable Identifiers</a>\n"
 		"<li> <a href=\"ufids.html\">Unused File-scoped Writable Identifiers</a>\n"
 		"<li> <a href=\"umids.html\">Unused Macro Writable Identifiers</a>\n"
