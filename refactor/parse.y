@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.68 2003/08/01 15:32:18 dds Exp $
+ * $Id: parse.y,v 1.69 2003/08/02 12:45:39 dds Exp $
  *
  */
 
@@ -570,7 +570,12 @@ conditional_expression:
 
 assignment_expression:
         conditional_expression
-        | unary_expression assignment_operator assignment_expression
+	/* 
+	 * $1 was unary expression.  Changed to cast_expression
+	 * to allow the illegal construct "(int)a = 3" that gcc accepts.
+	 * In any case, the existing form allowed "-(int)a = 3"
+	 */
+        | cast_expression assignment_operator assignment_expression
 		{ $$ = $1; }
         ;
 
