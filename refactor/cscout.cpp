@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.36 2003/06/01 15:34:43 dds Exp $
+ * $Id: cscout.cpp,v 1.37 2003/06/02 08:16:59 dds Exp $
  */
 
 #include <map>
@@ -446,7 +446,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.36 2003/06/01 15:34:43 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.37 2003/06/02 08:16:59 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -462,7 +462,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.36 2003/06/01 15:34:43 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.37 2003/06/02 08:16:59 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -1416,12 +1416,56 @@ parse_acl()
 }
 #endif
 
+// Process the input as a C preprocessor
+// Fchar should already have its input set
+int
+simple_cpp()
+{
+	for (;;) {
+		Pdtoken t;
+
+		t.getnext();
+		if (t.get_code() == EOF)
+			break;
+		if (t.get_code() == STRING_LITERAL)
+			cout << "\"";
+		else if (t.get_code() == CHAR_LITERAL)
+			cout << "'";
+
+		cout << t.get_val();
+
+		if (t.get_code() == STRING_LITERAL)
+			cout << "\"";
+		else if (t.get_code() == CHAR_LITERAL)
+			cout << "'";
+	}
+	return(0);
+}
+
+// Report usage information and exit
+void
+usage()
+{
+	cerr << "usage: cscout [-P] filename\n";
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
 	Pdtoken t;
 
 	Debug::db_read();
+
+	if (argc < 2)
+		usage();
+	if (string(argv[1]) == "-P") {
+		if (argc < 3)
+			usage();
+		Fchar::set_input(argv[2]);
+		return simple_cpp();
+	}
+		
 	if (!swill_init(8081)) {
 		cerr << "Couldn't initialize the SWILL server.\n";
 		exit(1);

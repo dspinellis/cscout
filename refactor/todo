@@ -1,4 +1,4 @@
-$Id: todo,v 1.27 2003/06/01 15:34:43 dds Exp $
+$Id: todo,v 1.28 2003/06/02 08:16:59 dds Exp $
 
 Web page
 documentation
@@ -7,8 +7,6 @@ Solaris compilation
 experiment with hashmap performance
 
 ceescape (swill) front end:
-Read options
-Provide preprocessor option
 
 Allow interruptions in id queries
 
