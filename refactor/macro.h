@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.2 2001/09/02 15:13:44 dds Exp $
+ * $Id: macro.h,v 1.3 2001/09/03 07:47:46 dds Exp $
  */
 
 #ifndef MACRO_
@@ -38,6 +38,8 @@ public:
 	// Compare per ANSI C
 	friend bool operator ==(const Macro& a, const Macro& b);
 	inline friend bool operator !=(const Macro& a, const Macro& b) { return !(a == b); };
+	// Print it (for debugging)
+	friend ostream& operator<<(ostream& o,const Macro &m);
 
 	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more);
 };

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.2 2001/09/02 17:41:45 dds Exp $
+ * $Id: macro.cpp,v 1.3 2001/09/03 07:47:46 dds Exp $
  */
 
 #include <iostream>
@@ -423,4 +423,21 @@ Macro::value_rtrim()
 {
 	// Took me three hours to arrive at
 	value.erase((find_if(value.rbegin(), value.rend(), not1(mem_fun_ref(&Ptoken::is_space)))).base(), value.end());
+}
+
+ostream&
+operator<<(ostream& o,const Macro &m)
+{
+	o << m.name_token.get_val();
+	if (m.is_function) {
+		o << "(";
+		for (dequePtoken::const_iterator i = m.formal_args.begin(); i != m.formal_args.end(); i++)
+			o << (*i).get_val() << ", ";
+		o << ")";
+	}
+	o << " ";
+	for (dequePtoken::const_iterator i = m.value.begin(); i != m.value.end(); i++)
+		o << (*i).get_val();
+	o << "\n";
+	return (o);
 }
