@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.16 2001/09/30 07:36:42 dds Exp $
+# $Id: rsc.tcl,v 1.17 2001/09/30 08:23:19 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -339,8 +339,8 @@ iwidgets::scrolledlistbox $tabsettings.mi.ipath.list \
     -selectmode single 
 
 frame $tabsettings.mi.ipath.commands
-button $tabsettings.mi.ipath.commands.add -text "Add" -width 10
-button $tabsettings.mi.ipath.commands.delete -text "Delete" -width 10
+button $tabsettings.mi.ipath.commands.add -text "Add" -width 10 -command ipath_add
+button $tabsettings.mi.ipath.commands.delete -text "Delete" -width 10 -command ipath_delete
 pack	$tabsettings.mi.ipath.commands.add $tabsettings.mi.ipath.commands.delete \
 	-side left -anchor e -expand no
 button $tabsettings.mi.ipath.commands.moveup -text "Move Up" -width 10
@@ -367,8 +367,8 @@ pack $tabsettings.dir -expand no -fill x -side top -padx 4 -pady 4 -anchor nw
 pack $tabsettings.mi -side top -padx 4 -pady 4 -anchor nw -expand yes -fill both
 
 checkbutton $tabsettings.ro -text "File is read-only" -relief flat
-button $tabsettings.clearme -text "Clear item's customized settings" -width 30
-button $tabsettings.clearsub -text "Clear subitems' customized settings" -width 30
+button $tabsettings.clearme -text "Clear item's customized settings" -width 30 -command entry_clearme
+button $tabsettings.clearsub -text "Clear subitems' customized settings" -width 30 -command entry_clearsub
 pack $tabsettings.ro $tabsettings.clearme $tabsettings.clearsub -side top -padx 4 -pady 4 -anchor nw
 
 ######################################################
@@ -380,16 +380,22 @@ pack $taboutput.text -side left -expand yes -fill both
 # Modal dialogs
 
 # Project name
-iwidgets::promptdialog .dialog_project_name -title "Insert Project to Workspace" -modality application \
+iwidgets::promptdialog .dialog_project_name -title "Insert Project" -modality application \
     -labeltext "Project name:" -separator false
 .dialog_project_name hide Apply
 .dialog_project_name hide Help
 
 # Macro definition
-iwidgets::promptdialog .dialog_macro_define -title "Preprocessor Macro Definition" -modality application \
+iwidgets::promptdialog .dialog_macro_define -title "Macro Definition" -modality application \
     -labeltext "#define " -separator false
 .dialog_macro_define hide Apply
 .dialog_macro_define hide Help
+
+# Include directory path
+iwidgets::promptdialog .dialog_ipath_define -title "Include Path" -modality application \
+    -labeltext "Directory: " -separator false
+.dialog_ipath_define hide Apply
+.dialog_ipath_define hide Help
 
 ######################################################
 # Global variables
@@ -526,6 +532,41 @@ proc parent {entry} {
 	return $parent
 }
 
+# Clear this entry's customized settings
+proc entry_clearme {} {
+	global readonly
+	global dir
+	global macro
+	global ipath
+
+	set thisentry [wp_getentry]
+	unset readonly($thisentry)
+	unset dir($thisentry)
+	unset macro($thisentry)
+	unset ipath($thisentry)
+	settings_refresh
+}
+
+# Clear customized settings of all subentries
+proc entry_clearsub {} {
+	global readonly
+	global dir
+	global macro
+	global ipath
+	global name
+
+	set thisentry [wp_getentry]
+	foreach i [array names name] {
+		if {[regexp "^$thisentry/" $i] && [info exists macro($i)]} {
+			unset readonly($i)
+			unset dir($i)
+			unset macro($i)
+			unset ipath($i)
+		}
+	}
+	settings_refresh
+}
+
 # Create settings for an entry, independent from its parent
 proc emancipate {entry} {
 	global readonly
@@ -585,6 +626,30 @@ proc macro_delete {} {
 	settings_refresh
 }
 
+# Add a new ipath in an entry's settings
+proc ipath_add {} {
+	global ipath
+
+	if {[.dialog_ipath_define activate]} {
+		set entry [wp_getmodsettings]
+		lappend ipath($entry) [.dialog_ipath_define get]
+	}
+	settings_refresh
+}
+
+# Delete a ipath definition
+proc ipath_delete {} {
+	global tabsettings
+	global ipath
+
+	set sel [$tabsettings.mi.ipath.list curselection]
+	if {$sel != {}} {
+		set entry [wp_getmodsettings]
+		set ipath($entry) [lreplace $ipath($entry) $sel $sel]
+	}
+	settings_refresh
+}
+
 # Return the entry to get the settings from
 proc wp_getsettings {} {
 	global macro
@@ -608,16 +673,43 @@ proc wp_getmodsettings {} {
 proc settings_refresh {} {
 	global tabsettings
 	global macro
+	global ipath
 	global dir
+	global name
 
 	set entry [wp_getsettings]
+
 	# Update macro definitions
 	$tabsettings.mi.macro.list delete 0 end
 	foreach i $macro($entry) {
 		$tabsettings.mi.macro.list insert end $i
 	}
+
+	# Update include path
+	$tabsettings.mi.ipath.list delete 0 end
+	foreach i $ipath($entry) {
+		$tabsettings.mi.ipath.list insert end $i
+	}
+
 	# Set directory
 	$tabsettings.dir.ent configure -text $dir($entry)
+	
+	# Enable/disable the clear this entry button
+	set thisentry [wp_getentry]
+	if {[info exists macro($thisentry)] && $thisentry != {wp}} {
+		$tabsettings.clearme configure -state normal
+	} else {
+		$tabsettings.clearme configure -state disabled
+	}
+	# Enable/disable the clear subentries button
+	$tabsettings.clearsub configure -state disabled
+	foreach i [array names name] {
+#tk_messageBox -icon info -message "Thisentry:$thisentry i:$i" -type ok
+		if {[regexp "^$thisentry/" $i] && [info exists macro($i)]} {
+			$tabsettings.clearsub configure -state normal
+			break
+		}
+	}
 }
 
 # Various initialization bits and pieces
