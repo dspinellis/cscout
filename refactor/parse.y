@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.63 2003/07/29 13:54:42 dds Exp $
+ * $Id: parse.y,v 1.64 2003/07/29 17:02:04 dds Exp $
  *
  */
 
@@ -1159,9 +1159,8 @@ jump_statement:
 
 
 /* Gcc __asm__  syntax */
-assembly_decl_opt: 
-	/* Empty */
-	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')'
+assembly_decl:
+	GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')'
 	;
 
 assembly_statement: 
@@ -1279,6 +1278,11 @@ function_definition:
 declarator:
 	/* *a[3] */
         identifier_declarator
+	/*  
+	 * register u_int64_t a0 @ __asm__("$16") = pfn; (alpha code) 
+	 * int enter(void) __asm__("enter");
+	 */
+        | identifier_declarator assembly_decl
         | typedef_declarator
         ; /* Default rules */
 
@@ -1371,8 +1375,7 @@ postfix_identifier_declarator:
         ;
 
 paren_identifier_declarator:
-	/*  register u_int64_t a0 @ __asm__("$16") = pfn; (alpha code) */
-        IDENTIFIER assembly_decl_opt
+        IDENTIFIER
 		{ $$ = $1; }
         | '(' paren_identifier_declarator ')'
 		{ $$ = $2; }
