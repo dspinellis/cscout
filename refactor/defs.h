@@ -5,7 +5,7 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: defs.h,v 1.6 2001/09/23 07:20:52 dds Exp $
+ * $Id: defs.h,v 1.7 2002/09/05 13:02:48 dds Exp $
  */
 
 #define __FILE__ ""
@@ -44,4 +44,4 @@
 #define __builtin_va_list void *
 #define __builtin_stdarg_start
 #define __builtin_va_end
-
+#define __inline__
