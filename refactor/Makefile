@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.25 2002/12/26 12:46:24 dds Exp $
+# $Id: Makefile,v 1.26 2003/03/27 18:51:12 dds Exp $
 #
 
 # Common object files
@@ -29,7 +29,7 @@ test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
 test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
 test/empty.c test/def.c test/conddef.c test/concat-empty.c
 
-all: ceescape
+all: cscout.exe
 #all: obfuscate
 #all: workdb
 #all: webmap
@@ -43,11 +43,11 @@ simple_cpp: simple_cpp.o $(OBJ) $(STANDOBJ)
 workdb: workdb.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o workdb $(STANDOBJ) $(OBJ) workdb.o
 
-ceescape: ceescape.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o ceescape $(STANDOBJ) $(OBJ) ceescape.o -L. -lswill
+cscout: cscout.o $(STANDOBJ) $(OBJ)
+	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill
 
-ceescape.exe: ceescape.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o ceescape $(STANDOBJ) $(OBJ) ceescape.o -L. -lswill -lws2_32
+cscout.exe: cscout.o $(STANDOBJ) $(OBJ)
+	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill -lws2_32
 
 webmap: webmap.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o webmap $(STANDOBJ) $(OBJ) webmap.o

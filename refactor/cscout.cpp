@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.6 2002/12/26 12:46:24 dds Exp $
+ * $Id: cscout.cpp,v 1.7 2003/03/27 18:51:12 dds Exp $
  */
 
 #include <map>
@@ -288,11 +288,11 @@ file_replace(Fileid fid)
 	out.close();
 	// Should actually be an assertion
 	if (replacements) {
-		string cmd("ceescape_checkout " + fid.get_path());
+		string cmd("cscout_checkout " + fid.get_path());
 		system(cmd.c_str());
 		unlink(fid.get_path().c_str());
 		rename(ofname.c_str(), fid.get_path().c_str());
-		string cmd2("ceescape_checkin " + fid.get_path());
+		string cmd2("cscout_checkin " + fid.get_path());
 		system(cmd2.c_str());
 	}
 	return replacements;
@@ -309,7 +309,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.6 2002/12/26 12:46:24 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.7 2003/03/27 18:51:12 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -581,7 +581,7 @@ umids_page(FILE *fo, void *p)
 void
 index_page(FILE *of, void *data)
 {
-	html_head(of, "index", "Ceescape Results");
+	html_head(of, "index", "CScout Results");
 	fprintf(of, 
 		"<ul>\n"
 		"<li> <a href=\"afiles.html\">All files</a>\n"
@@ -692,7 +692,7 @@ write_quit_page(FILE *of, void *p)
 	int replacements = 0;
 	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++)
 		replacements += file_replace(*i);
-	html_head(of, "quit", "Ceescape exiting");
+	html_head(of, "quit", "CScout exiting");
 	fprintf(of, "A total of %d replacements were made in %d files.", replacements, process.size());
 	fprintf(of, "<p>Bye...</body></html>");
 	must_exit = true;
@@ -701,7 +701,7 @@ write_quit_page(FILE *of, void *p)
 void
 quit_page(FILE *of, void *p)
 {
-	html_head(of, "quit", "Ceescape exiting");
+	html_head(of, "quit", "CScout exiting");
 	fprintf(of, "No changes were saved.");
 	fprintf(of, "<p>Bye...</body></html>");
 	must_exit = true;
