@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: cscout.cpp,v 1.2 2002/12/20 07:09:16 dds Exp $
+ * $Id: cscout.cpp,v 1.3 2002/12/25 15:45:33 dds Exp $
  */
 
 #include <map>
@@ -49,39 +49,32 @@
 #include "type.h"
 #include "stab.h"
 
-// Our identifiers to store as a set
+// Our identifiers to store as a map
 class Identifier {
-	Eclass *ec;		// Equivalence class it belongs to
 	string id;		// Identifier name
 	string newid;		// New identifier name
+	bool xfile;		// True if it crosses files
+	bool replaced;		// True if newid has been set
 public:
+	Identifier(Eclass *e, const string &s) : id(s), replaced(false) {
+		xfile = e->sorted_files().size() > 1;
+	}
 	Identifier() {}
-	Identifier(Eclass *e, const string &s) : ec(e), id(s) {}
 	string get_id() const { return id; }
-	Eclass *get_ec() const { return ec; }
+	bool get_xfile() const { return xfile; }
+	void set_xfile(bool v) { xfile = v; }
 	// To create nicely ordered sets
 	inline bool operator ==(const Identifier b) const {
-		return (this->ec == b.ec) && (this->id == b.id);
+		return (this->id == b.id);
 	}
 	inline bool operator <(const Identifier b) const {
-		int r = this->id.compare(b.id);
-		if (r == 0)
-			return ((unsigned)this->ec < (unsigned)b.ec);
-		else
-			return (r < 0);
+		return this->id.compare(b.id);
 	}
-};
-
-// Modifiable identifiers stored as a vector
-class MIdentifier : public Identifier {
-public:
-	MIdentifier(Identifier i) : xfile(false), Identifier(i) {}
-	MIdentifier() : xfile(false) {}
-	void set_xfile(bool v) { xfile = v; }
-	bool get_xfile() const { return xfile; }
 };
 
 typedef set <Fileid, fname_order> IFSet;
+typedef map <Eclass *, Identifier> IdProp;
+static IdProp ids; 
 
 // Return HTML equivalent of character c
 static char *
@@ -123,16 +116,15 @@ html_string(FILE *of, string s)
 	fprintf(of, r.c_str());
 }
 
+
 // Display an identifier hyperlink
 static void
-html_id(FILE *of, const Identifier &i)
+html_id(FILE *of, const IdProp::value_type &i)
 {
-	fprintf(of, "<a href=\"i%d.html\">%s</a>",
-		(unsigned)i.get_ec(),
-		i.get_id().c_str());
+	fprintf(of, "<a href=\"id.html?id=%u\">%s</a>",
+		(unsigned)(i.first),
+		(i.second).get_id().c_str());
 }
-
-static set <Identifier> ids;
 
 // Add identifiers of the file fi into ids
 // Return true if the file contains unused identifiers
@@ -173,9 +165,8 @@ file_analyze(Fileid fi)
 				int len = ec->get_len();
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
-				Identifier i(ec, s);
 				fi.metrics().process_id(s);
-				ids.insert(i);
+				ids[ec] = Identifier(ec, s);
 				if (ec->get_size() == 1)
 					has_unused = true;
 				continue;
@@ -226,14 +217,15 @@ file_hypertext(FILE *of, Fileid fi, bool show_unused)
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
 				Identifier i(ec, s);
-				ids.insert(i);
+				const IdProp::value_type ip(ec, i);
+				ids[ec] = i;
 				if (show_unused) {
 					if (ec->get_size() == 1)
-						html_id(of, i);
+						html_id(of, ip);
 					else
 						html_string(of, s);
 				} else
-					html_id(of, i);
+					html_id(of, ip);
 				continue;
 			}
 		}
@@ -253,7 +245,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.2 2002/12/20 07:09:16 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.3 2002/12/25 15:45:33 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -275,7 +267,7 @@ html_tail(FILE *of)
 static void
 html_file(FILE *of, Fileid fi)
 {
-	fprintf(of, "<a href=\"f%d.html\">%s</a>",
+	fprintf(of, "<a href=\"file.html?id=%u\">%s</a>",
 		fi.get_id(),
 		fi.get_path().c_str());
 }
@@ -336,11 +328,11 @@ afiles_page(FILE *fo, vector <Fileid> *files)
 
 // All identifiers
 void
-aids_page(FILE *of, vector <MIdentifier> *mids)
+aids_page(FILE *of, void *p)
 {
 	html_head(of, "aids", "All Identifiers");
 	fprintf(of, "<ul>\n");
-	for (vector <MIdentifier>::const_iterator i = (*mids).begin(); i != (*mids).end(); i++) {
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		fprintf(of, "\n<li>");
 		html_id(of, *i);
 	}
@@ -350,12 +342,12 @@ aids_page(FILE *of, vector <MIdentifier> *mids)
 
 // Read-only identifiers
 void
-roids_page(FILE *of,  vector <MIdentifier> *mids)
+roids_page(FILE *of,  void *p)
 {
 	html_head(of, "roids", "Read-only Identifiers");
 	fprintf(of, "<ul>\n");
-	for (vector <MIdentifier>::const_iterator i = (*mids).begin(); i != (*mids).end(); i++) {
-		if ((*i).get_ec()->get_attribute(is_readonly) == true) {
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if ((*i).first->get_attribute(is_readonly) == true) {
 			fprintf(of, "\n<li>");
 			html_id(of, *i);
 		}
@@ -366,12 +358,15 @@ roids_page(FILE *of,  vector <MIdentifier> *mids)
 
 // Details for each identifier
 void
-identifier_page(FILE *fo, MIdentifier *i)
+identifier_page(FILE *fo, void *p)
 {
-	ostringstream fname;
-	fname << (unsigned)(*i).get_ec();
-	html_head(fo, (string("i") + fname.str()).c_str(), string("Identifier: ") + html((*i).get_id()));
-	Eclass *e = (*i).get_ec();
+	Eclass *e;
+	if (!swill_getargs("p(id)", &e)) {
+		fprintf(fo, "Missing value");
+		return;
+	}
+	const Identifier &id = ids[e];
+	html_head(fo, "id", string("Identifier: ") + html(id.get_id()));
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> Read-only: %s\n", e->get_attribute(is_readonly) ? "Yes" : "No");
 	fprintf(fo, "<li> Macro: %s\n", e->get_attribute(is_macro) ? "Yes" : "No");
@@ -391,7 +386,6 @@ identifier_page(FILE *fo, MIdentifier *i)
 	fprintf(fo, "</ul>\n");
 	fprintf(fo, "</ul>\n");
 	IFSet ifiles = e->sorted_files();
-	(*i).set_xfile(ifiles.size() > 1);
 	fprintf(fo, "<h2>Dependent Files (Writable)</h2>\n");
 	fprintf(fo, "<ul>\n");
 	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
@@ -429,12 +423,12 @@ identifier_page(FILE *fo, MIdentifier *i)
 
 // Writable identifiers
 void
-wids_page(FILE *fo, vector <MIdentifier> *mids)
+wids_page(FILE *fo, void *p)
 {
 	html_head(fo, "wids", "Writable Identifiers");
 	fprintf(fo, "<ul>\n");
-	for (vector <MIdentifier>::const_iterator i = (*mids).begin(); i != (*mids).end(); i++) {
-		if ((*i).get_ec()->get_attribute(is_readonly) == false) {
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if ((*i).first->get_attribute(is_readonly) == false) {
 			fprintf(fo, "\n<li>");
 			html_id(fo, *i);
 		}
@@ -445,13 +439,13 @@ wids_page(FILE *fo, vector <MIdentifier> *mids)
 
 // Cross-file writable identifiers
 void
-xids_page(FILE *fo, vector <MIdentifier> *mids)
+xids_page(FILE *fo, void *p)
 {
 	html_head(fo, "xids", "File-spanning Writable Identifiers");
 	fprintf(fo, "<ul>\n");
-	for (vector <MIdentifier>::const_iterator i = (*mids).begin(); i != (*mids).end(); i++) {
-		if ((*i).get_xfile() == true &&
-		    (*i).get_ec()->get_attribute(is_readonly) == false) {
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if ((*i).second.get_xfile() == true &&
+		    (*i).first->get_attribute(is_readonly) == false) {
 			fprintf(fo, "\n<li>");
 			html_id(fo, *i);
 		}
@@ -462,12 +456,12 @@ xids_page(FILE *fo, vector <MIdentifier> *mids)
 
 // Unused project-scoped writable identifiers
 void
-upids_page(FILE *fo, vector <MIdentifier> *mids)
+upids_page(FILE *fo, void *p)
 {
 	html_head(fo, "upids", "Unused Project-scoped Writable Identifiers");
 	fprintf(fo, "<ul>\n");
-	for (vector <MIdentifier>::const_iterator i = (*mids).begin(); i != (*mids).end(); i++) {
-		Eclass *e = (*i).get_ec();
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		Eclass *e = (*i).first;
 		if (
 		    e->get_size() == 1 &&
 		    e->get_attribute(is_lscope) == true &&
@@ -482,12 +476,12 @@ upids_page(FILE *fo, vector <MIdentifier> *mids)
 
 // Unused file-scoped writable identifiers
 void
-ufids_page(FILE *fo, vector <MIdentifier> *mids)
+ufids_page(FILE *fo, void *p)
 {
 	html_head(fo, "ufids", "Unused File-scoped Writable Identifiers");
 	fprintf(fo, "<ul>\n");
-	for (vector <MIdentifier>::const_iterator i = (*mids).begin(); i != (*mids).end(); i++) {
-		Eclass *e = (*i).get_ec();
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		Eclass *e = (*i).first;
 		if (
 		    e->get_size() == 1 &&
 		    e->get_attribute(is_cscope) == true &&
@@ -502,12 +496,12 @@ ufids_page(FILE *fo, vector <MIdentifier> *mids)
 
 	// Unused macro writable identifiers
 void
-umids_page(FILE *fo, vector <MIdentifier> *mids)
+umids_page(FILE *fo, void *p)
 {
 	html_head(fo, "umids", "Unused Macro Writable Identifiers");
 	fprintf(fo, "<ul>\n");
-	for (vector <MIdentifier>::const_iterator i = (*mids).begin(); i != (*mids).end(); i++) {
-		Eclass *e = (*i).get_ec();
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		Eclass *e = (*i).first;
 		if (
 		    e->get_size() == 1 &&
 		    e->get_attribute(is_macro) == true &&
@@ -547,58 +541,83 @@ index_page(FILE *of, void *data)
 }
 
 void
-file_page(FILE *of, Fileid *i)
+file_page(FILE *of, void *p)
 {
 	ostringstream fname;
-	const string &pathname = (*i).get_path();
-	fname << (*i).get_id();
-	html_head(of, (string("f") + fname.str()).c_str(), string("File: ") + html(pathname));
+	int id;
+	if (!swill_getargs("i(id)", &id)) {
+		fprintf(of, "Missing value");
+		return;
+	}
+	Fileid i(id);
+	const string &pathname = i.get_path();
+	fname << i.get_id();
+	html_head(of, "file", string("File: ") + html(pathname));
 	fprintf(of, "<ul>\n");
-	fprintf(of, "<li> Read-only: %s", (*i).get_readonly() ? "Yes" : "No");
-	fprintf(of, "\n<li> Number of characters: %d", (*i).metrics().get_nchar());
-	fprintf(of, "\n<li> Comment characters: %d", (*i).metrics().get_nccomment());
-	fprintf(of, "\n<li> Space characters: %d", (*i).metrics().get_nspace());
-	fprintf(of, "\n<li> Number of line comments: %d", (*i).metrics().get_nlcomment());
-	fprintf(of, "\n<li> Number of block comments: %d", (*i).metrics().get_nbcomment());
-	fprintf(of, "\n<li> Number of lines: %d", (*i).metrics().get_nline());
-	fprintf(of, "\n<li> Length of longest line: %d", (*i).metrics().get_maxlinelen());
-	fprintf(of, "\n<li> Number of preprocessor directives: %d", (*i).metrics().get_nppdirective());
-	fprintf(of, "\n<li> Number of directly included files: %d", (*i).metrics().get_nincfile());
-	fprintf(of, "\n<li> Number of defined functions: %d", (*i).metrics().get_nfunction());
-	fprintf(of, "\n<li> Number of C statements: %d", (*i).metrics().get_nstatement());
-	fprintf(of, "\n<li> Number of C strings: %d", (*i).metrics().get_nstring());
+	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
+	fprintf(of, "\n<li> Number of characters: %d", i.metrics().get_nchar());
+	fprintf(of, "\n<li> Comment characters: %d", i.metrics().get_nccomment());
+	fprintf(of, "\n<li> Space characters: %d", i.metrics().get_nspace());
+	fprintf(of, "\n<li> Number of line comments: %d", i.metrics().get_nlcomment());
+	fprintf(of, "\n<li> Number of block comments: %d", i.metrics().get_nbcomment());
+	fprintf(of, "\n<li> Number of lines: %d", i.metrics().get_nline());
+	fprintf(of, "\n<li> Length of longest line: %d", i.metrics().get_maxlinelen());
+	fprintf(of, "\n<li> Number of preprocessor directives: %d", i.metrics().get_nppdirective());
+	fprintf(of, "\n<li> Number of directly included files: %d", i.metrics().get_nincfile());
+	fprintf(of, "\n<li> Number of defined functions: %d", i.metrics().get_nfunction());
+	fprintf(of, "\n<li> Number of C statements: %d", i.metrics().get_nstatement());
+	fprintf(of, "\n<li> Number of C strings: %d", i.metrics().get_nstring());
 	fprintf(of, "\n<li> Used in project(s): \n<ul>");
 	for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
-		if ((*i).get_attribute(j))
+		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
-	fprintf(of, "</ul>\n<li> <a href=\"s%s.html\">Source code</a>\n", fname.str().c_str());
-	fprintf(of, "\n<li> <a href=\"u%s.html\">Source code (with unused identifiers marked)</a>\n", fname.str().c_str());
+	fprintf(of, "</ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
+	fprintf(of, "\n<li> <a href=\"usrc.html?id=%s\">Source code with unused non-local writable identifiers marked</a>\n", fname.str().c_str());
 	fprintf(of, "</ul>\n");
 	html_tail(of);
 }
 
 void
-source_page(FILE *of, Fileid *i)
+source_page(FILE *of, void *p)
 {
 	ostringstream fname;
-	const string &pathname = (*i).get_path();
-	fname << (*i).get_id();
-	html_head(of, (string("s") + fname.str()).c_str(), string("Source: ") + html(pathname));
-	file_hypertext(of, *i, false);
+	int id;
+	if (!swill_getargs("i(id)", &id)) {
+		fprintf(of, "Missing value");
+		return;
+	}
+	Fileid i(id);
+	const string &pathname = i.get_path();
+	fname << i.get_id();
+	html_head(of, "src", string("Source: ") + html(pathname));
+	file_hypertext(of, i, false);
 	html_tail(of);
 }
 
 void
-unused_source_page(FILE *of, Fileid *i)
+unused_source_page(FILE *of, void *p)
 {
 	ostringstream fname;
-	const string &pathname = (*i).get_path();
-	fname << (*i).get_id();
-	html_head(of, (string("u") + fname.str()).c_str(), string("Source (with unused identifiers marked): ") + html(pathname));
-	file_hypertext(of, *i, true);
+	int id;
+	if (!swill_getargs("i(id)", &id)) {
+		fprintf(of, "Missing value");
+		return;
+	}
+	Fileid i(id);
+	const string &pathname = i.get_path();
+	fname << i.get_id();
+	html_head(of, "usrc", string("Source with unused non-local writable identifiers marked: ") + html(pathname));
+	file_hypertext(of, i, true);
 	html_tail(of);
 }
 
+void
+quit_page(FILE *of, void *p)
+{
+	html_head(of, "quit", "Ceescape exiting");
+	fprintf(of, "No changes saved.");
+	html_tail(of);
+}
 
 main(int argc, char *argv[])
 {
@@ -631,33 +650,33 @@ main(int argc, char *argv[])
 		ostringstream fname;
 		fname << (*i).get_id();
 		bool has_unused = file_analyze(*i);
-		swill_handle((string("s") + fname.str() + ".html").c_str(), source_page, &*i);
-		swill_handle((string("u") + fname.str() + ".html").c_str(), unused_source_page, &*i);
-		swill_handle((string("f") + fname.str() + ".html").c_str(), file_page, &*i);
 	}
 
-	vector <MIdentifier> mids(ids.begin(), ids.end());
+	swill_handle("src.html", source_page, NULL);
+	swill_handle("usrc.html", unused_source_page, NULL);
+	swill_handle("file.html", file_page, NULL);
 
-	swill_handle("aids.html", aids_page, &mids);
-	swill_handle("roids.html", roids_page, &mids);
-	swill_handle("wids.html", wids_page, &mids);
-	swill_handle("xids.html", xids_page, &mids);
-	swill_handle("upids.html", upids_page, &mids);
-	swill_handle("ufids.html", ufids_page, &mids);
-	swill_handle("umids.html", umids_page, &mids);
+	swill_handle("aids.html", aids_page, NULL);
+	swill_handle("roids.html", roids_page, NULL);
+	swill_handle("wids.html", wids_page, NULL);
+	swill_handle("xids.html", xids_page, NULL);
+	swill_handle("upids.html", upids_page, NULL);
+	swill_handle("ufids.html", ufids_page, NULL);
+	swill_handle("umids.html", umids_page, NULL);
 
-	// Set xfile for each identifier
-	for (vector <MIdentifier>::iterator i = mids.begin(); i != mids.end(); i++) {
-		Eclass *e = (*i).get_ec();
+	swill_handle("id.html", identifier_page, NULL);
+
+	// Set xfile and  metrics for each identifier
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		Eclass *e = (*i).first;
 		IFSet ifiles = e->sorted_files();
-		(*i).set_xfile(ifiles.size() > 1);
+		(*i).second.set_xfile(ifiles.size() > 1);
 
 		ostringstream fname;
-		fname << (unsigned)(*i).get_ec();
-		swill_handle((string("i") + fname.str() + ".html").c_str(), identifier_page, &*i);
+		fname << (unsigned)e;
 
 		// Update metrics
-		msum.add_unique_id((*i).get_ec());
+		msum.add_unique_id(e);
 	}
 
 
@@ -673,4 +692,3 @@ main(int argc, char *argv[])
 
 	return (0);
 }
-
