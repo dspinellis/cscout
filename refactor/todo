@@ -1,4 +1,4 @@
-$Id: todo,v 1.28 2003/06/02 08:16:59 dds Exp $
+$Id: todo,v 1.29 2003/06/03 07:29:54 dds Exp $
 
 Web page
 documentation
@@ -8,7 +8,33 @@ experiment with hashmap performance
 
 ceescape (swill) front end:
 
+Create version file with indent of all source files, this should contain the
+product's version.
+Send version in licensing exchange
+License server can respond with OK/WARN/DENY and a message
 Allow interruptions in id queries
+ANSI defs 
+LINE 
+FILE 
+DATE  "Mar 25 1821"
+TIME "12:34:56"
+STDC 1
+ANSI headers
+assert
+ctype
+errno
+float
+limits
+locale
+math
+setjmp
+signal
+stdarg
+stddef
+stdio
+string
+time
+
 
 yacc and lex preprocessor / hooks
 
