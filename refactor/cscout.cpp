@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.29 2003/05/28 12:13:46 dds Exp $
+ * $Id: cscout.cpp,v 1.30 2003/05/28 12:17:09 dds Exp $
  */
 
 #include <map>
@@ -408,7 +408,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.29 2003/05/28 12:13:46 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.30 2003/05/28 12:17:09 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -424,7 +424,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.29 2003/05/28 12:13:46 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.30 2003/05/28 12:17:09 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -997,6 +997,7 @@ identifier_page(FILE *fo, void *p)
 		show_id_prop(fo, Attributes::name(i), e->get_attribute(i));
 	show_id_prop(fo, "Crosses file boundary", id.get_xfile());
 	show_id_prop(fo, "Unused", e->get_size() == 1);
+	fprintf(fo, "<li> Matches %d occurences\n", e->get_size());
 	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
 	if (DP()) {
 		cout << "First project " << attr_max << "\n";
