@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.112 2004/08/09 11:42:45 dds Exp $
+ * $Id: cscout.cpp,v 1.113 2004/08/10 10:21:47 dds Exp $
  */
 
 #include <map>
@@ -841,6 +841,7 @@ xfquery_page(FILE *of,  void *p)
 		if (add)
 			sorted_files.insert(*i);
 	}
+	int match_count = 0;
 	html_file_begin(of);
 	if (sort_order != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::name(sort_order).c_str());
@@ -853,9 +854,10 @@ xfquery_page(FILE *of,  void *p)
 		if (sort_order != -1)
 			fprintf(of, "<td align=\"right\">%d</td>", i->const_metrics().get_metric(sort_order));
 		html_file_record_end(of);
+		match_count++;
 	}
 	html_file_end(of);
-	fprintf(of, "\n</ul>\n");
+	fprintf(of, "\n</ul>\n<p>%d file(s) listed.", match_count);
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
 	if (match_fre)
@@ -886,6 +888,7 @@ display_sorted(FILE *of, const container &sorted_ids)
 		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
 	else
 		fputs("</p>\n", of);
+	fprintf(of, "<p>%d element(s) listed.</p>", sorted_ids.size());
 }
 
 // Identifier query page
@@ -1013,17 +1016,20 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
 	html_file_set_begin(of);
+	int file_count = 0;
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
 			continue;
 		html_file(of, *i);
+		file_count++;
 		fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
 			f.get_id(),
 			query_url.c_str());
 		html_file_record_end(of);
 	}
 	html_file_end(of);
+	fprintf(of, "<p>%d file(s) listed.", file_count);
 }
 
 // Process an identifier query
