@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.17 2002/09/17 10:53:02 dds Exp $
+ * $Id: webmap.cpp,v 1.18 2002/10/06 19:18:53 dds Exp $
  */
 
 #include <map>
@@ -191,7 +191,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.17 2002/09/17 10:53:02 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.18 2002/10/06 19:18:53 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -337,6 +337,8 @@ main(int argc, char *argv[])
 		(*i).metrics().get_nfunction() <<
 		"\n<li> Number of C statements: " << 
 		(*i).metrics().get_nstatement() <<
+		"\n<li> Number of C strings: " << 
+		(*i).metrics().get_nstring() <<
 		"\n<li> Contains unused identifiers: " << 
 		(has_unused ? "Yes" : "No") <<
 		"\n<li> Used in project(s): \n<ul>";

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.2 2002/09/17 10:53:02 dds Exp $
+ * $Id: filemetrics.cpp,v 1.3 2002/10/06 19:18:53 dds Exp $
  */
 
 #include <iostream>
@@ -55,6 +55,19 @@ Metrics::process_char(char c)
 			nspace++;
 		else if (c == '/')
 			cstate = s_saw_slash;
+		else if (c == '"') {
+			cstate = s_string;
+			nstring++;
+		}
+		break;
+	case s_string:
+		if (c == '"')
+			cstate = s_normal;
+		else if (c == '\\')
+			cstate = s_saw_backslash;
+		break;
+	case s_saw_backslash:
+		cstate = s_string;
 		break;
 	case s_saw_slash:		// After a / character
 		if (c == '/') {

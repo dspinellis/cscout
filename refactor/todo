@@ -1,9 +1,13 @@
-$Id: todo,v 1.10 2002/09/17 15:52:01 dds Exp $
+$Id: todo,v 1.11 2002/10/06 19:18:53 dds Exp $
+
+Convert the _asm handling into generic handlers for excluding line and
+block-based compiler extensions via compiler-specific preprocess-specific preprocessor defs.
+
+Create Java-based front end
+Make color conform with the other programs
 
 Add isfunction identifier property
 Add ispointer identifier property
-
-Unify arguments and replacement lists of multiple same macro definitions
 
 Create separate database table with the newlines
 
@@ -18,10 +22,8 @@ Collect metrics (and get them over the web)
 	Directly / indirectly included files
 	Which r/o functions were called (library facilities)
 	Number of functions (per file, global, static)
-Save/load database
 Optimize (hash for map)
 Separate engine driver from post-processor
-Create obfuscator
 Create editor
 Run obfuscator on big programs
 Report identifiers only used once

@@ -9,7 +9,7 @@
  * This design also ensures that the character-based metrics processing 
  * overhead will be incured exactly once for each file.
  *
- * $Id: metrics.h,v 1.1 2002/09/17 07:56:14 dds Exp $
+ * $Id: metrics.h,v 1.2 2002/10/06 19:18:53 dds Exp $
  */
 
 #ifndef METRICS_
@@ -26,6 +26,7 @@ private:
 	int maxlinelen;		// Maximum number of characters in a line
 	int nccomment;		// Comment characters
 	int nspace;		// Space characters
+	int nstring;		// Number of character strings
 
 // During processing (once based on processed)
 	int nfunction;		// Defined functions (function_brace_begin)
@@ -40,9 +41,11 @@ private:
 	enum e_state {
 		s_normal,
 		s_saw_slash,		// After a / character
+		s_saw_backslash,	// After a \ character in a string
 		s_cpp_comment,		// Inside C++ comment
 		s_block_comment,	// Inside C block comment
 		s_block_star,		// Found a * in a block comment
+		s_string,		// Inside a string
 	} cstate;
 
 public:
@@ -54,6 +57,7 @@ public:
 		maxlinelen(0),
 		nccomment(0),
 		nspace(0),
+		nstring(0),
 
 		nfunction(0),
 		nppdirective(0),
@@ -100,6 +104,8 @@ public:
 	int get_nincfile() const { return nincfile; }		
 	// Number of statements
 	int get_nstatement() const { return nstatement; }		
+	// Number of character strings
+	int get_nstring() const { return nstring; }		
 };
 
 #endif /* METRICS_ */

@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.8 2002/09/24 08:57:49 dds Exp $
+ * $Id: workdb.cpp,v 1.9 2002/10/06 19:18:53 dds Exp $
  */
 
 #include <map>
@@ -249,7 +249,8 @@ main(int argc, char *argv[])
 		"NFUNCTION INTEGER,\n"
 		"NPPDIRECTIVE INTEGER,\n"
 		"NINCFILE INTEGER,\n"
-		"NSTATEMENT INTEGER);\n"
+		"NSTATEMENT INTEGER,\n"
+		"NSTRING INTEGER);\n"
 
 		"CREATE TABLE FILEPROJ(FID INTEGER ,PID INTEGER,\n"
 		"FOREIGN KEY (FID) REFERENCES FILES,\n"
@@ -281,7 +282,8 @@ main(int argc, char *argv[])
 		(*i).metrics().get_nfunction() << ',' <<
 		(*i).metrics().get_nppdirective() << ',' <<
 		(*i).metrics().get_nincfile() << ',' <<
-		(*i).metrics().get_nstatement() <<
+		(*i).metrics().get_nstatement() << ',' <<
+		(*i).metrics().get_nstring() <<
 		");\n";
 		// The projects this file belongs to
 		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
