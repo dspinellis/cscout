@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.3 2003/12/04 20:03:08 dds Exp $
+ * $Id: fcall.cpp,v 1.4 2003/12/04 21:47:10 dds Exp $
  */
 
 #include <map>
@@ -43,7 +43,7 @@
 FCall *FCall::current_fun;
 
 // Set of all functions
-FCall::all_container FCall::all;
+FCall::fun_container FCall::all;
 
 // Set the funciton currently being parsed
 void
@@ -54,6 +54,7 @@ FCall::set_current_fun(const Type &t)
 	current_fun = id->get_fcall();
 	assert(current_fun);
 	current_fun->definition = t.get_token().get_parts_begin()->get_tokid();
+	current_fun->defined = true;
 }
 
 /*
@@ -81,7 +82,10 @@ FCall::register_call(FCall *f)
 
 // Constructor
 FCall::FCall(const Token& tok, Type typ, const string &s) :
-		name(s), declaration(tok.get_parts_begin()->get_tokid()), type(typ)
+		name(s), 
+		declaration(tok.get_parts_begin()->get_tokid()), 
+		type(typ),
+		defined(false)
 {
 	all.insert(this);
 }

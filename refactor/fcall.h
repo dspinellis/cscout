@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.3 2003/12/04 20:03:08 dds Exp $
+ * $Id: fcall.h,v 1.4 2003/12/04 21:47:10 dds Exp $
  */
 
 #ifndef FCALL_
@@ -21,16 +21,17 @@ private:
 	static FCall *current_fun;	// Function currently being parsed
 
 	// Container for storing all declared functions
-	typedef set <FCall *> all_container;
-	static all_container all;	// Set of all functions
+	typedef set <FCall *> fun_container;
+	static fun_container all;	// Set of all functions
 
 	string name;
 	Tokid declaration;		// Function's first declaration 
 					// (could also be reference if implicitly declared)
 	Tokid definition;		// Function's definition
 	Type type;			// Function's type
-	set <FCall *> call;		// Functions this function calls
-	set <FCall *> caller;		// Functions that call this function
+	bool defined;			// True if the function has been defined
+	fun_container call;		// Functions this function calls
+	fun_container caller;		// Functions that call this function
 	void add_call(FCall *f) { call.insert(f); }
 	void add_caller(FCall *f) { caller.insert(f); }
 public:
@@ -39,14 +40,27 @@ public:
 	static void set_current_fun(const Id *id);
 	// The current function makes a call to f
 	static void register_call(FCall *f);
+
 	// Interface for iterating through all functions
-	typedef all_container::const_iterator const_fiterator_type;
+	typedef fun_container::const_iterator const_fiterator_type;
 	static const_fiterator_type fbegin() { return all.begin(); }
 	static const_fiterator_type fend() { return all.end(); }
+
 	Tokid get_declaration() const { return declaration; }
 	Tokid get_definition() const { return definition; }
 	const string &get_name() const { return name; }
 	bool contains(Eclass *e) const;
+
+	// Interface for iterating through calls and callers
+	const_fiterator_type call_begin() const { return call.begin(); }
+	const_fiterator_type call_end() const { return call.end(); }
+	const_fiterator_type caller_begin() const { return caller.begin(); }
+	const_fiterator_type caller_end() const { return caller.end(); }
+
+	int get_num_call() const { return call.size(); }
+	int get_num_caller() const { return caller.size(); }
+
+	bool is_defined() const { return defined; }
 
 	FCall(const Token& t, Type typ, const string &s);
 };

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.68 2003/12/04 20:03:08 dds Exp $
+ * $Id: cscout.cpp,v 1.69 2003/12/04 21:47:10 dds Exp $
  */
 
 #include <map>
@@ -297,7 +297,7 @@ html_id(FILE *of, const IdPropElem &i)
 
 // Display a hyperlink based on a string and its starting tokid
 static void
-html_string_tokid(FILE *of, const string &s, Tokid t)
+html_string(FILE *of, const string &s, Tokid t)
 {
 	int len = s.length();
 	for (int pos = 0; pos < len;) {
@@ -372,7 +372,7 @@ file_analyze(Fileid fi)
 			}
 		}
 		fi.metrics().process_char((char)val);
-		if (report && (char)val == '\n')
+		if ((char)val == '\n')
 			fi.add_line_end(ti.get_streampos());
 	}
 	if (DP())
@@ -410,6 +410,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		if ((val = in.get()) == EOF)
 			break;
 		if (at_bol) {
+			fprintf(of,"<a name=\"%d\"></a>", line_number);
 			if (show_line_number) {
 				char buff[50];
 				sprintf(buff, "%5d ", line_number);
@@ -1227,7 +1228,8 @@ identifier_page(FILE *fo, void *p)
 		for (FCall::const_fiterator_type i = FCall::fbegin(); i != FCall::fend(); i++) {
 			if ((*i)->contains(e)) {
 				fprintf(fo, "\n<li>");
-				html_string_tokid(fo, (*i)->get_name(), (*i)->get_declaration());
+				html_string(fo, (*i)->get_name(), (*i)->get_declaration());
+				fprintf(fo, " - <a href=\"fun.html?f=%p\">function page</a>", *i);
 			}
 		}
 		fprintf(fo, "</ol>\n");
@@ -1262,6 +1264,52 @@ identifier_page(FILE *fo, void *p)
 	}
 	html_file_end(fo);
 	fprintf(fo, "</FORM>\n");
+	html_tail(fo);
+}
+
+// Details for each function
+void
+function_page(FILE *fo, void *p)
+{
+	FCall *f;
+	if (!swill_getargs("p(f)", &f)) {
+		fprintf(fo, "Missing value");
+		return;
+	}
+	html_head(fo, "fun", string("Function: ") + html(f->get_name()));
+	fprintf(fo, "<ul>\n");
+	fprintf(fo, "<li> Associated identifier: ");
+	Tokid t = f->get_declaration();
+	html_string(fo, f->get_name(), t);
+	fprintf(fo, "\n<li> Declared in file <a href=\"file.html?id=%u\">%s</a>",
+		t.get_fileid().get_id(),
+		t.get_fileid().get_path().c_str());
+	ostringstream fname;
+	fname << t.get_fileid().get_id();
+	int lnum = t.get_fileid().line_number(t.get_streampos());
+	fprintf(fo, " <a href=\"src.html?id=%s#%d\">line %d</a><br />(and possibly in other places)\n",
+		fname.str().c_str(), lnum, lnum);
+	if (f->is_defined()) {
+		t = f->get_definition();
+		fprintf(fo, "<li> Defined in file <a href=\"file.html?id=%u\">%s</a>",
+			t.get_fileid().get_id(),
+			t.get_fileid().get_path().c_str());
+		ostringstream fname;
+		fname << t.get_fileid().get_id();
+		int lnum = t.get_fileid().line_number(t.get_streampos());
+		fprintf(fo, " <a href=\"src.html?id=%s#%d\">line %d</a>\n",
+			fname.str().c_str(), lnum, lnum);
+	} else
+		fprintf(fo, "<li> No definition found\n");
+	// Functions that are Down from us in the call graph
+	fprintf(fo, "<li> Calls directly %d functions", f->get_num_call());
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d\">List of directly called functions</a>\n", f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=D\">List of all called functions</a>\n", f);
+	// Functions that are Up from us in the call graph
+	fprintf(fo, "<li> Called directly by %d functions", f->get_num_caller());
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u\">List of direct callers</a>\n", f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", f);
+	fprintf(fo, "</ul>\n");
 	html_tail(fo);
 }
 
@@ -1930,6 +1978,7 @@ main(int argc, char *argv[])
 		swill_handle("qinc.html", query_include_page, NULL);
 
 		swill_handle("id.html", identifier_page, NULL);
+		swill_handle("fun.html", function_page, NULL);
 		swill_handle("fmetrics.html", file_metrics_page, NULL);
 		swill_handle("idmetrics.html", id_metrics_page, NULL);
 		swill_handle("setproj.html", set_project_page, NULL);
