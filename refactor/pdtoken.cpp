@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.58 2002/09/11 12:00:43 dds Exp $
+ * $Id: pdtoken.cpp,v 1.59 2002/09/11 14:36:11 dds Exp $
  */
 
 #include <iostream>
@@ -490,6 +490,7 @@ Pdtoken::process_define()
 		return;
 	}
 	t.set_ec_attribute(is_macro);
+	Pltoken nametok = t;
 	m.set_name_token(t);
 	name = t.get_val();
 	t.template getnext<Fchar>();	// Space is significant: a(x) vs a (x)
@@ -546,10 +547,12 @@ Pdtoken::process_define()
 
 	// Check that the new macro is not different from an older definition
 	mapMacro::const_iterator i = macros.find(name);
-	if (i != macros.end() && (*i).second != m) {
-		Error::error(E_WARN, "Duplicate (different) macro definition of macro " + name);
-		if (DP()) cout << (*i).second;
-	}
+	if (i != macros.end())
+		if ((*i).second != m) {
+			Error::error(E_WARN, "Duplicate (different) macro definition of macro " + name);
+			if (DP()) cout << (*i).second;
+		} else
+			unify(nametok, (*i).second.get_name_token());
 	macros[name] = m;
 	if (DP()) cout << "Macro define " << m;
 }

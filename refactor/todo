@@ -1,7 +1,4 @@
-$Id: todo,v 1.4 2002/09/11 12:58:14 dds Exp $
-
-Unify macro definitions with same name pltoken.cpp 548
-#ifndef foo #define foo should unify
+$Id: todo,v 1.5 2002/09/11 14:36:11 dds Exp $
 
 Store for each EC
 	A bag of project it belongs to (#pragma project foo)
@@ -34,3 +31,4 @@ Create editor
 Run obfuscator on big programs
 Report identifiers only used once
 Verify memory management
+#ifndef foo #defin
