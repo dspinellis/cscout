@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.111 2004/08/09 11:29:31 dds Exp $
+ * $Id: cscout.cpp,v 1.112 2004/08/09 11:42:45 dds Exp $
  */
 
 #include <map>
@@ -506,11 +506,15 @@ file_replace(FILE *of, Fileid fid)
 		else {
 			string newname(fid.get_path().c_str());
 			newname.replace(be.rm_so, be.rm_eo - be.rm_so, sfile_repl_string);
+			string cmd("cscout_checkout " + newname);
+			system(cmd.c_str());
 			(void)unlink(newname.c_str());
 			if (rename(ofname.c_str(), newname.c_str()) < 0) {
 				html_perror(of, "Renaming the file " + ofname + " to " + newname + " failed");
 				return 0;
 			}
+			string cmd2("cscout_checkin " + newname);
+			system(cmd2.c_str());
 		}
 	} else {
 		string cmd("cscout_checkout " + fid.get_path());
