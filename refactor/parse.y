@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.57 2003/06/22 19:19:12 dds Exp $
+ * $Id: parse.y,v 1.58 2003/07/05 10:17:17 dds Exp $
  *
  */
 
@@ -1157,6 +1157,7 @@ assembly_statement:
 
 asm_operands_opt:
 	/* Empty */
+	| ':' asm_operand_list
 	| ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt
 	;
 
