@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.21 2002/09/17 10:53:02 dds Exp $
+ * $Id: eclass.cpp,v 1.22 2003/04/07 13:47:03 dds Exp $
  */
 
 #include <iostream>
@@ -31,7 +31,7 @@ merge(Eclass *a, Eclass *b)
 	Eclass *little, *large;
 	if (a == b)
 		return a;
-	if (DP() && a->len != b->len) 
+	if (DP()) 
 		cout << "merge a=" << a << *a << " b=" << b << *b << "\n";
 	assert(a->len == b->len);
 	// It is more efficient to append the little at the end of the large one
@@ -91,6 +91,8 @@ Eclass::add_tokid(Tokid t)
 	if (t.get_readonly())
 		set_attribute(is_readonly);
 	set_attribute(Project::get_current_projid());
+	if (DP())
+		cout << "Set_attribute for " << t << " to " << Project::get_current_projid() << "\n";
 }
 
 // Return a sorted vector of all files used

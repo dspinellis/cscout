@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.7 2003/03/27 18:51:12 dds Exp $
+ * $Id: cscout.cpp,v 1.8 2003/04/07 13:47:03 dds Exp $
  */
 
 #include <map>
@@ -309,7 +309,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.7 2003/03/27 18:51:12 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.8 2003/04/07 13:47:03 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -451,6 +451,10 @@ identifier_page(FILE *fo, void *p)
 	fprintf(fo, "<li> Project scope: %s\n", e->get_attribute(is_lscope) ? "Yes" : "No");
 	fprintf(fo, "<li> Unused: %s\n", e->get_size() == 1 ? "Yes" : "No");
 	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
+	if (DP()) {
+		cout << "First project " << attr_max << "\n";
+		cout << "Last project " <<  Attributes::get_num_attributes() - 1 << "\n";
+	}
 	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
 			fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());

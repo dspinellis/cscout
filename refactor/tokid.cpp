@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.18 2002/09/17 10:53:02 dds Exp $
+ * $Id: tokid.cpp,v 1.19 2003/04/07 13:47:03 dds Exp $
  */
 
 #include <iostream>
@@ -93,6 +93,8 @@ Tokid::constituents(int l)
 		if (DP())
 			cout << "Tokid = " << (e->first) << " Eclass = " << e->second << "\n" << (*(e->second)) << "\n";
 		int covered = (e->second)->get_len();
+		// Add the existing classes to our current project
+		(e->second)->set_attribute(Project::get_current_projid());
 		Tpart tp(t, covered);
 		r.push_back(tp);
 		l -= covered;
