@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.36 2003/09/29 18:10:08 dds Exp $
+ * $Id: type.cpp,v 1.37 2003/11/17 13:02:46 dds Exp $
  */
 
 #include <iostream>
@@ -36,7 +36,7 @@
 #include "stab.h"
 #include "type2.h"
 #include "debug.h"
-
+#include "fcall.h"
 
 
 Type&
@@ -101,6 +101,9 @@ Tidentifier::call() const
 {
 	// Undeclared identifiers f when called are declared as int f(...)
 	obj_define(this->get_token(), function_returning(basic(b_int)));
+	Id const *id = obj_lookup(this->get_name());
+	assert(id);
+	FCall::register_call(id->get_fcall());
 	/*
 	 * @error
 	 * An undeclared identifier is used as a function
@@ -720,7 +723,7 @@ Tfunction::set_abstract(Type t)
 		if (returning.is_abstract())
 			returning = t;
 		else
-			Error::error(E_ERR, "pointer not an abstract type");
+			Error::error(E_ERR, "function not an abstract type");
 	} else
 		returning.set_abstract(t);
 }
@@ -732,7 +735,7 @@ Tidentifier::set_abstract(Type t)
 		if (of.is_abstract())
 			of = t;
 		else
-			Error::error(E_ERR, "pointer not an abstract type");
+			Error::error(E_ERR, "identifier not an abstract type");
 	} else
 		of.set_abstract(t);
 	if (DP())

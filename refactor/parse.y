@@ -10,11 +10,11 @@
  * Type checking is used:
  * 1) To identify the structure or union to use for member access
  * 2) As a sanity check for (1)
- * 3) To avoid mistages caused by ommitting arbitrary part of the type checking 
+ * 3) To avoid mistakes caused by ommitting arbitrary part of the type checking 
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.89 2003/10/15 08:55:24 dds Exp $
+ * $Id: parse.y,v 1.90 2003/11/17 13:02:46 dds Exp $
  *
  */
 
@@ -55,6 +55,7 @@
 #include "type2.h"
 #include "debug.h"
 #include "fdep.h"
+#include "fcall.h"
 
 void parse_error(char *s)
 {
@@ -345,6 +346,8 @@ primary_expression:
 				if (id) {
 					Token::unify(id->get_token(), $1.get_token());
 					$$ = id->get_type();
+					if ($$.is_function())
+						FCall::register_call(id->get_fcall());
 				} else {
 					/*
 					 * @error
@@ -1525,6 +1528,7 @@ function_definition:
 			$1.declare();
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$1.get_token().set_ec_attribute(is_declared_unused);
+			FCall::set_current_fun($1);
 		}
 					function_body
         | declaration_specifier      identifier_declarator asm_or_attribute_list
@@ -1533,6 +1537,7 @@ function_definition:
 			$2.declare();
 			if ($1.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			FCall::set_current_fun($2);
 		}
 					function_body
         | type_specifier             identifier_declarator asm_or_attribute_list
@@ -1541,6 +1546,7 @@ function_definition:
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			FCall::set_current_fun($2);
 		}
 					function_body
         | declaration_qualifier_list identifier_declarator asm_or_attribute_list
@@ -1549,6 +1555,7 @@ function_definition:
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			FCall::set_current_fun($2);
 		}
 					function_body
         | type_qualifier_list        identifier_declarator asm_or_attribute_list
@@ -1556,46 +1563,88 @@ function_definition:
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			FCall::set_current_fun($2);
 		}
 					function_body
 
 	/* foo(a, b) @ { } */
         |                            old_function_declarator
-		{ $1.declare(); }
+		{
+			$1.declare(); 
+			FCall::set_current_fun($1);
+		}
 					function_body
         | declaration_specifier      old_function_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{
+			$2.set_abstract($1); 
+			$2.declare(); 
+			FCall::set_current_fun($2);
+		}
 					function_body
         | type_specifier             old_function_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{
+			$2.set_abstract($1); 
+			$2.declare(); 
+			FCall::set_current_fun($2);
+		}
 					function_body
         | declaration_qualifier_list old_function_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{
+			$2.set_abstract($1); 
+			$2.declare(); 
+			FCall::set_current_fun($2);
+		}
 					function_body
         | type_qualifier_list        old_function_declarator
-		{ $2.declare(); }
+		{
+			$2.declare(); 
+			FCall::set_current_fun($2);
+		}
 					function_body
 
 	/* foo(a, b) @ int a; int b; @ { } */
         |                            old_function_declarator 
 		{ Block::param_use(); } declaration_list
-		{ Block::param_use_end(); $1.declare(); }
+		{
+			Block::param_use_end();
+			$1.declare();
+			FCall::set_current_fun($1);
+		}
 					function_body
         | declaration_specifier      old_function_declarator
 		{ Block::param_use(); } declaration_list
-		{ Block::param_use_end(); $2.set_abstract($1); $2.declare(); }
+		{
+			Block::param_use_end();
+			$2.set_abstract($1);
+			$2.declare();
+			FCall::set_current_fun($2);
+		}
 					function_body
         | type_specifier             old_function_declarator
 		{ Block::param_use(); } declaration_list
-		{ Block::param_use_end(); $2.set_abstract($1); $2.declare(); }
+		{
+			Block::param_use_end();
+			$2.set_abstract($1);
+			$2.declare();
+			FCall::set_current_fun($2);
+		}
 					function_body
         | declaration_qualifier_list old_function_declarator
 		{ Block::param_use(); } declaration_list
-		{ Block::param_use_end(); $2.set_abstract($1); $2.declare(); }
+		{
+			Block::param_use_end();
+			$2.set_abstract($1);
+			$2.declare();
+			FCall::set_current_fun($2);
+		}
 					function_body
         | type_qualifier_list        old_function_declarator
 		{ Block::param_use(); } declaration_list
-		{ Block::param_use_end(); $2.declare(); }
+		{
+			Block::param_use_end();
+			$2.declare();
+			FCall::set_current_fun($2);
+		}
 					function_body
          ;
 
@@ -1837,6 +1886,13 @@ yacc_body:
 			// define YYSTYPE yacc_stack
 			if (DP())
 				cout << "Yacc stack is of type " << yacc_stack << "\n";
+			// Set current function to yyparse()
+			Id const *id = obj_lookup("yyparse");
+			if (!id) {
+				obj_define(Token(IDENTIFIER, "YYSTYPE"), function_returning(basic()));
+				id = obj_lookup("yyparse");
+			}
+			FCall::set_current_fun(id);
 		} yacc_rules 
 		{
 			parse_yacc_defs = false; 

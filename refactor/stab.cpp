@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.28 2003/11/16 21:50:29 dds Exp $
+ * $Id: stab.cpp,v 1.29 2003/11/17 13:02:46 dds Exp $
  */
 
 #include <map>
@@ -36,6 +36,7 @@
 #include "type.h"
 #include "stab.h"
 #include "fdep.h"
+#include "fcall.h"
 
 
 int Block::current_block = -1;
@@ -43,6 +44,15 @@ vectorBlock Block::scope_block;
 Stab Function::label;
 Block Block::param_block;	// Function parameter declarations
 bool Block::use_param;		// Declare in param_block when true
+
+Id::Id(const Token& tok, Type typ) :
+	token(tok), type(typ)
+{
+	if (typ.is_function())
+		fcall = new FCall(tok, typ);
+	else
+		fcall = NULL;
+}
 
 // Called when entering a scope
 void

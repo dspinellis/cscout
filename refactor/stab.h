@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.16 2003/08/03 16:12:11 dds Exp $
+ * $Id: stab.h,v 1.17 2003/11/17 13:02:46 dds Exp $
  */
 
 #ifndef STAB_
@@ -28,19 +28,22 @@
 
 class Type;
 
+class FCall;
+
 // An C identifier as stored in the symbol table
 class Id {
 private:
 	Token token;			// Any token representing the identifier
 					// Needed for unification
 	Type type;			// For type resolution
+	FCall *fcall;			// Function call info
 public:
-	Id(const Token& tok, Type typ) :
-		token(tok), type(typ) {}
+	Id(const Token& tok, Type typ);
 	Id() : type(basic(b_undeclared)) {}			// Needed for map
 	Type get_type() const { return type; }
 	const Token& get_token() const { return token; }
 	const string& get_name() const { return token.get_name(); }
+	FCall *get_fcall() const { return fcall; }
 };
 
 typedef map<string,Id> Stab_element;
