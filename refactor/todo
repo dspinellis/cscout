@@ -1,4 +1,22 @@
-$Id: todo,v 1.32 2003/07/07 13:37:09 dds Exp $
+$Id: todo,v 1.33 2003/07/30 06:20:02 dds Exp $
+
+More memory leaks?
+
+Bug:
+$ cd //vol/src/sys/compile/LINT
+$ cscout -m T kernel.cs | tail
+
+cscout: tokid.cpp:106: dequeTpart Tokid::constituents (int): Assertion `e != Tokid::tm.end()' failed.
+
+Tokid = /vol/src/sys/compile/LINT/../../vm/vm_object.h(6185) Eclass = 0x83f3ed0
+        /vol/src/sys/compile/LINT/./machine/atomic.h(3274),l=1[_]
+        /vol/src/sys/compile/LINT/../../vm/vm_object.h(6185),l=1[_]
+        /vol/src/sys/compile/LINT/../../vm/vm_object.h(6307),l=1[_]
+        /vol/src/sys/compile/LINT/../../vm/vm_object.h(6419),l=1[_]
+        /vol/src/sys/compile/LINT/../../vm/vm_object.h(6551),l=1[_]
+        /vol/src/sys/compile/LINT/../../vm/vm_object.h(6674),l=1[_]
+        /vol/src/sys/compile/LINT/../../vm/vm_object.h(6951),l=1[_]
+
 
 Borland configuration file
 Solaris compilation
