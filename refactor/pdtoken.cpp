@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.90 2004/07/24 17:25:36 dds Exp $
+ * $Id: pdtoken.cpp,v 1.91 2004/07/25 07:32:53 dds Exp $
  */
 
 #include <iostream>
@@ -731,7 +731,16 @@ Pdtoken::process_define()
 			if (DP()) cout << (*i).second;
 		} else
 			Token::unify((*i).second.get_name_token(), nametok);
-	macros.insert(mapMacro::value_type(name, m));
+	/*
+	 * Add the macro in the map.  We do not use [] to avoid
+	 * creating a default object.  We do not use insert,
+	 * to ensure updating a previously defined object.
+	 */
+	mapMacro::iterator mi = macros.find(name);
+	if (mi == macros.end())
+		macros.insert(mapMacro::value_type(name, m));
+	else
+		mi->second = m;
 	m.register_macro_body(macro_body_tokens);
 	if (DP()) cout << "Macro define " << m;
 }
