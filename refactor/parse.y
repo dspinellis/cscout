@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.33 2002/09/05 16:46:06 dds Exp $
+ * $Id: parse.y,v 1.34 2002/09/05 18:16:04 dds Exp $
  *
  */
 
@@ -945,10 +945,6 @@ labeled_statement:
         | DEFAULT ':' statement
         ;
 
-function_brace_begin: '{' 
-		{ Block::param_enter(); }
-	;
-
 brace_begin: '{' 
 		{ Block::enter(); }
 	;
@@ -964,11 +960,12 @@ compound_statement:
         | brace_begin declaration_list statement_list brace_end
         ;
 
+/* Always call Block::param_enter(); before this rule */
 function_body:
-        function_brace_begin brace_end
-        | function_brace_begin declaration_list brace_end
-        | function_brace_begin statement_list brace_end
-        | function_brace_begin declaration_list statement_list brace_end
+        '{' brace_end
+        | '{' declaration_list brace_end
+        | '{' statement_list brace_end
+        | '{' declaration_list statement_list brace_end
         ;
 
 declaration_list:
@@ -1024,58 +1021,58 @@ external_definition:
 function_definition:
 	/* foo(int a, int b) @ { } (and many illegal constructs) */
                                      identifier_declarator
-		{ $1.declare(); }
+		{ Block::param_enter(); $1.declare(); }
 					function_body
         | declaration_specifier      identifier_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | type_specifier             identifier_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | declaration_qualifier_list identifier_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | type_qualifier_list        identifier_declarator
-		{ $2.declare(); }
+		{ Block::param_enter(); $2.declare(); }
 					function_body
 
 	/* foo(a, b) @ { } */
         |                            old_function_declarator
-		{ $1.declare(); }
+		{ Block::param_enter(); $1.declare(); }
 					function_body
         | declaration_specifier      old_function_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | type_specifier             old_function_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | declaration_qualifier_list old_function_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | type_qualifier_list        old_function_declarator
-		{ $2.declare(); }
+		{ Block::param_enter(); $2.declare(); }
 					function_body
 
 	/* foo(a, b) @ int a; int b; @ { } */
         |                            old_function_declarator 
 		{ Block::param_use(); } declaration_list
-		{ $1.declare(); }
+		{ Block::param_enter(); $1.declare(); }
 					function_body
         | declaration_specifier      old_function_declarator
 		{ Block::param_use(); } declaration_list
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | type_specifier             old_function_declarator
 		{ Block::param_use(); } declaration_list
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | declaration_qualifier_list old_function_declarator
 		{ Block::param_use(); } declaration_list
-		{ $2.set_abstract($1); $2.declare(); }
+		{ Block::param_enter(); $2.set_abstract($1); $2.declare(); }
 					function_body
         | type_qualifier_list        old_function_declarator
 		{ Block::param_use(); } declaration_list
-		{ $2.declare(); }
+		{ Block::param_enter(); $2.declare(); }
 					function_body
         ;
 
