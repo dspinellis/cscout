@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# Commit the obfuscated files overwriting the original ones
+# Can be tailored to do other things
+#
+# $Id: obfuscate_commit,v 1.1 2002/10/08 05:37:59 dds Exp $
+#
+find . -name '*.obf' -print |
+sed 's/^\(.*\).obf$/mv -f \1.obf \1/' |
+sh
