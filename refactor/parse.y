@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.73 2003/08/03 08:59:28 dds Exp $
+ * $Id: parse.y,v 1.74 2003/08/03 09:25:14 dds Exp $
  *
  */
 
@@ -61,7 +61,7 @@ void parse_error(char *s)
 }
 
 /*
- * A stack needed for handling C99 designators
+ * A stack needed for handling C9X designators
  * The stack's top always contains the type of the 
  * element that can be designated.
  */
@@ -372,6 +372,7 @@ primary_expression:
         | string_literal_list
         | '(' comma_expression ')'
 			{ $$ = $2; }
+
         ;
 
 postfix_expression:
@@ -1216,7 +1217,7 @@ initializer_member:
 		}
 	;
 
-/* C99 feature */
+/* C9X feature */
 designator:
         '[' constant_expression ']'
 		{
