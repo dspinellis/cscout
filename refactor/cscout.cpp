@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.42 2003/06/15 16:36:45 dds Exp $
+ * $Id: cscout.cpp,v 1.43 2003/06/15 17:02:31 dds Exp $
  */
 
 #include <map>
@@ -176,7 +176,7 @@ progress(IdProp::iterator i)
 		count = 0;
 	int percent = ++count * 100 / ids.size();
 	if (percent != opercent) {
-		cout << "\r" << percent << '%';
+		cout << '\r' << percent << '%' << flush;
 		opercent = percent;
 	}
 }
