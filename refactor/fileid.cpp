@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.9 2002/09/03 14:02:39 dds Exp $
+ * $Id: fileid.cpp,v 1.10 2002/09/04 08:52:59 dds Exp $
  */
 
 #include <map>
@@ -12,6 +12,8 @@
 #include <map>
 #include <deque>
 #include <set>
+#include <vector>
+#include <algorithm>
 #ifdef unix
 #include <unistd.h>		// access(2)
 #else
@@ -143,6 +145,18 @@ void
 Fileid::set_readonly(bool r)
 {
 	i2d[id].set_readonly(r);
+}
+
+// Return a sorted list of all filenames used
+vector <string> 
+Fileid::file_vector()
+{
+	vector <string> r(i2d.size());
+
+	for (FI_id_to_details::const_iterator i = i2d.begin(); i != i2d.end(); i++)
+		r.push_back((*i).second.get_name());
+	sort(r.begin(), r.end());
+	return (r);
 }
 
 #ifdef UNIT_TEST

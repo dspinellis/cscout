@@ -8,8 +8,9 @@
  * Include synopsis:
  * #include <map>
  * #include <string>
+ * #include <vector>
  *
- * $Id: fileid.h,v 1.5 2002/09/04 07:52:15 dds Exp $
+ * $Id: fileid.h,v 1.6 2002/09/04 08:52:59 dds Exp $
  */
 
 #ifndef FILEID_
@@ -62,6 +63,8 @@ public:
 	static void clear();
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
+	// Return a sorted list of all filenames used
+	static vector <string> file_vector();
 };
 
 inline bool
