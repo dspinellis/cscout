@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.16 2003/05/24 14:41:13 dds Exp $
+ * $Id: cscout.cpp,v 1.17 2003/05/24 16:25:27 dds Exp $
  */
 
 #include <map>
@@ -342,7 +342,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.16 2003/05/24 14:41:13 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.17 2003/05/24 16:25:27 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -542,7 +542,7 @@ iquery_page(FILE *of,  void *p)
 	"</td></tr>\n"
 	"</table>\n"
 	"<hr>\n"
-	"<p><INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Search\">\n"
+	"<p><INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Search identifiers\">\n"
 	"</FORM>\n"
 	, of);
 	html_tail(of);
@@ -611,7 +611,7 @@ xiquery_page(FILE *of,  void *p)
 					break;
 				}
 			add = (add && (!xfile || !(*i).second.get_xfile()));
-			add = (add && (!unused || !(*i).first->get_size() == 1));
+			add = (add && (!unused || !((*i).first->get_size() == 1)));
 			add = (add && (!writable || (*i).first->get_attribute(is_readonly)));
 			break;
 		case 'T':	// exactT
@@ -622,7 +622,7 @@ xiquery_page(FILE *of,  void *p)
 					break;
 				}
 			add = (add && (xfile == (*i).second.get_xfile()));
-			add = (add && (unused == (*i).first->get_size() == 1));
+			add = (add && (unused == ((*i).first->get_size() == 1)));
 			add = (add && (writable == !(*i).first->get_attribute(is_readonly)));
 			break;
 		}
