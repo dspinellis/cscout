@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.74 2003/06/19 11:11:01 dds Exp $
+ * $Id: pdtoken.cpp,v 1.75 2003/07/16 21:52:20 dds Exp $
  */
 
 #include <iostream>
@@ -769,7 +769,40 @@ Pdtoken::process_pragma()
 		eat_to_eol();
 		return;
 	}
-	if (t.get_val() == "includepath") {
+	if (t.get_val() == "sync") {
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma sync</code>
+			 * CScout-specific directive was not followed by a 
+			 * string
+			 */
+			Error::error(E_ERR, "#pragma sync: string expected");
+			eat_to_eol();
+			return;
+		}
+		string fname = t.get_val();
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != PP_NUMBER) {
+			/*
+			 * @error
+			 * The filename of the 
+			 * <code>#pragma sync</code>
+			 * CScout-specific directive was not followed by an
+			 * integer
+			 */
+			Error::error(E_ERR, "#pragma sync: integer expected");
+			eat_to_eol();
+			return;
+		}
+		char *endptr;
+		unsigned long offset = strtoul(t.get_val().c_str(), &endptr, 0);
+		// XXX now do the work
+	} else if (t.get_val() == "nosync")
+		// XXX now do the work
+	} else if (t.get_val() == "includepath") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
