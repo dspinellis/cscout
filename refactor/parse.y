@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.30 2002/09/05 13:33:59 dds Exp $
+ * $Id: parse.y,v 1.31 2002/09/05 16:07:33 dds Exp $
  *
  */
 
@@ -413,6 +413,9 @@ assignment_operator:
 
 comma_expression:
         assignment_expression
+	/* GCC extension (this introduces a reduce / reduce conflict) */
+	| compound_statement
+			{ $$ = basic(); }
         | comma_expression ',' assignment_expression
 			{ $$ = $3; }
         ;
