@@ -1,6 +1,9 @@
-$Id: todo,v 1.9 2002/09/17 07:55:39 dds Exp $
+$Id: todo,v 1.10 2002/09/17 15:52:01 dds Exp $
 
 Add isfunction identifier property
+Add ispointer identifier property
+
+Unify arguments and replacement lists of multiple same macro definitions
 
 Create separate database table with the newlines
 
