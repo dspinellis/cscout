@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.2 2001/09/14 07:57:09 dds Exp $
+ * $Id: stab.h,v 1.3 2001/09/14 10:09:51 dds Exp $
  */
 
 #ifndef STAB_
@@ -33,11 +33,25 @@ private:
 public:
 	Id const* lookup(const string& s) const;
 	void define(const Token& tok, const Type& typ);
+	void clear() { m.clear(); }
 };
 
 class Block;
 
 typedef vector<Block> vectorBlock;
+
+// Encapsulate symbols with function scope
+// Per ANSI these are only the labels
+class Function {
+private:
+	static Stab label;
+public:
+	// Called when entering or exiting a function
+	// Either call will be enough
+	static void enter() { label.clear(); }
+	static void exit() { label.clear(); }
+	friend void label_define(const Token& tok);
+};
 
 class Block {
 private:
@@ -51,8 +65,8 @@ private:
 public:
 	static const int lu_block;	// Linkage unit definitions: 0
 	static const int cu_block;	// Compilation unit definitions: 1
-	static void scope_enter();
-	static void scope_exit();
+	static void enter();
+	static void exit();
 	static int get_cur_block() { return current_block; }
 
 	// Lookup and defined

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.4 2001/09/14 07:58:20 dds Exp $
+ * $Id: type.cpp,v 1.5 2001/09/14 10:09:51 dds Exp $
  */
 
 #include <iostream>
@@ -188,6 +188,13 @@ identifier(const Ctoken& t)
 	return Type(new Tidentifier(t));
 }
 
+Type
+label()
+{
+	return Type(new Tlabel());
+}
+
+
 void
 Tbasic::print(ostream &o) const
 {
@@ -228,6 +235,12 @@ void
 Tfunction::print(ostream &o) const
 {
 	o << "function returning " << returning;
+}
+
+void
+Tlabel::print(ostream &o) const
+{
+	o << "label ";
 }
 
 void

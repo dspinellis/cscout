@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.4 2001/09/14 08:29:49 dds Exp $
+ * $Id: color.cpp,v 1.5 2001/09/14 10:09:51 dds Exp $
  */
 
 #include <iostream>
@@ -72,22 +72,22 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 	// Pass 1: scan files
-	Block::scope_enter();		// Linkage unit
+	Block::enter();		// Linkage unit
 	for (i = 1; i < argc; i++) {
 		if (argv[i] == "-") {	// Linkage unit separator
-			Block::scope_exit();
-			Block::scope_enter();
+			Block::exit();
+			Block::enter();
 			continue;
 		}
-		Block::scope_enter();	// Compilation unit
+		Block::enter();	// Compilation unit
 		Fchar::set_input(argv[i]);
 		Fchar::push_input("defs.h");
 		Pdtoken::macros_clear();
 		if (parse_parse() != 0)
 			exit(1);
-		Block::scope_exit();	// Compilation unit
+		Block::exit();	// Compilation unit
 	}
-	Block::scope_exit();		// Linkage unit
+	Block::exit();		// Linkage unit
 
 	// Pass 2: go through the files annotating identifiers
 	deque_string color_names;

@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.10 2001/09/14 07:54:46 dds Exp $
+ * $Id: parse.y,v 1.11 2001/09/14 10:09:51 dds Exp $
  *
  */
 
@@ -61,8 +61,8 @@ void parse_error(char *s)
 
 %type <t> IDENTIFIER
 %type <t> TYPEDEF_NAME
+%type <t> identifier_or_typedef_name
 %type <t> member_name
-
 %type <t> constant
 %type <t> primary_expression
 %type <t> postfix_expression
@@ -369,19 +369,19 @@ comma_expression_opt:
     declarator:
 
       typedef int T;
-      struct S { T T;}; /* redefinition of T as member name * /
+      struct S { T T;}; / * redefinition of T as member name * /
 
     Example of legal and illegal statements detected by this grammar:
 
-      int; /* syntax error: vacuous declaration * /
-      struct S;  /* no error: tag is defined or elaborated * /
+      int; / * syntax error: vacuous declaration * /
+      struct S;  / * no error: tag is defined or elaborated * /
 
     Example of result of proper declaration binding:
 
-        int a=sizeof(a); /* note that "a" is declared with a type  in
+        int a=sizeof(a); / * note that "a" is declared with a type  in
             the name space BEFORE parsing the initializer * /
 
-        int b, c[sizeof(b)]; /* Note that the first declarator "b" is
+        int b, c[sizeof(b)]; / * Note that the first declarator "b" is
              declared  with  a  type  BEFORE the second declarator is
              parsed * /
 
@@ -519,7 +519,7 @@ aggregate_key:
         | UNION
         ;
 
- member_declaration_list:
+member_declaration_list:
         member_declaration
         |  member_declaration_list member_declaration
         ;
@@ -609,7 +609,7 @@ parameter_declaration:
     following is based only on IDENTIFIERs */
 
 /* Only used for old-style function definitions, identifiers are declared
- * by default as int, but they a full declaration can follow. */
+ * by default as int, but then a full declaration can follow. */
 identifier_list:
         IDENTIFIER
 			{ obj_define($1.get_token(), basic(b_int)); }
@@ -657,6 +657,7 @@ statement:
 
 labeled_statement:
         identifier_or_typedef_name ':' statement
+		{ label_define($1.get_token()); }
         | CASE constant_expression ':' statement
         | DEFAULT ':' statement
         ;
@@ -697,6 +698,7 @@ iteration_statement:
 
 jump_statement:
         GOTO identifier_or_typedef_name ';'
+		{ label_define($2.get_token()); }
         | CONTINUE ';'
         | BREAK ';'
         | RETURN comma_expression_opt ';'
@@ -712,6 +714,7 @@ translation_unit:
 
 external_definition:
         function_definition
+			{ Function::exit(); }
         | declaration
         ;
 

@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.7 2001/09/14 07:58:20 dds Exp $
+ * $Id: type.h,v 1.8 2001/09/14 10:09:51 dds Exp $
  */
 
 #ifndef TYPE_
@@ -81,6 +81,7 @@ public:
 	friend Type enum_tag();
 	friend Type struct_tag();
 	friend Type union_tag();
+	friend Type label();
 	friend Type identifier(const Ctoken& c);
 	// To print
 	friend ostream& operator<<(ostream& o,const Type &t) { t.p->print(o); }
@@ -182,6 +183,14 @@ public:
 	Type call() const;			// Function (undeclared)
 	void print(ostream &o) const;
 };
+
+// Goto label
+class Tlabel: public Type_node {
+public:
+	Tlabel() {}
+	void print(ostream &o) const;
+};
+
 
 /*
  * We can not use a union since its members have constructors and desctructors.

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.2 2001/09/14 07:57:09 dds Exp $
+ * $Id: stab.cpp,v 1.3 2001/09/14 10:09:51 dds Exp $
  */
 
 #include <map>
@@ -37,16 +37,17 @@
 
 int Block::current_block = -1;
 vectorBlock Block::scope_block;
+Stab Function::label;
 
 void
-Block::scope_enter()
+Block::enter()
 {
 	scope_block.push_back(Block());
 	current_block++;
 }
 
 void
-Block::scope_exit()
+Block::exit()
 {
 	scope_block.pop_back();
 	current_block--;
@@ -94,4 +95,18 @@ void
 Stab::define(const Token& tok, const Type& typ)
 {
 	m[tok.get_name()] = Id(tok, typ);
+}
+
+/*
+ * Define tok as a label in the current function.
+ * If it is already defined, unify it with the previous definition.
+ */
+void
+label_define(const Token& tok)
+{
+	Id const *id = Function::label.lookup(tok.get_name());
+	if (id)
+		unify(id->get_token(), tok);
+	else
+		Function::label.define(tok, label());
 }
