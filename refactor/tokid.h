@@ -12,7 +12,7 @@
  * #include "cpp.h"
  * #include "fileid.h"
  *
- * $Id: tokid.h,v 1.3 2001/08/17 13:29:57 dds Exp $
+ * $Id: tokid.h,v 1.4 2001/08/17 15:54:59 dds Exp $
  */
 
 #ifndef TOKID_
@@ -41,7 +41,9 @@ public:
 	inline friend bool operator <(const class Tokid a, const class Tokid b);
 	// Advance i character positions
 	inline Tokid& operator +=(int i);
-	inline friend Tokid operator +(Tokid a, int i);
+	inline friend Tokid operator +(const Tokid& a, int i);
+	// Return offset distance
+	inline friend int operator -(const Tokid& a, const Tokid& b);
 	// Return its equivalence class
 	inline Eclass *get_ec();
 	// Set its equivalence class to ec (done when adding it to an Eclass)
@@ -66,13 +68,18 @@ public:
 extern mapTokidEclass tokid_map;		// Dummy; used for printing
 
 inline Tokid
-operator +(Tokid a, int i)
+operator +(const Tokid& a, int i)
 {
 	Tokid r = a;
 
 	return (r += i);
 }
 
+inline int
+operator -(const Tokid& a, const Tokid &b)
+{
+	return (a.offs - b.offs);
+}
 
 inline Tokid&
 Tokid::operator +=(int i)

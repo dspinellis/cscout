@@ -87,6 +87,7 @@ main()
 	Tokid a(Fileid("tokid.cpp"), 10);
 	Tokid b(Fileid("./tokid.cpp"), 15);
 
+	cout << (b - a) << " should be 5\n";
 	cout << a << " should be tokid.cpp(10)\n";
 	a += 5;
 	cout << a << " should be tokid.cpp(15)\n";
