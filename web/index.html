@@ -1,0 +1,130 @@
+<!doctype html public "-//IETF//DTD HTML//EN">
+<!--
+
+WARNING WARNING WARNING WARNING WARNING WARNING
+
+Change this file only in the CScout doc directory or your
+changes will go away.
+
+WARNING WARNING WARNING WARNING WARNING WARNING
+
+Front matter {{{1
+-->
+<HTML>
+<HEAD>
+<TITLE>CScout</TITLE>
+<META NAME="AUTHOR" CONTENT="Diomidis Spinellis">
+</HEAD>
+<BODY>
+<h1 align=right><tt><font color="#ff0000">cscout dds</font></tt></h1>
+<img src="logo.gif" ALT="CScout logo"><br>
+<h2>CScout</h2> <!--- {{{1 -->
+<em>CScout</em> is a source code analyzer and refactoring browser for
+collections of C programs.  
+It can process workspaces of multiple projects (we define a project
+as a collection of C source files that are linked together)
+mapping the complexity introduced
+by the C preprocessor back into the original C source code files.
+<em>CScout</em> takes advantage of modern hardware advances (fast processors
+and large memory capacities) to analyze C source code beyond the level
+of detail and accuracy provided by  current compilers and linkers.
+The analysis CScout performs takes into account the identifier scopes
+introduced by the C preprocessor and the C language proper scopes and
+namespaces.
+CScout has already been applied on projects ranging from
+tens of thousands of lines,
+like the apache web server (using 36MB of memory,
+taking 6 minutes on a 500MHz Celeron processor),
+to above a million lines of code,
+like the FreeBSD kernel
+(using 813MB of memory,
+taking 3 hours 42 minutes on a 900MHz Itanium 2 processor).
+<br>
+<a href="doc/intro.html">Read more ...</a>,
+<a href="doc/walk.html">walkthrough</a> 
+(<em>CScout</em> documentation.)
+<p>
+See also:
+Diomidis Spinellis.
+<A HREF="../pubs/jrnl/2003-TSE-Refactor/html/Spi03r.html">Global analysis and transformations in preprocessed languages</a>.
+<CITE>IEEE Transactions on Software Engineering</CITE>,
+29(11):1019-1030, November 2003.
+
+<p>
+The <a href="doc/license.html">license</a> 
+of the free unsupported <em>CScout</em> version allows you
+to freely use <em>CScout</em> on open source software code.
+A different <em>CScout</em> version is available under a
+support contract for use on proprietary software.
+<p>
+<em>CScout</em> runs and has been tested under 
+<a href="http://www.linux.org">Linux</a>,
+<a href="http://www.microsoft.com">Microsoft Windows</a>, and
+<a href="http://www.freebsd.org">FreeBSD</a>.
+To run it download the binary bundle that matches your execution platform and
+the architecture-neutral bundle.
+Each binary bundle contains:
+<ul>
+<li> the <em>CScout</em> engine (statically linked)
+<li> the <em>CScout</em> workspace compiler (Perl source code)
+</ul>
+The architecture-neutral bundle contains:
+<ul>
+<li> compiler-specific configuration files (C source code; gcc and Microsoft C have been tested)
+<li> ANSI C generic header files
+<li> read-to-run example (the ``one true <em>awk</em>'' source code)
+<li> documentation (HTML)
+</ul>
+
+<h2>Download CScout</h2> <!--- {{{1 -->
+All files are compressed tar files and are distributed
+under the terms of
+the <a href="doc/license.html">CScout Public License</a>.
+You will need to download both the
+<a href="cscout-VERSION-neutral.tar.gz">architecture-neutral</a>
+files (documentation and selected source code)
+and the binary that matches your system.
+FreeBSD users would probably prefer to directly install the corresponding
+port (ports/devel/cscout).
+For really large collections (&gt; 1MLOC) you need a 64 bit processor
+and the corresponding application file (<em>CScout</em> has been
+tested on Sun's SPARC-64, Compaq's Alpha, Intel's IA-64, and AMD-64).
+
+Unpack both files in the same location.
+<ul>
+<li> <a href="cscout-VERSION-neutral.tar.gz">Architecture-neutral files (tar.gz)</a>
+<li> <a href="cscout-VERSION-neutral.zip">Architecture-neutral files (zip)</a>
+<li><a href="cscout-VERSION-linux-i386.tar.gz">Linux i386 (tar.gz)</a>
+<li><a href="cscout-VERSION-win32-i386.zip">Microsoft Windows i386 (zip)</a>
+<li><a href="cscout-VERSION-win32-i386.tar.gz">Microsoft Windows i386 (tar.gz)</a>
+<li><a href="cscout-VERSION-freebsd-i386.tar.gz">FreeBSD i386 (tar.gz)</a>
+<li><a href="cscout-VERSION-freebsd-sparc64.tar.gz">FreeBSD SPARC-64 (tar.gz)</a>
+<li><a href="cscout-VERSION-freebsd-ia64.tar.gz">FreeBSD IA-64 (tar.gz)</a>
+<li><a href="cscout-VERSION-freebsd-amd64.tar.gz">FreeBSD AMD-64 (tar.gz)</a>
+<li><a href="cscout-VERSION-freebsd-amd64.tar.gz">FreeBSD Alpha (tar.gz)</a>
+</ul>
+
+<h2>Documentation</h2> <!--- {{{1 -->
+<ul>
+<li> <em>CScout</em> documentation <a href="doc/index.html">table of contents</a>
+<li> <em>CScout</em> documentation as a <a href="doc/indexw.html">single page</a> (suitable for printing).
+</ul>
+
+<h2>Change History</h2> <!--- {{{1 -->
+The current <em>CScout</em> version is VERSION.
+The <em>CScout</em> documentation coontains the complete
+<a href="doc/change.html">change history</a>.
+Note that change history entries referring to version beyond the latest one,
+are changes that will appear in the upcoming version.
+<p>
+<a href="../">Diomidis Spinellis home page</a>
+<HR> <P>
+<font size=-2>
+(C) Copyright 2000-2004 D. Spinellis.
+May be freely uploaded by WWW viewers and similar programs.
+All other rights reserved.
+<br />
+Last modified: $Date: 2004/06/06 08:23:38 $
+</font>
+</BODY>
+</HTML>
