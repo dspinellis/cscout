@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.54 2003/06/21 14:50:10 dds Exp $
+ * $Id: parse.y,v 1.55 2003/06/21 15:06:35 dds Exp $
  *
  */
 
@@ -680,7 +680,8 @@ sue_type_specifier:
         elaborated_type_name              /* struct/union/enum */
         | type_qualifier_list elaborated_type_name
 		{ $$ = $2; }
-        | sue_type_specifier  type_qualifier
+        | sue_type_specifier type_qualifier
+		{ $$ = $1; }
         ;
 
 
