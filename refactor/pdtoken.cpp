@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.3 2001/08/21 18:29:45 dds Exp $
+ * $Id: pdtoken.cpp,v 1.4 2001/08/21 20:06:07 dds Exp $
  */
 
 #include <iostream>
@@ -256,6 +256,7 @@ main()
 			break;
 		cout << t;
 	}
+	cout << "Tokid map:\n";
 	cout << tokid_map;
 
 	return (0);
