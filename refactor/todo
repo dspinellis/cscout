@@ -1,4 +1,11 @@
-$Id: todo,v 1.58 2004/08/05 20:39:18 dds Exp $
+$Id: todo,v 1.59 2004/08/07 21:49:01 dds Exp $
+
+Associate a vector of tokids for each call site.
+This is needed because the name need not consist of sequential tokens.
+
+- option to review and undo changes
+
+- RE for change save directory
 
 Regression tests
 Eliminate the dybamic cast by storing Call* pointers

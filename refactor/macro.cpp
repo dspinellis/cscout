@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.28 2004/07/31 18:32:06 dds Exp $
+ * $Id: macro.cpp,v 1.29 2004/08/07 21:49:01 dds Exp $
  */
 
 #include <iostream>
@@ -642,7 +642,7 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 	is_defined(id)
 {
 	if (isfun) {
-		mcall = dynamic_cast<MCall *>(Call::get_call(name.get_parts_begin()->get_tokid()));
+		mcall = dynamic_cast<MCall *>(Call::get_call(name));
 		if (!mcall)
 			mcall = new MCall(name, name.get_name());
 		if (DP())

@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.66 2004/07/31 18:08:38 dds Exp $
+# $Id: Makefile,v 1.67 2004/08/07 21:49:01 dds Exp $
 #
 
 #
@@ -53,7 +53,8 @@ CC=g++
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
 
 # Local development flags
-CPPFLAGS=-pipe -g -Wall -DOFFICE_SERVER
+CPPFLAGS=-pipe -g -Wall -DNO_LOCK
+#CPPFLAGS=-DOFFICE_SERVER
 #CPPFLAGS+=-DTEST_LICENSING
 
 # Production flags
@@ -164,8 +165,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.66 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2004/07/31 18:08:38 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.67 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2004/08/07 21:49:01 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.35 2004/07/24 10:44:23 dds Exp $
+ * $Id: stab.cpp,v 1.36 2004/08/07 21:49:01 dds Exp $
  */
 
 #include <map>
@@ -220,7 +220,7 @@ obj_define(const Token& tok, Type typ)
 		}
 
 		if (!fc)
-			fc = dynamic_cast<FCall *>(Call::get_call(tok.get_parts_begin()->get_tokid()));
+			fc = dynamic_cast<FCall *>(Call::get_call(tok));
 		if (!fc)
 			fc = new FCall(tok, typ, tok.get_name());
 	}

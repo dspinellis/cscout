@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.14 2004/08/06 05:49:45 dds Exp $
+ * $Id: token.h,v 1.15 2004/08/07 21:49:01 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -67,6 +67,8 @@ public:
 	void set_ec_attribute(enum e_attribute a) const;
 	// Return true if the token contains in its parts the given EC
 	bool contains(Eclass *ec) const;
+	// Return true if its tokids equal those of stale
+	bool Token::equals(const Token &stale) const;
 };
 
 dequeTpart::const_iterator

@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.9 2004/07/27 12:59:23 dds Exp $
+ * $Id: call.h,v 1.10 2004/08/07 21:49:01 dds Exp $
  */
 
 #ifndef CALL_
@@ -37,7 +37,7 @@ private:
 
 	// Container for storing all declared functions
 	typedef set <Call *> fun_container;
-	typedef map <Tokid, Call *> fun_map;
+	typedef multimap <Tokid, Call *> fun_map;
 
 	string name;			// Function's name
 	fun_container call;		// Functions this function calls
@@ -57,7 +57,7 @@ protected:
 	 * (could also be reference if implicitly declared)
 	 * Macro's definition
 	 */
-	Tokid tokid;
+	Token token;
 
 public:
 	// The current function makes a call to id
@@ -82,8 +82,10 @@ public:
 	static int fsize() { return all.size(); }
 	static const fun_map &functions() { return all; }
 
-	// Get a call site for a given Tokid
-	static Call *get_call(Tokid t);
+	// Get a call site for a given Token
+	static Call *get_call(const Token &t);
+	// Get a call sites for a given Tokid
+	static pair <const_fmap_iterator_type, const_fmap_iterator_type> get_calls(Tokid t);
 
 	const string &get_name() const { return name; }
 	bool contains(Eclass *e) const;
@@ -101,10 +103,12 @@ public:
 	void set_visited() { visited = true; }
 	bool is_visited() const { return visited; }
 
+	// Return a token for the given object
+	const Token &get_token() const {return token; }
 	// Return a tokid for the given object
-	Tokid get_tokid() const {return tokid; }
+	Tokid get_tokid() const {return token.get_parts_begin()->get_tokid(); }
 	// Return the function's file-id
-	Fileid get_fileid() const {return tokid.get_fileid(); }
+	Fileid get_fileid() const {return token.get_parts_begin()->get_tokid().get_fileid(); }
 
 	// Return true if the function is defined
 	virtual bool is_defined() const = 0;
@@ -126,7 +130,8 @@ public:
 			return get_tokid();
 	}
 
-	Call(const string &s, Tokid t);
+	// ctor; never call it if the call for t already exists
+	Call(const string &s, const Token &t);
 	virtual ~Call() {}
 };
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.19 2004/07/23 06:55:38 dds Exp $
+ * $Id: token.cpp,v 1.20 2004/08/07 21:49:01 dds Exp $
  */
 
 #include <iostream>
@@ -162,6 +162,58 @@ operator<<(ostream& o,const dequeTpart& dt)
 	}
 	return (o);
 }
+
+/*
+ * Return true if this token is equal on a tokid by tokid
+ * bases with the passed stale token.  The passed token's
+ * parts need not correspond to equivalence classes.
+ */
+bool
+Token::equals(const Token &stale) const
+{
+	dequeTpart freshp(this->constituents());
+	dequeTpart stalep(stale.get_parts_begin(), stale.get_parts_end());
+	dequeTpart::const_iterator fi, si;
+	Tokid fid, sid;
+	int flen, slen;
+
+	fi = freshp.begin();
+	si = stalep.begin();
+	for (;;) {
+		if (fi == freshp.end() && si == stalep.end())
+			return true;
+		fid = fi->get_tokid();
+		sid = si->get_tokid();
+		flen = fi->get_len();
+		slen = si->get_len();
+	idcont:
+		if (fid != sid)
+			return false;
+		if (flen == slen) {
+			fi++;
+			si++;
+			continue;
+		} else if (flen > slen) {
+			fid += slen;
+			flen -= slen;
+			si++;
+			if (si == stalep.end())
+				return false;
+			slen = si->get_len();
+			goto idcont;
+		} else { // flen < slen
+			sid += flen;
+			slen -= flen;
+			fi++;
+			if (fi == freshp.end())
+				return false;
+			flen == fi->get_len();
+			goto idcont;
+		}
+	}
+}
+
+
 
 #ifdef UNIT_TEST
 // cl -GX -DWIN32 -c eclass.cpp fileid.cpp tokid.cpp tokname.cpp

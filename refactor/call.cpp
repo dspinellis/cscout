@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.4 2004/07/24 10:44:23 dds Exp $
+ * $Id: call.cpp,v 1.5 2004/08/07 21:49:01 dds Exp $
  */
 
 #include <map>
@@ -100,26 +100,33 @@ Call::register_call(Call *from, Call *to)
 		cout << from->name << " calls " << to->name << "\n";
 }
 
-// Constructor
-Call::Call(const string &s, Tokid t) :
+// ctor; never call it if the call for t already exists
+Call::Call(const string &s, const Token &t) :
 		name(s),
-		tokid(t)
+		token(t)
 {
-	all[t] = this;
+	all.insert(fun_map::value_type(t.get_parts_begin()->get_tokid(), this));
 }
 
 // Return true if e appears in the eclasses comprising our name
 bool
 Call::contains(Eclass *e) const
 {
-	int len = name.length();
-	Tokid t = get_tokid();
-	for (int pos = 0; pos < len;) {
-		Eclass *e2 = t.get_ec();
-		if (e == e2)
-			return true;
-		t += e2->get_len();
-		pos += e2->get_len();
+	for (dequeTpart::const_iterator i = get_token().get_parts_begin(); i != get_token().get_parts_end(); i++) {
+		int len = i->get_len();
+		Tokid t = i->get_tokid();
+		for (int pos = 0; pos < len;) {
+			Eclass *e2 = t.get_ec();
+			if (e2 == NULL) {
+				if (DP())
+					cout << "No eclass for tokid " << t << "\n";
+				return false;
+			}
+			if (e == e2)
+				return true;
+			t += e2->get_len();
+			pos += e2->get_len();
+		}
 	}
 	return false;
 }
@@ -132,10 +139,22 @@ Call::clear_visit_flags()
 }
 
 Call *
-Call::get_call(Tokid t)
+Call::get_call(const Token &t)
 {
-	const_fmap_iterator_type f = all.find(t);
-	if (DP())
-		cout << "Get call for " << t << " returns " << f->second << "\n";
-	return f == all.end() ? NULL : f->second;
+	pair <const_fmap_iterator_type, const_fmap_iterator_type> maybe(all.equal_range(t.get_parts_begin()->get_tokid()));
+	const_fmap_iterator_type i;
+
+	for (i = maybe.first; i != maybe.second; i++)
+		if (t.equals(i->second->get_token())) {
+			if (DP())
+				cout << "Get call for " << t << " returns " << &(i->second) << "\n";
+			return i->second;
+		}
+	return NULL;
+}
+
+pair <Call::const_fmap_iterator_type, Call::const_fmap_iterator_type>
+Call::get_calls(Tokid t)
+{
+	return all.equal_range(t);
 }

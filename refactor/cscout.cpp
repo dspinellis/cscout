@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.103 2004/08/05 20:39:18 dds Exp $
+ * $Id: cscout.cpp,v 1.104 2004/08/07 21:49:01 dds Exp $
  */
 
 #include <map>
@@ -216,6 +216,20 @@ html_string(FILE *of, const string &s, Tokid t)
 	}
 }
 
+// Display hyperlinks to a function's identifiers
+static void
+html_string(FILE *of, const Call *f)
+{
+	int start = 0;
+	for (dequeTpart::const_iterator i = f->get_token().get_parts_begin(); i != f->get_token().get_parts_end(); i++) {
+		Tokid t = i->get_tokid();
+		putc('[', of);
+		html_string(of, f->get_name().substr(start, i->get_len()), t);
+		putc(']', of);
+		start += i->get_len();
+	}
+}
+
 // Add identifiers of the file fi into ids
 // Return true if the file contains unused identifiers
 static bool
@@ -374,18 +388,21 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			continue;
 		}
 		// Function we can mark
-		Call *c;
-		if (have_funq && (c = Call::get_call(ti)) && funq.need_eval()) {
-			string s;
-			s = (char)val;
-			int len = c->get_name().length();
-			for (int j = 1; j < len; j++)
-				s += (char)in.get();
-			if (funq.eval(c))
-				html(of, *c);
-			else
-				html_string(of, s);
-			continue;
+		if (have_funq && funq.need_eval()) {
+			pair <Call::const_fmap_iterator_type, Call::const_fmap_iterator_type> be(Call::get_calls(ti));
+			Call::const_fmap_iterator_type ci;
+			for (ci = be.first; ci != be.second; ci++)
+				if (funq.eval(ci->second)) {
+					string s;
+					s = (char)val;
+					int len = ci->second->get_name().length();
+					for (int j = 1; j < len; j++)
+						s += (char)in.get();
+					html(of, *(ci->second));
+					break;
+				}
+			if (ci != be.second)
+				continue;
 		}
 		fprintf(of, "%s", html((char)val));
 		if ((char)val == '\n') {
@@ -1079,6 +1096,7 @@ identifier_page(FILE *fo, void *p)
 	fprintf(fo, "</ul>\n");
 	if (e->get_attribute(is_function) || e->get_attribute(is_macro)) {
 		bool found = false;
+		// Loop through all declared functions
 		for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 			if (i->second->contains(e)) {
 				if (!found) {
@@ -1086,7 +1104,7 @@ identifier_page(FILE *fo, void *p)
 					found = true;
 				}
 				fprintf(fo, "\n<li>");
-				html_string(fo, i->second->get_name(), i->first);
+				html_string(fo, i->second);
 				fprintf(fo, " - <a href=\"fun.html?f=%p\">function page</a>", i->second);
 			}
 		}
@@ -1143,8 +1161,8 @@ function_page(FILE *fo, void *p)
 	html_head(fo, "fun", string("Function: ") + html(f->get_name()) + " (" + f->entity_type_name() + ')');
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> Associated identifier(s): ");
+	html_string(fo, f);
 	Tokid t = f->get_tokid();
-	html_string(fo, f->get_name(), t);
 	if (f->is_declared()) {
 		fprintf(fo, "\n<li> Declared in file <a href=\"file.html?id=%u\">%s</a>",
 			t.get_fileid().get_id(),
