@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.16 2001/08/31 08:10:17 dds Exp $
+ * $Id: pdtoken.cpp,v 1.17 2001/08/31 08:44:26 dds Exp $
  */
 
 #include <iostream>
@@ -303,7 +303,7 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
 			return (*pos++);
 		if (get_more) {
 			Pltoken t;
-			t.template getnext_nospc<Fchar>();
+			t.template getnext<Fchar>();
 			return (t);
 		}
 		return Ptoken(EOF, "");
@@ -396,14 +396,13 @@ escape(const string& s)
  * Convert a list of tokens into a string as specified by the # operator
  * Multiple spaces are converted to a single space, \ and " are
  * escaped
- * XXX strip initial and final spaces?
  */
 static Ptoken
 stringize(const listPtoken& ts)
 {
 	string res;
 	listPtoken::const_iterator pi;
-	bool seen_space = true;		// To delelte leading spaces
+	bool seen_space = true;		// To delete leading spaces
 
 	for (pi = ts.begin(); pi != ts.end(); pi++) {
 		switch ((*pi).get_code()) {
@@ -429,7 +428,12 @@ stringize(const listPtoken& ts)
 			break;
 		}
 	}
-	return Ptoken(STRING_LITERAL, res);
+	// Remove trailing spaces
+	string::reverse_iterator i;
+	int sublen = res.length();
+	for (i = res.rbegin(); i != res.rend() && *i == ' '; i++)
+		sublen--;
+	return (Ptoken(STRING_LITERAL, res.substr(0, sublen)));
 }
 
 
