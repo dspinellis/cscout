@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.24 2001/09/22 12:46:19 dds Exp $
+ * $Id: parse.y,v 1.25 2001/09/22 13:30:43 dds Exp $
  *
  */
 
@@ -196,6 +196,7 @@ string_literal_list:
                 STRING_LITERAL
 			{ $$ = array_of(basic(b_char)); }
                 | string_literal_list STRING_LITERAL
+			{ $$ = $1; }
                 ;
 
 
@@ -253,7 +254,9 @@ postfix_expression:
 				}
 			}
         | postfix_expression INC_OP
+			{ $$ = $1; }
         | postfix_expression DEC_OP
+			{ $$ = $1; }
         ;
 
 member_name:
@@ -314,6 +317,7 @@ multiplicative_expression:
 additive_expression:
         multiplicative_expression
         | additive_expression '+' multiplicative_expression
+			{ $$ = $1; }
         | additive_expression '-' multiplicative_expression
 			{
 				if ($1.is_ptr() && $3.is_ptr())
