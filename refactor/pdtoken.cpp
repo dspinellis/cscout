@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.54 2002/09/05 10:47:38 dds Exp $
+ * $Id: pdtoken.cpp,v 1.55 2002/09/05 11:21:41 dds Exp $
  */
 
 #include <iostream>
@@ -153,7 +153,8 @@ again:
 		eval_lval = strtol(num, &endptr, 0);
 		if (DP())
 			cout << "yylval = " << eval_lval << "\n";
-		if (*endptr == 0 || *endptr == 'l' || *endptr =='L')
+		if (*endptr == 0 || *endptr == 'l' || *endptr =='L' ||
+		    *endptr == 'u' || *endptr == 'U')
 			return (INT_CONST);
 		else
 			return (FLOAT_CONST);	// Should be flagged as error
