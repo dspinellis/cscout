@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.6 2001/08/23 19:41:42 dds Exp $
+ * $Id: pdtoken.cpp,v 1.7 2001/08/23 20:53:27 dds Exp $
  */
 
 #include <iostream>
@@ -254,14 +254,14 @@ gather_args(listPltoken::iterator pos, const dequePltoken& formal_args, mapArgva
 
 /*
  * Check for macro at token position pos and possibly expand it  
- * If a macro is expanded pos is invalidated and replaced with the replacement 
+ * If a macro is expanded, pos is invalidated and replaced with the replacement 
  * macro value.
  * Macros that are members of the tabu set are not expanded.
  * If get_more is true, more data can be retrieved from Pltoken::get_next
  * Return true if a  replacemement was made
  */
 bool
-mreplace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, bool get_more)
+macro_replace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, bool get_more)
 {
 	mapMacro::const_iterator mi;
 	Macro& m;
@@ -281,6 +281,15 @@ mreplace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, bool g
 		dequePltoken::const_iterator i;
 		// Substitute with macro's replacement value
 		for(i = m.value.begin(); i != m.value.end(); i++) {
+			// Is it a stringizing operator ?
+			if ((*i).get_code() == '#') {
+				if (i + 1 == m.value.end()) {
+					Error:error(E_ERR,  "Application of macro \"" + name + "\": operator # at end of macro pattern");
+					return (false);
+				}
+				do_stringize = true;
+				i++;
+			}
 			mapArgval::const_iterator ai;
 			// Is it a formal argument?
 			if ((ai = args.find((*i).get_val())) != args.end()) {
@@ -293,19 +302,16 @@ mreplace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, bool g
 				    (i + 1 == m.value.end() ||
 				     (*(i + 1)).get_code != CPP_CONCAT))
 					// Allowed, macro replace the parameter
-					mreplace((*ai).second, (*ai).second.begin(), tabu, false);
-				// See if stringizing is needed
-				if ((i != m.value.begin() &&
-				     (*(i - 1)).get_code() == '#')
+					macro_replace((*ai).second, (*ai).second.begin(), tabu, false);
+				if (do_stringize)
 					tokens.insert(pos, stringize((*ai).second));
 				else
 					copy((*ai).second.begin(), (*ai).second.end(), inserter(tokens, pos));
 			} else {
 				// Not a formal argument, plain replacement
 				// Check for misplaced # operator (3.8.3.2)
-				if ((i != m.value.begin() &&
-				     (*(i - 1)).get_code() == '#')
-					Error:error(E_WARN, "Operator # only valid before macro parameters");
+				if (do_stringize)
+					Error:error(E_WARN, "Application of macro \"" + name + "\": operator # only valid before macro parameters");
 				tokens.insert(pos, *i);
 			}
 		}
@@ -313,14 +319,33 @@ mreplace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, bool g
 		// Object-like macro
 		tokens.insert(pos, m.value.begin(), m.value.end());
 	}
-	// XXX Check and apply CPP_CONCAT 3.8.3.3
-	// TODO
 
+	// Check and apply CPP_CONCAT (ANSI 3.8.3.3)
+	listPlotken::iterator ti, next;
+	for (ti = tokens.begin(); ti != tokens.end(); ti = next)
+		if (ti + 1 != tokens.end() && ti + 2 != tokens.end() &&
+		    (*(ti + 1)).get_code() == CPP_CONCAT) {
+			next = ti + 3;
+			Schar::push_input(*ti);
+			Schar::push_input(*(ti + 2));
+			tokens.erase(ti, next);
+			for (;;) {
+				Pltoken t;
+				t.template getnext<Schar>();
+				if (t.get_code() == EOF)
+					break;
+				tokens.insert(next, t);
+			}
+		} else
+			next = ti + 1;
+	
 	// Continously rescan the sequence while replacements are made
 	for (;;) {
 		bool replaced = false;
-		for (i = tokens.begin(); i != tokens.end(); i++)
-			if (mreplace(tokens, i, tabu, true)) {
+		// We should start at expand_start, but this may be
+		// invalided by a replacement
+		for (ti = tokens.begin(); ti != tokens.end(); ti++)
+			if (macro_replace(tokens, ti, tabu, true)) {
 				replaced = true;
 				break;
 			}
