@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.17 2001/09/30 08:23:19 dds Exp $
+# $Id: rsc.tcl,v 1.18 2001/09/30 08:44:23 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -366,7 +366,7 @@ pack $tabsettings.mi.macro \
 pack $tabsettings.dir -expand no -fill x -side top -padx 4 -pady 4 -anchor nw
 pack $tabsettings.mi -side top -padx 4 -pady 4 -anchor nw -expand yes -fill both
 
-checkbutton $tabsettings.ro -text "File is read-only" -relief flat
+checkbutton $tabsettings.ro -text "Entry is read-only" -relief flat
 button $tabsettings.clearme -text "Clear item's customized settings" -width 30 -command entry_clearme
 button $tabsettings.clearsub -text "Clear subitems' customized settings" -width 30 -command entry_clearsub
 pack $tabsettings.ro $tabsettings.clearme $tabsettings.clearsub -side top -padx 4 -pady 4 -anchor nw
@@ -411,7 +411,18 @@ set macro(wp) {}
 set ipath(wp) {}
 # Workspace entry names (name(wp) isn't really used)
 set name(wp) Workspace
+
+# Default internal settings
+# Read-only
+set readonly(int) 1
 # Working directory
+set dir(int) /
+# Preprocessor macros
+set macro(int) {__STDC__}
+# Preprocessor include paths
+set ipath(int) .
+# Workspace entry names (name(wp) isn't really used)
+set name(int) {Internal Settings}
 
 
 ######################################################
@@ -441,8 +452,8 @@ proc select_workspace {uid sel} {
 	$tabfiles.hier selection add $uid
 
 	# Update settings tab
-	if {[regexp ^wp $uid]} {
-		# A workspace entry has been selected; enable settings
+	if {[regexp ^wp $uid] || $uid == "int"} {
+		# A setable entry has been selected; enable settings
 		$out.l pageconfigure Settings -state normal
 		settings_refresh
 	} else {
@@ -486,7 +497,7 @@ proc get_workspace {uid} {
 				lappend r [list $i $name($i) branch]
 			}
 		}
-		return $r
+		return [lsort $r]
 	} elseif {[regexp {^wp/[^/]*$} $uid]} {
 		# uid is of the type wp/project
 		set r {}
@@ -495,7 +506,7 @@ proc get_workspace {uid} {
 				lappend r [list $i $name($i) branch]
 			}
 		}
-		return $r
+		return [lsort $r]
 	} else {
 		return ""
 	}
@@ -696,7 +707,7 @@ proc settings_refresh {} {
 	
 	# Enable/disable the clear this entry button
 	set thisentry [wp_getentry]
-	if {[info exists macro($thisentry)] && $thisentry != {wp}} {
+	if {[info exists macro($thisentry)] && [regexp / $thisentry]} {
 		$tabsettings.clearme configure -state normal
 	} else {
 		$tabsettings.clearme configure -state disabled
