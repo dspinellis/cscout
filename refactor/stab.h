@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.15 2002/09/10 22:21:41 dds Exp $
+ * $Id: stab.h,v 1.16 2003/08/03 16:12:11 dds Exp $
  */
 
 #ifndef STAB_
@@ -94,8 +94,9 @@ private:
 	static Id const * lookup(const Stab Block::*table, const string& name);
 public:
 	// Should be private appart from taking member address
-	Stab obj;
-	Stab tag;
+	Stab obj;		// Objects (variables...)
+	Stab tag;		// Aggregate tags
+	Stab local_label;	// Local labels; gcc extension
 
 	static int get_scope_level() { return current_block; }
 	static const int lu_block = 0;	// Linkage unit definitions: 0
@@ -153,6 +154,9 @@ public:
 	inline friend Id const * tag_lookup(const string& name);
 	friend void tag_define(const Token& tok, const Type& t);
 	friend void fix_incomplete(const Token& tok, const Type& t);
+	inline friend Id const * local_label_lookup(const string& name);
+	friend void label_define(const Token& tok);
+	friend void local_label_define(const Token& tok);
 	inline friend Id const * tag_lookup(int block_level, const string& name);
 };
 
@@ -172,7 +176,15 @@ tag_lookup(const string& name)
 	return Block::lookup(tagptr, name);
 }
 
-inline Id const * tag_lookup(int block_level, const string& name)
+inline Id const *
+local_label_lookup(const string& name)
+{
+	static Stab Block::*llptr = &Block::local_label;
+	return Block::lookup(llptr, name);
+}
+
+inline Id const *
+tag_lookup(int block_level, const string& name)
 {
 	assert(Block::current_block >= block_level);
 	return Block::scope_block[block_level].tag.lookup(name);

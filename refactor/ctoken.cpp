@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.21 2003/06/23 09:17:42 dds Exp $
+ * $Id: ctoken.cpp,v 1.22 2003/08/03 16:12:11 dds Exp $
  */
 
 #include <map>
@@ -132,6 +132,7 @@ make_keymap()
 	m["static"] = STATIC; m["while"] = WHILE;
 	m["__asm__"] = GNUC_ASM; m["_asm"] = MSC_ASM;
 	m["__typeof"] = TYPEOF;
+	m["__label__"] = LABEL;
 	return m;
 }
 

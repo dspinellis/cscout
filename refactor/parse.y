@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.76 2003/08/03 14:34:23 dds Exp $
+ * $Id: parse.y,v 1.77 2003/08/03 16:12:11 dds Exp $
  *
  */
 
@@ -451,6 +451,9 @@ unary_expression:
 			{ $$ = basic(b_int); }
         | SIZEOF '(' type_name ')'
 			{ $$ = basic(b_int); }
+	/* gcc extension */
+        | AND_OP identifier_or_typedef_name
+		{ label_use($2.get_token()); }
         ;
 
 arith_unary_operator:
@@ -672,6 +675,8 @@ declaration:
         | sue_type_specifier ';'
         | declaring_list ';'
         | default_declaring_list ';'
+	/* gcc extension */
+	| label_declaring_list ';'
         ;
 
     /* Note that if a typedef were  redeclared,  then  a  declaration
@@ -704,6 +709,18 @@ default_declaring_list:  /* Can't  redeclare typedef names */
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
         ;
+
+/* gcc extension */
+label_declaring_list:
+	LABEL label_name_list
+	;
+
+label_name_list:
+        identifier_or_typedef_name
+		{ local_label_define($1.get_token()); }
+        | label_name_list ',' identifier_or_typedef_name
+		{ local_label_define($3.get_token()); }
+	;
 
 declaring_list:
 	/* static int @ FILE @ = 42 (note reuse of typedef name) */
@@ -1030,7 +1047,7 @@ member_declaring_list:
 					 * declaring list (e.g.
 					 * <code>struct {int x, y;}</code>)
 					 * can only be structures or unions.
-					 * (GCC/Microsoft C extension).
+					 * (gcc/Microsoft C extension).
 					 */
 			Error::error(E_ERR, "Only struct/union anonymous elements allowed");
 			$$ = basic(b_undeclared);

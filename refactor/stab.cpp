@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.23 2003/08/02 16:06:57 dds Exp $
+ * $Id: stab.cpp,v 1.24 2003/08/03 16:12:11 dds Exp $
  */
 
 #include <map>
@@ -223,6 +223,7 @@ tag_define(const Token& tok, const Type& typ)
 		Block::define(tagptr, tok, typ);
 }
 
+
 /*
  * Lookup in the block pointed by table (obj or tag) for name
  * and return the relevant identifier or NULL if not defined.
@@ -259,14 +260,47 @@ Stab::define(const Token& tok, const Type& typ)
 }
 
 /*
+ * Define a local label (gcc extension)
+ */
+void
+local_label_define(const Token& tok)
+{
+	tok.set_ec_attribute(is_label);
+	static Stab Block::*llptr = &Block::local_label;
+	const Id *id;
+
+	if (DP())
+		cout << "Define local label [" << tok.get_name() << "\n";
+	if ((id = Block::scope_block[Block::current_block].local_label.lookup(tok.get_name())))
+		/*
+		 * @error
+		 * A local label was defined more than once in the same block
+		 */
+		Error::error(E_ERR, "Duplicate local label definition " + tok.get_name());
+	else
+		Block::define(llptr, tok, Type());
+}
+
+/*
  * Define tok as a label in the current function.
  * If it is already defined, unify it with the previous definition.
+ * Locally defined labels take precedence
  */
 void
 label_define(const Token& tok)
 {
 	tok.set_ec_attribute(is_label);
-	Id const *id = Function::label.lookup(tok.get_name());
+	bool is_local;
+	static Stab Block::*llptr = &Block::local_label;
+
+	Id const *id;
+	// Search first for local, then for function label
+	if (id = local_label_lookup(tok.get_name()))
+		is_local = true;
+	else {
+		id = Function::label.lookup(tok.get_name());
+		is_local = false;
+	}
 	if (id) {
 		if (id->get_type().is_valid())
 			/*
@@ -277,17 +311,23 @@ label_define(const Token& tok)
 			Error::error(E_ERR, "label " + tok.get_name() + " already defined");
 		unify(id->get_token(), tok);
 	}
-	Function::label.define(tok, label());
+	if (is_local)
+		Block::define(llptr, tok, label());
+	else
+		Function::label.define(tok, label());
 }
 
 /*
  * Use tok as a label in the current function (with goto).
  * If it is already defined, unify it with the previous definition.
+ * Local labels take precedence in searching
  */
 void
 label_use(const Token& tok)
 {
-	Id const *id = Function::label.lookup(tok.get_name());
+	Id const *id;
+	if ((id = local_label_lookup(tok.get_name())) == NULL)
+		id = Function::label.lookup(tok.get_name());
 	if (id)
 		unify(id->get_token(), tok);
 	else

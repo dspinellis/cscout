@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.47 2003/08/02 20:43:09 dds Exp $
+# $Id: Makefile,v 1.48 2003/08/03 16:12:11 dds Exp $
 #
 
 # Common object files
@@ -73,7 +73,7 @@ workdb: workdb.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o workdb $(STANDOBJ) $(OBJ) workdb.o
 
 cscout: cscout.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill
+	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L${HOME}/lib/`arch` -lswill
 
 # CCmalloc version
 cscout-cc: cscout.o $(STANDOBJ) $(OBJ)
@@ -112,14 +112,17 @@ eval.cpp: eval.y
 	$(YACC) -b eval -p eval_ eval.y
 	mv -f eval_tab.c eval.cpp
 
-parse.cpp: parse.y
-	$(YACC) -b parse -p parse_ parse.y
+parse.cpp parse_tab.h: parse.y ytoken.h
+	$(YACC) -d -b parse -p parse_ parse.y
 	mv -f parse_tab.c parse.cpp
 
-tokname.cpp: ytoken.h tokname.pl
-	$(YACC) -d -b parse -p parse_ parse.y
+ytab.h: parse_tab.h
 	grep 'define ' parse_tab.h >ytab.h
+
+tokname.cpp: ytab.h tokname.pl
 	perl tokname.pl ytab.h tokname.cpp
+
+ctoken.o: ctoken.cpp ytab.h
 
 license.o: license.c
 	gcc -c $(CPPFLAGS) license.c
@@ -140,8 +143,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.47 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/02 20:43:09 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.48 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/03 16:12:11 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
