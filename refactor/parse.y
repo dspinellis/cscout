@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.77 2003/08/03 16:12:11 dds Exp $
+ * $Id: parse.y,v 1.78 2003/08/03 16:33:05 dds Exp $
  *
  */
 
@@ -245,6 +245,14 @@ static bool yacc_typing;
 %type <t> identifier_declarator
 %type <t> designator
 
+/* To allow compound statements as expressions (gcc extension) */
+%type <t> statement
+%type <t> any_statement
+%type <t> statement_list
+%type <t> compound_statement
+%type <t> expression_statement
+%type <t> comma_expression_opt
+
 /* Needed for yacc */
 %type <t> INT_CONST
 %type <t> CHAR_LITERAL
@@ -371,6 +379,9 @@ primary_expression:
         | constant
         | string_literal_list
         | '(' comma_expression ')'
+			{ $$ = $2; }
+	/* gcc extension */
+	| '(' compound_statement ')'
 			{ $$ = $2; }
 
         ;
@@ -621,8 +632,6 @@ assignment_operator:
 
 comma_expression:
         assignment_expression
-	| '(' compound_statement ')'
-			{ $$ = basic(); }
         | comma_expression ',' assignment_expression
 			{ $$ = $3; }
         ;
@@ -634,7 +643,9 @@ constant_expression:
     /* The following was used for clarity */
 comma_expression_opt:
         /* Nothing */
+		{ $$ = basic(b_void); }
         | comma_expression
+		{ $$ = $1; }
         ;
 
 
@@ -1294,17 +1305,20 @@ designator:
 /*************************** STATEMENTS *******************************/
 statement: 
 	any_statement
-		{ Fchar::get_fileid().metrics().add_statement(); }
+		{ 
+			Fchar::get_fileid().metrics().add_statement();
+			$$ = $1; 
+		}
 	;
 
 any_statement:
-        labeled_statement [YYVALID;]
-        | compound_statement [YYVALID;]
-        | expression_statement [YYVALID;]
-        | selection_statement [YYVALID;]
-        | iteration_statement [YYVALID;]
-        | jump_statement [YYVALID;]
-        | assembly_statement [YYVALID;]
+        labeled_statement { $$ = basic(b_void); } [YYVALID;]
+        | compound_statement { $$ = basic(b_void); } [YYVALID;]
+        | expression_statement { $$ = $1; } [YYVALID;]
+        | selection_statement { $$ = basic(b_void); } [YYVALID;]
+        | iteration_statement { $$ = basic(b_void); } [YYVALID;]
+        | jump_statement { $$ = basic(b_void); } [YYVALID;]
+        | assembly_statement { $$ = basic(b_void); } { $$ = basic(b_void); } [YYVALID;]
         ;
 
 /*
@@ -1340,9 +1354,13 @@ brace_end: '}'
 
 compound_statement:
         brace_begin brace_end
+		{ $$ = basic(b_void); }
         | brace_begin declaration_list brace_end
+		{ $$ = basic(b_void); }
         | brace_begin statement_list brace_end
+		{ $$ = $2; }
         | brace_begin declaration_list statement_list brace_end
+		{ $$ = $3; }
         ;
 
 function_body:
@@ -1359,11 +1377,14 @@ declaration_list:
 
 statement_list:
         statement
+		{ $$ = $1; }
         | statement_list statement
+		{ $$ = $2; }
         ;
 
 expression_statement:
         comma_expression_opt ';'
+		{ $$ = $1; }
         ;
 
 selection_statement:
