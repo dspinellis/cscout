@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.18 2003/08/02 11:33:08 dds Exp $
+ * $Id: macro.cpp,v 1.19 2003/08/02 20:42:31 dds Exp $
  */
 
 #include <iostream>
@@ -306,6 +306,19 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
 	return end;
 }
 
+// Return an arg iterator if token is a formal argument
+// otherwise end()
+static inline mapArgval::const_iterator
+find_formal_argument(const mapArgval &args, Ptoken t)
+{
+	if (DP())
+		cout << "find formal argument: " << t << "\n";
+	if (t.get_code() != IDENTIFIER)
+		return args.end();
+	else
+		return args.find(t.get_val());
+}
+
 /*
  * Check for macro at token position pos and possibly expand it  
  * If a macro is expanded, pos is invalidated and replaced with the replacement 
@@ -422,14 +435,14 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					goto condition_failed;
 				// Is the token preceding ## a formal arg?
 				// (Out of order test, because it is slightly more expensive)
-				if ((ai = args.find((*start).get_val())) != args.end())
+				if ((ai = find_formal_argument(args, *start)) != args.end())
 					goto condition_failed;
 				// Advance to next non-space token
 				do {
 					i++;
 				} while ((*i).is_space());
 				// Is the token following ## a formal arg?
-				if ((ai = args.find((*i).get_val())) == args.end())
+				if ((ai = find_formal_argument(args, *i)) == args.end())
 					goto condition_failed;
 				// Is the arg empty?
 				if ((*ai).second.size() != 0)
@@ -443,7 +456,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			}
 
 			// Is it a formal argument?
-			if ((ai = args.find((*i).get_val())) != args.end()) {
+			if ((ai = find_formal_argument(args, *i)) != args.end()) {
 				if (macro_replacement_allowed(m.value, i)) {
 					// Allowed, macro replace the parameter
 					// in temporary var arg, and
