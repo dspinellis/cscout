@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.17 2003/05/24 16:25:27 dds Exp $
+ * $Id: cscout.cpp,v 1.18 2003/05/24 16:46:13 dds Exp $
  */
 
 #include <map>
@@ -342,7 +342,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.17 2003/05/24 16:25:27 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.18 2003/05/24 16:46:13 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -471,40 +471,6 @@ display_sorted_ids(FILE *of, const Sids &sorted_ids)
 		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
 	else
 		fputs("</p>\n", of);
-}
-
-// All identifiers
-void
-aids_page(FILE *of, void *p)
-{
-	Sids sorted_ids;
-
-	html_head(of, "aids", "All Identifiers");
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		if (current_project && !(*i).first->get_attribute(current_project)) 
-			continue;
-		sorted_ids.insert(&*i);
-	}
-	display_sorted_ids(of, sorted_ids);
-	html_tail(of);
-}
-
-// Read-only identifiers
-void
-roids_page(FILE *of,  void *p)
-{
-	html_head(of, "roids", "Read-only Identifiers");
-	fprintf(of, "<ul>\n");
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		if (current_project && !(*i).first->get_attribute(current_project)) 
-			continue;
-		if ((*i).first->get_attribute(is_readonly) == true) {
-			fprintf(of, "\n<li>");
-			html_id(of, *i);
-		}
-	}
-	fprintf(of, "</ul>\n");
-	html_tail(of);
 }
 
 // Identifier query page
@@ -707,110 +673,6 @@ identifier_page(FILE *fo, void *p)
 	html_tail(fo);
 }
 
-// Writable identifiers
-void
-wids_page(FILE *fo, void *p)
-{
-	html_head(fo, "wids", "Writable Identifiers");
-	fprintf(fo, "<ul>\n");
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		if (current_project && !(*i).first->get_attribute(current_project)) 
-			continue;
-		if ((*i).first->get_attribute(is_readonly) == false) {
-			fprintf(fo, "\n<li>");
-			html_id(fo, *i);
-		}
-	}
-	fprintf(fo, "</ul>\n");
-	html_tail(fo);
-}
-
-// Cross-file writable identifiers
-void
-xids_page(FILE *fo, void *p)
-{
-	html_head(fo, "xids", "File-spanning Writable Identifiers");
-	fprintf(fo, "<ul>\n");
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		if (current_project && !(*i).first->get_attribute(current_project)) 
-			continue;
-		if ((*i).second.get_xfile() == true &&
-		    (*i).first->get_attribute(is_readonly) == false) {
-			fprintf(fo, "\n<li>");
-			html_id(fo, *i);
-		}
-	}
-	fprintf(fo, "</ul>\n");
-	html_tail(fo);
-}
-
-// Unused project-scoped writable identifiers
-void
-upids_page(FILE *fo, void *p)
-{
-	html_head(fo, "upids", "Unused Project-scoped Writable Identifiers");
-	fprintf(fo, "<ul>\n");
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		Eclass *e = (*i).first;
-		if (current_project && !e->get_attribute(current_project)) 
-			continue;
-		if (
-		    e->get_size() == 1 &&
-		    e->get_attribute(is_lscope) == true &&
-		    e->get_attribute(is_readonly) == false) {
-			fprintf(fo, "\n<li>");
-			html_id(fo, *i);
-		}
-	}
-	fprintf(fo, "</ul>\n");
-	html_tail(fo);
-}
-
-// Unused file-scoped writable identifiers
-void
-ufids_page(FILE *fo, void *p)
-{
-	html_head(fo, "ufids", "Unused File-scoped Writable Identifiers");
-	fprintf(fo, "<ul>\n");
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		Eclass *e = (*i).first;
-		if (current_project && !e->get_attribute(current_project)) 
-			continue;
-		if (
-		    e->get_size() == 1 &&
-		    e->get_attribute(is_cscope) == true &&
-		    e->get_attribute(is_readonly) == false) {
-			fprintf(fo, "\n<li>");
-			html_id(fo, *i);
-		}
-	}
-	fprintf(fo, "</ul>\n");
-	html_tail(fo);
-}
-
-// Unused macro writable identifiers
-void
-umids_page(FILE *fo, void *p)
-{
-	html_head(fo, "umids", "Unused Macro Writable Identifiers");
-	fprintf(fo, "<ul>\n");
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		Eclass *e = (*i).first;
-		if (current_project && !e->get_attribute(current_project)) 
-			continue;
-		if (
-		    e->get_size() == 1 &&
-		    e->get_attribute(is_macro) == true &&
-		    e->get_attribute(is_readonly) == false) {
-			fprintf(fo, "\n<li>");
-			html_id(fo, *i);
-		}
-	}
-	fprintf(fo, "</ul>\n");
-	html_tail(fo);
-}
-
-
 // Front-end global options page
 void
 options_page(FILE *fo, void *p)
@@ -887,14 +749,15 @@ index_page(FILE *of, void *data)
 		"<ul>\n"
 		"<li> <a href=\"afiles.html\">All files</a>\n"
 		"<li> <a href=\"rofiles.html\">Read-only files</a>\n"
-		"<li> <a href=\"wfiles.html\">Writable files</a>\n"
-		"<li> <a href=\"aids.html\">All identifiers</a>\n"
-		"<li> <a href=\"roids.html\">Read-only identifiers</a>\n"
-		"<li> <a href=\"wids.html\">Writable identifiers</a>\n"
-		"<li> <a href=\"xids.html\">File-spanning writable identifiers</a>\n"
-		"<li> <a href=\"upids.html\">Unused project-scoped writable identifiers</a>\n"
-		"<li> <a href=\"ufids.html\">Unused file-scoped writable identifiers</a>\n"
-		"<li> <a href=\"umids.html\">Unused macro writable identifiers</a>\n"
+		"<li> <a href=\"wfiles.html\">Writable files</a>\n");
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&match=Y&qi=1\">All identifiers</a>\n", is_readonly);
+	fprintf(of, "<li> <a href=\"xiquery.html?a%d=1&match=Y&qi=1\">Read-only identifiers</a>\n", is_readonly);
+	fputs("<li> <a href=\"xiquery.html?writable=1&match=Y&qi=1\">Writable identifiers</a>\n"
+		"<li> <a href=\"xiquery.html?writable=1&xfile=1&match=L&qi=1\">File-spanning writable identifiers</a>\n", of);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1\">Unused project-scoped writable identifiers</a>\n", is_lscope);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1\">Unused file-scoped writable identifiers</a>\n", is_cscope);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1\">Unused macro writable identifiers</a>\n", is_macro);
+	fprintf(of,
 		"<li> <a href=\"iquery.html\">Identifier query</a>\n"
 		"</ul>"
 		"<h2>Operations</h2>"
@@ -1173,13 +1036,6 @@ main(int argc, char *argv[])
 
 	swill_handle("iquery.html", iquery_page, NULL);
 	swill_handle("xiquery.html", xiquery_page, NULL);
-	swill_handle("aids.html", aids_page, NULL);
-	swill_handle("roids.html", roids_page, NULL);
-	swill_handle("wids.html", wids_page, NULL);
-	swill_handle("xids.html", xids_page, NULL);
-	swill_handle("upids.html", upids_page, NULL);
-	swill_handle("ufids.html", ufids_page, NULL);
-	swill_handle("umids.html", umids_page, NULL);
 
 	swill_handle("id.html", identifier_page, NULL);
 	swill_handle("setproj.html", set_project_page, NULL);
