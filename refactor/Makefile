@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.48 2003/08/03 16:12:11 dds Exp $
+# $Id: Makefile,v 1.49 2003/08/06 17:13:53 dds Exp $
 #
 
 # Common object files
@@ -77,10 +77,10 @@ cscout: cscout.o $(STANDOBJ) $(OBJ)
 
 # CCmalloc version
 cscout-cc: cscout.o $(STANDOBJ) $(OBJ)
-	ccmalloc $(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill
+	ccmalloc $(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L${HOME}/lib/`arch` -lswill
 
 cscout.exe: cscout.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill -lws2_32 -lregex
+	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L${HOME}/lib/`arch` -lswill -lws2_32 -lregex
 
 ccheck: license.c license.h des.c des.h
 	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
@@ -143,8 +143,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.48 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/03 16:12:11 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.49 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/06 17:13:53 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
