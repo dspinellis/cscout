@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.37 2003/06/02 08:16:59 dds Exp $
+ * $Id: cscout.cpp,v 1.38 2003/06/04 18:37:03 dds Exp $
  */
 
 #include <map>
@@ -52,6 +52,7 @@
 #include "type.h"
 #include "stab.h"
 #include "license.h"
+#include "version.h"
 
 // Global options
 static bool remove_fp;			// Remove common file prefix
@@ -446,11 +447,14 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.37 2003/06/02 08:16:59 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"CScout %s - %s\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
-		"<h1>%s</h1>\n", title.c_str(), title.c_str());
+		"<h1>%s</h1>\n", 
+		Version::get_revision().c_str(),
+		Version::get_date().c_str(),
+		title.c_str(), title.c_str());
 }
 
 // And an HTML file end
@@ -462,9 +466,10 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.37 2003/06/02 08:16:59 dds Exp $</font>\n"
+		"<br><hr><font size=-1>CScout %s - %s</font>\n"
 		"</body>"
-		"</html>\n");
+		"</html>\n", Version::get_revision().c_str(),
+		Version::get_date().c_str());
 }
 
 #ifndef COMMERCIAL
@@ -1454,6 +1459,7 @@ int
 main(int argc, char *argv[])
 {
 	Pdtoken t;
+	char *motd;
 
 	Debug::db_read();
 
@@ -1520,7 +1526,7 @@ main(int argc, char *argv[])
 	file_msum.summarize_files();
 
 #ifdef COMMERCIAL
-	license_check("");
+	motd = license_check("", url(Version::get_revision()).c_str());
 #else
 	/* 
 	 * Send the metrics
@@ -1546,15 +1552,15 @@ main(int argc, char *argv[])
 			break;
 	}
 	mstring << "\n";
-	license_check(mstring.str().c_str());
+	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str());
 #endif
 
+	if ((must_exit = (CORRECTION_FACTOR - license_offset != 0))) {
 #ifndef PRODUCTION
-	if (CORRECTION_FACTOR - license_offset != 0) {
 		cout << "**********Unable to obtain correct license*********\n";
 		cout << "license_offset = " << license_offset << "\n";
-	}
 #endif
+	}
 
 	swill_handle("src.html", source_page, NULL);
 	swill_handle("qsrc.html", query_source_page, NULL);
@@ -1573,8 +1579,11 @@ main(int argc, char *argv[])
 	swill_handle("setproj.html", set_project_page, NULL);
 	swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
 
+	if (motd)
+		cout << motd << "\n";
 	// Serve web pages
-	cout << "We are now ready to serve you at http://localhost:8081\n";
+	if (!must_exit)
+		cout << "We are now ready to serve you at http://localhost:8081\n";
 	while (!must_exit)
 		swill_serve();
 

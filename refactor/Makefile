@@ -1,14 +1,15 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.33 2003/06/03 08:26:16 dds Exp $
+# $Id: Makefile,v 1.34 2003/06/04 18:37:03 dds Exp $
 #
 
 # Common object files
 OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
-parse.o type.o stab.o attr.o metrics.o license.o des.o
+parse.o type.o stab.o attr.o metrics.o license.o des.o version.o
 
+# Do not add version.cpp here
 SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	ctoken.h debug.cpp debug.h defs.h des.c des.h eclass.cpp \
 	eclass.h engine.cpp error.cpp error.h eval.y fchar.cpp \
@@ -19,7 +20,8 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	simple_cpp.cpp stab.cpp stab.h swill.h tchar.cpp tchar.h \
 	tclfuns.cpp token.cpp token.h tokenize.cpp tokid.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
-	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h
+	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h \
+	prjcomp.pl version.h version.cpp
 
 # Stand-alone object files
 STANDOBJ=error.o
@@ -30,7 +32,8 @@ TCLOBJ=tclfuns.o
 YACC=btyacc
 #YACC=yacc
 CC=g++
-CPPFLAGS=-pipe -g -Wall
+#CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
+CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DOFFICE_SERVER
 #CPPFLAGS=-pipe -O2
 
 CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
@@ -110,7 +113,20 @@ des.o: des.c
 
 # Create error message documentation
 mkerr:
-       perl mkerr.pl >../doc/error.xml
+	perl mkerr.pl >../doc/error.xml
+
+# Create version info
+version:
+	co -l version.cpp
+	echo '#include <string>' >version.cpp
+	echo 'using namespace std;' >>version.cpp
+	echo '#include "version.h"' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.34 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/06/04 18:37:03 $$";' >>version.cpp
+	echo "char *Version::ident[] = {" >>version.cpp
+	ident $(SRC) | sed -n -f version.sed >>version.cpp
+	echo "0 };" >>version.cpp
+	ci -m"New version" -u version.cpp
 
 # Test
 cpptest: cpp-test $(CPPTEST) simple_cpp
@@ -131,3 +147,14 @@ rdist:
 	tar cvf - $(SRC) | plink jonathan tar -C src/cscout -xvf -
 	tar cvf - $(SRC) | plink spiti tar -C src/cscout -xvf -
 
+rdist-spiti-server:
+	pscp Makefile des.[ch] license.[ch] spiti:src/cscout-server
+
+rdist-istlab-server:
+	pscp Makefile des.[ch] license.[ch] istlab:src/cscout-server
+
+istlab-server:
+	cc -o ${HOME}/web/istlab-cgi-bin/ccheck -DSERVER des.c license.c
+
+spiti-server:
+	cc -o /usr/local/www/cgi-bin/ccheck -DSERVER des.c license.c
