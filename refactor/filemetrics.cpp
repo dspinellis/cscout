@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.5 2002/10/07 20:04:35 dds Exp $
+ * $Id: filemetrics.cpp,v 1.6 2003/05/24 18:51:49 dds Exp $
  */
 
 #include <iostream>
@@ -29,6 +29,23 @@
 #include "fchar.h"
 #include "error.h"
 
+// Keep this in sync with the enumeration
+string Metrics::metric_names[] = {
+	"Number of characters",
+	"Comment characters",
+	"Space characters",
+	"Number of line comments",
+	"Number of block comments",
+	"Number of lines",
+	"Length of longest line",
+	"Number of C strings",
+
+	"Number of defined functions",
+	"Number of preprocessor directives",
+	"Number of directly included files",
+	"Number of C statements",
+};
+
 // Global metrics
 MetricsSummary msum;
 
@@ -36,7 +53,7 @@ MetricsSummary msum;
 void 
 Metrics::process_id(const string &s)
 {
-	nchar += s.length();
+	count[em_nchar] += s.length();
 	currlinelen += s.length();
 }
 
@@ -44,25 +61,25 @@ Metrics::process_id(const string &s)
 void 
 Metrics::process_char(char c)
 {
-	nchar++;
+	count[em_nchar]++;
 	if (c == '\n') {
 		if (DP())
-			cout << "nline = " << nline << "\n";
-		nline++;
-		if (currlinelen > maxlinelen)
-			maxlinelen = currlinelen;
+			cout << "nline = " << count[em_nline] << "\n";
+		count[em_nline]++;
+		if (currlinelen > count[em_maxlinelen])
+			count[em_maxlinelen] = currlinelen;
 		currlinelen = 0;
 	} else
 		currlinelen++;
 	switch (cstate) {
 	case s_normal:
 		if (isspace(c))
-			nspace++;
+			count[em_nspace]++;
 		else if (c == '/')
 			cstate = s_saw_slash;
 		else if (c == '"') {
 			cstate = s_string;
-			nstring++;
+			count[em_nstring]++;
 		}
 		break;
 	case s_string:
@@ -77,10 +94,10 @@ Metrics::process_char(char c)
 	case s_saw_slash:		// After a / character
 		if (c == '/') {
 			cstate = s_cpp_comment;
-			nlcomment++;
+			count[em_nlcomment]++;
 		} else if (c == '*') {
 			cstate = s_block_comment;
-			nbcomment++;
+			count[em_nbcomment]++;
 		} else
 			cstate = s_normal;
 		break;
@@ -88,19 +105,19 @@ Metrics::process_char(char c)
 		if (c == '\n')
 			cstate = s_normal;
 		else
-			nccomment++;
+			count[em_nccomment]++;
 		break;
 	case s_block_comment:		// Inside C block comment
 		if (c == '*')
 			cstate = s_block_star;
-		nccomment++;
+		count[em_nccomment]++;
 		break;
 	case s_block_star:		// Found a * in a block comment
 		if (c == '/')
 			cstate = s_normal;
 		else
 			cstate = s_block_comment;
-		nccomment--;		// Don't count the trailing */
+		count[em_nccomment]--;		// Don't count the trailing */
 		break;
 	default:
 		assert(0);

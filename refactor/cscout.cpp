@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.20 2003/05/24 18:06:12 dds Exp $
+ * $Id: cscout.cpp,v 1.21 2003/05/24 18:51:49 dds Exp $
  */
 
 #include <map>
@@ -341,7 +341,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.20 2003/05/24 18:06:12 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.21 2003/05/24 18:51:49 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -814,18 +814,8 @@ file_page(FILE *of, void *p)
 	html_head(of, "file", string("File: ") + html(pathname));
 	fprintf(of, "<ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
-	fprintf(of, "\n<li> Number of characters: %d", i.metrics().get_nchar());
-	fprintf(of, "\n<li> Comment characters: %d", i.metrics().get_nccomment());
-	fprintf(of, "\n<li> Space characters: %d", i.metrics().get_nspace());
-	fprintf(of, "\n<li> Number of line comments: %d", i.metrics().get_nlcomment());
-	fprintf(of, "\n<li> Number of block comments: %d", i.metrics().get_nbcomment());
-	fprintf(of, "\n<li> Number of lines: %d", i.metrics().get_nline());
-	fprintf(of, "\n<li> Length of longest line: %d", i.metrics().get_maxlinelen());
-	fprintf(of, "\n<li> Number of preprocessor directives: %d", i.metrics().get_nppdirective());
-	fprintf(of, "\n<li> Number of directly included files: %d", i.metrics().get_nincfile());
-	fprintf(of, "\n<li> Number of defined functions: %d", i.metrics().get_nfunction());
-	fprintf(of, "\n<li> Number of C statements: %d", i.metrics().get_nstatement());
-	fprintf(of, "\n<li> Number of C strings: %d", i.metrics().get_nstring());
+	for (int j = 0; j < metric_max; j++)
+		fprintf(of, "\n<li> %s: %d", Metrics::name(j).c_str(), i.metrics().get_metric(j));
 	fprintf(of, "\n<li> Used in project(s): \n<ul>");
 	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
 		if (i.get_attribute(j))
