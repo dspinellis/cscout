@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.18 2001/09/21 14:14:19 dds Exp $
+ * $Id: parse.y,v 1.19 2001/09/22 07:13:39 dds Exp $
  *
  */
 
@@ -228,6 +228,8 @@ postfix_expression:
 				Id const *id = $1.member($3.get_name());
 				if (id) {
 					$$ = id->get_type();
+					if (DP())
+						cout << ". returns " << $$ << "\n";
 					assert(id->get_name() == $3.get_name());
 					unify($3.get_token(), id->get_token());
 				} else {
@@ -666,6 +668,8 @@ aggregate_name:
 			if (id) {
 				unify(id->get_token(), $2.get_token());
 				$$ = id->get_type();
+				if (DP())
+					cout << "lookup returns " << $$ << "\n";
 			} else
 				$$ = basic(b_undeclared);
 		}
@@ -702,7 +706,7 @@ member_default_declaring_list:        /* doesn't redeclare typedef */
 		{
 			if ($2.is_valid()) { // Check against padding bit fields
 				$2.set_abstract($1);
-				$$ = struct_union($2.get_token(), $2, $1);
+				$$ = struct_union($2.get_token(), $2.type(), $1);
 			} else
 				$$ = struct_union($1);
 		}
@@ -711,7 +715,7 @@ member_default_declaring_list:        /* doesn't redeclare typedef */
 		{
 			if ($3.is_valid()) { // Check against padding bit fields
 				$3.set_abstract($1.get_default_specifier());
-				$1.add_member($3.get_token(), $3);
+				$1.add_member($3.get_token(), $3.type());
 			}
 			$$ = $1;
 		}
@@ -723,17 +727,17 @@ member_declaring_list:
 		{
 			if ($2.is_valid()) { // Check against padding bit fields
 				$2.set_abstract($1);
-				$$ = struct_union($2.get_token(), $2, $1);
+				$$ = struct_union($2.get_token(), $2.type(), $1);
 			} else
 				$$ = struct_union($1);
 			if (DP())
-				cout << "member_declaring_list = " << $$ << "\n";
+				cout << "(out)member_declaring_list = " << $$ << "\n";
 		}
         | member_declaring_list ',' member_declarator
 		{
 			if ($3.is_valid()) { // Check against padding bit fields
 				$3.set_abstract($1.get_default_specifier());
-				$1.add_member($3.get_token(), $3);
+				$1.add_member($3.get_token(), $3.type());
 			}
 			$$ = $1;
 		}
