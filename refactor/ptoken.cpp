@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ptoken.cpp,v 1.3 2001/08/24 14:43:25 dds Exp $
+ * $Id: ptoken.cpp,v 1.4 2001/08/31 11:36:00 dds Exp $
  */
 
 #include <iostream>
@@ -14,11 +14,11 @@
 #include <cassert>
 
 #include "cpp.h"
+#include "ytab.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
 #include "ptoken.h"
-#include "ytab.h"
 
 ostream& 
 operator<<(ostream& o,const Ptoken &t)

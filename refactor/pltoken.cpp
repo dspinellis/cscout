@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.4 2001/08/24 20:20:09 dds Exp $
+ * $Id: pltoken.cpp,v 1.5 2001/08/31 11:36:00 dds Exp $
  */
 
 #include <iostream>
@@ -19,10 +19,10 @@
 #include "cpp.h"
 #include "fileid.h"
 #include "tokid.h"
+#include "ytab.h"
 #include "token.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "ytab.h"
 #include "error.h"
 #include "pltoken.h"
 
