@@ -3,13 +3,20 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.4 2001/08/18 15:30:47 dds Exp $
+ * $Id: fileid.cpp,v 1.5 2001/09/02 17:22:49 dds Exp $
  */
 
 #include <map>
+#include <iostream>
 #include <string>
+#include <map>
+#include <deque>
+#include <set>
 
+#include "cpp.h"
 #include "fileid.h"
+#include "tokid.h"
+#include "error.h"
 
 int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
@@ -42,9 +49,12 @@ get_uniq_fname_string(const char *name)
 	static char buff[4096];
 	struct stat sb;
 
-	// XXX Report an error if return value is not 0
-	stat(name, &sb);
-	sprintf(buff, "%d:%d", sb.st_dev, sb.st_ino);
+	if (stat(name, &sb) != 0) {
+		string s(name);
+		Error::error(E_ERR, "Unable to stat file " + s);
+	}
+	sprintf(buff, "%ld:%ld", (long)sb.st_dev, (long)sb.st_ino);
+	// cout << "uniq fname " << name << " = " << buff << "\n";
 	return (buff);
 }
 #endif /* unix */
