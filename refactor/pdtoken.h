@@ -25,7 +25,7 @@
  * #include "ytab.h"
  * #include "pltoken.h"
  *
- * $Id: pdtoken.h,v 1.1 2001/08/20 21:09:58 dds Exp $
+ * $Id: pdtoken.h,v 1.2 2001/08/21 08:35:16 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -47,6 +47,7 @@ public:
 
 typedef map<string, Macro> mapMacro;
 
+enum e_if_type {if_plain, if_def, if_ndef, if_elif};
 
 class Pdtoken: public Ptoken {
 private:
@@ -54,8 +55,18 @@ private:
 	static listPdtoken expand;		// Expanded input
 	static bool at_bol;			// At beginning of line
 
-	void process_directive();		// Handle a cpp directive
-	void expand_macro(Pltoken m);		// Expand a macro
+	static void process_directive();	// Handle a cpp directive
+	static void expand_macro(Pltoken m);	// Expand a macro
+	static void eat_to_eol();		// Consume input including \n
+	static void process_include();		// Handle a #include
+	static void process_define();		// Handle a #define
+	static void process_undef();		// Handle a #undef
+	static void process_if(enum e_if_type);	// Handle #if/def/ndef
+	static void process_else();		// Handle a #define
+	static void process_endif();		// Handle a #define
+	static void process_line();		// Handle a #line
+	static void process_error();		// Handle a #error
+	static void process_pragma();		// Handle a #pragma
 public:
 	// Constructors
 	Pdtoken(const Ptoken &pt) : Ptoken(pt) {};
