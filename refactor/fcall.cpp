@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.2 2003/11/17 20:45:32 dds Exp $
+ * $Id: fcall.cpp,v 1.3 2003/12/04 20:03:08 dds Exp $
  */
 
 #include <map>
@@ -37,6 +37,7 @@
 #include "stab.h"
 #include "fdep.h"
 #include "fcall.h"
+#include "eclass.h"
 
 // Function currently being parsed
 FCall *FCall::current_fun;
@@ -52,17 +53,20 @@ FCall::set_current_fun(const Type &t)
 	assert(id);
 	current_fun = id->get_fcall();
 	assert(current_fun);
-	current_fun->definition = t.get_token();
+	current_fun->definition = t.get_token().get_parts_begin()->get_tokid();
 }
 
-// Set the funciton currently being parsed
+/*
+ * Set the funciton currently being parsed
+ * This is used for defining yytab, which is not explicitly defined
+ */
 void
 FCall::set_current_fun(const Id *id)
 {
 	assert(id);
 	current_fun = id->get_fcall();
 	assert(current_fun);
-	current_fun->definition = Token();
+	current_fun->definition = Tokid();
 }
 
 // The current function makes a call to f
@@ -76,8 +80,24 @@ FCall::register_call(FCall *f)
 }
 
 // Constructor
-FCall::FCall(const Token& tok, Type typ) :
-		declaration(tok), type(typ)
+FCall::FCall(const Token& tok, Type typ, const string &s) :
+		name(s), declaration(tok.get_parts_begin()->get_tokid()), type(typ)
 {
 	all.insert(this);
+}
+
+// Return true if e appears in the eclasses comprising out name
+bool
+FCall::contains(Eclass *e) const
+{
+	int len = name.length();
+	Tokid t = declaration;
+	for (int pos = 0; pos < len;) {
+		Eclass *e2 = t.get_ec();
+		if (e == e2)
+			return true;
+		t += e2->get_len();
+		pos += e2->get_len();
+	}
+	return false;
 }

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.67 2003/11/17 20:44:46 dds Exp $
+ * $Id: cscout.cpp,v 1.68 2003/12/04 20:03:08 dds Exp $
  */
 
 #include <map>
@@ -295,18 +295,18 @@ html_id(FILE *of, const IdPropElem &i)
 	fputs("</a>", of);
 }
 
-// Display a token hyperlink
+// Display a hyperlink based on a string and its starting tokid
 static void
-html_token(FILE *of, const Token &t)
+html_string_tokid(FILE *of, const string &s, Tokid t)
 {
-	const string &s(t.get_name());
-	int pos = 0;
-	for (dequeTpart::const_iterator i = t.get_parts_begin(); i != t.get_parts_end(); i++) {
-		Eclass *ec = (*i).get_tokid().get_ec();
+	int len = s.length();
+	for (int pos = 0; pos < len;) {
+		Eclass *ec = t.get_ec();
 		Identifier id(ec, s.substr(pos, ec->get_len()));
 		const IdPropElem ip(ec, id);
 		html_id(of, ip);
 		pos += ec->get_len();
+		t += ec->get_len();
 	}
 }
 
@@ -1225,9 +1225,9 @@ identifier_page(FILE *fo, void *p)
 	if (e->get_attribute(is_function)) {
 		fprintf(fo, "<li> Occurs in function name(s): \n<ol>\n");
 		for (FCall::const_fiterator_type i = FCall::fbegin(); i != FCall::fend(); i++) {
-			if ((*i)->get_declaration().contains(e)) {
+			if ((*i)->contains(e)) {
 				fprintf(fo, "\n<li>");
-				html_token(fo, (*i)->get_declaration());
+				html_string_tokid(fo, (*i)->get_name(), (*i)->get_declaration());
 			}
 		}
 		fprintf(fo, "</ol>\n");

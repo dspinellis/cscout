@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.2 2003/11/17 20:45:32 dds Exp $
+ * $Id: fcall.h,v 1.3 2003/12/04 20:03:08 dds Exp $
  */
 
 #ifndef FCALL_
@@ -24,9 +24,10 @@ private:
 	typedef set <FCall *> all_container;
 	static all_container all;	// Set of all functions
 
-	Token declaration;		// Function's first declaration 
+	string name;
+	Tokid declaration;		// Function's first declaration 
 					// (could also be reference if implicitly declared)
-	Token definition;		// Function's definition
+	Tokid definition;		// Function's definition
 	Type type;			// Function's type
 	set <FCall *> call;		// Functions this function calls
 	set <FCall *> caller;		// Functions that call this function
@@ -42,11 +43,12 @@ public:
 	typedef all_container::const_iterator const_fiterator_type;
 	static const_fiterator_type fbegin() { return all.begin(); }
 	static const_fiterator_type fend() { return all.end(); }
-	const Token &get_declaration() { return declaration; }
-	const Token &get_definition() { return definition; }
-	const string &get_name() { return declaration.get_name(); }
+	Tokid get_declaration() const { return declaration; }
+	Tokid get_definition() const { return definition; }
+	const string &get_name() const { return name; }
+	bool contains(Eclass *e) const;
 
-	FCall(const Token& tok, Type typ);
+	FCall(const Token& t, Type typ, const string &s);
 };
 
 #endif // FCALL_
