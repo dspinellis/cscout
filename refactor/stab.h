@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.14 2002/09/10 21:33:10 dds Exp $
+ * $Id: stab.h,v 1.15 2002/09/10 22:21:41 dds Exp $
  */
 
 #ifndef STAB_
@@ -168,7 +168,7 @@ obj_lookup(const string& name)
 inline Id const *
 tag_lookup(const string& name)
 {
-	static Stab Block::*tagptr = &Block::obj;
+	static Stab Block::*tagptr = &Block::tag;
 	return Block::lookup(tagptr, name);
 }
 
