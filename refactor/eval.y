@@ -1,32 +1,20 @@
 /*
  * (C) Copyright 2001 Diomidis Spinellis.
- * Based on a specification by Jutta Degener (see C grammar file)
+ * Based on a specification by Jutta Degener
+ * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.1 2001/09/02 09:23:45 dds Exp $
+ * $Id: eval.y,v 1.2 2001/09/14 07:27:32 dds Exp $
  *
  */
 
-%token IDENTIFIER INT_CONST FLOAT_CONST STRING_LITERAL SIZEOF
-%token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
-%token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
-%token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
-%token XOR_ASSIGN OR_ASSIGN TYPE_NAME
-
-%token TYPEDEF EXTERN STATIC AUTO REGISTER
-%token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
-%token STRUCT UNION ENUM ELLIPSIS
-
-%token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
-
-/* Tokens needed by the pre-processor */
-%token CPP_CONCAT SPACE ABSFNAME PATHFNAME CHAR_LITERAL PP_NUMBER
+%include ytoken.h
 
 %start constant_expression
 
 %{
 #define YYSTYPE long
 
-void eval_error(char *){}
+void eval_error(char *) {}
 extern int eval_lex();
 %}
 
