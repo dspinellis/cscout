@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.7 2002/09/05 07:02:06 dds Exp $
+ * $Id: webmap.cpp,v 1.8 2002/09/05 10:38:37 dds Exp $
  */
 
 #include <map>
@@ -15,6 +15,7 @@
 #include <fstream>
 #include <list>
 #include <set>
+#include <algorithm>
 #include <cassert>
 #include <strstream>
 #include <cstdio>		// perror
@@ -49,6 +50,7 @@ class Identifier {
 	Eclass *ec;		// Equivalence class it belongs to
 	string id;		// Identifier name
 public:
+	Identifier() {}
 	Identifier(Eclass *e, const string &s) : ec(e), id(s) {}
 	string get_id() const { return id; }
 	Eclass *get_ec() const { return ec; }
@@ -65,7 +67,15 @@ public:
 	}
 };
 
-static set <Identifier> ids;
+// Modifiable identifiers stored as a vector
+class MIdentifier : public Identifier {
+	bool xfile;		// True if it crosses files
+public:
+	MIdentifier(Identifier i) : xfile(false), Identifier(i) {}
+	MIdentifier() : xfile(false) {}
+	void set_xfile(bool v) { xfile = v; }
+	bool get_xfile() const { return xfile; }
+};
 
 // Return HTML equivalent of character c
 static char *
@@ -103,7 +113,10 @@ html_id(ofstream &of, const Identifier &i)
 	of << "<a href=\"i" << (unsigned)i.get_ec() << ".html\">" << i.get_id() << "</a>";
 }
 
+static set <Identifier> ids;
+
 // Display the contents of a file in hypertext form
+// As a side-effect add identifier into ids
 static void
 file_hypertext(ofstream &of, string fname)
 {
@@ -153,7 +166,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.7 2002/09/05 07:02:06 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.8 2002/09/05 10:38:37 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -218,7 +231,7 @@ main(int argc, char *argv[])
 		"<li> <a href=\"aids.html\">All identifiers</a>\n"
 		"<li> <a href=\"roids.html\">Read-only identifiers</a>\n"
 		"<li> <a href=\"wids.html\">Writable identifiers</a>\n"
-		"<li> <a href=\"uids.html\">Unused identifiers</a>\n"
+		"<li> <a href=\"xids.html\">File-spanning identifiers</a>\n"
 		"</ul>";
 	html_tail(fo);
 
@@ -276,10 +289,13 @@ main(int argc, char *argv[])
 		html_tail(fo);
 	}
 
+	vector <MIdentifier> mids(ids.size());
+	identity<Identifier> ident;
+	transform(ids.begin(), ids.end(), mids.begin(), ident);
 	// All identifiers
 	html_head(fo, "aids", "All Identifiers");
 	fo << "<ul>";
-	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
 		fo << "\n<li>";
 		html_id(fo, *i);
 	}
@@ -289,7 +305,7 @@ main(int argc, char *argv[])
 	// Read-only identifiers
 	html_head(fo, "roids", "Read-only Identifiers");
 	fo << "<ul>";
-	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
 		if ((*i).get_ec()->get_readonly() == true) {
 			fo << "\n<li>";
 			html_id(fo, *i);
@@ -298,44 +314,22 @@ main(int argc, char *argv[])
 	fo << "\n</ul>\n";
 	html_tail(fo);
 
-	// Writable identifiers
-	html_head(fo, "wids", "Writable Identifiers");
-	fo << "<ul>";
-	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
-		if ((*i).get_ec()->get_readonly() == false) {
-			fo << "\n<li>";
-			html_id(fo, *i);
-		}
-	}
-	fo << "\n</ul>\n";
-	html_tail(fo);
-
-	// Unused identifiers
-	html_head(fo, "uids", "Unused Identifiers");
-	fo << "<ul>";
-	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
-		if ((*i).get_ec()->get_size() == 1) {
-			fo << "\n<li>";
-			html_id(fo, *i);
-		}
-	}
-	fo << "\n</ul>\n";
-	html_tail(fo);
-
 	// Details for each identifier
-	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+	// Set xfile as a side-effect
+	for (vector <MIdentifier>::iterator i = mids.begin(); i != mids.end(); i++) {
 		strstream fname;
 		fname << (unsigned)(*i).get_ec();
 		string sfname(fname.str(), fname.pcount());
 		html_head(fo, (string("i") + sfname).c_str(), html((*i).get_id()));
 		fo << "<ul>\n";
 		fo << "<li> Read-only: " << ((*i).get_ec()->get_readonly() ? "Yes" : "No") << "\n";
-		fo << "<li> Unused: " << ((*i).get_ec()->get_size() == 1 ? "Yes" : "No") << "\n";
 		fo << "</ul>\n";
-		files = (*i).get_ec()->sorted_files();
+		typedef set <Fileid, fname_order> IFSet;
+		IFSet ifiles = (*i).get_ec()->sorted_files();
+		(*i).set_xfile(ifiles.size() > 1);
 		fo << "<h2>Dependent Files (Writable)</h2>\n";
 		fo << "<ul>\n";
-		for (vector <Fileid>::const_iterator j = files.begin(); j != files.end(); j++) {
+		for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
 			if ((*i).get_ec()->get_readonly() == false) {
 				fo << "\n<li>";
 				html_file(fo, (*j).get_path());
@@ -344,7 +338,7 @@ main(int argc, char *argv[])
 		fo << "</ul>\n";
 		fo << "<h2>Dependent Files (All)</h2>\n";
 		fo << "<ul>\n";
-		for (vector <Fileid>::const_iterator j = files.begin(); j != files.end(); j++) {
+		for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
 			fo << "\n<li>";
 			html_file(fo, (*j).get_path());
 		}
@@ -352,6 +346,31 @@ main(int argc, char *argv[])
 
 		html_tail(fo);
 	}
+	// Writable identifiers
+	html_head(fo, "wids", "Writable Identifiers");
+	fo << "<ul>";
+	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
+		if ((*i).get_ec()->get_readonly() == false) {
+			fo << "\n<li>";
+			html_id(fo, *i);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
+	// Cross-file writable identifiers
+	html_head(fo, "xids", "File-spanning Writable Identifiers");
+	fo << "<ul>";
+	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
+		if ((*i).get_xfile() == true &&
+		    (*i).get_ec()->get_readonly() == false) {
+			fo << "\n<li>";
+			html_id(fo, *i);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
 
 	return (0);
 }
