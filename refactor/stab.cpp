@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.22 2003/08/02 15:51:53 dds Exp $
+ * $Id: stab.cpp,v 1.23 2003/08/02 16:06:57 dds Exp $
  */
 
 #include <map>
@@ -120,7 +120,7 @@ obj_define(const Token& tok, Type typ)
 
 	if (DP())
 		cout << "Define object [" << tok.get_name() << "]: " << typ << "\n";
-	if (Block::use_param) {
+	if (Block::use_param && Block::current_block == Block::cu_block) {
 		// Old-style function definition declarations
 		// No checking
 		if ((id = Block::param_block.obj.lookup(tok.get_name())))
@@ -209,7 +209,7 @@ tag_define(const Token& tok, const Type& typ)
 
 	if (DP())
 		cout << "Define tag [" << tok.get_name() << "]: " << typ << "\n";
-	if (Block::use_param)
+	if (Block::use_param && Block::current_block == Block::cu_block)
 		(Block::param_block.tag).define(tok, typ);
 	else if ((id = Block::scope_block[Block::current_block].tag.lookup(tok.get_name())) &&
 		 !id->get_type().is_incomplete())
