@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.23 2001/09/22 11:46:18 dds Exp $
+ * $Id: parse.y,v 1.24 2001/09/22 12:46:19 dds Exp $
  *
  */
 
@@ -998,29 +998,44 @@ external_definition:
 function_definition:
 	/* foo(int a, int b) @ { } (and many illegal constructs) */
                                      identifier_declarator function_body
+		{ $1.declare(); }
         | declaration_specifier      identifier_declarator function_body
+		{ $2.set_abstract($1); $2.declare(); }
         | type_specifier             identifier_declarator function_body
+		{ $2.set_abstract($1); $2.declare(); }
         | declaration_qualifier_list identifier_declarator function_body
+		{ $2.set_abstract($1); $2.declare(); }
         | type_qualifier_list        identifier_declarator function_body
+		{ $2.declare(); }
 
 	/* foo(a, b) @ { } */
         |                            old_function_declarator function_body
+		{ $1.declare(); }
         | declaration_specifier      old_function_declarator function_body
+		{ $2.set_abstract($1); $2.declare(); }
         | type_specifier             old_function_declarator function_body
+		{ $2.set_abstract($1); $2.declare(); }
         | declaration_qualifier_list old_function_declarator function_body
+		{ $2.set_abstract($1); $2.declare(); }
         | type_qualifier_list        old_function_declarator function_body
+		{ $2.declare(); }
 
 	/* foo(a, b) @ int a; int b; @ { } */
-        |                            old_function_declarator { Block::param_use(); } declaration_list
-                function_body
-        | declaration_specifier      old_function_declarator { Block::param_use(); } declaration_list
-                function_body
-        | type_specifier             old_function_declarator { Block::param_use(); } declaration_list
-                function_body
-        | declaration_qualifier_list old_function_declarator { Block::param_use(); } declaration_list
-                function_body
-        | type_qualifier_list        old_function_declarator { Block::param_use(); } declaration_list
-                function_body
+        |                            old_function_declarator 
+		{ Block::param_use(); } declaration_list function_body
+		{ $1.declare(); }
+        | declaration_specifier      old_function_declarator
+		{ Block::param_use(); } declaration_list function_body
+		{ $2.set_abstract($1); $2.declare(); }
+        | type_specifier             old_function_declarator
+		{ Block::param_use(); } declaration_list function_body
+		{ $2.set_abstract($1); $2.declare(); }
+        | declaration_qualifier_list old_function_declarator
+		{ Block::param_use(); } declaration_list function_body
+		{ $2.set_abstract($1); $2.declare(); }
+        | type_qualifier_list        old_function_declarator
+		{ Block::param_use(); } declaration_list function_body
+		{ $2.declare(); }
         ;
 
 declarator:
