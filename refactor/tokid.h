@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.9 2001/08/25 06:55:04 dds Exp $
+ * $Id: tokid.h,v 1.10 2001/08/25 20:28:45 dds Exp $
  */
 
 #ifndef TOKID_
@@ -57,6 +57,8 @@ public:
 	inline friend int operator -(const Tokid& a, const Tokid& b);
 	// Return its equivalence class
 	inline Eclass *get_ec();
+	// Return its equivalence class or NULL if none
+	inline Eclass *check_ec();
 	// Set its equivalence class to ec (done when adding it to an Eclass)
 	// use Eclass:add_tokid, not this method in all other contexts
 	inline void set_ec(Eclass *ec);
@@ -137,6 +139,16 @@ inline Eclass *
 Tokid::get_ec()
 {
 	return tm.tm[*this];
+}
+
+inline Eclass *
+Tokid::check_ec()
+{
+	mapTokidEclass::const_iterator i = tm.tm.find(*this);
+	if (i == tm.tm.end())
+		return NULL;
+	else
+		return ((*i).second);
 }
 
 inline void
