@@ -3,7 +3,7 @@
  *
  * Tcl interface functions
  *
- * $Id: tclfuns.cpp,v 1.3 2001/10/27 13:35:18 dds Exp $
+ * $Id: tclfuns.cpp,v 1.4 2001/10/27 13:46:12 dds Exp $
  */
 
 #include "appinit.h"
@@ -112,6 +112,7 @@ int ET_COMMAND_workspace_clear(ET_TCLARGS)
 	Tokid::clear();
 	Fileid::clear();
 	Block::clear();
+	Error::clear();
 	return TCL_OK;
 }
 
