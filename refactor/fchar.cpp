@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.22 2003/06/19 11:11:01 dds Exp $
+ * $Id: fchar.cpp,v 1.23 2003/07/15 07:40:00 dds Exp $
  */
 
 #include <iostream>
@@ -26,6 +26,11 @@
 #include "tokid.h"
 #include "fchar.h"
 #include "error.h"
+#include "parse_tab.h"
+#include "token.h"
+#include "ptoken.h"
+#include "macro.h"
+#include "pdtoken.h"
 #include "ytab.h"
 
 ifstream Fchar::in;
@@ -50,6 +55,7 @@ Fchar::set_input(const string& s)
 		cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;
 	yacc_file = (s[s.length() - 1] == 'y');
+	Pdtoken::file_switch();
 }
 
 void 

@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.23 2002/12/15 19:03:37 dds Exp $
+ * $Id: pdtoken.h,v 1.24 2003/07/15 07:40:00 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -71,6 +71,10 @@ public:
 	static void add_include(const string& s) { include_path.push_back(s); };
 	// Clear the include path
 	static void clear_include() { include_path.clear(); };
+	// Called when we start processing a new file
+	// or resume an old one.  We assume that files end in line
+	// boundaries, even when they lack an explicit newline at their end
+	static void file_switch() { at_bol = true; };
 };
 
 
