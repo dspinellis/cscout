@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.8 2004/07/29 14:33:53 dds Exp $
+ * $Id: funquery.cpp,v 1.9 2004/08/01 07:51:30 dds Exp $
  */
 
 #include <map>
@@ -91,7 +91,8 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	pscope = !!swill_getvar("pscope");
 	fscope = !!swill_getvar("fscope");
 	defined = !!swill_getvar("defined");
-	(void)swill_getargs("i(ncallers)|i(ncallerop)", &ncallers, &ncallerop);
+	if (!swill_getargs("i(ncallers)|i(ncallerop)", &ncallers, &ncallerop))
+		ncallerop = ec_ignore;
 
 	exclude_fnre = !!swill_getvar("xfnre");
 	exclude_fure = !!swill_getvar("xfure");
