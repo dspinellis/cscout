@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.23 2001/09/01 05:29:12 dds Exp $
+ * $Id: pdtoken.cpp,v 1.24 2001/09/01 05:33:56 dds Exp $
  */
 
 #include <iostream>
@@ -483,8 +483,8 @@ macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
 }
 
 /*
- * Macro replace all tokens in the sequence.
- * Update tabu with the union of all macros that were used while replacing
+ * Macro replace all tokens in the sequence from tokens.begin() up to the 
+ * "end" iterator
  */
 static void
 macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more)
@@ -494,15 +494,8 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
 
 	// cout << "Enter replace_all\n";
 	for (ti = tokens.begin(); ti != end; ) {
-		/*
-		 * The dance with the various tabu variables is needed to
-		 * ensure that while the set is updated when a macro is used
-		 * inside macro_replace, this does not poison the list for
-		 * further replacements done while we progress in the list.
-		 */
-		setstring tmptabu(rescan_tabu);
 		if ((*ti).get_code() == IDENTIFIER)
-			ti = macro_replace(tokens, ti, tmptabu, get_more);
+			ti = macro_replace(tokens, ti, tabu, get_more);
 		else
 			ti++;
 	}
@@ -520,7 +513,7 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
  * examined or replaced.
  */
 listPtoken::iterator
-macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, bool get_more)
+macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more)
 {
 	mapMacro::const_iterator mi;
 	const string name = (*pos).get_val();
@@ -597,8 +590,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 					listPtoken arg((*ai).second.begin(), (*ai).second.end());
 					// cout << "Arg macro:" << arg << "---\n";
 					// See comment in macro_replace_all
-					setstring tmptabu(tabu);
-					macro_replace_all(arg, arg.end(), tmptabu, false);
+					macro_replace_all(arg, arg.end(), tabu, false);
 					// cout << "Arg macro result:" << arg << "---\n";
 					copy(arg.begin(), arg.end(), inserter(tokens, pos));
 				} else if (do_stringize)
