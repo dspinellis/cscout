@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.31 2001/09/01 16:18:30 dds Exp $
+ * $Id: pdtoken.cpp,v 1.32 2001/09/01 18:28:35 dds Exp $
  */
 
 #include <iostream>
@@ -104,12 +104,57 @@ Pdtoken::eat_to_eol()
  * -. Replace all identifiers with 0
  * -. Parse and evaluate sequence
  */
-static int
+int
 eval()
 {
-	dequePtoken tokens;
+	listPtoken tokens;
 	Pltoken t;
-	t.template getnext_nospc<Fchar>();
+
+	do {
+		t.template getnext<Fchar>();
+		tokens.push_back(t);
+	} while (t.get_code() != EOF && t.get_code() != '\n');
+
+	//cout << "Tokens after reading:\n";
+	//copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
+
+	// Handle the "defined" operator
+	listPtoken::iterator i, arg, last, i2;
+	for (i = tokens.begin(); 
+	     (i = i2 = find_if(i, tokens.end(), compose1(bind2nd(equal_to<string>(),"defined"), mem_fun_ref(&Ptoken::get_val)))) != tokens.end(); ) {
+	     	bool need_bracket = false;
+		i2++;
+		arg = i2 = find_if(i2, tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+		if (arg != tokens.end() && (*arg).get_code() == '(') {
+			i2++;
+			arg = i2 = find_if(i2, tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+			need_bracket = true;
+		}
+		if (arg == tokens.end() || (*arg).get_code() != IDENTIFIER) {
+			Error::error(E_ERR, "No identifier following defined operator");
+			return 1;
+		}
+		if (need_bracket) {
+			i2++;
+			last = find_if(i2, tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+			if (last == tokens.end() || (*last).get_code() != ')') {
+				Error::error(E_ERR, "Missing close bracket in defined operator");
+				return 1;
+			}
+		} else
+			last = arg;
+		last++;
+		// We are about to erase it
+		string val = (*arg).get_val();
+		cout << "val:" << val << "\n";
+		Ptoken numval(PP_NUMBER, 
+		  Pdtoken::macros.find(val) == Pdtoken::macros.end() ?  "0" : "1");
+		tokens.erase(i, last);
+		tokens.insert(last, numval);
+		i = last;
+	}
+	//cout << "Tokens after defined:\n";
+	//copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
 }
 
 /*
@@ -129,6 +174,9 @@ eval()
 void
 Pdtoken::process_if(enum e_if_type type)
 {
+	eval();
+	eat_to_eol();
+	return;
 	if (skipping)
 		iflevel++;
 	else {
@@ -140,7 +188,7 @@ Pdtoken::process_if(enum e_if_type type)
 			} else
 				iftaken.pop();
 		}
-		bool eval_res = true;		// XXX
+		bool eval_res = eval();		// XXX
 		iftaken.push(eval_res);
 		if (!eval_res) {
 			skipping = true;
