@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.16 2002/09/17 10:53:02 dds Exp $
+ * $Id: ctoken.cpp,v 1.17 2002/10/03 10:39:37 dds Exp $
  */
 
 #include <map>
@@ -125,26 +125,60 @@ static map<string,int>& keymap = make_keymap();
 
 static int parse_lex_real();
 
-// Consume tokens within an asm block
-// The block can be prefixed by identifiers like volatile (gcc)
-static void
+/*
+ * Consume tokens within an asm block
+ * The block can be prefixed by identifiers like volatile (gcc)
+ * Return the first token AFTER the block
+ */
+static Pdtoken
 eat_block(int open, int close)
 {
-	int matches = 1;
-	int tok;
+	Pdtoken t;
 
-	do {
-		tok = parse_lex_real();
-	} while (tok != IDENTIFIER && tok != open);
-	if (tok != open)
-		Error::error(E_ERR, "asm block syntax");
-	do {
-		tok = parse_lex_real();
-		if (tok == open)
-			matches++;
-		else if (tok == close)
-			matches--;
-	} while (matches > 0);
+	if (open == '(')
+		// Eat gcc leading keywords
+		do {
+			t.getnext();
+		} while (t.get_code() != open);
+	else
+		// Eat MSC leading space
+		do {
+			t.getnext();
+		} while (t.get_code() == SPACE || t.get_code() == '\n');
+	if (t.get_code() == open) {
+		// Block-style
+		if (DP())
+			cout << "Starting block-style asm block\n";
+		int matches = 1;
+		do {
+			t.getnext();
+			if (t.get_code() == open)
+				matches++;
+			else if (t.get_code() == close)
+				matches--;
+		} while (matches > 0);
+	} else {
+		if (DP())
+			cout << t << "Starting line-style asm block\n";
+		/*
+		 * Horrible MSC line-style abomination.
+		 * These apparently terminate on a new-line, an __asm, 
+		 * or even a }
+		 */
+		for (;;) {
+			t.getnext();
+			switch (t.get_code()) {
+			case '}':
+			case '\n':
+				return t;
+			case IDENTIFIER:
+				if (t.get_val() == "__asm")
+					return t;
+			}
+		}
+	}
+	t.getnext();
+	return t;
 }
 
 // Lexical analysis function for yacc
@@ -159,6 +193,7 @@ parse_lex_real()
 	for (;;) {
 		Pdtoken t;
 		t.getnext();
+again:
 		switch (c = t.get_code()) {
 		case '\n':
 		case SPACE:
@@ -180,11 +215,11 @@ parse_lex_real()
 				// Keyword
 				switch ((*ik).second) {
 				case GNUC_ASM:
-					eat_block('(', ')');
-					continue;
+					t = eat_block('(', ')');
+					goto again;
 				case MSC_ASM:
-					eat_block('{', '}');
-					continue;
+					t = eat_block('{', '}');
+					goto again;
 				default:
 					return (*ik).second;
 				}
