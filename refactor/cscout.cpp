@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.59 2003/08/15 10:00:33 dds Exp $
+ * $Id: cscout.cpp,v 1.60 2003/08/15 16:08:57 dds Exp $
  */
 
 #include <map>
@@ -1578,7 +1578,7 @@ warning_report()
 static void
 usage(char *fname)
 {
-	cerr << "usage: " << fname << " [-cEuv] [-p port] [-m spec] file\n"
+	cerr << "usage: " << fname << " [-cEruv] [-p port] [-m spec] file\n"
 		"\t-c\tProcess the file and exit\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
