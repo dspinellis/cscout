@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.24 2003/07/28 20:09:31 dds Exp $
+ * $Id: eclass.cpp,v 1.25 2003/10/08 13:08:14 dds Exp $
  */
 
 #include <iostream>
@@ -99,8 +99,11 @@ Eclass::add_tokid(Tokid t)
 {
 	members.insert(t);
 	t.set_ec(this);
-	if (t.get_readonly())
+	if (t.get_readonly()) {
+		if (DP())
+			cout << "readonly " << *this << "\n";
 		set_attribute(is_readonly);
+	}
 	set_attribute(Project::get_current_projid());
 	if (DP())
 		cout << "Set_attribute for " << t << " to " << Project::get_current_projid() << "\n";
