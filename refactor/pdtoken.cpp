@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.72 2003/06/01 11:36:53 dds2 Exp $
+ * $Id: pdtoken.cpp,v 1.73 2003/06/17 11:07:46 dds Exp $
  */
 
 #include <iostream>
@@ -540,7 +540,7 @@ Pdtoken::process_include(bool next)
 		 * @error
 		 * A
 		 * <code>#include</code>
-		 * directive was followed by a legal filename specification
+		 * directive was not followed by a legal filename specification
 		 */
 		Error::error(E_ERR, "Invalid #include syntax");
 		if (DP()) cout << f;

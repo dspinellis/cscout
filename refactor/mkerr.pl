@@ -1,7 +1,7 @@
 #
 # Generate the warning and error message list
 #
-# $Id: mkerr.pl,v 1.1 2003/06/01 11:45:30 dds Exp $
+# $Id: mkerr.pl,v 1.2 2003/06/17 11:07:46 dds Exp $
 #
 
 
@@ -17,6 +17,7 @@ while (<>) {
 		$sev = $1;
 		$msg = $2;
 		$msg =~ s/\\\"//g;
+		$msg =~ s/^string\(//;
 		$msg =~ s/\"//;
 		$msg =~ s/\"[^"]*\"/ ... /g;
 		$msg =~ s/\"$//;

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.25 2003/06/01 11:36:53 dds2 Exp $
+ * $Id: type.cpp,v 1.26 2003/06/17 11:07:46 dds Exp $
  */
 
 #include <iostream>
@@ -490,7 +490,7 @@ Tarray::set_abstract(Type t)
 		else {
 			/*
 			 * @error
-			 * The unerlying array object for which a type is
+			 * The underlying array object for which a type is
 			 * specified is not an abstract type
 			 */
 			Error::error(E_ERR, "array not an abstract type");
@@ -509,7 +509,7 @@ Tpointer::set_abstract(Type t)
 		else {
 			/*
 			 * @error
-			 * The unerlying pointer object for which a type is
+			 * The underlying pointer object for which a type is
 			 * specified is not an abstract type
 			 */
 			Error::error(E_ERR, "pointer not an abstract type");

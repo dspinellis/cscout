@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.19 2003/06/01 09:03:06 dds Exp $
+ * $Id: stab.cpp,v 1.20 2003/06/17 11:07:46 dds Exp $
  */
 
 #include <map>
@@ -175,7 +175,7 @@ obj_define(const Token& tok, Type typ)
 		    Block::scope_block[Block::current_block].obj.lookup(tok.get_name())) {
 			/*
 			 * @error
-			 * An identifier is declared twice within tha
+			 * An identifier is declared twice within the
 			 * same block
 			 */
 			Error::error(E_ERR, "Duplicate definition of identifier " + tok.get_name());
