@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.92 2004/07/25 12:18:01 dds Exp $
+ * $Id: pdtoken.cpp,v 1.93 2004/07/31 18:32:06 dds Exp $
  */
 
 #include <iostream>
@@ -740,7 +740,8 @@ Pdtoken::process_define()
 		macros.insert(mapMacro::value_type(name, m));
 	else
 		mi->second = m;
-	m.register_macro_body(macro_body_tokens);
+	if (is_function)
+		m.register_macro_body(macro_body_tokens);
 	if (DP()) cout << "Macro define " << m;
 }
 

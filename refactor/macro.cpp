@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.27 2004/07/25 12:18:01 dds Exp $
+ * $Id: macro.cpp,v 1.28 2004/07/31 18:32:06 dds Exp $
  */
 
 #include <iostream>
@@ -647,5 +647,6 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 			mcall = new MCall(name, name.get_name());
 		if (DP())
 			cout << "Mcall is " << mcall << "\n";
-	}
+	} else
+		mcall = NULL;	// To void nasty surprises
 }
