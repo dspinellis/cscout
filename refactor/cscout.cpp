@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.35 2003/05/31 09:05:49 dds Exp $
+ * $Id: cscout.cpp,v 1.36 2003/06/01 15:34:43 dds Exp $
  */
 
 #include <map>
@@ -134,6 +134,8 @@ private:
 	bool xfile;		// True if cross file 
 	bool unused;		// True if unused id (EC size == 1)
 	bool writable;		// True if writable
+	Eclass *ec;		// True if identifier EC matches 
+				// No other evaluation takes place
 	string name;		// Query name
 public:
 	// Construct object based on URL parameters
@@ -444,7 +446,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.35 2003/05/31 09:05:49 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.36 2003/06/01 15:34:43 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -460,7 +462,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.35 2003/05/31 09:05:49 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.36 2003/06/01 15:34:43 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -805,9 +807,13 @@ IdQuery::IdQuery(FILE *of, bool e, bool r) :
 	if (qname && *qname)
 		name = qname;
 
+	// Identifier EC match
+	if (!swill_getargs("p(ec)", &ec))
+		ec = NULL;
+
 	// Type of boolean match
 	char *m;
-	if (!(m = swill_getvar("match"))) {
+	if (!ec && !(m = swill_getvar("match"))) {
 		fprintf(of, "Missing value: match");
 		html_tail(of);
 		valid = return_val = false;
@@ -868,6 +874,13 @@ IdQuery::url()
 {
 	string r("match=");
 	r += ::url(string(1, match_type));
+	if (ec) {
+		ostringstream idval;
+
+		r += "&ec=";
+		idval << (unsigned int) ec;
+		r += idval.str();
+	}
 	if (xfile)
 		r += "&xfile=1";
 	if (unused)
@@ -899,6 +912,8 @@ IdQuery::eval(const IdPropElem &i)
 	if (lazy)
 		return return_val;
 
+	if (ec)
+		return (i.first == ec);
 	if (current_project && !i.first->get_attribute(current_project)) 
 		return false;
 	if (match_ire && regexec(&ire, i.second.get_id().c_str(), 0, NULL, 0) == REG_NOMATCH)
@@ -1079,15 +1094,22 @@ identifier_page(FILE *fo, void *p)
 	IFSet ifiles = e->sorted_files();
 	fprintf(fo, "<h2>Dependent Files (Writable)</h2>\n");
 	html_file_begin(fo);
-	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
-		if ((*j).get_readonly() == false)
+	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++)
+		if ((*j).get_readonly() == false) {
 			html_file(fo, (*j).get_path());
-	}
+			fprintf(fo, " - <a href=\"qsrc.html?id=%u&ec=%u&n=Identifier+%s\">marked source</a>",
+				(*j).get_id(),
+				(unsigned int)e, id.get_id().c_str());
+		}
 	html_file_end(fo);
 	fprintf(fo, "<h2>Dependent Files (All)</h2>\n");
 	html_file_begin(fo);
-	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++)
+	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
 		html_file(fo, (*j).get_path());
+		fprintf(fo, " - <a href=\"qsrc.html?id=%u&ec=%u&n=Identifier+%s\">marked source</a>",
+			(*j).get_id(),
+			(unsigned int)e, id.get_id().c_str());
+	}
 	html_file_end(fo);
 	fprintf(fo, "</FORM>\n");
 	html_tail(fo);
