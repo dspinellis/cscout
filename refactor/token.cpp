@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.17 2003/08/11 14:15:17 dds Exp $
+ * $Id: token.cpp,v 1.18 2003/11/17 20:44:46 dds Exp $
  */
 
 #include <iostream>
@@ -71,6 +71,16 @@ Token::set_ec_attribute(enum e_attribute a) const
 	dequeTpart::const_iterator i;
 	for (i = parts.begin(); i != parts.end(); i++)
 		(*i).get_tokid().set_ec_attribute(a, (*i).get_len());
+}
+
+bool
+Token::contains(Eclass *ec) const
+{
+	dequeTpart::const_iterator i;
+	for (i = parts.begin(); i != parts.end(); i++)
+		if ((*i).get_tokid().get_ec() == ec)
+			return (true);
+	return (false);
 }
 
 /* Given two Tokid sequences corresponding to two tokens

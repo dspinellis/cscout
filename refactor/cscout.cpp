@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.66 2003/09/29 20:51:55 dds Exp $
+ * $Id: cscout.cpp,v 1.67 2003/11/17 20:44:46 dds Exp $
  */
 
 #include <map>
@@ -57,6 +57,7 @@
 #include "license.h"
 #include "fdep.h"
 #include "version.h"
+#include "fcall.h"
 
 #ifdef COMMERCIAL
 #include "des.h"
@@ -287,11 +288,26 @@ html_string(FILE *of, string s)
 
 // Display an identifier hyperlink
 static void
-html_id(FILE *of, const IdProp::value_type &i)
+html_id(FILE *of, const IdPropElem &i)
 {
 	fprintf(of, "<a href=\"id.html?id=%p\">", i.first);
 	html_string(of, (i.second).get_id());
 	fputs("</a>", of);
+}
+
+// Display a token hyperlink
+static void
+html_token(FILE *of, const Token &t)
+{
+	const string &s(t.get_name());
+	int pos = 0;
+	for (dequeTpart::const_iterator i = t.get_parts_begin(); i != t.get_parts_end(); i++) {
+		Eclass *ec = (*i).get_tokid().get_ec();
+		Identifier id(ec, s.substr(pos, ec->get_len()));
+		const IdPropElem ip(ec, id);
+		html_id(of, ip);
+		pos += ec->get_len();
+	}
 }
 
 // Add identifiers of the file fi into ids
@@ -1206,6 +1222,16 @@ identifier_page(FILE *fo, void *p)
 		if (e->get_attribute(j))
 			fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(fo, "</ul>\n");
+	if (e->get_attribute(is_function)) {
+		fprintf(fo, "<li> Occurs in function name(s): \n<ol>\n");
+		for (FCall::const_fiterator_type i = FCall::fbegin(); i != FCall::fend(); i++) {
+			if ((*i)->get_declaration().contains(e)) {
+				fprintf(fo, "\n<li>");
+				html_token(fo, (*i)->get_declaration());
+			}
+		}
+		fprintf(fo, "</ol>\n");
+	}
 	if (id.get_replaced())
 		fprintf(fo, "<li> Substituted with: [%s]\n", id.get_newid().c_str());
 	if (!e->get_attribute(is_readonly)) {
