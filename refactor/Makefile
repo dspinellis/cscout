@@ -1,13 +1,13 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.26 2003/03/27 18:51:12 dds Exp $
+# $Id: Makefile,v 1.27 2003/05/16 13:08:46 dds Exp $
 #
 
 # Common object files
 OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
-parse.o type.o stab.o attr.o metrics.o
+parse.o type.o stab.o attr.o metrics.o license.o des.o
 
 # Stand-alone object files
 STANDOBJ=error.o
@@ -58,9 +58,10 @@ color: color.o $(STANDOBJ) $(OBJ)
 obfuscate: obfuscate.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o obfuscate $(STANDOBJ) $(OBJ) obfuscate.o
 
-
 engine: engine.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o engine $(STANDOBJ) $(OBJ) engine.o
+
+
 
 # Some important dependencies
 color.o: pltoken.h
@@ -80,6 +81,9 @@ tokname.cpp: ytoken.h tokname.pl
 	$(YACC) -d -b parse -p parse_ parse.y
 	grep 'define ' parse_tab.h >ytab.h
 	perl tokname.pl ytab.h tokname.cpp
+
+license.o: license.c
+	gcc -c $(CPPFLAGS) license.c
 
 # Test
 cpptest: cpp-test $(CPPTEST) simple_cpp

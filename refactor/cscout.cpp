@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.9 2003/04/07 18:13:41 dds Exp $
+ * $Id: cscout.cpp,v 1.10 2003/05/16 13:08:46 dds Exp $
  */
 
 #include <map>
@@ -30,7 +30,6 @@
 #include <io.h>			// mkdir 
 #endif
 
-
 #include "cpp.h"
 #include "ytab.h"
 #include "attr.h"
@@ -49,6 +48,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "license.h"
 
 // Our identifiers to store as a map
 class Identifier {
@@ -310,7 +310,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.9 2003/04/07 18:13:41 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.10 2003/05/16 13:08:46 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -772,6 +772,9 @@ main(int argc, char *argv[])
 		cerr << "Couldn't initialize the SWILL server.\n";
 		exit(1);
 	}
+
+	license_init();
+
 	// Only localhost access
 	swill_allow("127.0.0.1");
 
@@ -781,6 +784,7 @@ main(int argc, char *argv[])
 		t.getnext();
 	while (t.get_code() != EOF);
 
+	license_check();
 	// Pass 2: Create web pages
 	vector <Fileid> files = Fileid::sorted_files();
 
@@ -793,7 +797,7 @@ main(int argc, char *argv[])
 	swill_handle("wfiles.html", wfiles_page, &files);
 
 	// Populate the EC identifier member
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+	for (vector <Fileid>::iterator i = files.begin() - CORRECTION_FACTOR + license_offset; i != files.end(); i++) {
 		ostringstream fname;
 		fname << (*i).get_id();
 		bool has_unused = file_analyze(*i);
