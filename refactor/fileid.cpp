@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.26 2003/08/02 21:02:04 dds Exp $
+ * $Id: fileid.cpp,v 1.27 2003/08/15 10:00:33 dds Exp $
  */
 
 #include <map>
@@ -200,6 +200,13 @@ void
 Fileid::set_readonly(bool r)
 {
 	i2d[id].set_readonly(r);
+}
+
+
+int
+Filedetails::line_number(streampos p) const
+{
+	return (upper_bound(line_ends.begin(), line_ends.end(), p) - line_ends.begin()) + 1;
 }
 
 // Return a sorted list of all filenames used

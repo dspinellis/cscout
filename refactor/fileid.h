@@ -14,7 +14,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.18 2003/08/11 17:18:37 dds Exp $
+ * $Id: fileid.h,v 1.19 2003/08/15 10:00:33 dds Exp $
  */
 
 #ifndef FILEID_
@@ -29,6 +29,9 @@ private:
 	string name;	// File name (complete path)
 	bool gc;	// When postprocessing files to garbage collect ECs
 	bool rq;	// When postprocessing files actually required (containing definitions)
+	// Line end offsets; collected during postprocessing
+	// when we are generating warning reports
+	vector <streampos> line_ends;
 public:
 	Attributes attr;
 	class Metrics m;
@@ -41,6 +44,12 @@ public:
 	void set_gc(bool r) { gc = r; }
 	bool required() const { return rq; }
 	void set_required(bool r) { rq = r; }
+
+	// Add and retrieve line numbers
+	// Should be called every time a newline is encountered
+	void add_line_end(streampos p) { line_ends.push_back(p); }
+	// Return a line number given a file offset
+	int line_number(streampos p) const;
 };
 
 typedef map <string, int> FI_uname_to_id;
@@ -95,8 +104,16 @@ public:
 	// Get/set the garbage collected property
 	void set_gc(bool v) { i2d[id].set_gc(v); }
 	bool garbage_collected() const { return i2d[id].garbage_collected(); }
+	// Get/set required property (for include files)
 	void set_required(bool v) { i2d[id].set_required(v); }
 	bool required() const { return i2d[id].required(); }
+
+	// Add and retrieve line numbers
+	// Should be called every time a newline is encountered
+	void add_line_end(streampos p) { i2d[id].add_line_end(p); }
+	// Return a line number given a file offset
+	int line_number(streampos p) const { return i2d[id].line_number(p); }
+
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.58 2003/08/12 12:28:22 dds Exp $
+ * $Id: cscout.cpp,v 1.59 2003/08/15 10:00:33 dds Exp $
  */
 
 #include <map>
@@ -68,6 +68,7 @@ static int tab_width = 8;		// Tab width for code output
 // Global command-line options
 static bool preprocess;			// Preprocess-only (-E)
 static bool compile_only;		// Process-only (-c)
+static bool report;			// Generate a warning report
 static int portno = 8081;		// Port number (-p n)
 
 // Our identifiers to store as a map
@@ -173,6 +174,7 @@ public:
 	bool need_eval() { return !lazy; }
 	static void usage();	// Report string constructor usage information
 };
+
 
 // Identifiers to monitor (-m parameter)
 static IdQuery monitor;
@@ -347,6 +349,8 @@ file_analyze(Fileid fi)
 			}
 		}
 		fi.metrics().process_char((char)val);
+		if (report && (char)val == '\n')
+			fi.add_line_end(ti.get_streampos());
 	}
 	if (DP())
 		cout << "nchar = " << fi.metrics().get_nchar() << '\n';
@@ -1328,6 +1332,7 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Project-scoped+Writable+Identifiers\">Unused project-scoped writable identifiers</a>\n", is_lscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+File-scoped+Writable+Identifiers\">Unused file-scoped writable identifiers</a>\n", is_cscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Writable+Macros\">Unused writable macros</a>\n", is_macro);
+	// xfile is implicitly 0
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&a%d=1&match=T&ire=&fre=&n=Writable+identifiers+that+should+be+made+static&qi=1\">Writable identifiers that should be made static</a>\n", is_ordinary, is_lscope);
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
@@ -1510,7 +1515,7 @@ parse_acl()
 
 // Process the input as a C preprocessor
 // Fchar should already have its input set
-int
+static int
 simple_cpp()
 {
 	for (;;) {
@@ -1534,6 +1539,41 @@ simple_cpp()
 	return(0);
 }
 
+
+// Generate a warning report
+static void
+warning_report()
+{
+	struct {
+		char *message;
+		char *query;
+	} reports[] = {
+		{ "unused project scoped writable identifier",
+		  "L:writable:unused:pscope" },
+		{ "unused file scoped writable identifier",
+		  "L:writable:unused:fscope" },
+		{ "unused writable macro",
+		  "L:writable:unused:macro" },
+		{ "writable identifier that should be made static",
+		  "T:writable:obj:pscope" }, // xfile is implicitly 0
+	};
+
+	for (int i = 0; i < sizeof(reports) / sizeof(reports[0]); i++) {
+		IdQuery query(reports[i].query);
+
+		assert(query.is_valid());
+		for (IdProp::iterator j = ids.begin(); j != ids.end(); j++) {
+			if (!query.eval(*j))
+				continue;
+			const Tokid t = *((*j).first->get_members().begin());
+			const string &id = (*j).second.get_id();
+			cerr << t.get_path() << ':' << 
+				t.get_fileid().line_number(t.get_streampos()) << ": " <<
+				id << ": " << reports[i].message << '\n';
+		}
+	}
+}
+
 // Report usage information and exit
 static void
 usage(char *fname)
@@ -1544,7 +1584,8 @@ usage(char *fname)
 		"\t\t(the workspace file must have also been processed with -E)\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
-		"\t-u\tReport unused included files\n"
+		"\t-r\tGenerate an identifier warning report\n"
+		"\t-u\tDerive and report unused included files\n"
 		"\t-v\tDisplay version and copyright information and exit\n"
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n";
 	exit(1);
@@ -1559,7 +1600,7 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "cuvEp:m:")) != EOF)
+	while ((c = getopt(argc, argv, "cruvEp:m:")) != EOF)
 		switch (c) {
 		case 'E':
 			preprocess = true;
@@ -1578,6 +1619,9 @@ main(int argc, char *argv[])
 			if (!optarg)
 				usage(argv[0]);
 			monitor = IdQuery(optarg);
+			break;
+		case 'r':
+			report = true;
 			break;
 		case 'u':
 			Fdep::set_monitoring_dependencies(true);
@@ -1625,17 +1669,19 @@ main(int argc, char *argv[])
 		t.getnext();
 	while (t.get_code() != EOF);
 
-	if (compile_only)
+	if (compile_only && !report)
 		return 0;
 
 	// Pass 2: Create web pages
 	files = Fileid::files(true);
 
-	swill_handle("sproject.html", select_project_page, 0);
-	swill_handle("options.html", options_page, 0);
-	swill_handle("soptions.html", set_options_page, 0);
-	swill_handle("sexit.html", write_quit_page, 0);
-	swill_handle("qexit.html", quit_page, 0);
+	if (!compile_only) {
+		swill_handle("sproject.html", select_project_page, 0);
+		swill_handle("options.html", options_page, 0);
+		swill_handle("soptions.html", set_options_page, 0);
+		swill_handle("sexit.html", write_quit_page, 0);
+		swill_handle("qexit.html", quit_page, 0);
+	}
 
 	// Populate the EC identifier member
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
@@ -1695,25 +1741,31 @@ main(int argc, char *argv[])
 #endif
 	}
 
-	swill_handle("src.html", source_page, NULL);
-	swill_handle("qsrc.html", query_source_page, NULL);
-	swill_handle("file.html", file_page, NULL);
+	if (!compile_only) {
+		swill_handle("src.html", source_page, NULL);
+		swill_handle("qsrc.html", query_source_page, NULL);
+		swill_handle("file.html", file_page, NULL);
 
-	// Identifier query and execution
-	swill_handle("iquery.html", iquery_page, NULL);
-	swill_handle("xiquery.html", xiquery_page, NULL);
-	// File query and execution
-	swill_handle("fquery.html", fquery_page, NULL);
-	swill_handle("xfquery.html", xfquery_page, NULL);
+		// Identifier query and execution
+		swill_handle("iquery.html", iquery_page, NULL);
+		swill_handle("xiquery.html", xiquery_page, NULL);
+		// File query and execution
+		swill_handle("fquery.html", fquery_page, NULL);
+		swill_handle("xfquery.html", xfquery_page, NULL);
 
-	swill_handle("id.html", identifier_page, NULL);
-	swill_handle("fmetrics.html", file_metrics_page, NULL);
-	swill_handle("idmetrics.html", id_metrics_page, NULL);
-	swill_handle("setproj.html", set_project_page, NULL);
-	swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
+		swill_handle("id.html", identifier_page, NULL);
+		swill_handle("fmetrics.html", file_metrics_page, NULL);
+		swill_handle("idmetrics.html", id_metrics_page, NULL);
+		swill_handle("setproj.html", set_project_page, NULL);
+		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
+	}
 
 	if (motd)
 		cout << motd << "\n";
+	if (report && !must_exit)
+		warning_report();
+	if (compile_only)
+		return 0;
 	if (DP())
 		cout  << "Tokid EC map size is " << Tokid::map_size() << "\n";
 	// Serve web pages
