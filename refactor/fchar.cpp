@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.19 2002/12/26 12:46:24 dds Exp $
+ * $Id: fchar.cpp,v 1.20 2003/05/28 16:32:58 dds Exp $
  */
 
 #include <iostream>
@@ -129,15 +129,22 @@ Fchar::getnext()
 			cout << "getnext returns " << this->get_char() << "\n";
 		return;
 	}
+	// Loop for unwinding the pushed file context stack
 	for (;;) {
 		simple_getnext();
-		if (val != EOF || cs.empty() || cs.size() == stack_lock_size) {
+		if (val == EOF) {
+			fi.metrics().done_processing();
+			fi.set_attribute(Project::get_current_projid());
+			if (DP())
+				cout << "Set projid for " << fi.get_path() << " = " << Project::get_current_projid() << "\n";
+		}
+		if (val != EOF) {
 			if (DP())
 				cout << "getnext returns " << this->get_char() << "\n";
-			if (val == EOF) {
-				fi.metrics().done_processing();
-				fi.set_attribute(Project::get_current_projid());
-			}
+			return;
+		} else if (cs.empty() || cs.size() == stack_lock_size) {
+			if (DP())
+				cout << "getnext returns EOF\n";
 			return;
 		}
 		fchar_context fc = cs.top();
