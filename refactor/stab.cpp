@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.5 2001/09/20 13:15:00 dds Exp $
+ * $Id: stab.cpp,v 1.6 2001/09/20 13:40:56 dds Exp $
  */
 
 #include <map>
@@ -69,11 +69,32 @@ void
 obj_define(const Token& tok, const Type& typ)
 {
 	enum e_storage_class sc = typ.get_storage_class();
+	Id const * id;
 
-	if (sc != c_extern && Block::current_block != Block::cu_block &&
-	    Block::scope_block[Block::current_block].obj.lookup(tok.get_name())) {
-		Error::error(E_ERR, "Duplicate definition of identifier " + tok.get_name());
-		return;
+	if (sc == c_extern && (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
+		// If the declaration of an identifier contains extern the identifier
+		// has the same linage as any visible declaration of the identifier
+		// with file scope
+		sc = id->get_type().get_storage_class();
+		// XXX Should also modfy the storage class of typ
+	}
+	if (Block::current_block == Block::cu_block) {
+		// Special rules for definitions at file scope
+		// ANSI 3.1.2.2 p. 22
+		if (sc == c_static) {
+			if (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name())) {
+				if (id->get_type().get_storage_class() == c_unspecified)
+					Error::error(E_ERR, "conflicting declarations for identifier " + id->get_name());
+				unify(id->get_token(), tok);
+			}
+		}
+	} else {
+		// Definitions at function block scope
+		if (sc != c_extern &&
+		    Block::scope_block[Block::current_block].obj.lookup(tok.get_name())) {
+			Error::error(E_ERR, "Duplicate definition of identifier " + tok.get_name());
+			return;
+		}
 	}
 	Block::define(&(Block::obj), tok, typ);
 	// Identifiers with extern scope are also added to the linkage unit
