@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.1 2001/09/04 13:27:54 dds Exp $
+ * $Id: type.h,v 1.2 2001/09/06 15:03:43 dds Exp $
  */
 
 #ifndef TYPE_
@@ -22,6 +22,7 @@ public:
 enum e_btype {
 	b_abstract,		// Abstract declaration target, to be filled-in
 	b_void, b_char, b_short, b_int, b_long, b_float, b_double, b_ldouble,
+	b_undeclared,		// Undeclared object
 	b_type			// Typedef
 };
 
