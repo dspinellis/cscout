@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.61 2003/07/19 13:35:07 dds Exp $
+ * $Id: parse.y,v 1.62 2003/07/19 14:21:41 dds Exp $
  *
  */
 
@@ -1207,6 +1207,7 @@ external_definition:
         | declaration
 			[ YYVALID; Block::param_clear(); ]
 	| assembly_statement
+	| ';'		/* Common extension - I believe */
         ;
 
 function_definition:
