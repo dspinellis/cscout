@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.54 2003/08/16 11:31:22 dds Exp $
+# $Id: Makefile,v 1.55 2003/08/17 08:44:19 dds Exp $
 #
 
 # Common object files
@@ -60,7 +60,7 @@ test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
 test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
 test/empty.c test/def.c test/conddef.c test/concat-empty.c \
 test/concat.c test/macro_rescan.c test/vararg.c test/shorten.c \
-test/nostrings.c
+test/nostrings.c test/concat-arg.c
 
 # Pattern rules for C and C++ files
 $(ARCH)/%.o: %.c
@@ -145,8 +145,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.54 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/16 11:31:22 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.55 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/17 08:44:19 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
