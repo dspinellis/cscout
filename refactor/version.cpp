@@ -1,14 +1,14 @@
 #include <string>
 using namespace std;
 #include "version.h"
-char Version::revision[] = "$Revision: 1.14 $";
-char Version::date[] = "$Date: 2003/08/03 16:36:28 $";
+char Version::revision[] = "$Revision: 1.15 $";
+char Version::date[] = "$Date: 2003/08/06 17:40:34 $";
 char *Version::ident[] = {
-"$" "Id:" " Makefile 1.48 2003/08/03 16:12:11 dds Exp $",
+"$" "Id:" " Makefile 1.49 2003/08/06 17:13:53 dds Exp dds $",
 "$" "Id:" " attr.cpp 1.12 2003/07/28 20:09:31 dds Exp $",
 "$" "Id:" " attr.h 1.11 2003/07/28 20:09:31 dds Exp $",
 "$" "Id:" " color.cpp 1.9 2002/09/28 13:22:40 dds Exp $",
-"$" "Id:" " cscout.cpp 1.53 2003/07/31 15:23:30 dds Exp $",
+"$" "Id:" " cscout.cpp 1.54 2003/08/06 17:12:03 dds Exp $",
 "$" "Id:" " ctoken.cpp 1.22 2003/08/03 16:12:11 dds Exp $",
 "$" "Id:" " ctoken.h 1.4 2001/09/12 07:09:08 dds Exp $",
 "$" "Id:" " debug.cpp 1.2 2001/09/03 08:13:51 dds Exp $",
@@ -55,9 +55,9 @@ char *Version::ident[] = {
 "$" "Id:" " tokmap.cpp 1.3 2002/09/17 10:53:02 dds Exp $",
 "$" "Id:" " tokmap.h 1.1 2001/08/15 18:08:00 dds Exp $",
 "$" "Id:" " tokname.pl 1.6 2003/06/02 13:55:09 dds Exp $",
-"$" "Id:" " type.cpp 1.30 2003/08/01 08:41:37 dds Exp $",
-"$" "Id:" " type.h 1.25 2003/08/01 08:41:37 dds Exp $",
-"$" "Id:" " type2.h 1.13 2003/08/01 08:41:37 dds Exp $",
+"$" "Id:" " type.cpp 1.31 2003/08/06 17:12:03 dds Exp $",
+"$" "Id:" " type.h 1.26 2003/08/06 17:12:03 dds Exp $",
+"$" "Id:" " type2.h 1.14 2003/08/06 17:12:03 dds Exp $",
 "$" "Id:" " webmap.cpp 1.20 2002/10/07 20:13:59 dds Exp $",
 "$" "Id:" " webmap.cpp 1.20 2002/10/07 20:13:59 dds Exp $",
 "$" "Id:" " workdb.cpp 1.10 2002/10/07 20:13:59 dds Exp $",
