@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.26 2001/09/01 07:24:56 dds Exp $
+ * $Id: pdtoken.cpp,v 1.27 2001/09/01 10:59:28 dds Exp $
  */
 
 #include <iostream>
@@ -15,6 +15,8 @@
 #include <fstream>
 #include <list>
 #include <set>
+#include <algorithm>
+#include <functional>
 #include <cassert>
 
 #include "cpp.h"
@@ -222,9 +224,13 @@ Pdtoken::process_define()
 			}
 	}
 	// Continue gathering macro body
-	// Space is significant for comparing same definitions!
-	for (;;) {
-		t.template getnext<Fchar>();
+	for (int i = 0;; i++) {
+		// Non-leading whitespace is significant for comparing same 
+		// definitions.
+		if (i == 0)
+			t.template getnext_nospc<Fchar>();
+		else
+			t.template getnext<Fchar>();
 		if (t.get_code() == '\n')
 			break;
 		m.value.push_back(t);
@@ -232,6 +238,11 @@ Pdtoken::process_define()
 		if ((i = args.find(t.get_val())) != args.end())
 			unify(t, (*i).second);
 	}
+	// Remove trailing whitespace
+	// Took me three hours to arrive at
+	m.value.erase((find_if(m.value.rbegin(), m.value.rend(), not1(mem_fun_ref(&Ptoken::is_space)))).base(), m.value.end());
+	// cout << "Macro definition :\n";
+	// copy(m.value.begin(), m.value.end(), ostream_iterator<Ptoken>(cout));
 	// Check that the new macro is not different from an older definition
 	mapMacro::const_iterator i = macros.find(name);
 	if (i != macros.end() && (*i).second != m)
