@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.12 2003/05/17 07:38:32 dds Exp $
+ * $Id: cscout.cpp,v 1.13 2003/05/24 07:20:50 dds Exp $
  */
 
 #include <map>
@@ -79,7 +79,14 @@ public:
 typedef set <Fileid, fname_order> IFSet;
 typedef map <Eclass *, Identifier> IdProp;
 static IdProp ids; 
-Attributes::size_type current_project;
+static Attributes::size_type current_project;
+
+// Global options
+static bool remove_fp;			// Remove common file prefix
+static bool sort_rev;			// Reverse sort of identifier names
+static bool show_true;			// Only show true identifier properties
+
+void index_page(FILE *of, void *data);
 
 // Return HTML equivalent of character c
 static char *
@@ -310,7 +317,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.12 2003/05/17 07:38:32 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.13 2003/05/24 07:20:50 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -455,6 +462,14 @@ roids_page(FILE *of,  void *p)
 	html_tail(of);
 }
 
+// Display an identifier property
+static void
+show_id_prop(FILE *fo, const string &name, bool val)
+{
+	if (!show_true || val)
+		fprintf(fo, ("<li>" + name + ": %s\n").c_str(), val ? "Yes" : "No");
+}
+
 // Details for each identifier
 void
 identifier_page(FILE *fo, void *p)
@@ -478,17 +493,17 @@ identifier_page(FILE *fo, void *p)
 	}
 	html_head(fo, "id", string("Identifier: ") + html(id.get_id()));
 	fprintf(fo, "<FORM ACTION=\"id.html\" METHOD=\"GET\">\n<ul>\n");
-	fprintf(fo, "<li> Read-only: %s\n", e->get_attribute(is_readonly) ? "Yes" : "No");
-	fprintf(fo, "<li> Macro: %s\n", e->get_attribute(is_macro) ? "Yes" : "No");
-	fprintf(fo, "<li> Macro argument: %s\n", e->get_attribute(is_macroarg) ? "Yes" : "No");
-	fprintf(fo, "<li> Ordinary identifier: %s\n", e->get_attribute(is_ordinary) ? "Yes" : "No");
-	fprintf(fo, "<li> Tag for struct/union/enum: %s\n", e->get_attribute(is_suetag) ? "Yes" : "No");
-	fprintf(fo, "<li> Member of struct/union: %s\n", e->get_attribute(is_sumember) ? "Yes" : "No");
-	fprintf(fo, "<li> Label: %s\n", e->get_attribute(is_label) ? "Yes" : "No");
-	fprintf(fo, "<li> Typedef: %s\n", e->get_attribute(is_typedef) ? "Yes" : "No");
-	fprintf(fo, "<li> File scope: %s\n", e->get_attribute(is_cscope) ? "Yes" : "No");
-	fprintf(fo, "<li> Project scope: %s\n", e->get_attribute(is_lscope) ? "Yes" : "No");
-	fprintf(fo, "<li> Unused: %s\n", e->get_size() == 1 ? "Yes" : "No");
+	show_id_prop(fo, "Read-only", e->get_attribute(is_readonly));
+	show_id_prop(fo, "Macro", e->get_attribute(is_macro));
+	show_id_prop(fo, "Macro argument", e->get_attribute(is_macroarg));
+	show_id_prop(fo, "Ordinary identifier", e->get_attribute(is_ordinary));
+	show_id_prop(fo, "Tag for struct/union/enum", e->get_attribute(is_suetag));
+	show_id_prop(fo, "Member of struct/union", e->get_attribute(is_sumember));
+	show_id_prop(fo, "Label", e->get_attribute(is_label));
+	show_id_prop(fo, "Typedef", e->get_attribute(is_typedef));
+	show_id_prop(fo, "File scope", e->get_attribute(is_cscope));
+	show_id_prop(fo, "Project scope", e->get_attribute(is_lscope));
+	show_id_prop(fo, "Unused", e->get_size() == 1);
 	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
 	if (DP()) {
 		cout << "First project " << attr_max << "\n";
@@ -630,11 +645,49 @@ umids_page(FILE *fo, void *p)
 	html_tail(fo);
 }
 
+
+// Front-end global options page
+void
+options_page(FILE *fo, void *p)
+{
+	html_head(fo, "options", "Global Options");
+	fprintf(fo, "<FORM ACTION=\"soptions.html\" METHOD=\"GET\">\n");
+	fprintf(fo, "<input type=\"checkbox\" name=\"remove_fp\" value=\"1\" %s>Remove common path prefix from files<br>\n", (remove_fp ? "checked" : ""));
+	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (sort_rev ? "checked" : ""));
+	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
+/*
+Do not show No in identifier properties (option)
+
+*/
+	fprintf(fo, "<p><INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"OK\">\n");
+	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Cancel\">\n");
+	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Apply\">\n");
+	fprintf(fo, "</FORM>\n");
+	html_tail(fo);
+}
+
+// Front-end global options page
+void
+set_options_page(FILE *fo, void *p)
+{
+	if (string(swill_getvar("set")) == "Cancel") {
+		index_page(fo, p);
+		return;
+	}
+	remove_fp = !!swill_getvar("remove_fp");
+	sort_rev = !!swill_getvar("sort_rev");
+	show_true = !!swill_getvar("show_true");
+	if (string(swill_getvar("set")) == "Apply")
+		options_page(fo, p);
+	else
+		index_page(fo, p);
+}
+
 // Display all projects, allowing user to select
 void
 select_project_page(FILE *fo, void *p)
 {
-	html_head(fo, "sproject", "Select Project");
+	html_head(fo, "sproject", "Select Active Project");
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> <a href=\"setproj.html?projid=0\">All projects</a>\n");
 	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
@@ -651,7 +704,6 @@ set_project_page(FILE *fo, void *p)
 	if (!local_access(fo))
 		return;
 #endif
-	void index_page(FILE *of, void *data);
 
 	if (!swill_getargs("i(projid)", &current_project)) {
 		fprintf(fo, "Missing value");
@@ -681,7 +733,8 @@ index_page(FILE *of, void *data)
 		"</ul>"
 		"<h2>Operations</h2>"
 		"<ul>\n"
-		"<li> <a href=\"sproject.html\">Select project</a>\n"
+		"<li> <a href=\"options.html\">Global options</a>\n"
+		"<li> <a href=\"sproject.html\">Select active project</a>\n"
 		"<li> <a href=\"sexit.html\">Exit - saving changes</a>\n"
 		"<li> <a href=\"qexit.html\">Exit - ignore changes</a>\n"
 		"</ul>");
@@ -879,6 +932,8 @@ main(int argc, char *argv[])
 	vector <Fileid> files = Fileid::sorted_files();
 
 	swill_handle("sproject.html", select_project_page, 0);
+	swill_handle("options.html", options_page, 0);
+	swill_handle("soptions.html", set_options_page, 0);
 	swill_handle("sexit.html", write_quit_page, 0);
 	swill_handle("qexit.html", quit_page, 0);
 	swill_handle("afiles.html", afiles_page, &files);
