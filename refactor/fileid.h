@@ -10,7 +10,7 @@
  * #include <string>
  * #include <vector>
  *
- * $Id: fileid.h,v 1.8 2002/09/04 17:50:36 dds Exp $
+ * $Id: fileid.h,v 1.9 2002/09/05 10:38:04 dds Exp $
  */
 
 #ifndef FILEID_
@@ -79,5 +79,12 @@ operator <(const class Fileid a, const class Fileid b)
 {
 	return (a.id < b.id);
 }
+
+// Can be used to order Fileid sets
+struct fname_order : public binary_function <const Fileid &, const Fileid &, bool> {
+      bool operator()(const Fileid &a, const Fileid &b) const { 
+	      return a.get_path() < b.get_path();
+      }
+};
 
 #endif /* FILEID_ */

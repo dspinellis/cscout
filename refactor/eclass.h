@@ -9,7 +9,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.10 2002/09/04 18:02:43 dds Exp $
+ * $Id: eclass.h,v 1.11 2002/09/05 10:38:04 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -45,7 +45,7 @@ public:
 	// Other accessor functions
 	bool get_readonly() const { return ro; }
 	void set_readonly(bool v) { ro = v; }
-	vector <Fileid> sorted_files();
+	set <Fileid, fname_order> sorted_files();
 };
 
 inline
