@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.16 2002/09/17 10:53:02 dds Exp $
+ * $Id: stab.cpp,v 1.17 2002/09/28 13:19:03 dds Exp $
  */
 
 #include <map>
@@ -184,11 +184,14 @@ tag_define(const Token& tok, const Type& typ)
 {
 	tok.set_ec_attribute(is_suetag);
 	static Stab Block::*tagptr = &Block::tag;
+	const Id *id;
+
 	if (DP())
 		cout << "Define tag [" << tok.get_name() << "]: " << typ << "\n";
 	if (Block::use_param)
 		(Block::param_block.tag).define(tok, typ);
-	else if (Block::scope_block[Block::current_block].tag.lookup(tok.get_name()))
+	else if ((id = Block::scope_block[Block::current_block].tag.lookup(tok.get_name())) &&
+		 !id->get_type().is_incomplete())
 		Error::error(E_ERR, "Duplicate definition of tag  " + tok.get_name());
 	else
 		Block::define(tagptr, tok, typ);

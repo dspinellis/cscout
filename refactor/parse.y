@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.43 2002/09/17 16:20:37 dds Exp $
+ * $Id: parse.y,v 1.44 2002/09/28 13:19:03 dds Exp $
  *
  */
 
@@ -689,6 +689,9 @@ aggregate_name:
 		{ $$ = $3; }
         | aggregate_key identifier_or_typedef_name '{'  member_declaration_list '}'
 		{
+			Id const *id = tag_lookup($2.get_name());
+			if (id)
+				unify(id->get_token(), $2.get_token());
 			tag_define($2.get_token(), $4);
 			$$ = $4;
 		}
@@ -700,8 +703,10 @@ aggregate_name:
 				$$ = id->get_type();
 				if (DP())
 					cout << "lookup returns " << $$ << "\n";
-			} else
+			} else {
 				$$ = incomplete($2.get_token(), Block::get_scope_level());
+				tag_define($2.get_token(), $$);
+			}
 		}
         ;
 
