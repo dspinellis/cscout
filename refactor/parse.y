@@ -1,6 +1,8 @@
 /*
  * (C) Copyright 2001 Diomidis Spinellis.
+ * Portions Copyright (c)  1989,  1990  James  A.  Roskind
  * Based on work by James A. Roskind; see comments at the end of this file.
+ * Grammar obtained from http://www.empathy.com/pccts/roskind.html 
  *
  * Type inference engine.  Note that for the purposes of this work we do not
  * need to keep precise track of types, esp. implicit arithmetic conversions.
@@ -9,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.4 2001/09/06 13:51:53 dds Exp $
+ * $Id: parse.y,v 1.5 2001/09/06 15:02:44 dds Exp $
  *
  */
 
@@ -88,9 +90,10 @@ int yylex(void) { return 0;}
 %union {
 	Type *t;
 	Id *i;
+	Ctoken *c;
 };
 
-%type <i> IDENTIFIER
+%type <c> IDENTIFIER
 
 %type <t> constant
 %type <t> primary_expression
@@ -181,7 +184,17 @@ string_literal_list:
 /************************* EXPRESSIONS ********************************/
 primary_expression:
         IDENTIFIER  /* We cannot use a typedef name as a variable */
-			{ $$ = $1->get_type(); }
+			{
+				Id *id = obj_lookup($1->get_name);
+				if (id) {
+					unify(id->get_token(), $1);
+					$$ = id->get_type();
+				} else {
+					Error::error(E_ERR, "Undeclared identifier: " + $1->get_name());
+					$$ = Tbasic(b_undeclared);
+				}
+				delete $1;
+			}
         | constant
         | string_literal_list
         | '(' comma_expression ')'
@@ -645,8 +658,11 @@ parameter_declaration:
     typedef name shall not be redeclared as a parameter".  Hence  the
     following is based only on IDENTIFIERs */
 
+/* Only used for old-style function definitions, identifiers are declared
+ * by default as int, but they a full declaration can follow. */
 identifier_list:
         IDENTIFIER
+			{ obj_define($1->get_name(), Id($1, Tbasic(b_int))); }
         | identifier_list ',' IDENTIFIER
         ;
 
