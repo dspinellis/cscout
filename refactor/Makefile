@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.28 2003/05/16 20:12:28 dds Exp $
+# $Id: Makefile,v 1.29 2003/05/25 14:47:44 dds Exp $
 #
 
 # Common object files
@@ -47,7 +47,7 @@ cscout: cscout.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill
 
 cscout.exe: cscout.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill -lws2_32
+	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill -lws2_32 -lregex
 
 webmap: webmap.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o webmap $(STANDOBJ) $(OBJ) webmap.o

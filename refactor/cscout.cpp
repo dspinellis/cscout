@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.23 2003/05/25 13:10:37 dds Exp $
+ * $Id: cscout.cpp,v 1.24 2003/05/25 14:47:44 dds Exp $
  */
 
 #include <map>
@@ -22,6 +22,7 @@
 #include <cstdio>		// perror, rename
 
 #include "swill.h"
+#include "regex.h"
 
 #ifdef unix
 #include <sys/types.h>		// mkdir
@@ -55,6 +56,7 @@
 static bool remove_fp;			// Remove common file prefix
 static bool sort_rev;			// Reverse sort of identifier names
 static bool show_true;			// Only show true identifier properties
+static bool file_icase;			// File name case-insensitive match
 
 // Our identifiers to store as a map
 class Identifier {
@@ -343,7 +345,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.23 2003/05/25 13:10:37 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.24 2003/05/25 14:47:44 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -433,7 +435,7 @@ fquery_page(FILE *of,  void *p)
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
-	"<p><INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
 	, of);
 	html_tail(of);
@@ -484,7 +486,7 @@ xfquery_page(FILE *of,  void *p)
 	bool ro = !!swill_getvar("ro");
 	char *qname = swill_getvar("n");
 
-	html_head(of, "xfquery", qname ? qname : "File Query Results");
+	html_head(of, "xfquery", (qname && *qname) ? qname : "File Query Results");
 
 	char *m;
 	if (!(m = swill_getvar("match"))) {
@@ -492,6 +494,23 @@ xfquery_page(FILE *of,  void *p)
 		return;
 	}
 	match_type = *m;
+
+	// Compile regular expression specs
+	regex_t fre;
+	bool match_fre;
+	char *s;
+	int r;
+	match_fre = false;
+	if ((s = swill_getvar("fre")) && *s) {
+		match_fre = true;
+		if ((r = regcomp(&fre, s, REG_EXTENDED | REG_NOSUB | (file_icase ? REG_ICASE : 0)))) {
+			char buff[1024];
+			regerror(r, &fre, buff, sizeof(buff));
+			fprintf(of, "<h2>Filename regular expression error</h2>%s", buff);
+			html_tail(of);
+			return;
+		}
+	}
 
 	// Store metric specifications in a vector
 	for (int i = 0; i < metric_max; i++) {
@@ -506,6 +525,9 @@ xfquery_page(FILE *of,  void *p)
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (current_project && !(*i).get_attribute(current_project)) 
 			continue;
+		if (match_fre && regexec(&fre, (*i).get_path().c_str(), 0, NULL, 0) == REG_NOMATCH)
+			continue;
+
 		bool add;
 		switch (match_type) {
 		case 'Y':	// anY match
@@ -543,6 +565,8 @@ xfquery_page(FILE *of,  void *p)
 	fprintf(of, "\n</ul>\n");
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
+	if (match_fre)
+		regfree(&fre);
 }
 
 
@@ -605,7 +629,7 @@ iquery_page(FILE *of,  void *p)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
-	"<p><INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
 	, of);
@@ -623,11 +647,11 @@ xiquery_page(FILE *of,  void *p)
 	bool xfile = !!swill_getvar("xfile");
 	bool unused = !!swill_getvar("unused");
 	bool writable = !!swill_getvar("writable");
-	bool q_id = !!swill_getvar("qi");
-	bool q_file = !!swill_getvar("qf");
+	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
+	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
 
-	html_head(of, "xiquery", qname ? qname : "Identifier Query Results");
+	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
 
 	char *m;
 	if (!(m = swill_getvar("match"))) {
@@ -635,6 +659,33 @@ xiquery_page(FILE *of,  void *p)
 		return;
 	}
 	match_type = *m;
+
+	// Compile regular expression specs
+	regex_t fre, ire;
+	bool match_fre, match_ire;
+	char *s;
+	int r;
+	match_fre = match_ire = false;
+	if ((s = swill_getvar("ire")) && *s) {
+		match_ire = true;
+		if ((r = regcomp(&ire, s, REG_EXTENDED | REG_NOSUB))) {
+			char buff[1024];
+			regerror(r, &ire, buff, sizeof(buff));
+			fprintf(of, "<h2>Identifier regular expression error</h2>%s", buff);
+			html_tail(of);
+			return;
+		}
+	}
+	if ((s = swill_getvar("fre")) && *s) {
+		match_fre = true;
+		if ((r = regcomp(&fre, s, REG_EXTENDED | REG_NOSUB | (file_icase ? REG_ICASE : 0)))) {
+			char buff[1024];
+			regerror(r, &fre, buff, sizeof(buff));
+			fprintf(of, "<h2>Filename regular expression error</h2>%s", buff);
+			html_tail(of);
+			return;
+		}
+	}
 
 	// Store match specifications in a vector
 	for (int i = 0; i < attr_max; i++) {
@@ -648,6 +699,8 @@ xiquery_page(FILE *of,  void *p)
 
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		if (current_project && !(*i).first->get_attribute(current_project)) 
+			continue;
+		if (match_ire && regexec(&ire, (*i).second.get_id().c_str(), 0, NULL, 0) == REG_NOMATCH)
 			continue;
 		bool add;
 		switch (match_type) {
@@ -696,9 +749,21 @@ xiquery_page(FILE *of,  void *p)
 			add = (add && (writable == !(*i).first->get_attribute(is_readonly)));
 			break;
 		}
-		if (q_id && add)
+		if (!add)
+			continue;
+		if (match_fre) {
+			// Before we add it check if its filename matches the RE
+			IFSet f = (*i).first->sorted_files();
+			IFSet::iterator j;
+			for (j = f.begin(); j != f.end(); j++)
+				if (regexec(&fre, (*j).get_path().c_str(), 0, NULL, 0) == 0)
+					break;	// Yes is matches
+			if (j == f.end())
+				continue;	// No match found
+		}
+		if (q_id)
 			sorted_ids.insert(&*i);
-		if (q_file && add) {
+		if (q_file) {
 			IFSet f = (*i).first->sorted_files();
 			sorted_files.insert(f.begin(), f.end());
 		}
@@ -721,6 +786,10 @@ xiquery_page(FILE *of,  void *p)
 	}
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
+	if (match_ire)
+		regfree(&ire);
+	if (match_fre)
+		regfree(&fre);
 }
 
 // Display an identifier property
@@ -805,6 +874,7 @@ options_page(FILE *fo, void *p)
 	fprintf(fo, "<input type=\"checkbox\" name=\"remove_fp\" value=\"1\" %s>Remove common path prefix from files<br>\n", (remove_fp ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (sort_rev ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
+	fprintf(fo, "<input type=\"checkbox\" name=\"file_icase\" value=\"1\" %s>Case-insensitive file name regular expression match<br>\n", (file_icase ? "checked" : ""));
 /*
 Do not show No in identifier properties (option)
 
@@ -827,6 +897,7 @@ set_options_page(FILE *fo, void *p)
 	remove_fp = !!swill_getvar("remove_fp");
 	sort_rev = !!swill_getvar("sort_rev");
 	show_true = !!swill_getvar("show_true");
+	file_icase = !!swill_getvar("file_icase");
 	if (string(swill_getvar("set")) == "Apply")
 		options_page(fo, p);
 	else
