@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.22 2004/07/23 06:55:38 dds Exp $
+ * $Id: fileid.h,v 1.23 2004/07/25 14:11:24 dds Exp $
  */
 
 #ifndef FILEID_
@@ -203,5 +203,7 @@ struct fname_order : public binary_function <const Fileid &, const Fileid &, boo
 	      return a.get_path() < b.get_path();
       }
 };
+
+typedef set <Fileid, fname_order> IFSet;
 
 #endif /* FILEID_ */

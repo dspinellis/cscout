@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.77 2004/07/25 13:35:22 dds Exp $
+ * $Id: cscout.cpp,v 1.78 2004/07/25 14:11:24 dds Exp $
  */
 
 #include <map>
@@ -60,6 +60,7 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "idquery.h"
 
 #ifdef COMMERCIAL
 #include "des.h"
@@ -82,34 +83,6 @@ static int portno = 8081;		// Port number (-p n)
 
 static Fileid input_file_id;
 
-// Our identifiers to store as a map
-class Identifier {
-	string id;		// Identifier name
-	string newid;		// New identifier name
-	bool xfile;		// True if it crosses files
-	bool replaced;		// True if newid has been set
-public:
-	Identifier(Eclass *e, const string &s) : id(s), replaced(false) {
-		xfile = e->sorted_files().size() > 1;
-	}
-	Identifier() {}
-	string get_id() const { return id; }
-	void set_newid(const string &s) { newid = s; replaced = true; }
-	string get_newid() const { return newid; }
-	bool get_xfile() const { return xfile; }
-	bool get_replaced() const { return replaced; }
-	void set_xfile(bool v) { xfile = v; }
-	// To create nicely ordered sets
-	inline bool operator ==(const Identifier b) const {
-		return (this->id == b.id);
-	}
-	inline bool operator <(const Identifier b) const {
-		return this->id.compare(b.id);
-	}
-};
-
-typedef map <Eclass *, Identifier> IdProp;
-typedef IdProp::value_type IdPropElem;
 
 /*
  * Function object to compare IdProp identifier pointers
@@ -133,59 +106,7 @@ struct idcmp : public binary_function <const IdProp::value_type *, const IdProp:
 	}
 };
 
-typedef set <Fileid, fname_order> IFSet;
 typedef multiset <const IdProp::value_type *, idcmp> Sids;
-
-/*
- * Encapsulates an identifier query
- * Can be used to evaluate against IdProp elements
- */
-class IdQuery {
-private:
-	bool lazy;		// Do not evaluate
-	bool return_val;	// Default return value
-	bool valid;		// True if query is valid
-	char match_type;	// Type of boolean match
-	// Regular expression match specs
-	string str_fre, str_ire;// Original REs
-	regex_t fre, ire;	// Compiled REs
-	bool match_fre, match_ire;
-	bool exclude_ire;	// Exclude matched identifiers
-	// Attribute match specs
-	vector <bool> match;
-	// Other query arguments
-	bool xfile;		// True if cross file
-	bool unused;		// True if unused id (EC size == 1 and not declared unused)
-	bool writable;		// True if writable
-	Eclass *ec;		// True if identifier EC matches
-				// No other evaluation takes place
-	string name;		// Query name
-public:
-	// Construct object based on URL parameters
-	IdQuery(FILE *f, bool e = true, bool r = true);
-	// Construct object based on a string specification
-	IdQuery::IdQuery(const string &s);
-	// Default
-	IdQuery::IdQuery() : valid(false) {}
-
-	// Destructor
-	~IdQuery() {
-		if (match_ire)
-			regfree(&ire);
-		if (match_fre)
-			regfree(&fre);
-	}
-
-	// Perform a query
-	bool eval(const IdPropElem &i);
-	// Transform the query back into a URL
-	string url();
-	// Accessor functions
-	bool is_valid() { return valid; }
-	bool need_eval() { return !lazy; }
-	static void usage();	// Report string constructor usage information
-};
-
 
 // Identifiers to monitor (-m parameter)
 static IdQuery monitor;
@@ -257,26 +178,6 @@ html(const string &s)
 
 	for (string::const_iterator i = s.begin(); i != s.end(); i++)
 		r += html(*i);
-	return r;
-}
-
-// URL-encode the given string
-static string
-url(const string &s)
-{
-	string r;
-
-	for (string::const_iterator i = s.begin(); i != s.end(); i++)
-		if (*i == ' ')
-			r += '+';
-		else if (isalnum(*i) || *i == '_')
-			r += *i;
-		else {
-			char buff[4];
-
-			sprintf(buff, "%%%02x", (unsigned)*i);
-			r += buff;
-		}
 	return r;
 }
 
@@ -390,7 +291,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 {
 	ifstream in;
 	const string &fname = fi.get_path();
-	IdQuery query(of, eval_query);
+	IdQuery query(of, file_icase, current_project, eval_query);
 	bool at_bol = true;
 	int line_number = 1;
 
@@ -959,253 +860,6 @@ funquery_page(FILE *of,  void *p)
 	html_tail(of);
 }
 
-
-// Construct an object based on URL parameters
-IdQuery::IdQuery(FILE *of, bool e, bool r) :
-	lazy(!e),
-	return_val(r),
-	match(attr_end)
-{
-	if (lazy)
-		return;
-
-	valid = true;
-
-	// Query name
-	char *qname = swill_getvar("n");
-	if (qname && *qname)
-		name = qname;
-
-	// Identifier EC match
-	if (!swill_getargs("p(ec)", &ec)) {
-		ec = NULL;
-
-		// Type of boolean match
-		char *m;
-		if (!(m = swill_getvar("match"))) {
-			fprintf(of, "Missing value: match");
-			html_tail(of);
-			valid = return_val = false;
-			lazy = true;
-			return;
-		}
-		match_type = *m;
-	}
-
-	xfile = !!swill_getvar("xfile");
-	unused = !!swill_getvar("unused");
-	writable = !!swill_getvar("writable");
-	exclude_ire = !!swill_getvar("xire");
-
-	// Compile regular expression specs
-	char *s;
-	int ret;
-	match_fre = match_ire = false;
-	if ((s = swill_getvar("ire")) && *s) {
-		match_ire = true;
-		str_ire = s;
-		if ((ret = regcomp(&ire, s, REG_EXTENDED | REG_NOSUB))) {
-			char buff[1024];
-			regerror(ret, &ire, buff, sizeof(buff));
-			fprintf(of, "<h2>Identifier regular expression error</h2>%s", buff);
-			html_tail(of);
-			valid = return_val = false;
-			lazy = true;
-			return;
-		}
-	}
-	if ((s = swill_getvar("fre")) && *s) {
-		match_fre = true;
-		str_fre = s;
-		if ((ret = regcomp(&fre, s, REG_EXTENDED | REG_NOSUB | (file_icase ? REG_ICASE : 0)))) {
-			char buff[1024];
-			regerror(ret, &fre, buff, sizeof(buff));
-			fprintf(of, "<h2>Filename regular expression error</h2>%s", buff);
-			html_tail(of);
-			valid = return_val = false;
-			lazy = true;
-			return;
-		}
-	}
-
-	// Store match specifications in a vector
-	for (int i = attr_begin; i < attr_end; i++) {
-		ostringstream varname;
-
-		varname << "a" << i;
-		match[i] = !!swill_getvar(varname.str().c_str());
-		if (DP())
-			cout << "v=[" << varname.str() << "] m=" << match[i] << "\n";
-	}
-}
-
-// Report the string query specification usage
-void
-IdQuery::usage(void)
-{
-	cerr << "The monitored identifier attributes must be specified using the syntax:\n"
-		"Y|L|E|T[:attr1][:attr2]...\n"
-		"\tY: Match any of the specified attributes\n"
-		"\tL: Match all of the specified attributes\n"
-		"\tE: Exclude the specified attributes matched\n"
-		"\tT: Exact match of the specified attributes\n\n"
-
-		"Allowable attribute names are:\n"
-		"\tunused: Unused\n"
-		"\twritable: Writable\n";
-	for (int i = attr_begin; i < attr_end; i++)
-		cerr << "\t" << Attributes::shortname(i) << ": " << Attributes::name(i) << "\n";
-	exit(1);
-}
-
-// Construct an object based on a string specification
-// The syntax is Y|L|E|T[:attr1][:attr2]...
-IdQuery::IdQuery(const string &s) :
-	lazy(false),
-	return_val(false),
-	valid(true),
-	match_fre(false),
-	match_ire(false),
-	match(attr_end),
-	xfile(false),
-	ec(NULL)
-{
-	// Type of boolean match
-	if (s.length() == 0)
-		usage();
-	switch (s[0]) {
-	case 'Y':
-	case 'L':
-	case 'E':
-	case 'T':
-		match_type = s[0];
-		break;
-	default:
-		usage();
-	}
-
-	unused = (s.find(":unused") != string::npos);
-	writable = (s.find(":writable") != string::npos);
-
-	// Store match specifications in a vector
-	for (int i = attr_begin; i < attr_end; i++)
-		match[i] = (s.find(":" + Attributes::shortname(i)) != string::npos);
-}
-
-// Return the query's parameters as a URL
-string
-IdQuery::url()
-{
-	string r("match=");
-	r += ::url(string(1, match_type));
-	if (ec) {
-		char buff[256];
-
-		sprintf(buff, "&ec=%p", ec);
-		r += buff;
-	}
-	if (xfile)
-		r += "&xfile=1";
-	if (unused)
-		r += "&unused=1";
-	if (writable)
-		r += "&writable=1";
-	if (match_ire)
-		r += "&ire=" + ::url(str_ire);
-	if (exclude_ire)
-		r += "&xire=1";
-	if (match_fre)
-		r += "&fre=" + ::url(str_fre);
-	for (int i = attr_begin; i < attr_end; i++) {
-		if (match[i]) {
-			ostringstream varname;
-
-			varname << "&a" << i << "=1";
-			r += varname.str();
-		}
-	}
-	if (name.length())
-		r += "&n=" + ::url(name);
-	return r;
-}
-
-// Evaluate the object's identifier query against i
-// return true if it matches
-bool
-IdQuery::eval(const IdPropElem &i)
-{
-	if (lazy)
-		return return_val;
-
-	if (ec)
-		return (i.first == ec);
-	if (current_project && !i.first->get_attribute(current_project))
-		return false;
-	int retval = exclude_ire ? 0 : REG_NOMATCH;
-	if (match_ire && regexec(&ire, i.second.get_id().c_str(), 0, NULL, 0) == retval)
-		return false;
-	bool add;
-	switch (match_type) {
-	case 'Y':	// anY match
-		add = false;
-		for (int j = attr_begin; j < attr_end; j++)
-			if (match[j] && i.first->get_attribute(j)) {
-				add = true;
-				break;
-			}
-		add = (add || (xfile && i.second.get_xfile()));
-		add = (add || (unused && i.first->is_unused()));
-		add = (add || (writable && !i.first->get_attribute(is_readonly)));
-		break;
-	case 'L':	// alL match
-		add = true;
-		for (int j = attr_begin; j < attr_end; j++)
-			if (match[j] && !i.first->get_attribute(j)) {
-				add = false;
-				break;
-			}
-		add = (add && (!xfile || i.second.get_xfile()));
-		add = (add && (!unused || i.first->is_unused()));
-		add = (add && (!writable || !i.first->get_attribute(is_readonly)));
-		break;
-	case 'E':	// excludE match
-		add = true;
-		for (int j = attr_begin; j < attr_end; j++)
-			if (match[j] && i.first->get_attribute(j)) {
-				add = false;
-				break;
-			}
-		add = (add && (!xfile || !i.second.get_xfile()));
-		add = (add && (!unused || !(i.first->is_unused())));
-		add = (add && (!writable || i.first->get_attribute(is_readonly)));
-		break;
-	case 'T':	// exactT match
-		add = true;
-		for (int j = attr_begin; j < attr_end; j++)
-			if (match[j] != i.first->get_attribute(j)) {
-				add = false;
-				break;
-			}
-		add = (add && (xfile == i.second.get_xfile()));
-		add = (add && (unused == (i.first->is_unused())));
-		add = (add && (writable == !i.first->get_attribute(is_readonly)));
-		break;
-	}
-	if (!add)
-		return false;
-	if (match_fre) {
-		// Before we add it check if its filename matches the RE
-		IFSet f = i.first->sorted_files();
-		IFSet::iterator j;
-		for (j = f.begin(); j != f.end(); j++)
-			if (regexec(&fre, (*j).get_path().c_str(), 0, NULL, 0) == 0)
-				break;	// Yes is matches
-		if (j == f.end())
-			return false;	// No match found
-	}
-	return true;
-}
-
 // Process an identifier query
 static void
 xiquery_page(FILE *of,  void *p)
@@ -1215,15 +869,17 @@ xiquery_page(FILE *of,  void *p)
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
-	IdQuery query(of);
+	IdQuery query(of, file_icase, current_project);
 
 #ifndef COMMERCIAL
 		if (!local_access(of))
 			return;
 #endif
 
-	if (!query.is_valid())
+	if (!query.is_valid()) {
+		html_tail(of);
 		return;
+	}
 
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
 	cout << "Evaluating identifier query\n";
@@ -1273,7 +929,7 @@ xfunquery_page(FILE *of,  void *p)
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
-	IdQuery query(of);
+	IdQuery query(of, file_icase, current_project);
 
 #ifndef COMMERCIAL
 		if (!local_access(of))
@@ -1284,7 +940,7 @@ xfunquery_page(FILE *of,  void *p)
 		return;
 
 	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
-	cout << "Evaluating identifier query\n";
+	cout << "Evaluating function query\n";
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i);
 		if (!query.eval(*i))

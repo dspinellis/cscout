@@ -11,7 +11,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.20 2004/07/23 06:55:38 dds Exp $
+ * $Id: eclass.h,v 1.21 2004/07/25 14:11:24 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -44,7 +44,7 @@ public:
 	friend ostream& operator<<(ostream& o,const Eclass& ec);
 	// Other accessor functions
 	const setTokid & get_members(void) const { return members; }
-	set <Fileid, fname_order> sorted_files();
+	IFSet sorted_files();
 	void set_attribute(int v) { attr.set_attribute(v); }
 	bool get_attribute(int v) { return attr.get_attribute(v); }
 	bool is_identifier() { return attr.is_identifier(); }

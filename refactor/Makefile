@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.61 2004/07/23 06:20:27 dds Exp $
+# $Id: Makefile,v 1.62 2004/07/25 14:11:24 dds Exp $
 #
 
 #
@@ -13,7 +13,7 @@
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
-getopt.o error.o fdep.o fcall.o call.o
+getopt.o error.o fdep.o fcall.o call.o idquery.o
 
 ifndef ARCH
 ARCH=i386
@@ -34,7 +34,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
 	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
-	fdep.h fcall.cpp fcall.h
+	fdep.h fcall.cpp fcall.h call.cpp call.h idquery.cpp idquery.h
 
 # Stand-alone object files
 STANDOBJ=error.o
@@ -160,8 +160,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.61 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2004/07/23 06:20:27 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.62 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2004/07/25 14:11:24 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
