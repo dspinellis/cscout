@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.86 2003/08/16 14:04:55 dds Exp $
+ * $Id: parse.y,v 1.87 2003/08/17 17:00:27 dds Exp $
  *
  */
 
@@ -245,6 +245,9 @@ static bool yacc_typing;
 %type <t> unary_identifier_declarator
 %type <t> identifier_declarator
 %type <t> designator
+
+%type <t> attribute
+%type <t> attribute_list
 
 /* To allow compound statements as expressions (gcc extension) */
 %type <t> statement
@@ -705,27 +708,33 @@ declaration:
 
 default_declaring_list:  /* Can't  redeclare typedef names */
 	/* static volatile @ a[3] @ = { 1, 2, 3} */
-        declaration_qualifier_list identifier_declarator
+        declaration_qualifier_list identifier_declarator attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
 			designator_init($2);
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
 	/* volatile @ a[3] @ = { 1, 2, 3} */
-        | type_qualifier_list identifier_declarator
+        | type_qualifier_list identifier_declarator attribute_list
 		{
 			$2.declare();
 			designator_init($2);
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
-        | default_declaring_list ',' identifier_declarator
+        | default_declaring_list ',' identifier_declarator attribute_list
 		{
 			$3.set_abstract($1);
 			$3.declare();
 			designator_init($3);
+			if ($4.is_unused_attr())
+				$3.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -957,8 +966,8 @@ aggregate_name:
         ;
 
 aggregate_key:
-        STRUCT
-        | UNION
+        STRUCT attribute_list
+        | UNION attribute_list
         ;
 
 member_declaration_list:
@@ -1073,7 +1082,7 @@ member_declarator:
 
 member_identifier_declarator:
 	/* a[3]; also typedef names */
-        identifier_declarator bit_field_size_opt
+        identifier_declarator attribute_list bit_field_size_opt 
 		{ $$ = $1; }
         | bit_field_size
 		/* Padding bit field */
@@ -1090,15 +1099,15 @@ bit_field_size:
         ;
 
 enum_name:
-        ENUM '{' enumerator_list comma_opt '}'
+        ENUM attribute_list '{' enumerator_list comma_opt '}'
 		{ $$ = enum_tag(); }
-        | ENUM identifier_or_typedef_name '{' enumerator_list comma_opt '}'
-		{ tag_define($2.get_token(), $$ = enum_tag()); }
-        | ENUM identifier_or_typedef_name
+        | ENUM attribute_list identifier_or_typedef_name '{' enumerator_list comma_opt '}'
+		{ tag_define($3.get_token(), $$ = enum_tag()); }
+        | ENUM attribute_list identifier_or_typedef_name
 		{ 
-			Id const *id = tag_lookup($2.get_name());
+			Id const *id = tag_lookup($3.get_name());
 			if (id) {
-				Token::unify(id->get_token(), $2.get_token());
+				Token::unify(id->get_token(), $3.get_token());
 				$$ = id->get_type();
 				if (DP())
 					cout << "lookup returns " << $$ << "\n";
@@ -1141,10 +1150,12 @@ parameter_declaration:
 	/* int [] */
         | declaration_specifier abstract_declarator
 	/* int i[2] */
-        | declaration_specifier identifier_declarator
+        | declaration_specifier identifier_declarator attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 	/* int FILE */
         | declaration_specifier parameter_typedef_declarator
@@ -1157,18 +1168,22 @@ parameter_declaration:
 	/* volatile int */
         | declaration_qualifier_list abstract_declarator
 	/* volatile int a */
-        | declaration_qualifier_list identifier_declarator
+        | declaration_qualifier_list identifier_declarator attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 	/* int */
         | type_specifier
         | type_specifier abstract_declarator
-        | type_specifier identifier_declarator
+        | type_specifier identifier_declarator attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
         | type_specifier parameter_typedef_declarator
 		{
@@ -1177,8 +1192,12 @@ parameter_declaration:
 		}
         | type_qualifier_list
         | type_qualifier_list abstract_declarator
-        | type_qualifier_list identifier_declarator
-		{ $2.declare(); }
+        | type_qualifier_list identifier_declarator attribute_list
+		{
+			$2.declare();
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
+		}
         ;
 
     /*  ANSI  C  section  3.7.1  states  "An identifier declared as a
@@ -1469,20 +1488,43 @@ external_definition:
 
 function_definition:
 	/* foo(int a, int b) @ { } (and many illegal constructs) */
-                                     identifier_declarator
-		{ $1.declare(); }
+                                     identifier_declarator attribute_list
+		{
+			$1.declare();
+			if ($2.is_unused_attr())
+				$1.get_token().set_ec_attribute(is_declared_unused);
+		}
 					function_body
-        | declaration_specifier      identifier_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+        | declaration_specifier      identifier_declarator attribute_list
+		{
+			$2.set_abstract($1);
+			$2.declare();
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
+		}
 					function_body
-        | type_specifier             identifier_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+        | type_specifier             identifier_declarator attribute_list
+		{
+			$2.set_abstract($1);
+			$2.declare();
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
+		}
 					function_body
-        | declaration_qualifier_list identifier_declarator
-		{ $2.set_abstract($1); $2.declare(); }
+        | declaration_qualifier_list identifier_declarator attribute_list
+		{
+			$2.set_abstract($1);
+			$2.declare();
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
+		}
 					function_body
-        | type_qualifier_list        identifier_declarator
-		{ $2.declare(); }
+        | type_qualifier_list        identifier_declarator attribute_list
+		{ 
+			$2.declare();
+			if ($3.is_unused_attr())
+				$2.get_token().set_ec_attribute(is_declared_unused);
+		}
 					function_body
 
 	/* foo(a, b) @ { } */
@@ -1527,15 +1569,37 @@ function_definition:
 
 declarator:
 	/* *a[3] */
-        identifier_declarator
+        identifier_declarator attribute_list
+		{
+			$$ = $1;
+			if ($2.is_unused_attr())
+				$1.get_token().set_ec_attribute(is_declared_unused);
+		}
+        | typedef_declarator attribute_list
+		{
+			$$ = $1;
+			if ($2.is_unused_attr())
+				$1.get_token().set_ec_attribute(is_declared_unused);
+		}
+        ;
+
+attribute_list:
+	/* EMPTY */
+		{ $$ = basic(b_undeclared); }
+	| attribute attribute_list
+		{ $$ = merge($1, $2); }
+	;
+
+attribute:
 	/*  
 	 * register u_int64_t a0 @ __asm__("$16") = pfn; (alpha code) 
 	 * int enter(void) __asm__("enter");
 	 */
-        | identifier_declarator assembly_decl
-		{ $$ = $1; }
-        | typedef_declarator
-        ; /* Default rules */
+	assembly_decl
+		{ $$ = basic(b_undeclared); }
+	| UNUSED
+		{ $$ = basic(b_unused_attr); }
+	;
 
 typedef_declarator:
         paren_typedef_declarator          /* would be ambiguous as parameter */

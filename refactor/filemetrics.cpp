@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.10 2003/07/31 15:23:30 dds Exp $
+ * $Id: filemetrics.cpp,v 1.11 2003/08/17 17:00:27 dds Exp $
  */
 
 #include <iostream>
@@ -135,7 +135,7 @@ IdCount::add(Eclass *ec, UnaryFunction f)
 {
 	total = f(total);
 	// This counts typedefs as being file scope
-	for (int i = 0; i < attr_max; i++)
+	for (int i = attr_begin; i < attr_end; i++)
 		if (ec->get_attribute(i))
 			count[i] = f(count[i]);
 }
@@ -272,7 +272,7 @@ operator<<(ostream& o, const IdMetricsSet &mi)
 		"<td>" << avg(m.len.total, m.once.total) << "</td>"
 		"<td>" << m.minlen.total << "</td>"
 		"<td>" << m.maxlen.total << "</td></tr>\n";
-	for (int i = is_readonly + 1; i < attr_max; i++)
+	for (int i = is_readonly + 1; i < attr_end; i++)
 		o << "<tr><td>" << Attributes::name(i) << "</td>"
 			"<td>" << m.once.get_count(i) << "</td>"
 			"<td>" << m.all.get_count(i) << "</td>"

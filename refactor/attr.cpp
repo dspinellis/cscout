@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.13 2003/08/17 12:40:59 dds Exp $
+ * $Id: attr.cpp,v 1.14 2003/08/17 17:00:27 dds Exp $
  */
 
 #include <map>
@@ -26,15 +26,18 @@
 
 
 // Leave space for a single project-attribute
-vector<bool>::size_type Attributes::size = attr_max;
+vector<bool>::size_type Attributes::size = attr_end;
 
-int Project::projid = attr_max - 1;
+int Project::projid = attr_end - 1;
 // Maps between ids and names
 map<string, int> Project::projids;
-vector<string> Project::projnames(attr_max);
+vector<string> Project::projnames(attr_end);
 
 // Keep this in sync with the enumeration
 string Attributes::attribute_names[] = {
+	"__attribute(__unused__)",
+
+	// User-visible attributes start here
 	"Read-only",
 
 	"Tag for struct/union/enum",
@@ -55,6 +58,9 @@ string Attributes::attribute_names[] = {
 
 // Keep this in sync with the enumeration
 string Attributes::attribute_short_names[] = {
+	"__attribute(__unused__)",
+
+	// User-visible attributes start here
 	"ro",
 
 	"tag",

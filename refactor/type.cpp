@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.32 2003/08/11 14:15:17 dds Exp $
+ * $Id: type.cpp,v 1.33 2003/08/17 17:00:27 dds Exp $
  */
 
 #include <iostream>
@@ -415,6 +415,8 @@ Tbasic::merge(Tbasic *b)
 	         (this->type == b_llong && b->type == b_int) ||
 	         (this->type == b_int && b->type == b_llong))
 		t = b_llong;		// Extension to ANSI
+	else if (this->type == b_unused_attr || b->type == b_unused_attr)
+		t = b->type;
 	else {
 		/*
 		 * @error

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.62 2003/08/16 21:36:42 dds Exp $
+ * $Id: cscout.cpp,v 1.63 2003/08/17 17:00:27 dds Exp $
  */
 
 #include <map>
@@ -145,7 +145,7 @@ private:
 	vector <bool> match;
 	// Other query arguments
 	bool xfile;		// True if cross file 
-	bool unused;		// True if unused id (EC size == 1)
+	bool unused;		// True if unused id (EC size == 1 and not declared unused)
 	bool writable;		// True if writable
 	Eclass *ec;		// True if identifier EC matches 
 				// No other evaluation takes place
@@ -334,7 +334,7 @@ file_analyze(Fileid fi)
 					s += (char)in.get();
 				fi.metrics().process_id(s);
 				ids[ec] = Identifier(ec, s);
-				if (ec->get_size() == 1)
+				if (ec->is_unused())
 					has_unused = true;
 				continue;
 			} else {
@@ -812,7 +812,7 @@ iquery_page(FILE *of,  void *p)
 	html_head(of, "iquery", "Identifier Query");
 	fputs("<FORM ACTION=\"xiquery.html\" METHOD=\"GET\">\n"
 	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable<br>\n", of);
-	for (int i = 0; i < attr_max; i++)
+	for (int i = attr_begin; i < attr_end; i++)
 		fprintf(of, "<input type=\"checkbox\" name=\"a%d\" value=\"1\">%s<br>\n", i, 
 			Attributes::name(i).c_str());
 	fputs(
@@ -855,7 +855,7 @@ iquery_page(FILE *of,  void *p)
 IdQuery::IdQuery(FILE *of, bool e, bool r) :
 	lazy(!e),
 	return_val(r),
-	match(attr_max)
+	match(attr_end)
 {
 	if (lazy)
 		return;
@@ -920,7 +920,7 @@ IdQuery::IdQuery(FILE *of, bool e, bool r) :
 	}
 
 	// Store match specifications in a vector
-	for (int i = 0; i < attr_max; i++) {
+	for (int i = attr_begin; i < attr_end; i++) {
 		ostringstream varname;
 
 		varname << "a" << i;
@@ -944,7 +944,7 @@ IdQuery::usage(void)
 		"Allowable attribute names are:\n"
 		"\tunused: Unused\n"
 		"\twritable: Writable\n";
-	for (int i = 0; i < attr_max; i++)
+	for (int i = attr_begin; i < attr_end; i++)
 		cerr << "\t" << Attributes::shortname(i) << ": " << Attributes::name(i) << "\n";
 	exit(1);
 }
@@ -957,7 +957,7 @@ IdQuery::IdQuery(const string &s) :
 	valid(true),
 	match_fre(false),
 	match_ire(false),
-	match(attr_max),
+	match(attr_end),
 	xfile(false),
 	ec(NULL)
 {
@@ -979,7 +979,7 @@ IdQuery::IdQuery(const string &s) :
 	writable = (s.find(":writable") != string::npos);
 
 	// Store match specifications in a vector
-	for (int i = 0; i < attr_max; i++)
+	for (int i = attr_begin; i < attr_end; i++)
 		match[i] = (s.find(":" + Attributes::shortname(i)) != string::npos);
 }
 
@@ -1007,7 +1007,7 @@ IdQuery::url()
 		r += "&xire=1";
 	if (match_fre)
 		r += "&fre=" + ::url(str_fre);
-	for (int i = 0; i < attr_max; i++) {
+	for (int i = attr_begin; i < attr_end; i++) {
 		if (match[i]) {
 			ostringstream varname;
 
@@ -1039,46 +1039,46 @@ IdQuery::eval(const IdPropElem &i)
 	switch (match_type) {
 	case 'Y':	// anY match
 		add = false;
-		for (int j = 0; j < attr_max; j++)
+		for (int j = attr_begin; j < attr_end; j++)
 			if (match[j] && i.first->get_attribute(j)) {
 				add = true;
 				break;
 			}
 		add = (add || (xfile && i.second.get_xfile()));
-		add = (add || (unused && i.first->get_size() == 1));
+		add = (add || (unused && i.first->is_unused()));
 		add = (add || (writable && !i.first->get_attribute(is_readonly)));
 		break;
 	case 'L':	// alL match
 		add = true;
-		for (int j = 0; j < attr_max; j++)
+		for (int j = attr_begin; j < attr_end; j++)
 			if (match[j] && !i.first->get_attribute(j)) {
 				add = false;
 				break;
 			}
 		add = (add && (!xfile || i.second.get_xfile()));
-		add = (add && (!unused || i.first->get_size() == 1));
+		add = (add && (!unused || i.first->is_unused()));
 		add = (add && (!writable || !i.first->get_attribute(is_readonly)));
 		break;
 	case 'E':	// excludE match
 		add = true;
-		for (int j = 0; j < attr_max; j++)
+		for (int j = attr_begin; j < attr_end; j++)
 			if (match[j] && i.first->get_attribute(j)) {
 				add = false;
 				break;
 			}
 		add = (add && (!xfile || !i.second.get_xfile()));
-		add = (add && (!unused || !(i.first->get_size() == 1)));
+		add = (add && (!unused || !(i.first->is_unused())));
 		add = (add && (!writable || i.first->get_attribute(is_readonly)));
 		break;
 	case 'T':	// exactT match
 		add = true;
-		for (int j = 0; j < attr_max; j++)
+		for (int j = attr_begin; j < attr_end; j++)
 			if (match[j] != i.first->get_attribute(j)) {
 				add = false;
 				break;
 			}
 		add = (add && (xfile == i.second.get_xfile()));
-		add = (add && (unused == (i.first->get_size() == 1)));
+		add = (add && (unused == (i.first->is_unused())));
 		add = (add && (writable == !i.first->get_attribute(is_readonly)));
 		break;
 	}
@@ -1185,17 +1185,17 @@ identifier_page(FILE *fo, void *p)
 	}
 	html_head(fo, "id", string("Identifier: ") + html(id.get_id()));
 	fprintf(fo, "<FORM ACTION=\"id.html\" METHOD=\"GET\">\n<ul>\n");
-	for (int i = 0; i < attr_max; i++)
+	for (int i = attr_begin; i < attr_end; i++)
 		show_id_prop(fo, Attributes::name(i), e->get_attribute(i));
 	show_id_prop(fo, "Crosses file boundary", id.get_xfile());
-	show_id_prop(fo, "Unused", e->get_size() == 1);
+	show_id_prop(fo, "Unused", e->is_unused());
 	fprintf(fo, "<li> Matches %d occurence(s)\n", e->get_size());
 	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
 	if (DP()) {
-		cout << "First project " << attr_max << "\n";
+		cout << "First project " << attr_end << "\n";
 		cout << "Last project " <<  Attributes::get_num_attributes() - 1 << "\n";
 	}
-	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
+	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
 			fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(fo, "</ul>\n");
@@ -1303,7 +1303,7 @@ select_project_page(FILE *fo, void *p)
 	html_head(fo, "sproject", "Select Active Project");
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> <a href=\"setproj.html?projid=0\">All projects</a>\n");
-	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
+	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
 		fprintf(fo, "<li> <a href=\"setproj.html?projid=%u\">%s</a>\n", (unsigned)j, Project::get_projname(j).c_str());
 	fprintf(fo, "\n</ul>\n");
 	html_tail(fo);
@@ -1389,7 +1389,7 @@ file_page(FILE *of, void *p)
 	for (int j = 0; j < metric_max; j++)
 		fprintf(of, "\n<li> %s: %d", Metrics::name(j).c_str(), i.metrics().get_metric(j));
 	fprintf(of, "\n<li> Used in project(s): \n<ul>");
-	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
+	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(of, "</ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
@@ -1749,7 +1749,7 @@ main(int argc, char *argv[])
 	}
 	mstring << "\nprojnames: ";
 	count = 0;
-	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++) {
+	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++) {
 		mstring << Project::get_projname(j) << ' ';
 		if (count++ > 10)
 			break;

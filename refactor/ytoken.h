@@ -5,7 +5,7 @@
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.6 2003/08/03 16:12:11 dds Exp $
+ * $Id: ytoken.h,v 1.7 2003/08/17 17:00:27 dds Exp $
  */
 
 
@@ -59,6 +59,11 @@
 %token TYPEOF
 /* __label__ declaration */
 %token LABEL
+
+/* The result of a __attribute__(__unused__) sequence */
+%token UNUSED
+/* The __attribute__ token */
+%token ATTRIBUTE
 
 /* MSC _asm directive */
 %token MSC_ASM

@@ -11,7 +11,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.18 2003/07/28 20:09:31 dds Exp $
+ * $Id: eclass.h,v 1.19 2003/08/17 17:00:27 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -48,6 +48,8 @@ public:
 	void set_attribute(int v) { attr.set_attribute(v); }
 	bool get_attribute(int v) { return attr.get_attribute(v); }
 	bool is_identifier() { return attr.is_identifier(); }
+	// Return true if this equivalence class is unintentionally unused
+	bool is_unused() { return members.size() == 1 && !attr.get_attribute(is_declared_unused); }
 	void merge_attributes(Eclass *b) { attr.merge_with(b->attr); }
 	// Remove references to the equivalence class from the tokid map
 	// Should be called when we delete the ec for good

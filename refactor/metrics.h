@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  * 
- * $Id: metrics.h,v 1.9 2003/06/22 23:27:04 dds Exp $
+ * $Id: metrics.h,v 1.10 2003/08/17 17:00:27 dds Exp $
  */
 
 #ifndef METRICS_
@@ -126,7 +126,7 @@ private:
 public:
 	IdCount() :
 		total(0),
-		count(attr_max, 0)
+		count(attr_end, 0)
 	{}
 	int get_count(int i) { return count[i]; }
 	// Adjust class members according to the attributes of EC

@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.12 2003/08/17 12:40:59 dds Exp $
+ * $Id: attr.h,v 1.13 2003/08/17 17:00:27 dds Exp $
  */
 
 #ifndef ATTR_
@@ -12,6 +12,7 @@
 // Attributes that can be set for an EC
 // Keep in sync with attribute_names[]
 enum e_attribute {
+	is_declared_unused,
 	is_readonly,		// Read-only; true if any member
 				// comes from an ro file
 	// The four C namespaces
@@ -30,7 +31,8 @@ enum e_attribute {
 	is_typedef,		// Typedef
 	is_enum,		// Enumeration member
 
-	attr_max,		// From here-on we store projects
+	attr_end,		// From here-on we store projects
+	attr_begin = is_readonly // First user-visible attribute
 };
 
 class Attributes {

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.22 2003/08/03 16:12:11 dds Exp $
+ * $Id: ctoken.cpp,v 1.23 2003/08/17 17:00:27 dds Exp $
  */
 
 #include <map>
@@ -133,6 +133,7 @@ make_keymap()
 	m["__asm__"] = GNUC_ASM; m["_asm"] = MSC_ASM;
 	m["__typeof"] = TYPEOF;
 	m["__label__"] = LABEL;
+	m["__attribute__"] = ATTRIBUTE;
 	return m;
 }
 
@@ -151,16 +152,10 @@ eat_block(int open, int close)
 {
 	Pdtoken t;
 
-	if (open == '(')
-		// Eat gcc leading keywords
-		do {
-			t.getnext();
-		} while (t.get_code() != open);
-	else
-		// Eat MSC leading space
-		do {
-			t.getnext();
-		} while (t.get_code() == SPACE || t.get_code() == '\n');
+	// Eat leading space
+	do {
+		t.getnext();
+	} while (t.get_code() == SPACE || t.get_code() == '\n');
 	if (t.get_code() == open) {
 		// Block-style
 		if (DP())
@@ -195,6 +190,38 @@ eat_block(int open, int close)
 	}
 	t.getnext();
 	return t;
+}
+
+/*
+ * Parse a gcc __attribute__(( ... )) block
+ * looking for the keyword unused.  Return true if found.
+ * We use a lexical scan, because it is extremely difficult to anticipate
+ * all possible gcc attributes and their syntax.
+ */
+static bool
+attribute_contains_unused()
+{
+	Pdtoken t;
+	int matches = 0;
+	bool found = false;
+	bool opened = false;
+
+	do {
+		t.getnext();
+		if (t.get_code() == IDENTIFIER &&
+		    (t.get_val() == "unused" ||
+		     t.get_val() == "__unused__"))
+			found = true;
+
+		if (t.get_code() == '(')
+			matches++;
+		else if (t.get_code() == ')')
+			matches--;
+		if (matches == 2)
+			opened = true;
+	} while (!(opened && matches == 0));
+
+	return found;
 }
 
 // Lexical analysis function for yacc
@@ -239,6 +266,10 @@ again:
 				case MSC_ASM:
 					t = eat_block('{', '}');
 					goto again;
+				case ATTRIBUTE:
+					if (attribute_contains_unused())
+						return UNUSED;
+					continue;
 				default:
 					return (*ik).second;
 				}

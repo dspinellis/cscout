@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.27 2003/08/11 14:15:17 dds Exp $
+ * $Id: type.h,v 1.28 2003/08/17 17:00:27 dds Exp $
  */
 
 #ifndef TYPE_
@@ -15,7 +15,8 @@ enum e_btype {
 	b_void, b_char, b_short, b_int, b_long, b_float, b_double, b_ldouble,
 	b_padbit,
 	b_undeclared,		// Undeclared object
-	b_llong			// long long
+	b_llong,		// long long
+	b_unused_attr		// Specified using __attribute__(unused)
 };
 
 enum e_sign {
@@ -76,6 +77,7 @@ protected:
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
 	virtual bool is_padbit() const { return false; }// True for pad bit field
+	virtual bool is_unused_attr() const { return false; }// True for constructs containing the unused attribute
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual bool is_array() const { return false; }	// True for arrays
@@ -131,6 +133,7 @@ public:
 	bool is_abstract() const { return type == b_abstract; }
 	bool is_basic() const { return true; }// False for undeclared
 	bool is_padbit() const { return type == b_padbit; }
+	bool is_unused_attr() const { return type == b_unused_attr; }
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
 	Tbasic *tobasic() { return this; }
@@ -190,6 +193,7 @@ public:
 	bool is_valid() const		{ return p->is_valid(); }
 	bool is_basic() const		{ return p->is_basic(); }
 	bool is_padbit() const		{ return p->is_padbit(); }
+	bool is_unused_attr() const	{ return p->is_unused_attr(); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
 	bool is_array() const		{ return p->is_array(); }
