@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.1 2003/08/11 14:13:49 dds Exp $
+ * $Id: fdep.cpp,v 1.2 2003/08/11 19:00:57 dds Exp $
  */
 
 #include <set>
@@ -42,4 +42,14 @@ Fdep::mark_required(Fileid f)
 		mark_required(*i);
 	for (set <Fileid>::const_iterator i = providers.begin(); i != providers.end(); i++)
 		mark_required(*i);
+}
+
+// Clear definers and providers starting another round
+void
+Fdep::reset()
+{
+	definers.clear();
+	providers.clear();
+	direct_includes.clear();
+	last_provider = Fileid();	// Clear cache
 }

@@ -14,7 +14,7 @@
  * #include "metrics.h"
  * #include "fileid.h"
  *
- * $Id: fdep.h,v 1.1 2003/08/11 14:13:49 dds Exp $
+ * $Id: fdep.h,v 1.2 2003/08/11 19:00:57 dds Exp $
  */
 
 #ifndef FDEP_
@@ -62,11 +62,7 @@ public:
 	 */
 	static void mark_required(Fileid f);
 	// Clear definers and providers starting another round
-	static void reset() {
-		definers.clear();
-		providers.clear();
-		last_provider = Fileid();	// Clear cache
-	}
+	static void reset();
 };
 
 
