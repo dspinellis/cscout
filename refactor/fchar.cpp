@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.9 2001/09/23 06:49:56 dds Exp $
+ * $Id: fchar.cpp,v 1.10 2001/10/25 06:43:27 dds Exp $
  */
 
 #include <iostream>
@@ -14,17 +14,14 @@
 #include <fstream>
 #include <stack>
 #include <set>
-#ifdef unix
-#include <cstdio>		// perror
-#else
-#include <cstdlib>		// perror
-#endif
+#include <errno.h>
 
 #include "cpp.h"
 #include "debug.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
+#include "error.h"
 
 ifstream Fchar::in;
 Fileid Fchar::fi;
@@ -39,12 +36,11 @@ Fchar::set_input(const string& s)
 		in.close();
 	in.clear();		// Otherwise flags are dirty and open fails
 	in.open(s.c_str());
-	if (in.fail()) {
-		perror(s.c_str());
-		exit(1);
-	}
+	if (in.fail())
+		Error::error(E_FATAL, s + ": " + string(strerror(errno)));
 	fi = Fileid(s);
-	// cout << "set input " << s << " fi: " << fi.get_path() << "\n";
+	if (DP())
+		cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;
 }
 
