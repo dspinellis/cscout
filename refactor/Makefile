@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.34 2003/06/04 18:37:03 dds Exp $
+# $Id: Makefile,v 1.35 2003/06/16 15:25:07 dds Exp $
 #
 
 # Common object files
@@ -18,7 +18,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	mscincs.h obfuscate.cpp parse.y pdtoken.cpp \
 	pdtoken.h pltoken.cpp pltoken.h ptoken.cpp ptoken.h regex.h \
 	simple_cpp.cpp stab.cpp stab.h swill.h tchar.cpp tchar.h \
-	tclfuns.cpp token.cpp token.h tokenize.cpp tokid.cpp \
+	tclfuns.cpp token.cpp token.h tokid.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
 	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h \
 	prjcomp.pl version.h version.cpp
@@ -33,8 +33,8 @@ YACC=btyacc
 #YACC=yacc
 CC=g++
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
-CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DOFFICE_SERVER
-#CPPFLAGS=-pipe -O2
+#CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DOFFICE_SERVER
+CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION
 
 CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
 test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
@@ -121,8 +121,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.34 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/06/04 18:37:03 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.35 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/06/16 15:25:07 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -143,9 +143,18 @@ boottest: simple_cpp
 	$(CC) $(CPPFLAGS) -o simple_cpp $(STANDOBJ) $(OBJ) simple_cpp.o
 
 # Distribution
-rdist:
+rdist-jonathan:
 	tar cvf - $(SRC) | plink jonathan tar -C src/cscout -xvf -
+
+rdist-spiti:
 	tar cvf - $(SRC) | plink spiti tar -C src/cscout -xvf -
+
+rdist-istlab:
+	tar cvf - $(SRC) | plink istlab tar -C src/cscout -xvf -
+
+lf:
+	chmod +w $(SRC)
+	perl -pi -e 's/\r//' $(SRC)
 
 rdist-spiti-server:
 	pscp Makefile des.[ch] license.[ch] spiti:src/cscout-server
