@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.2 2004/07/27 11:14:28 dds Exp $
+ * $Id: funquery.cpp,v 1.3 2004/07/27 13:00:07 dds Exp $
  */
 
 #include <map>
@@ -52,7 +52,6 @@
 #include "fcall.h"
 #include "mcall.h"
 #include "query.h"
-#include "idquery.h"
 #include "funquery.h"
 
 // Construct an object based on URL parameters
@@ -90,14 +89,14 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	(void)swill_getargs("i(ncallers)|i(ncallerop)", &ncallers, &ncallerop);
 
 	exclude_fnre = !!swill_getvar("xfnre");
-	exclude_fure = !!swill_getvar("xunre");
-	exclude_fdre = !!swill_getvar("xdnre");
+	exclude_fure = !!swill_getvar("xfure");
+	exclude_fdre = !!swill_getvar("xfdre");
 
 	// Compile regular expression specs
 	if (!compile_re(of, "Function name", "fnre", fnre, match_fnre, str_fnre) ||
 	    !compile_re(of, "Calling function name", "fure", fure, match_fure, str_fure) ||
-	    !compile_re(of, "Called function name", "fnre", fdre, match_fdre, str_fdre) ||
-	    !compile_re(of, "Filename", "fnre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
+	    !compile_re(of, "Called function name", "fdre", fdre, match_fdre, str_fdre) ||
+	    !compile_re(of, "Filename", "fre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
 	    	return;
 }
 
@@ -159,24 +158,32 @@ FunQuery::eval(const Call *c)
 	Eclass *ec = c->get_tokid().get_ec();
 	if (current_project && !ec->get_attribute(current_project))
 		return false;
-	int retval;
-	retval = exclude_fnre ? 0 : REG_NOMATCH;
+	int retval = exclude_fnre ? 0 : REG_NOMATCH;
 	if (match_fnre && regexec(&fnre, c->get_name().c_str(), 0, NULL, 0) == retval)
 		return false;
 	if (match_fre && regexec(&fre, c->get_fileid().get_path().c_str(), 0, NULL, 0) != 0)
 			return false;	// No match found
-	if (match_fdre)
-		for (Call::const_fiterator_type c2 = c->call_begin(); c2 != c->call_end(); c2++) {
-			retval = exclude_fdre ? 0 : REG_NOMATCH;
-			if (regexec(&fdre, (*c2)->get_name().c_str(), 0, NULL, 0) == retval)
-				return false;
-		}
-	if (match_fure)
-		for (Call::const_fiterator_type c2 = c->caller_begin(); c2 != c->caller_end(); c2++) {
-			retval = exclude_fure ? 0 : REG_NOMATCH;
-			if (regexec(&fure, (*c2)->get_name().c_str(), 0, NULL, 0) == retval)
-				return false;
-		}
+	Call::const_fiterator_type c2;
+	if (match_fdre) {
+		for (c2 = c->call_begin(); c2 != c->call_end(); c2++)
+			if (regexec(&fdre, (*c2)->get_name().c_str(), 0, NULL, 0) == 0)
+				if (exclude_fdre)
+					return false;
+				else
+					break;
+		if (!exclude_fdre && c2 == c->call_end())
+			return false;
+	}
+	if (match_fure) {
+		for (c2 = c->caller_begin(); c2 != c->caller_end(); c2++)
+			if (regexec(&fure, (*c2)->get_name().c_str(), 0, NULL, 0) == 0)
+				if (exclude_fure)
+					return false;
+				else
+					break;
+		if (!exclude_fure && c2 == c->caller_end())
+			return false;
+	}
 
 	bool add;
 	switch (match_type) {
@@ -192,23 +199,23 @@ FunQuery::eval(const Call *c)
 		break;
 	case 'L':	// alL match
 		add = true;
-		add = (add && (!cfun && c->is_cfun()));
-		add = (add && (!macro && c->is_macro()));
-		add = (add && (!writable && !ec->get_attribute(is_readonly)));
-		add = (add && (!ro && ec->get_attribute(is_readonly)));
-		add = (add && (!pscope && !c->is_file_scoped()));
-		add = (add && (!fscope && c->is_file_scoped()));
-		add = (add && (!defined && c->is_defined()));
+		add = (add && (!cfun || c->is_cfun()));
+		add = (add && (!macro || c->is_macro()));
+		add = (add && (!writable || !ec->get_attribute(is_readonly)));
+		add = (add && (!ro || ec->get_attribute(is_readonly)));
+		add = (add && (!pscope || !c->is_file_scoped()));
+		add = (add && (!fscope || c->is_file_scoped()));
+		add = (add && (!defined || c->is_defined()));
 		break;
 	case 'E':	// excludE match
 		add = true;
-		add = (add && (!cfun && !c->is_cfun()));
-		add = (add && (!macro && !c->is_macro()));
-		add = (add && (!writable && ec->get_attribute(is_readonly)));
-		add = (add && (!ro && !ec->get_attribute(is_readonly)));
-		add = (add && (!pscope && c->is_file_scoped()));
-		add = (add && (!fscope && !c->is_file_scoped()));
-		add = (add && (!defined && !c->is_defined()));
+		add = (add && (!cfun || !c->is_cfun()));
+		add = (add && (!macro || !c->is_macro()));
+		add = (add && (!writable || ec->get_attribute(is_readonly)));
+		add = (add && (!ro || !ec->get_attribute(is_readonly)));
+		add = (add && (!pscope || c->is_file_scoped()));
+		add = (add && (!fscope || !c->is_file_scoped()));
+		add = (add && (!defined || !c->is_defined()));
 		break;
 	case 'T':	// exactT match
 		add = true;

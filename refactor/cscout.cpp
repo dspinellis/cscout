@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.81 2004/07/27 11:40:07 dds Exp $
+ * $Id: cscout.cpp,v 1.82 2004/07/27 13:00:07 dds Exp $
  */
 
 #include <map>
@@ -825,7 +825,7 @@ funquery_page(FILE *of,  void *p)
 
 	"<tr><td>\n"
 	"Names of called functions should "
-	"(<input type=\"checkbox\" name=\"xdure\" value=\"1\"> not) \n"
+	"(<input type=\"checkbox\" name=\"xfdre\" value=\"1\"> not) \n"
 	" match RE\n"
 	"</td><td>\n"
 	"<INPUT TYPE=\"text\" NAME=\"fdre\" SIZE=20 MAXLENGTH=256>\n"
