@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.22 2001/10/20 23:08:35 dds Exp $
+# $Id: rsc.tcl,v 1.23 2001/10/25 06:41:57 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -122,6 +122,7 @@ menu $m -tearoff 0
 	$m2 add command -label "Output"
 	$m2 add command -label "Dependencies"
 	$m2 add command -label "Unused"
+$m add command -label "Analyze" -command analyze
 $m add cascade -label "Report" -menu $m2 -underline 0
 $m add command -label "Report Options"
 $m add separator
@@ -617,7 +618,7 @@ proc dir_entry {dir ent} {
 		# Windows; case insensitive
 		return [expr ![string compare -nocase [string range $ent 0 [expr [string length $dir] - 1]] $dir]]
 	} else {
-		return [expr [string range $ent 0 [expr [string length $dir] - 1]] == $dir]
+		return [expr ![string compare [string range $ent 0 [expr [string length $dir] - 1]] $dir]]
 	}
 }
 
@@ -868,7 +869,7 @@ proc save_workspace_to {filename} {
 	
 	set f [open $filename w]
 	puts $f "#RSC 1.1 Workspace"
-	puts $f {#$Id: rsc.tcl,v 1.22 2001/10/20 23:08:35 dds Exp $}
+	puts $f {#$Id: rsc.tcl,v 1.23 2001/10/25 06:41:57 dds Exp $}
 	puts $f [list array set name [array get name]]
 	puts $f [list array set readonly [array get readonly]]
 	puts $f [list array set dir [array get dir]]
@@ -1036,4 +1037,43 @@ proc insert_hierarchy {} {
 		$tabfiles.hier refresh $entry
 	}	
 	# else cancelled
+}
+
+# Parse all Workproject files
+proc analyze {} {
+	global name
+	global fileholder
+	global taboutput
+	global out
+
+	$taboutput.text clear
+	$out.l select Output
+	$taboutput.text insert end "Analyzing ...\n"
+	tcl_init
+	block_enter
+	foreach i [array names name] {
+		# Project
+		if {[regexp {^wp[^]*$} $i]} {
+			$taboutput.text insert end "Project $i\n"
+			block_exit
+			block_enter
+		}
+		# File
+		if {[regexp {^wp} $i] && !$fileholder($i)} {
+			$taboutput.text insert end "File $i\n"
+			block_enter
+			set_input $name($i)
+			push_input "/home/dds/src/refactor/defs.h"
+			macros_clear
+			parse
+			block_exit
+		}
+	}
+	block_exit
+	$taboutput.text insert end "Done\n"
+}
+
+proc showerror {msg} {
+	global taboutput
+	$taboutput.text insert end "$msg\n"
 }
