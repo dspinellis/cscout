@@ -29,7 +29,7 @@ operator<<(ostream& o,const Tokid t)
 ostream&
 operator<<(ostream& o,const mapTokidEclass& t)
 {
-	mapTokidEclass::iterator i;
+	mapTokidEclass::const_iterator i;
 
 	for (i = Tokid::tm.tm.begin(); i != Tokid::tm.tm.end(); i++) {
 		o << (*i).first << ":\n";
@@ -43,7 +43,7 @@ Tokid::constituents(int l)
 {
 	Tokid t = *this;
 	dequeTokid r;
-	mapTokidEclass::iterator e = tm.tm.find(t);
+	mapTokidEclass::const_iterator e = tm.tm.find(t);
 
 	if (e == Tokid::tm.tm.end()) {
 		// No EC defined, create a new one
@@ -68,7 +68,7 @@ Tokid::constituents(int l)
 ostream&
 operator<<(ostream& o,const dequeTokid& dt)
 {
-	dequeTokid::iterator i;
+	dequeTokid::const_iterator i;
 
 	for (i = dt.begin(); i != dt.end(); i++) {
 		o << *i;

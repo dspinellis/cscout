@@ -26,6 +26,7 @@ get_uniq_fname_string(const char *name)
 #ifdef unix
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdio.h>
 
 static char *
 get_uniq_fname_string(const char *name)
@@ -35,14 +36,15 @@ get_uniq_fname_string(const char *name)
 
 	// XXX Report an error if return value is not 0
 	stat(name, &sb);
-	sprintf(buff, "%s:%s", sb._st_dev, sb.st_ino);
+	sprintf(buff, "%d:%d", sb.st_dev, sb.st_ino);
+	return (buff);
 }
 #endif /* unix */
 
 Fileid::Fileid(const string &name)
 {
 	string s(get_uniq_fname_string(name.c_str()));
-	FI_uname_to_id::iterator i;
+	FI_uname_to_id::const_iterator i;
 
 	if ((i = u2i.find(s)) == u2i.end()) {
 		// New filename; add a new fname/id pair in the map table

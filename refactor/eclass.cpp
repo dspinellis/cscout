@@ -24,7 +24,7 @@ merge(Eclass *a, Eclass *b)
 		small = a;
 	}
 
-	dequeTokid::iterator i;
+	dequeTokid::const_iterator i;
 	for (i = small->members.begin(); i != small->members.end(); i++)
 		large->add_tokid(*i);
 	delete small;
@@ -37,7 +37,7 @@ Eclass::split(int pos)
 	int oldchars = pos + 1;		// Characters to retain in the old EC
 	assert(oldchars < len);
 	Eclass *e = new Eclass(len - oldchars);
-	dequeTokid::iterator i;
+	dequeTokid::const_iterator i;
 	for (i = members.begin(); i != members.end(); i++)
 		e->add_tokid(*i + oldchars);
 	len = oldchars;
@@ -47,7 +47,7 @@ Eclass::split(int pos)
 ostream&
 operator<<(ostream& o,const Eclass& ec)
 {
-	dequeTokid::iterator i;
+	dequeTokid::const_iterator i;
 
 	// When used for real we can also open the file and print the content
 	o << "len=" << ec.len << "\n";
@@ -71,20 +71,21 @@ main()
 {
 	Tokid a(Fileid("tokid.cpp"), 10);
 	Tokid b(Fileid("./tokid.cpp"), 15);
-	Eclass e1(5);
+	// Need pointer so that the delete in merge will work
+	Eclass *e1 = new Eclass(5);
 
-	e1.add_tokid(a);
-	e1.add_tokid(b);
-	cout << "e1:\n" << e1;
+	e1->add_tokid(a);
+	e1->add_tokid(b);
+	cout << "e1:\n" << *e1;
 
-	Eclass e2(5);
+	Eclass *e2 = new Eclass(5);
 	Tokid c(Fileid("tokid.h"), 1);
 	Tokid d(Fileid("./tokid.h"), 5);
-	e2.add_tokid(c);
-	e2.add_tokid(d);
-	cout << "e2:\n" << e2;
+	e2->add_tokid(c);
+	e2->add_tokid(d);
+	cout << "e2:\n" << *e2;
 
-	Eclass *enew = merge(&e1, &e2);
+	Eclass *enew = merge(e1, e2);
 	cout << "merged:\n" << *enew;
 
 	Eclass *es = enew->split(2);
