@@ -1,13 +1,25 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.31 2003/05/27 17:47:16 dds Exp $
+# $Id: Makefile,v 1.32 2003/05/31 08:20:08 dds Exp $
 #
 
 # Common object files
 OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o
+
+SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
+	ctoken.h debug.cpp debug.h defs.h des.c des.h eclass.cpp \
+	eclass.h engine.cpp error.cpp error.h eval.y fchar.cpp \
+	fchar.h fileid.cpp fileid.h id.h incs.h license.c license.h \
+	macro.cpp macro.h metrics.cpp metrics.h minihttp.h mscdefs.h \
+	mscincs.h obfuscate.cpp parse.y pdtoken.cpp \
+	pdtoken.h pltoken.cpp pltoken.h ptoken.cpp ptoken.h regex.h \
+	simple_cpp.cpp stab.cpp stab.h swill.h tchar.cpp tchar.h \
+	tclfuns.cpp token.cpp token.h tokenize.cpp tokid.cpp \
+	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
+	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h
 
 # Stand-alone object files
 STANDOBJ=error.o
@@ -20,7 +32,6 @@ YACC=btyacc
 CC=g++
 CPPFLAGS=-pipe -g -Wall
 #CPPFLAGS=-pipe -O2
-TINCLUDE=/opt/ajuba/TclPro1.4/include
 
 CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
 test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
@@ -108,12 +119,7 @@ boottest: simple_cpp
 	g++ -c simple_cpp.i
 	$(CC) $(CPPFLAGS) -o simple_cpp $(STANDOBJ) $(OBJ) simple_cpp.o
 
-appinit.h:
-	mktclapp -header |sed 's/cplusplus/xyzzy/' >appinit.h
-
-tclfuns.o: tclfuns.cpp appinit.h
-	$(CC) $(CFLAGS) -I$(TINCLUDE) -c tclfuns.cpp
-
-refactor.a: $(TCLOBJ) $(OBJ)
-	ar cur refactor.a $(TCLOBJ) $(OBJ)
-	ranlib refactor.a
+# Distribution
+rdist:
+	tar cvf - $(SRC) | plink jonathan tar -C src/cscout -xvf -
+	tar cvf - $(SRC) | plink spiti tar -C src/cscout -xvf -
