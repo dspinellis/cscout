@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.85 2003/08/11 14:15:17 dds Exp $
+ * $Id: pdtoken.cpp,v 1.86 2003/08/15 16:56:45 dds Exp $
  */
 
 #include <iostream>
@@ -628,9 +628,16 @@ Pdtoken::process_define()
 		m.set_is_vararg(false);
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != ')') {
-			// Formal args follow; gather them
+			/*
+			 * Formal args follow; gather them
+			 * For variable # of arguments we accept the gcc syntax:
+			 * #define debug(format, args...) fprintf (stderr, format, ##args)
+			 * and the ANSI C99 syntax:
+			 * #define debug(format, ...) fprintf (stderr, format, __VA_ARGS__)
+			 */
 			for (;;) {
-				if (t.get_code() != IDENTIFIER) {
+				// Test ELLIPSIS for C99 varargs
+				if (t.get_code() != IDENTIFIER && t.get_code() != ELLIPSIS) {
 					/*
 					 * @error
 					 * A macro parameter name specified in a 
@@ -641,14 +648,21 @@ Pdtoken::process_define()
 					eat_to_eol();
 					return;
 				}
-				t.set_ec_attribute(is_macroarg);
-				args[t.get_val()] = t;
-				m.form_args_push_back(t);
-				t.template getnext_nospc<Fchar>();
-				if (t.get_code() == ')') {
-					t.template getnext<Fchar>();
-					break;
+				if (t.get_code() == IDENTIFIER) {
+					t.set_ec_attribute(is_macroarg);
+					args[t.get_val()] = t;
+					m.form_args_push_back(t);
+					t.template getnext_nospc<Fchar>();
+					if (t.get_code() == ')') {
+						t.template getnext<Fchar>();
+						break;
+					}
+				} else {
+					// C99 vararg
+					Ptoken va(IDENTIFIER, "__VA_ARGS__");
+					m.form_args_push_back(va);
 				}
+				// This applies to C99 and gcc varargs
 				if (t.get_code() == ELLIPSIS) {
 					m.set_is_vararg(true);
 					t.template getnext_nospc<Fchar>();
