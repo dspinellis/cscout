@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.31 2003/05/28 15:57:59 dds Exp $
+ * $Id: cscout.cpp,v 1.32 2003/05/28 18:03:22 dds Exp $
  */
 
 #include <map>
@@ -58,6 +58,7 @@ static bool remove_fp;			// Remove common file prefix
 static bool sort_rev;			// Reverse sort of identifier names
 static bool show_true;			// Only show true identifier properties
 static bool file_icase;			// File name case-insensitive match
+static int tab_width = 8;		// Tab width for code output
 
 // Our identifiers to store as a map
 class Identifier {
@@ -160,20 +161,39 @@ static Attributes::size_type current_project;
 
 void index_page(FILE *of, void *data);
 
-// Return HTML equivalent of character c
-static char *
+/* 
+ * Return as a C string the HTML equivalent of character c
+ * Handles tab-stop expansion provided all output is processed through this
+ * function
+ */
+static const char *
 html(char c)
 {
 	static char str[2];
+	static int column = 0;
+	static vector<string> spaces(0);
 
 	switch (c) {
-	case '&': return "&amp;";
-	case '<': return "&lt;";
-	case '>': return "&gt;";
-	case ' ': return "&nbsp;";
-	case '\t': return "&nbsp;&nbsp;&nbsp;&nbsp;";
-	case '\n': return "<br>\n";
+	case '&': column++; return "&amp;";
+	case '<': column++; return "&lt;";
+	case '>': column++; return "&gt;";
+	case ' ': column++; return "&nbsp;";
+	case '\t': 
+		if ((int)(spaces.size()) != tab_width) {
+			spaces.resize(tab_width);
+			for (int i = 0; i < tab_width; i++) {
+				string t;
+				for (int j = 0; j < tab_width - i; j++)
+					t += "&nbsp;";
+				spaces[i] = t;
+			}
+		}
+		return spaces[column % tab_width].c_str();
+	case '\n': 
+		column = 0;
+		return "<br>\n";
 	default:
+		column++;
 		str[0] = c;
 		return str;
 	}
@@ -214,11 +234,8 @@ url(const string &s)
 static void
 html_string(FILE *of, string s)
 {
-	string r;
-
 	for (string::const_iterator i = s.begin(); i != s.end(); i++)
-		r += html(*i);
-	fprintf(of, r.c_str());
+		fputs(html(*i), of);
 }
 
 
@@ -226,9 +243,9 @@ html_string(FILE *of, string s)
 static void
 html_id(FILE *of, const IdProp::value_type &i)
 {
-	fprintf(of, "<a href=\"id.html?id=%u\">%s</a>",
-		(unsigned)(i.first),
-		(i.second).get_id().c_str());
+	fprintf(of, "<a href=\"id.html?id=%u\">", (unsigned)(i.first));
+	html_string(of, (i.second).get_id());
+	fputs("</a>", of);
 }
 
 // Add identifiers of the file fi into ids
@@ -307,6 +324,8 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		perror(fname.c_str());
 		exit(1);
 	}
+	fputs("<code>", of);
+	(void)html('\n');	// Reset HTML tab handling
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
@@ -334,6 +353,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		fprintf(of, "%s", html((char)val));
 	}
 	in.close();
+	fputs("</code>", of);
 }
 
 // Go through the file doing any replacements needed
@@ -408,7 +428,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.31 2003/05/28 15:57:59 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.32 2003/05/28 18:03:22 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -424,7 +444,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.31 2003/05/28 15:57:59 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.32 2003/05/28 18:03:22 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -1052,6 +1072,7 @@ options_page(FILE *fo, void *p)
 	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (sort_rev ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"file_icase\" value=\"1\" %s>Case-insensitive file name regular expression match<br>\n", (file_icase ? "checked" : ""));
+	fprintf(fo, "Code listing tab width <input type=\"text\" name=\"tab_width\" size=3 maxlength=3 value=\"%d\"><br>\n", tab_width);
 /*
 Do not show No in identifier properties (option)
 
@@ -1075,6 +1096,8 @@ set_options_page(FILE *fo, void *p)
 	sort_rev = !!swill_getvar("sort_rev");
 	show_true = !!swill_getvar("show_true");
 	file_icase = !!swill_getvar("file_icase");
+	if (!swill_getargs("I(tab_width)", &tab_width) || tab_width <= 0)
+		tab_width = 8;
 	if (string(swill_getvar("set")) == "Apply")
 		options_page(fo, p);
 	else
@@ -1173,7 +1196,8 @@ file_page(FILE *of, void *p)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(of, "</ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
-	fprintf(of, "<li> <a href=\"qsrc.html?id=%s&match=L&unused=1&writable=1&a9=1\">Source code with any global unused writable identifiers marked</a>\n", fname.str().c_str());
+	fprintf(of, "<li> <a href=\"qsrc.html?id=%s&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", fname.str().c_str(), is_readonly);
+	fprintf(of, "<li> <a href=\"qsrc.html?id=%s&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", fname.str().c_str(), is_lscope);
 	fprintf(of, "</ul>\n");
 	html_tail(of);
 }
