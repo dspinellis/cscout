@@ -12,7 +12,7 @@
  * #include "cpp.h"
  * #include "fileid.h"
  *
- * $Id: tokid.h,v 1.2 2001/08/15 19:35:40 dds Exp $
+ * $Id: tokid.h,v 1.3 2001/08/17 13:29:57 dds Exp $
  */
 
 #ifndef TOKID_
@@ -20,6 +20,9 @@
 
 class TE_map;
 class Eclass;
+
+class Tokid;
+typedef deque <Tokid> dequeTokid;
 
 class Tokid {
 private:
@@ -38,22 +41,29 @@ public:
 	inline friend bool operator <(const class Tokid a, const class Tokid b);
 	// Advance i character positions
 	inline Tokid& operator +=(int i);
+	inline friend Tokid operator +(Tokid a, int i);
 	// Return its equivalence class
 	inline Eclass *get_ec();
-	// Set its equivalence class to ec (normally done when adding it to an Eclass)
+	// Set its equivalence class to ec (done when adding it to an Eclass)
+	// use Eclass:add_tokid, not this method in all other contexts
 	inline void set_ec(Eclass *ec);
+	// Returns the Tokids participating in all ECs for a token of length l
+	dequeTokid Tokid::constituents(int l);
 	// Print the contents of the class map
 	friend ostream& operator<<(ostream& o,const map <Tokid, Eclass *>& dummy);
 };
 
-typedef map <Tokid, Eclass *> TM_map;
+// Print dequeTokid sequences
+ostream& operator<<(ostream& o,const dequeTokid& dt);
+
+typedef map <Tokid, Eclass *> mapTokidEclass;
 
 class TE_map {
 public:
-	static TM_map tm;		// Map from tokens to their equivalence
+	static mapTokidEclass tm;		// Map from tokens to their equivalence
 };
 
-extern TM_map tokid_map;		// Dummy; used for printing
+extern mapTokidEclass tokid_map;		// Dummy; used for printing
 
 inline Tokid
 operator +(Tokid a, int i)

@@ -2,15 +2,17 @@
 #include <map>
 #include <string>
 #include <deque>
+#include <cassert>
 
 #include "cpp.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"
 
-TM_map tokid_map;		// Dummy; used for printing
 TE_map Tokid::tm;
-TM_map TE_map::tm;
+
+mapTokidEclass tokid_map;		// Dummy; used for printing
+mapTokidEclass TE_map::tm;
 
 Tokid::Tokid(Fileid f, offset_t o)
 	: fi(f), offs(o)
@@ -25,15 +27,55 @@ operator<<(ostream& o,const Tokid t)
 }
 
 ostream&
-operator<<(ostream& o,const TM_map& t)
+operator<<(ostream& o,const mapTokidEclass& t)
 {
-	TM_map::iterator i;
+	mapTokidEclass::iterator i;
 
 	for (i = Tokid::tm.tm.begin(); i != Tokid::tm.tm.end(); i++) {
 		o << (*i).first << ":\n";
 		o << *((*i).second) << "\n\n";
 	}
 	return o;
+}
+
+dequeTokid
+Tokid::constituents(int l)
+{
+	Tokid t = *this;
+	dequeTokid r;
+	mapTokidEclass::iterator e = tm.tm.find(t);
+
+	if (e == Tokid::tm.tm.end()) {
+		// No EC defined, create a new one
+		new Eclass(t, l);
+		r.push_back(t);
+		return (r);
+	}
+	// Make r be the tokids of the ECs covering our tokid t
+	for (;;) {
+		r.push_back(t);
+		int covered = (e->second)->get_len();
+		l -= covered;
+		assert(l >= 0);
+		if (l == 0)
+			return (r);
+		t += covered;
+		e = tm.tm.find(t);
+		assert(e != Tokid::tm.tm.end());
+	}
+}
+
+ostream&
+operator<<(ostream& o,const dequeTokid& dt)
+{
+	dequeTokid::iterator i;
+
+	for (i = dt.begin(); i != dt.end(); i++) {
+		o << *i;
+		if (i + 1 != dt.end())
+			o << ", ";
+	}
+	return (o);
 }
 
 #ifdef UNIT_TEST
@@ -65,6 +107,16 @@ main()
 	e2.add_tokid(e);
 	e2.add_tokid(c);
 	cout << tokid_map;
+
+	// Test for the constituent
+	Tokid x(Fileid("main.cpp"), 20);
+
+	dequeTokid dt = x.constituents(10);
+	cout << "Initial dt: " << dt << "\n";
+	cout << "Split EC: " << *x.get_ec()->split(2);
+	dt = x.constituents(10);
+	cout << "dt after split:" << dt << "\n";
+
 	return (0);
 }
 #endif /* UNIT_TEST */
