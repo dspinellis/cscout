@@ -3,10 +3,11 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.8 2001/09/29 09:42:39 dds Exp $
+# $Id: rsc.tcl,v 1.9 2001/09/29 13:34:21 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
+# To save an array: puts $f [list array set $arr [array get $arr]]
 
 package require Iwidgets 3.0
 
@@ -238,7 +239,8 @@ $out.l select Settings
 
 ######################################################
 # Workspace Files
-iwidgets::hierarchy $tabfiles.hier -querycommand "get_workspace %n" -alwaysquery 1
+iwidgets::hierarchy $tabfiles.hier -querycommand "get_workspace %n" -alwaysquery 1 \
+-selectbackground blue -selectcommand "select_workspace {%n} %s"
 pack $tabfiles.hier -expand yes -fill both
 
 ######################################################
@@ -364,8 +366,21 @@ iwidgets::promptdialog .projname -title "Insert Project to Workspace" -modality 
 ######################################################
 # Subroutines
 
+proc ierror {msg} {
+	tk_messageBox -icon error -type ok -title "Error" -message $msg
+}
+
+# Called when the user clicks on a workspace node
+# sel is the selection value of that node
+proc select_workspace {uid sel} {
+	global tabfiles
+	$tabfiles.hier selection clear
+	$tabfiles.hier selection add $uid
+}
+
 proc get_workspace {uid} {
 	global name
+	global tabfiles
 	if {$uid == ""} {
 			# uid Text branch/leaf
 		return {
@@ -395,12 +410,20 @@ proc insert_project {} {
 	if {[.projname activate]} {
 		# A project is: name settings ?file? ...
 		set projname [.projname get]
-		# XXX Check for invalid characters and that it does not exist
-		set name("wp/$projname") $projname
+		if {[info exists name(wp/$projname)]} {
+			ierror "Project $projname is already defined in this workspace"
+			return
+		}
+		if {[regexp {/} $projname]} {
+			ierror "Project names can not contain an embedded slash"
+			return
+		}
+		set name(wp/$projname) $projname
 		# Expand is needed to internally refresh _nodes so that we do not
-		# get an node does not exist error!
+		# get a node does not exist error!
 		$tabfiles.hier expand wp
 		$tabfiles.hier refresh wp
 	}	
 	# else cancelled
 }
+
