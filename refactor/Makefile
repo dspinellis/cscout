@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.27 2003/05/16 13:08:46 dds Exp $
+# $Id: Makefile,v 1.28 2003/05/16 20:12:28 dds Exp $
 #
 
 # Common object files
@@ -84,6 +84,9 @@ tokname.cpp: ytoken.h tokname.pl
 
 license.o: license.c
 	gcc -c $(CPPFLAGS) license.c
+
+des.o: des.c
+	gcc -c $(CPPFLAGS) des.c
 
 # Test
 cpptest: cpp-test $(CPPTEST) simple_cpp
