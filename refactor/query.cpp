@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.2 2004/07/27 11:14:28 dds Exp $
+ * $Id: query.cpp,v 1.3 2004/07/27 15:23:21 dds Exp $
  */
 
 #include <map>
@@ -95,4 +95,18 @@ Query::compile_re(FILE *of, const char *name, const char *varname, regex_t &re, 
 		}
 	}
 	return true;
+}
+
+// Display an equality selection box
+void
+Query::equality_selection(FILE *of)
+{
+	fprintf(of,
+		"<option value=\"%d\">ignore"
+		"<option value=\"%d\">=="
+		"<option value=\"%d\">!="
+		"<option value=\"%d\">&lt;"
+		"<option value=\"%d\">&gt;"
+		"</select></td><td>",
+		ec_ignore, ec_eq, ec_ne, ec_lt, ec_gt);
 }

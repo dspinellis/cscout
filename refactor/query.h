@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.3 2004/07/27 14:45:56 dds Exp $
+ * $Id: query.h,v 1.4 2004/07/27 15:23:21 dds Exp $
  */
 
 #ifndef QUERY_
@@ -28,6 +28,18 @@ protected:
 	 */
 	bool compile_re(FILE *of, const char *name, const char *varname, regex_t &re, bool &match,  string &str, int compflags = 0);
 public:
+	// Comparisson constants used for selections
+	enum e_cmp {
+		ec_ignore,
+		ec_eq,
+		ec_ne,
+		ec_lt,
+		ec_gt
+	};
+	// Display an equality selection box
+	static void equality_selection(FILE *of);
+	// Return the result of applying operator op on a, b
+	static inline bool apply(int op, int a, int b);
 	// URL-encode the given string
 	static string url(const string &s);
 
@@ -40,5 +52,33 @@ public:
 	static bool sort_rev;			// Reverse sort of identifier names
 };
 
+/*
+ * Return the result of applying operator op on a, b
+ * Apparently doing this with the standard equal_to, etc functors would require a
+ * 5-template function.
+ * Attempting to store all functors in a vector <binary_function <..> > is useless
+ * since because the polymorphic binary_function does not define the appropriate () operators.
+ */
+inline bool
+Query::apply(int op, int a, int b)
+{
+	if (DP()) {
+		cout << a;
+		switch (op) {
+		case ec_eq: cout << " == "; break;
+		case ec_ne: cout << " != "; break;
+		case ec_lt: cout << " < "; break;
+		case ec_gt: cout << " > "; break;
+		}
+		cout << b << "\n";
+	}
+	switch (op) {
+	case ec_eq: return a == b;
+	case ec_ne: return a != b;
+	case ec_lt: return a < b;
+	case ec_gt: return a > b;
+	default: return false;
+	}
+}
 
 #endif // QUERY_

@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.4 2004/07/27 14:45:56 dds Exp $
+ * $Id: funquery.cpp,v 1.5 2004/07/27 15:23:21 dds Exp $
  */
 
 #include <map>
@@ -134,7 +134,7 @@ FunQuery::url() const
 		r += "&xfure=1";
 	if (exclude_fdre)
 		r += "&xfdre=1";
-	if (ncallerop != 0) {
+	if (ncallerop != ec_ignore) {
 		ostringstream varname;
 
 		varname << "&ncallers=" << ncallers;

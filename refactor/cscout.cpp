@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.83 2004/07/27 14:45:56 dds Exp $
+ * $Id: cscout.cpp,v 1.84 2004/07/27 15:23:21 dds Exp $
  */
 
 #include <map>
@@ -521,14 +521,6 @@ html_file(FILE *of, string fname)
 	html_file(of, fi);
 }
 
-enum e_cmp {
-	ec_ignore,
-	ec_eq,
-	ec_ne,
-	ec_lt,
-	ec_gt
-};
-
 // File query page
 static void
 fquery_page(FILE *of,  void *p)
@@ -541,15 +533,8 @@ fquery_page(FILE *of,  void *p)
 	for (int i = 0; i < metric_max; i++) {
 		fprintf(of, "<tr><td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
 			Metrics::name(i).c_str(), i);
-		fprintf(of,
-			"<option value=\"%d\">ignore"
-			"<option value=\"%d\">=="
-			"<option value=\"%d\">!="
-			"<option value=\"%d\">&lt;"
-			"<option value=\"%d\">&gt;"
-			"</select></td><td>",
-			ec_ignore, ec_eq, ec_ne, ec_lt, ec_gt);
-		fprintf(of, "<INPUT TYPE=\"text\" NAME=\"n%d\" SIZE=5 MAXLENGTH=10></td></tr>\n", i);
+		Query::equality_selection(of);
+		fprintf(of, "</td><td><INPUT TYPE=\"text\" NAME=\"n%d\" SIZE=5 MAXLENGTH=10></td></tr>\n", i);
 	}
 	fputs(
 	"</table><p>\n"
@@ -571,34 +556,6 @@ struct ignore : public binary_function <int, int, bool> {
 	inline bool operator()(int a, int b) const { return true; }
 };
 
-/*
- * Return the result of applying operator op on a, b
- * Apparently doing this with the standard equal_to, etc functors would require a
- * 5-template function.
- * Attempting to store all functors in a vector <binary_function <..> > is useless
- * since because the polymorphic binary_function does not define the appropriate () operators.
- */
-static inline bool
-apply(int op, int a, int b)
-{
-	if (DP()) {
-		cout << a;
-		switch (op) {
-		case ec_eq: cout << " == "; break;
-		case ec_ne: cout << " != "; break;
-		case ec_lt: cout << " < "; break;
-		case ec_gt: cout << " > "; break;
-		}
-		cout << b << "\n";
-	}
-	switch (op) {
-	case ec_eq: return a == b;
-	case ec_ne: return a != b;
-	case ec_lt: return a < b;
-	case ec_gt: return a > b;
-	default: return false;
-	}
-}
 
 // Process a file query
 static void
@@ -659,7 +616,7 @@ xfquery_page(FILE *of,  void *p)
 		case 'Y':	// anY match
 			add = false;
 			for (int j = 0; j < metric_max; j++)
-				if (op[j] && apply(op[j], (*i).metrics().get_metric(j), n[j])) {
+				if (op[j] && Query::apply(op[j], (*i).metrics().get_metric(j), n[j])) {
 					add = true;
 					break;
 				}
@@ -669,7 +626,7 @@ xfquery_page(FILE *of,  void *p)
 		case 'L':	// alL match
 			add = true;
 			for (int j = 0; j < metric_max; j++)
-				if (op[j] && !apply(op[j], (*i).metrics().get_metric(j), n[j])) {
+				if (op[j] && !Query::apply(op[j], (*i).metrics().get_metric(j), n[j])) {
 					add = false;
 					break;
 				}
@@ -794,14 +751,7 @@ funquery_page(FILE *of,  void *p)
 	"Number of callers\n"
 	"<select name=\"ncallerop\" value=\"1\">\n",
 	of);
-	fprintf(of,
-		"<option value=\"%d\">ignore"
-		"<option value=\"%d\">=="
-		"<option value=\"%d\">!="
-		"<option value=\"%d\">&lt;"
-		"<option value=\"%d\">&gt;"
-		"</select>",
-		ec_ignore, ec_eq, ec_ne, ec_lt, ec_gt);
+	Query::equality_selection(of);
 	fputs(
 	"</td><td>\n"
 	"<INPUT TYPE=\"text\" NAME=\"ncallers\" SIZE=5 MAXLENGTH=10>\n"
@@ -1305,9 +1255,9 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n");
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+Project-scoped+Writable+Identifiers\">Files containing unused project-scoped writable identifiers</a>\n", is_lscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+File-scoped+Writable+Identifiers\">Files containing unused file-scoped writable identifiers</a>\n", is_cscope);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statments&qf=1\">Writable .c files without any statements</a>\n", em_nstatement, ec_eq, em_nstatement);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", em_nstring, ec_gt, em_nstring);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", em_nincfile, ec_gt, em_nincfile);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statments&qf=1\">Writable .c files without any statements</a>\n", em_nstatement, Query::ec_eq, em_nstatement);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", em_nstring, Query::ec_gt, em_nstring);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", em_nincfile, Query::ec_gt, em_nincfile);
 		fprintf(of, "<li> <a href=\"fquery.html\">Specify new file query</a>\n"
 		"</ul>\n"
 		"<h2>Identifiers</h2>\n"
