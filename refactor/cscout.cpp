@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.64 2003/08/21 19:50:05 dds Exp $
+ * $Id: cscout.cpp,v 1.65 2003/08/30 17:29:26 dds Exp $
  */
 
 #include <map>
@@ -1609,6 +1609,23 @@ simple_cpp()
 	return(0);
 }
 
+// Included file site information
+// See warning_report
+class SiteInfo {
+private:
+	bool required;		// True if this site contains at least one required include file
+	set <Fileid> files;	// Files included here
+public:
+	SiteInfo(bool r, Fileid f) : required(r) {
+		files.insert(f);
+	}
+	void update(bool r, Fileid f) {
+		required |= r;
+		files.insert(f);
+	}
+	const set <Fileid> & get_files() const { return files; }
+	bool is_required() const { return required; }
+};
 
 // Generate a warning report
 static void
@@ -1628,6 +1645,7 @@ warning_report()
 		  "T:writable:obj:pscope" }, // xfile is implicitly 0
 	};
 
+	// Generate identifier warnings
 	for (unsigned i = 0; i < sizeof(reports) / sizeof(reports[0]); i++) {
 		IdQuery query(reports[i].query);
 
@@ -1643,21 +1661,47 @@ warning_report()
 		}
 	}
 
+	/*
+	 * Generate unneeded include file warnings
+	 * A given include directive can include different files on different
+	 * compilations (through different include paths or macros)
+	 * Therefore maintain a map for include directive site information:
+	 */
+
+	typedef map <int, SiteInfo> Sites;
+	Sites include_sites;
+
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if ((*i).get_readonly() || !(*i).compilation_unit() || *i == input_file_id)
 			continue;
 		const FileIncMap &m = (*i).get_includes();
+		// Find the status of our include sites
+		include_sites.clear();
 		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
 			Fileid f2 = (*j).first;
 			const IncDetails &id = (*j).second;
-			if (id.is_directly_included() && !id.is_required()) {
-				const set <int> &lines = id.include_line_numbers();
-				for (set <int>::const_iterator k = lines.begin(); k != lines.end(); k++)
-					cerr << (*i).get_path() << ':' << 
-						*k << ": unused included file " <<
-						f2.get_path() << '\n';
+			if (!id.is_directly_included())
+				continue;
+			const set <int> &lines = id.include_line_numbers();
+			for (set <int>::const_iterator k = lines.begin(); k != lines.end(); k++) {
+				Sites::iterator si = include_sites.find(*k);
+				if (si == include_sites.end())
+					include_sites.insert(Sites::value_type(*k, SiteInfo(id.is_required(), f2)));
+				else
+					(*si).second.update(id.is_required(), f2);
 			}
 		}
+		// And report those containing unused files
+		Sites::const_iterator si;
+		for (si = include_sites.begin(); si != include_sites.end(); si++)
+			if (!(*si).second.is_required()) {
+				const set <Fileid> &sf = (*si).second.get_files();
+				int line = (*si).first;
+				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
+					cerr << (*i).get_path() << ':' << 
+						line << ": unused included file " <<
+						(*fi).get_path() << '\n';
+			}
 	}
 }
 
