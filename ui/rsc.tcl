@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.2 2001/09/25 08:33:43 dds Exp $
+# $Id: rsc.tcl,v 1.3 2001/09/25 09:26:51 dds Exp $
 #
 
 package require Iwidgets 3.0
@@ -97,7 +97,7 @@ $m add command -label "About"
 . configure -menu .menu
 
 iwidgets::toolbar .tb -helpvariable statusVar -orient horizontal
-pack .tb -side top -anchor nw -padx 4 -pady 4
+pack .tb -side top -anchor nw
 
 set imagedir [file join ${iwidgets::library} demos images]
 
@@ -130,7 +130,30 @@ set imagedir [file join ${iwidgets::library} demos images]
     -balloonstr "Polygon tool" \
     -command {puts "tool: polygon"}
 
-canvas .worksp -width 2i -height 3i \
-    -borderwidth 2 -relief sunken -background white
-pack .worksp -side right -expand yes -fill both -padx 4 -pady 4
+
+iwidgets::panedwindow .panes -width 9i -height 5i -orient vertical
+pack .panes -expand yes -fill both
+
+.panes add "files"
+set files [.panes childsite "files"]
+
+
+iwidgets::tabnotebook $files.l -tabpos n
+set tabfiles [$files.l add -label "Workspace"]
+set tabmatches [$files.l add -label "Matches"]
+pack $files.l -side left -expand yes -fill both
+
+.panes add "out"
+set out [.panes childsite "out"]
+
+iwidgets::tabnotebook $out.l -tabpos n
+set tabmatches [$out.l add -label "Contents"]
+set tabmatches [$out.l add -label "Dependencies"]
+set tabmatches [$out.l add -label "Unused"]
+set tabmatches [$out.l add -label "Settings"]
+set tabmatches [$out.l add -label "Output"]
+set tabmatches [$out.l add -label "Statistics"]
+pack $out.l -side left -expand yes -fill both
+ 
+.panes fraction 25 75
 
