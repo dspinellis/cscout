@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.56 2003/06/22 17:42:44 dds Exp $
+ * $Id: parse.y,v 1.57 2003/06/22 19:19:12 dds Exp $
  *
  */
 
@@ -1633,7 +1633,7 @@ yacc_variable:
 				/*
 				 * @error
 				 * The number used in a $n yacc variable was greater than the
-				 * number of identifiers and actions on the rule's left side
+				 * number of identifiers and actions on the action's left side
 				 */
 				Error::error(E_ERR, "yacc $value out of range");
 				$$ = basic(b_int);
