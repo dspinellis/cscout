@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.3 2004/07/27 15:23:21 dds Exp $
+ * $Id: query.cpp,v 1.4 2004/08/01 12:51:14 dds Exp $
  */
 
 #include <map>
@@ -107,6 +107,6 @@ Query::equality_selection(FILE *of)
 		"<option value=\"%d\">!="
 		"<option value=\"%d\">&lt;"
 		"<option value=\"%d\">&gt;"
-		"</select></td><td>",
+		"</select>",
 		ec_ignore, ec_eq, ec_ne, ec_lt, ec_gt);
 }

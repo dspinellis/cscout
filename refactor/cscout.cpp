@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.97 2004/08/01 08:02:56 dds Exp $
+ * $Id: cscout.cpp,v 1.98 2004/08/01 12:51:14 dds Exp $
  */
 
 #include <map>
@@ -71,7 +71,7 @@
 
 
 // Global Web options
-static bool remove_fp;			// Remove common file prefix
+static bool fname_in_context;			// Remove common file prefix
 static bool show_true;			// Only show true identifier properties
 static bool show_line_number;		// Annotate source with line numbers
 static bool file_icase;			// File name case-insensitive match
@@ -516,6 +516,9 @@ html_tail(FILE *of)
 static bool
 local_access(FILE *fo)
 {
+#ifdef OFFICE_SERVER
+	return true;
+#else
 	char *peer = swill_getpeerip();
 
 	if (peer && strcmp(peer, "127.0.0.1") == 0)
@@ -527,33 +530,47 @@ local_access(FILE *fo)
 		html_tail(fo);
 		return false;
 	}
+#endif
 }
 #endif
 
-static bool html_file_starting;
-static string odir;
-
+// Call before the start of a file list
 static void
 html_file_begin(FILE *of)
 {
-	html_file_starting = true;
-	fprintf(of, "<ul>\n");
+	if (fname_in_context)
+		fprintf(of, "<table><tr><th>Directory</th><th>File</th>");
+	else
+		fprintf(of, "<table><tr><th></th><th></th>");
 }
 
+// Call before actually listing files (after printing additional headers)
+static void
+html_file_set_begin(FILE *of)
+{
+	fprintf(of, "</tr>\n");
+}
+
+// Called after html_file (after printing additional columns)
+static void
+html_file_record_end(FILE *of)
+{
+	fprintf(of, "</tr>\n");
+}
+
+// Called at the end
 static void
 html_file_end(FILE *of)
 {
-	if (remove_fp && !html_file_starting)
-		fprintf(of, "</ul>\n");
-	fprintf(of, "</ul>\n");
+	fprintf(of, "</table>\n");
 }
 
 // Display a filename of an html file
 static void
 html_file(FILE *of, Fileid fi)
 {
-	if (!remove_fp) {
-		fprintf(of, "\n<li><a href=\"file.html?id=%u\">%s</a>",
+	if (!fname_in_context) {
+		fprintf(of, "\n<tr><td></td><td><a href=\"file.html?id=%u\">%s</a></td>",
 			fi.get_id(),
 			fi.get_path().c_str());
 		return;
@@ -569,15 +586,8 @@ html_file(FILE *of, Fileid fi)
 	string dir(s, 0, k);
 	string fname(s, k);
 
-	if (html_file_starting) {
-		html_file_starting = false;
-		fprintf(of, "<li>%s\n<ul>\n", dir.c_str());
-		odir = dir;
-	} else if (odir != dir) {
-		fprintf(of, "</ul><li>%s\n<ul>\n", dir.c_str());
-		odir = dir;
-	}
-	fprintf(of, "\n<li><a href=\"file.html?id=%u\">%s</a>",
+	fprintf(of, "<tr><td align=\"right\">%s\n</td>\n", dir.c_str());
+	fprintf(of, "<td><a href=\"file.html?id=%u\">%s</a></td>",
 		fi.get_id(),
 		fname.c_str());
 }
@@ -598,15 +608,25 @@ fquery_page(FILE *of,  void *p)
 	fputs("<FORM ACTION=\"xfquery.html\" METHOD=\"GET\">\n"
 	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable<br>\n"
 	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only<br>\n"
-	"<table>", of);
+	"<table>"
+	"<tr><th>Sort-by</th><th>Metric</th><th>Compare</th><th>Value</th></tr>\n", of);
 	for (int i = 0; i < metric_max; i++) {
-		fprintf(of, "<tr><td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
+		fprintf(of, "<tr><td><input type=\"radio\" name=\"order\" value=\"%d\"> </td>\n", i);
+		fprintf(of, "<td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
 			Metrics::name(i).c_str(), i);
 		Query::equality_selection(of);
 		fprintf(of, "</td><td><INPUT TYPE=\"text\" NAME=\"n%d\" SIZE=5 MAXLENGTH=10></td></tr>\n", i);
 	}
+	fprintf(of, "<tr>"
+		"<td><input type=\"radio\" name=\"order\" value=\"-1\" CHECKED></td>\n"
+		"<td>File name</td>"
+		"<td></td><td></td></tr>"
+	);
 	fputs(
-	"</table><p>\n"
+	"</table>\n"
+	"<p>"
+	"<input type=\"checkbox\" name=\"reverse\" value=\"0\">Reverse sort order\n"
+	"<p>"
 	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any of the above\n"
 	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
 	"<input type=\"radio\" name=\"match\" value=\"L\">Match all of the above\n"
@@ -625,18 +645,52 @@ struct ignore : public binary_function <int, int, bool> {
 	inline bool operator()(int a, int b) const { return true; }
 };
 
+// Container comparison functor
+class specified_order : public binary_function <const Fileid &, const Fileid &, bool> {
+private:
+	/*
+	 * Can only be an instance variable (per C++ PL 17.1.4.5)
+	 * only when the corresponding constructor is passed a
+	 * compile-time constant.
+	 * This hack works around the limitation.
+	 */
+	static int order;
+	static bool reverse;
+public:
+	// Should be called exactly once before instantiating the set
+	static void set_order(int o, bool r) { order = o; reverse = r; }
+	bool operator()(const Fileid &a, const Fileid &b) const {
+		bool val;
+		if (order == -1)
+			// Order by name
+			val = (a.get_path() < b.get_path());
+		else
+			val = (a.const_metrics().get_metric(order) < b.const_metrics().get_metric(order));
+		return reverse ? !val : val;
+	}
+};
+
+int specified_order::order;
+bool specified_order::reverse;
+
 
 // Process a file query
 static void
 xfquery_page(FILE *of,  void *p)
 {
-	IFSet sorted_files;
 	char match_type;
 	vector <int> op(metric_max);
 	vector <int> n(metric_max);
 	bool writable = !!swill_getvar("writable");
 	bool ro = !!swill_getvar("ro");
 	char *qname = swill_getvar("n");
+	int sort_order;
+
+	if (!swill_getargs("i(order)", &sort_order))
+		sort_order = -1;
+
+	specified_order::set_order(sort_order, !!swill_getvar("reverse"));
+	set <Fileid, specified_order> sorted_files;
 
 	html_head(of, "xfquery", (qname && *qname) ? qname : "File Query Results");
 
@@ -707,11 +761,17 @@ xfquery_page(FILE *of,  void *p)
 			sorted_files.insert(*i);
 	}
 	html_file_begin(of);
+	if (sort_order != -1)
+		fprintf(of, "<th>%s</th>\n", Metrics::name(sort_order).c_str());
+	html_file_set_begin(of);
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
 			continue;
 		html_file(of, *i);
+		if (sort_order != -1)
+			fprintf(of, "<td align=\"right\">%d</td>", i->const_metrics().get_metric(sort_order));
+		html_file_record_end(of);
 	}
 	html_file_end(of);
 	fprintf(of, "\n</ul>\n");
@@ -871,14 +931,16 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 
 	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
+	html_file_set_begin(of);
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
 			continue;
 		html_file(of, *i);
-		fprintf(of, " - <a href=\"qsrc.html?id=%u&%s\">marked source</a>",
+		fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
 			f.get_id(),
 			query_url.c_str());
+		html_file_record_end(of);
 	}
 	html_file_end(of);
 }
@@ -1044,21 +1106,25 @@ identifier_page(FILE *fo, void *p)
 	IFSet ifiles = e->sorted_files();
 	fprintf(fo, "<h2>Dependent Files (Writable)</h2>\n");
 	html_file_begin(fo);
+	html_file_set_begin(fo);
 	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++)
 		if ((*j).get_readonly() == false) {
 			html_file(fo, (*j).get_path());
-			fprintf(fo, " - <a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a>",
+			fprintf(fo, "<td><a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a></td>",
 				(*j).get_id(),
 				e, id.get_id().c_str());
+			html_file_record_end(fo);
 		}
 	html_file_end(fo);
 	fprintf(fo, "<h2>Dependent Files (All)</h2>\n");
 	html_file_begin(fo);
+	html_file_set_begin(fo);
 	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
 		html_file(fo, (*j).get_path());
-		fprintf(fo, " - <a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a>",
+		fprintf(fo, "<td><a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a></td>",
 			(*j).get_id(),
 			e, id.get_id().c_str());
+		html_file_record_end(fo);
 	}
 	html_file_end(fo);
 	fprintf(fo, "</FORM>\n");
@@ -1207,7 +1273,7 @@ options_page(FILE *fo, void *p)
 {
 	html_head(fo, "options", "Global Options");
 	fprintf(fo, "<FORM ACTION=\"soptions.html\" METHOD=\"GET\">\n");
-	fprintf(fo, "<input type=\"checkbox\" name=\"remove_fp\" value=\"1\" %s>Remove common path prefix in file lists<br>\n", (remove_fp ? "checked" : ""));
+	fprintf(fo, "<input type=\"checkbox\" name=\"fname_in_context\" value=\"1\" %s>Show file lists with file name in context<br>\n", (fname_in_context ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (Query::sort_rev ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_line_number\" value=\"1\" %s>Show line numbers in source listings<br>\n", (show_line_number ? "checked" : ""));
@@ -1244,7 +1310,7 @@ set_options_page(FILE *fo, void *p)
 		index_page(fo, p);
 		return;
 	}
-	remove_fp = !!swill_getvar("remove_fp");
+	fname_in_context = !!swill_getvar("fname_in_context");
 	Query::sort_rev = !!swill_getvar("sort_rev");
 	show_true = !!swill_getvar("show_true");
 	show_line_number = !!swill_getvar("show_line_number");
@@ -1273,7 +1339,7 @@ save_options_page(FILE *fo, void *p)
 		fprintf(fo, "Unable to open the file .cscout");
 		return;
 	}
-	fprintf(f, "remove_fp=%d\n", remove_fp);
+	fprintf(f, "fname_in_context=%d\n", fname_in_context);
 	fprintf(f, "sort_rev=%d\n", Query::sort_rev);
 	fprintf(f, "show_true=%d\n", show_true);
 	fprintf(f, "show_line_number=%d\n", show_line_number);
@@ -1298,7 +1364,7 @@ load_options(const char *fname)
 		return;
 	}
 	int bval;
-	fscanf(f, "remove_fp=%d\n", &bval); remove_fp = (bool)bval;
+	fscanf(f, "fname_in_context=%d\n", &bval); fname_in_context = (bool)bval;
 	fscanf(f, "sort_rev=%d\n", &bval); Query::sort_rev = (bool)bval;
 	fscanf(f, "show_true=%d\n", &bval); show_true = (bool)bval;
 	fscanf(f, "show_line_number=%d\n", &bval); show_line_number = (bool)bval;
@@ -1706,6 +1772,7 @@ query_include_page(FILE *of, void *p)
 	bool includes = !!swill_getvar("includes");
 	const FileIncMap &m = includes ? f.get_includes() : f.get_includers();
 	html_file_begin(of);
+	html_file_set_begin(of);
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
 		Fileid f2 = (*i).first;
 		const IncDetails &id = (*i).second;
@@ -1714,13 +1781,15 @@ query_include_page(FILE *of, void *p)
 		    (!unused || !id.is_required())) {
 			html_file(of, f2);
 			if (id.is_directly_included()) {
-				fprintf(of, " - line ");
+				fprintf(of, "<td>line ");
 				const set <int> &lines = id.include_line_numbers();
 				for (set <int>::const_iterator j = lines.begin(); j != lines.end(); j++)
 					fprintf(of, "%d ", *j);
 			}
 			if (!id.is_required())
 				fprintf(of, " (not required)");
+			fprintf(of, "</td>");
+			html_file_record_end(of);
 		}
 	}
 	html_file_end(of);

@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.25 2004/07/30 17:19:03 dds Exp $
+ * $Id: fileid.h,v 1.26 2004/08/01 12:51:14 dds Exp $
  */
 
 #ifndef FILEID_
@@ -148,6 +148,8 @@ public:
 	static void add_ro_prefix(string prefix) { ro_prefix.push_back(prefix); }
 	// Return a reference to the Metrics class
 	Metrics &metrics() { return i2d[id].m; }
+	// Return a reference to the Metrics class
+	const Metrics &const_metrics() const { return i2d[id].m; }
 	// Get /set attributes
 	void set_attribute(int v) { i2d[id].attr.set_attribute(v); }
 	bool get_attribute(int v) { return i2d[id].attr.get_attribute(v); }
