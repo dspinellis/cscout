@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.30 2003/11/17 13:47:17 dds Exp $
+ * $Id: stab.cpp,v 1.31 2003/11/17 20:45:32 dds Exp $
  */
 
 #include <map>
@@ -45,14 +45,9 @@ Stab Function::label;
 Block Block::param_block;	// Function parameter declarations
 bool Block::use_param;		// Declare in param_block when true
 
-Id::Id(const Token& tok, Type typ) :
-	token(tok), type(typ)
+Id::Id(const Token& tok, Type typ, FCall *fc) :
+	token(tok), type(typ), fcall(fc)
 {
-	if (typ.is_function()) {
-		fcall = new FCall(tok, typ);
-		tok.set_ec_attribute(is_function);
-	} else
-		fcall = NULL;
 }
 
 // Called when entering a scope
@@ -99,9 +94,9 @@ Block::param_exit()
  * Define name to be the identifier id
  */
 void
-Block::define(Stab Block::*table, const Token& tok, const Type& typ)
+Block::define(Stab Block::*table, const Token& tok, const Type& typ, FCall *fc)
 {
-	(scope_block[current_block].*table).define(tok, typ);
+	(scope_block[current_block].*table).define(tok, typ, fc);
 }
 
 // Called when exiting a function block statement
@@ -151,7 +146,7 @@ obj_define(const Token& tok, Type typ)
 	}
 	if (sc == c_extern && (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
 		// If the declaration of an identifier contains extern the identifier
-		// has the same linage as any visible declaration of the identifier
+		// has the same linkage as any visible declaration of the identifier
 		// with file scope
 		enum e_storage_class sc2 = id->get_type().get_storage_class();
 		if (sc2 != sc) {
@@ -208,15 +203,32 @@ obj_define(const Token& tok, Type typ)
 			return;
 		}
 	}
+	// Locate/create the appropriate FCall object
+	FCall *fc = NULL;
+	if (typ.is_function()) {
+		tok.set_ec_attribute(is_function);
+		if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
+			// Extern linkage: get it from the lu block which we do not normaly search
+			if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())))
+				fc = id->get_fcall();
+		} else {
+			// Static linkage: get it from the normal blocks
+			if ((id = obj_lookup(tok.get_name())))
+				fc = id->get_fcall();
+		}
+		if (!fc)
+			fc = new FCall(tok, typ);
+	}
+
 	static Stab Block::*objptr = &Block::obj;
-	Block::define(objptr, tok, typ);
+	Block::define(objptr, tok, typ, fc);
 	// Identifiers with extern scope are also added to the linkage unit
 	// definitions.  These are not searched, but are used for unification
 	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
 		if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())))
 			Token::unify(id->get_token(), tok);
 		else
-			Block::scope_block[Block::lu_block].obj.define(tok, typ);
+			Block::scope_block[Block::lu_block].obj.define(tok, typ, fc);
 	}
 }
 
@@ -277,9 +289,9 @@ Stab::lookup(const string& s) const
 }
 
 void
-Stab::define(const Token& tok, const Type& typ)
+Stab::define(const Token& tok, const Type& typ, FCall *fc)
 {
-	m[tok.get_name()] = Id(tok, typ);
+	m[tok.get_name()] = Id(tok, typ, fc);
 }
 
 /*

@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.17 2003/11/17 13:02:46 dds Exp $
+ * $Id: stab.h,v 1.18 2003/11/17 20:45:32 dds Exp $
  */
 
 #ifndef STAB_
@@ -38,9 +38,10 @@ private:
 	Type type;			// For type resolution
 	FCall *fcall;			// Function call info
 public:
-	Id(const Token& tok, Type typ);
+	Id(const Token& tok, Type typ, FCall *fc = NULL);
 	Id() : type(basic(b_undeclared)) {}			// Needed for map
 	Type get_type() const { return type; }
+	void set_type(const Type &t) { type = t; }
 	const Token& get_token() const { return token; }
 	const string& get_name() const { return token.get_name(); }
 	FCall *get_fcall() const { return fcall; }
@@ -54,7 +55,7 @@ private:
 	Stab_element m;
 public:
 	Id const* lookup(const string& s) const;
-	void define(const Token& tok, const Type& typ);
+	void define(const Token& tok, const Type& typ, FCall *fc = NULL);
 	void clear() { m.clear(); }
 	Stab_element::const_iterator begin() const { return m.begin(); }
 	Stab_element::const_iterator end() const { return m.end(); }
@@ -93,7 +94,7 @@ private:
 	static Block param_block;	// Function parameter declarations
 	static bool use_param;		// Declare in param_block when true
 
-	static void define(Stab Block::*table, const Token& tok, const Type& t);
+	static void define(Stab Block::*table, const Token& tok, const Type& t, FCall *fc = NULL);
 	static Id const * lookup(const Stab Block::*table, const string& name);
 public:
 	// Should be private appart from taking member address
