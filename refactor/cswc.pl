@@ -1,8 +1,8 @@
-#!/bin/perl
+#!/usr/bin/perl
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.10 2003/06/18 07:46:27 dds Exp $
+# $Id: cswc.pl,v 1.11 2003/06/22 23:33:34 dds Exp $
 #
 
 # Syntax:
