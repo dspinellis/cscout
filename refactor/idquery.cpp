@@ -1,9 +1,10 @@
 /*
  * (C) Copyright 2001-2003 Diomidis Spinellis.
  *
- * Web-based interface for viewing and processing C code
+ * Encapsulates an (user interface) identifier query
+ * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.1 2004/07/25 14:15:15 dds Exp $
+ * $Id: idquery.cpp,v 1.2 2004/07/25 14:47:53 dds Exp $
  */
 
 #include <map>
@@ -52,40 +53,17 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "query.h"
 #include "idquery.h"
-
-// URL-encode the given string
-static string
-url(const string &s)
-{
-	string r;
-
-	for (string::const_iterator i = s.begin(); i != s.end(); i++)
-		if (*i == ' ')
-			r += '+';
-		else if (isalnum(*i) || *i == '_')
-			r += *i;
-		else {
-			char buff[4];
-
-			sprintf(buff, "%%%02x", (unsigned)*i);
-			r += buff;
-		}
-	return r;
-}
 
 // Construct an object based on URL parameters
 IdQuery::IdQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :
-	lazy(!e),
-	return_val(r),
+	Query(!e, r, true),
 	match(attr_end),
 	current_project(cp)
 {
 	if (lazy)
 		return;
-
-	valid = true;
-
 	// Query name
 	char *qname = swill_getvar("n");
 	if (qname && *qname)
@@ -173,9 +151,7 @@ IdQuery::usage(void)
 // Construct an object based on a string specification
 // The syntax is Y|L|E|T[:attr1][:attr2]...
 IdQuery::IdQuery(const string &s) :
-	lazy(false),
-	return_val(false),
-	valid(true),
+	Query(false, false, true),
 	match_fre(false),
 	match_ire(false),
 	match(attr_end),
@@ -209,7 +185,7 @@ string
 IdQuery::url()
 {
 	string r("match=");
-	r += ::url(string(1, match_type));
+	r += Query::url(string(1, match_type));
 	if (ec) {
 		char buff[256];
 
@@ -223,11 +199,11 @@ IdQuery::url()
 	if (writable)
 		r += "&writable=1";
 	if (match_ire)
-		r += "&ire=" + ::url(str_ire);
+		r += "&ire=" + Query::url(str_ire);
 	if (exclude_ire)
 		r += "&xire=1";
 	if (match_fre)
-		r += "&fre=" + ::url(str_fre);
+		r += "&fre=" + Query::url(str_fre);
 	for (int i = attr_begin; i < attr_end; i++) {
 		if (match[i]) {
 			ostringstream varname;
@@ -237,7 +213,7 @@ IdQuery::url()
 		}
 	}
 	if (name.length())
-		r += "&n=" + ::url(name);
+		r += "&n=" + Query::url(name);
 	return r;
 }
 

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.78 2004/07/25 14:11:24 dds Exp $
+ * $Id: cscout.cpp,v 1.79 2004/07/25 14:47:53 dds Exp $
  */
 
 #include <map>
@@ -60,7 +60,9 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "query.h"
 #include "idquery.h"
+#include "funquery.h"
 
 #ifdef COMMERCIAL
 #include "des.h"

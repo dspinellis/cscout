@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.1 2004/07/25 14:15:15 dds Exp $
+ * $Id: idquery.h,v 1.2 2004/07/25 14:47:53 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -39,11 +39,8 @@ public:
 typedef map <Eclass *, Identifier> IdProp;
 typedef IdProp::value_type IdPropElem;
 
-class IdQuery {
+class IdQuery : public Query {
 private:
-	bool lazy;		// Do not evaluate
-	bool return_val;	// Default return value
-	bool valid;		// True if query is valid
 	char match_type;	// Type of boolean match
 	// Regular expression match specs
 	string str_fre, str_ire;// Original REs
@@ -66,7 +63,7 @@ public:
 	// Construct object based on a string specification
 	IdQuery::IdQuery(const string &s);
 	// Default
-	IdQuery::IdQuery() : valid(false) {}
+	IdQuery::IdQuery() : Query() {}
 
 	// Destructor
 	~IdQuery() {
@@ -80,9 +77,6 @@ public:
 	bool eval(const IdPropElem &i);
 	// Transform the query back into a URL
 	string url();
-	// Accessor functions
-	bool is_valid() { return valid; }
-	bool need_eval() { return !lazy; }
 	static void usage();	// Report string constructor usage information
 };
 
