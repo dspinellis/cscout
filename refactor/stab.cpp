@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.21 2003/06/23 09:34:15 dds Exp $
+ * $Id: stab.cpp,v 1.22 2003/08/02 15:51:53 dds Exp $
  */
 
 #include <map>
@@ -73,7 +73,10 @@ Block::exit()
 void
 Block::param_exit()
 {
-	param_block = scope_block.back();
+	// Do not clobber parameter block when exiting function pointer
+	// arguments appearing in old-style argument declarations
+	if (!use_param)
+		param_block = scope_block.back();
 	scope_block.pop_back();
 	current_block--;
 	if (DP())
