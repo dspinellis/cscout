@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.66 2002/12/15 19:03:37 dds Exp $
+ * $Id: pdtoken.cpp,v 1.67 2002/12/16 11:37:52 dds Exp $
  */
 
 #include <iostream>
@@ -704,6 +704,10 @@ Pdtoken::process_pragma()
 		Fchar::lock_stack();
 		if (parse_parse() != 0)
 			exit(1);
+		// Set main to read-only
+		Id const * id;
+		if (id = obj_lookup("main"))
+			id->get_token().set_ec_attribute(is_readonly);
 		Fchar::unlock_stack();
 	} else if (t.get_val() == "pushd") {
 		char buff[4096];
