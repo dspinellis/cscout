@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.26 2003/08/11 14:15:17 dds Exp $
+ * $Id: stab.cpp,v 1.27 2003/08/17 12:40:59 dds Exp $
  */
 
 #include <map>
@@ -153,7 +153,8 @@ obj_define(const Token& tok, Type typ)
 	if (Block::get_scope_level() == Block::cu_block) {
 		// Special rules for definitions at file scope
 		// ANSI 3.1.2.2 p. 22
-		if (sc == c_static) {
+		switch (sc) {
+		case c_static:
 			tok.set_ec_attribute(is_cscope);
 			if ((id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
 				if (id->get_type().get_storage_class() == c_unspecified)
@@ -167,11 +168,19 @@ obj_define(const Token& tok, Type typ)
 					Error::error(E_ERR, "conflicting declarations for identifier " + id->get_name());
 				Token::unify(id->get_token(), tok);
 			}
-		} else if (sc == c_typedef) {
+			break;
+		case c_typedef:
 			tok.set_ec_attribute(is_cscope);
 			tok.set_ec_attribute(is_typedef);
-		} else
+			break;
+		case c_enum:
+			tok.set_ec_attribute(is_cscope);
+			tok.set_ec_attribute(is_enum);
+			break;
+		default:
 			tok.set_ec_attribute(is_lscope);
+			break;
+		}
 		// A definition contributing data to the current CU
 		if (sc != c_extern && sc != c_typedef && sc != c_enum && !typ.is_function())
 			Fdep::add_provider(Fchar::get_fileid());
