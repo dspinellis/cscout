@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.4 2001/08/20 15:34:11 dds Exp $
+ * $Id: fchar.h,v 1.5 2001/08/20 17:22:34 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -30,16 +30,18 @@ struct fchar_context {
 
 typedef stack <fchar_context> stackFchar_context;
 
+class Fchar;
+
+typedef stack <Fchar> stackFchar;
+
 class Fchar {
 private:
 	void Fchar::simple_getnext();	// Trigraphs and slicing
 	static ifstream in;		// Stream we are reading from
 	static Fileid fi;		// and its Fileid
-	static Fchar putback_fchar;	// Character that was put back
-	static bool have_putback;	// True when a put back char is waiting
-	static stackFchar_context st;	// Pushed contexts (from push_input())
 	static int line_number;		// Current line number
-
+	static stackFchar_context cs;	// Pushed contexts (from push_input())
+	static stackFchar ps;		// Putback stack
 
 	int val;
 	Tokid ti;			// (pos_type from tellg(), fi)

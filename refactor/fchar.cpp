@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.6 2001/08/20 15:34:11 dds Exp $
+ * $Id: fchar.cpp,v 1.7 2001/08/20 17:22:34 dds Exp $
  */
 
 #include <iostream>
@@ -26,9 +26,8 @@
 
 ifstream Fchar::in;
 Fileid Fchar::fi;
-Fchar Fchar::putback_fchar;
-bool Fchar::have_putback = false;	// True when a put back char is waiting
-stackFchar_context Fchar::st;		// Pushed contexts (from push_input())
+stackFchar_context Fchar::cs;		// Pushed contexts (from push_input())
+stackFchar Fchar::ps;			// Putback Fchars (from putback())
 int Fchar::line_number;			// Current line number
 
 void 
@@ -53,16 +52,14 @@ Fchar::push_input(const string& s)
 
 	fc.ti = Tokid(fi, in.tellg());
 	fc.line_number = line_number;
-	st.push(fc);
+	cs.push(fc);
 	set_input(s);
 }
 
 void
 Fchar::putback(Fchar c)
 {
-	assert(have_putback == false);		// Only single token putback
-	have_putback = true;
-	putback_fchar = c;
+	ps.push(c);
 }
 
 // Handle trigraphs and line splicing
@@ -113,21 +110,21 @@ again:
 void
 Fchar::getnext()
 {
-	if (have_putback) {
-		have_putback = false;
-		*this = putback_fchar;
+	if (!ps.empty()) {
+		*this = ps.top();
+		ps.pop();
 		return;
 	}
 	for (;;) {
 		simple_getnext();
-		if (val != EOF || st.empty())
+		if (val != EOF || cs.empty())
 			return;
 
-		fchar_context fc = st.top();
+		fchar_context fc = cs.top();
 		set_input(fc.ti.get_path());
 		in.seekg(fc.ti.get_streampos());
 		line_number = fc.line_number;
-		st.pop();
+		cs.pop();
 	}
 }
 
@@ -143,10 +140,10 @@ main()
 
 	cout << "Characters and tokids:\n";
 	for (i = 0;;i++) {
-		if (i == 25)
+		if (i == 30)
 			break;
 		c.getnext();
-		if (i % 5 == 0) {
+		if (i % 5 == 0 || i % 5 == 1) {
 			Fchar::putback(c);
 			continue;
 		}
