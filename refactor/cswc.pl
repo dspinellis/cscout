@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.2 2002/09/05 10:38:49 dds Exp $
+# $Id: cswc.pl,v 1.3 2002/09/05 12:55:59 dds Exp $
 #
 
 # Syntax:
@@ -81,7 +81,7 @@ sub endunit
 		print "#pragma echo \"Exiting directory $dir{$unit}\\n\"\n";
 		print "#pragma popd\n";
 	}
-	print "#pragma block_exit\n" unless($unit eq 'workspace');
+	print "#pragma block_exit\n" unless($unit eq 'workspace' || $unit eq 'directory');
 	print "#pragma echo \"Done processing $unit $name\\n\"\n";
 	$unit = pop(@units);
 	$name = pop(@names);
