@@ -1,4 +1,4 @@
-$Id: todo,v 1.44 2004/07/22 10:36:33 dds Exp $
+$Id: todo,v 1.45 2004/07/22 10:37:33 dds Exp $
 
 Handle conditional compilation!!!!
 Each conditional compilation statement can be trivially handled by creating
@@ -6,7 +6,8 @@ and processing a parallel universe (we know how to do this, cd. 4 BSD kernel
 processing).  Find ways to do it automatically, and efficiently by
 maintaining merged virtual copies of the environment.
 
-In the query change check boxes into yes/no/don't care radio buttos
+Add generalized query language, based on the C preprocessor syntax.
+
 Option to specify leading file path to hide
 
 Add type specifiers:
