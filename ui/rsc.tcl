@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.13 2001/09/29 20:41:41 dds Exp $
+# $Id: rsc.tcl,v 1.14 2001/09/29 21:09:09 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -565,8 +565,7 @@ proc macro_add {} {
 	global macro
 
 	if {[.dialog_macro_define activate]} {
-		set entry [wp_getentry]
-		emancipate $entry
+		set entry [wp_getmodsettings]
 		lappend macro($entry) [.dialog_macro_define get]
 	}
 	settings_refresh
@@ -579,13 +578,30 @@ proc macro_delete {} {
 
 	set sel [$tabsettings.mi.macro.list curselection]
 	if {$sel != {}} {
-		set entry [wp_getentry]
-		emancipate $entry
+		set entry [wp_getmodsettings]
 		set macro($entry) [lreplace $macro($entry) $sel $sel]
 	}
 	settings_refresh
 }
 
+# Return the entry to get the settings from
+proc wp_getsettings {} {
+	global macro
+
+	set entry [wp_getentry]
+	while {![info exists macro($entry)]} {
+		# We are inheriting our parent
+		set entry [parent $entry]
+	}
+	return $entry
+}
+
+# Return an entry for changing settings 
+proc wp_getmodsettings {} {
+	set entry [wp_getentry]
+	emancipate $entry
+	return $entry
+}
 
 # Refresh the Settings tab contents based on the current workspace selection
 proc settings_refresh {} {
@@ -593,12 +609,7 @@ proc settings_refresh {} {
 	global macro
 	global dir
 
-	# Find the entry to get the settings from
-	set entry [wp_getentry]
-	while {![info exists macro($entry)]} {
-		# We are inheriting our parent
-		set entry [parent $entry]
-	}
+	set entry [wp_getsettings]
 	# Update macro definitions
 	$tabsettings.mi.macro.list delete 0 end
 	foreach i $macro($entry) {
@@ -617,11 +628,17 @@ set_window_title
 proc insert_file {} {
 	global name
 	global tabfiles
+	global dir
+
 	set filename [tk_getOpenFile -filetypes {{"C Source Files" {.c}}}]
 	if {$filename != ""} {
 		# Invoke dialog box to get the project's name
 		set projname [wp_getproject]
-		tk_messageBox -icon info -message "Projname: $projname" -type ok
+		set mydir $dir([wp_getsettings])
+		if {$mydir == [string range $filename 0 [expr [string length $mydir] - 1]]} {
+			# We can make it relative
+			set filename [string range $filename [expr [string length $mydir] + 1] end]
+		}
 		if {[info exists name(wp/$projname/$filename)]} {
 			ierror "File $filename is already used in this project"
 			return
