@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.83 2003/08/15 21:38:55 dds Exp $
+ * $Id: parse.y,v 1.84 2003/08/16 11:33:46 dds Exp $
  *
  */
 
@@ -1531,6 +1531,7 @@ declarator:
 	 * int enter(void) __asm__("enter");
 	 */
         | identifier_declarator assembly_decl
+		{ $$ = $1; }
         | typedef_declarator
         ; /* Default rules */
 
