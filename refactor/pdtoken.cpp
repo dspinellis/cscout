@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.22 2001/08/31 21:25:49 dds Exp $
+ * $Id: pdtoken.cpp,v 1.23 2001/09/01 05:29:12 dds Exp $
  */
 
 #include <iostream>
@@ -487,12 +487,13 @@ macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
  * Update tabu with the union of all macros that were used while replacing
  */
 static void
-macro_replace_all(listPtoken& tokens, setstring& tabu, bool get_more)
+macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more)
 {
 	listPtoken::iterator ti;
 	setstring rescan_tabu(tabu);
 
-	for (ti = tokens.begin(); ti != tokens.end(); ) {
+	// cout << "Enter replace_all\n";
+	for (ti = tokens.begin(); ti != end; ) {
 		/*
 		 * The dance with the various tabu variables is needed to
 		 * ensure that while the set is updated when a macro is used
@@ -500,11 +501,12 @@ macro_replace_all(listPtoken& tokens, setstring& tabu, bool get_more)
 		 * further replacements done while we progress in the list.
 		 */
 		setstring tmptabu(rescan_tabu);
-		ti = macro_replace(tokens, ti, tmptabu, get_more);
-		setstring oldtabu(tabu);
-		tabu.clear();
-		set_union(oldtabu.begin(), oldtabu.end(), tmptabu.begin(), tmptabu.end(), inserter(tabu, tabu.begin()));
+		if ((*ti).get_code() == IDENTIFIER)
+			ti = macro_replace(tokens, ti, tmptabu, get_more);
+		else
+			ti++;
 	}
+	// cout << "Exit replace_all\n";
 }
 
 /*
@@ -522,9 +524,18 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 {
 	mapMacro::const_iterator mi;
 	const string name = (*pos).get_val();
-	//cout << "macro_replace " << name << "\n";
-	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
+	#ifdef ndef
+	cout << "macro_replace: [" << name << "] tabu: ";
+	for (setstring::const_iterator si = tabu.begin(); si != tabu.end(); si++)
+		cout << *si << " ";
+	cout << "\n";
+	#endif
+	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || !(*pos).can_replace())
 		return (++pos);
+	if (tabu.find(name) != tabu.end()) {
+		(*pos).set_nonreplaced();
+		return (++pos);
+	}
 	const Macro& m = (*mi).second;
 	if (m.is_function) {
 		// Peek for a left bracket, if not found this is not a macro
@@ -555,7 +566,6 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 	if (m.is_function) {
 		mapArgval args;			// Map from formal name to value
 		bool do_stringize;
-		setstring argtabu(tabu);
 
 		expand_start = pos;
 		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more))
@@ -587,11 +597,8 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 					listPtoken arg((*ai).second.begin(), (*ai).second.end());
 					// cout << "Arg macro:" << arg << "---\n";
 					// See comment in macro_replace_all
-					setstring tmptabu(argtabu);
-					macro_replace_all(arg, tmptabu, false);
-					setstring oldtabu(tabu);
-					tabu.clear();
-					set_union(oldtabu.begin(), oldtabu.end(), tmptabu.begin(), tmptabu.end(), inserter(tabu, tabu.begin()));
+					setstring tmptabu(tabu);
+					macro_replace_all(arg, arg.end(), tmptabu, false);
 					// cout << "Arg macro result:" << arg << "---\n";
 					copy(arg.begin(), arg.end(), inserter(tokens, pos));
 				} else if (do_stringize)
@@ -661,7 +668,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 	}
 	tabu.insert(name);
 	// cout << "Rescan-" << name << "\n";
-	macro_replace_all(tokens, tabu, get_more);
+	macro_replace_all(tokens, pos, tabu, get_more);
 	// cout << "Rescan ends\n";
 	return (pos);
 }
