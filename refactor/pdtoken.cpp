@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.32 2001/09/01 18:28:35 dds Exp $
+ * $Id: pdtoken.cpp,v 1.33 2001/09/02 09:22:43 dds Exp $
  */
 
 #include <iostream>
@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <functional>
 #include <cassert>
+#include <cstdlib>		// strtol
 
 #include "cpp.h"
 #include "fileid.h"
@@ -30,6 +31,7 @@
 #include "pltoken.h"
 #include "pdtoken.h"
 #include "tchar.h"
+#include "ctoken.h"
 
 bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;
@@ -37,6 +39,8 @@ mapMacro Pdtoken::macros;			// Defined macros
 stackbool Pdtoken::iftaken;		// Taken #ifs
 bool Pdtoken::skipping;			// Skip tokens when true
 int Pdtoken::iflevel;			// Level of enclosing #ifs
+
+static void macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more);
 
 void
 Pdtoken::getnext()
@@ -83,6 +87,7 @@ again:
 	}
 }
 
+
 // Consume input up to (and including) the first \n
 void
 Pdtoken::eat_to_eol()
@@ -93,6 +98,63 @@ Pdtoken::eat_to_eol()
 		t.template getnext<Fchar>();
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 }
+
+/*
+ * Lexical analyser for #if expressions
+ */
+static listPtoken::iterator eval_ptr;
+static listPtoken eval_tokens;
+long eval_result;
+
+int
+eval_lex()
+{
+	extern long eval_lval;
+	const char *num;
+	char *endptr;
+	Ptoken t;
+	int code;
+again:
+	if (eval_ptr == eval_tokens.end())
+		return 0;
+	switch ((t = (*eval_ptr++)).get_code()) {
+	case '\n':
+	case SPACE:
+		goto again;
+	case PP_NUMBER:
+		num = t.get_val().c_str();
+		eval_lval = strtol(num, &endptr, 0);
+		if (*endptr == 0)
+			return (INT_CONST);
+		else
+			return (FLOAT_CONST);	// Should be flagged as error
+	case CHAR_LITERAL:
+		{
+		const string& s = t.get_val();
+		string::const_iterator si;
+
+		//cout << "char:[" << s << "]\n";
+		si = s.begin();
+		eval_lval = unescape_char(s, si);
+		if (si != s.end())
+			Error::error(E_ERR, "Illegal characters in character escape sequence");
+		return (INT_CONST);
+		}
+	default:
+		return (t.get_code());
+	}
+}
+
+#ifdef ndef
+// Used for debugging the eval_lex function after renaming it to eval_lex_real
+int
+eval_lex()
+{
+	int l = eval_lex_real();
+	cout << "Eval lex returns " << l << "\n";
+	return (l);
+}
+#endif
 
 /*
  * Read tokens comprising a cpp expression up to the newsline and return
@@ -107,37 +169,38 @@ Pdtoken::eat_to_eol()
 int
 eval()
 {
-	listPtoken tokens;
+	extern eval_parse();
 	Pltoken t;
 
+	// Read eval_tokens
 	do {
 		t.template getnext<Fchar>();
-		tokens.push_back(t);
+		eval_tokens.push_back(t);
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 
 	//cout << "Tokens after reading:\n";
-	//copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
+	//copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
 
-	// Handle the "defined" operator
+	// Process the "defined" operator
 	listPtoken::iterator i, arg, last, i2;
-	for (i = tokens.begin(); 
-	     (i = i2 = find_if(i, tokens.end(), compose1(bind2nd(equal_to<string>(),"defined"), mem_fun_ref(&Ptoken::get_val)))) != tokens.end(); ) {
+	for (i = eval_tokens.begin(); 
+	     (i = i2 = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<string>(),"defined"), mem_fun_ref(&Ptoken::get_val)))) != eval_tokens.end(); ) {
 	     	bool need_bracket = false;
 		i2++;
-		arg = i2 = find_if(i2, tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
-		if (arg != tokens.end() && (*arg).get_code() == '(') {
+		arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+		if (arg != eval_tokens.end() && (*arg).get_code() == '(') {
 			i2++;
-			arg = i2 = find_if(i2, tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+			arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
 			need_bracket = true;
 		}
-		if (arg == tokens.end() || (*arg).get_code() != IDENTIFIER) {
+		if (arg == eval_tokens.end() || (*arg).get_code() != IDENTIFIER) {
 			Error::error(E_ERR, "No identifier following defined operator");
 			return 1;
 		}
 		if (need_bracket) {
 			i2++;
-			last = find_if(i2, tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
-			if (last == tokens.end() || (*last).get_code() != ')') {
+			last = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+			if (last == eval_tokens.end() || (*last).get_code() != ')') {
 				Error::error(E_ERR, "Missing close bracket in defined operator");
 				return 1;
 			}
@@ -149,12 +212,28 @@ eval()
 		cout << "val:" << val << "\n";
 		Ptoken numval(PP_NUMBER, 
 		  Pdtoken::macros.find(val) == Pdtoken::macros.end() ?  "0" : "1");
-		tokens.erase(i, last);
-		tokens.insert(last, numval);
+		eval_tokens.erase(i, last);
+		eval_tokens.insert(last, numval);
 		i = last;
 	}
 	//cout << "Tokens after defined:\n";
-	//copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
+	//copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+
+	// Macro replace
+	setstring tabu;
+	macro_replace_all(eval_tokens, eval_tokens.end(), tabu, false);
+
+	// Change remaining identifiers to 0
+	for (i = eval_tokens.begin(); 
+	     (i = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<int>(),IDENTIFIER), mem_fun_ref(&Ptoken::get_code)))) != eval_tokens.end(); )
+	     	*i = Ptoken(PP_NUMBER, "0");
+	eval_ptr = eval_tokens.begin();
+	if (eval_parse() != 0) {
+		Error::error(E_ERR, "Syntax error in preprocessor expression");
+		return 1;
+	}
+	cout << "Eval returns: " << eval_result << "\n";
+	return (eval_result);
 }
 
 /*
