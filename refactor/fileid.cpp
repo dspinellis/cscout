@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.24 2003/06/01 09:03:06 dds Exp $
+ * $Id: fileid.cpp,v 1.25 2003/07/31 15:23:30 dds Exp $
  */
 
 #include <map>
@@ -203,13 +203,14 @@ Fileid::set_readonly(bool r)
 
 // Return a sorted list of all filenames used
 vector <Fileid> 
-Fileid::sorted_files()
+Fileid::files(bool sorted)
 {
 	vector <Fileid> r(i2d.size() - 1);
 
 	for (vector <Fileid>::size_type i = 0; i < r.size(); i++)
 		r[i] = Fileid(i + 1);
-	sort(r.begin(), r.end(), fname_order());
+	if (sorted)
+		sort(r.begin(), r.end(), fname_order());
 	return (r);
 }
 

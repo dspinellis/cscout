@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.9 2003/06/02 13:51:01 dds Exp $
+ * $Id: metrics.cpp,v 1.10 2003/07/31 15:23:30 dds Exp $
  */
 
 #include <iostream>
@@ -207,7 +207,7 @@ IdMetricsSummary::add_unique_id(Eclass *ec)
 void
 FileMetricsSummary::summarize_files()
 {
-	vector <Fileid> files = Fileid::sorted_files();
+	vector <Fileid> files = Fileid::files(false);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		rw[(*i).get_attribute(is_readonly)].total.add((*i), plus<int>());
 		rw[(*i).get_attribute(is_readonly)].min.add((*i), get_min());

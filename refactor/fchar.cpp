@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.24 2003/07/16 23:15:45 dds Exp $
+ * $Id: fchar.cpp,v 1.25 2003/07/31 15:23:30 dds Exp $
  */
 
 #include <iostream>
@@ -51,6 +51,7 @@ Fchar::set_input(const string& s)
 	if (in.fail())
 		Error::error(E_FATAL, s + ": " + string(strerror(errno)), false);
 	fi = Fileid(s);
+	fi.set_gc(false);	// Mark the file for garbage collection
 	if (DP())
 		cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.52 2003/07/29 21:31:53 dds Exp $
+ * $Id: cscout.cpp,v 1.53 2003/07/31 15:23:30 dds Exp $
  */
 
 #include <map>
@@ -1542,7 +1542,7 @@ usage(char *fname)
 		"\t\t(the port number must be in the range 1024-32767)\n"
 		"\t-v\tDisplay version and copyright information and exit\n"
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n";
-	IdQuery::usage();
+	exit(1);
 }
 
 int
@@ -1615,7 +1615,7 @@ main(int argc, char *argv[])
 	while (t.get_code() != EOF);
 
 	// Pass 2: Create web pages
-	files = Fileid::sorted_files();
+	files = Fileid::files(true);
 
 	swill_handle("sproject.html", select_project_page, 0);
 	swill_handle("options.html", options_page, 0);
@@ -1711,45 +1711,55 @@ main(int argc, char *argv[])
 	return (0);
 }
 
-// Clear equivalence classes found in the file that do not 
+// Clear equivalence classes that do not 
 // satisfy the monitoring criteria
 void
-garbage_collect(Fileid fi)
+garbage_collect()
 {
 	if (!monitor.is_valid())
 		return;
-	ifstream in;
-	const string &fname = fi.get_path();
 
-	in.open(fname.c_str(), ios::binary);
-	if (in.fail()) {
-		perror(fname.c_str());
-		exit(1);
-	}
-	// Go through the file character by character
+	vector <Fileid> files(Fileid::files(false));
 	int count = 0;
 	int sum = 0;
-	for (;;) {
-		Tokid ti;
-		int val;
 
-		ti = Tokid(fi, in.tellg());
-		if ((val = in.get()) == EOF)
-			break;
-		mapTokidEclass::iterator ei = ti.find_ec();
-		if (ei != ti.end_ec()) {
-			sum++;
-			Eclass *ec = (*ei).second;
-			IdPropElem ec_id(ec, Identifier());
-			if (!monitor.eval(ec_id)) {
-				count++;
-				ec->remove_from_tokid_map();
-				delete ec;
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+			if ((*i).garbage_collected())
+				continue;
+
+		Fileid fi = (*i);
+		const string &fname = fi.get_path();
+		ifstream in;
+
+		in.open(fname.c_str(), ios::binary);
+		if (in.fail()) {
+			perror(fname.c_str());
+			exit(1);
+		}
+		// Go through the file character by character
+		for (;;) {
+			Tokid ti;
+			int val;
+
+			ti = Tokid(fi, in.tellg());
+			if ((val = in.get()) == EOF)
+				break;
+			mapTokidEclass::iterator ei = ti.find_ec();
+			if (ei != ti.end_ec()) {
+				sum++;
+				Eclass *ec = (*ei).second;
+				IdPropElem ec_id(ec, Identifier());
+				if (!monitor.eval(ec_id)) {
+					count++;
+					ec->remove_from_tokid_map();
+					delete ec;
+				}
 			}
 		}
+		in.close();
+		fi.set_gc(true);	// Mark the file as garbage collected
 	}
 	if (DP())
 		cout << "Garbage collected " << count << " out of " << sum << " ECs\n";
-	in.close();
 	return;
 }

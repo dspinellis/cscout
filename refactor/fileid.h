@@ -14,7 +14,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.15 2002/12/25 15:46:47 dds Exp $
+ * $Id: fileid.h,v 1.16 2003/07/31 15:23:30 dds Exp $
  */
 
 #ifndef FILEID_
@@ -26,7 +26,8 @@ using namespace std;
 // Details we keep for each file
 class Filedetails {
 private:
-	string name;		// File name (complete path)
+	string name;	// File name (complete path)
+	bool gc;	// When postprocessing files to garbage collect ECs
 public:
 	Attributes attr;
 	class Metrics m;
@@ -35,11 +36,19 @@ public:
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
+	bool garbage_collected() { return gc; }
+	void set_gc(bool r) { gc = r; }
 };
 
 typedef map <string, int> FI_uname_to_id;
 typedef vector <Filedetails> FI_id_to_details;
 
+/*
+ * A unique file identifier
+ * Keep the data members of this class spartan
+ * We create billions of such objects
+ * Add details in the Filedetails class
+ */
 class Fileid {
 private:
 	int id;				// One global unique id per workspace file
@@ -80,11 +89,14 @@ public:
 	// Get /set attributes
 	void set_attribute(int v) { i2d[id].attr.set_attribute(v); }
 	bool get_attribute(int v) { return i2d[id].attr.get_attribute(v); }
+	// Get/set the garbage collected property
+	void set_gc(bool v) { i2d[id].set_gc(v); }
+	bool garbage_collected() { return i2d[id].garbage_collected(); }
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
-	// Return a sorted list of all filenames used
-	static vector <Fileid> sorted_files();
+	// Return a (possibly sorted) list of all filenames used
+	static vector <Fileid> files(bool sorted);
 	// Return a reference to the underlying file's metrics
 };
 
