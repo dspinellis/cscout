@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.40 2002/09/13 13:26:01 dds Exp $
+ * $Id: parse.y,v 1.41 2002/09/13 14:46:45 dds Exp $
  *
  */
 
@@ -596,6 +596,7 @@ sue_declaration_specifier:          /* Storage Class + struct/union/enum */
         | sue_type_specifier        storage_class
 		{ $$ = $1.clone(); $$.set_storage_class($2); }
         | sue_declaration_specifier declaration_qualifier
+		{ $$ = $1; }
         ;
 
 sue_type_specifier:
@@ -622,7 +623,6 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 		}
         | typedef_declaration_specifier declaration_qualifier
 		{
-			$1.set_storage_class($2);
 			$$ = $1;
 		}
         ;
@@ -645,6 +645,7 @@ typedef_type_specifier:              /* typedef types */
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
 		}
         | typedef_type_specifier type_qualifier
+		{ $$ = $1; }
         ;
 
 storage_class:
