@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.4 2003/12/04 21:47:10 dds Exp $
+ * $Id: fcall.h,v 1.5 2003/12/04 23:24:46 dds Exp $
  */
 
 #ifndef FCALL_
@@ -32,6 +32,7 @@ private:
 	bool defined;			// True if the function has been defined
 	fun_container call;		// Functions this function calls
 	fun_container caller;		// Functions that call this function
+	bool visited;			// For calculating transitive closures
 	void add_call(FCall *f) { call.insert(f); }
 	void add_caller(FCall *f) { caller.insert(f); }
 public:
@@ -40,6 +41,9 @@ public:
 	static void set_current_fun(const Id *id);
 	// The current function makes a call to f
 	static void register_call(FCall *f);
+
+	// Clear the visit flags for all functions
+	static void clear_visit_flags();
 
 	// Interface for iterating through all functions
 	typedef fun_container::const_iterator const_fiterator_type;
@@ -61,6 +65,8 @@ public:
 	int get_num_caller() const { return caller.size(); }
 
 	bool is_defined() const { return defined; }
+	void set_visited() { visited = true; }
+	bool is_visited() const { return visited; }
 
 	FCall(const Token& t, Type typ, const string &s);
 };

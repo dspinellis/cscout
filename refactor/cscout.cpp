@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.69 2003/12/04 21:47:10 dds Exp $
+ * $Id: cscout.cpp,v 1.70 2003/12/04 23:24:46 dds Exp $
  */
 
 #include <map>
@@ -1232,7 +1232,7 @@ identifier_page(FILE *fo, void *p)
 				fprintf(fo, " - <a href=\"fun.html?f=%p\">function page</a>", *i);
 			}
 		}
-		fprintf(fo, "</ol>\n");
+		fprintf(fo, "</ol><br />\n");
 	}
 	if (id.get_replaced())
 		fprintf(fo, "<li> Substituted with: [%s]\n", id.get_newid().c_str());
@@ -1312,6 +1312,82 @@ function_page(FILE *fo, void *p)
 	fprintf(fo, "</ul>\n");
 	html_tail(fo);
 }
+
+/*
+ * List all functions associated with a call/caller relationship with f
+ * The methods to obtain the relationship containers are passed through 
+ * the fbegin and fend method pointers.
+ * If recurse is true the also list will contain all correspondingly
+ * associated children functions.
+ */
+void
+list_functions(FILE *fo, FCall *f, 
+	FCall::const_fiterator_type (FCall::*fbegin)() const,
+	FCall::const_fiterator_type (FCall::*fend)() const,
+	bool recurse)
+{
+	FCall::const_fiterator_type i;
+
+	f->set_visited();
+	for (i = (f->*fbegin)(); i != (f->*fend)(); i++) {
+		if (!(*i)->is_visited() || *i == f)
+			fprintf(fo, "<li> <a href=\"fun.html?f=%p\">%s</a>", *i, html((*i)->get_name()).c_str());
+		if (recurse && !(*i)->is_visited())
+			list_functions(fo, *i, fbegin, fend, recurse);
+	}
+}
+
+// List of functions associated with a given one
+void
+funlist_page(FILE *fo, void *p)
+{
+	FCall *f;
+	if (!swill_getargs("p(f)", &f)) {
+		fprintf(fo, "Missing value");
+		return;
+	}
+	char *ltype = swill_getvar("n");
+	html_head(fo, "funlist", "Function List");
+	fprintf(fo, "<h2>Function <a href=\"fun.html?f=%p\">%s</a></h2>", f, html(f->get_name()).c_str());
+	char *calltype;
+	bool recurse;
+	switch (*ltype) {
+	case 'u': case 'd':
+		calltype = "directly";
+		recurse = false;
+		break;
+	case 'D': case 'U':
+		calltype = "all";
+		recurse = true;
+		break;
+	default:
+		fprintf(fo, "Illegal value");
+		return;
+	}
+	// Pointers to the ...begin and ...end methods
+	FCall::const_fiterator_type (FCall::*fbegin)() const;
+	FCall::const_fiterator_type (FCall::*fend)() const;
+	switch (*ltype) {
+	case 'u':
+	case 'U':
+		fbegin = &FCall::caller_begin;
+		fend = &FCall::caller_end;
+		fprintf(fo, "List of %s calling functions\n", calltype);
+		break;
+	case 'd':
+	case 'D':
+		fbegin = &FCall::call_begin;
+		fend = &FCall::call_end;
+		fprintf(fo, "List of %s called functions\n", calltype);
+		break;
+	}
+	fprintf(fo, "<ul>\n");
+	FCall::clear_visit_flags();
+	list_functions(fo, f, fbegin, fend, recurse);
+	fprintf(fo, "</ul>\n");
+	html_tail(fo);
+}
+
 
 // Front-end global options page
 void
@@ -1979,6 +2055,7 @@ main(int argc, char *argv[])
 
 		swill_handle("id.html", identifier_page, NULL);
 		swill_handle("fun.html", function_page, NULL);
+		swill_handle("funlist.html", funlist_page, NULL);
 		swill_handle("fmetrics.html", file_metrics_page, NULL);
 		swill_handle("idmetrics.html", id_metrics_page, NULL);
 		swill_handle("setproj.html", set_project_page, NULL);

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.4 2003/12/04 21:47:10 dds Exp $
+ * $Id: fcall.cpp,v 1.5 2003/12/04 23:24:46 dds Exp $
  */
 
 #include <map>
@@ -104,4 +104,11 @@ FCall::contains(Eclass *e) const
 		pos += e2->get_len();
 	}
 	return false;
+}
+
+void
+FCall::clear_visit_flags()
+{
+	for (const_fiterator_type i = all.begin(); i != all.end(); i++)
+		(*i)->visited = false;
 }
