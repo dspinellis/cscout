@@ -1,14 +1,16 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.49 2003/08/06 17:13:53 dds Exp $
+# $Id: Makefile,v 1.50 2003/08/06 21:40:33 dds Exp $
 #
 
 # Common object files
-OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
+OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
-getopt.o
+getopt.o error.o
+
+OBJ=$(addprefix `arch`/, $(OBJBASE))
 
 # Do not add version.cpp here
 SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
@@ -55,7 +57,21 @@ test/empty.c test/def.c test/conddef.c test/concat-empty.c \
 test/concat.c test/macro_rescan.c test/vararg.c test/shorten.c \
 test/nostrings.c
 
-all: cscout.exe
+# Pattern rules for C and C++ files
+`arch`/%.o: %.c
+	gcc -c $(CPPFLAGS) -o $@ $<
+
+`arch`/%.o: %.cpp
+	g++ -c $(CPPFLAGS) -o $@ $<
+
+ifdef MACHTYPE
+# Unix
+all: `arch`/cscout
+else
+# Windows
+all: `arch`/cscout.exe
+endif
+
 #all: obfuscate
 #all: workdb
 #all: webmap
@@ -63,24 +79,18 @@ all: cscout.exe
 #all: engine
 #all: simple_cpp
 
-simple_cpp: simple_cpp.o $(OBJ) $(STANDOBJ)
-	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) $(STANDOBJ) simple_cpp.o
+workdb: workdb.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o workdb  $(OBJ) workdb.o
 
-simple_cpp.exe: simple_cpp.o $(OBJ) $(STANDOBJ)
-	$(CC) $(CPPFLAGS) -o simple_cpp $(OBJ) $(STANDOBJ) simple_cpp.o  -L. -lsill -lws2_32 -lregex
-
-workdb: workdb.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o workdb $(STANDOBJ) $(OBJ) workdb.o
-
-cscout: cscout.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L${HOME}/lib/`arch` -lswill
+`arch`/cscout: `arch`/cscout.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o `arch`/cscout  $(OBJ) `arch`/cscout.o -L${HOME}/lib/`arch` -lswill
 
 # CCmalloc version
-cscout-cc: cscout.o $(STANDOBJ) $(OBJ)
-	ccmalloc $(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L${HOME}/lib/`arch` -lswill
+`arch`/cscout-cc: `arch`/cscout.o  $(OBJ)
+	ccmalloc $(CC) $(CPPFLAGS) -o `arch`/cscout-cc  $(OBJ) `arch`/cscout.o -L${HOME}/lib/`arch` -lswill
 
-cscout.exe: cscout.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L${HOME}/lib/`arch` -lswill -lws2_32 -lregex
+`arch`/cscout.exe: `arch`/cscout.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o `arch`/cscout  $(OBJ) `arch`/cscout.o -L${HOME}/lib/`arch` -lswill -lws2_32 -lregex
 
 ccheck: license.c license.h des.c des.h
 	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
@@ -88,19 +98,14 @@ ccheck: license.c license.h des.c des.h
 ccheck-install: ccheck
 	cp ccheck /home/dds/web/istlab-cgi-bin
 
-webmap: webmap.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o webmap $(STANDOBJ) $(OBJ) webmap.o
+`arch`/webmap: `arch`/webmap.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o `arch`/webmap  $(OBJ) `arch`/webmap.o
 
-color: color.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o color $(STANDOBJ) $(OBJ) color.o
+`arch`/color: `arch`/color.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o `arch`/color  $(OBJ) `arch`/color.o
 
-obfuscate: obfuscate.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o obfuscate $(STANDOBJ) $(OBJ) obfuscate.o
-
-engine: engine.o $(STANDOBJ) $(OBJ)
-	$(CC) $(CPPFLAGS) -o engine $(STANDOBJ) $(OBJ) engine.o
-
-
+`arch`/obfuscate: `arch`/obfuscate.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o `arch`/obfuscate  $(OBJ) `arch`/obfuscate.o
 
 # Some important dependencies
 color.o: pltoken.h
@@ -124,14 +129,6 @@ tokname.cpp: ytab.h tokname.pl
 
 ctoken.o: ctoken.cpp ytab.h
 
-license.o: license.c
-	gcc -c $(CPPFLAGS) license.c
-
-getopt.o: getopt.c
-	gcc -c $(CPPFLAGS) getopt.c
-
-des.o: des.c
-	gcc -c $(CPPFLAGS) des.c
 
 # Create error message documentation
 mkerr:
@@ -143,8 +140,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.49 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/06 17:13:53 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.50 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/06 21:40:33 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -162,7 +159,7 @@ hellotest: simple_cpp test/hello.c
 boottest: simple_cpp
 	simple_cpp simple_cpp.cpp >simple_cpp.i
 	g++ -c simple_cpp.i
-	$(CC) $(CPPFLAGS) -o simple_cpp $(STANDOBJ) $(OBJ) simple_cpp.o
+	$(CC) $(CPPFLAGS) -o simple_cpp  $(OBJ) simple_cpp.o
 
 # Distribution
 rdist-jonathan:
@@ -180,9 +177,12 @@ rdist-freefall:
 rdist-istlab:
 	tar cvf - $(SRC) | plink istlab tar -C src/cscout -xvf -
 
-lf:
+lf: mkdir
 	chmod +w $(SRC)
 	perl -pi -e 's/\r//' $(SRC)
+
+mkdir:
+	-mkdir alpha  i386  sparc64  amd64  ia64  
 
 rdist-spiti-server:
 	pscp Makefile des.[ch] license.[ch] spiti:src/cscout-server
