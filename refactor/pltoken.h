@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.14 2001/08/24 20:20:09 dds Exp $
+ * $Id: pltoken.h,v 1.15 2001/08/31 10:46:18 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -18,11 +18,32 @@ enum e_cpp_context {cpp_normal, cpp_include, cpp_define};
 class Pltoken: public Ptoken {
 private:
 	static enum e_cpp_context context;
+	template <class C> void update_parts(Tokid& base, Tokid& follow, const C& c0);
 public:
 	template <class C> void getnext();
 	template <class C> void getnext_nospc();
-	static void set_context(enum e_cpp_context c) { context = c; };
+	static void set_context(enum e_cpp_context con) { context = con; };
 };
+
+/*
+ * Given "base" that marks the beginning of a token 
+ * "follow" that follows its characters as they are read, and
+ * c0, a new character read, check that the new character
+ * is indeed agreeing with the value of "follow".
+ * If not update "parts" and reset "follow" and "base".
+ */
+template <class C>
+void
+Pltoken::update_parts(Tokid& base, Tokid& follow, const C& c0)
+{
+	if (c0.get_tokid() != follow) {
+		// Discontinuity; save the Tokids we have
+		dequeTpart new_tokids = base.constituents(follow - base);
+		copy(new_tokids.begin(), new_tokids.end(),
+		     back_inserter(parts));
+		follow = base = c0.get_tokid();
+	}
+}
 
 /*
  * Construct a preprocessor lexical token using Fchar as the class to
@@ -316,13 +337,7 @@ Pltoken::getnext()
 			if (c0.get_char() == EOF ||
 		            (!isalnum(c0.get_char()) && c0.get_char() != '_'))
 		         	break;
-			if (c0.get_tokid() != follow) {
-				// Discontinuity; save the Tokids we have
-				dequeTpart new_tokids = base.constituents(follow - base);
-				copy(new_tokids.begin(), new_tokids.end(),
-				     back_inserter(parts));
-				follow = base = c0.get_tokid();
-			}
+			update_parts(base, follow, c0);
 			val += c0.get_char();
 		}
 		C::putback(c0);
@@ -398,12 +413,19 @@ Pltoken::getnext()
 	case '5': case '6': case '7': case '8': case '9': 
 		val = c0.get_char();
 	pp_number:
+		{
+		Tokid base = c0.get_tokid();
+		Tokid follow = base;
 		for (;;) {
 			c0.getnext();
+			follow++;
 			if (c0.get_char() == 'e' || c0.get_char() == 'E') {
+				update_parts(base, follow, c0);
 				val += c0.get_char();
 				c0.getnext();
+				follow++;
 				if (c0.get_char() == '+' || c0.get_char() == '-') {
+					update_parts(base, follow, c0);
 					val += c0.get_char();
 					continue;
 				} else
@@ -412,11 +434,15 @@ Pltoken::getnext()
 			if (c0.get_char() == EOF ||
 		            (!isalnum(c0.get_char()) && c0.get_char() != '_'))
 		         	break;
+			update_parts(base, follow, c0);
 			val += c0.get_char();
 		}
 		C::putback(c0);
+		dequeTpart new_tokids = base.constituents(follow - base);
+		copy(new_tokids.begin(), new_tokids.end(), back_inserter(parts));
 		code = PP_NUMBER;
 		break;
+		}
 	default:
 		val = (char)(code = c0.get_char());
 	}
