@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.7 2001/09/16 10:08:02 dds Exp $
+ * $Id: type.cpp,v 1.8 2001/09/20 13:15:00 dds Exp $
  */
 
 #include <iostream>
@@ -78,7 +78,23 @@ Type_node::get_token() const
 {
 	static Ctoken c;
 	Error::error(E_INTERNAL, "attempt to get token value of a non-identifier");
+	if (DP())
+		this->print(cerr);
 	return c;
+}
+
+Type
+Type_node::clone() const
+{
+	Error::error(E_INTERNAL, "unable to clone type");
+	return Type();
+}
+
+Tbasic *
+Type_node::tobasic()
+{
+	Error::error(E_INTERNAL, "unknown tobasic() conversion");
+	return NULL;
 }
 
 const string&
@@ -100,10 +116,17 @@ Type_node::deref() const
 Type
 Type_node::type() const
 {
-	Error::error(E_INTERNAL, "object is not a typedef");
+	Error::error(E_INTERNAL, "object is not a typedef or identifier");
 	return basic(b_undeclared);
 }
 
+
+enum e_storage_class 
+Type_node::get_storage_class() const
+{
+	Error::error(E_INTERNAL, "object has no storage class");
+	return c_unspecified;
+}
 
 Id
 Type_node::member(const string& s) const
@@ -195,6 +218,11 @@ label()
 	return Type(new Tlabel());
 }
 
+void
+Type_node::print(ostream &o) const
+{
+	o << "Unknown type node";
+}
 
 void
 Tbasic::print(ostream &o) const
@@ -430,4 +458,36 @@ Tidentifier::set_abstract(Type t)
 			Error::error(E_ERR, "pointer not an abstract type");
 	} else
 		of.set_abstract(t);
+}
+
+void
+Type::declare()
+{
+	obj_define(this->get_token(), this->type());
+}
+
+Type 
+Tbasic::clone() const
+{
+	return Type(new Tbasic(type, sign, sclass));
+}
+
+void
+Tbasic::set_storage_class(Type t)
+{
+	enum e_storage_class newclass = t.get_storage_class();
+
+	if (sclass != c_unspecified &&
+	    sclass != c_typedef &&
+	    newclass != c_unspecified)
+		Error::error(E_ERR, "multiple storage classes in type declaration");
+	// if sclass is already e.g. extern and t is just volatile don't destry sclass
+	if (sclass == c_unspecified || sclass == c_typedef)
+		sclass = newclass;
+}
+
+void
+Type_node::set_storage_class(Type t)
+{
+	Error::error(E_INTERNAL, "object can not set storage class");
 }

@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.14 2001/09/16 10:08:02 dds Exp $
+ * $Id: parse.y,v 1.15 2001/09/20 13:15:00 dds Exp $
  *
  */
 
@@ -82,7 +82,6 @@ void parse_error(char *s)
 %type <t> conditional_expression
 %type <t> constant_expression
 %type <t> assignment_expression
-%type <t> type_name
 %type <t> string_literal_list
 %type <t> comma_expression
 
@@ -96,7 +95,20 @@ void parse_error(char *s)
 %type <t> basic_type_specifier
 %type <t> type_name
 %type <t> type_specifier
+%type <t> default_declaring_list
+%type <t> declaring_list
+%type <t> typedef_declaration_specifier
+%type <t> typedef_type_specifier
+%type <t> declaration_specifier
 
+%type <t> declarator
+%type <t> typedef_declarator
+%type <t> parameter_typedef_declarator
+%type <t> clean_typedef_declarator
+%type <t> clean_postfix_typedef_declarator
+%type <t> paren_typedef_declarator
+%type <t> paren_postfix_typedef_declarator
+%type <t> simple_paren_typedef_declarator
 %type <t> paren_identifier_declarator
 %type <t> array_abstract_declarator
 %type <t> postfixing_abstract_declarator
@@ -378,7 +390,6 @@ comma_expression_opt:
         ;
 
 
-
 /******************************* DECLARATIONS *********************************/
 
     /* The following is different from the ANSI C specified  grammar.
@@ -422,28 +433,62 @@ declaration:
     specifier must be supplied */
 
 default_declaring_list:  /* Can't  redeclare typedef names */
+	/* static volatile @ a[3] @ = { 1, 2, 3} */
         declaration_qualifier_list identifier_declarator initializer_opt
+		{
+			$2.set_abstract($1);
+			$2.declare();
+			$$ = $2;	// Pass-on qualifier
+		}
+	/* volatile @ a[3] @ = { 1, 2, 3} */
         | type_qualifier_list identifier_declarator initializer_opt
+		{
+			$2.declare();
+			$$ = $1;	// Pass-on qualifier
+		}
         | default_declaring_list ',' identifier_declarator initializer_opt
+		{
+			$3.set_abstract($1);
+			$3.declare();
+			$$ = $1;	// Pass-on qualifier
+		}
         ;
 
 declaring_list:
+	/* static int @ FILE @ = 42 (note reuse of typedef name) */
         declaration_specifier declarator initializer_opt
+		{
+			$2.set_abstract($1);
+			$2.declare();
+			$$ = $1;	// Pass-on qualifier
+		}
+	/* int @ FILE @ = 42 */
         | type_specifier declarator initializer_opt
+		{
+			$2.set_abstract($1);
+			$2.declare();
+			$$ = $1;	// Pass-on qualifier
+		}
         | declaring_list ',' declarator initializer_opt
+		{
+			$3.set_abstract($1);
+			$3.declare();
+			$$ = $1;	// Pass-on qualifier
+		}
         ;
 
+/* Includes storage class */
 declaration_specifier:
         basic_declaration_specifier          /* Arithmetic or void */
         | sue_declaration_specifier          /* struct/union/enum */
-        | typedef_declaration_specifier      /* typedef*/
-        ;
+        | typedef_declaration_specifier      /* typedef */
+        ; /* Default rules */
 
 type_specifier:
         basic_type_specifier                 /* Arithmetic or void */
         | sue_type_specifier                 /* Struct/Union/Enum */
         | typedef_type_specifier             /* Typedef */
-        ;
+        ; /* Default rules */
 
 
 /* e.g. typedef static volatile const */
@@ -507,15 +552,29 @@ sue_type_specifier:
         ;
 
 
-typedef_declaration_specifier:       /*Storage Class + typedef types */
+typedef_declaration_specifier:       /* Storage Class + typedef types */
         typedef_type_specifier          storage_class
+		{
+			$1.set_storage_class($2);
+			$$ = $1;
+		}
         | declaration_qualifier_list    TYPEDEF_NAME
+		{ 
+			$$ = obj_lookup($2.get_name())->get_type().clone();
+			$$.set_storage_class($1);
+		}
         | typedef_declaration_specifier declaration_qualifier
+		{
+			$1.set_storage_class($2);
+			$$ = $1;
+		}
         ;
 
 typedef_type_specifier:              /* typedef types */
         TYPEDEF_NAME
+		{ $$ = obj_lookup($1.get_name())->get_type().clone(); }
         | type_qualifier_list    TYPEDEF_NAME
+		{ $$ = obj_lookup($2.get_name())->get_type().clone(); }
         | typedef_type_specifier type_qualifier
         ;
 
@@ -791,18 +850,20 @@ function_definition:
         ;
 
 declarator:
+	/* *a[3] */
         identifier_declarator
         | typedef_declarator
-        ;
+        ; /* Default rules */
 
 typedef_declarator:
-        paren_typedef_declarator          /* would be ambiguous as parameter*/
-        | parameter_typedef_declarator    /* not ambiguous as param*/
-        ;
+        paren_typedef_declarator          /* would be ambiguous as parameter */
+        | parameter_typedef_declarator    /* not ambiguous as parameter */
+        ; /* Default rules */
 
 parameter_typedef_declarator:
         TYPEDEF_NAME
         | TYPEDEF_NAME postfixing_abstract_declarator
+		{ $1.set_abstract($2); $$ = $1; }
         | clean_typedef_declarator
         ;
 
@@ -812,12 +873,16 @@ parameter_typedef_declarator:
 clean_typedef_declarator:
         clean_postfix_typedef_declarator
         | '*' parameter_typedef_declarator
+		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list parameter_typedef_declarator
+		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
         ;
 
 clean_postfix_typedef_declarator:
         '(' clean_typedef_declarator ')'
+		{ $$ = $2; }
         | '(' clean_typedef_declarator ')' postfixing_abstract_declarator
+		{ $2.set_abstract($4); $$ = $2; }
         ;
 
     /* The following have a redundant '(' placed immediately  to  the
@@ -826,21 +891,29 @@ clean_postfix_typedef_declarator:
 paren_typedef_declarator:
         paren_postfix_typedef_declarator
         | '*' '(' simple_paren_typedef_declarator ')' /* redundant paren */
+		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
         | '*' type_qualifier_list
                 '(' simple_paren_typedef_declarator ')' /* redundant paren */
+		{ $4.set_abstract(pointer_to(basic())); $$ = $4; }
         | '*' paren_typedef_declarator
+		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list paren_typedef_declarator
+		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
         ;
 
 paren_postfix_typedef_declarator: /* redundant paren to left of tname*/
         '(' paren_typedef_declarator ')'
+		{ $$ = $2; }
         | '(' simple_paren_typedef_declarator postfixing_abstract_declarator ')' /* redundant paren */
+		{ $2.set_abstract($3); $$ = $2; }
         | '(' paren_typedef_declarator ')' postfixing_abstract_declarator
+		{ $2.set_abstract($4); $$ = $2; }
         ;
 
 simple_paren_typedef_declarator:
         TYPEDEF_NAME
         | '(' simple_paren_typedef_declarator ')'
+		{ $$ = $2; }
         ;
 
 identifier_declarator:
@@ -849,20 +922,23 @@ identifier_declarator:
         ; /* Default rules */
 
 unary_identifier_declarator:
+	/* a[3] */
         postfix_identifier_declarator
+	/* *a[3] */
         | '*' identifier_declarator
 		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
+	/* * const a[3] */
         | '*' type_qualifier_list identifier_declarator
 		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
         ;
 
 postfix_identifier_declarator:
-	// int a[5]: declare a as array 5 of int
+	/* int a[5]: declare a as array 5 of int */
         paren_identifier_declarator postfixing_abstract_declarator
 		{ $1.set_abstract($2); $$ = $1; }
         | '(' unary_identifier_declarator ')'
 		{ $$ = $2; }
-	//  int (*a)[10]: declare a as pointer to array 10 of int
+	/*  int (*a)[10]: declare a as pointer to array 10 of int */
         | '(' unary_identifier_declarator ')' postfixing_abstract_declarator
 		{ $2.set_abstract($4); $$ = $2; }
         ;

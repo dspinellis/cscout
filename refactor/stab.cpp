@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.4 2001/09/14 15:48:43 dds Exp $
+ * $Id: stab.cpp,v 1.5 2001/09/20 13:15:00 dds Exp $
  */
 
 #include <map>
@@ -63,17 +63,42 @@ Block::define(Stab Block::*table, const Token& tok, const Type& typ)
 }
 
 /*
+ * Define the tok object to be of type typ
+ */
+void
+obj_define(const Token& tok, const Type& typ)
+{
+	enum e_storage_class sc = typ.get_storage_class();
+
+	if (sc != c_extern && Block::current_block != Block::cu_block &&
+	    Block::scope_block[Block::current_block].obj.lookup(tok.get_name())) {
+		Error::error(E_ERR, "Duplicate definition of identifier " + tok.get_name());
+		return;
+	}
+	Block::define(&(Block::obj), tok, typ);
+	// Identifiers with extern scope are also added to the linkage unit
+	// definitions.  These are not searched, but are used for unification
+	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
+		Id const * id;
+		if (id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name()))
+			unify(id->get_token(), tok);
+		else
+			Block::scope_block[Block::lu_block].obj.define(tok, typ);
+	}
+}
+
+/*
  * Lookup in the block pointed by table (obj or tag) for name
  * and return the relevant identifier or NULL if not defined.
  */
 Id const *
 Block::lookup(const Stab Block::*table, const string& name)
 {
-	vectorBlock::reverse_iterator i;
+	int i;
 	Id const * id;
 
-	for (i = scope_block.rbegin(); i != scope_block.rend(); i++)
-		if (id = ((*i).*table).lookup(name))
+	for (i = current_block; i != lu_block; i--)
+		if (id = (scope_block[i].*table).lookup(name))
 			return id;
 	return NULL;
 }

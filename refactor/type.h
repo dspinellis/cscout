@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.10 2001/09/16 10:08:02 dds Exp $
+ * $Id: type.h,v 1.11 2001/09/20 13:15:00 dds Exp $
  */
 
 #ifndef TYPE_
@@ -36,6 +36,7 @@ enum e_tagtype {tt_struct, tt_union, tt_enum};
 
 class Id;
 class Tbasic;
+class Type;
 
 class Type_node {
 	friend class Type;
@@ -49,7 +50,8 @@ protected:
 	virtual Type subscript() const;		// Arrays and pointers
 	virtual Type deref() const;		// Arrays and pointers
 	virtual Type call() const;		// Function
-	virtual Type type() const;		// Typedef
+	virtual Type type() const;		// Typedef, identifier
+	virtual Type clone() const;		// Deep copy
 	virtual Id member(const string& name) const;	// Structure and union
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
 	virtual bool is_typedef() const { return false; }// True for typedefs
@@ -59,10 +61,12 @@ protected:
 	virtual const string& get_name() const;	// True for identifiers
 	virtual const Ctoken& get_token() const;// True for identifiers
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
+	virtual void set_storage_class(Type t);	// Set typedef's underlying storage class to t
+	virtual enum e_storage_class get_storage_class() const;// Return the declaration's storage class
 public:
 	// For merging
 	virtual Type merge(Tbasic *b);
-	virtual Tbasic *tobasic() { return NULL; }
+	virtual Tbasic *tobasic();
 	virtual void print(ostream &o) const = 0;
 };
 
@@ -77,6 +81,7 @@ public:
 	Tbasic(enum e_btype t = b_abstract, enum e_sign s = s_none,
 		enum e_storage_class sc = c_unspecified) :
 		type(t), sign(s), sclass(sc) {}
+	Type clone() const;
 	bool is_valid() const { return type != b_undeclared; }
 	bool is_abstract() const { return type == b_abstract; }
 	bool is_typedef() const { return sclass != c_typedef; }
@@ -84,6 +89,8 @@ public:
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
 	Tbasic *tobasic() { return this; }
+	enum e_storage_class get_storage_class() const {return sclass; }
+	void set_storage_class(Type t);
 };
 
 /*
@@ -94,8 +101,8 @@ public:
 class Type {
 private:
 	Type_node *p;
-	Type(Type_node *n) : p(n) {}
 public:
+	Type(Type_node *n) : p(n) {}
 	Type() { p = new Tbasic(b_undeclared); }
 	// Creation functions
 	friend Type basic(enum e_btype t = b_abstract, enum e_sign s = s_none,
@@ -113,17 +120,22 @@ public:
 	// To print
 	friend ostream& operator<<(ostream& o,const Type &t) { t.p->print(o); }
 
+	// Add the declaration of an identifier to the symbol table
+	void declare();
+
 	// Manage use count of underlying Type_node
 	Type(const Type& t) { p = t.p; ++p->use; }	// Copy
 	~Type() { if (--p->use == 0) delete p; }
 	Type& operator=(const Type& t);
 
 	// Interface to the Type_node functionality
+	Type clone() const 		{ return p->clone(); }
 	Type subscript() const		{ return p->subscript(); }
 	Type deref() const		{ return p->deref(); }
 	Type call() const		{ return p->call(); }
 	Type type() const		{ return p->type(); }
 	void set_abstract(Type t)	{ return p->set_abstract(t); }
+	void set_storage_class(Type t)	{ return p->set_storage_class(t); }
 	bool is_ptr() const		{ return p->is_ptr(); }
 	bool is_typedef() const		{ return p->is_typedef(); }
 	bool is_valid() const		{ return p->is_valid(); }
@@ -131,6 +143,7 @@ public:
 	bool is_abstract() const	{ return p->is_abstract(); }
 	const string& get_name() const	{ return p->get_name(); }
 	const Ctoken& get_token() const { return p->get_token(); }
+	enum e_storage_class get_storage_class() const {return p->get_storage_class(); }
 	Id member(const string& name) const;
 	friend Type merge(Type a, Type b) { return a.p->merge(b.p->tobasic()); }
 };
@@ -142,10 +155,13 @@ private:
 	Type of;
 public:
 	Tarray(Type t) : of(t) {}
+	Type clone() const { return Type(new Tarray(of.clone())); }
 	Type subscript() const { return of; }
 	bool is_ptr() { return true; }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
+	void set_storage_class(Type t) { of.set_storage_class(t); }
+	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
 };
 
 // Pointer to ...
@@ -154,8 +170,11 @@ private:
 	Type to;
 public:
 	Tpointer(Type t) : to(t) {}
+	Type clone() const { return Type(new Tpointer(to.clone())); }
 	Type deref() const { return to; }
 	bool is_ptr() { return true; }
+	void set_storage_class(Type t) { to.set_storage_class(t); }
+	enum e_storage_class get_storage_class() const {return to.get_storage_class(); }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 };
@@ -166,9 +185,12 @@ private:
 	Type returning;
 public:
 	Tfunction(Type t) : returning(t) {}
+	Type clone() const { return Type(new Tfunction(returning.clone())); }
 	Type call() const { return returning; }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
+	void set_storage_class(Type t) { returning.set_storage_class(t); }
+	enum e_storage_class get_storage_class() const {return returning.get_storage_class(); }
 };
 
 // Typedef for ...
@@ -177,6 +199,7 @@ private:
 	Type for_type;
 public:
 	Ttypedef(Type t) : for_type(t) {}
+	Type clone() const { return Type(new Ttypedef(for_type.clone())); }
 	Type type() const { return for_type; }
 	bool is_typedef() { return true; };// True for typedefs
 	void print(ostream &o) const;
@@ -213,11 +236,16 @@ private:
 	Type of;			// Identifying a given type
 public:
 	Tidentifier(const Ctoken& tok) : t(tok), of(basic()) {}
+	Tidentifier(const Ctoken& tok, Type typ) : t(tok), of(typ) {}
+	Type clone() const { return Type(new Tidentifier(t, of.clone())); }
 	const Ctoken& get_token() const { return t; }
 	const string& get_name() const { return t.get_name(); }
+	Type type() const { return of; }
 	Type call() const;			// Function (undeclared)
 	void print(ostream &o) const;
 	void set_abstract(Type t);
+	void set_storage_class(Type t) { of.set_storage_class(t); }
+	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
 };
 
 // Goto label

@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.4 2001/09/14 15:48:43 dds Exp $
+ * $Id: stab.h,v 1.5 2001/09/20 13:15:00 dds Exp $
  */
 
 #ifndef STAB_
@@ -72,22 +72,17 @@ private:
 	static void define(Stab Block::*table, const Token& tok, const Type& t);
 	static Id const * lookup(const Stab Block::*table, const string& name);
 public:
-	static const int lu_block;	// Linkage unit definitions: 0
-	static const int cu_block;	// Compilation unit definitions: 1
+	static const int lu_block = 0;	// Linkage unit definitions: 0
+	static const int cu_block = 1;	// Compilation unit definitions: 1
 	static void enter();
 	static void exit();
 	static int get_cur_block() { return current_block; }
 
 	// Lookup and defined
 	inline friend Id const * obj_lookup(const string& name);
-	inline friend void obj_define(const Token& tok, const Type& t);
+	friend void obj_define(const Token& tok, const Type& t);
 };
 
-inline void
-obj_define(const Token& tok, const Type& typ)
-{
-	Block::define(&(Block::obj), tok, typ);
-}
 
 inline Id const *
 obj_lookup(const string& name)
