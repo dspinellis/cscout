@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.6 2001/08/31 16:13:14 dds Exp $
+ * $Id: token.cpp,v 1.7 2001/09/01 07:15:28 dds Exp $
  */
 
 #include <iostream>
@@ -67,6 +67,7 @@ homogenize(const dequeTpart &a, const dequeTpart &b)
 	Eclass *be = (*bi).get_tokid().get_ec();
 	int alen, blen;
 
+	// cout << "Homogenize a:" << a << " b: " << b << "\n";
 	while (ai != a.end() && bi != b.end()) {
 		alen = ae->get_len();
 		blen = be->get_len();
@@ -85,9 +86,9 @@ homogenize(const dequeTpart &a, const dequeTpart &b)
 			ai++;
 			if (ai != a.end())
 				ae = (*ai).get_tokid().get_ec();
+			bi++;
 			if (bi != b.end())
 				be = (*bi).get_tokid().get_ec();
-			bi++;
 		}
 	}
 }
@@ -100,7 +101,7 @@ unify(const Token &a, const Token &b)
 	dequeTpart ac = a.constituents();
 	dequeTpart bc = b.constituents();
 	// Make the constituents of same length
-	//cout << "Before homogenization: " << "\n" << "a=" << a << "\n" << "b=" << b << "\n";
+	// cout << "Before homogenization: " << "\n" << "a=" << a << "\n" << "b=" << b << "\n";
 	homogenize(ac, bc);
 	// Get the constituents again; homogenizing may have changed them
 	ac = a.constituents();
