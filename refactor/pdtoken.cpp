@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.33 2001/09/02 09:22:43 dds Exp $
+ * $Id: pdtoken.cpp,v 1.34 2001/09/02 14:20:54 dds Exp $
  */
 
 #include <iostream>
@@ -35,10 +35,9 @@
 
 bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;
-mapMacro Pdtoken::macros;			// Defined macros
+mapMacro Pdtoken::macros;		// Defined macros
 stackbool Pdtoken::iftaken;		// Taken #ifs
-bool Pdtoken::skipping;			// Skip tokens when true
-int Pdtoken::iflevel;			// Level of enclosing #ifs
+int Pdtoken::skiplevel = 0;		// Level of enclosing #ifs when skipping
 
 static void macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more);
 
@@ -69,6 +68,16 @@ again:
 			at_bol = false;
 		}
 	}
+	if (skiplevel) {
+		if (t.get_code() == '\n')
+			at_bol = true;
+		else if (t.get_code() == EOF) {
+			Error::error(E_ERR, "EOF while processing #if directive");
+			*this = t;
+			return;
+		}
+		goto again;
+	}
 	switch (t.get_code()) {
 	case '\n':
 		at_bol = true;
@@ -82,6 +91,11 @@ again:
 		goto expand_get;
 		// FALLTRHOUGH
 	default:
+		*this = t;
+		break;
+	case EOF:
+		if (!iftaken.empty())
+			Error::error(E_ERR, "EOF while processing #if directive");
 		*this = t;
 		break;
 	}
@@ -98,6 +112,7 @@ Pdtoken::eat_to_eol()
 		t.template getnext<Fchar>();
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 }
+
 
 /*
  * Lexical analyser for #if expressions
@@ -173,6 +188,7 @@ eval()
 	Pltoken t;
 
 	// Read eval_tokens
+	eval_tokens.clear();
 	do {
 		t.template getnext<Fchar>();
 		eval_tokens.push_back(t);
@@ -209,11 +225,12 @@ eval()
 		last++;
 		// We are about to erase it
 		string val = (*arg).get_val();
-		cout << "val:" << val << "\n";
-		Ptoken numval(PP_NUMBER, 
-		  Pdtoken::macros.find(val) == Pdtoken::macros.end() ?  "0" : "1");
+		// cout << "val:" << val << "\n";
+		mapMacro::const_iterator mi = Pdtoken::macros.find(val);
+		if (mi != Pdtoken::macros.end())
+			unify(*arg, (*mi).second.name_token);
 		eval_tokens.erase(i, last);
-		eval_tokens.insert(last, numval);
+		eval_tokens.insert(last, Ptoken(PP_NUMBER, mi == Pdtoken::macros.end() ? "0" : "1"));
 		i = last;
 	}
 	//cout << "Tokens after defined:\n";
@@ -228,11 +245,13 @@ eval()
 	     (i = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<int>(),IDENTIFIER), mem_fun_ref(&Ptoken::get_code)))) != eval_tokens.end(); )
 	     	*i = Ptoken(PP_NUMBER, "0");
 	eval_ptr = eval_tokens.begin();
+	// cout << "Tokens before parsing:\n";
+	// copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
 	if (eval_parse() != 0) {
 		Error::error(E_ERR, "Syntax error in preprocessor expression");
 		return 1;
 	}
-	cout << "Eval returns: " << eval_result << "\n";
+	// cout << "Eval returns: " << eval_result << "\n";
 	return (eval_result);
 }
 
@@ -246,56 +265,75 @@ eval()
  * if false continue processing input.
  * At #endif execute iftaken.pop()
  *
- * Skipping is performed by setting level=0 and looking for a 
- * #e* when level == 0.
- * While skipping each #if* results in level++, each #endif in level--.
+ * Skipping is performed by setting skiplevel=1 and looking for a 
+ * #e* when skiplevel == 1.
+ * While skiplevel > 0 each #if* results in skiplevel++, each #endif in 
+ * skiplevel--.
+ * Skiplevel handling:
+ * 0 normal processing
+ * >= 1 skipping where value is the number of enclosing #if blocks
  */
 void
-Pdtoken::process_if(enum e_if_type type)
+Pdtoken::process_if()
 {
-	eval();
-	eat_to_eol();
-	return;
-	if (skipping)
-		iflevel++;
+	if (skiplevel)
+		skiplevel++;
 	else {
-		if (type == if_elif) {
-			if (iftaken.top()) {
-				skipping = true;
-				iflevel = 0;
-				return;
-			} else
-				iftaken.pop();
-		}
-		bool eval_res = eval();		// XXX
+		bool eval_res = eval();
 		iftaken.push(eval_res);
-		if (!eval_res) {
-			skipping = true;
-			iflevel = 0;
-		}
+		skiplevel = eval_res ? 0 : 1;
 	}
-	eat_to_eol();
+}
+
+void
+Pdtoken::process_elif()
+{
+	if (iftaken.empty()) {
+		Error::error(E_ERR, "Unbalanced #elif");
+		eat_to_eol();
+		return;
+	}
+	if (skiplevel > 1)
+		return;
+	if (iftaken.top())
+		skiplevel = 1;
+	else {
+		iftaken.pop();
+		skiplevel = 0;
+		process_if();
+	}
 }
 
 void
 Pdtoken::process_else()
 {
-	if (skipping && iflevel > 0)
+	if (iftaken.empty()) {
+		Error::error(E_ERR, "Unbalanced #else");
+		eat_to_eol();
+		return;
+	}
+	if (skiplevel > 1)
 		return;
 	if (iftaken.top()) {
-		skipping = true;
-		iflevel = 0;
+		skiplevel = 1;
 		return;
-	} else
-		skipping = false;
+	}
+	skiplevel = 0;
 	eat_to_eol();
 }
 
 void
 Pdtoken::process_endif()
 {
-	iflevel--;
-	iftaken.pop();
+	if (iftaken.empty()) {
+		Error::error(E_ERR, "Unbalanced #endif");
+		eat_to_eol();
+		return;
+	}
+	if (skiplevel <= 1)
+		iftaken.pop();
+	if (skiplevel >= 1)
+		skiplevel--;
 	eat_to_eol();
 }
 
@@ -434,13 +472,13 @@ Pdtoken::process_directive()
 	else if (t.get_val() == "include")
 		process_include();
 	else if (t.get_val() == "if")
-		process_if(if_plain);
+		process_if();
 	else if (t.get_val() == "ifdef")
-		process_if(if_def);
+		process_if();
 	else if (t.get_val() == "ifndef")
-		process_if(if_ndef);
+		process_if();
 	else if (t.get_val() == "elif")
-		process_if(if_elif);
+		process_elif();
 	else if (t.get_val() == "else")
 		process_else();
 	else if (t.get_val() == "endif")

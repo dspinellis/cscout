@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.14 2001/09/02 09:22:43 dds Exp $
+ * $Id: pdtoken.h,v 1.15 2001/09/02 14:20:54 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -34,23 +34,23 @@ public:
 
 typedef map<string, Macro> mapMacro;
 
-enum e_if_type {if_plain, if_def, if_ndef, if_elif};
-
 class Pdtoken: public Ptoken {
 private:
 	static mapMacro macros;			// Defined macros
 	static listPtoken expand;		// Expanded input
 	static bool at_bol;			// At beginning of line
 	static stackbool iftaken;		// Taken #ifs
-	static bool skipping;			// Skip tokens when true
-	static int iflevel;			// Level of enclosing #ifs
+	static int skiplevel;			// Level of enclosing #ifs
 
 	static void process_directive();	// Handle a cpp directive
 	static void eat_to_eol();		// Consume input including \n
 	static void process_include();		// Handle a #include
 	static void process_define();		// Handle a #define
 	static void process_undef();		// Handle a #undef
-	static void process_if(enum e_if_type);	// Handle #if/def/ndef
+	static void process_if();		// Handle #if
+	static void process_ifdef();		// Handle #ifdef
+	static void process_ifndef();		// Handle #ifndef
+	static void process_elif();		// Handle #elif
 	static void process_else();		// Handle a #define
 	static void process_endif();		// Handle a #define
 	static void process_line();		// Handle a #line
