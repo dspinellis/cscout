@@ -5,15 +5,18 @@
  * This uniquelly identifies any token (part).
  * It is used to compose input tokens, symbol table antries,
  * as a map source for equivalence classes, and as a member in
- * equivalence classes
+ * equivalence classes.
  *
- * Include synopsis:
- * #include <iostream>
- * #include "cpp.h"
- * #include "fileid.h"
- * #include "fileid.h"
+ * Rationale: the program works by assigning tokens to equivalence
+ * classes.  Each class must know its tokens, and each token its
+ * equivalence class.  Because equivalence classes can be merged and split
+ * it is easier, instead of maintaining two-way relationships between ECs
+ * and their tokens, to have a fixed way to represent EC contents,
+ * and identifier EC membership.  Tokids satisfy this property, because
+ * they remain constant and with the same meaining throughout the program's
+ * lifetime.
  *
- * $Id: tokid.h,v 1.8 2001/08/21 18:29:45 dds Exp $
+ * $Id: tokid.h,v 1.9 2001/08/25 06:55:04 dds Exp $
  */
 
 #ifndef TOKID_
