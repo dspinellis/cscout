@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.15 2001/09/29 21:16:10 dds Exp $
+# $Id: rsc.tcl,v 1.16 2001/09/30 07:36:42 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -85,6 +85,7 @@ $m add command -label "Remove File from All Projects"
 $m add command -label "Remove Project"
 $m add separator
 $m add command -label "Rename Project"
+$m add command -label "Clone Project"
 
 set m .menu.view
 menu $m -tearoff 0
@@ -105,7 +106,7 @@ menu $m -tearoff 0
 $m add command -label "Project" -command insert_project
 $m add separator
 $m add command -label "File to Project" -command insert_file
-$m add command -label "Directory Files to Project"
+$m add command -label "Directory Files to Project" -command insert_dir_files
 $m add command -label "Hierarchy Files to Project"
 $m add command -label "File to all Projects"
 
@@ -301,7 +302,7 @@ label $tabsettings.dir.lab -text "Working directory" -anchor e
 label $tabsettings.dir.ent -width 20 \
 	-relief sunken -borderwidth 2 -anchor w
 #-state disabled
-button $tabsettings.dir.but -text "Browse ..." -command "tk_chooseDirectory"
+button $tabsettings.dir.but -text "Set ..." -command set_entry_directory
 pack $tabsettings.dir.lab -side left
 pack $tabsettings.dir.ent -side left -expand yes -fill x
 pack $tabsettings.dir.but -padx 4 -side left
@@ -630,11 +631,10 @@ proc insert_file {} {
 	global tabfiles
 	global dir
 
-	set filename [tk_getOpenFile -filetypes {{"C Source Files" {.c}}}]
+	set mydir $dir([wp_getsettings])
+	set filename [tk_getOpenFile -initialdir $mydir -filetypes {{"C Source Files" {.c}}}]
 	if {$filename != ""} {
-		# Invoke dialog box to get the project's name
 		set projname [wp_getproject]
-		set mydir $dir([wp_getsettings])
 		if {$mydir == [string range $filename 0 [expr [string length $mydir] - 1]]} {
 			# We can make it relative
 			set filename [string range $filename [expr [string length $mydir] + 1] end]
@@ -716,3 +716,48 @@ proc open_workspace {} {
 		settings_refresh
 	}
 }
+
+# Insert directory files to a project
+proc insert_dir_files {} {
+	global name
+	global tabfiles
+	global dir
+
+	set mydir $dir([wp_getsettings])
+	set mydir [tk_chooseDirectory -title "Directory to search for .c files" \
+		-initialdir $mydir -mustexist true]
+	if {$mydir != ""} {
+		set projname [wp_getproject]
+		foreach filename [glob -nocomplain -directory $mydir -types {f} {*.[Cc]}] {
+			if {$mydir == [string range $filename 0 [expr [string length $mydir] - 1]]} {
+				# We can make it relative
+				set filename [string range $filename [expr [string length $mydir] + 1] end]
+			}
+			if {![info exists name(wp/$projname/$filename)]} {
+				set name(wp/$projname/$filename) $filename
+			}
+		}
+		# Expand is needed to internally refresh _nodes so that we do not
+		# get a node does not exist error!
+		$tabfiles.hier expand wp/$projname
+		$tabfiles.hier refresh wp/$projname
+	}	
+	# else cancelled
+}
+
+# Set the current entry's directory
+proc set_entry_directory {} {
+	global name
+	global tabfiles
+	global dir
+
+	set mydir $dir([wp_getsettings])
+	set newdir [tk_chooseDirectory -title "Working directory" -initialdir $mydir ]
+	if {$newdir != ""} {
+		set entry [wp_getmodsettings]
+		set dir($entry) $newdir
+		settings_refresh
+	}	
+	# else cancelled
+}
+
