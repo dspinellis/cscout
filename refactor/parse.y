@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.71 2003/08/03 07:48:25 dds Exp $
+ * $Id: parse.y,v 1.72 2003/08/03 08:23:34 dds Exp $
  *
  */
 
@@ -937,6 +937,7 @@ member_declaration:
         | member_default_declaring_list ';'
 		{ $$ = $1; }
 	| ';'
+		{ $$ = basic(b_undeclared); }
         ;
 
 member_default_declaring_list:        /* doesn't redeclare typedef */
@@ -1197,6 +1198,16 @@ initializer_comma:
 initializer_member:
 	initializer
 	| designator '=' initializer
+	/* gcc extension (argh!) */
+	| member_name ':' initializer
+		{
+			Id const *id = designator_stack.top().t.member($1.get_name());
+			if (id) {
+				assert(id->get_name() == $1.get_name());
+				unify($1.get_token(), id->get_token());
+			} else
+				Error::error(E_ERR, "structure or union does not have a member " + $1.get_name());
+		}
 	;
 
 /* C99 feature */
