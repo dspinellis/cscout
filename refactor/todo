@@ -1,4 +1,4 @@
-$Id: todo,v 1.40 2003/08/21 20:57:44 dds Exp $
+$Id: todo,v 1.41 2003/09/25 13:20:50 dds Exp $
 
 In the query change check boxes into yes/no/don't care radio buttos
 Option to specify leading file path to hide
@@ -62,3 +62,34 @@ Create separate database table with the newlines
 
 Optimize (hash for map)
 Create editor
+
+
+I will take the opportunity to comment on the product. You may scrap
+those comments or use them to improve CScout if you like:
+1) An installer will make CScout more acceptable to Windows users;
+3) I find it curious that entries in "Change history" are undated;
+4) I think it would be an an improvement to allow cswc project | cscout
+and would like a control to cause a browser to open automatically in
+Windows.
+5) I had to edit cswc to correct the directory to pick up perl.
+6) I ran CScout on a small workspace. I was unhappy with all the
+diagnostics which refer to lines. I will provide chapters and verses if
+you like.
+7) My comments on the generated html are obviously first impressions:
+a) I would like to see context information such as date and command in
+"CScout Main Page".
+b) Rearrange that page so it renders on 1 screen.
+c) I think you should define many of the terms used in the html.
+Examples: "Comment characters" - characters in comments; "line
+comments"; "block comments"; "lines" - before or after processing \
+"Number of" seems redundant.
+8) I find the (grammatical) future tense jibs (deliberate nautical pun)
+with me in technical documents because it mixes badly with the present
+tense. Example: I suggest you use "lists" rather than "will list" in
+'The "All files" link will list all the project's files, including
+source files, and directly and indirectly included files. You can
+use...'
+9) I think the html can be optimised so that links which produce no
+results are not made or are rendered in a different way. Example: I have
+no "Writable .c Files Without Any Statments". (sic in result!)
+2) "syntax error" should show current and next symbols.
