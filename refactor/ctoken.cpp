@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.6 2001/09/12 07:09:08 dds Exp $
+ * $Id: ctoken.cpp,v 1.7 2001/09/12 09:50:40 dds Exp $
  */
 
 #include <map>
@@ -125,6 +125,7 @@ parse_lex_real()
 	int c;
 	Id const *id;
 	map<string,int>::const_iterator ik;
+	extern YYSTYPE parse_lval;
 
 	for (;;) {
 		Pdtoken t;
@@ -149,9 +150,9 @@ parse_lex_real()
 			if (ik != keymap.end())
 				return (*ik).second;	// Keyword
 			id = obj_lookup(t.get_val());
+			parse_lval.t = identifier(t);
 			if (id && id->get_type().is_typedef())
 				return (TYPEDEF_NAME);	// Probably typedef
-			parse_lval.c = new Ctoken(t);
 			return (IDENTIFIER);		// Plain identifier
 		default:
 			return (c);
