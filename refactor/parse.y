@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.29 2002/09/05 12:39:06 dds Exp $
+ * $Id: parse.y,v 1.30 2002/09/05 13:33:59 dds Exp $
  *
  */
 
@@ -710,7 +710,7 @@ member_default_declaring_list:        /* doesn't redeclare typedef */
 	/* volatile @ a[3] */
         type_qualifier_list member_identifier_declarator
 		{
-			if (!$2.is_padbit()) { // Check against padding bit fields
+			if ($2.is_valid()) { // Check against padding bit fields
 				$2.set_abstract($1);
 				$$ = struct_union($2.get_token(), $2.type(), $1);
 			} else
@@ -719,7 +719,7 @@ member_default_declaring_list:        /* doesn't redeclare typedef */
 	/* volatile a[3], b */
         | member_default_declaring_list ',' member_identifier_declarator
 		{
-			if (!$3.is_padbit()) { // Check against padding bit fields
+			if ($3.is_valid()) { // Check against padding bit fields
 				$3.set_abstract($1.get_default_specifier());
 				$1.add_member($3.get_token(), $3.type());
 			}
@@ -731,7 +731,7 @@ member_declaring_list:
 	/* unsigned int @ *a[3] */
         type_specifier member_declarator
 		{
-			if (!$2.is_valid()) { // Check against padding bit fields
+			if ($2.is_valid()) { // Check against padding bit fields
 				$2.set_abstract($1);
 				$$ = struct_union($2.get_token(), $2.type(), $1);
 			} else
@@ -741,7 +741,7 @@ member_declaring_list:
 		}
         | member_declaring_list ',' member_declarator
 		{
-			if (!$3.is_valid()) { // Check against padding bit fields
+			if ($3.is_valid()) { // Check against padding bit fields
 				$3.set_abstract($1.get_default_specifier());
 				$1.add_member($3.get_token(), $3.type());
 			}

@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.17 2002/09/05 12:39:06 dds Exp $
+ * $Id: type.h,v 1.18 2002/09/05 13:33:59 dds Exp $
  */
 
 #ifndef TYPE_
@@ -102,7 +102,7 @@ public:
 		enum e_storage_class sc = c_unspecified) :
 		type(t), sign(s), sclass(sc) {}
 	Type clone() const;
-	bool is_valid() const { return type != b_undeclared; }
+	bool is_valid() const { return type != b_undeclared && type != b_padbit; }
 	bool is_abstract() const { return type == b_abstract; }
 	bool is_basic() const { return true; }// False for undeclared
 	bool is_padbit() const { return type == b_padbit; }
