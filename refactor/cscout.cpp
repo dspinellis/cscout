@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.21 2003/05/24 18:51:49 dds Exp $
+ * $Id: cscout.cpp,v 1.22 2003/05/25 13:04:27 dds Exp $
  */
 
 #include <map>
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <list>
 #include <set>
+#include <functional>
 #include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
@@ -109,6 +110,7 @@ typedef set <Fileid, fname_order> IFSet;
 typedef multiset <const IdProp::value_type *, idcmp> Sids;
 
 static IdProp ids; 
+static vector <Fileid> files;
 static Attributes::size_type current_project;
 
 void index_page(FILE *of, void *data);
@@ -341,7 +343,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.21 2003/05/24 18:51:49 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.22 2003/05/25 13:04:27 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -451,6 +453,149 @@ afiles_page(FILE *fo, vector <Fileid> *files)
 	fprintf(fo, "\n</ul>\n");
 	html_tail(fo);
 }
+
+// File query page
+static void
+fquery_page(FILE *of,  void *p)
+{
+	html_head(of, "fquery", "File Query");
+	fputs("<FORM ACTION=\"xfquery.html\" METHOD=\"GET\">\n"
+	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable<br>\n"
+	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only<br>\n"
+	"<table>", of);
+	for (int i = 0; i < metric_max; i++) {
+		fprintf(of, "<tr><td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
+			Metrics::name(i).c_str(), i);
+		fputs(
+			"<option value=\"0\">ignore"
+			"<option value=\"1\">=="
+			"<option value=\"2\">!="
+			"<option value=\"3\">&lt;"
+			"<option value=\"4\">&gt;"
+			"</select></td><td>", of);
+		fprintf(of, "<INPUT TYPE=\"text\" NAME=\"n%d\" SIZE=5 MAXLENGTH=10></td></tr>\n", i);
+	}
+	fputs(
+	"</table><p>\n"
+	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any of the above\n"
+	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
+	"<input type=\"radio\" name=\"match\" value=\"L\">Match all of the above\n"
+	"<br><hr>\n"
+	"File names should match RE\n"
+	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
+	"<hr>\n"
+	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"<p><INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
+	"</FORM>\n"
+	, of);
+	html_tail(of);
+}
+
+struct ignore : public binary_function <int, int, bool> {
+	inline bool operator()(int a, int b) const { return true; }
+};
+
+/*
+ * Return the result of applying operator op on a, b
+ * Apparently doing this with the standard equal_to, etc functors would require a
+ * 5-template function.
+ * Attempting to store all functors in a vector <binary_function <..> > is useless
+ * since because the polymorphic binary_function does not define the appropriate () operators.
+ */
+static inline bool
+apply(int op, int a, int b)
+{
+	cout << a;
+	switch (op) {
+	case 1: cout << " == "; break;
+	case 2: cout << " != "; break;
+	case 3: cout << " < "; break;
+	case 4: cout << " > "; break;
+	}
+	cout << b << "\n";
+	switch (op) {
+	case 1: return a == b;
+	case 2: return a != b;
+	case 3: return a < b;
+	case 4: return a > b;
+	default: return false;
+	}
+}
+
+// Process a file query
+static void
+xfquery_page(FILE *of,  void *p)
+{
+	IFSet sorted_files;
+	char match_type;
+	vector <int> op(metric_max);
+	vector <int> n(metric_max);
+	bool writable = !!swill_getvar("writable");
+	bool ro = !!swill_getvar("ro");
+	char *qname = swill_getvar("n");
+
+	html_head(of, "xfquery", qname ? qname : "File Query Results");
+
+	char *m;
+	if (!(m = swill_getvar("match"))) {
+		fprintf(of, "Missing value: match");
+		return;
+	}
+	match_type = *m;
+
+	// Store metric specifications in a vector
+	for (int i = 0; i < metric_max; i++) {
+		ostringstream argspec;
+
+		argspec << "|i(c" << i << ")";
+		argspec << "i(n" << i << ")";
+		op[i] = n[i] = 0;
+		(void)swill_getargs(argspec.str().c_str(), &(op[i]), &(n[i]));
+	}
+
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+		if (current_project && !(*i).get_attribute(current_project)) 
+			continue;
+		bool add;
+		switch (match_type) {
+		case 'Y':	// anY match
+			add = false;
+			for (int j = 0; j < metric_max; j++)
+				if (op[j] && apply(op[j], (*i).metrics().get_metric(j), n[j])) {
+					add = true;
+					break;
+				}
+			add = (add || (ro && (*i).get_readonly()));
+			add = (add || (writable && !(*i).get_readonly()));
+			break;
+		case 'L':	// alL match
+			add = true;
+			for (int j = 0; j < metric_max; j++)
+				if (op[j] && !apply(op[j], (*i).metrics().get_metric(j), n[j])) {
+					add = false;
+					break;
+				}
+			add = (add && (!ro || (*i).get_readonly()));
+			add = (add && (!writable || !(*i).get_readonly()));
+			break;
+		}
+		if (add)
+			sorted_files.insert(*i);
+	}
+	fputs("<h2>Matching Files</h2>\n", of);
+	fprintf(of, "<ul>\n");
+	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+		Fileid f = *i;
+		if (current_project && !f.get_attribute(current_project)) 
+			continue;
+		fprintf(of, "\n<li>");
+		html_file(of, *i);
+	}
+	fprintf(of, "\n</ul>\n");
+	fputs("<p>You can bookmark this page to save the respective query<p>", of);
+	html_tail(of);
+}
+
 
 /*
  * Display the sorted identifiers, taking into account the reverse sort property
@@ -788,6 +933,7 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Macro+Writable+Identifiers\">Unused macro writable identifiers</a>\n", is_macro);
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Identifier query</a>\n"
+		"<li> <a href=\"fquery.html\">File query</a>\n"
 		"</ul>"
 		"<h2>Operations</h2>"
 		"<ul>\n"
@@ -977,7 +1123,7 @@ main(int argc, char *argv[])
 	while (t.get_code() != EOF);
 
 	// Pass 2: Create web pages
-	vector <Fileid> files = Fileid::sorted_files();
+	files = Fileid::sorted_files();
 
 	swill_handle("sproject.html", select_project_page, 0);
 	swill_handle("options.html", options_page, 0);
@@ -1053,8 +1199,12 @@ main(int argc, char *argv[])
 	swill_handle("usrc.html", unused_source_page, NULL);
 	swill_handle("file.html", file_page, NULL);
 
+	// Identifier query and execution
 	swill_handle("iquery.html", iquery_page, NULL);
 	swill_handle("xiquery.html", xiquery_page, NULL);
+	// File query and execution
+	swill_handle("fquery.html", fquery_page, NULL);
+	swill_handle("xfquery.html", xfquery_page, NULL);
 
 	swill_handle("id.html", identifier_page, NULL);
 	swill_handle("setproj.html", set_project_page, NULL);
