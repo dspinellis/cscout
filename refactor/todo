@@ -1,4 +1,4 @@
-$Id: todo,v 1.48 2004/07/24 10:44:23 dds Exp $
+$Id: todo,v 1.49 2004/07/24 17:03:10 dds Exp $
 
 Handle conditional compilation!!!!
 Each conditional compilation statement can be trivially handled by creating
@@ -20,27 +20,6 @@ type qualifier:
 	restrict
 
 Document function graph
-*** Trace function calls through macros
-	Four types of calls:
-	1. Macro calls macro
-		Function like macro-expansion while expanding a macro
-	2. Macro calls function
-		parse.y type.cpp call register_call(id->get_fcall())
-		Function call with the identifier token being part of a (function-like) macro boy
-	3. Function calls function
-		parse.y type.cpp call register_call(id->get_fcall())
-		Function call with the identifier token not part of a (function-like) macro body
-	4. Function calls macro
-		Function-like macro expanded while processing a function body
-	This scheme does not handle:
-		macros that expand to functions
-		functions containing function names that are object-like macros
-		macro names consisting of multiple parts
-	The current implementation does not handle
-		Macro calls?
-		Memory management of macro calls
-		Unification through seperate linking
-	We probably need to think hard about an eclass based implementation
 	Do not crash in undeclared function identifiers
 
 Function information

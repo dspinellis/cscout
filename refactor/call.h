@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.4 2004/07/24 10:44:23 dds Exp $
+ * $Id: call.h,v 1.5 2004/07/24 17:03:10 dds Exp $
  */
 
 #ifndef CALL_
@@ -12,8 +12,25 @@
 class FCall;
 
 /*
- * Generic call information
- * Can be macro or function.
+ * Generic call information of a called/calling entity.
+ * The calls be to/from macros or functions.
+ * We identify four types of calls:
+ * 1. Macro calls macro
+ *	Function like macro-expansion while expanding a macro
+ * 2. Macro calls function
+ *	parse.y type.cpp call register_call(id->get_fcall())
+ *	Function call with the identifier token being part of a
+ *	(function-like) macro boy
+ * 3. Function calls function
+ *	parse.y type.cpp call register_call(id->get_fcall())
+ *	Function call with the identifier token not part of a
+ *	(function-like) macro body
+ * 4. Function calls macro
+ *	Function-like macro expanded while processing a function body
+ * This scheme does not handle:
+ *	macros that expand to functions
+ *	functions containing function names that are object-like macros
+ *	macro names consisting of multiple parts
  */
 class Call {
 private:
