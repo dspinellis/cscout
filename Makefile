@@ -1,13 +1,29 @@
+#
+# $Id: Makefile,v 1.2 2004/06/06 08:26:54 dds Exp $
+#
+
 DESTDIR="c:/dds/pubs/web/home/cscout"
 VERSION=1.16
+NEUTRAL-ZIP=${DESTDIR}/cscout-${VERSION}-neutral.zip
 
-all: html fbsd-i386-tar linux-i386-tar win32-i386-tar fbsd-sparc64-tar fbsd-ia64-tar fbsd-amd64-tar fbsd-alpha-tar neutral-tar
+all: html fbsd-i386-tar linux-i386-tar win32-i386-tar fbsd-sparc64-tar \
+	fbsd-ia64-tar fbsd-amd64-tar fbsd-alpha-tar neutral-tar neutral-zip \
+	win32-i386-zip
 
 neutral-tar:
 	tar -cvf - -C /dds/pubs/web/home cscout/doc --exclude=RCS \
 	-C /dds/src/research cscout/README cscout/example \
 	cscout/etc cscout/include cscout/man | \
 	gzip -c >${DESTDIR}/cscout-${VERSION}-neutral.tar.gz
+
+neutral-zip:
+	rm -f ${NEUTRAL-ZIP}
+	cd /dds/pubs/web/home ; zip -r ${NEUTRAL-ZIP} cscout/doc
+	cd /dds/src/research ; zip -r ${NEUTRAL-ZIP} cscout/README \
+	cscout/example \
+	cscout/etc cscout/include cscout/man \
+	-x cscout/include/RCS/\* \
+	-x cscout/man/RCS/\*
 
 fbsd-i386-tar:
 	cmd /c attrib -r bin\fbsd-i386\cscout\bin\cswc
@@ -44,15 +60,20 @@ linux-i386-tar:
 	tar -cvf - -C bin/linux-i386 cscout/bin --mode=+x | \
 	gzip -c >${DESTDIR}/cscout-${VERSION}-linux-i386.tar.gz
 
-win32-i386-tar:
+cswc.bat:
 	echo "@REM=('" >bin/win32-i386/cscout/bin/cswc.bat
 	echo "@perl /usr/local/bin/%0.bat %1 %2 %3 %4 %5 %6 %7 %8 %9" >>bin/win32-i386/cscout/bin/cswc.bat
 	echo "@goto end ') if 0 ;" >>bin/win32-i386/cscout/bin/cswc.bat
 	cat refactor/prjcomp.pl >>bin/win32-i386/cscout/bin/cswc.bat
 	echo "@REM=('" >>bin/win32-i386/cscout/bin/cswc.bat
 	echo ":end ') if 0 ;" >>bin/win32-i386/cscout/bin/cswc.bat
+
+win32-i386-tar: cswc.bat
 	tar -cvf - -C bin/win32-i386 cscout/bin | \
 	gzip -c >${DESTDIR}/cscout-${VERSION}-win32-i386.tar.gz
+
+win32-i386-zip: cswc.bat
+	cd bin/win32-i386 ; zip -r ${DESTDIR}/cscout-${VERSION}-win32-i386.zip	cscout/bin
 
 fbsd-alpha-tar:
 	cmd /c attrib -r bin\fbsd-alpha\cscout\bin\cswc
