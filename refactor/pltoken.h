@@ -2,7 +2,7 @@
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A preprocessor lexical token.
- * The constructor for these tokens converts characters into tokens.
+ * The getnext() method for these tokens converts characters into tokens.
  *
  * Include synopsis:
  * #include <iostream>
@@ -22,7 +22,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.8 2001/08/20 17:54:13 dds Exp $
+ * $Id: pltoken.h,v 1.9 2001/08/20 18:00:41 dds Exp $
  */
 
 #ifndef PLTOKEN_
