@@ -4,7 +4,7 @@
  * Simple preprocessor.  
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.1 2001/08/20 21:03:56 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.2 2001/08/20 21:09:38 dds Exp $
  */
 
 #include <iostream>
@@ -14,6 +14,7 @@
 #include <stack>
 #include <iterator>
 #include <fstream>
+#include <list>
 #include <cassert>
 
 #include "cpp.h"
@@ -25,15 +26,16 @@
 #include "ytab.h"
 #include "error.h"
 #include "pltoken.h"
+#include "pdtoken.h"
 
 main(int argc, char *argv[])
 {
 	Fchar::set_input(argv[1]);
 
 	for (;;) {
-		Pltoken t;
+		Pdtoken t;
 
-		t.template getnext<Fchar>();
+		t.getnext();
 		if (t.get_code() == EOF)
 			break;
 		if (t.get_code() == STRING_LITERAL)
