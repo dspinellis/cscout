@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.46 2002/12/16 09:29:29 dds Exp $
+ * $Id: parse.y,v 1.47 2003/05/28 10:24:03 dds Exp $
  *
  */
 
@@ -1060,7 +1060,7 @@ jump_statement:
 
 /* Gcc __asm__  syntax */
 assembly_statement: 
-	GNUC_ASM '(' STRING_LITERAL ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt ')'
+	GNUC_ASM type_qualifier_list '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt ')'
 	;
 
 asm_operand_list_opt: 
@@ -1073,7 +1073,7 @@ asm_operand_list:
 	| asm_operand_list ',' asm_operand
 	;
 
-asm_operand: STRING_LITERAL '(' comma_expression ')'
+asm_operand: string_literal_list '(' comma_expression ')'
 	;
 
 asm_clobber_list_opt: 
