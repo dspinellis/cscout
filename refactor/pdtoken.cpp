@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.68 2002/12/16 11:47:26 dds Exp $
+ * $Id: pdtoken.cpp,v 1.69 2002/12/26 12:46:24 dds Exp $
  */
 
 #include <iostream>
@@ -163,7 +163,6 @@ eval_lex_real()
 	const char *num;
 	char *endptr;
 	Ptoken t;
-	int code;
 again:
 	if (eval_ptr == eval_tokens.end())
 		return 0;
@@ -415,7 +414,6 @@ static bool
 can_open(const string& s)
 {
 	ifstream in;
-	bool ret;
 	in.open(s.c_str());
 	if (!in.fail()) {
 		in.close();
@@ -441,7 +439,6 @@ Pdtoken::process_include(bool next)
 	Fchar::get_fileid().metrics().add_incfile();
 	// Get tokens till end of line
 	Pltoken::set_context(cpp_include);
-	bool start = true;
 	do {
 		t.template getnext<Fchar>();
 		tokens.push_back(t);
@@ -706,7 +703,7 @@ Pdtoken::process_pragma()
 			exit(1);
 		// Set main to read-only
 		Id const * id;
-		if (id = obj_lookup("main")) {
+		if ((id = obj_lookup("main"))) {
 			enum e_storage_class sc = id->get_type().get_storage_class();
 			if (sc != c_static && sc != c_typedef)
 				id->get_token().set_ec_attribute(is_readonly);
@@ -758,7 +755,6 @@ void
 Pdtoken::process_directive()
 {
 	Pltoken t;
-	bool if_val;
 
 	Fchar::get_fileid().metrics().add_ppdirective();
 	t.template getnext_nospc<Fchar>();

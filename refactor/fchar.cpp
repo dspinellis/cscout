@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.18 2002/10/03 10:39:05 dds Exp $
+ * $Id: fchar.cpp,v 1.19 2002/12/26 12:46:24 dds Exp $
  */
 
 #include <iostream>
@@ -32,7 +32,7 @@ Fileid Fchar::fi;
 stackFchar_context Fchar::cs;		// Pushed contexts (from push_input())
 stackFchar Fchar::ps;			// Putback Fchars (from putback())
 int Fchar::line_number;			// Current line number
-int Fchar::stack_lock_size;		// Locked elements in file stack
+stackFchar::size_type Fchar::stack_lock_size;	// Locked elements in file stack
 
 void 
 Fchar::set_input(const string& s)

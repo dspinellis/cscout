@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.21 2002/10/02 07:20:09 dds Exp $
+ * $Id: fileid.cpp,v 1.22 2002/12/26 12:46:24 dds Exp $
  */
 
 #include <map>
@@ -197,7 +197,7 @@ Fileid::sorted_files()
 {
 	vector <Fileid> r(i2d.size() - 1);
 
-	for (int i = 0; i < r.size(); i++)
+	for (vector <Fileid>::size_type i = 0; i < r.size(); i++)
 		r[i] = Fileid(i + 1);
 	sort(r.begin(), r.end(), fname_order());
 	return (r);

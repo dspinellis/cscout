@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.5 2002/12/25 20:08:24 dds Exp $
+ * $Id: cscout.cpp,v 1.6 2002/12/26 12:46:24 dds Exp $
  */
 
 #include <map>
@@ -62,7 +62,7 @@ public:
 	}
 	Identifier() {}
 	string get_id() const { return id; }
-	string set_newid(const string &s) { newid = s; replaced = true; }
+	void set_newid(const string &s) { newid = s; replaced = true; }
 	string get_newid() const { return newid; }
 	bool get_xfile() const { return xfile; }
 	bool get_replaced() const { return replaced; }
@@ -149,14 +149,14 @@ file_analyze(Fileid fi)
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
-		int val, len;
+		int val;
 
 		ti = Tokid(fi, in.tellg());
 		if ((val = in.get()) == EOF)
 			break;
 		Eclass *ec;
 		// Identifiers worth marking
-		if (ec = ti.check_ec()) {
+		if ((ec = ti.check_ec())) {
 			// Update metrics
 			msum.add_id(ec);
 			// Worth identifying?
@@ -202,14 +202,14 @@ file_hypertext(FILE *of, Fileid fi, bool show_unused)
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
-		int val, len;
+		int val;
 
 		ti = Tokid(fi, in.tellg());
 		if ((val = in.get()) == EOF)
 			break;
 		Eclass *ec;
 		// Identifiers worth marking
-		if (ec = ti.check_ec()) {
+		if ((ec = ti.check_ec())) {
 			// Worth marking?
 			if (ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
 			      ec->get_attribute(is_lscope) || 
@@ -244,7 +244,6 @@ static int
 file_replace(Fileid fid)
 {
 	string plain;
-	Tokid plainstart;
 	ifstream in;
 	ofstream out;
 
@@ -264,7 +263,7 @@ file_replace(Fileid fid)
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
-		int val, len;
+		int val;
 
 		ti = Tokid(fid, in.tellg());
 		if ((val = in.get()) == EOF)
@@ -310,7 +309,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.5 2002/12/25 20:08:24 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.6 2002/12/26 12:46:24 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -432,7 +431,7 @@ identifier_page(FILE *fo, void *p)
 	}
 	char *subst;
 	Identifier &id = ids[e];
-	if (subst = swill_getvar("sname")) {
+	if ((subst = swill_getvar("sname"))) {
 		// Passing subst directly core-dumps under
 		// gcc version 2.95.4 20020320 [FreeBSD 4.7]
 		string ssubst(subst);
@@ -452,7 +451,7 @@ identifier_page(FILE *fo, void *p)
 	fprintf(fo, "<li> Project scope: %s\n", e->get_attribute(is_lscope) ? "Yes" : "No");
 	fprintf(fo, "<li> Unused: %s\n", e->get_size() == 1 ? "Yes" : "No");
 	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
-	for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
 			fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(fo, "</ul>\n");
@@ -632,7 +631,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "\n<li> Number of C statements: %d", i.metrics().get_nstatement());
 	fprintf(of, "\n<li> Number of C strings: %d", i.metrics().get_nstring());
 	fprintf(of, "\n<li> Used in project(s): \n<ul>");
-	for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(of, "</ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
@@ -708,6 +707,7 @@ quit_page(FILE *of, void *p)
 	must_exit = true;
 }
 
+int
 main(int argc, char *argv[])
 {
 	Pdtoken t;

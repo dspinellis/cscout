@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.9 2002/10/03 11:36:25 dds Exp $
+ * $Id: fchar.h,v 1.10 2002/12/26 12:46:24 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -43,7 +43,7 @@ private:
 	static int line_number;		// Current line number
 	static stackFchar_context cs;	// Pushed contexts (from push_input())
 	static stackFchar ps;		// Putback stack
-	static int stack_lock_size;	// So many elements can not be removed
+	static stackFchar::size_type stack_lock_size;	// So many elements can not be removed
 					// from the push_input stack
 
 	int val;

@@ -4,7 +4,7 @@
  * Debugpoints can be set for selectively enabling debugging output
  * The debugpoint() macro should be used to efficiently disable debugging output
  *
- * $Id: debug.h,v 1.3 2002/09/07 09:47:15 dds Exp $
+ * $Id: debug.h,v 1.4 2002/12/26 12:46:24 dds Exp $
  */
 
 #ifndef DEBUG_
@@ -19,7 +19,7 @@ private:
 	static set<Debug> dp;		// Enabled debug points
 	static bool enabled;		// Global enable variable
 public:
-	Debug(const string f, int l) : line(l), fname(f) {};
+	Debug(const string f, int l) : fname(f), line(l) {};
 
 	static inline bool is_db_set(const string fname, int line);
 	static void db_set(string fname, int line);

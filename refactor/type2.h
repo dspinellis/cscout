@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.9 2002/09/13 12:37:27 dds Exp $
+ * $Id: type2.h,v 1.10 2002/12/26 12:46:24 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -17,6 +17,7 @@ private:
 	Type of;
 public:
 	Tarray(Type t) : of(t) {}
+	virtual ~Tarray() {}
 	Type clone() const { return Type(new Tarray(of.clone())); }
 	Type deref() const { return of; }
 	Type subscript() const { return of; }
@@ -33,6 +34,7 @@ private:
 	Type to;
 public:
 	Tpointer(Type t) : to(t) {}
+	virtual ~Tpointer() {}
 	Type clone() const { return Type(new Tpointer(to.clone())); }
 	Type deref() const { return to; }
 	Type subscript() const { return to; }
@@ -50,6 +52,7 @@ private:
 	Type returning;
 public:
 	Tfunction(Type t) : returning(t) {}
+	virtual ~Tfunction() {}
 	Type clone() const { return Type(new Tfunction(returning.clone())); }
 	Type call() const { return returning; }
 	void print(ostream &o) const;
@@ -88,6 +91,7 @@ public:
 	Tsu(const Type &spec) { default_specifier = spec; }
 	Tsu(const Stab& m, const Type& ds, const Tstorage& sc) :
 		members(m), default_specifier(ds), sclass(sc) {}
+	virtual ~Tsu() {}
 	bool is_su() const { return true; }
 	Type clone() const { return Type(new Tsu(members, default_specifier, sclass)); }
 	void add_member(const Token &tok, const Type &typ) { 
@@ -113,6 +117,7 @@ private:
 	int scope_level;		// Level to lookup for complete definitions
 public:
 	Tincomplete(const Ctoken& tok, int l) : t(tok), scope_level(l) {}
+	virtual ~Tincomplete() {}
 	Type clone() const { return Type(new Tincomplete(*this)); }
 	Id const* member(const string& s) const;
 	void print(ostream &o) const;
@@ -132,6 +137,7 @@ private:
 public:
 	Tidentifier(const Ctoken& tok) : t(tok), of(basic()) {}
 	Tidentifier(const Ctoken& tok, Type typ) : t(tok), of(typ) {}
+	virtual ~Tidentifier() {}
 	Type clone() const { return Type(new Tidentifier(t, of.clone())); }
 	const Ctoken& get_token() const { return t; }
 	const string& get_name() const { return t.get_name(); }

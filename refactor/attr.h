@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.5 2002/12/15 17:40:01 dds Exp $
+ * $Id: attr.h,v 1.6 2002/12/26 12:46:24 dds Exp $
  */
 
 #ifndef ATTR_
@@ -31,8 +31,10 @@ enum e_attribute {
 };
 
 class Attributes {
+public:
+	typedef vector<bool>::size_type size_type;
 private:
-	static int size;		// Size of the vector for all objects
+	static size_type size;		// Size of the vector for all objects
 	vector <bool> attr;		// Attributes and projects
 					// Hopefully specialized to 1 bit/val
 	void fix_size() { if (attr.size() < size) attr.resize(size, false); }
@@ -40,7 +42,7 @@ public:
 	// Add another attribute (typically project)
 	static void add_attribute() { size++; }
 	// Return the number of active attributes
-	static int get_num_attributes() { return size; }
+	static size_type get_num_attributes() { return size; }
 	Attributes() : attr(size, false) {}
 	void set_attribute(int v) { fix_size(); attr[v] = true; }
 	void set_attribute_val(int v, bool n) { fix_size(); attr[v] = n; }
@@ -49,7 +51,7 @@ public:
 	void merge_with(Attributes &b) {
 		this->fix_size();
 		b.fix_size();
-		for (int i = 0; i < size; i++)
+		for (size_type i = 0; i < size; i++)
 			this->attr[i] = (b.attr[i] || this->attr[i]);
 	}
 };

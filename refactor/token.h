@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.8 2002/09/11 11:32:15 dds Exp $
+ * $Id: token.h,v 1.9 2002/12/26 12:46:24 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -21,7 +21,7 @@ private:
 	int len;		// Its length
 public:
 	Tpart() {};
-	Tpart(Tokid t, int l): len(l), ti(t) {};
+	Tpart(Tokid t, int l): ti(t), len(l) {};
 	Tokid get_tokid() const { return ti; }
 	int get_len() const { return len; }
 	friend ostream& operator<<(ostream& o, const Tpart &t);

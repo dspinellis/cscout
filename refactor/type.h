@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.20 2002/09/13 12:37:27 dds Exp $
+ * $Id: type.h,v 1.21 2002/12/26 12:46:24 dds Exp $
  */
 
 #ifndef TYPE_
@@ -141,7 +141,7 @@ public:
 	friend Type identifier(const Ctoken& c);
 	friend Type incomplete(const Ctoken& c, int l);
 	// To print
-	friend ostream& operator<<(ostream& o,const Type &t) { t.p->print(o); }
+	friend ostream& operator<<(ostream& o,const Type &t) { t.p->print(o); return o; }
 
 	// Add the declaration of an identifier to the symbol table
 	void declare();

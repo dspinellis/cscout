@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "tchar.h"
  *
- * $Id: tchar.h,v 1.4 2002/10/03 11:36:25 dds Exp $
+ * $Id: tchar.h,v 1.5 2002/12/26 12:46:24 dds Exp $
  */
 
 #ifndef TCHAR_
@@ -43,7 +43,7 @@ private:
 	// Index to character of token part to use for getnext
 	static int part_idx;
 	// Index to character from token val to use for getnext
-	static int val_idx;
+	static string::size_type val_idx;
 
 	int val;
 	Tokid ti;			// (pos_type from tellg(), fi)

@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.24 2002/11/09 16:58:00 dds Exp $
+# $Id: Makefile,v 1.25 2002/12/26 12:46:24 dds Exp $
 #
 
 # Common object files
@@ -18,7 +18,7 @@ TCLOBJ=tclfuns.o
 YACC=btyacc
 #YACC=yacc
 CC=g++
-CPPFLAGS=-pipe -g
+CPPFLAGS=-pipe -g -Wall
 #CPPFLAGS=-pipe -O2
 TINCLUDE=/opt/ajuba/TclPro1.4/include
 
@@ -44,6 +44,9 @@ workdb: workdb.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o workdb $(STANDOBJ) $(OBJ) workdb.o
 
 ceescape: ceescape.o $(STANDOBJ) $(OBJ)
+	$(CC) $(CPPFLAGS) -o ceescape $(STANDOBJ) $(OBJ) ceescape.o -L. -lswill
+
+ceescape.exe: ceescape.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o ceescape $(STANDOBJ) $(OBJ) ceescape.o -L. -lswill -lws2_32
 
 webmap: webmap.o $(STANDOBJ) $(OBJ)

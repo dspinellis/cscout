@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.17 2002/09/28 13:19:03 dds Exp $
+ * $Id: stab.cpp,v 1.18 2002/12/26 12:46:24 dds Exp $
  */
 
 #include <map>
@@ -121,7 +121,7 @@ obj_define(const Token& tok, Type typ)
 	if (Block::use_param) {
 		// Old-style function definition declarations
 		// No checking
-		if (id = Block::param_block.obj.lookup(tok.get_name()))
+		if ((id = Block::param_block.obj.lookup(tok.get_name())))
 			unify(id->get_token(), tok);
 		else
 			Error::error(E_ERR, "declared parameter does not appear in old-style function parameter list: " + tok.get_name());
@@ -145,7 +145,7 @@ obj_define(const Token& tok, Type typ)
 		// ANSI 3.1.2.2 p. 22
 		if (sc == c_static) {
 			tok.set_ec_attribute(is_cscope);
-			if (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name())) {
+			if ((id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
 				if (id->get_type().get_storage_class() == c_unspecified)
 					Error::error(E_ERR, "conflicting declarations for identifier " + id->get_name());
 				unify(id->get_token(), tok);
@@ -169,7 +169,7 @@ obj_define(const Token& tok, Type typ)
 	// definitions.  These are not searched, but are used for unification
 	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
 		Id const * id;
-		if (id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name()))
+		if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())))
 			unify(id->get_token(), tok);
 		else
 			Block::scope_block[Block::lu_block].obj.define(tok, typ);
@@ -208,7 +208,7 @@ Block::lookup(const Stab Block::*table, const string& name)
 	Id const * id;
 
 	for (i = current_block; i != lu_block; i--)
-		if (id = (scope_block[i].*table).lookup(name))
+		if ((id = (scope_block[i].*table).lookup(name)))
 			return id;
 	return NULL;
 }

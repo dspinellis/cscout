@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.10 2002/09/17 10:53:02 dds Exp $
+ * $Id: tchar.cpp,v 1.11 2002/12/26 12:46:24 dds Exp $
  */
 
 #include <iostream>
@@ -32,7 +32,7 @@ dequePtoken Tchar::iq;		// Input queue
 dequePtoken::const_iterator Tchar::qi;
 dequeTpart::const_iterator Tchar::pi;
 int Tchar::part_idx;
-int Tchar::val_idx;
+string::size_type Tchar::val_idx;
 
 void
 Tchar::putback(Tchar c)
