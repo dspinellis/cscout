@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.4 2002/12/25 18:49:43 dds Exp $
+ * $Id: cscout.cpp,v 1.5 2002/12/25 20:08:24 dds Exp $
  */
 
 #include <map>
@@ -310,7 +310,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.4 2002/12/25 18:49:43 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.5 2002/12/25 20:08:24 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -432,8 +432,12 @@ identifier_page(FILE *fo, void *p)
 	}
 	char *subst;
 	Identifier &id = ids[e];
-	if (subst = swill_getvar("sname"))
-		id.set_newid(subst);
+	if (subst = swill_getvar("sname")) {
+		// Passing subst directly core-dumps under
+		// gcc version 2.95.4 20020320 [FreeBSD 4.7]
+		string ssubst(subst);
+		id.set_newid(ssubst);
+	}
 	html_head(fo, "id", string("Identifier: ") + html(id.get_id()));
 	fprintf(fo, "<FORM ACTION=\"id.html\" METHOD=\"GET\">\n<ul>\n");
 	fprintf(fo, "<li> Read-only: %s\n", e->get_attribute(is_readonly) ? "Yes" : "No");
