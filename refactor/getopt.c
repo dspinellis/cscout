@@ -18,7 +18,7 @@
  * minor changes by D. Spinellis
  * posted to Usenet net.sources list
  *
- * $Id: getopt.c,v 1.2 2003/07/07 23:18:17 dds Exp $
+ * $Id: getopt.c,v 1.3 2004/07/24 07:26:53 dds Exp $
  */
 
 #ifndef unix
@@ -42,14 +42,14 @@ getopt(int argc, char * const argv[], const char *optstring)
 	if (scan == NULL || *scan == '\0') {
 		if (optind == 0)
 			optind++;
-	
+
 		if (optind >= argc || argv[optind][0] != '-' || argv[optind][1] == '\0')
 			return(EOF);
 		if (strcmp(argv[optind], "--")==0) {
 			optind++;
 			return(EOF);
 		}
-	
+
 		scan = argv[optind]+1;
 		optind++;
 	}
@@ -58,7 +58,7 @@ getopt(int argc, char * const argv[], const char *optstring)
 	place = strchr(optstring, c);
 
 	if (place == NULL || c == ':') {
-		fprintf(stderr, "%Fs: unknown option -%c\n", argv[0], c);
+		fprintf(stderr, "%s: unknown option -%c\n", argv[0], c);
 		return('?');
 	}
 
