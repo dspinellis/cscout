@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.13 2001/08/24 17:00:06 dds Exp $
+ * $Id: pdtoken.cpp,v 1.14 2001/08/24 20:21:52 dds Exp $
  */
 
 #include <iostream>
@@ -89,6 +89,20 @@ Pdtoken::eat_to_eol()
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 }
 
+/*
+ * Algorithm for processing #if* #else #elif #endif sequences:
+ * Each #if is evaluated and the result is pushed on the iftaken stack.
+ * If false skip to next matching control.
+ * At #elif check iftaken.top(): if true, skip to next matching control,
+ * if false, work like an if.
+ * At #else check iftaken.top(): if true, skip to next matching control,
+ * if false continue processing input.
+ * At #endif execute iftaken.pop()
+ *
+ * Skipping is performed by setting level=0 and looking for a 
+ * #e* when level == 0.
+ * While skipping each #if* results in level++, each #endif in level--.
+ */
 void
 Pdtoken::process_if(enum e_if_type)
 {
@@ -244,6 +258,12 @@ Pdtoken::process_directive()
 }
 
 
+/*
+ * Return a macro argument token from tokens position pos.
+ * Used by gather_args.
+ * If get_more is true when tokens is exhausted read using pltoken::getnext
+ * If want_space is true return spaces, otherwise discard them
+ */
 static Ptoken
 arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool want_space)
 {
@@ -367,7 +387,11 @@ stringize(const listPtoken& ts)
 			break;
 		case STRING_LITERAL:
 			seen_space = false;
-			res += '"' + escape((*pi).get_val()) + '"';
+			res += "\\\"" + escape((*pi).get_val()) + "\\\"";
+			break;
+		case CHAR_LITERAL:
+			seen_space = false;
+			res += '\'' + escape((*pi).get_val()) + '\'';
 			break;
 		default:
 			seen_space = false;
@@ -382,12 +406,13 @@ stringize(const listPtoken& ts)
  * Check for macro at token position pos and possibly expand it  
  * If a macro is expanded, pos is invalidated and replaced with the replacement 
  * macro value.
- * Macros that are members of the tabu set are not expanded.
+ * Macros that are members of the tabu set are not expanded to avoid
+ * infinite recursion.
  * If get_more is true, more data can be retrieved from Pltoken::get_next
  * Return true if a  replacemement was made
  */
 bool
-macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, bool get_more)
+macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more)
 {
 	mapMacro::const_iterator mi;
 	const string& name = (*pos).get_val();
@@ -407,7 +432,8 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 		bool do_stringize;
 
 		expand_start = pos;
-		gather_args(name, tokens, pos, m.formal_args, args, get_more);
+		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more))
+			return (false);
 		tokens.erase(expand_start, pos);
 		dequePtoken::const_iterator i;
 		// Substitute with macro's replacement value

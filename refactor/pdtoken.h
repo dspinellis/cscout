@@ -5,27 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * Include synopsis:
- * #include <iostream>
- * #include <map>
- * #include <string>
- * #include <deque>
- * #include <stack>
- * #include <iterator>
- * #include <list>
- * #include <cassert>
- * 
- * #include "cpp.h"
- * #include "fileid.h"
- * #include "tokid.h"
- * #include "token.h"
- * #include "error.h"
- * #include "ptoken.h"
- * #include "fchar.h"
- * #include "ytab.h"
- * #include "pltoken.h"
- *
- * $Id: pdtoken.h,v 1.7 2001/08/24 17:00:06 dds Exp $
+ * $Id: pdtoken.h,v 1.8 2001/08/24 20:21:52 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -79,9 +59,10 @@ public:
 	void getnext();
 	// Clear the defined macro table (when changing compilation unit)
 	static void clear_macros() { macros.clear(); }
-	friend bool macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, bool get_more);
+	friend bool macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more);
 };
 
+// True if two macro definitions are the same
 inline bool
 operator ==(const Macro& a, const Macro& b)
 {
