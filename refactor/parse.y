@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.6 2001/09/10 12:17:32 dds Exp $
+ * $Id: parse.y,v 1.7 2001/09/10 13:48:54 dds Exp $
  *
  */
 
@@ -88,7 +88,10 @@
 #include "stab.h"
 #include "type.h"
 
-void yyerror(char *s) {}
+void yyerror(char *s)
+{
+	Error::error(E_ERR, "syntax error");
+}
 
 
 %}
@@ -198,7 +201,7 @@ primary_expression:
 					unify(id->get_token(), *$1);
 					$$ = id->get_type();
 				} else {
-					Error::error(E_ERR, "Undeclared identifier: " + $1->get_name());
+					Error::error(E_WARN, "undeclared identifier: " + $1->get_name());
 					$$ = new Tbasic(b_undeclared);
 				}
 				delete $1;

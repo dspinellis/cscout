@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.4 2001/09/10 12:17:32 dds Exp $
+ * $Id: ctoken.cpp,v 1.5 2001/09/10 13:48:54 dds Exp $
  */
 
 #include <map>
@@ -130,6 +130,7 @@ parse_lex_real()
 		Pdtoken t;
 		t.getnext();
 		switch (c = t.get_code()) {
+		case '\n':
 		case SPACE:
 			continue;
 		case EOF:
@@ -143,6 +144,7 @@ parse_lex_real()
 			// XXX Could also be invalid, or FLOAT_CONST
 			return (INT_CONST);
 		case IDENTIFIER:
+			if (DP()) cout << "id: [" << t.get_val() << "]\n";
 			ik = keymap.find(t.get_val());
 			if (ik != keymap.end())
 				return (*ik).second;	// Keyword

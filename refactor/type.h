@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.3 2001/09/10 12:17:32 dds Exp $
+ * $Id: type.h,v 1.4 2001/09/10 13:48:54 dds Exp $
  */
 
 #ifndef TYPE_
@@ -74,6 +74,14 @@ public:
 	~Tfun() { delete returning; };
 	Type *call() const { return returning; };
 };
+
+// Implicit declaration of function(...) returning int
+// This is the default for all undeclared identifiers
+class Timplicit: public Type {
+public:
+	Type *call() const { new Tbasic(b_int); };
+};
+
 
 // Typedef for ...
 class Ttypedef: public Type {
