@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.6 2001/08/20 21:12:04 dds Exp $
+ * $Id: fchar.h,v 1.7 2002/09/04 10:50:05 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -43,6 +43,8 @@ private:
 	static int line_number;		// Current line number
 	static stackFchar_context cs;	// Pushed contexts (from push_input())
 	static stackFchar ps;		// Putback stack
+	static int stack_lock_size;	// So many elements can not be removed
+					// from the push_input stack
 
 	int val;
 	Tokid ti;			// (pos_type from tellg(), fi)
@@ -54,6 +56,13 @@ public:
 	static void push_input(const string& s);
 	// Next constructor will return c
 	static void putback(Fchar c);
+	/*
+	 * Lock current context into the file stack, so it can not
+	 * be popped by getnext until unlock is called.
+	 * Call it after a push_input operation
+	 */
+	static void lock_stack() { stack_lock_size = cs.size(); }
+	static void unlock_stack() { stack_lock_size = 0; }
 
 	// Construct an unititialized one
 	Fchar() {};
