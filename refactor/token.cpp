@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.14 2002/09/17 10:53:02 dds Exp $
+ * $Id: token.cpp,v 1.15 2003/06/01 08:56:40 dds Exp $
  */
 
 #include <iostream>
@@ -17,8 +17,8 @@
 #include <list>
 
 #include "cpp.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"

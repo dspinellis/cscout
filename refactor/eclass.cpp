@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.22 2003/04/07 13:47:03 dds Exp $
+ * $Id: eclass.cpp,v 1.23 2003/06/01 08:52:05 dds Exp $
  */
 
 #include <iostream>
@@ -18,8 +18,8 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"
