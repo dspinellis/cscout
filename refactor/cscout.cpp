@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.13 2003/05/24 07:20:50 dds Exp $
+ * $Id: cscout.cpp,v 1.14 2003/05/24 07:28:56 dds Exp $
  */
 
 #include <map>
@@ -230,7 +230,6 @@ file_hypertext(FILE *of, Fileid fi, bool show_unused)
 					s += (char)in.get();
 				Identifier i(ec, s);
 				const IdProp::value_type ip(ec, i);
-				ids[ec] = i;
 				if (show_unused) {
 					if (ec->get_size() == 1)
 						html_id(of, ip);
@@ -317,7 +316,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.13 2003/05/24 07:20:50 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.14 2003/05/24 07:28:56 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
