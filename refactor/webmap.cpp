@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.3 2002/09/04 15:00:22 dds Exp $
+ * $Id: webmap.cpp,v 1.4 2002/09/04 16:54:36 dds Exp $
  */
 
 #include <map>
@@ -40,8 +40,25 @@
 #include "type.h"
 #include "stab.h"
 
-typedef deque<string> deque_string;
+// Our identifiers to store as a set
+class Identifier {
+	Eclass *ec;		// Equivalence class it belongs to
+	string id;		// Identifier name
+public:
+	Identifier(Eclass *e, const string &s) : ec(e), id(s) {}
+	string get_id() const { return id; }
+	Eclass *get_ec() const { return ec; }
+	// To create nicely ordered sets
+	inline bool operator <(const Identifier b) const {
+		int r = this->id.compare(b.id);
+		if (r == 0)
+			return ((unsigned)this->ec < (unsigned)b.ec);
+		else
+			return (r);
+	}
+};
 
+static set <Identifier> ids;
 
 // Return HTML equivalent of character c
 static char *
@@ -72,6 +89,13 @@ html(string s)
 	return r;
 }
 
+// Display an identifier hyperlink
+static void
+html_id(ofstream &of, const Identifier &i)
+{
+	of << "<a href=\"i" << (unsigned)i.get_ec() << ".html\">" << i.get_id() << "</a>";
+}
+
 // Display the contents of a file in hypertext form
 static void
 file_hypertext(ofstream &of, string fname)
@@ -97,16 +121,12 @@ file_hypertext(ofstream &of, string fname)
 		if ((ec = ti.check_ec()) && ec->get_size() > 1) {
 			string s;
 			s = (char)val;
-			char c;
-			of << "<a href=\"i" << (unsigned)ec << "\">";
 			int len = ec->get_len();
-			of << (char)val;
-			for (int j = 1; j < len; j++) {
-				of << html(c = (char)in.get());
-				s += c;
-			}
-			ec->set_identifier(s);
-			of << "</a>";
+			for (int j = 1; j < len; j++)
+				s += (char)in.get();
+			Identifier i(ec, s);
+			ids.insert(i);
+			html_id(of, i);
 			continue;
 		}
 		of << html((char)val);
@@ -126,7 +146,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.3 2002/09/04 15:00:22 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.4 2002/09/04 16:54:36 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -184,6 +204,7 @@ main(int argc, char *argv[])
 		"<li> <a href=\"afiles.html\">All files</a>\n"
 		"<li> <a href=\"rofiles.html\">Read-only files</a>\n"
 		"<li> <a href=\"wfiles.html\">Writable files</a>\n"
+		"<li> <a href=\"aids.html\">All identifiers</a>\n"
 		"</ul>";
 	html_tail(fo);
 
@@ -242,6 +263,17 @@ main(int argc, char *argv[])
 		file_hypertext(fo, *i);
 		html_tail(fo);
 	}
+
+	// All identifiers
+	html_head(fo, "aids", "All Identifiers");
+	fo << "<ul>";
+	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+		fo << "\n<li>";
+		html_id(fo, *i);
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
 
 
 	return (0);
