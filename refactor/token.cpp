@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.7 2001/09/01 07:15:28 dds Exp $
+ * $Id: token.cpp,v 1.8 2001/09/03 08:33:47 dds Exp $
  */
 
 #include <iostream>
@@ -20,6 +20,8 @@
 #include "eclass.h"
 #include "token.h"
 #include "ytab.h"
+#include "debug.h"
+#include "error.h"
 
 // Display a token part
 ostream& 
@@ -67,11 +69,11 @@ homogenize(const dequeTpart &a, const dequeTpart &b)
 	Eclass *be = (*bi).get_tokid().get_ec();
 	int alen, blen;
 
-	// cout << "Homogenize a:" << a << " b: " << b << "\n";
+	if (DP()) cout << "Homogenize a:" << a << " b: " << b << "\n";
 	while (ai != a.end() && bi != b.end()) {
 		alen = ae->get_len();
 		blen = be->get_len();
-		// cout << "alen=" << alen << " blen=" << blen << "\n";
+		if (DP()) cout << "alen=" << alen << " blen=" << blen << "\n";
 		if (blen < alen) {
 			ae = ae->split(blen - 1);
 			bi++;
@@ -96,22 +98,22 @@ homogenize(const dequeTpart &a, const dequeTpart &b)
 void
 unify(const Token &a, const Token &b)
 {
-	// cout << "Unify " << a << " and " << b << "\n";
+	if (DP()) cout << "Unify " << a << " and " << b << "\n";
 	// Get the constituent Tokids; they may have grown more than the parts
 	dequeTpart ac = a.constituents();
 	dequeTpart bc = b.constituents();
 	// Make the constituents of same length
-	// cout << "Before homogenization: " << "\n" << "a=" << a << "\n" << "b=" << b << "\n";
+	if (DP()) cout << "Before homogenization: " << "\n" << "a=" << a << "\n" << "b=" << b << "\n";
 	homogenize(ac, bc);
 	// Get the constituents again; homogenizing may have changed them
 	ac = a.constituents();
 	bc = b.constituents();
-	// cout << "After homogenization: " << "\n" << "a=" << ac << "\n" << "b=" << bc << "\n";
+	if (DP()) cout << "After homogenization: " << "\n" << "a=" << ac << "\n" << "b=" << bc << "\n";
 	// Now merge the corresponding ECs
 	dequeTpart::const_iterator ai, bi;
 	for (ai = ac.begin(), bi = bc.begin(); ai != ac.end(); ai++, bi++)
 		merge((*ai).get_tokid().get_ec(), (*bi).get_tokid().get_ec());
-	assert(bi == bc.end());
+	ASSERT(bi == bc.end());
 }
 
 ostream&

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.1 2001/08/20 15:32:58 dds Exp $
+ * $Id: error.cpp,v 1.2 2001/09/03 08:33:47 dds Exp $
  */
 
 #include <iostream>
@@ -38,7 +38,7 @@ Error::error(enum e_error_level level, string msg)
 	switch (level) {
 	case E_WARN: num_warnings++; break;
 	case E_ERR: num_errors++; break;
-	case E_INTERNAL:
+	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
 	case E_FATAL: exit(1);
 	}
 }
