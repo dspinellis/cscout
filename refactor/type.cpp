@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.14 2001/09/22 15:25:27 dds Exp $
+ * $Id: type.cpp,v 1.15 2001/09/22 16:56:02 dds Exp $
  */
 
 #include <iostream>
@@ -155,6 +155,19 @@ Type_node::member(const string& s) const
 	return NULL;
 }
 
+const Id *
+Tincomplete::member(const string& s) const
+{
+	const Id *id = tag_lookup(scope_level, t.get_name());
+	if (!id) {
+		Error::error(E_ERR, "member access in incomplete struct/union");
+		if (DP())
+			this->print(cerr);
+		return NULL;
+	} else
+		return id->get_type().member(s);
+}
+
 Type
 basic(enum e_btype t = b_abstract, enum e_sign s = s_none, enum e_storage_class sc = c_unspecified)
 {
@@ -204,6 +217,12 @@ identifier(const Ctoken& t)
 }
 
 Type
+incomplete(const Ctoken& t, int l)
+{
+	return Type(new Tincomplete(t, l));
+}
+
+Type
 label()
 {
 	return Type(new Tlabel());
@@ -216,9 +235,9 @@ Type_node::print(ostream &o) const
 }
 
 void
-Tbasic::print(ostream &o) const
+Tstorage::print(ostream &o) const
 {
-	switch (sclass.get_storage_class()) {
+	switch (sclass) {
 	case c_unspecified: break;
 	case c_typedef: o << "typedef "; break;
 	case c_extern: o << "extern "; break;
@@ -226,6 +245,13 @@ Tbasic::print(ostream &o) const
 	case c_auto: o << "auto "; break;
 	case c_register: o << "register "; break;
 	}
+}
+
+void
+Tbasic::print(ostream &o) const
+{
+
+	sclass.print(o);
 
 	switch (sign) {
 	case s_none: break;
@@ -275,12 +301,24 @@ Tlabel::print(ostream &o) const
 void
 Tsu::print(ostream &o) const
 {
+	sclass.print(o);
+
 	o << "struct/union " << members;
+}
+
+void
+Tincomplete::print(ostream &o) const
+{
+	sclass.print(o);
+
+	o << "struct/union " << t.get_name() << "(incomplete) ";
 }
 
 void
 Tenum::print(ostream &o) const
 {
+	sclass.print(o);
+
 	o << "enum ";
 }
 

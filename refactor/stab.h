@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.7 2001/09/22 11:46:18 dds Exp $
+ * $Id: stab.h,v 1.8 2001/09/22 16:56:02 dds Exp $
  */
 
 #ifndef STAB_
@@ -77,6 +77,7 @@ private:
 	static void define(Stab Block::*table, const Token& tok, const Type& t);
 	static Id const * lookup(const Stab Block::*table, const string& name);
 public:
+	static int get_scope_level() { return current_block; }
 	static const int lu_block = 0;	// Linkage unit definitions: 0
 	static const int cu_block = 1;	// Compilation unit definitions: 1
 	static void enter();
@@ -128,6 +129,8 @@ public:
 	friend void obj_define(const Token& tok, Type t);
 	inline friend Id const * tag_lookup(const string& name);
 	friend void tag_define(const Token& tok, const Type& t);
+	friend void fix_incomplete(const Token& tok, const Type& t);
+	inline friend Id const * tag_lookup(int block_level, const string& name);
 };
 
 inline Id const *
@@ -142,4 +145,9 @@ tag_lookup(const string& name)
 	return Block::lookup(&(Block::tag), name);
 }
 
+inline Id const * tag_lookup(int block_level, const string& name)
+{
+	assert(Block::current_block >= block_level);
+	return Block::scope_block[block_level].tag.lookup(name);
+}
 #endif // STAB_

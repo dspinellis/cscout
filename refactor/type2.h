@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.4 2001/09/22 12:56:44 dds Exp $
+ * $Id: type2.h,v 1.5 2001/09/22 16:56:02 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -93,6 +93,24 @@ public:
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 };
+//
+// Incomplete structure or union reference
+class Tincomplete: public Type_node {
+private:
+	Ctoken t;
+	Tstorage sclass;
+	int scope_level;		// Level to lookup for complete definitions
+public:
+	Tincomplete(const Ctoken& tok, int l) : t(tok), scope_level(l) {}
+	Type clone() const { return Type(new Tincomplete(*this)); }
+	Id const* member(const string& s) const;
+	void print(ostream &o) const;
+	const Ctoken& get_token() const { return t; }
+	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
+	void set_storage_class(Type t) { sclass.set_storage_class(t); };
+	bool is_incomplete() const { return true; }
+};
+
 
 // Identifier; not really a type, it is returned by the lexical analyser
 // It is also the type used to represent undeclared identifiers

@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.15 2001/09/22 07:59:48 dds Exp $
+ * $Id: type.h,v 1.16 2001/09/22 16:56:02 dds Exp $
  */
 
 #ifndef TYPE_
@@ -57,6 +57,7 @@ protected:
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
 	virtual bool is_abstract() const { return false; }	// True for abstract types
+	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual const string& get_name() const;	// True for identifiers
 	virtual const Ctoken& get_token() const;// True for identifiers
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
@@ -84,6 +85,7 @@ public:
 	Tstorage() { sclass = c_unspecified; }
 	enum e_storage_class get_storage_class() const {return sclass; }
 	void set_storage_class(Type t);
+	void print(ostream &o) const;
 };
 
 
@@ -131,6 +133,7 @@ public:
 	friend Type struct_union(const Type &spec);
 	friend Type label();
 	friend Type identifier(const Ctoken& c);
+	friend Type incomplete(const Ctoken& c, int l);
 	// To print
 	friend ostream& operator<<(ostream& o,const Type &t) { t.p->print(o); }
 
@@ -155,6 +158,7 @@ public:
 	bool is_valid() const		{ return p->is_valid(); }
 	bool is_basic() const		{ return p->is_basic(); }
 	bool is_abstract() const	{ return p->is_abstract(); }
+	bool is_incomplete() const	{ return p->is_incomplete(); }
 	const string& get_name() const	{ return p->get_name(); }
 	const Ctoken& get_token() const { return p->get_token(); }
 	enum e_storage_class get_storage_class() const 

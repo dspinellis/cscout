@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.26 2001/09/22 15:01:40 dds Exp $
+ * $Id: parse.y,v 1.27 2001/09/22 16:56:02 dds Exp $
  *
  */
 
@@ -677,7 +677,7 @@ aggregate_name:
 				if (DP())
 					cout << "lookup returns " << $$ << "\n";
 			} else
-				$$ = basic(b_undeclared);
+				$$ = incomplete($2.get_token(), Block::get_scope_level());
 		}
         ;
 
