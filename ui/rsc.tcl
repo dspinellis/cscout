@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.3 2001/09/25 09:26:51 dds Exp $
+# $Id: rsc.tcl,v 1.4 2001/09/25 11:13:21 dds Exp $
 #
 
 package require Iwidgets 3.0
@@ -99,36 +99,62 @@ $m add command -label "About"
 iwidgets::toolbar .tb -helpvariable statusVar -orient horizontal
 pack .tb -side top -anchor nw
 
-set imagedir [file join ${iwidgets::library} demos images]
+#set imagedir [file join ${iwidgets::library} demos images]
+set imagedir "."
 
-.tb add button select \
-    -helpstr "Select drawing elements" \
-    -image [image create photo -file [file join $imagedir select.gif]] \
-    -balloonstr "Selection tool" \
-    -command {puts "tool: select"}
+.tb add button new \
+    -image [image create photo -file [file join $imagedir new.gif]] \
+    -helpstr "Create a new workspace" \
+    -balloonstr "New Workspace"
 
-.tb add button magnify \
-    -helpstr "Magnify drawing area" \
-    -image [image create photo -file [file join $imagedir mag.gif]] \
-    -balloonstr "Zoom tool" \
-    -command {puts "tool: magnify"}
+.tb add button open \
+    -image [image create photo -file [file join $imagedir open.gif]] \
+    -helpstr "Open workspace or file" \
+    -balloonstr "Open"
 
-.tb add button ruler \
-    -helpstr "Measure distances on drawing" \
-    -image [image create photo -file [file join $imagedir ruler.gif]] \
-    -balloonstr "Ruler tool" \
-    -command {puts "tool: ruler"}
+.tb add button savewp \
+    -image [image create photo -file [file join $imagedir save.gif]] \
+    -helpstr "Save current workspace" \
+    -balloonstr "Save Workspace"
 
-.tb add frame filler \
-    -borderwidth 1 \
-    -width 10 \
-    -height 10
+.tb add button savech \
+    -image [image create photo -file [file join $imagedir savech.gif]] \
+    -helpstr "Save changes made to workspace files" \
+    -balloonstr "Save Changes"
 
-.tb add button poly \
-    -helpstr "Draw a polygon" \
-    -image [image create photo -file [file join $imagedir poly.gif]] \
-    -balloonstr "Polygon tool" \
-    -command {puts "tool: polygon"}
+.tb add frame filler1  -borderwidth 1 -width 10 -height 10
+
+.tb add button find \
+    -image [image create photo -file [file join $imagedir find.gif]] \
+    -helpstr "Find files using identifier under cursor" \
+    -balloonstr "Find Files"
+
+.tb add button findadd \
+    -image [image create photo -file [file join $imagedir findadd.gif]] \
+    -helpstr "Add to matched list files using identifier under cursor" \
+    -balloonstr "Add to Found Files"
+
+.tb add button copy \
+    -image [image create photo -file [file join $imagedir copy.gif]] \
+    -helpstr "Copy matched list to the clipboard" \
+    -balloonstr "Copy"
+
+.tb add frame filler2  -borderwidth 1 -width 10 -height 10
+
+.tb add button replace \
+    -image [image create photo -file [file join $imagedir replace.gif]] \
+    -helpstr "Replace all instances of identifier under cursor" \
+    -balloonstr "Replace"
+
+.tb add button undo \
+    -image [image create photo -file [file join $imagedir undo.gif]] \
+    -helpstr "Undo global replace" \
+    -balloonstr "Undo"
+
+.tb add button redo \
+    -image [image create photo -file [file join $imagedir redo.gif]] \
+    -helpstr "Redo undone global replace" \
+    -balloonstr "Redo"
 
 
 iwidgets::panedwindow .panes -width 9i -height 5i -orient vertical
