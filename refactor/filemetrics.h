@@ -9,7 +9,13 @@
  * This design also ensures that the character-based metrics processing 
  * overhead will be incured exactly once for each file.
  *
- * $Id: filemetrics.h,v 1.3 2002/10/06 21:21:42 dds Exp $
+ * During postprocessing call:
+ * process_file() or process_id() while going through each file
+ * msum.add_unique_id once() for every EC
+ * msum.add_id() for each identifier having an EC
+ * summarize_files() at the end of processing
+ * 
+ * $Id: filemetrics.h,v 1.4 2002/10/07 20:04:35 dds Exp $
  */
 
 #ifndef METRICS_
@@ -142,8 +148,11 @@ public:
 		xtypedef(0),
 		unused(0)
 	{}
-	// Adjust class members by n according to the attributes of EC
-	void add(Eclass *ec, int n);
+	// Adjust class members according to the attributes of EC
+	// using function object f
+	template <class UnaryFunction>
+	void IdCount::add(Eclass *ec, UnaryFunction f);
+	friend ostream& operator<<(ostream& o,const IdCount &i);
 };
 
 class Fileid;
@@ -184,16 +193,25 @@ public:
 	{}
 	// Add the details of file fi
 	void add(Fileid &fi);
+	friend ostream& operator<<(ostream& o,const FileCount &fc);
+};
+
+// One such set is kept for readable and writable files
+class MetricsSet {
+	friend class MetricsSummary;
+	FileCount fc;	// File details
+	IdCount once;	// Each identifier EC is counted once
+	IdCount len;	// Use the len of each EC
+	IdCount maxlen;	// Maximum length for each type
+	IdCount minlen;	// Minimum length for each type
+	IdCount all;	// Each identifier counted for every occurance in a file
+public:
+	friend ostream& operator<<(ostream& o,const MetricsSet &m);
 };
 
 // This can be kept per project and globally
 class MetricsSummary {
-	struct {
-		FileCount fc;	// File details
-		IdCount once;	// Each identifier EC is counted once
-		IdCount len;	// Use the len of each EC
-		IdCount all;	// Each identifier counted for every occurance in a file
-	} rw[2];			// For read-only and writable cases
+	MetricsSet rw[2];			// For read-only and writable cases
 public:
 	// Create file-based summary
 	void summarize_files();	
@@ -201,6 +219,7 @@ public:
 	void add_id(Eclass *ec);
 	// Called for every unique identifier occurence (EC)
 	void add_unique_id(Eclass *ec);
+	friend ostream& operator<<(ostream& o,const MetricsSummary &ms);
 };
 
 // Global metrics

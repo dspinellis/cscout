@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.4 2002/10/06 21:21:42 dds Exp $
+ * $Id: metrics.cpp,v 1.5 2002/10/07 20:04:35 dds Exp $
  */
 
 #include <iostream>
@@ -28,6 +28,9 @@
 #include "eclass.h"
 #include "fchar.h"
 #include "error.h"
+
+// Global metrics
+MetricsSummary msum;
 
 // Called for every identifier
 void 
@@ -105,32 +108,35 @@ Metrics::process_char(char c)
 }
 
 // Adjust class members by n according to the attributes of EC
+template <class UnaryFunction>
 void
-IdCount::add(Eclass *ec, int n)
+IdCount::add(Eclass *ec, UnaryFunction f)
 {
-	total += n;
+	total = f(total);
 	// The four C namespaces
 	if (ec->get_attribute(is_suetag))
-		suetag += n;
+		suetag = f(suetag);
 	if (ec->get_attribute(is_sumember))
-		sumember += n;
+		sumember = f(sumember);
 	if (ec->get_attribute(is_label))
-		label += n;
+		label = f(label);
 	if (ec->get_attribute(is_ordinary)) {
-		ordinary += n;
-		if (ec->get_attribute(is_cscope))
-			cscope += n;
-		if (ec->get_attribute(is_lscope))
-			lscope += n;
+		ordinary = f(ordinary);
+		if (ec->get_attribute(is_typedef))
+			xtypedef = f(xtypedef);
+		else {
+			if (ec->get_attribute(is_cscope))
+				cscope = f(cscope);
+			if (ec->get_attribute(is_lscope))
+				lscope = f(lscope);
+		}
 	}
 	if (ec->get_attribute(is_macro))
-		macro += n;
+		macro = f(macro);
 	if (ec->get_attribute(is_macroarg))
-		macroarg += n;
-	if (ec->get_attribute(is_typedef))
-		xtypedef += n;
+		macroarg = f(macroarg);
 	if (ec->get_size() == 1)
-		unused += n;
+		unused = f(unused);
 }
 
 // Update file-based summary
@@ -162,20 +168,104 @@ MetricsSummary::summarize_files()
 		rw[(*i).get_readonly()].fc.add(*i);
 }
 
+struct add_one : public unary_function<int, int>
+{
+      int operator()(int x) { return x + 1; }
+};
+
+struct add_n : public unary_function<int, int>
+{
+      int n;
+      add_n(int add) { n = add; }
+      int operator()(int x) { return x + n; }
+};
+
+struct set_max : public unary_function<int, int>
+{
+      int n;
+      set_max(int newval) { n = newval; }
+      int operator()(int x) { return x > n ? x : n; }
+};
+
+struct set_min : public unary_function<int, int>
+{
+      int n;
+      set_min(int newval) { n = newval; }
+      int operator()(int x) { return (x < n && x > 0) ? x : n; }
+};
+
 // Called for each identifier occurence (all)
 void
 MetricsSummary::add_id(Eclass *ec)
 {
-	rw[ec->get_attribute(is_readonly)].all.add(ec, 1);
+	rw[ec->get_attribute(is_readonly)].all.add(ec, add_one());
 }
 
 // Called for each unique identifier occurence (EC)
 void
 MetricsSummary::add_unique_id(Eclass *ec)
 {
-	rw[ec->get_attribute(is_readonly)].once.add(ec, 1);
-	rw[ec->get_attribute(is_readonly)].len.add(ec, ec->get_len());
+	rw[ec->get_attribute(is_readonly)].once.add(ec, add_one());
+	rw[ec->get_attribute(is_readonly)].len.add(ec, add_n(ec->get_len()));
+	rw[ec->get_attribute(is_readonly)].maxlen.add(ec, set_max(ec->get_len()));
+	rw[ec->get_attribute(is_readonly)].minlen.add(ec, set_min(ec->get_len()));
 }
 
-// Global metrics
-MetricsSummary msum;
+
+ostream&
+operator<<(ostream& o,const IdCount &i)
+{
+	o << 
+		"total " << i.total << '\n' <<
+		"suetag " << i.suetag << '\n' <<
+		"sumember " << i.sumember << '\n' <<
+		"label " << i.label << '\n' <<
+		"ordinary " << i.ordinary << '\n' <<
+		"macro " << i.macro << '\n' <<
+		"macroarg " << i.macroarg << '\n' <<
+		"cscope " << i.cscope << '\n' <<
+		"lscope " << i.lscope << '\n' <<
+		"typedef " << i.xtypedef << '\n' <<
+		"unused " << i.unused << '\n';
+	return o;
+}
+
+ostream&
+operator<<(ostream& o,const FileCount &fc)
+{
+	o <<
+		"nfile " << fc.nfile << '\n' <<
+		"nchar " << fc.nchar << '\n' <<
+		"nlcomment " << fc.nlcomment << '\n' <<
+		"nbcomment " << fc.nbcomment << '\n' <<
+		"nline " << fc.nline << '\n' <<
+		"maxlinelen " << fc.maxlinelen << '\n' <<
+		"nccomment " << fc.nccomment << '\n' <<
+		"nspace " << fc.nspace << '\n' <<
+		"nstring " << fc.nstring << '\n' <<
+		"nfunction " << fc.nfunction << '\n' <<
+		"nppdirective " << fc.nppdirective << '\n' <<
+		"nincfile " << fc.nincfile << '\n' <<
+		"nstatement " << fc.nstatement << '\n';
+	return o;
+}
+
+ostream&
+operator<<(ostream& o,const MetricsSet &m)
+{
+	o << 
+		"once\n" << m.once <<
+		"len\n" << m.len <<
+		"maxlen\n" << m.maxlen <<
+		"minlen\n" << m.minlen <<
+		"all\n" << m.all;
+	return o;
+}
+
+ostream&
+operator<<(ostream& o,const MetricsSummary &ms)
+{
+	o << "Writable\n" << ms.rw[false];
+	o << "Read-only\n" << ms.rw[true];
+	return o;
+}
