@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.82 2004/07/27 13:00:07 dds Exp $
+ * $Id: cscout.cpp,v 1.83 2004/07/27 14:45:56 dds Exp $
  */
 
 #include <map>
@@ -845,6 +845,24 @@ funquery_page(FILE *of,  void *p)
 	, of);
 	html_tail(of);
 }
+void
+display_files(FILE *of, const Query &query, const IFSet &sorted_files)
+{
+	const string query_url(query.url());
+
+	fputs("<h2>Matching Files</h2>\n", of);
+	html_file_begin(of);
+	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+		Fileid f = *i;
+		if (current_project && !f.get_attribute(current_project))
+			continue;
+		html_file(of, *i);
+		fprintf(of, " - <a href=\"qsrc.html?id=%u&%s\">marked source</a>",
+			f.get_id(),
+			query_url.c_str());
+	}
+	html_file_end(of);
+}
 
 // Process an identifier query
 static void
@@ -885,22 +903,8 @@ xiquery_page(FILE *of,  void *p)
 		fputs("<h2>Matching Identifiers</h2>\n", of);
 		display_sorted(of, sorted_ids);
 	}
-	if (q_file) {
-		const string query_url(query.url());
-
-		fputs("<h2>Matching Files</h2>\n", of);
-		html_file_begin(of);
-		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
-			Fileid f = *i;
-			if (current_project && !f.get_attribute(current_project))
-				continue;
-			html_file(of, *i);
-			fprintf(of, " - <a href=\"qsrc.html?id=%u&%s\">marked source</a>",
-				f.get_id(),
-				query_url.c_str());
-		}
-		html_file_end(of);
-	}
+	if (q_file)
+		display_files(of, query, sorted_files);
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
 }
@@ -940,23 +944,9 @@ xfunquery_page(FILE *of,  void *p)
 		fputs("<h2>Matching Functions</h2>\n", of);
 		display_sorted(of, sorted_funs);
 	}
-	if (q_file) {
+	if (q_file)
 		// XXX Move to a function
-		const string query_url(query.url());
-
-		fputs("<h2>Matching Files</h2>\n", of);
-		html_file_begin(of);
-		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
-			Fileid f = *i;
-			if (current_project && !f.get_attribute(current_project))
-				continue;
-			html_file(of, *i);
-			fprintf(of, " - <a href=\"qsrc.html?id=%u&%s\">marked source</a>",
-				f.get_id(),
-				query_url.c_str());
-		}
-		html_file_end(of);
-	}
+		display_files(of, query, sorted_files);
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
 }

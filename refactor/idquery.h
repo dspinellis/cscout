@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.3 2004/07/27 11:14:28 dds Exp $
+ * $Id: idquery.h,v 1.4 2004/07/27 14:45:56 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -66,7 +66,7 @@ public:
 	IdQuery::IdQuery() : Query() {}
 
 	// Destructor
-	~IdQuery() {
+	virtual ~IdQuery() {
 		if (match_ire)
 			regfree(&ire);
 		if (match_fre)
@@ -76,7 +76,7 @@ public:
 	// Perform a query
 	bool eval(const IdPropElem &i);
 	// Transform the query back into a URL
-	string url();
+	virtual string url() const;
 	static void usage();	// Report string constructor usage information
 };
 

@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.2 2004/07/27 11:14:28 dds Exp $
+ * $Id: funquery.h,v 1.3 2004/07/27 14:45:56 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -51,7 +51,7 @@ public:
 	FunQuery::FunQuery() : Query() {}
 
 	// Destructor
-	~FunQuery() {
+	virtual ~FunQuery() {
 		if (match_fnre)
 			regfree(&fnre);
 		if (match_fure)
@@ -65,7 +65,7 @@ public:
 	// Perform a query
 	bool eval(const Call *c);
 	// Transform the query back into a URL
-	string url();
+	virtual string url() const;
 };
 
 /*

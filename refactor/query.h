@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.2 2004/07/27 11:14:28 dds Exp $
+ * $Id: query.h,v 1.3 2004/07/27 14:45:56 dds Exp $
  */
 
 #ifndef QUERY_
@@ -28,10 +28,15 @@ protected:
 	 */
 	bool compile_re(FILE *of, const char *name, const char *varname, regex_t &re, bool &match,  string &str, int compflags = 0);
 public:
+	// URL-encode the given string
 	static string url(const string &s);
+
+	virtual ~Query() {}
 	// Accessor functions
 	bool is_valid() { return valid; }
 	bool need_eval() { return !lazy; }
+	// Transform the query back into a URL
+	virtual string url() const = 0;
 	static bool sort_rev;			// Reverse sort of identifier names
 };
 

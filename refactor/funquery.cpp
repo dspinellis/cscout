@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.3 2004/07/27 13:00:07 dds Exp $
+ * $Id: funquery.cpp,v 1.4 2004/07/27 14:45:56 dds Exp $
  */
 
 #include <map>
@@ -102,7 +102,7 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 
 // Return the query's parameters as a URL
 string
-FunQuery::url()
+FunQuery::url() const
 {
 	string r("match=");
 	r += Query::url(string(1, match_type));

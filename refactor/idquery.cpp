@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.3 2004/07/27 11:14:28 dds Exp $
+ * $Id: idquery.cpp,v 1.4 2004/07/27 14:45:56 dds Exp $
  */
 
 #include <map>
@@ -159,7 +159,7 @@ IdQuery::IdQuery(const string &s) :
 
 // Return the query's parameters as a URL
 string
-IdQuery::url()
+IdQuery::url() const
 {
 	string r("match=");
 	r += Query::url(string(1, match_type));
