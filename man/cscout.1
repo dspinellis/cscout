@@ -10,7 +10,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.2 2003/07/07 16:30:06 dds Exp $
+.\" $Id: cscout.1,v 1.3 2003/07/28 20:32:35 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
@@ -18,6 +18,7 @@ cscout \- C code analyzer and refactoring browser
 \fBcscout\fP 
 [\fB\-vE\fP]
 [\fB\-p\fP \fIport\fP]
+[\fB\-m\fP \fIspecification\fP]
 \fIfile\fR
 .SH DESCRIPTION
 \fICScout\fP is a source code analyzer and refactoring browser for collections
@@ -97,6 +98,62 @@ also process the workspace definition file with \fB-E\fP.
 The web server will listen for requests on the TCP port number specified.
 By default the \fICScout\fP server will listen at port 8081.
 The port number must be in the range 1024-32767.
+.IP "\fB\-m\fP \fIspecification\fP"
+Specify the type of identifiers that \fICScout\fP will monitor.
+The identifier attribute specification is given using the syntax: 
+Y\fB|\fPL\fB|\fPE\fB|\fPT\fB[:\fP\fIattr1\fB][:\fP\fIattr2\fP\fB]\fP...
+The meaning of the first letter is:
+.RS 4
+.IP "Y:" 4
+Match any of the specified attributes
+.IP "L:" 4
+Match all of the specified attributes
+.IP "E:" 4
+Exclude the specified attributes matched
+.IP "T:" 4
+Exact match of the specified attributes
+.RE
+.PP
+Allowable attribute names and their corresponding meanings are:
+.RS 4
+.IP "unused:"
+Unused identifier
+.IP "writable:"
+Writable identifier
+.IP "ro:"
+Read-only identifier
+.IP "tag:"
+Tag for a struct/union/enum
+.IP "member:"
+Member of a struct/union
+.IP "label:"
+Label
+.IP "obj:"
+Ordinary identifier
+.IP "macro:"
+Preprocessor macro
+.IP "umacro:"
+Undefined preprocessor macro
+.IP "macroarg:"
+Preprocessor macro argument
+.IP "fscope:"
+Identifier with file scope
+.IP "pscope:"
+Identifier with project scope
+.IP "typedef:"
+Typedef
+.RE
+.PP
+The \fI-m\fP flag can provide enormous savings on the memory \fICScout\fP
+uses (specify e.g. \fI-m Y:pscope\fP to only track project-global identifiers),
+but the processing \fICScout\fP performs under this flag is \fIunsound\fP.
+The flag should therefore be used only if you are running short
+of memory.
+There are cases where the use of preprocessor macros
+can change the attributes of a given identifier shared
+between different files.
+Since the \fI-m\fP optimization is performed after each single file is
+processed, the locations where an identifier is found may be misrepresented.
 .IP "\fB\-v\fP"
 Display  the \fICScout\fP version and copyright information and exit.
 .PP
