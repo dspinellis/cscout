@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.5 2001/09/12 07:09:08 dds Exp $
+ * $Id: type.h,v 1.6 2001/09/13 16:34:37 dds Exp $
  */
 
 #ifndef TYPE_
@@ -13,7 +13,7 @@ enum e_btype {
 	b_abstract,		// Abstract declaration target, to be filled-in
 	b_void, b_char, b_short, b_int, b_long, b_float, b_double, b_ldouble,
 	b_undeclared,		// Undeclared object
-	b_type			// Typedef
+	b_typedef			// Typedef
 };
 
 enum e_sign {
@@ -43,6 +43,8 @@ protected:
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual const string& get_name() const;	// True for identifiers
 	virtual const Ctoken& get_token() const;// True for identifiers
+public:
+	virtual void print(ostream &o) const = 0;
 };
 
 
@@ -55,6 +57,8 @@ public:
 	Tbasic(enum e_btype t = b_abstract, enum e_sign s = s_none) :
 		type(t), sign(s) {}
 	bool is_valid() const { return type != b_undeclared; }
+	Type call() const;			// Function (undeclared)
+	void print(ostream &o) const;
 };
 
 /*
@@ -79,6 +83,8 @@ public:
 	friend Type struct_tag();
 	friend Type union_tag();
 	friend Type identifier(const Ctoken& c);
+	// To print
+	friend ostream& operator<<(ostream& o,const Type &t) { t.p->print(o); }
 
 	// Manage use count of underlying Type_node
 	Type(const Type& t) { p = t.p; ++p->use; }	// Copy
@@ -107,16 +113,18 @@ public:
 	Tarray(Type t) : of(t) {}
 	Type subscript() const { return of; }
 	bool is_ptr() { return true; }
+	void print(ostream &o) const;
 };
 
 // Pointer to ...
-class Tptr: public Type_node {
+class Tpointer: public Type_node {
 private:
 	Type to;
 public:
-	Tptr(Type t) : to(t) {}
+	Tpointer(Type t) : to(t) {}
 	Type deref() const { return to; }
 	bool is_ptr() { return true; }
+	void print(ostream &o) const;
 };
 
 // Function returning ...
@@ -126,15 +134,8 @@ private:
 public:
 	Tfunction(Type t) : returning(t) {}
 	Type call() const { return returning; }
+	void print(ostream &o) const;
 };
-
-// Implicit declaration of function(...) returning int
-// This is the default for all undeclared identifiers
-class Timplicit: public Type_node {
-public:
-	Type call() const { Type t = basic(b_int); return (t); }
-};
-
 
 // Typedef for ...
 class Ttypedef: public Type_node {
@@ -144,6 +145,7 @@ public:
 	Ttypedef(Type t) : for_type(t) {}
 	Type type() const { return for_type; }
 	bool is_typedef() { return true; };// True for typedefs
+	void print(ostream &o) const;
 };
 
 // Tag for ..
@@ -154,6 +156,7 @@ private:
 public:
 	Ttag(enum e_tagtype e, bool i = true) :
 		incomplete(i), type(e) {}
+	void print(ostream &o) const;
 };
 
 // Structure or Union
@@ -165,6 +168,7 @@ public:
 		Ttag(e, i) {}
 	Id member(const string& name) const;
 	void add_member(string& name, Id i);
+	void print(ostream &o) const;
 };
 
 // Identifier; not really a type, it is returned by the lexical analyser
@@ -175,6 +179,7 @@ public:
 	Tidentifier(const Ctoken& tok) : t(tok) {}
 	const Ctoken& get_token() const { return t; }
 	const string& get_name() const { return t.get_name(); }
+	void print(ostream &o) const;
 };
 
 /*
