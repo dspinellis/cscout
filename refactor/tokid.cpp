@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.9 2001/08/21 18:29:45 dds Exp $
+ * $Id: tokid.cpp,v 1.10 2001/08/22 19:33:33 dds Exp $
  */
 
 #include <iostream>
@@ -36,8 +36,12 @@ operator<<(ostream& o,const mapTokidEclass& t)
 	mapTokidEclass::const_iterator i;
 
 	for (i = Tokid::tm.tm.begin(); i != Tokid::tm.tm.end(); i++) {
-		o << (*i).first << ":\n";
-		o << *((*i).second) << "\n\n";
+		// Convert Tokids into Tparts to also display their content
+		Tokid t = (*i).first;
+		Eclass e = *((*i).second);
+		Tpart p(t, e.get_len());
+		o << p << ":\n";
+		o << e << "\n\n";
 	}
 	return o;
 }

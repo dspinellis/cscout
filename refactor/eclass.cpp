@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.7 2001/08/21 20:06:47 dds Exp $
+ * $Id: eclass.cpp,v 1.8 2001/08/22 19:33:33 dds Exp $
  */
 
 #include <iostream>
@@ -16,6 +16,7 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"
+#include "token.h"
 
 Eclass *
 merge(Eclass *a, Eclass *b)
@@ -58,10 +59,10 @@ operator<<(ostream& o,const Eclass& ec)
 {
 	dequeTokid::const_iterator i;
 
-	// When used for real we can also open the file and print the content
-	o << "len=" << ec.len << "\n";
-	for (i = ec.members.begin(); i != ec.members.end(); i++)
-		o << "\t" << *i << "\n";
+	for (i = ec.members.begin(); i != ec.members.end(); i++) {
+		Tpart p(*i, ec.len);
+		o << "\t" << p << "\n";
+	}
 	return o;
 }
 

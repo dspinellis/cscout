@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.4 2001/08/21 20:07:36 dds Exp $
+ * $Id: token.cpp,v 1.5 2001/08/22 19:33:33 dds Exp $
  */
 
 #include <iostream>
@@ -11,6 +11,7 @@
 #include <string>
 #include <deque>
 #include <cassert>
+#include <fstream>
 
 #include "cpp.h"
 #include "fileid.h"
@@ -19,10 +20,19 @@
 #include "token.h"
 #include "ytab.h"
 
+// Display a token part
 ostream& 
 operator<<(ostream& o,const Tpart &t)
 {
-	cout << t.ti << "[l=" << t.len << "]";
+	cout << t.ti << ",l=" << t.len;
+	ifstream in(t.ti.get_path().c_str());
+	if (in.fail())
+		return o;
+	in.seekg(t.ti.get_streampos());
+	o << '[';
+	for (int i = 0; i < t.len; i++)
+		o << (char)in.get();
+	o << ']';
 	return o;
 }
 
