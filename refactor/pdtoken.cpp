@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.75 2003/07/16 21:52:20 dds Exp $
+ * $Id: pdtoken.cpp,v 1.76 2003/07/16 21:58:06 dds Exp $
  */
 
 #include <iostream>
@@ -800,7 +800,7 @@ Pdtoken::process_pragma()
 		char *endptr;
 		unsigned long offset = strtoul(t.get_val().c_str(), &endptr, 0);
 		// XXX now do the work
-	} else if (t.get_val() == "nosync")
+	} else if (t.get_val() == "nosync") {
 		// XXX now do the work
 	} else if (t.get_val() == "includepath") {
 		t.template getnext_nospc<Fchar>();
