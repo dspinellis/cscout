@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.21 2003/08/11 09:59:17 dds Exp $
+ * $Id: macro.cpp,v 1.22 2003/08/15 16:27:07 dds Exp $
  */
 
 #include <iostream>
@@ -136,13 +136,13 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 	if (formal_args.size() == 0) {
 		t = arg_token(tokens, pos, get_more, false);
 		if (t.get_code() != ')') {
-				/*
-				 * @error
-				 * The arguments to a function-like macro did
-				 * not terminate with a closing bracket
-				 */
-				Error::error(E_ERR, "macro [" + name + "]: close bracket expected for function-like macro");
-			return false;
+			/*
+			 * @error
+			 * The arguments to a function-like macro did
+			 * not terminate with a closing bracket
+			 */
+			Error::error(E_ERR, "macro [" + name + "]: close bracket expected for function-like macro");
+			return (false);
 		}
 	}
 	return (true);
