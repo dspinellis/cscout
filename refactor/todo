@@ -1,4 +1,4 @@
-$Id: todo,v 1.45 2004/07/22 10:37:33 dds Exp $
+$Id: todo,v 1.46 2004/07/23 06:34:00 dds Exp $
 
 Handle conditional compilation!!!!
 Each conditional compilation statement can be trivially handled by creating
@@ -21,15 +21,21 @@ type qualifier:
 
 Document function graph
 *** Trace function calls through macros
-	Add fcall when expanding function-like macros:
-		The first expansion is through the current function
-		Recursive expansions through the currently expanded macro
-	Do not register fcall if the function name token comes from a
-	different file, or has an offset less than the function's name
+	Four types of calls:
+	1. Macro calls macro
+		Function like macro-expansion while expanding a macro
+	2. Macro calls function
+		Function call with the identifier token being part of a (function-like) macro boy
+	3. Function calls function
+		Function call with the identifier token not part of a (function-like) macro body
+	4. Function calls macro
+		Function-like macro expanded while processing a function body
 
 Function information
-	Per file: Defined functions
+	Per file: Defined functions and function-like macros
 	Per function:
+		Functions that call this function
+		Functions this function calls
 		Note: function calls through pointers are not included
 		in the call graph.
 	Functions
@@ -40,6 +46,8 @@ Function information
 		Call graph
 		Call graph in GraphViz dot format
 		Function query
+			C function
+			Macro
 			Writable
 			Read-only
 			Project scope
