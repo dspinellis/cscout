@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.65 2003/08/30 17:29:26 dds Exp $
+ * $Id: cscout.cpp,v 1.66 2003/09/29 20:51:55 dds Exp $
  */
 
 #include <map>
@@ -57,6 +57,11 @@
 #include "license.h"
 #include "fdep.h"
 #include "version.h"
+
+#ifdef COMMERCIAL
+#include "des.h"
+#endif
+
 
 // Global Web options
 static bool remove_fp;			// Remove common file prefix
@@ -1730,6 +1735,18 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
+#ifdef COMMERCIAL
+	// Decode name of licensee
+	#include "lname.c"
+	char lkey[] = LKEY;
+	cscout_des_init(0);
+	cscout_des_set_key(lkey);
+	for (int i = 0; i < sizeof(licensee) / 8; i++)
+		cscout_des_decode(licensee + i * 8);
+	cscout_des_done();
+#endif
+
+
 	while ((c = getopt(argc, argv, "crvEp:m:")) != EOF)
 		switch (c) {
 		case 'E':
@@ -1759,7 +1776,10 @@ main(int argc, char *argv[])
 			Version::get_date() << "\n\n"
 			// 80 column terminal width---------------------------------------------------
 			"(C) Copyright 2003 Diomidis Spinelllis, Athens, Greece.\n\n"
-#ifndef COMMERCIAL
+#ifdef COMMERCIAL
+			"Commercial version.  All rights reserved.\n"
+			"Licensee: " << licensee << ".\n";
+#else /* !COMMERCIAL */
 			"Unsupported version.  Can be used and distributed under the terms of the\n"
 			"CScout Public License available in the CScout documentation and online at\n"
 			"http://www.spinellis.gr/cscout/doc/license.html\n";
@@ -1834,7 +1854,7 @@ main(int argc, char *argv[])
 		cout << "Size " << file_msum.get_total(em_nchar) << "\n";
 
 #ifdef COMMERCIAL
-	motd = license_check("", url(Version::get_revision()).c_str(), file_msum.get_total(em_nchar));
+	motd = license_check(licensee, url(Version::get_revision()).c_str(), file_msum.get_total(em_nchar));
 #else
 	/* 
 	 * Send the metrics

@@ -1,7 +1,12 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.57 2003/08/27 12:37:04 dds Exp $
+# $Id: Makefile,v 1.58 2003/09/29 20:51:55 dds Exp $
+#
+
+#
+# For the commercial build run make as:
+# make LICENSEE="John Smith"
 #
 
 # Common object files
@@ -52,6 +57,12 @@ CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION -static
 
 # Realistic debug flags
 #CPPFLAGS=-pipe -O2 -g -DSPINELLIS_SERVER -DPRODUCTION
+
+ifdef LICENSEE
+CPPFLAGS += -DCOMMERCIAL=1
+dummy := $(shell gcc -o ccode -DCCODE des.c)
+dummy := $(shell ./ccode "$(LICENSEE)")
+endif
 
 CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
 test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
@@ -149,8 +160,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.57 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/27 12:37:04 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.58 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/09/29 20:51:55 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
