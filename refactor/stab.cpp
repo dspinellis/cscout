@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.11 2002/09/03 13:26:57 dds Exp $
+ * $Id: stab.cpp,v 1.12 2002/09/07 09:47:15 dds Exp $
  */
 
 #include <map>
@@ -12,7 +12,7 @@
 #include <vector>
 #include <stack>
 #include <iterator>
-#include <fstream>
+#include <iostream>
 #include <list>
 #include <set>
 #include <cassert>
@@ -152,7 +152,8 @@ obj_define(const Token& tok, Type typ)
 			return;
 		}
 	}
-	Block::define(&(Block::obj), tok, typ);
+	static Stab Block::*objptr = &Block::obj;
+	Block::define(objptr, tok, typ);
 	// Identifiers with extern scope are also added to the linkage unit
 	// definitions.  These are not searched, but are used for unification
 	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
@@ -170,6 +171,7 @@ obj_define(const Token& tok, Type typ)
 void
 tag_define(const Token& tok, const Type& typ)
 {
+	static Stab Block::*tagptr = &Block::tag;
 	if (DP())
 		cout << "Define tag [" << tok.get_name() << "]: " << typ << "\n";
 	if (Block::use_param)
@@ -177,7 +179,7 @@ tag_define(const Token& tok, const Type& typ)
 	else if (Block::scope_block[Block::current_block].tag.lookup(tok.get_name()))
 		Error::error(E_ERR, "Duplicate definition of tag  " + tok.get_name());
 	else
-		Block::define(&(Block::tag), tok, typ);
+		Block::define(tagptr, tok, typ);
 }
 
 /*

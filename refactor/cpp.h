@@ -1,3 +1,5 @@
+using namespace std;
+
 typedef long offset_t;
 
 #ifdef NDEBUG

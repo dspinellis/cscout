@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.55 2002/09/05 11:21:41 dds Exp $
+ * $Id: pdtoken.cpp,v 1.56 2002/09/07 09:47:15 dds Exp $
  */
 
 #include <iostream>
@@ -18,7 +18,11 @@
 #include <set>
 #include <vector>
 #include <algorithm>
-#include <functional>
+#if __GLIBCPP__ >= 20020816
+#include <ext/functional>	// compose1
+#else
+#include <functional>		// compose1
+#endif
 #include <cassert>
 #include <cstdlib>		// strtol
 
@@ -41,6 +45,8 @@
 #include "ctoken.h"
 #include "type.h"		// stab.h
 #include "stab.h"		// Block::enter()
+
+using namespace __gnu_cxx;	// STL extensions
 
 bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;
@@ -397,7 +403,7 @@ Pdtoken::process_include(bool next)
 {
 	Pltoken t;
 	listPtoken tokens;
-	static vectorstring::const_iterator next_i;
+	static vectorstring::iterator next_i;
 
 	if (skiplevel >= 1)
 		return;
@@ -449,7 +455,7 @@ Pdtoken::process_include(bool next)
 			Fchar::push_input(f.get_val());
 			return;
 		}
-	vectorstring::const_iterator i;
+	vectorstring::iterator i;
 	for (i = next ? next_i : include_path.begin(); i != include_path.end(); i++) {
 		string fname = *i + "/" + f.get_val();
 		if (DP()) cout << "Try open " << fname << "\n";

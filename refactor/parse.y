@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.36 2002/09/05 21:21:05 dds Exp $
+ * $Id: parse.y,v 1.37 2002/09/07 09:47:15 dds Exp $
  *
  */
 
@@ -560,7 +560,7 @@ declaration_qualifier:
         ; /* default rules */
 
 type_qualifier:
-        CONST		{ $$ = basic(); }
+        TCONST		{ $$ = basic(); }
         | VOLATILE	{ $$ = basic(); }
         ;
 
@@ -661,7 +661,7 @@ basic_type_name:
         | DOUBLE	{ $$ = basic(b_double); }
         | SIGNED	{ $$ = basic(b_abstract, s_signed); }
         | UNSIGNED	{ $$ = basic(b_abstract, s_unsigned); }
-        | VOID		{ $$ = basic(b_void); }
+        | TVOID		{ $$ = basic(b_void); }
         | TYPEOF '(' IDENTIFIER ')'
 			{
 				Id const *id = obj_lookup($3.get_name());

@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.9 2002/09/05 19:21:45 dds Exp $
+ * $Id: webmap.cpp,v 1.10 2002/09/07 09:47:15 dds Exp $
  */
 
 #include <map>
@@ -15,9 +15,8 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <algorithm>
 #include <cassert>
-#include <strstream>
+#include <sstream>		// ostringstream
 #include <cstdio>		// perror
 
 #ifdef unix
@@ -166,7 +165,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.9 2002/09/05 19:21:45 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.10 2002/09/07 09:47:15 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -272,26 +271,23 @@ main(int argc, char *argv[])
 	// Details for each file 
 	// As a side effect populite the EC identifier member
 	for (vector <Fileid>::const_iterator i = files.begin(); i != files.end(); i++) {
-		strstream fname;
+		ostringstream fname;
 		const string &pathname = (*i).get_path();
 		fname << (*i).get_id();
-		string sfname(fname.str(), fname.pcount());
-		html_head(fo, (string("f") + sfname).c_str(), string("File: ") + html(pathname));
+		html_head(fo, (string("f") + fname.str()).c_str(), string("File: ") + html(pathname));
 		fo << "<ul>\n";
 		fo << "<li> Read-only: " << ((*i).get_readonly() ? "Yes" : "No") << "\n";
-		fo << "<li> <a href=\"s" << sfname << ".html\">Source code</a>\n";
+		fo << "<li> <a href=\"s" << fname.str() << ".html\">Source code</a>\n";
 		fo << "</ul>\n";
 
 		html_tail(fo);
 		// File source listing
-		html_head(fo, (string("s") + sfname).c_str(), string("Source: ") + html(pathname));
+		html_head(fo, (string("s") + fname.str()).c_str(), string("Source: ") + html(pathname));
 		file_hypertext(fo, pathname);
 		html_tail(fo);
 	}
 
-	vector <MIdentifier> mids(ids.size());
-	identity<Identifier> ident;
-	transform(ids.begin(), ids.end(), mids.begin(), ident);
+	vector <MIdentifier> mids(ids.begin(), ids.end());
 	// All identifiers
 	html_head(fo, "aids", "All Identifiers");
 	fo << "<ul>";
@@ -317,10 +313,9 @@ main(int argc, char *argv[])
 	// Details for each identifier
 	// Set xfile as a side-effect
 	for (vector <MIdentifier>::iterator i = mids.begin(); i != mids.end(); i++) {
-		strstream fname;
+		ostringstream fname;
 		fname << (unsigned)(*i).get_ec();
-		string sfname(fname.str(), fname.pcount());
-		html_head(fo, (string("i") + sfname).c_str(), string("Identifier: ") + html((*i).get_id()));
+		html_head(fo, (string("i") + fname.str()).c_str(), string("Identifier: ") + html((*i).get_id()));
 		fo << "<ul>\n";
 		fo << "<li> Read-only: " << ((*i).get_ec()->get_readonly() ? "Yes" : "No") << "\n";
 		fo << "</ul>\n";

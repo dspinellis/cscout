@@ -5,7 +5,7 @@
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.3 2002/09/05 16:29:02 dds Exp $
+ * $Id: ytoken.h,v 1.4 2002/09/07 09:47:15 dds Exp $
  */
 
 
@@ -16,8 +16,8 @@
 %token BREAK           ELSE            LONG            SWITCH
 %token CASE            ENUM            REGISTER        TYPEDEF
 %token CHAR            EXTERN          RETURN          UNION
-%token CONST           FLOAT           SHORT           UNSIGNED
-%token CONTINUE        FOR             SIGNED          VOID
+%token TCONST          FLOAT           SHORT           UNSIGNED
+%token CONTINUE        FOR             SIGNED          TVOID
 %token DEFAULT         GOTO            SIZEOF          VOLATILE
 %token DO              IF              STATIC          WHILE
 

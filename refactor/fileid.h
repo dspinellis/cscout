@@ -10,7 +10,7 @@
  * #include <string>
  * #include <vector>
  *
- * $Id: fileid.h,v 1.9 2002/09/05 10:38:04 dds Exp $
+ * $Id: fileid.h,v 1.10 2002/09/07 09:47:15 dds Exp $
  */
 
 #ifndef FILEID_
@@ -63,6 +63,7 @@ public:
 	// Clear the maps
 	static void clear();
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
+	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
 	// Return a sorted list of all filenames used
 	static vector <Fileid> sorted_files();
@@ -72,6 +73,12 @@ inline bool
 operator ==(const class Fileid a, const class Fileid b)
 {
 	return (a.id == b.id);
+}
+
+inline bool
+operator !=(const class Fileid a, const class Fileid b)
+{
+	return (a.id != b.id);
 }
 
 inline bool

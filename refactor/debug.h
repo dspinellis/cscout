@@ -4,7 +4,7 @@
  * Debugpoints can be set for selectively enabling debugging output
  * The debugpoint() macro should be used to efficiently disable debugging output
  *
- * $Id: debug.h,v 1.2 2001/09/03 08:13:51 dds Exp $
+ * $Id: debug.h,v 1.3 2002/09/07 09:47:15 dds Exp $
  */
 
 #ifndef DEBUG_
@@ -12,6 +12,7 @@
 
 class Debug {
 private:
+	int k;
 	string fname;
 	int line;
 

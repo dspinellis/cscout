@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.6 2001/10/27 16:09:00 dds Exp $
+ * $Id: macro.cpp,v 1.7 2002/09/07 09:47:15 dds Exp $
  */
 
 #include <iostream>
@@ -17,9 +17,10 @@
 #include <list>
 #include <set>
 #include <algorithm>
-#include <functional>
+#include <functional>		// ptr_fun
 #include <cassert>
 #include <cstdlib>		// strtol
+#include <cctype>		// isspace
 
 #include "cpp.h"
 #include "debug.h"
@@ -35,7 +36,6 @@
 #include "pdtoken.h"
 #include "tchar.h"
 #include "ctoken.h"
-
 
 void macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more);
 
@@ -178,7 +178,7 @@ stringize(const listPtoken& ts)
 		}
 	}
 	// Remove trailing spaces
-	res.erase((find_if(res.rbegin(), res.rend(), not1(ptr_fun(isspace)))).base(), res.end());
+	res.erase((find_if(res.rbegin(), res.rend(), not1(ptr_fun<int, int>(isspace)))).base(), res.end());
 	return (Ptoken(STRING_LITERAL, res));
 }
 

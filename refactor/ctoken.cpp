@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.10 2002/09/05 16:29:02 dds Exp $
+ * $Id: ctoken.cpp,v 1.11 2002/09/07 09:47:15 dds Exp $
  */
 
 #include <map>
@@ -12,7 +12,7 @@
 #include <vector>
 #include <stack>
 #include <iterator>
-#include <fstream>
+#include <iostream>
 #include <list>
 #include <set>
 #include <cassert>
@@ -106,9 +106,9 @@ make_keymap()
 	m["long"] = LONG; m["switch"] = SWITCH; m["case"] = CASE;
 	m["enum"] = ENUM; m["register"] = REGISTER; m["typedef"] = TYPEDEF;
 	m["char"] = CHAR; m["extern"] = EXTERN; m["return"] = RETURN;
-	m["union"] = UNION; m["const"] = CONST; m["float"] = FLOAT;
+	m["union"] = UNION; m["const"] = TCONST; m["float"] = FLOAT;
 	m["short"] = SHORT; m["unsigned"] = UNSIGNED; m["continue"] = CONTINUE;
-	m["for"] = FOR; m["signed"] = SIGNED; m["void"] = VOID;
+	m["for"] = FOR; m["signed"] = SIGNED; m["void"] = TVOID;
 	m["default"] = DEFAULT; m["goto"] = GOTO; m["sizeof"] = SIZEOF;
 	m["volatile"] = VOLATILE; m["do"] = DO; m["if"] = IF;
 	m["static"] = STATIC; m["while"] = WHILE;

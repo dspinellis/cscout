@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.17 2002/09/05 12:39:06 dds Exp $
+ * $Id: type.cpp,v 1.18 2002/09/07 09:47:15 dds Exp $
  */
 
 #include <iostream>
@@ -169,7 +169,7 @@ Tincomplete::member(const string& s) const
 }
 
 Type
-basic(enum e_btype t = b_abstract, enum e_sign s = s_none, enum e_storage_class sc = c_unspecified)
+basic(enum e_btype t, enum e_sign s, enum e_storage_class sc)
 {
 	return Type(new Tbasic(t, s, sc));
 }

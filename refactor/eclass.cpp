@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.14 2002/09/05 10:38:04 dds Exp $
+ * $Id: eclass.cpp,v 1.15 2002/09/07 09:47:15 dds Exp $
  */
 
 #include <iostream>
@@ -25,28 +25,27 @@
 Eclass *
 merge(Eclass *a, Eclass *b)
 {
-	Eclass *small, *large;
-
+	Eclass *little, *large;
 	if (a == b)
 		return a;
 	if (DP() && a->len != b->len) 
 		cout << "merge a=" << a << *a << " b=" << b << *b << "\n";
 	assert(a->len == b->len);
-	// It is more efficient to append the small at the end of the large one
+	// It is more efficient to append the little at the end of the large one
 	if (a->members.size() > b->members.size()) {
 		large = a;
-		small = b;
+		little = b;
 	} else {
 		large = b;
-		small = a;
+		little = a;
 	}
 
 	setTokid::const_iterator i;
-	for (i = small->members.begin(); i != small->members.end(); i++)
+	for (i = little->members.begin(); i != little->members.end(); i++)
 		large->add_tokid(*i);
 	// If one is read-only; the result is too
-	large->ro = (small->ro || large->ro);
-	delete small;
+	large->ro = (little->ro || large->ro);
+	delete little;
 	return (large);
 }
 
