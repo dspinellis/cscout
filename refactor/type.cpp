@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.11 2001/09/22 07:13:10 dds Exp $
+ * $Id: type.cpp,v 1.12 2001/09/22 07:42:06 dds Exp $
  */
 
 #include <iostream>
@@ -389,6 +389,8 @@ void
 Type_node::set_abstract(Type t)
 {
 	Error::error(E_ERR, "invalid type specification");
+	if (DP())
+		this->print(cerr);
 }
 
 void
