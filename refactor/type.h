@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.6 2001/09/13 16:34:37 dds Exp $
+ * $Id: type.h,v 1.7 2001/09/14 07:58:20 dds Exp $
  */
 
 #ifndef TYPE_
@@ -57,7 +57,6 @@ public:
 	Tbasic(enum e_btype t = b_abstract, enum e_sign s = s_none) :
 		type(t), sign(s) {}
 	bool is_valid() const { return type != b_undeclared; }
-	Type call() const;			// Function (undeclared)
 	void print(ostream &o) const;
 };
 
@@ -172,6 +171,7 @@ public:
 };
 
 // Identifier; not really a type, it is returned by the lexical analyser
+// It is also the type used to represent undeclared identifiers
 class Tidentifier: public Type_node {
 private:
 	Ctoken t;
@@ -179,6 +179,7 @@ public:
 	Tidentifier(const Ctoken& tok) : t(tok) {}
 	const Ctoken& get_token() const { return t; }
 	const string& get_name() const { return t.get_name(); }
+	Type call() const;			// Function (undeclared)
 	void print(ostream &o) const;
 };
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.3 2001/09/13 16:34:37 dds Exp $
+ * $Id: type.cpp,v 1.4 2001/09/14 07:58:20 dds Exp $
  */
 
 #include <iostream>
@@ -63,16 +63,12 @@ Type_node::call() const
 }
 
 Type
-Tbasic::call() const
+Tidentifier::call() const
 {
 	// Undeclared identifiers f when called are declared as int f(...)
-	if (type == b_undeclared) {
-		obj_define(this->get_token(), function_returning(basic(b_int)));
-		return basic(b_int);
-	} else {
-		Error::error(E_ERR, "object is not a function");
-		return basic(b_undeclared);
-	}
+	obj_define(this->get_token(), function_returning(basic(b_int)));
+	Error::error(E_WARN, "assuming declaration int " + this->get_name() + "(...)");
+	return basic(b_int);
 }
 
 
