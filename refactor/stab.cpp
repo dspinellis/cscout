@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.24 2003/08/03 16:12:11 dds Exp $
+ * $Id: stab.cpp,v 1.25 2003/08/11 09:59:17 dds Exp $
  */
 
 #include <map>
@@ -124,7 +124,7 @@ obj_define(const Token& tok, Type typ)
 		// Old-style function definition declarations
 		// No checking
 		if ((id = Block::param_block.obj.lookup(tok.get_name())))
-			unify(id->get_token(), tok);
+			Token::unify(id->get_token(), tok);
 		else
 			/*
 			 * @error
@@ -164,7 +164,7 @@ obj_define(const Token& tok, Type typ)
 					 * declarations
 					 */
 					Error::error(E_ERR, "conflicting declarations for identifier " + id->get_name());
-				unify(id->get_token(), tok);
+				Token::unify(id->get_token(), tok);
 			}
 		} else if (sc == c_typedef) {
 			tok.set_ec_attribute(is_cscope);
@@ -191,7 +191,7 @@ obj_define(const Token& tok, Type typ)
 	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
 		Id const * id;
 		if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())))
-			unify(id->get_token(), tok);
+			Token::unify(id->get_token(), tok);
 		else
 			Block::scope_block[Block::lu_block].obj.define(tok, typ);
 	}
@@ -309,7 +309,7 @@ label_define(const Token& tok)
 			 * than once in a given function
 			 */
 			Error::error(E_ERR, "label " + tok.get_name() + " already defined");
-		unify(id->get_token(), tok);
+		Token::unify(id->get_token(), tok);
 	}
 	if (is_local)
 		Block::define(llptr, tok, label());
@@ -329,7 +329,7 @@ label_use(const Token& tok)
 	if ((id = local_label_lookup(tok.get_name())) == NULL)
 		id = Function::label.lookup(tok.get_name());
 	if (id)
-		unify(id->get_token(), tok);
+		Token::unify(id->get_token(), tok);
 	else
 		Function::label.define(tok, Type());
 }

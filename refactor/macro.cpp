@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.20 2003/08/11 09:36:37 dds Exp $
+ * $Id: macro.cpp,v 1.21 2003/08/11 09:59:17 dds Exp $
  */
 
 #include <iostream>
@@ -375,7 +375,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			return (++pos);
 	}
 	if (DP()) cout << "replacing for " << name << "\n";
-	unify((*mi).second.name_token, *pos);
+	Token::unify((*mi).second.name_token, *pos);
 	listPtoken::iterator expand_start = pos;
 	expand_start++;
 	tokens.erase(pos);

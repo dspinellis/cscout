@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.79 2003/08/11 09:36:37 dds Exp $
+ * $Id: parse.y,v 1.80 2003/08/11 09:59:17 dds Exp $
  *
  */
 
@@ -334,7 +334,7 @@ primary_expression:
 			{
 				Id const *id = obj_lookup($1.get_name());
 				if (id) {
-					unify(id->get_token(), $1.get_token());
+					Token::unify(id->get_token(), $1.get_token());
 					$$ = id->get_type();
 				} else {
 					/*
@@ -402,7 +402,7 @@ postfix_expression:
 					if (DP())
 						cout << ". returns " << $$ << "\n";
 					assert(id->get_name() == $3.get_name());
-					unify(id->get_token(), $3.get_token());
+					Token::unify(id->get_token(), $3.get_token());
 				} else {
 					/*
 					 * @error
@@ -424,7 +424,7 @@ postfix_expression:
 				if (id) {
 					$$ = id->get_type();
 					assert(id->get_name() == $3.get_name());
-					unify(id->get_token(), $3.get_token());
+					Token::unify(id->get_token(), $3.get_token());
 				} else {
 					Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
 					$$ = basic(b_undeclared);
@@ -854,7 +854,7 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 		{ 
 			Id const *id = obj_lookup($2.get_name());
 			assert(id);	// If it's a typedef it can be found
-			unify(id->get_token(), $2.get_token());
+			Token::unify(id->get_token(), $2.get_token());
 			$$ = id->get_type().clone();
 			$$.set_storage_class($1);
 		}
@@ -869,7 +869,7 @@ typedef_type_specifier:              /* typedef types */
 		{ 
 			Id const *id = obj_lookup($1.get_name());
 			assert(id);	// If it's a typedef it can be found
-			unify(id->get_token(), $1.get_token());
+			Token::unify(id->get_token(), $1.get_token());
 			$$ = id->get_type().clone();
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
 		}
@@ -877,7 +877,7 @@ typedef_type_specifier:              /* typedef types */
 		{ 
 			Id const *id = obj_lookup($2.get_name());
 			assert(id);	// If it's a typedef it can be found
-			unify(id->get_token(), $2.get_token());
+			Token::unify(id->get_token(), $2.get_token());
 			$$ = id->get_type().clone();
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
 		}
@@ -907,7 +907,7 @@ basic_type_name:
 			{
 				Id const *id = obj_lookup($3.get_name());
 				if (id) {
-					unify(id->get_token(), $3.get_token());
+					Token::unify(id->get_token(), $3.get_token());
 					$$ = id->get_type();
 				} else {
 					/*
@@ -934,7 +934,7 @@ aggregate_name:
 		{
 			Id const *id = tag_lookup($2.get_name());
 			if (id)
-				unify(id->get_token(), $2.get_token());
+				Token::unify(id->get_token(), $2.get_token());
 			tag_define($2.get_token(), $4);
 			$$ = $4;
 		}
@@ -942,7 +942,7 @@ aggregate_name:
 		{ 
 			Id const *id = tag_lookup($2.get_name());
 			if (id) {
-				unify(id->get_token(), $2.get_token());
+				Token::unify(id->get_token(), $2.get_token());
 				$$ = id->get_type();
 				if (DP())
 					cout << "lookup returns " << $$ << "\n";
@@ -956,7 +956,7 @@ aggregate_name:
 		{
 			Id const *id = tag_lookup($2.get_name());
 			if (id)
-				unify(id->get_token(), $2.get_token());
+				Token::unify(id->get_token(), $2.get_token());
 			$$ = struct_union();
 		}
         ;
@@ -1103,7 +1103,7 @@ enum_name:
 		{ 
 			Id const *id = tag_lookup($2.get_name());
 			if (id) {
-				unify(id->get_token(), $2.get_token());
+				Token::unify(id->get_token(), $2.get_token());
 				$$ = id->get_type();
 				if (DP())
 					cout << "lookup returns " << $$ << "\n";
@@ -1254,7 +1254,7 @@ initializer_member:
 			Id const *id = designator_stack.top().t.member($1.get_name());
 			if (id) {
 				assert(id->get_name() == $1.get_name());
-				unify(id->get_token(), $1.get_token());
+				Token::unify(id->get_token(), $1.get_token());
 			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $1.get_name());
 		}
@@ -1277,7 +1277,7 @@ designator:
 				if (DP())
 					cout << ". returns " << $$ << "\n";
 				assert(id->get_name() == $2.get_name());
-				unify(id->get_token(), $2.get_token());
+				Token::unify(id->get_token(), $2.get_token());
 			} else {
 				Error::error(E_ERR, "structure or union does not have a member " + $2.get_name());
 				$$ = basic(b_undeclared);
@@ -1293,7 +1293,7 @@ designator:
 				if (DP())
 					cout << ". returns " << $$ << "\n";
 				assert(id->get_name() == $3.get_name());
-				unify(id->get_token(), $3.get_token());
+				Token::unify(id->get_token(), $3.get_token());
 			} else {
 				Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
 				$$ = basic(b_undeclared);
@@ -1775,7 +1775,7 @@ yacc_tag:
 					if (DP())
 						cout << ". returns " << id->get_type() << "\n";
 					assert(id->get_name() == $2.get_name());
-					unify(id->get_token(), $2.get_token());
+					Token::unify(id->get_token(), $2.get_token());
 				} else {
 					/*
 					 * @error
@@ -1827,7 +1827,7 @@ yacc_name:
 			if (DP())
 				cout << "Lookup for " << $1.get_name() << " returns " << id << "\n";
 			if (id)
-				unify(id->get_token(), $1.get_token());
+				Token::unify(id->get_token(), $1.get_token());
 			$$ = $1;
 		}
 	| CHAR_LITERAL
@@ -1853,7 +1853,7 @@ yacc_rule:
 		{
 			Id const *id = obj_lookup($1.get_name());
 			if (id)
-				unify(id->get_token(), $1.get_token());
+				Token::unify(id->get_token(), $1.get_token());
 		}
 	;
 

@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.9 2002/12/26 12:46:24 dds Exp $
+ * $Id: token.h,v 1.10 2003/08/11 09:59:17 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -32,12 +32,22 @@ typedef deque<Tpart> dequeTpart;
 ostream& operator<<(ostream& o,const dequeTpart& dt);
 
 class Token {
+private:
+	/* Given two Tokid sequences corresponding to two tokens
+	 * make these correspond to equivalence classes of same lengths.
+	 * Getting the Token constituents again will return Tokids that
+	 * satisfy the above postcondition.
+	 * The operation only modifies the underlying equivalence classes
+	 */
+	static void homogenize(const dequeTpart &a, const dequeTpart &b);
 protected:
 	int code;			// Token type code
 	dequeTpart parts;		// Identifiers for constituent parts
-protected:
-	string val;		// Token character contents (for identifiers)
+	string val;			// Token character contents (for identifiers)
 public:
+	// Unify the constituent equivalence classes for a and b
+	static void unify(const Token &a, const Token &b);
+
 	Token(int icode) : code(icode) {};
 	Token(int icode, const string& v) 
 		: code(icode), val(v) {};
@@ -58,17 +68,6 @@ public:
 	// Set the token's equivalence class attribute
 	void set_ec_attribute(enum e_attribute a) const;
 };
-
-/* Given two Tokid sequences corresponding to two tokens
- * make these correspond to equivalence classes of same lengths.
- * Getting the Token constituents again will return Tokids that
- * satisfy the above postcondition.
- * The operation only modifies the underlying equivalence classes
- */
-void homogenize(const dequeTokid &a, const dequeTokid &b);
-
-// Unify the constituent equivalence classes for a and b
-void unify(const Token &a, const Token &b);
 
 dequeTpart::const_iterator
 Token::get_parts_begin() const

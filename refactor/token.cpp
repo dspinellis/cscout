@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.15 2003/06/01 08:56:40 dds Exp $
+ * $Id: token.cpp,v 1.16 2003/08/11 09:59:17 dds Exp $
  */
 
 #include <iostream>
@@ -73,7 +73,7 @@ Token::set_ec_attribute(enum e_attribute a) const
 }
 
 void
-homogenize(const dequeTpart &a, const dequeTpart &b)
+Token::homogenize(const dequeTpart &a, const dequeTpart &b)
 {
 	dequeTpart::const_iterator ai = a.begin();
 	dequeTpart::const_iterator bi = b.begin();
@@ -108,7 +108,7 @@ homogenize(const dequeTpart &a, const dequeTpart &b)
 }
 
 void
-unify(const Token &a, const Token &b)
+Token::unify(const Token &a, const Token &b)
 {
 	if (DP()) cout << "Unify " << a << " and " << b << "\n";
 	// Get the constituent Tokids; they may have grown more than the parts
