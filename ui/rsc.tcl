@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.14 2001/09/29 21:09:09 dds Exp $
+# $Id: rsc.tcl,v 1.15 2001/09/29 21:16:10 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -521,7 +521,7 @@ proc insert_project {} {
 
 # Return an entry's parent node
 proc parent {entry} {
-	regsub {/[^/]*} $entry {} parent
+	regsub {/[^/]*$} $entry {} parent
 	return $parent
 }
 
