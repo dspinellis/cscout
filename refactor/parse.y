@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.66 2003/08/01 08:41:37 dds Exp $
+ * $Id: parse.y,v 1.67 2003/08/01 11:28:15 dds Exp $
  *
  */
 
@@ -1239,11 +1239,20 @@ any_statement:
         | assembly_statement [YYVALID;]
         ;
 
+/*
+ * This rule used to have "statement" at the end of every production.
+ * (Version 1.66)
+ * Changed to its current form to allow the gcc extension of
+ * labels without a following statement.
+ * If we ever analyze statements this rule will case them to
+ * be wrongly parsed:
+ * if (x) foo: y; will  get parsed as if (x) {foo:} y;
+ */
 labeled_statement:
-        identifier_or_typedef_name ':' statement
+        identifier_or_typedef_name ':'
 		{ label_define($1.get_token()); }
-        | CASE constant_expression ':' statement
-        | DEFAULT ':' statement
+        | CASE constant_expression ':'
+        | DEFAULT ':'
         ;
 
 function_brace_begin: '{' 
