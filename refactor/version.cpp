@@ -1,14 +1,14 @@
 #include <string>
 using namespace std;
 #include "version.h"
-char Version::revision[] = "$Revision: 1.10 $";
-char Version::date[] = "$Date: 2003/06/22 17:43:17 $";
+char Version::revision[] = "$Revision: 1.11 $";
+char Version::date[] = "$Date: 2003/06/23 07:51:52 $";
 char *Version::ident[] = {
 "$" "Id:" " makefile 1.36 2003/06/16 20:22:40 dds Exp $",
 "$" "Id:" " attr.cpp 1.11 2003/06/16 06:22:29 dds Exp $",
 "$" "Id:" " attr.h 1.10 2003/05/27 19:57:35 dds Exp $",
 "$" "Id:" " color.cpp 1.9 2002/09/28 13:22:40 dds Exp $",
-"$" "Id:" " cscout.cpp 1.44 2003/06/16 19:40:51 dds Exp $",
+"$" "Id:" " cscout.cpp 1.46 2003/06/22 23:27:04 dds Exp $",
 "$" "Id:" " ctoken.cpp 1.20 20033/06/19 11:11:01 dds Exp $",
 "$" "Id:" " ctoken.h 1.4 2001/09/12 07:09:08 dds Exp $",
 "$" "Id:" " debug.cpp 1.2 2001/09/03 08:13:51 dds Exp $",
@@ -28,16 +28,16 @@ char *Version::ident[] = {
 "$" "Id:" " fileid.h 1.15 2002/12/25 15:46:47 dds Exp $",
 "$" "Id:" " id.h 1.2 2001/09/21 14:14:19 dds Exp $",
 "$" "Id:" " incs.h 1.1 2002/09/05 16:43:58 dds Exp $",
-"$" "Id:" " license.c 1.7 2003/06/04 18:37:03 dds Exp $",
-"$" "Id:" " license.h 1.3 2003/06/04 18:37:03 dds Exp $",
+"$" "Id:" " license.c 1.8 2003/06/22 23:27:04 dds Exp $",
+"$" "Id:" " license.h 1.4 2003/06/23 07:51:15 dds Exp $",
 "$" "Id:" " macro.cpp 1.12 2003/06/01 09:03:06 dds Exp $",
 "$" "Id:" " macro.h 1.4 2002/12/15 19:03:37 dds Exp $",
 "$" "Id:" " metrics.cpp 1.9 2003/06/02 13:51:01 dds Exp $",
-"$" "Id:" " metrics.h 1.8 2003/06/02 13:51:01 dds Exp $",
+"$" "Id:" " metrics.h 1.9 2003/06/22 23:27:04 dds Exp $",
 "$" "Id:" " defs.h 1.9 2002/09/05 16:51:23 dds Exp $",
 "$" "Id:" " incs.h 1.1 2002/09/05 16:43:58 dds Exp $",
 "$" "Id:" " obfuscate.cpp 1.1 2002/10/06 18:39:05 dds Exp $",
-"$" "Id:" " parse.y 1.56 2003/06/22 17:42:44 dds Exp $",
+"$" "Id:" " parse.y 1.57 2003/06/22 19:19:12 dds Exp $",
 "$" "Id:" " pdtoken.cpp 1.74 2003/06/19 11:11:01 dds Exp $",
 "$" "Id:" " pdtoken.h 1.23 2002/12/15 19:03:37 dds Exp $",
 "$" "Id:" " pltoken.cpp 1.10 2003/06/01 08:54:27 dds Exp $",
@@ -66,6 +66,6 @@ char *Version::ident[] = {
 "$" "Id:" " incs.h 1.1 2002/09/05 16:43:58 dds Exp $",
 "$" "Id:" " workdb.cpp 1.10 2002/10/07 20:13:59 dds Exp $",
 "$" "Id:" " ytoken.h 1.5 2003/06/19 11:11:01 dds Exp $",
-"$" "Id:" " prjcomp.pl 1.10 2003/06/18 07:46:27 dds Exp $",
+"$" "Id:" " prjcomp.pl 1.11 2003/06/22 23:33:34 dds Exp $",
 "$" "Id:" " version.h 1.3 2003/06/04 18:37:03 dds Exp $",
 0 };
