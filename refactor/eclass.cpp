@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.12 2002/09/04 17:00:10 dds Exp $
+ * $Id: eclass.cpp,v 1.13 2002/09/04 18:02:43 dds Exp $
  */
 
 #include <iostream>
@@ -13,6 +13,7 @@
 #include <deque>
 #include <cassert>
 #include <vector>
+#include <algorithm>
 
 #include "cpp.h"
 #include "debug.h"
@@ -87,6 +88,26 @@ Eclass::add_tokid(Tokid t)
 	members.insert(t);
 	t.set_ec(this);
 	ro = (t.get_readonly() || ro);
+}
+
+struct fname_order {
+      bool operator()(Fileid a, Fileid b) { 
+	      return a.get_path() < b.get_path();
+      }
+};
+
+// Return a sorted list of all filenames used
+vector <Fileid>
+Eclass::sorted_files()
+{
+	vector <Fileid> r(members.size());
+	setTokid::const_iterator i;
+	int j;
+
+	for (i = members.begin(), j = 0; i != members.end(); i++)
+		r[j++] = ((*i).get_fileid());
+	sort(r.begin(), r.end(), fname_order());
+	return (r);
 }
 
 #ifdef UNIT_TEST

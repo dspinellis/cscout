@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.5 2002/09/04 17:50:36 dds Exp $
+ * $Id: webmap.cpp,v 1.6 2002/09/04 18:02:43 dds Exp $
  */
 
 #include <map>
@@ -149,7 +149,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.5 2002/09/04 17:50:36 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.6 2002/09/04 18:02:43 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -324,7 +324,23 @@ main(int argc, char *argv[])
 		fo << "<li> Read-only: " << ((*i).get_ec()->get_readonly() ? "Yes" : "No") << "\n";
 		fo << "<li> Unused: " << ((*i).get_ec()->get_size() == 1 ? "Yes" : "No") << "\n";
 		fo << "</ul>\n";
-		fo << "<h2>Dependent files (all)</h2>\n";
+		files = (*i).get_ec()->sorted_files();
+		fo << "<h2>Dependent Files (Writable)</h2>\n";
+		fo << "<ul>\n";
+		for (vector <Fileid>::const_iterator j = files.begin(); j != files.end(); j++) {
+			if ((*i).get_ec()->get_readonly() == false) {
+				fo << "\n<li>";
+				html_file(fo, (*j).get_path());
+			}
+		}
+		fo << "</ul>\n";
+		fo << "<h2>Dependent Files (All)</h2>\n";
+		fo << "<ul>\n";
+		for (vector <Fileid>::const_iterator j = files.begin(); j != files.end(); j++) {
+			fo << "\n<li>";
+			html_file(fo, (*j).get_path());
+		}
+		fo << "</ul>\n";
 
 		html_tail(fo);
 	}
