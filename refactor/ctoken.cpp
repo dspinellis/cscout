@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.17 2002/10/03 10:39:37 dds Exp $
+ * $Id: ctoken.cpp,v 1.18 2002/12/16 09:29:29 dds Exp $
  */
 
 #include <map>
@@ -214,9 +214,6 @@ again:
 			if (ik != keymap.end())
 				// Keyword
 				switch ((*ik).second) {
-				case GNUC_ASM:
-					t = eat_block('(', ')');
-					goto again;
 				case MSC_ASM:
 					t = eat_block('{', '}');
 					goto again;
