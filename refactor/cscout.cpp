@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.47 2003/06/23 09:18:44 dds Exp $
+ * $Id: cscout.cpp,v 1.48 2003/07/06 08:23:42 dds Exp $
  */
 
 #include <map>
@@ -764,7 +764,7 @@ iquery_page(FILE *of,  void *p)
 		fprintf(of, "<input type=\"checkbox\" name=\"a%d\" value=\"1\">%s<br>\n", i, 
 			Attributes::name(i).c_str());
 	fputs(
-	"<input type=\"checkbox\" name=\"xfile\" value=\"1\">Crosses file bounary<br>\n"
+	"<input type=\"checkbox\" name=\"xfile\" value=\"1\">Crosses file boundary<br>\n"
 	"<input type=\"checkbox\" name=\"unused\" value=\"1\">Unused<br>\n"
 	"<p>\n"
 	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any marked\n"
