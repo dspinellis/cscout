@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.2 2001/08/18 15:39:13 dds Exp $
+ * $Id: token.h,v 1.3 2001/08/18 21:56:31 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -20,6 +20,7 @@ protected:
 	dequeTokid parts;		// Identifiers for constituent parts
 public:
 	Token(int icode) : code(icode) {};
+	Token() {};
 	// Accessor method
 	inline int get_code() const { return (code); }
 	// Return the token's symbolic name based on its code

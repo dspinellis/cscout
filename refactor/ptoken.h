@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.2 2001/08/18 21:43:35 dds Exp $
+ * $Id: ptoken.h,v 1.3 2001/08/18 21:56:31 dds Exp $
  */
 
 #ifndef PTOKEN_
@@ -26,6 +26,8 @@ protected:
 public:
 	// Construct it based on the token code and the contents
 	Ptoken(int icode, const string& ival) : Token(icode), val(ival) {};
+	// Efficient constructor
+	Ptoken() {};
 	// Accessor methods
 	inline const string& get_val() const { return (val); };
 	// Print it (for debugging)
