@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.25 2001/09/22 13:30:43 dds Exp $
+ * $Id: parse.y,v 1.26 2001/09/22 15:01:40 dds Exp $
  *
  */
 
@@ -908,12 +908,12 @@ initializer_list:
 
 /*************************** STATEMENTS *******************************/
 statement:
-        labeled_statement
-        | compound_statement
-        | expression_statement
-        | selection_statement
-        | iteration_statement
-        | jump_statement
+        labeled_statement [YYVALID;]
+        | compound_statement [YYVALID;]
+        | expression_statement [YYVALID;]
+        | selection_statement [YYVALID;]
+        | iteration_statement [YYVALID;]
+        | jump_statement [YYVALID;]
         ;
 
 labeled_statement:
@@ -994,9 +994,9 @@ translation_unit:
 
 external_definition:
         function_definition
-			{ Function::exit(); Block::param_clear(); }
+			[ YYVALID; Function::exit(); Block::param_clear(); ]
         | declaration
-			{ Block::param_clear(); }
+			[ YYVALID; Block::param_clear(); ]
         ;
 
 function_definition:
