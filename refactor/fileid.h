@@ -14,7 +14,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.17 2003/08/11 14:15:17 dds Exp $
+ * $Id: fileid.h,v 1.18 2003/08/11 17:18:37 dds Exp $
  */
 
 #ifndef FILEID_
@@ -37,9 +37,9 @@ public:
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
-	bool garbage_collected() { return gc; }
+	bool garbage_collected() const { return gc; }
 	void set_gc(bool r) { gc = r; }
-	bool required() { return rq; }
+	bool required() const { return rq; }
 	void set_required(bool r) { rq = r; }
 };
 
@@ -94,9 +94,9 @@ public:
 	bool get_attribute(int v) { return i2d[id].attr.get_attribute(v); }
 	// Get/set the garbage collected property
 	void set_gc(bool v) { i2d[id].set_gc(v); }
-	bool garbage_collected() { return i2d[id].garbage_collected(); }
+	bool garbage_collected() const { return i2d[id].garbage_collected(); }
 	void set_required(bool v) { i2d[id].set_required(v); }
-	bool required() { return i2d[id].required(); }
+	bool required() const { return i2d[id].required(); }
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
