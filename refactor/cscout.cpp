@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.22 2003/05/25 13:04:27 dds Exp $
+ * $Id: cscout.cpp,v 1.23 2003/05/25 13:10:37 dds Exp $
  */
 
 #include <map>
@@ -343,7 +343,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.22 2003/05/25 13:04:27 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.23 2003/05/25 13:10:37 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -402,58 +402,6 @@ html_file(FILE *of, string fname)
 	html_file(of, fi);
 }
 
-// Read-only files
-void
-rofiles_page(FILE *fo, vector <Fileid> *files)
-{
-	html_head(fo, "rofiles", "Read-only Files");
-	fprintf(fo, "<ul>\n");
-	for (vector <Fileid>::iterator i = (*files).begin(); i != (*files).end(); i++) {
-		if (current_project && !(*i).get_attribute(current_project)) 
-			continue;
-		if ((*i).get_readonly() == true) {
-			fprintf(fo, "\n<li>");
-			html_file(fo, *i);
-		}
-	}
-	fprintf(fo, "\n</ul>\n");
-	html_tail(fo);
-}
-
-// Writable files
-void
-wfiles_page(FILE *fo, vector <Fileid> *files)
-{
-	html_head(fo, "wfiles", "Writable Files");
-	fprintf(fo, "<ul>\n");
-	for (vector <Fileid>::iterator i = (*files).begin(); i != (*files).end(); i++) {
-		if (current_project && !(*i).get_attribute(current_project)) 
-			continue;
-		if ((*i).get_readonly() == false) {
-			fprintf(fo, "\n<li>");
-			html_file(fo, *i);
-		}
-	}
-	fprintf(fo, "\n</ul>\n");
-	html_tail(fo);
-}
-
-// All files
-void
-afiles_page(FILE *fo, vector <Fileid> *files)
-{
-	html_head(fo, "afiles", "All Files");
-	fprintf(fo, "<ul>\n");
-	for (vector <Fileid>::iterator i = (*files).begin(); i != (*files).end(); i++) {
-		if (current_project && !(*i).get_attribute(current_project)) 
-			continue;
-		fprintf(fo, "\n<li>");
-		html_file(fo, (*i).get_path());
-	}
-	fprintf(fo, "\n</ul>\n");
-	html_tail(fo);
-}
-
 // File query page
 static void
 fquery_page(FILE *of,  void *p)
@@ -505,14 +453,16 @@ struct ignore : public binary_function <int, int, bool> {
 static inline bool
 apply(int op, int a, int b)
 {
-	cout << a;
-	switch (op) {
-	case 1: cout << " == "; break;
-	case 2: cout << " != "; break;
-	case 3: cout << " < "; break;
-	case 4: cout << " > "; break;
+	if (DP()) {
+		cout << a;
+		switch (op) {
+		case 1: cout << " == "; break;
+		case 2: cout << " != "; break;
+		case 3: cout << " < "; break;
+		case 4: cout << " > "; break;
+		}
+		cout << b << "\n";
 	}
-	cout << b << "\n";
 	switch (op) {
 	case 1: return a == b;
 	case 2: return a != b;
@@ -582,7 +532,6 @@ xfquery_page(FILE *of,  void *p)
 		if (add)
 			sorted_files.insert(*i);
 	}
-	fputs("<h2>Matching Files</h2>\n", of);
 	fprintf(of, "<ul>\n");
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
@@ -921,9 +870,9 @@ index_page(FILE *of, void *data)
 	html_head(of, "index", "CScout Results");
 	fprintf(of, 
 		"<ul>\n"
-		"<li> <a href=\"afiles.html\">All files</a>\n"
-		"<li> <a href=\"rofiles.html\">Read-only files</a>\n"
-		"<li> <a href=\"wfiles.html\">Writable files</a>\n");
+		"<li> <a href=\"xfquery.html?ro=1&writable=1&match=Y&n=All+Files&qf=1\">All files</a>\n"
+		"<li> <a href=\"xfquery.html?ro=1&match=Y&n=Read-only+Files&qf=1\">Read-only files</a>\n"
+		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n");
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&match=Y&qi=1&n=All+Identifiers\">All identifiers</a>\n", is_readonly);
 	fprintf(of, "<li> <a href=\"xiquery.html?a%d=1&match=Y&qi=1&n=Read-only+Identifiers\">Read-only identifiers</a>\n", is_readonly);
 	fputs("<li> <a href=\"xiquery.html?writable=1&match=Y&qi=1&n=Writable+Identifiers\">Writable identifiers</a>\n"
@@ -1130,9 +1079,6 @@ main(int argc, char *argv[])
 	swill_handle("soptions.html", set_options_page, 0);
 	swill_handle("sexit.html", write_quit_page, 0);
 	swill_handle("qexit.html", quit_page, 0);
-	swill_handle("afiles.html", afiles_page, &files);
-	swill_handle("rofiles.html", rofiles_page, &files);
-	swill_handle("wfiles.html", wfiles_page, &files);
 
 	// Populate the EC identifier member
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
