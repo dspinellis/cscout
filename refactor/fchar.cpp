@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.3 2001/08/18 16:46:21 dds Exp $
+ * $Id: fchar.cpp,v 1.4 2001/08/20 07:37:00 dds Exp $
  */
 
 #include <iostream>
@@ -13,7 +13,11 @@
 #include <cassert>
 #include <fstream>
 #include <stack>
+#ifdef unix
+#include <cstdio>		// perror
+#else
 #include <cstdlib>		// perror
+#endif
 
 #include "cpp.h"
 #include "fileid.h"
@@ -122,10 +126,11 @@ Fchar::Fchar()
 
 main()
 {
+	int i;
 	Fchar::set_input("test/trigtest.c");
 
 	cout << "Characters and tokids:\n";
-	for (int i = 0;;i++) {
+	for (i = 0;;i++) {
 		if (i == 25)
 			break;
 		Fchar c;
