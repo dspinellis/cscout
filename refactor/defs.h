@@ -5,8 +5,12 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: defs.h,v 1.4 2001/09/22 09:03:15 dds Exp $
+ * $Id: defs.h,v 1.5 2001/09/22 15:25:08 dds Exp $
  */
+
+#define __FILE__ ""
+#define __LINE__ 0
+#define __PRETTY_FUNCTION__ ""
 
 //#define __cplusplus
 #define __STDC__ 1
