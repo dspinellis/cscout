@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.51 2002/09/04 06:49:50 dds Exp $
+ * $Id: pdtoken.cpp,v 1.52 2002/09/04 10:49:26 dds Exp $
  */
 
 #include <iostream>
@@ -598,6 +598,8 @@ Pdtoken::process_error()
 void
 Pdtoken::process_pragma()
 {
+	static stack <string> dirstack;
+
 	if (skiplevel >= 1)
 		return;
 	Pltoken t;
@@ -618,17 +620,66 @@ Pdtoken::process_pragma()
 		}
 		Pdtoken::add_include(t.get_val());
 		if (DP()) cout << "Include path " << t.get_val() << "\n";
-	} else if (t.get_val() == "chdir") {
+	} else if (t.get_val() == "echo") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
-			Error::error(E_ERR, "#pragma chdir: string expected");
+			Error::error(E_ERR, "#pragma process: echo expected");
+			eat_to_eol();
+			return;
+		}
+		string s = t.get_val();
+		for (string::const_iterator i = s.begin(); i != s.end();)
+			cout << unescape_char(s, i);
+	} else if (t.get_val() == "readonly") {
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma readonly: string expected");
+			eat_to_eol();
+			return;
+		}
+		Fileid fi = Fileid(t.get_val());
+		fi.set_readonly(true);
+	} else if (t.get_val() == "process") {
+		int parse_parse();
+
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma process: string expected");
+			eat_to_eol();
+			return;
+		}
+		Fchar::push_input(t.get_val());
+		Fchar::lock_stack();
+		if (parse_parse() != 0)
+			exit(1);
+		Fchar::unlock_stack();
+	} else if (t.get_val() == "pushd") {
+		char buff[4096];
+
+		if (getcwd(buff, sizeof(buff)) == NULL)
+			Error::error(E_FATAL, "#pragma pushd: unable to get current directory: " + string(strerror(errno)));
+		dirstack.push(buff);
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma pushd: string expected");
 			eat_to_eol();
 			return;
 		}
 		if (chdir(t.get_val().c_str()) != 0)
-			Error::error(E_FATAL, "chdir " + t.get_val() + ": " + string(strerror(errno)), false);
+			Error::error(E_FATAL, "chdir " + t.get_val() + ": " + string(strerror(errno)));
+	} else if (t.get_val() == "popd") {
+		if (dirstack.empty()) {
+			Error::error(E_ERR, "popd: directory stack empty");
+			eat_to_eol();
+			return;
+		}
+		if (chdir(dirstack.top().c_str()) != 0)
+			Error::error(E_FATAL, "popd: " + dirstack.top() + ": " + string(strerror(errno)));
+		dirstack.pop();
 	} else if (t.get_val() == "clear_include")
 		Pdtoken::clear_include();
+	else if (t.get_val() == "clear_defines")
+		Pdtoken::macros_clear();
 	else if (t.get_val() == "block_enter")
 		Block::enter();
 	else if (t.get_val() == "block_exit")
