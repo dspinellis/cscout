@@ -3,8 +3,10 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.7 2001/09/29 07:08:21 dds Exp $
+# $Id: rsc.tcl,v 1.8 2001/09/29 09:42:39 dds Exp $
 #
+
+#tk_messageBox -icon info -message "Debug" -type ok
 
 package require Iwidgets 3.0
 
@@ -99,9 +101,11 @@ $m add command -label "Statistics" -command {$out.l select Statistics}
 set m .menu.insert
 menu $m -tearoff 0
 .menu add cascade -label "Insert" -menu $m -underline 0
-$m add command -label "Project"
+$m add command -label "Project" -command insert_project
 $m add separator
 $m add command -label "File to Project"
+$m add command -label "Directory files to Project"
+$m add command -label "Hierarchy files to Project"
 $m add command -label "File to all Projects"
 
 
@@ -234,7 +238,7 @@ $out.l select Settings
 
 ######################################################
 # Workspace Files
-iwidgets::hierarchy $tabfiles.hier -querycommand "get_workspace %n"
+iwidgets::hierarchy $tabfiles.hier -querycommand "get_workspace %n" -alwaysquery 1
 pack $tabfiles.hier -expand yes -fill both
 
 ######################################################
@@ -320,12 +324,23 @@ pack $tabsettings.listgroup.commands.moveup \
 	$tabsettings.listgroup.commands.clearall \
 	-side top -padx 4 -pady 4 -anchor w
 
+# Directory selection
+frame $tabsettings.dir
+label $tabsettings.dir.lab -text "Directory" -anchor e
+entry $tabsettings.dir.ent -width 20
+button $tabsettings.dir.but -text "Browse ..." -command "tk_chooseDirectory"
+pack $tabsettings.dir.lab -side left
+pack $tabsettings.dir.ent -side left -expand yes -fill x
+pack $tabsettings.dir.but -padx 4 -side left
+
+pack $tabsettings.dir -expand no -fill x -side top -padx 4 -pady 4 -anchor nw
 pack $tabsettings.select -side top -padx 4 -pady 4 -anchor nw
-pack $tabsettings.listgroup.list -expand true -fill both -side left -padx 4 -pady 4 -anchor nw
-pack $tabsettings.listgroup.commands -side left -padx 4 -pady 4 -anchor nw -expand true -fill x
+pack $tabsettings.listgroup.list -expand yes -fill both -side left -padx 4 -pady 4 -anchor nw
+pack $tabsettings.listgroup.commands -side left -padx 4 -pady 4 -anchor nw -expand yes -fill x
+
 checkbutton $tabsettings.ro -text "File is read-only" -relief flat
 button $tabsettings.clearsub -text "Clear Subitem Settings" 
-pack $tabsettings.listgroup -expand true -fill both -side top -padx 4 -pady 4 -anchor nw
+pack $tabsettings.listgroup -expand yes -fill both -side top -padx 4 -pady 4 -anchor nw
 pack $tabsettings.ro $tabsettings.clearsub -side top -padx 4 -pady 4 -anchor nw
 
 ######################################################
@@ -334,9 +349,23 @@ iwidgets::scrolledtext $taboutput.text -wrap none
 pack $taboutput.text -side left -expand yes -fill both
 
 ######################################################
+# Modal dialogs
+
+# Project name
+iwidgets::promptdialog .projname -title "Insert Project to Workspace" -modality application \
+    -labeltext "Project name:" -separator false
+.projname hide Apply
+.projname hide Help
+
+######################################################
+# Global variables
+
+
+######################################################
 # Subroutines
 
 proc get_workspace {uid} {
+	global name
 	if {$uid == ""} {
 			# uid Text branch/leaf
 		return {
@@ -347,8 +376,31 @@ proc get_workspace {uid} {
 			{edit	"Edited Files" branch}
 			{all	"All Files" branch}
 			{int	"Internal Settings" leaf}
-		};
+		}
+	} elseif {$uid == "wp"} {
+		set r {}
+		foreach i [array names name] {
+			lappend r [list $i $name($i) branch]
+		}
+		return $r
 	} else {
-		return "";
+		return ""
 	}
+}
+
+
+proc insert_project {} {
+	global name
+	global tabfiles
+	if {[.projname activate]} {
+		# A project is: name settings ?file? ...
+		set projname [.projname get]
+		# XXX Check for invalid characters and that it does not exist
+		set name("wp/$projname") $projname
+		# Expand is needed to internally refresh _nodes so that we do not
+		# get an node does not exist error!
+		$tabfiles.hier expand wp
+		$tabfiles.hier refresh wp
+	}	
+	# else cancelled
 }
