@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.39 2002/09/13 12:37:27 dds Exp $
+ * $Id: parse.y,v 1.40 2002/09/13 13:26:01 dds Exp $
  *
  */
 
@@ -584,6 +584,7 @@ basic_type_specifier:
         | type_qualifier_list  basic_type_name		/* const, int */
 			{ $$ = $2; }
         | basic_type_specifier type_qualifier		/* int, volatile */
+			{ $$ = $1; }
         | basic_type_specifier basic_type_name		/* long, int */
 			{ $$ = merge($1, $2); }
         ;
