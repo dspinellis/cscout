@@ -1,3 +1,11 @@
+/* 
+ * (C) Copyright 2001 Diomidis Spinellis.
+ *
+ * For documentation read the corresponding .h file
+ *
+ * $Id: fchar.cpp,v 1.2 2001/08/18 15:30:47 dds Exp $
+ */
+
 #include <iostream>
 #include <map>
 #include <string>
