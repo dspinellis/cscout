@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.95 2004/07/31 12:35:38 dds Exp $
+ * $Id: cscout.cpp,v 1.96 2004/08/01 07:51:30 dds Exp $
  */
 
 #include <map>
@@ -520,7 +520,7 @@ local_access(FILE *fo)
 		return true;
 	else {
 		html_head(fo, "Remote access", "Remote access not allowed");
-		fprintf(fo, "This function can not be executed from a remote host.");
+		fprintf(fo, "This function can not be executed from a remote host.\n");
 		fprintf(fo, "Make sure you are accessing cscout as localhost or 127.0.0.1.");
 		html_tail(fo);
 		return false;
