@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.51 2003/06/21 13:46:48 dds Exp $
+ * $Id: parse.y,v 1.52 2003/06/21 13:58:52 dds Exp $
  *
  */
 
@@ -1147,7 +1147,7 @@ jump_statement:
 
 /* Gcc __asm__  syntax */
 assembly_statement: 
-	GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')'
+	GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')' ';'
 	;
 
 asm_operands_opt:
