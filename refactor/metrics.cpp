@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.6 2003/05/24 18:51:49 dds Exp $
+ * $Id: metrics.cpp,v 1.7 2003/05/27 17:46:33 dds Exp $
  */
 
 #include <iostream>
@@ -271,6 +271,7 @@ ostream&
 operator<<(ostream& o,const MetricsSet &m)
 {
 	o << 
+		"file\n" << m.fc <<
 		"once\n" << m.once <<
 		"len\n" << m.len <<
 		"maxlen\n" << m.maxlen <<
