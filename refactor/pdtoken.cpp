@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.78 2003/07/28 20:09:31 dds Exp $
+ * $Id: pdtoken.cpp,v 1.79 2003/07/29 18:34:52 dds Exp $
  */
 
 #include <iostream>
@@ -614,6 +614,7 @@ Pdtoken::process_define()
 	if (t.get_code() == '(') {
 		// Function-like macro
 		m.set_is_function(true);
+		m.set_is_vararg(false);
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != ')') {
 			// Formal args follow; gather them
@@ -634,6 +635,23 @@ Pdtoken::process_define()
 				m.form_args_push_back(t);
 				t.template getnext_nospc<Fchar>();
 				if (t.get_code() == ')') {
+					t.template getnext<Fchar>();
+					break;
+				}
+				if (t.get_code() == ELLIPSIS) {
+					m.set_is_vararg(true);
+					t.template getnext_nospc<Fchar>();
+					if (t.get_code() != ')') {
+						/*
+						 * @error
+						 * The ellipsis vararg specification of a
+						 * <code>#define</code> macro
+						 * must be the last formal argument
+						 */
+						Error::error(E_ERR, "Invalid vararg specification");
+						eat_to_eol();
+						return;
+					}
 					t.template getnext<Fchar>();
 					break;
 				}
