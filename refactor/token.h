@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.10 2003/08/11 09:59:17 dds Exp $
+ * $Id: token.h,v 1.11 2003/08/11 14:15:17 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -22,6 +22,7 @@ private:
 public:
 	Tpart() {};
 	Tpart(Tokid t, int l): ti(t), len(l) {};
+	static void homogenize(const dequeTpart &a, const dequeTpart &b);
 	Tokid get_tokid() const { return ti; }
 	int get_len() const { return len; }
 	friend ostream& operator<<(ostream& o, const Tpart &t);
@@ -32,21 +33,15 @@ typedef deque<Tpart> dequeTpart;
 ostream& operator<<(ostream& o,const dequeTpart& dt);
 
 class Token {
-private:
-	/* Given two Tokid sequences corresponding to two tokens
-	 * make these correspond to equivalence classes of same lengths.
-	 * Getting the Token constituents again will return Tokids that
-	 * satisfy the above postcondition.
-	 * The operation only modifies the underlying equivalence classes
-	 */
-	static void homogenize(const dequeTpart &a, const dequeTpart &b);
 protected:
 	int code;			// Token type code
 	dequeTpart parts;		// Identifiers for constituent parts
 	string val;			// Token character contents (for identifiers)
 public:
-	// Unify the constituent equivalence classes for a and b
-	static void unify(const Token &a, const Token &b);
+	// Unify the constituent equivalence classes for def and ref
+	// The definition/reference order is only required when maintaining
+	// dependency relationships across files
+	static void unify(const Token &def, const Token &ref);
 
 	Token(int icode) : code(icode) {};
 	Token(int icode, const string& v) 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.25 2003/07/31 15:23:30 dds Exp $
+ * $Id: fchar.cpp,v 1.26 2003/08/11 14:15:17 dds Exp $
  */
 
 #include <iostream>
@@ -32,6 +32,7 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "ytab.h"
+#include "fdep.h"
 
 ifstream Fchar::in;
 Fileid Fchar::fi;
@@ -52,6 +53,12 @@ Fchar::set_input(const string& s)
 		Error::error(E_FATAL, s + ": " + string(strerror(errno)), false);
 	fi = Fileid(s);
 	fi.set_gc(false);	// Mark the file for garbage collection
+	if (cs.size() - stack_lock_size <= 1) {
+		Fdep::add_direct_include(fi);
+		if (DP())
+			cout << "cs.size=" << cs.size() << " lock_size=" << stack_lock_size <<
+				" direct include " << fi.get_path() << "\n";
+	}
 	if (DP())
 		cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;

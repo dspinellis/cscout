@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.54 2003/08/06 17:12:03 dds Exp $
+ * $Id: cscout.cpp,v 1.55 2003/08/11 14:15:17 dds Exp $
  */
 
 #include <map>
@@ -54,6 +54,7 @@
 #include "type.h"
 #include "stab.h"
 #include "license.h"
+#include "fdep.h"
 #include "version.h"
 
 // Global options
@@ -1540,6 +1541,7 @@ usage(char *fname)
 		"\t\t(the workspace file must have also been processed with -E)\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
+		"\t-u\tReport unused included files\n"
 		"\t-v\tDisplay version and copyright information and exit\n"
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n";
 	exit(1);
@@ -1554,7 +1556,7 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "vEp:m:")) != EOF)
+	while ((c = getopt(argc, argv, "uvEp:m:")) != EOF)
 		switch (c) {
 		case 'E':
 			preprocess = true;
@@ -1570,6 +1572,9 @@ main(int argc, char *argv[])
 			if (!optarg)
 				usage(argv[0]);
 			monitor = IdQuery(optarg);
+			break;
+		case 'u':
+			Fdep::set_monitoring_dependencies(true);
 			break;
 		case 'v':
 			cerr << "CScout version " <<
@@ -1714,23 +1719,37 @@ main(int argc, char *argv[])
 	return (0);
 }
 
+
 // Clear equivalence classes that do not 
 // satisfy the monitoring criteria
 void
-garbage_collect()
+garbage_collect(Fileid root)
 {
-	if (!monitor.is_valid())
+	if (!monitor.is_valid() && !Fdep::monitoring_dependencies())
 		return;
 
 	vector <Fileid> files(Fileid::files(false));
+	set <Fileid> touched_files;
+
 	int count = 0;
 	int sum = 0;
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-			if ((*i).garbage_collected())
-				continue;
-
 		Fileid fi = (*i);
+
+		if (fi.garbage_collected())
+			continue;
+
+		if (Fdep::monitoring_dependencies()) {
+			fi.set_required(false);	// Mark the file as not being required
+			touched_files.insert(*i);
+		}
+
+		if (!monitor.is_valid()) {
+			fi.set_gc(true);	// Mark the file as garbage collected
+			continue;
+		}
+
 		const string &fname = fi.get_path();
 		ifstream in;
 
@@ -1764,5 +1783,29 @@ garbage_collect()
 	}
 	if (DP())
 		cout << "Garbage collected " << count << " out of " << sum << " ECs\n";
+	if (Fdep::monitoring_dependencies()) {
+		set <Fileid> required_files;
+
+		// Recursively mark all the files containing definitions for us
+		Fdep::mark_required(root);
+		// Store them in a set to calculate set difference
+		for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
+			if ((*i).required())
+				required_files.insert(*i);
+
+		vector <Fileid> unused_files;
+		set_difference(touched_files.begin(), touched_files.end(), 
+			required_files.begin(), required_files.end(),
+			inserter(unused_files, unused_files.begin()));
+		for (vector <Fileid>::iterator i = unused_files.begin(); i != unused_files.end(); i++) {
+			cout << (*i).get_path() << ": unused";
+			if (!Fdep::is_directly_included(*i))
+				cout << " (only indirectly included)\n";
+			else
+				cout << '\n';
+		}
+		Fdep::reset();
+	}
+
 	return;
 }

@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.26 2003/08/06 17:12:03 dds Exp $
+ * $Id: type.h,v 1.27 2003/08/11 14:15:17 dds Exp $
  */
 
 #ifndef TYPE_
@@ -30,7 +30,8 @@ enum e_storage_class {
 	c_extern,
 	c_static,
 	c_auto,
-	c_register
+	c_register,
+	c_enum
 };
 
 
@@ -78,6 +79,7 @@ protected:
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual bool is_array() const { return false; }	// True for arrays
+	virtual bool is_function() const { return false; }	// True for functions
 	virtual const string& get_name() const;	// True for identifiers
 	virtual const Ctoken& get_token() const;// True for identifiers
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
@@ -90,7 +92,7 @@ protected:
 	virtual const vector <Id>& get_members_by_ordinal() const;
 
 	bool is_typedef() const { return get_storage_class() == c_typedef; }// True for typedefs
-	bool is_static() const { return get_storage_class() == c_static; }// True for typedefs
+	bool is_static() const { return get_storage_class() == c_static; }// True for static
 public:
 	// For merging
 	virtual Type merge(Tbasic *b);
@@ -183,6 +185,7 @@ public:
 	void set_storage_class(Type t)	{ return p->set_storage_class(t); }
 	bool is_ptr() const		{ return p->is_ptr(); }
 	bool is_su() const		{ return p->is_su(); }
+	bool is_function() const	{ return p->is_function(); }
 	bool is_typedef() const		{ return p->is_typedef(); }
 	bool is_valid() const		{ return p->is_valid(); }
 	bool is_basic() const		{ return p->is_basic(); }

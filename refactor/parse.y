@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.80 2003/08/11 09:59:17 dds Exp $
+ * $Id: parse.y,v 1.81 2003/08/11 14:15:17 dds Exp $
  *
  */
 
@@ -54,6 +54,7 @@
 #include "stab.h"
 #include "type2.h"
 #include "debug.h"
+#include "fdep.h"
 
 void parse_error(char *s)
 {
@@ -605,15 +606,23 @@ conditional_expression:
 			}
         ;
 
+/* Assignment expressions are initializer_members */
 assignment_expression:
         conditional_expression
+		{
+			Fdep::add_provider(Fchar::get_fileid());
+			$$ = $1; 
+		}
 	/* 
 	 * $1 was unary expression.  Changed to cast_expression
 	 * to allow the illegal construct "(int)a = 3" that gcc accepts.
 	 * In any case, the existing form allowed "-(int)a = 3"
 	 */
         | cast_expression assignment_operator assignment_expression
-		{ $$ = $1; }
+		{
+			Fdep::add_provider(Fchar::get_fileid());
+			$$ = $1; 
+		}
         ;
 
 assignment_operator:
@@ -1114,9 +1123,9 @@ enum_name:
 
 enumerator_list:
         identifier_or_typedef_name enumerator_value_opt
-			{ obj_define($1.get_token(), basic(b_int)); }
+			{ obj_define($1.get_token(), basic(b_int, s_none, c_enum)); }
         | enumerator_list ',' identifier_or_typedef_name enumerator_value_opt
-			{ obj_define($3.get_token(), basic(b_int)); }
+			{ obj_define($3.get_token(), basic(b_int, s_none, c_enum)); }
         ;
 
 enumerator_value_opt:
@@ -1307,6 +1316,7 @@ statement:
 	any_statement
 		{ 
 			Fchar::get_fileid().metrics().add_statement();
+			Fdep::add_provider(Fchar::get_fileid());
 			$$ = $1; 
 		}
 	;

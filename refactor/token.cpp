@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.16 2003/08/11 09:59:17 dds Exp $
+ * $Id: token.cpp,v 1.17 2003/08/11 14:15:17 dds Exp $
  */
 
 #include <iostream>
@@ -26,6 +26,7 @@
 #include "ytab.h"
 #include "debug.h"
 #include "error.h"
+#include "fdep.h"
 
 // Display a token part
 ostream& 
@@ -72,8 +73,14 @@ Token::set_ec_attribute(enum e_attribute a) const
 		(*i).get_tokid().set_ec_attribute(a, (*i).get_len());
 }
 
+/* Given two Tokid sequences corresponding to two tokens
+ * make these correspond to equivalence classes of same lengths.
+ * Getting the Token constituents again will return Tokids that
+ * satisfy the above postcondition.
+ * The operation only modifies the underlying equivalence classes
+ */
 void
-Token::homogenize(const dequeTpart &a, const dequeTpart &b)
+Tpart::homogenize(const dequeTpart &a, const dequeTpart &b)
 {
 	dequeTpart::const_iterator ai = a.begin();
 	dequeTpart::const_iterator bi = b.begin();
@@ -107,8 +114,11 @@ Token::homogenize(const dequeTpart &a, const dequeTpart &b)
 	}
 }
 
+// Unify the constituent equivalence classes for a and b
+// The definition/reference order is only required when maintaining
+// dependency relationships across files
 void
-Token::unify(const Token &a, const Token &b)
+Token::unify(const Token &a /* definition */, const Token &b /* reference */)
 {
 	if (DP()) cout << "Unify " << a << " and " << b << "\n";
 	// Get the constituent Tokids; they may have grown more than the parts
@@ -116,15 +126,17 @@ Token::unify(const Token &a, const Token &b)
 	dequeTpart bc = b.constituents();
 	// Make the constituents of same length
 	if (DP()) cout << "Before homogenization: " << "\n" << "a=" << a << "\n" << "b=" << b << "\n";
-	homogenize(ac, bc);
+	Tpart::homogenize(ac, bc);
 	// Get the constituents again; homogenizing may have changed them
 	ac = a.constituents();
 	bc = b.constituents();
 	if (DP()) cout << "After homogenization: " << "\n" << "a=" << ac << "\n" << "b=" << bc << "\n";
 	// Now merge the corresponding ECs
 	dequeTpart::const_iterator ai, bi;
-	for (ai = ac.begin(), bi = bc.begin(); ai != ac.end(); ai++, bi++)
+	for (ai = ac.begin(), bi = bc.begin(); ai != ac.end(); ai++, bi++) {
 		merge((*ai).get_tokid().get_ec(), (*bi).get_tokid().get_ec());
+		Fdep::add_def_ref((*ai).get_tokid().get_fileid(), (*bi).get_tokid().get_fileid());
+	}
 	ASSERT(bi == bc.end());
 }
 

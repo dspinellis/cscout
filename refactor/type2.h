@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.15 2003/08/10 21:43:51 dds Exp $
+ * $Id: type2.h,v 1.16 2003/08/11 14:15:17 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -58,6 +58,7 @@ public:
 	Type call() const { return returning; }
 	// Common extension: dereferencing a function yields a function
 	Type deref() const { return clone(); }
+	bool is_function() const { return true; }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { returning.set_storage_class(t); }

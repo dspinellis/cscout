@@ -1,14 +1,14 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.51 2003/08/10 21:28:34 dds Exp $
+# $Id: Makefile,v 1.52 2003/08/11 14:15:17 dds Exp $
 #
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
-getopt.o error.o
+getopt.o error.o fdep.o
 
 ifndef ARCH
 ARCH=i386
@@ -28,7 +28,8 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	tclfuns.cpp token.cpp token.h tokid.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
 	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h \
-	prjcomp.pl version.h version.cpp getopt.c getopt.h
+	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
+	fdep.h
 
 # Stand-alone object files
 STANDOBJ=error.o
@@ -43,11 +44,11 @@ CC=g++
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
 
 # Local development flags
-#CPPFLAGS=-pipe -g -Wall -DOFFICE_SERVER
+CPPFLAGS=-pipe -g -Wall -DOFFICE_SERVER
 #CPPFLAGS+=-DTEST_LICENSING
 
 # Production flags
-CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION -static
+# CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION -static
 
 # Realistic debug flags
 #CPPFLAGS=-pipe -O2 -g -DSPINELLIS_SERVER -DPRODUCTION
@@ -144,8 +145,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.51 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/10 21:28:34 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.52 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/11 14:15:17 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

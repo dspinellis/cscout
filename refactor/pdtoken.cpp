@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.84 2003/08/11 09:59:17 dds Exp $
+ * $Id: pdtoken.cpp,v 1.85 2003/08/11 14:15:17 dds Exp $
  */
 
 #include <iostream>
@@ -899,7 +899,7 @@ Pdtoken::process_pragma()
 		fi.set_readonly(true);
 	} else if (t.get_val() == "process") {
 		int parse_parse();
-		void garbage_collect();
+		void garbage_collect(Fileid fi);
 
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
@@ -918,7 +918,7 @@ Pdtoken::process_pragma()
 		Fchar::lock_stack();
 		if (parse_parse() != 0)
 			exit(1);
-		garbage_collect();
+		garbage_collect(Fileid(t.get_val()));
 		Fchar::unlock_stack();
 	} else if (t.get_val() == "pushd") {
 		char buff[4096];

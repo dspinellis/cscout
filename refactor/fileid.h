@@ -14,7 +14,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.16 2003/07/31 15:23:30 dds Exp $
+ * $Id: fileid.h,v 1.17 2003/08/11 14:15:17 dds Exp $
  */
 
 #ifndef FILEID_
@@ -28,6 +28,7 @@ class Filedetails {
 private:
 	string name;	// File name (complete path)
 	bool gc;	// When postprocessing files to garbage collect ECs
+	bool rq;	// When postprocessing files actually required (containing definitions)
 public:
 	Attributes attr;
 	class Metrics m;
@@ -38,6 +39,8 @@ public:
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
 	bool garbage_collected() { return gc; }
 	void set_gc(bool r) { gc = r; }
+	bool required() { return rq; }
+	void set_required(bool r) { rq = r; }
 };
 
 typedef map <string, int> FI_uname_to_id;
@@ -92,6 +95,8 @@ public:
 	// Get/set the garbage collected property
 	void set_gc(bool v) { i2d[id].set_gc(v); }
 	bool garbage_collected() { return i2d[id].garbage_collected(); }
+	void set_required(bool v) { i2d[id].set_required(v); }
+	bool required() { return i2d[id].required(); }
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.31 2003/08/06 17:12:03 dds Exp $
+ * $Id: type.cpp,v 1.32 2003/08/11 14:15:17 dds Exp $
  */
 
 #include <iostream>
@@ -297,6 +297,7 @@ Tstorage::print(ostream &o) const
 	case c_static: o << "static "; break;
 	case c_auto: o << "auto "; break;
 	case c_register: o << "register "; break;
+	case c_enum: o << "enum_const "; break;
 	}
 }
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.25 2003/08/11 09:59:17 dds Exp $
+ * $Id: stab.cpp,v 1.26 2003/08/11 14:15:17 dds Exp $
  */
 
 #include <map>
@@ -35,6 +35,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "fdep.h"
 
 
 int Block::current_block = -1;
@@ -171,6 +172,9 @@ obj_define(const Token& tok, Type typ)
 			tok.set_ec_attribute(is_typedef);
 		} else
 			tok.set_ec_attribute(is_lscope);
+		// A definition contributing data to the current CU
+		if (sc != c_extern && sc != c_typedef && sc != c_enum && !typ.is_function())
+			Fdep::add_provider(Fchar::get_fileid());
 	} else {
 		// Definitions at function block scope
 		if (sc != c_extern &&
@@ -295,7 +299,7 @@ label_define(const Token& tok)
 
 	Id const *id;
 	// Search first for local, then for function label
-	if (id = local_label_lookup(tok.get_name()))
+	if ((id = local_label_lookup(tok.get_name())))
 		is_local = true;
 	else {
 		id = Function::label.lookup(tok.get_name());
