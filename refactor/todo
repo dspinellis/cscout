@@ -1,9 +1,30 @@
-$Id: todo,v 1.43 2003/12/05 07:42:31 dds Exp $
+$Id: todo,v 1.44 2004/07/22 10:36:33 dds Exp $
+
+Handle conditional compilation!!!!
+Each conditional compilation statement can be trivially handled by creating
+and processing a parallel universe (we know how to do this, cd. 4 BSD kernel
+processing).  Find ways to do it automatically, and efficiently by
+maintaining merged virtual copies of the environment.
 
 In the query change check boxes into yes/no/don't care radio buttos
 Option to specify leading file path to hide
 
+Add type specifiers:
+	_Bool
+	_Complex
+	_Imaginary
+function specifier:
+	inline
+type qualifier:
+	restrict
+
 Document function graph
+*** Trace function calls through macros
+	Add fcall when expanding function-like macros:
+		The first expansion is through the current function
+		Recursive expansions through the currently expanded macro
+	Do not register fcall if the function name token comes from a
+	different file, or has an offset less than the function's name
 
 Function information
 	Per file: Defined functions
@@ -15,13 +36,14 @@ Function information
 		All functions
 		Project-scoped writable functions
 		File-scoped writable functions
-		Call graph 
+		Call graph
 		Call graph in GraphViz dot format
 		Function query
 			Writable
 			Read-only
 			Project scope
 			File scope
+			Defined
 			Name should match RE
 			Name of functions that call it should match RE
 			Name of functions it calls should match RE
