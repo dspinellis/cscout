@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.10 2002/09/17 10:53:02 dds Exp $
+ * $Id: macro.cpp,v 1.11 2002/12/15 19:03:37 dds Exp $
  */
 
 #include <iostream>
@@ -254,7 +254,8 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		cout << *si << " ";
 	cout << "\n";
 	#endif
-	if ((mi = Pdtoken::macros_find(name)) == Pdtoken::macros_end() || !(*pos).can_replace())
+	mi = Pdtoken::macros_find(name);
+	if (!Pdtoken::macro_is_defined(mi) || !(*pos).can_replace())
 		return (++pos);
 	if (tabu.find(name) != tabu.end()) {
 		(*pos).set_nonreplaced();

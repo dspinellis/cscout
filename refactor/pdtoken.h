@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.22 2002/09/05 10:47:38 dds Exp $
+ * $Id: pdtoken.h,v 1.23 2002/12/15 19:03:37 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -63,6 +63,10 @@ public:
 	static mapMacro::const_iterator macros_find(const string& s) { return macros.find(s); }
 	// Undefined macro returned by find
 	static mapMacro::const_iterator macros_end() { return macros.end(); }
+	// Given the result of macros_find return true of the macro is really defined
+	static bool macro_is_defined(mapMacro::const_iterator mi) { return mi != macros.end() && (*mi).second.get_is_defined(); }
+	// Add to the macros map an undefined macro
+	static void create_undefined_macro(const Ptoken &name);
 	// Add an element in the include path
 	static void add_include(const string& s) { include_path.push_back(s); };
 	// Clear the include path

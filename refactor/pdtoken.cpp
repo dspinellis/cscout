@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.65 2002/10/03 11:36:25 dds Exp $
+ * $Id: pdtoken.cpp,v 1.66 2002/12/15 19:03:37 dds Exp $
  */
 
 #include <iostream>
@@ -266,8 +266,10 @@ eval()
 		mapMacro::const_iterator mi = Pdtoken::macros_find(val);
 		if (mi != Pdtoken::macros_end())
 			unify(*arg, (*mi).second.get_name_token());
+		else
+			Pdtoken::create_undefined_macro(*arg);
 		eval_tokens.erase(i, last);
-		eval_tokens.insert(last, Ptoken(PP_NUMBER, mi == Pdtoken::macros_end() ? "0" : "1"));
+		eval_tokens.insert(last, Ptoken(PP_NUMBER, Pdtoken::macro_is_defined(mi) ? "1" : "0"));
 		i = last;
 	}
 	//cout << "Tokens after defined:\n";
@@ -325,6 +327,12 @@ Pdtoken::process_if()
 }
 
 void
+Pdtoken::create_undefined_macro(const Ptoken &name)
+{
+	macros[name.get_val()] = Macro(name, false);
+}
+
+void
 Pdtoken::process_ifdef(bool isndef)
 {
 	if (skiplevel)
@@ -335,7 +343,13 @@ Pdtoken::process_ifdef(bool isndef)
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != IDENTIFIER)
 			Error::error(E_WARN, "#ifdef argument is not an identifier");
-		bool eval_res = Pdtoken::macros_find(t.get_val()) != Pdtoken::macros_end();
+		mapMacro::const_iterator i = macros.find(t.get_val());
+		if (i == macros.end())
+			// Heuristic; assume macro, even if it is not defined
+			Pdtoken::create_undefined_macro(t);
+		else
+			unify(t, (*i).second.get_name_token());
+		bool eval_res = Pdtoken::macro_is_defined(i);
 		if (isndef)
 			eval_res = !eval_res;
 		iftaken.push(eval_res);
@@ -489,7 +503,6 @@ Pdtoken::process_include(bool next)
 void
 Pdtoken::process_define()
 {
-	Macro m;
 	string name;
 	typedef map <string, Token> mapToken;	// To unify args with body
 	mapToken args;
@@ -506,7 +519,7 @@ Pdtoken::process_define()
 	}
 	t.set_ec_attribute(is_macro);
 	Pltoken nametok = t;
-	m.set_name_token(t);
+	Macro m(t, true);
 	name = t.get_val();
 	t.template getnext<Fchar>();	// Space is significant: a(x) vs a (x)
 	m.set_is_function(false);
@@ -560,10 +573,10 @@ Pdtoken::process_define()
 	}
 	m.value_rtrim();
 
-	// Check that the new macro is not different from an older definition
+	// Check that the new macro is undefined or not different from an older definition
 	mapMacro::const_iterator i = macros.find(name);
 	if (i != macros.end())
-		if ((*i).second != m) {
+		if ((*i).second.get_is_defined() && (*i).second != m) {
 			Error::error(E_WARN, "Duplicate (different) macro definition of macro " + name);
 			if (DP()) cout << (*i).second;
 		} else

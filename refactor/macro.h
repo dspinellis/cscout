@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.3 2001/09/03 07:47:46 dds Exp $
+ * $Id: macro.h,v 1.4 2002/12/15 19:03:37 dds Exp $
  */
 
 #ifndef MACRO_
@@ -22,13 +22,18 @@ class Macro {
 private:
 	Ptoken name_token;		// Name (used for unification)
 	bool is_function;		// True if it is a function-macro
+	bool is_defined;		// True if the macro has been defined
+					// Can be false through ifdef/ifndef/defined()
 	dequePtoken formal_args;	// Formal arguments (names)
 	dequePtoken value;		// Macro value
 public:
+	Macro() {}
+	Macro( const Ptoken& name, bool id) :
+		name_token(name), is_defined(id) {}
 	// Accessor functions
 	const Ptoken& get_name_token() const {return name_token; };
-	void set_name_token(Ptoken& t) { name_token = t; };
 	void set_is_function(bool v) { is_function = v; };
+	bool get_is_defined() const { return is_defined; };
 	void form_args_push_back(Ptoken& t) { formal_args.push_back(t); };
 	void value_push_back(Ptoken& t) { value.push_back(t); };
 
