@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.34 2002/09/05 18:16:04 dds Exp $
+ * $Id: parse.y,v 1.35 2002/09/05 19:09:01 dds Exp $
  *
  */
 
@@ -479,23 +479,23 @@ default_declaring_list:  /* Can't  redeclare typedef names */
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			$$ = $2;	// Pass-on qualifier
 		}
 						 initializer_opt
+		{ $$ = $1; /* Pass-on qualifier */ }
 	/* volatile @ a[3] @ = { 1, 2, 3} */
         | type_qualifier_list identifier_declarator
 		{
 			$2.declare();
-			$$ = $1;	// Pass-on qualifier
 		}
 						 initializer_opt
+		{ $$ = $1; /* Pass-on qualifier */ }
         | default_declaring_list ',' identifier_declarator
 		{
 			$3.set_abstract($1);
 			$3.declare();
-			$$ = $1;	// Pass-on qualifier
 		}
 						 initializer_opt
+		{ $$ = $1; /* Pass-on qualifier */ }
         ;
 
 declaring_list:
@@ -504,24 +504,24 @@ declaring_list:
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			$$ = $1;	// Pass-on qualifier
 		}
 						 initializer_opt
+		{ $$ = $1; /* Pass-on qualifier */ }
 	/* int @ FILE @ = 42 */
         | type_specifier declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			$$ = $1;	// Pass-on qualifier
 		}
 						 initializer_opt
+		{ $$ = $1; /* Pass-on qualifier */ }
         | declaring_list ',' declarator
 		{
 			$3.set_abstract($1);
 			$3.declare();
-			$$ = $1;	// Pass-on qualifier
 		}
 						 initializer_opt
+		{ $$ = $1; /* Pass-on qualifier */ }
         ;
 
 /* Includes storage class */
