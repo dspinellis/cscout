@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.59 2003/07/08 13:45:12 dds Exp $
+ * $Id: parse.y,v 1.60 2003/07/16 23:16:19 dds Exp $
  *
  */
 
@@ -1472,7 +1472,7 @@ yacc_defs:
 yacc_def:
 	YSTART IDENTIFIER
 		{ obj_define($2.get_token(), basic(b_int, s_none, c_static)); }
-	| UNION '{' { parse_yacc_defs = false; } member_declaration_list  '}' 
+	| UNION '{' { parse_yacc_defs = false; } member_declaration_list  '}' semi_opt
 		{
 			Type ut = $4.clone();
 			ut.set_storage_class(basic(b_abstract, s_none, c_typedef));
@@ -1482,6 +1482,11 @@ yacc_def:
 		}
 	| YLCURL translation_unit YRCURL
 	| yacc_rword yacc_name_list_declaration
+	;
+
+semi_opt:
+	/* Empty */
+	| ';'
 	;
 
 yacc_rword:
