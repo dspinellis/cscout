@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.14 2001/08/24 20:21:52 dds Exp $
+ * $Id: pdtoken.cpp,v 1.15 2001/08/25 07:04:12 dds Exp $
  */
 
 #include <iostream>
@@ -32,6 +32,9 @@
 bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;
 mapMacro Pdtoken::macros;			// Defined macros
+stackbool Pdtoken::iftaken;		// Taken #ifs
+bool Pdtoken::skipping;			// Skip tokens when true
+int Pdtoken::iflevel;			// Level of enclosing #ifs
 
 void
 Pdtoken::getnext()
@@ -94,7 +97,7 @@ Pdtoken::eat_to_eol()
  * Each #if is evaluated and the result is pushed on the iftaken stack.
  * If false skip to next matching control.
  * At #elif check iftaken.top(): if true, skip to next matching control,
- * if false, work like an if.
+ * if false, pop stack and work like an if.
  * At #else check iftaken.top(): if true, skip to next matching control,
  * if false continue processing input.
  * At #endif execute iftaken.pop()
@@ -104,20 +107,48 @@ Pdtoken::eat_to_eol()
  * While skipping each #if* results in level++, each #endif in level--.
  */
 void
-Pdtoken::process_if(enum e_if_type)
+Pdtoken::process_if(enum e_if_type type)
 {
+	if (skipping)
+		iflevel++;
+	else {
+		if (type == if_elif) {
+			if (iftaken.top()) {
+				skipping = true;
+				iflevel = 0;
+				return;
+			} else
+				iftaken.pop();
+		}
+		bool eval_res = true;		// XXX
+		iftaken.push(eval_res);
+		if (!eval_res) {
+			skipping = true;
+			iflevel = 0;
+		}
+	}
 	eat_to_eol();
 }
 
 void
 Pdtoken::process_else()
 {
+	if (skipping && iflevel > 0)
+		return;
+	if (iftaken.top()) {
+		skipping = true;
+		iflevel = 0;
+		return;
+	} else
+		skipping = false;
 	eat_to_eol();
 }
 
 void
 Pdtoken::process_endif()
 {
+	iflevel--;
+	iftaken.pop();
 	eat_to_eol();
 }
 

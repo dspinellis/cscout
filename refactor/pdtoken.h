@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.8 2001/08/24 20:21:52 dds Exp $
+ * $Id: pdtoken.h,v 1.9 2001/08/25 07:04:12 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -19,6 +19,7 @@ typedef deque<Ptoken> dequePtoken;
 typedef list<Ptoken> listPtoken;
 typedef set<string> setstring;
 typedef map<string, listPtoken> mapArgval;
+typedef stack<bool> stackbool;
 
 // A macro definition
 class Macro {
@@ -40,6 +41,9 @@ private:
 	static mapMacro macros;			// Defined macros
 	static listPtoken expand;		// Expanded input
 	static bool at_bol;			// At beginning of line
+	static stackbool iftaken;		// Taken #ifs
+	static bool skipping;			// Skip tokens when true
+	static int iflevel;			// Level of enclosing #ifs
 
 	static void process_directive();	// Handle a cpp directive
 	static void eat_to_eol();		// Consume input including \n
