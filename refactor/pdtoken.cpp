@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.11 2001/08/24 13:58:30 dds Exp $
+ * $Id: pdtoken.cpp,v 1.12 2001/08/24 14:46:24 dds Exp $
  */
 
 #include <iostream>
@@ -256,11 +256,10 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
 		}
 		return Ptoken(EOF, "");
 	} else {
-		while (pos != tokens.end() && ((*pos).get_code() == SPACE || (*pos).get_code() == '\n')) {
+		while (pos != tokens.end() && ((*pos).get_code() == SPACE || (*pos).get_code() == '\n'))
 			pos++;
-			if (pos != tokens.end())
-				return (*pos++);
-		}
+		if (pos != tokens.end())
+			return (*pos++);
 		if (get_more) {
 			Pltoken t;
 			do {
@@ -280,12 +279,12 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
  * Return true if ok, false on error.
  */
 static bool
-gather_args(listPtoken& tokens, listPtoken::iterator& pos, const dequePtoken& formal_args, mapArgval& args, bool get_more)
+gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, const dequePtoken& formal_args, mapArgval& args, bool get_more)
 {
 	Ptoken t;
 	t = arg_token(tokens, pos, get_more, false);
 	if (t.get_code() != '(') {
-		Error::error(E_ERR, "Open bracket expected for function-like macro");
+		Error::error(E_ERR, "macro [" + name + "]: open bracket expected for function-like macro");
 		return false;
 	}
 	dequePtoken::const_iterator i;
@@ -306,16 +305,17 @@ gather_args(listPtoken& tokens, listPtoken::iterator& pos, const dequePtoken& fo
 				bracket--;
 				break;
 			case EOF:
-				Error::error(E_ERR, "EOF while reading function macro arguments");
+				Error::error(E_ERR, "macro [" + name + "]: EOF while reading function macro arguments");
 				return (false);
 			}
 			v.push_back(t);
 		}
+		// cout << "Gather args returns: " << v << "\n";
 	}
 	if (formal_args.size() == 0) {
 		t = arg_token(tokens, pos, get_more, false);
 		if (t.get_code() != ')') {
-			Error::error(E_ERR, "Close bracket expected for function-like macro");
+				Error::error(E_ERR, "macro [" + name + "]: close bracket expected for function-like macro");
 			return false;
 		}
 	}
@@ -390,8 +390,10 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 {
 	mapMacro::const_iterator mi;
 	const string& name = (*pos).get_val();
+	// cout << "macro_replace " << name << "\n";
 	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
 		return (false);
+	// cout << "replacing for " << name << "\n";
 	listPtoken::iterator expand_start = pos;
 	expand_start++;
 	tokens.erase(pos);
@@ -403,7 +405,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 		bool do_stringize;
 
 		expand_start = pos;
-		gather_args(tokens, pos, m.formal_args, args, get_more);
+		gather_args(name, tokens, pos, m.formal_args, args, get_more);
 		tokens.erase(expand_start, pos);
 		dequePtoken::const_iterator i;
 		// Substitute with macro's replacement value
@@ -433,7 +435,9 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 					// in temporary var arg, and
 					// copy that back to the main
 					listPtoken arg((*ai).second.begin(), (*ai).second.end());
+					// cout << "Arg macro " << arg << "---\n";
 					macro_replace(arg, arg.begin(), tabu, false);
+					// cout << "Arg macro result" << arg << "---\n";
 					copy(arg.begin(), arg.end(), inserter(tokens, pos));
 				} else if (do_stringize)
 					tokens.insert(pos, stringize((*ai).second));
@@ -483,11 +487,13 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 		bool replaced = false;
 		// We should start at expand_start, but this may be
 		// invalided by a replacement
-		for (ti = tokens.begin(); ti != tokens.end(); ti++)
+		for (ti = tokens.begin(); ti != tokens.end(); ti++) {
+			// cout << "Recurse on " << tokens << "---\n";
 			if (macro_replace(tokens, ti, tabu, true)) {
 				replaced = true;
 				break;
 			}
+		}
 		if (!replaced)
 			return (true);
 	}
