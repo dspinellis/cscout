@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.8 2001/09/02 17:24:19 dds Exp $
+ * $Id: fchar.cpp,v 1.9 2001/09/23 06:49:56 dds Exp $
  */
 
 #include <iostream>
@@ -13,6 +13,7 @@
 #include <cassert>
 #include <fstream>
 #include <stack>
+#include <set>
 #ifdef unix
 #include <cstdio>		// perror
 #else
@@ -20,6 +21,7 @@
 #endif
 
 #include "cpp.h"
+#include "debug.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
@@ -115,13 +117,17 @@ Fchar::getnext()
 	if (!ps.empty()) {
 		*this = ps.top();
 		ps.pop();
+		if (DP())
+			cout << "getnext returns " << this->get_char() << "\n";
 		return;
 	}
 	for (;;) {
 		simple_getnext();
-		if (val != EOF || cs.empty())
+		if (val != EOF || cs.empty()) {
+			if (DP())
+				cout << "getnext returns " << this->get_char() << "\n";
 			return;
-
+		}
 		fchar_context fc = cs.top();
 		set_input(fc.ti.get_path());
 		in.seekg(fc.ti.get_streampos());
