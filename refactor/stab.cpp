@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.7 2001/09/21 08:56:31 dds Exp $
+ * $Id: stab.cpp,v 1.8 2001/09/21 14:14:19 dds Exp $
  */
 
 #include <map>
@@ -66,19 +66,22 @@ Block::define(Stab Block::*table, const Token& tok, const Type& typ)
  * Define the tok object to be of type typ
  */
 void
-obj_define(const Token& tok, const Type& typ)
+obj_define(const Token& tok, Type typ)
 {
 	enum e_storage_class sc = typ.get_storage_class();
 	Id const * id;
 
 	if (DP())
-		cout << "Define [" << tok.get_name() << "]: " << typ << "\n";
+		cout << "Define object [" << tok.get_name() << "]: " << typ << "\n";
 	if (sc == c_extern && (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
 		// If the declaration of an identifier contains extern the identifier
 		// has the same linage as any visible declaration of the identifier
 		// with file scope
-		sc = id->get_type().get_storage_class();
-		// XXX Should also modfy the storage class of typ
+		enum e_storage_class sc2 = id->get_type().get_storage_class();
+		if (sc2 != sc) {
+			typ.set_storage_class(basic(b_abstract, s_none, sc2));
+			sc = sc2;
+		}
 	}
 	if (Block::current_block == Block::cu_block) {
 		// Special rules for definitions at file scope
@@ -108,6 +111,21 @@ obj_define(const Token& tok, const Type& typ)
 		else
 			Block::scope_block[Block::lu_block].obj.define(tok, typ);
 	}
+}
+
+/*
+ * Define the tok struct/union/enum tag to be of type typ
+ */
+void
+tag_define(const Token& tok, const Type& typ)
+{
+	if (DP())
+		cout << "Define tag [" << tok.get_name() << "]: " << typ << "\n";
+	if (Block::scope_block[Block::current_block].tag.lookup(tok.get_name())) {
+		Error::error(E_ERR, "Duplicate definition of tag  " + tok.get_name());
+		return;
+	}
+	Block::define(&(Block::tag), tok, typ);
 }
 
 /*
@@ -185,4 +203,16 @@ Function::exit()
 		if (!Stab::get_id(i).get_type().is_valid())
 			Error::error(E_ERR, "undefined label " + Stab::get_name(i));
 	label.clear();
+}
+
+ostream& 
+operator<<(ostream& o,const Stab &s)
+{
+	Stab_element::const_iterator i;
+
+	o << "{";
+	for (i = s.m.begin(); i != s.m.end(); i++)
+		o << (*i).first << ": " << ((*i).second.get_type()) << "\n";
+	o << "} ";
+	return o;
 }

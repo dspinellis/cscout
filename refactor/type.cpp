@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.9 2001/09/21 08:56:31 dds Exp $
+ * $Id: type.cpp,v 1.10 2001/09/21 14:14:19 dds Exp $
  */
 
 #include <iostream>
@@ -33,6 +33,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "type2.h"
 #include "debug.h"
 
 
@@ -55,6 +56,15 @@ Type_node::subscript() const
 	return basic(b_undeclared);
 }
 
+const Stab& 
+Type_node::get_members() const
+{
+	static Stab dummy;
+
+	Error::error(E_INTERNAL, "get_members: not structure or union");
+	this->print(cout);
+	return dummy;
+}
 
 Type
 Type_node::call() const
@@ -128,24 +138,13 @@ Type_node::get_storage_class() const
 	return c_unspecified;
 }
 
-Id
+const Id *
 Type_node::member(const string& s) const
 {
 	Error::error(E_ERR, "invalid member access: not a structure or union");
-	return Id(Token(), basic(b_undeclared));
+	return NULL;
 }
 
-Id
-Tsu::member(const string& s) const
-{
-	map<string, Id>::const_iterator i;
-
-	if ((i = members.find(s)) == members.end()) {
-		Error::error(E_ERR, "structure or union does not have a member " + s);
-		return Id(Token(), basic(b_undeclared));
-	} else
-		return ((*i).second);
-}
 Type
 basic(enum e_btype t = b_abstract, enum e_sign s = s_none, enum e_storage_class sc = c_unspecified)
 {
@@ -188,16 +187,16 @@ union_tag()
 	return Type(new Ttag(tt_union));
 }
 
-Id
-Type::member(const string& name) const
+Type
+struct_union(const Token &tok, const Type &typ, const Type &spec)
 {
-	return p->member(name);
+	return Type(new Tsu(tok, typ, spec));
 }
 
-void
-Tsu::add_member(string& name, Id i)
+Type
+struct_union(const Type &spec)
 {
-	members[name] = i;
+	return Type(new Tsu(spec));
 }
 
 Type
@@ -221,7 +220,7 @@ Type_node::print(ostream &o) const
 void
 Tbasic::print(ostream &o) const
 {
-	switch (sclass) {
+	switch (sclass.get_storage_class()) {
 	case c_unspecified: break;
 	case c_typedef: o << "typedef "; break;
 	case c_extern: o << "extern "; break;
@@ -285,19 +284,11 @@ Ttag::print(ostream &o) const
 	}
 }
 
+
 void
 Tsu::print(ostream &o) const
 {
-	map<string,Id>::const_iterator i;
-
-	o << "{";
-	for (i = members.begin(); i != members.end(); ) {
-		o << (*i).first << ": " << ((*i).second.get_type());
-		i++;
-		if (i != members.end())
-			o << ", ";
-	}
-	o << "} ";
+	o << members;
 }
 
 void
@@ -334,10 +325,14 @@ Tbasic::merge(Tbasic *b)
 	         (this->type == b_double && b->type == b_long))
 		t = b_ldouble;
 	else if ((this->type == b_long && b->type == b_long) ||
-	         (this->type == b_long && b->type == b_long))
+	         (this->type == b_long && b->type == b_long) ||
+	         (this->type == b_llong && b->type == b_int) ||
+	         (this->type == b_int && b->type == b_llong))
 		t = b_llong;		// Extension to ANSI
 	else {
 		Error::error(E_ERR, "illegal combination of type specifiers");
+		if (DP())
+			cout << "merge a=" << Type(this) << "\nmerge b=" << Type(b) << "\n";
 		t = b_undeclared;
 	}
 
@@ -349,29 +344,23 @@ Tbasic::merge(Tbasic *b)
 		Error::error(E_WARN, "illegal combination of sign specifiers");
 		s = s_none;
 	}
-	// Signed or unsigned on its own means "int"
-	if ((t == b_abstract || t == b_undeclared) && s != s_none)
-		t = b_int;
+
 	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble)) {
 		Error::error(E_WARN, "sign specification on non-integral type - ignored");
 		s = s_none;
 	}
 
-	if (this->sclass == c_unspecified)
-		c = b->sclass;
-	else if (b->sclass == c_unspecified)
-		c = this->sclass;
+	if (this->sclass.get_storage_class() == c_unspecified)
+		c = b->sclass.get_storage_class();
+	else if (b->sclass.get_storage_class() == c_unspecified)
+		c = this->sclass.get_storage_class();
 	else {
 		Error::error(E_ERR, "at most one storage class can be specified");
-		c = this->sclass;
+		c = this->sclass.get_storage_class();
 	}
 	if (DP()) {
-		cout << "merge a=";
-		this->print(cout);
-		cout << "\nmerge b=";
-		b->print(cout);
-		Type r = basic(t, s, c);
-		cout << "\nmerge r=" << r << "\n";
+		cout << "merge a=" << Type(this) << "\nmerge b=" << Type(b) <<
+			"\nmerge r=" << Type(basic(t, s, c)) << "\n";
 	}
 	return basic(t, s, c);
 }
@@ -457,11 +446,11 @@ Type::declare()
 Type 
 Tbasic::clone() const
 {
-	return Type(new Tbasic(type, sign, sclass));
+	return Type(new Tbasic(type, sign, sclass.get_storage_class()));
 }
 
 void
-Tbasic::set_storage_class(Type t)
+Tstorage::set_storage_class(Type t)
 {
 	enum e_storage_class newclass = t.get_storage_class();
 
@@ -479,3 +468,25 @@ Type_node::set_storage_class(Type t)
 {
 	Error::error(E_INTERNAL, "object can not set storage class");
 }
+
+void
+Type_node::add_member(const Token &tok, const Type &typ)
+{
+	Error::error(E_INTERNAL, "add_member: object is not a structure/union");
+}
+
+Type
+Type_node::get_default_specifier()
+{
+	Error::error(E_INTERNAL, "get_default_specifier: object is not a structure/union");
+	return basic();
+}
+
+void
+Type_node::merge_with(Type t)
+{
+	Error::error(E_INTERNAL, "merge_with: object is not a structure/union");
+	cout << "A: " << Type(this) << "\n";
+	cout << "B: " << t << "\n";
+}
+

@@ -2,8 +2,9 @@
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * The type-system structure
+ * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.12 2001/09/21 08:56:31 dds Exp $
+ * $Id: type.h,v 1.13 2001/09/21 14:14:19 dds Exp $
  */
 
 #ifndef TYPE_
@@ -37,6 +38,7 @@ enum e_tagtype {tt_struct, tt_union, tt_enum};
 class Id;
 class Tbasic;
 class Type;
+class Stab;
 
 class Type_node {
 	friend class Type;
@@ -52,7 +54,7 @@ protected:
 	virtual Type call() const;		// Function
 	virtual Type type() const;		// Identifier
 	virtual Type clone() const;		// Deep copy
-	virtual Id member(const string& name) const;	// Structure and union
+	virtual Id const* member(const string& name) const;	// Structure and union
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
@@ -62,6 +64,10 @@ protected:
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
 	virtual void set_storage_class(Type t);	// Set typedef's underlying storage class to t
 	virtual enum e_storage_class get_storage_class() const;// Return the declaration's storage class
+	virtual void add_member(const Token &tok, const Type &typ);
+	virtual Type get_default_specifier();
+	virtual void merge_with(Type t);
+	virtual const Stab& get_members() const;
 
 	bool is_typedef() const { return get_storage_class() == c_typedef; }// True for typedefs
 public:
@@ -71,13 +77,24 @@ public:
 	virtual void print(ostream &o) const = 0;
 };
 
+// Used by types with a storage class: Tbasic and Tsu
+class Tstorage {
+private:
+	enum e_storage_class sclass;
+public:
+	Tstorage (enum e_storage_class sc) : sclass(sc) {}
+	Tstorage() { sclass = c_unspecified; }
+	enum e_storage_class get_storage_class() const {return sclass; }
+	void set_storage_class(Type t);
+};
+
 
 // Basic type
 class Tbasic: public Type_node {
 private:
 	enum e_btype type;
 	enum e_sign sign;
-	enum e_storage_class sclass;
+	Tstorage sclass;
 public:
 	Tbasic(enum e_btype t = b_abstract, enum e_sign s = s_none,
 		enum e_storage_class sc = c_unspecified) :
@@ -89,8 +106,8 @@ public:
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
 	Tbasic *tobasic() { return this; }
-	enum e_storage_class get_storage_class() const {return sclass; }
-	void set_storage_class(Type t);
+	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
+	inline void set_storage_class(Type t);
 };
 
 /*
@@ -114,6 +131,8 @@ public:
 	friend Type enum_tag();
 	friend Type struct_tag();
 	friend Type union_tag();
+	friend Type struct_union(const Token &tok, const Type &typ, const Type &spec);
+	friend Type struct_union(const Type &spec);
 	friend Type label();
 	friend Type identifier(const Ctoken& c);
 	// To print
@@ -142,106 +161,21 @@ public:
 	bool is_abstract() const	{ return p->is_abstract(); }
 	const string& get_name() const	{ return p->get_name(); }
 	const Ctoken& get_token() const { return p->get_token(); }
-	enum e_storage_class get_storage_class() const {return p->get_storage_class(); }
-	Id member(const string& name) const;
+	enum e_storage_class get_storage_class() const 
+					{return p->get_storage_class(); }
+	Type get_default_specifier() const 
+					{ return p->get_default_specifier(); }
+	void add_member(const Token &tok, const Type &typ)
+					{ p->add_member(tok, typ); }
+	void merge_with(Type t) { p->merge_with(t) ; }
+	const Stab& get_members() const	{ return p->get_members(); }
+	Id const* member(const string& name) const	// Structure and union
+					{ return p->member(name); }
 	friend Type merge(Type a, Type b) { return a.p->merge(b.p->tobasic()); }
 };
 
 
-// Array of ...
-class Tarray: public Type_node {
-private:
-	Type of;
-public:
-	Tarray(Type t) : of(t) {}
-	Type clone() const { return Type(new Tarray(of.clone())); }
-	Type subscript() const { return of; }
-	bool is_ptr() { return true; }
-	void print(ostream &o) const;
-	void set_abstract(Type t);
-	void set_storage_class(Type t) { of.set_storage_class(t); }
-	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
-};
-
-// Pointer to ...
-class Tpointer: public Type_node {
-private:
-	Type to;
-public:
-	Tpointer(Type t) : to(t) {}
-	Type clone() const { return Type(new Tpointer(to.clone())); }
-	Type deref() const { return to; }
-	bool is_ptr() { return true; }
-	void set_storage_class(Type t) { to.set_storage_class(t); }
-	enum e_storage_class get_storage_class() const {return to.get_storage_class(); }
-	void print(ostream &o) const;
-	void set_abstract(Type t);
-};
-
-// Function returning ...
-class Tfunction: public Type_node {
-private:
-	Type returning;
-public:
-	Tfunction(Type t) : returning(t) {}
-	Type clone() const { return Type(new Tfunction(returning.clone())); }
-	Type call() const { return returning; }
-	void print(ostream &o) const;
-	void set_abstract(Type t);
-	void set_storage_class(Type t) { returning.set_storage_class(t); }
-	enum e_storage_class get_storage_class() const {return returning.get_storage_class(); }
-};
-
-// Tag for ..
-class Ttag: public Type_node {
-private:
-	bool incomplete;
-	enum e_tagtype type;
-public:
-	Ttag(enum e_tagtype e, bool i = true) :
-		incomplete(i), type(e) {}
-	void print(ostream &o) const;
-};
-
-// Structure or Union
-class Tsu: public Ttag {
-private:
-	map<string, Id> members;
-public:
-	Tsu(enum e_tagtype e, bool i = true) :
-		Ttag(e, i) {}
-	Id member(const string& name) const;
-	void add_member(string& name, Id i);
-	void print(ostream &o) const;
-};
-
-// Identifier; not really a type, it is returned by the lexical analyser
-// It is also the type used to represent undeclared identifiers
-class Tidentifier: public Type_node {
-private:
-	Ctoken t;
-	Type of;			// Identifying a given type
-public:
-	Tidentifier(const Ctoken& tok) : t(tok), of(basic()) {}
-	Tidentifier(const Ctoken& tok, Type typ) : t(tok), of(typ) {}
-	Type clone() const { return Type(new Tidentifier(t, of.clone())); }
-	const Ctoken& get_token() const { return t; }
-	const string& get_name() const { return t.get_name(); }
-	Type type() const { return of; }
-	Type call() const;			// Function (undeclared)
-	void print(ostream &o) const;
-	void set_abstract(Type t);
-	void set_storage_class(Type t) { of.set_storage_class(t); }
-	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
-};
-
-// Goto label
-class Tlabel: public Type_node {
-public:
-	Tlabel() {}
-	void print(ostream &o) const;
-};
-
+inline void Tbasic::set_storage_class(Type t) { sclass.set_storage_class(t); }
 
 /*
  * We can not use a union since its members have constructors and desctructors.

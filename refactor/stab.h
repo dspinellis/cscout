@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.5 2001/09/20 13:15:00 dds Exp $
+ * $Id: stab.h,v 1.6 2001/09/21 14:14:19 dds Exp $
  */
 
 #ifndef STAB_
@@ -42,6 +42,9 @@ public:
 		{ return (*x).first; }
 	static const Id& get_id(const Stab_element::const_iterator x)
 		{ return (*x).second; }
+	void merge_with(const Stab& m2)
+		{ m.insert(m2.m.begin(), m2.m.end()); }
+	friend ostream& operator<<(ostream& o,const Stab &s);
 };
 
 class Block;
@@ -78,16 +81,23 @@ public:
 	static void exit();
 	static int get_cur_block() { return current_block; }
 
-	// Lookup and defined
+	// Lookup and define of objects and struct/union/enum tags
 	inline friend Id const * obj_lookup(const string& name);
-	friend void obj_define(const Token& tok, const Type& t);
+	friend void obj_define(const Token& tok, Type t);
+	inline friend Id const * tag_lookup(const string& name);
+	friend void tag_define(const Token& tok, const Type& t);
 };
-
 
 inline Id const *
 obj_lookup(const string& name)
 {
 	return Block::lookup(&(Block::obj), name);
+}
+
+inline Id const *
+tag_lookup(const string& name)
+{
+	return Block::lookup(&(Block::tag), name);
 }
 
 #endif // STAB_

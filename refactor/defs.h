@@ -5,10 +5,10 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: defs.h,v 1.2 2001/09/14 07:42:17 dds Exp $
+ * $Id: defs.h,v 1.3 2001/09/21 14:14:19 dds Exp $
  */
 
-#define __cplusplus
+//#define __cplusplus
 #define __STDC__ 1
 #define __ELF__ 
 #define unix 
@@ -32,3 +32,5 @@
 
 #pragma includepath "/usr/lib/gcc-lib/i386-redhat-linux/2.96/include"
 #pragma includepath "/usr/include"
+
+#define __extension__

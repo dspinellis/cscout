@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.17 2001/09/21 09:55:13 dds Exp $
+ * $Id: parse.y,v 1.18 2001/09/21 14:14:19 dds Exp $
  *
  */
 
@@ -50,6 +50,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "type2.h"
 #include "debug.h"
 
 void parse_error(char *s)
@@ -103,6 +104,16 @@ void parse_error(char *s)
 %type <t> typedef_declaration_specifier
 %type <t> typedef_type_specifier
 %type <t> declaration_specifier
+%type <t> sue_type_specifier
+%type <t> sue_declaration_specifier
+%type <t> member_declaration_list
+%type <t> member_declaration
+%type <t> member_default_declaring_list
+%type <t> member_declaring_list
+%type <t> member_declarator
+%type <t> member_identifier_declarator
+%type <t> elaborated_type_name
+%type <t> aggregate_name
 
 %type <t> declarator
 %type <t> typedef_declarator
@@ -214,20 +225,26 @@ postfix_expression:
 			{ $$ = $1.call(); }
         | postfix_expression '.'   member_name
 			{
-				Id i = $1.member($3.get_name());
-				$$ = i.get_type();
-				if ($$.is_valid()) {
-					assert(i.get_name() == $3.get_name());
-					unify($3.get_token(), i.get_token());
+				Id const *id = $1.member($3.get_name());
+				if (id) {
+					$$ = id->get_type();
+					assert(id->get_name() == $3.get_name());
+					unify($3.get_token(), id->get_token());
+				} else {
+					Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
+					$$ = basic(b_undeclared);
 				}
 			}
         | postfix_expression PTR_OP member_name
 			{
-				Id i = ($1.deref()).member($3.get_name());
-				$$ = i.get_type();
-				if ($$.is_valid()) {
-					assert(i.get_name() == $3.get_name());
-					unify($3.get_token(), i.get_token());
+				Id const *id = ($1.deref()).member($3.get_name());
+				if (id) {
+					$$ = id->get_type();
+					assert(id->get_name() == $3.get_name());
+					unify($3.get_token(), id->get_token());
+				} else {
+					Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
+					$$ = basic(b_undeclared);
 				}
 			}
         | postfix_expression INC_OP
@@ -282,9 +299,12 @@ cast_expression:
 multiplicative_expression:
         cast_expression
         | multiplicative_expression '*' cast_expression
+		{ $$ = $1; }
         | multiplicative_expression '/' cast_expression
+		{ $$ = $1; }
         | multiplicative_expression '%' cast_expression
-        ; /* Default rules */
+		{ $$ = $1; }
+        ;
 
 additive_expression:
         multiplicative_expression
@@ -301,8 +321,10 @@ additive_expression:
 shift_expression:
         additive_expression
         | shift_expression LEFT_OP additive_expression
+		{ $$ = $1; }
         | shift_expression RIGHT_OP additive_expression
-        ; /* Default rules */
+		{ $$ = $1; }
+        ;
 
 relational_expression:
         shift_expression
@@ -327,17 +349,20 @@ equality_expression:
 and_expression:
         equality_expression
         | and_expression '&' equality_expression
-        ; /* Default rules */
+		{ $$ = $1; }
+        ;
 
 exclusive_or_expression:
         and_expression
         | exclusive_or_expression '^' and_expression
-        ; /* Default rules */
+		{ $$ = $1; }
+        ;
 
 inclusive_or_expression:
         exclusive_or_expression
         | inclusive_or_expression '|' exclusive_or_expression
-        ; /* Default rules */
+		{ $$ = $1; }
+        ;
 
 logical_and_expression:
         inclusive_or_expression
@@ -360,7 +385,8 @@ conditional_expression:
 assignment_expression:
         conditional_expression
         | unary_expression assignment_operator assignment_expression
-        ; /* Default rules */
+		{ $$ = $1; }
+        ;
 
 assignment_operator:
         '='
@@ -543,14 +569,18 @@ basic_type_specifier:
         ;
 
 sue_declaration_specifier:          /* Storage Class + struct/union/enum */
+	/* static const @ struct foo {int a;} */
         declaration_qualifier_list  elaborated_type_name
+		{ $2.set_abstract($1); $$ = $2; }
         | sue_type_specifier        storage_class
+		{ $1.set_abstract($2); $$ = $1; }
         | sue_declaration_specifier declaration_qualifier
         ;
 
 sue_type_specifier:
         elaborated_type_name              /* struct/union/enum */
         | type_qualifier_list elaborated_type_name
+		{ $$ = $2; }
         | sue_type_specifier  type_qualifier
         ;
 
@@ -619,12 +649,26 @@ basic_type_name:
 elaborated_type_name:
         aggregate_name
         | enum_name
+		{ $$ = basic(b_int); }
         ;
 
 aggregate_name:
         aggregate_key '{'  member_declaration_list '}'
+		{ $$ = $3; }
         | aggregate_key identifier_or_typedef_name '{'  member_declaration_list '}'
+		{
+			tag_define($2.get_token(), $4);
+			$$ = $4;
+		}
         | aggregate_key identifier_or_typedef_name
+		{ 
+			Id const *id = tag_lookup($2.get_name());
+			if (id) {
+				unify(id->get_token(), $2.get_token());
+				$$ = id->get_type();
+			} else
+				$$ = basic(b_undeclared);
+		}
         ;
 
 aggregate_key:
@@ -635,32 +679,81 @@ aggregate_key:
 member_declaration_list:
         member_declaration
         |  member_declaration_list member_declaration
+		{
+			if (DP()) {
+				cout << "$1: " << $1 << "\n";
+				cout << "$2: " << $2 << "\n";
+			}
+			$1.merge_with($2);
+			$$ = $1;
+		}
         ;
 
 member_declaration:
         member_declaring_list ';'
+		{ $$ = $1; }
         | member_default_declaring_list ';'
+		{ $$ = $1; }
         ;
 
-member_default_declaring_list:        /* doesn't redeclare typedef*/
+member_default_declaring_list:        /* doesn't redeclare typedef */
+	/* volatile @ a[3] */
         type_qualifier_list member_identifier_declarator
+		{
+			if ($2.is_valid()) { // Check against padding bit fields
+				$2.set_abstract($1);
+				$$ = struct_union($2.get_token(), $2, $1);
+			} else
+				$$ = struct_union($1);
+		}
+	/* volatile a[3], b */
         | member_default_declaring_list ',' member_identifier_declarator
+		{
+			if ($3.is_valid()) { // Check against padding bit fields
+				$3.set_abstract($1.get_default_specifier());
+				$1.add_member($3.get_token(), $3);
+			}
+			$$ = $1;
+		}
         ;
 
 member_declaring_list:
+	/* unsigned int @ *a[3] */
         type_specifier member_declarator
+		{
+			if ($2.is_valid()) { // Check against padding bit fields
+				$2.set_abstract($1);
+				$$ = struct_union($2.get_token(), $2, $1);
+			} else
+				$$ = struct_union($1);
+			if (DP())
+				cout << "member_declaring_list = " << $$ << "\n";
+		}
         | member_declaring_list ',' member_declarator
+		{
+			if ($3.is_valid()) { // Check against padding bit fields
+				$3.set_abstract($1.get_default_specifier());
+				$1.add_member($3.get_token(), $3);
+			}
+			$$ = $1;
+		}
         ;
 
-
 member_declarator:
+	/* *a[3] */
+	/* a : 5 */
         declarator bit_field_size_opt
         | bit_field_size
+		/* Padding bit field */
+		{ $$ = basic(); }
         ;
 
 member_identifier_declarator:
+	/* a[3]; also typedef names */
         identifier_declarator bit_field_size_opt
         | bit_field_size
+		/* Padding bit field */
+		{ $$ = basic(); }
         ;
 
 bit_field_size_opt:
@@ -677,8 +770,6 @@ enum_name:
         | ENUM identifier_or_typedef_name '{' enumerator_list '}'
         | ENUM identifier_or_typedef_name
         ;
-
-
 
 enumerator_list:
         identifier_or_typedef_name enumerator_value_opt
