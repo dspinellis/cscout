@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.74 2003/08/03 09:25:14 dds Exp $
+ * $Id: parse.y,v 1.75 2003/08/03 09:34:46 dds Exp $
  *
  */
 
@@ -468,7 +468,23 @@ cast_expression:
 			if (DP())
 				cout << "cast to " << $2 << "\n"; 
 		}
+	/* C9X feature */
+        | '(' type_name ')' compound_literal
+		{ $$ = $2; }
         ;
+
+/* 
+ * XXX Can designators and compound literals be used in compound literals?
+ * If so our designators must be redesigned, because they can not be nested
+ */
+compound_literal:
+	'{' assignment_expression_list '}'
+	;
+
+assignment_expression_list:
+	assignment_expression
+	| assignment_expression_list ',' assignment_expression
+	;
 
 multiplicative_expression:
         cast_expression
