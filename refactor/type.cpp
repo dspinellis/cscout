@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.5 2001/09/14 10:09:51 dds Exp $
+ * $Id: type.cpp,v 1.6 2001/09/15 16:42:58 dds Exp $
  */
 
 #include <iostream>
@@ -33,6 +33,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "debug.h"
 
 
 
@@ -123,9 +124,9 @@ Tsu::member(const string& s) const
 		return ((*i).second);
 }
 Type
-basic(enum e_btype t = b_abstract, enum e_sign s = s_none)
+basic(enum e_btype t = b_abstract, enum e_sign s = s_none, enum e_storage_class sc = c_unspecified)
 {
-	return Type(new Tbasic(t, s));
+	return Type(new Tbasic(t, s, sc));
 }
 
 Type
@@ -198,6 +199,15 @@ label()
 void
 Tbasic::print(ostream &o) const
 {
+	switch (sclass) {
+	case c_unspecified: break;
+	case c_typedef: o << "typedef "; break;
+	case c_extern: o << "extern "; break;
+	case c_static: o << "static "; break;
+	case c_auto: o << "auto "; break;
+	case c_register: o << "register "; break;
+	}
+
 	switch (sign) {
 	case s_none: break;
 	case s_signed: o << "signed "; break;
@@ -205,17 +215,17 @@ Tbasic::print(ostream &o) const
 	}
 
 	switch (type) {
-	b_abstract: o << "ABSTRACT "; break;
-	b_void: o << "void "; break;
-	b_char: o << "char "; break;
-	b_short: o << "short "; break;
-	b_int: o << "int "; break;
-	b_long: o << "long "; break;
-	b_float: o << "float "; break;
-	b_double: o << "double "; break;
-	b_ldouble: o << "long double "; break;
-	b_undeclared: o << "UNDECLARED "; break;
-	b_typedef: o << "typedef "; break;
+	case b_abstract: o << "ABSTRACT "; break;
+	case b_void: o << "void "; break;
+	case b_char: o << "char "; break;
+	case b_short: o << "short "; break;
+	case b_int: o << "int "; break;
+	case b_long: o << "long "; break;
+	case b_llong: o << "long long "; break;
+	case b_float: o << "float "; break;
+	case b_double: o << "double "; break;
+	case b_ldouble: o << "long double "; break;
+	case b_undeclared: o << "UNDECLARED "; break;
 	}
 }
 
@@ -278,4 +288,88 @@ void
 Tidentifier::print(ostream &o) const
 {
 	o << t;
+}
+
+/*
+ * Merge two basic types constisting of sign, type specifiers, and
+ * storage class, returning the composite type
+ * See ANSI 3.5.2
+ */
+Type
+Tbasic::merge(Tbasic *b)
+{
+	enum e_btype t;
+	enum e_sign s;
+	enum e_storage_class c;
+
+	if (b == NULL)
+		return Type_node::merge(b);
+	if (this->type == b_abstract || this->type == b_undeclared)
+		t = b->type;
+	else if (b->type == b_abstract || b->type == b_undeclared)
+		t = this->type;
+	else if ((this->type == b_long && b->type == b_int) ||
+	         (this->type == b_int && b->type == b_long))
+		t = b_long;
+	else if ((this->type == b_short && b->type == b_int) ||
+	         (this->type == b_int && b->type == b_short))
+		t = b_short;
+	else if ((this->type == b_long && b->type == b_double) ||
+	         (this->type == b_double && b->type == b_long))
+		t = b_ldouble;
+	else if ((this->type == b_long && b->type == b_long) ||
+	         (this->type == b_long && b->type == b_long))
+		t = b_llong;		// Extension to ANSI
+	else {
+		Error::error(E_ERR, "illegal combination of type specifiers");
+		t = b_undeclared;
+	}
+
+	if (this->sign == s_none)
+		s = b->sign;
+	else if (b->sign == s_none)
+		s = this->sign;
+	else {
+		Error::error(E_WARN, "illegal combination of sign specifiers");
+		s = s_none;
+	}
+	// Signed or unsigned on its own means "int"
+	if ((t == b_abstract || t == b_undeclared) && s != s_none)
+		t = b_int;
+	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble)) {
+		Error::error(E_WARN, "sign specification on non-integral type - ignored");
+		s = s_none;
+	}
+
+	if (this->sclass == c_unspecified)
+		c = b->sclass;
+	else if (b->sclass == c_unspecified)
+		c = this->sclass;
+	else {
+		Error::error(E_ERR, "at most one storage class can be specified");
+		c = this->sclass;
+	}
+	if (DP()) {
+		cout << "merge a=";
+		this->print(cout);
+		cout << "\nmerge b=";
+		b->print(cout);
+		Type r = basic(t, s, c);
+		cout << "\nmerge r=" << r << "\n";
+	}
+	return basic(t, s, c);
+}
+
+Type
+Type_node::merge(Tbasic *b)
+{
+	Error::error(E_ERR, "invalid application of basic type, storage class, or type specifier");
+	if (DP()) {
+		cout << "a=";
+		this->print(cout);
+		cout << "\nb=";
+		b->print(cout);
+		cout << "\n";
+	}
+	return basic();
 }

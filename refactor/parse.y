@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.12 2001/09/14 15:48:59 dds Exp $
+ * $Id: parse.y,v 1.13 2001/09/15 16:42:58 dds Exp $
  *
  */
 
@@ -84,6 +84,15 @@ void parse_error(char *s)
 %type <t> type_name
 %type <t> string_literal_list
 %type <t> comma_expression
+
+%type <t> basic_type_name
+%type <t> storage_class
+%type <t> declaration_qualifier_list
+%type <t> type_qualifier_list
+%type <t> declaration_qualifier
+%type <t> type_qualifier
+%type <t> basic_declaration_specifier
+%type <t> basic_type_specifier
 
 %%
 
@@ -260,9 +269,7 @@ additive_expression:
 shift_expression:
         additive_expression
         | shift_expression LEFT_OP additive_expression
-			{ $$ = $1; }
         | shift_expression RIGHT_OP additive_expression
-			{ $$ = $1; }
         ;
 
 relational_expression:
@@ -422,39 +429,52 @@ type_specifier:
         ;
 
 
+/* e.g. typedef static volatile const */
 declaration_qualifier_list:  /* const/volatile, AND storage class */
         storage_class
         | type_qualifier_list storage_class
+			{ $$ = $2; }
         | declaration_qualifier_list declaration_qualifier
+			{ $$ = merge($1, $2); }
         ;
 
+/* e.g. const volatile */
 type_qualifier_list:
         type_qualifier
         | type_qualifier_list type_qualifier
-        ;
+        ; /* default rules */
 
+/* One of: static extern typedef register auto const volatile */
 declaration_qualifier:
         storage_class
         | type_qualifier                  /* const or volatile */
-        ;
+        ; /* default rules */
 
 type_qualifier:
-        CONST
-        | VOLATILE
+        CONST		{ $$ = basic(); }
+        | VOLATILE	{ $$ = basic(); }
         ;
 
-basic_declaration_specifier:      /*Storage Class+Arithmetic or void*/
-        declaration_qualifier_list basic_type_name
-        | basic_type_specifier  storage_class
+basic_declaration_specifier:      /* Storage Class+Arithmetic or void */
+        declaration_qualifier_list basic_type_name	/* static, int */
+			{ $$ = merge($1, $2); }
+        | basic_type_specifier  storage_class		/* int, static */
+			{ $$ = merge($1, $2); }
+	/* static int, volatile */
         | basic_declaration_specifier declaration_qualifier
+			{ $$ = merge($1, $2); }
+	/* static long, int */
         | basic_declaration_specifier basic_type_name
+			{ $$ = merge($1, $2); }
         ;
 
 basic_type_specifier:
         basic_type_name            /* Arithmetic or void */
-        | type_qualifier_list  basic_type_name
-        | basic_type_specifier type_qualifier
-        | basic_type_specifier basic_type_name
+        | type_qualifier_list  basic_type_name		/* const, int */
+			{ $$ = $2; }
+        | basic_type_specifier type_qualifier		/* int, volatile */
+        | basic_type_specifier basic_type_name		/* long, int */
+			{ $$ = merge($1, $2); }
         ;
 
 sue_declaration_specifier:          /* Storage Class + struct/union/enum */
@@ -483,23 +503,23 @@ typedef_type_specifier:              /* typedef types */
         ;
 
 storage_class:
-        TYPEDEF
-        | EXTERN
-        | STATIC
-        | AUTO
-        | REGISTER
+        TYPEDEF		{ $$ = basic(b_abstract, s_none, c_typedef); }
+        | EXTERN	{ $$ = basic(b_abstract, s_none, c_extern); }
+        | STATIC	{ $$ = basic(b_abstract, s_none, c_static); }
+        | AUTO		{ $$ = basic(b_abstract, s_none, c_auto); }
+        | REGISTER	{ $$ = basic(b_abstract, s_none, c_register); }
         ;
 
 basic_type_name:
-        INT
-        | CHAR
-        | SHORT
-        | LONG
-        | FLOAT
-        | DOUBLE
-        | SIGNED
-        | UNSIGNED
-        | VOID
+        INT		{ $$ = basic(b_int); }
+        | CHAR		{ $$ = basic(b_char); }
+        | SHORT		{ $$ = basic(b_short); }
+        | LONG		{ $$ = basic(b_long); }
+        | FLOAT		{ $$ = basic(b_float); }
+        | DOUBLE	{ $$ = basic(b_double); }
+        | SIGNED	{ $$ = basic(b_abstract, s_signed); }
+        | UNSIGNED	{ $$ = basic(b_abstract, s_unsigned); }
+        | VOID		{ $$ = basic(b_void); }
         ;
 
 elaborated_type_name:
@@ -509,8 +529,7 @@ elaborated_type_name:
 
 aggregate_name:
         aggregate_key '{'  member_declaration_list '}'
-        | aggregate_key identifier_or_typedef_name
-                '{'  member_declaration_list '}'
+        | aggregate_key identifier_or_typedef_name '{'  member_declaration_list '}'
         | aggregate_key identifier_or_typedef_name
         ;
 
