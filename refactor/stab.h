@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.9 2001/10/27 13:35:18 dds Exp $
+ * $Id: stab.h,v 1.10 2002/09/05 21:21:05 dds Exp $
  */
 
 #ifndef STAB_
@@ -114,6 +114,7 @@ public:
 	 * 	@param_use@
 	 * 	int a;
 	 * 	double b;
+	 * 	@param_use_end@
 	 * {@param_enter@
 	 * 	return i;
 	 * }@exit,param_clear@
@@ -122,6 +123,7 @@ public:
 	static void param_exit();
 	static void param_clear(void);
 	static void param_use(void) { use_param = true; }
+	static void param_use_end(void) { use_param = false; }
 
 	static int get_cur_block() { return current_block; }
 
