@@ -3,8 +3,9 @@
  *
  * Debugpoints can be set for selectively enabling debugging output
  * The debugpoint() macro should be used to efficiently disable debugging output
+ * A debugpoint on a file's 0 line will enable all debugpoints for that file
  *
- * $Id: debug.h,v 1.4 2002/12/26 12:46:24 dds Exp $
+ * $Id: debug.h,v 1.5 2003/08/02 09:35:22 dds Exp $
  */
 
 #ifndef DEBUG_
@@ -42,7 +43,8 @@ operator <(const class Debug a, const class Debug b)
 inline bool
 Debug::is_db_set(const string fname, int line)
 {
-	return dp.find(Debug(fname, line)) != dp.end();
+	return dp.find(Debug(fname, line)) != dp.end() ||
+	       dp.find(Debug(fname, 0)) != dp.end();
 }
 
 #endif /* DEBUG_ */
