@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.13 2001/10/27 14:32:08 dds Exp $
+ * $Id: tokid.cpp,v 1.14 2002/09/04 17:00:10 dds Exp $
  */
 
 #include <iostream>
@@ -11,6 +11,7 @@
 #include <string>
 #include <deque>
 #include <set>
+#include <vector>
 #include <cassert>
 
 #include "cpp.h"

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ptoken.cpp,v 1.4 2001/08/31 11:36:00 dds Exp $
+ * $Id: ptoken.cpp,v 1.5 2002/09/04 17:00:10 dds Exp $
  */
 
 #include <iostream>
@@ -11,6 +11,7 @@
 #include <string>
 #include <deque>
 #include <list>
+#include <vector>
 #include <cassert>
 
 #include "cpp.h"

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.52 2002/09/04 10:49:26 dds Exp $
+ * $Id: pdtoken.cpp,v 1.53 2002/09/04 17:00:10 dds Exp $
  */
 
 #include <iostream>
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <list>
 #include <set>
+#include <vector>
 #include <algorithm>
 #include <functional>
 #include <cassert>
