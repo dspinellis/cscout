@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.67 2003/08/01 11:28:15 dds Exp $
+ * $Id: parse.y,v 1.68 2003/08/01 15:32:18 dds Exp $
  *
  */
 
@@ -553,7 +553,19 @@ logical_or_expression:
 conditional_expression:
         logical_or_expression
         | logical_or_expression '?' comma_expression ':' conditional_expression
-			{ $$ = $3; }
+			{ 
+				/* 
+				 * A number of complicated rules specify the result's type
+				 * See ANSI 3.3.15
+				 * For our purpose it may be enough to check if one of the
+				 * two is a basic type (and therefore conceivably 0, i.e. NULL)
+				 * and the other a pointer, to select the pointer type.
+				 */
+				if ($3.is_basic() && $5.is_ptr())
+					$$ = $5;
+				else
+					$$ = $3;
+			}
         ;
 
 assignment_expression:
