@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.50 2003/08/06 21:40:33 dds Exp $
+# $Id: Makefile,v 1.51 2003/08/10 21:28:34 dds Exp $
 #
 
 # Common object files
@@ -10,7 +10,11 @@ ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
 getopt.o error.o
 
-OBJ=$(addprefix `arch`/, $(OBJBASE))
+ifndef ARCH
+ARCH=i386
+endif
+
+OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
 
 # Do not add version.cpp here
 SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
@@ -58,18 +62,18 @@ test/concat.c test/macro_rescan.c test/vararg.c test/shorten.c \
 test/nostrings.c
 
 # Pattern rules for C and C++ files
-`arch`/%.o: %.c
+$(ARCH)/%.o: %.c
 	gcc -c $(CPPFLAGS) -o $@ $<
 
-`arch`/%.o: %.cpp
+$(ARCH)/%.o: %.cpp
 	g++ -c $(CPPFLAGS) -o $@ $<
 
-ifdef MACHTYPE
-# Unix
-all: `arch`/cscout
-else
+ifdef PROCESSOR_ARCHITECTURE
 # Windows
-all: `arch`/cscout.exe
+all: $(ARCH)/cscout.exe
+else
+# Unix
+all: $(ARCH)/cscout
 endif
 
 #all: obfuscate
@@ -82,15 +86,15 @@ endif
 workdb: workdb.o  $(OBJ)
 	$(CC) $(CPPFLAGS) -o workdb  $(OBJ) workdb.o
 
-`arch`/cscout: `arch`/cscout.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o `arch`/cscout  $(OBJ) `arch`/cscout.o -L${HOME}/lib/`arch` -lswill
+$(ARCH)/cscout: $(ARCH)/cscout.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
 
 # CCmalloc version
-`arch`/cscout-cc: `arch`/cscout.o  $(OBJ)
-	ccmalloc $(CC) $(CPPFLAGS) -o `arch`/cscout-cc  $(OBJ) `arch`/cscout.o -L${HOME}/lib/`arch` -lswill
+$(ARCH)/cscout-cc: $(ARCH)/cscout.o  $(OBJ)
+	ccmalloc $(CC) $(CPPFLAGS) -o $(ARCH)/cscout-cc  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
 
-`arch`/cscout.exe: `arch`/cscout.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o `arch`/cscout  $(OBJ) `arch`/cscout.o -L${HOME}/lib/`arch` -lswill -lws2_32 -lregex
+$(ARCH)/cscout.exe: $(ARCH)/cscout.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32 -lregex
 
 ccheck: license.c license.h des.c des.h
 	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
@@ -98,14 +102,14 @@ ccheck: license.c license.h des.c des.h
 ccheck-install: ccheck
 	cp ccheck /home/dds/web/istlab-cgi-bin
 
-`arch`/webmap: `arch`/webmap.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o `arch`/webmap  $(OBJ) `arch`/webmap.o
+$(ARCH)/webmap: $(ARCH)/webmap.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o $(ARCH)/webmap  $(OBJ) $(ARCH)/webmap.o
 
-`arch`/color: `arch`/color.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o `arch`/color  $(OBJ) `arch`/color.o
+$(ARCH)/color: $(ARCH)/color.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o $(ARCH)/color  $(OBJ) $(ARCH)/color.o
 
-`arch`/obfuscate: `arch`/obfuscate.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o `arch`/obfuscate  $(OBJ) `arch`/obfuscate.o
+$(ARCH)/obfuscate: $(ARCH)/obfuscate.o  $(OBJ)
+	$(CC) $(CPPFLAGS) -o $(ARCH)/obfuscate  $(OBJ) $(ARCH)/obfuscate.o
 
 # Some important dependencies
 color.o: pltoken.h
@@ -140,8 +144,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.50 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/06 21:40:33 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.51 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/10 21:28:34 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
