@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.3 2001/09/22 07:59:48 dds Exp $
+ * $Id: type2.h,v 1.4 2001/09/22 12:56:44 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -18,6 +18,7 @@ private:
 public:
 	Tarray(Type t) : of(t) {}
 	Type clone() const { return Type(new Tarray(of.clone())); }
+	Type deref() const { return of; }
 	Type subscript() const { return of; }
 	bool is_ptr() { return true; }
 	void print(ostream &o) const;
@@ -34,6 +35,7 @@ public:
 	Tpointer(Type t) : to(t) {}
 	Type clone() const { return Type(new Tpointer(to.clone())); }
 	Type deref() const { return to; }
+	Type subscript() const { return to; }
 	bool is_ptr() { return true; }
 	void set_storage_class(Type t) { to.set_storage_class(t); }
 	enum e_storage_class get_storage_class() const {return to.get_storage_class(); }
