@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.6 2002/09/15 16:46:15 dds Exp $
+# $Id: cswc.pl,v 1.7 2003/06/05 09:36:37 dds Exp $
 #
 
 # Syntax:
@@ -35,8 +35,30 @@
 #}
 #
 
+if ($ARGV[0] eq '-E') {
+	$cpp = 1;
+	shift @ARGV;
+}
+
 # Installation directory
-$instdir = '/home/dds/src/refactor';
+if (!defined($ENV{CSCOUT_HOME})) {
+	print STDERR "The CSCOUT_HOME environment variable is not set\n";
+	exit(1);
+} else {
+	$instdir = $ENV{CSCOUT_HOME};
+}
+
+if (!-r ($f = "$instdir/cscout_incs.h")) {
+	print STDERR "Unable to read $f: $!\n";
+	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
+	exit(1);
+}
+
+if (!-r ($f = "$instdir/cscout_defs.h")) {
+	print STDERR "Unable to read $f: $!\n";
+	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
+	exit(1);
+}
 
 while (<>) {
 	chop;
@@ -82,8 +104,12 @@ sub endunit
 		print $defines{'directory'};
 		print $ipaths{'file'};
 		print $defines{'file'};
-		print "#include \"$instdir/incs.h\"\n";
-		print "#pragma process \"$name\"\n\n";
+		print "#include \"$instdir/cscout_incs.h\"\n";
+		if ($cpp) {
+			print "#include \"$name\"\n\n";
+		} else {
+			print "#pragma process \"$name\"\n\n";
+		}
 	}
 	if (defined($dir{$unit})) {
 		print "#pragma echo \"Exiting directory $dir{$unit}\\n\"\n";
@@ -115,7 +141,7 @@ sub beginunit
 		print "#pragma block_enter\n";
 		print "#pragma clear_defines\n";
 		print "#pragma clear_include\n";
-		print "#include \"$instdir/defs.h\"\n";
+		print "#include \"$instdir/cscout_defs.h\"\n";
 	}
 }
 
