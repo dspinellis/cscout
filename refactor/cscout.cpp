@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.109 2004/08/09 11:08:12 dds Exp $
+ * $Id: cscout.cpp,v 1.110 2004/08/09 11:12:39 dds Exp $
  */
 
 #include <map>
@@ -23,6 +23,7 @@
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
 #include <cstdlib>		// atoi
+#include <cerrno>		// errno
 
 #include "swill.h"
 #include "regex.h"
