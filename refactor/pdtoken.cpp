@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.53 2002/09/04 17:00:10 dds Exp $
+ * $Id: pdtoken.cpp,v 1.54 2002/09/05 10:47:38 dds Exp $
  */
 
 #include <iostream>
@@ -579,7 +579,7 @@ Pdtoken::process_line()
 }
 
 void
-Pdtoken::process_error()
+Pdtoken::process_error(enum e_error_level e)
 {
 	string msg;
 	Pltoken t;
@@ -593,7 +593,7 @@ Pdtoken::process_error()
 		else
 			msg += t.get_val();
 	}
-	Error::error(E_ERR, msg);
+	Error::error(e, msg);
 }
 
 void
@@ -725,7 +725,9 @@ Pdtoken::process_directive()
 	else if (t.get_val() == "line")
 		process_line();
 	else if (t.get_val() == "error")
-		process_error();
+		process_error(E_ERR);
+	else if (t.get_val() == "warning")	// GCC extension
+		process_error(E_WARN);
 	else if (t.get_val() == "pragma")
 		process_pragma();
 	else

@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.21 2001/10/24 12:24:19 dds Exp $
+ * $Id: pdtoken.h,v 1.22 2002/09/05 10:47:38 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -48,7 +48,8 @@ private:
 	static void process_else();		// Handle a #define
 	static void process_endif();		// Handle a #define
 	static void process_line();		// Handle a #line
-	static void process_error();		// Handle a #error
+	static void process_error(enum e_error_level e);
+						// Handle a #error #warning
 	static void process_pragma();		// Handle a #pragma
 public:
 	// Constructors
