@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.12 2003/07/31 23:57:38 dds Exp $
+ * $Id: type2.h,v 1.13 2003/08/01 08:41:37 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -103,7 +103,11 @@ public:
 		members_by_ordinal.push_back(Id(tok, typ));
 	}
 	Type get_default_specifier() const { return default_specifier; }
-	void merge_with(Type t) { members_by_name.merge_with(t.get_members()) ; }
+	void merge_with(Type t) { 
+		members_by_name.merge_with(t.get_members_by_name());
+		const vector <Id> &m2 = t.get_members_by_ordinal();
+		members_by_ordinal.insert(members_by_ordinal.end(), m2.begin(), m2.end());
+	}
 	Id const* member(const string& s) const 
 		{ return members_by_name.lookup(s); }
 	Id const* member(unsigned n) const {
@@ -112,7 +116,8 @@ public:
 		else
 			return &(members_by_ordinal[n]);
 	}
-	const Stab& get_members() const { return members_by_name; }
+	const Stab& get_members_by_name() const { return members_by_name; }
+	const vector <Id>& get_members_by_ordinal() const { return members_by_ordinal; }
 	void print(ostream &o) const;
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.29 2003/07/31 23:57:38 dds Exp $
+ * $Id: type.cpp,v 1.30 2003/08/01 08:41:37 dds Exp $
  */
 
 #include <iostream>
@@ -65,11 +65,21 @@ Type_node::subscript() const
 }
 
 const Stab& 
-Type_node::get_members() const
+Type_node::get_members_by_name() const
 {
 	static Stab dummy;
 
-	Error::error(E_INTERNAL, "get_members: not structure or union");
+	Error::error(E_INTERNAL, "get_members_by_name: not structure or union");
+	this->print(cout);
+	return dummy;
+}
+
+const vector <Id>&
+Type_node::get_members_by_ordinal() const
+{
+	static vector<Id> dummy;
+
+	Error::error(E_INTERNAL, "get_members_by_ordinal: not structure or union");
 	this->print(cout);
 	return dummy;
 }

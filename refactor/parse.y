@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.65 2003/07/31 23:57:38 dds Exp $
+ * $Id: parse.y,v 1.66 2003/08/01 08:41:37 dds Exp $
  *
  */
 
@@ -91,6 +91,8 @@ designator_open()
 {
 	Designator d;
 
+	if (DP() && !designator_stack.empty())
+		cout << "Top designator " << designator_stack.top().t << " ordinal " << designator_stack.top().ordinal << "\n";
 	d.ordinal = 0;
 	if (designator_stack.empty()) 
 		d.t = initialized_element;
@@ -119,7 +121,7 @@ designator_open()
 		d.t = basic(b_undeclared);
 	}
 	if (DP())
-		cout << "New designator " << d.t << "\n";
+		cout << "New designator " << d.t << " ordinal " << d.ordinal << "\n";
 	designator_stack.push(d);
 }
 
@@ -966,7 +968,7 @@ member_declaring_list:
 		if (DP())
 			cout << "anon member: " << $1 << "\n";
 		if ($1.is_su()) {
-			const Stab &s = $1.get_members();
+			const Stab &s = $1.get_members_by_name();
 			Stab_element::const_iterator i;
 			
 			for (i = s.begin(); i != s.end(); i++)

@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.24 2003/07/31 23:57:38 dds Exp $
+ * $Id: type.h,v 1.25 2003/08/01 08:41:37 dds Exp $
  */
 
 #ifndef TYPE_
@@ -72,7 +72,8 @@ protected:
 	virtual void add_member(const Token &tok, const Type &typ);
 	virtual Type get_default_specifier() const;
 	virtual void merge_with(Type t);
-	virtual const Stab& get_members() const;
+	virtual const Stab& get_members_by_name() const;
+	virtual const vector <Id>& get_members_by_ordinal() const;
 
 	bool is_typedef() const { return get_storage_class() == c_typedef; }// True for typedefs
 	bool is_static() const { return get_storage_class() == c_static; }// True for typedefs
@@ -181,7 +182,8 @@ public:
 	void add_member(const Token &tok, const Type &typ)
 					{ p->add_member(tok, typ); }
 	void merge_with(Type t) { p->merge_with(t) ; }
-	const Stab& get_members() const	{ return p->get_members(); }
+	const Stab& get_members_by_name() const	{ return p->get_members_by_name(); }
+	const vector <Id>& get_members_by_ordinal() const	{ return p->get_members_by_ordinal(); }
 	Id const* member(const string& name) const	// Structure and union
 					{ return p->member(name); }
 	Id const* member(unsigned n) const	// Structure and union
