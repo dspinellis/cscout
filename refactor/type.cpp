@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.6 2001/09/15 16:42:58 dds Exp $
+ * $Id: type.cpp,v 1.7 2001/09/16 10:08:02 dds Exp $
  */
 
 #include <iostream>
@@ -287,7 +287,7 @@ Tsu::print(ostream &o) const
 void
 Tidentifier::print(ostream &o) const
 {
-	o << t;
+	o << t.get_name() << ":" << of;
 }
 
 /*
@@ -372,4 +372,62 @@ Type_node::merge(Tbasic *b)
 		cout << "\n";
 	}
 	return basic();
+}
+
+void
+Type_node::set_abstract(Type t)
+{
+	Error::error(E_ERR, "invalid type specification");
+}
+
+void
+Tarray::set_abstract(Type t)
+{
+	if (of.is_basic()) {
+		if (of.is_abstract())
+			of = t;
+		else {
+			Error::error(E_ERR, "array not an abstract type");
+			cerr << "[" << of << "]\n";
+		}
+	} else
+		of.set_abstract(t);
+}
+
+void
+Tpointer::set_abstract(Type t)
+{
+	if (to.is_basic()) {
+		if (to.is_abstract())
+			to = t;
+		else {
+			Error::error(E_ERR, "pointer not an abstract type");
+			cerr << "[" << to << "]\n";
+		}
+	} else
+		to.set_abstract(t);
+}
+
+void
+Tfunction::set_abstract(Type t)
+{
+	if (returning.is_basic()) {
+		if (returning.is_abstract())
+			returning = t;
+		else
+			Error::error(E_ERR, "pointer not an abstract type");
+	} else
+		returning.set_abstract(t);
+}
+
+void
+Tidentifier::set_abstract(Type t)
+{
+	if (of.is_basic()) {
+		if (of.is_abstract())
+			of = t;
+		else
+			Error::error(E_ERR, "pointer not an abstract type");
+	} else
+		of.set_abstract(t);
 }

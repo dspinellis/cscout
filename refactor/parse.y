@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.13 2001/09/15 16:42:58 dds Exp $
+ * $Id: parse.y,v 1.14 2001/09/16 10:08:02 dds Exp $
  *
  */
 
@@ -47,6 +47,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "debug.h"
 
 void parse_error(char *s)
 {
@@ -93,6 +94,18 @@ void parse_error(char *s)
 %type <t> type_qualifier
 %type <t> basic_declaration_specifier
 %type <t> basic_type_specifier
+%type <t> type_name
+%type <t> type_specifier
+
+%type <t> paren_identifier_declarator
+%type <t> array_abstract_declarator
+%type <t> postfixing_abstract_declarator
+%type <t> unary_abstract_declarator
+%type <t> postfix_abstract_declarator
+%type <t> abstract_declarator
+%type <t> postfix_identifier_declarator
+%type <t> unary_identifier_declarator
+%type <t> identifier_declarator
 
 %%
 
@@ -244,7 +257,11 @@ arith_unary_operator:
 cast_expression:
         unary_expression
         | '(' type_name ')' cast_expression
-			{ $$ = $2; }
+		{ 
+			$$ = $2;  
+			if (DP())
+				cout << "cast to " << $2 << "\n"; 
+		}
         ;
 
 multiplicative_expression:
@@ -643,8 +660,11 @@ identifier_or_typedef_name:
 type_name:
         type_specifier
         | type_specifier abstract_declarator
+		{ $2.set_abstract($1); $$ = $2; }
         | type_qualifier_list
+		{ $$ = basic(); }	/* We are ignoring qualifiers */
         | type_qualifier_list abstract_declarator
+		{ $$ = $2; }
         ;
 
 initializer_opt:
@@ -826,23 +846,31 @@ simple_paren_typedef_declarator:
 identifier_declarator:
         unary_identifier_declarator
         | paren_identifier_declarator
-        ;
+        ; /* Default rules */
 
 unary_identifier_declarator:
         postfix_identifier_declarator
         | '*' identifier_declarator
+		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list identifier_declarator
+		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
         ;
 
 postfix_identifier_declarator:
+	// int a[5]: declare a as array 5 of int
         paren_identifier_declarator postfixing_abstract_declarator
+		{ $1.set_abstract($2); $$ = $1; }
         | '(' unary_identifier_declarator ')'
+		{ $$ = $2; }
+	//  int (*a)[10]: declare a as pointer to array 10 of int
         | '(' unary_identifier_declarator ')' postfixing_abstract_declarator
+		{ $2.set_abstract($4); $$ = $2; }
         ;
 
 paren_identifier_declarator:
         IDENTIFIER
         | '(' paren_identifier_declarator ')'
+		{ $$ = $2; }
         ;
 
 old_function_declarator:
@@ -861,32 +889,45 @@ abstract_declarator:
         unary_abstract_declarator
         | postfix_abstract_declarator
         | postfixing_abstract_declarator
-        ;
+        ; /* Default rules */
 
 postfixing_abstract_declarator:
         array_abstract_declarator
         | '(' ')'
+		{ $$ = function_returning(basic()); }
         | '(' parameter_type_list ')'
+		{ $$ = function_returning(basic()); }
         ;
 
 array_abstract_declarator:
         '[' ']'
+		{ $$ = array_of(basic()); }
         | '[' constant_expression ']'
+		{ $$ = array_of(basic()); }
         | array_abstract_declarator '[' constant_expression ']'
+		{ $$ = array_of($1); }
         ;
 
 unary_abstract_declarator:
         '*'
+		{ $$ = pointer_to(basic()); }
         | '*' type_qualifier_list
+		{ $$ = pointer_to(basic()); }
         | '*' abstract_declarator
+		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list abstract_declarator
+		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
         ;
 
 postfix_abstract_declarator:
         '(' unary_abstract_declarator ')'
+		{ $$ = $2; }
         | '(' postfix_abstract_declarator ')'
+		{ $$ = $2; }
         | '(' postfixing_abstract_declarator ')'
+		{ $$ = $2; }
         | '(' unary_abstract_declarator ')' postfixing_abstract_declarator
+		{ $2.set_abstract($4); $$ = $2; }
         ;
 
 %%

@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.9 2001/09/15 16:42:58 dds Exp $
+ * $Id: type.h,v 1.10 2001/09/16 10:08:02 dds Exp $
  */
 
 #ifndef TYPE_
@@ -55,8 +55,10 @@ protected:
 	virtual bool is_typedef() const { return false; }// True for typedefs
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
+	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual const string& get_name() const;	// True for identifiers
 	virtual const Ctoken& get_token() const;// True for identifiers
+	virtual void set_abstract(Type t);	// Set abstract basic type to t
 public:
 	// For merging
 	virtual Type merge(Tbasic *b);
@@ -76,6 +78,7 @@ public:
 		enum e_storage_class sc = c_unspecified) :
 		type(t), sign(s), sclass(sc) {}
 	bool is_valid() const { return type != b_undeclared; }
+	bool is_abstract() const { return type == b_abstract; }
 	bool is_typedef() const { return sclass != c_typedef; }
 	bool is_basic() const { return true; }// False for undeclared
 	void print(ostream &o) const;
@@ -120,9 +123,12 @@ public:
 	Type deref() const		{ return p->deref(); }
 	Type call() const		{ return p->call(); }
 	Type type() const		{ return p->type(); }
+	void set_abstract(Type t)	{ return p->set_abstract(t); }
 	bool is_ptr() const		{ return p->is_ptr(); }
 	bool is_typedef() const		{ return p->is_typedef(); }
 	bool is_valid() const		{ return p->is_valid(); }
+	bool is_basic() const		{ return p->is_basic(); }
+	bool is_abstract() const	{ return p->is_abstract(); }
 	const string& get_name() const	{ return p->get_name(); }
 	const Ctoken& get_token() const { return p->get_token(); }
 	Id member(const string& name) const;
@@ -139,6 +145,7 @@ public:
 	Type subscript() const { return of; }
 	bool is_ptr() { return true; }
 	void print(ostream &o) const;
+	void set_abstract(Type t);
 };
 
 // Pointer to ...
@@ -150,6 +157,7 @@ public:
 	Type deref() const { return to; }
 	bool is_ptr() { return true; }
 	void print(ostream &o) const;
+	void set_abstract(Type t);
 };
 
 // Function returning ...
@@ -160,6 +168,7 @@ public:
 	Tfunction(Type t) : returning(t) {}
 	Type call() const { return returning; }
 	void print(ostream &o) const;
+	void set_abstract(Type t);
 };
 
 // Typedef for ...
@@ -201,12 +210,14 @@ public:
 class Tidentifier: public Type_node {
 private:
 	Ctoken t;
+	Type of;			// Identifying a given type
 public:
-	Tidentifier(const Ctoken& tok) : t(tok) {}
+	Tidentifier(const Ctoken& tok) : t(tok), of(basic()) {}
 	const Ctoken& get_token() const { return t; }
 	const string& get_name() const { return t.get_name(); }
 	Type call() const;			// Function (undeclared)
 	void print(ostream &o) const;
+	void set_abstract(Type t);
 };
 
 // Goto label
