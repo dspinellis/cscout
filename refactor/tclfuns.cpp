@@ -3,7 +3,7 @@
  *
  * Tcl interface functions
  *
- * $Id: tclfuns.cpp,v 1.1 2001/10/25 06:56:45 dds Exp $
+ * $Id: tclfuns.cpp,v 1.2 2001/10/27 13:33:04 dds Exp $
  */
 
 #include "appinit.h"
@@ -95,7 +95,7 @@ int ET_COMMAND_add_include(ET_TCLARGS)
 	return TCL_OK;
 }
 
-int ET_COMMAND_clear_include(ET_TCLARGS)
+int ET_COMMAND_include_clear(ET_TCLARGS)
 {
 	Pdtoken::clear_include();
 	return TCL_OK;
@@ -126,6 +126,18 @@ int ET_COMMAND_parse(ET_TCLARGS)
 	return TCL_OK;
 }
 
+int ET_COMMAND_num_errors(ET_TCLARGS)
+{
+	Et_ResultF(interp, "%d", get_num_errors());
+	return TCL_OK;
+}
+
+int ET_COMMAND_num_warnings(ET_TCLARGS)
+{
+	Et_ResultF(interp, "%d", get_num_warnings());
+	return TCL_OK;
+}
+
 /*
  * Error implementation for Tcl
  */
@@ -134,13 +146,15 @@ int Error::num_errors;
 int Error::num_warnings;
 
 void
-Error::error(enum e_error_level level, string msg)
+Error::error(enum e_error_level level, string msg, bool showloc = true)
 {
 	string out;
 	char line[20];
 
-	sprintf(line, "%d", Fchar::get_line_num());
-	out = Fchar::get_path() + "(" + string(line) + "): ";
+	if (showloc) {
+		sprintf(line, "%d", Fchar::get_line_num());
+		out = Fchar::get_path() + "(" + string(line) + "): ";
+	}
 	switch (level) {
 	case E_WARN: out += "warning: "; break;
 	case E_ERR: out += "error: "; break;
