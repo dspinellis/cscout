@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.108 2004/08/09 09:46:26 dds Exp $
+ * $Id: cscout.cpp,v 1.109 2004/08/09 11:08:12 dds Exp $
  */
 
 #include <map>
@@ -581,7 +581,7 @@ html_tail(FILE *of)
 static bool
 local_access(FILE *fo)
 {
-#ifdef OFFICE_SERVER
+#if defined(OFFICE_SERVER) || defined(NO_LOCK)
 	return true;
 #else
 	char *peer = swill_getpeerip();
