@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.7 2004/07/23 06:20:27 dds Exp $
+ * $Id: fcall.cpp,v 1.8 2004/07/24 06:54:37 dds Exp $
  */
 
 #include <map>
@@ -48,7 +48,6 @@ FCall::FCall(const Token& tok, Type typ, const string &s) :
 		type(typ),
 		defined(false)
 {
-	all.insert(this);
 }
 
 /*

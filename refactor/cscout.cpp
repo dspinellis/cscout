@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.73 2004/07/23 06:55:38 dds Exp $
+ * $Id: cscout.cpp,v 1.74 2004/07/24 06:55:23 dds Exp $
  */
 
 #include <map>
@@ -1461,13 +1461,20 @@ cgraph_page(FILE *fo, void *p)
 {
 	html_head(fo, "cgraph", "Call Graph");
 	Call::const_fiterator_type fun, call;
-	for (fun = Call::fbegin(); fun != Call::fend(); fun++)
+	for (fun = Call::fbegin(); fun != Call::fend(); fun++) {
 		for (call = (*fun)->call_begin(); call != (*fun)->call_end(); call++)
-			fprintf(fo, "%s:%s %s:%s <br />\n",
+			fprintf(fo, "%s:%s calls %s:%s <br />\n",
 			    (*fun)->get_tokid().get_fileid().get_path().c_str(),
 			    (*fun)->get_name().c_str(),
 			    (*call)->get_tokid().get_fileid().get_path().c_str(),
 			    (*call)->get_name().c_str());
+		for (call = (*fun)->caller_begin(); call != (*fun)->caller_end(); call++)
+			fprintf(fo, "%s:%s called-by %s:%s <br />\n",
+			    (*fun)->get_tokid().get_fileid().get_path().c_str(),
+			    (*fun)->get_name().c_str(),
+			    (*call)->get_tokid().get_fileid().get_path().c_str(),
+			    (*call)->get_name().c_str());
+	}
 	html_tail(fo);
 }
 

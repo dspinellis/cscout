@@ -3,11 +3,13 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.1 2004/07/23 06:21:32 dds Exp $
+ * $Id: call.h,v 1.2 2004/07/24 06:54:37 dds Exp $
  */
 
 #ifndef CALL_
 #define CALL_
+
+class FCall;
 
 /*
  * Generic call information
@@ -28,10 +30,12 @@ private:
 protected:
 	static fun_container all;	// Set of all functions
 	static FCall *current_fun;	// Function currently being parsed
-	Tokid definition;		// Function's definition
+	Tokid definition;		// Function's definition (first tokid)
 public:
 	// The current function makes a call to f
 	static void register_call(Call *f);
+	// A call from from to to
+	static void register_call(Call *from, Call *to);
 
 	// Clear the visit flags for all functions
 	static void clear_visit_flags();
@@ -64,6 +68,7 @@ public:
 	virtual bool is_defined() const = 0;
 
 	Call(const string &s);
+	Call(const string &s, Tokid t);
 	virtual ~Call() {}
 };
 

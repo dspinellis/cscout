@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.24 2004/07/23 06:55:38 dds Exp $
+ * $Id: macro.cpp,v 1.25 2004/07/24 06:54:37 dds Exp $
  */
 
 #include <iostream>
@@ -38,6 +38,9 @@
 #include "pdtoken.h"
 #include "tchar.h"
 #include "ctoken.h"
+#include "type.h"
+#include "call.h"
+#include "mcall.h"
 
 
 /*
@@ -265,10 +268,9 @@ revalidate(listPtoken::iterator& valid_iterator, listPtoken::iterator start, lis
  * This is the rule when processing #if #elif expressions
  */
 listPtoken::iterator
-macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined)
+macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined, const Macro *caller)
 {
 	listPtoken::iterator ti;
-	setstring rescan_tabu(tabu);
 	enum {d_scanning, d_defined, d_bracket, d_ignoring} state;
 
 	state = skip_defined ? d_scanning : d_ignoring;
@@ -288,8 +290,10 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
 				state = d_scanning;
 				ti++;
 				continue;
+			case d_ignoring:
+				break;
 			}
-			ti = macro_replace(tokens, ti, tabu, get_more, skip_defined, end);
+			ti = macro_replace(tokens, ti, tabu, get_more, skip_defined, end, caller);
 		} else {
 			if ((*ti).get_code() != SPACE)
 				switch (state) {
@@ -301,6 +305,9 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
 					break;
 				case d_bracket:
 					state = d_scanning;
+					break;
+				case d_scanning:
+				case d_ignoring:
 					break;
 				}
 			ti++;
@@ -337,7 +344,7 @@ find_formal_argument(const mapArgval &args, Ptoken t)
  * examined or replaced.
  */
 listPtoken::iterator
-macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator)
+macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator, const Macro *caller)
 {
 	mapMacro::const_iterator mi;
 	const string name = (*pos).get_val();
@@ -388,6 +395,12 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		mapArgval args;			// Map from formal name to value
 		bool do_stringize;
 
+		if (caller && caller->is_function)
+			// Macro to macro call
+			Call::register_call(caller->get_mcall(), m.get_mcall());
+		else
+			// Function to macro call
+			Call::register_call(m.get_mcall());
 		expand_start = pos;
 		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more, m.is_vararg))
 			return (pos);
@@ -467,7 +480,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					// copy that back to the main
 					listPtoken arg((*ai).second.begin(), (*ai).second.end());
 					if (DP()) cout << "Arg macro:" << arg << "---\n";
-					macro_replace_all(arg, arg.end(), tabu, false, skip_defined);
+					macro_replace_all(arg, arg.end(), tabu, false, skip_defined, &m);
 					if (DP()) cout << "Arg macro result:" << arg << "---\n";
 					copy(arg.begin(), arg.end(), inserter(tokens, pos));
 				} else if (do_stringize)
@@ -553,7 +566,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			cout << (*ti).get_val();
 		cout << "\n";
 	}
-	pos = macro_replace_all(tokens, pos, tabu, get_more, skip_defined);
+	pos = macro_replace_all(tokens, pos, tabu, get_more, skip_defined, &m);
 	if (DP()) {
 		cout << "Rescan ends returing ";
 		if (pos == tokens.end())
@@ -609,4 +622,21 @@ operator<<(ostream& o,const Macro &m)
 		o << (*i).get_val();
 	o << "\n";
 	return (o);
+}
+
+// Update the map to include the macro's body refering to the macro
+void
+Macro::register_macro_body(mapMacroBody &map) const
+{
+	for (dequePtoken::const_iterator i = value.begin(); i != value.end(); i++)
+		for (dequeTpart::const_iterator j = i->get_parts_begin(); j != i->get_parts_end(); j++)
+			map[j->get_tokid()] = this;
+}
+
+// Constructor
+Macro::Macro( const Ptoken& name, bool id) :
+	name_token(name),
+	is_defined(id)
+{
+	mcall = new MCall(name, name.get_name());
 }

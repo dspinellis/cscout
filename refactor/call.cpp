@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.1 2004/07/23 06:21:32 dds Exp $
+ * $Id: call.cpp,v 1.2 2004/07/24 06:54:37 dds Exp $
  */
 
 #include <map>
@@ -38,6 +38,7 @@
 #include "fdep.h"
 #include "call.h"
 #include "fcall.h"
+#include "mcall.h"
 #include "eclass.h"
 
 // Function currently being parsed
@@ -52,16 +53,48 @@ Call::register_call(Call *f)
 {
 	if (!current_fun)
 		return;
-	current_fun->add_call(f);
-	f->add_caller(current_fun);
+	const Macro *m = Pdtoken::get_body_token_macro(f->get_tokid());
+	Call *caller;
+
+	if (m)
+		/*
+		 * f appears in a macro body, so this is a call
+		 * from the macro to the function.
+		 */
+		caller = m->get_mcall();
+	else
+		// Function to function call
+		caller = current_fun;
+
+	caller->add_call(f);
+	f->add_caller(caller);
 	if (DP())
-		cout << current_fun->name << " calls " << f->name << "\n";
+		cout << caller->name << " calls " << f->name << "\n";
+}
+
+// From calls to
+void
+Call::register_call(Call *from, Call *to)
+{
+	from->add_call(to);
+	to->add_caller(from);
+	if (DP())
+		cout << from->name << " calls " << to->name << "\n";
 }
 
 // Constructor
 Call::Call(const string &s) :
 		name(s)
 {
+	all.insert(this);
+}
+
+// Constructor
+Call::Call(const string &s, Tokid t) :
+		name(s),
+		definition(t)
+{
+	all.insert(this);
 }
 
 // Return true if e appears in the eclasses comprising our name

@@ -3,19 +3,23 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.9 2004/07/23 06:55:38 dds Exp $
+ * $Id: macro.h,v 1.10 2004/07/24 06:54:37 dds Exp $
  */
 
 #ifndef MACRO_
 #define MACRO_
 
 class Pdtoken;
+class Macro;
 
 typedef deque<Ptoken> dequePtoken;
 typedef list<Ptoken> listPtoken;
 typedef set<string> setstring;
 typedef map<string, listPtoken> mapArgval;
 typedef stack<bool> stackbool;
+typedef map<Tokid, const Macro *> mapMacroBody;
+
+class MCall;
 
 // A macro definition
 class Macro {
@@ -27,10 +31,10 @@ private:
 					// Can be false through ifdef/ifndef/defined()
 	dequePtoken formal_args;	// Formal arguments (names)
 	dequePtoken value;		// Macro value
+	MCall *mcall;			// Function call info
 public:
 	Macro() {}
-	Macro( const Ptoken& name, bool id) :
-		name_token(name), is_defined(id) {}
+	Macro( const Ptoken& name, bool id);
 	// Accessor functions
 	const Ptoken& get_name_token() const {return name_token; };
 	void set_is_function(bool v) { is_function = v; };
@@ -38,9 +42,13 @@ public:
 	bool get_is_defined() const { return is_defined; };
 	void form_args_push_back(Ptoken& t) { formal_args.push_back(t); };
 	void value_push_back(Ptoken& t) { value.push_back(t); };
+	MCall *get_mcall() const { return mcall; }
 
 	// Remove trailing whitespace
 	void value_rtrim();
+
+	// Update the map to include the macro's body refering to the macro
+	void register_macro_body(mapMacroBody &map) const;
 
 	// Compare per ANSI C
 	friend bool operator ==(const Macro& a, const Macro& b);
@@ -48,10 +56,10 @@ public:
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Macro &m);
 
-	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator);
+	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator, const Macro *caller = NULL);
 };
 
-listPtoken::iterator macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined);
+listPtoken::iterator macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined, const Macro *caller = NULL);
 
 
 #endif // MACRO

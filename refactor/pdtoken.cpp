@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.87 2004/07/23 06:55:38 dds Exp $
+ * $Id: pdtoken.cpp,v 1.88 2004/07/24 06:54:37 dds Exp $
  */
 
 #include <iostream>
@@ -58,6 +58,7 @@ mapMacro Pdtoken::macros;		// Defined macros
 stackbool Pdtoken::iftaken;		// Taken #ifs
 vectorstring Pdtoken::include_path;	// Files in include path
 int Pdtoken::skiplevel = 0;		// Level of enclosing #ifs when skipping
+mapMacroBody Pdtoken::macro_body_tokens;	// Tokens and the macros they belong to
 
 
 void
@@ -731,6 +732,7 @@ Pdtoken::process_define()
 		} else
 			Token::unify((*i).second.get_name_token(), nametok);
 	macros[name] = m;
+	m.register_macro_body(macro_body_tokens);
 	if (DP()) cout << "Macro define " << m;
 }
 
@@ -844,6 +846,7 @@ Pdtoken::process_pragma()
 		}
 		char *endptr;
 		unsigned long offset = strtoul(t.get_val().c_str(), &endptr, 0);
+		offset += 0;	// silence the compiler warning
 		// XXX now do the work
 	} else if (t.get_val() == "nosync") {
 		// XXX now do the work

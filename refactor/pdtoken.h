@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.25 2004/07/23 06:55:38 dds Exp $
+ * $Id: pdtoken.h,v 1.26 2004/07/24 06:54:37 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -22,6 +22,7 @@ typedef map<string, listPtoken> mapArgval;
 typedef stack<bool> stackbool;
 typedef vector<string> vectorstring;
 
+
 class Macro;
 
 typedef map<string, Macro> mapMacro;
@@ -29,6 +30,7 @@ typedef map<string, Macro> mapMacro;
 class Pdtoken: public Ptoken {
 private:
 	static mapMacro macros;			// Defined macros
+	static mapMacroBody macro_body_tokens;	// Tokens and the macros they belong to
 	static listPtoken expand;		// Expanded input
 
 	static bool at_bol;			// At beginning of line
@@ -58,7 +60,11 @@ public:
 	void getnext();
 
 	// Clear the defined macro table (when changing compilation unit)
-	static void macros_clear() { macros.clear(); }
+	static void macros_clear() {
+		macros.clear();
+		macro_body_tokens.clear();
+	}
+
 	// Find a macro given its name
 	static mapMacro::const_iterator macros_find(const string& s) { return macros.find(s); }
 	// Undefined macro returned by find
@@ -75,6 +81,14 @@ public:
 	// or resume an old one.  We assume that files end in line
 	// boundaries, even when they lack an explicit newline at their end
 	static void file_switch() { at_bol = true; };
+	// Return the macro where a given token resides
+	static const Macro * get_body_token_macro(Tokid t) {
+		mapMacroBody::const_iterator i = macro_body_tokens.find(t);
+		if (i == macro_body_tokens.end())
+			return NULL;
+		else
+			return i->second;
+	}
 };
 
 
