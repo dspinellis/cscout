@@ -4,7 +4,7 @@
  * Simple preprocessor.  
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.6 2001/09/02 17:41:45 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.7 2001/09/03 08:14:16 dds Exp $
  */
 
 #include <iostream>
@@ -30,10 +30,13 @@
 #include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"
+#include "debug.h"
 
 main(int argc, char *argv[])
 {
 	Fchar::set_input(argv[1]);
+
+	Debug::db_read();
 
 #ifdef unix
 	Pdtoken::add_include("/usr/include");

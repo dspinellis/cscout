@@ -4,7 +4,7 @@
  * Debugpoints can be set for selectively enabling debugging output
  * The debugpoint() macro should be used to efficiently disable debugging output
  *
- * $Id: debug.h,v 1.1 2001/09/03 07:43:11 dds Exp $
+ * $Id: debug.h,v 1.2 2001/09/03 08:13:51 dds Exp $
  */
 
 #ifndef DEBUG_
@@ -22,6 +22,7 @@ public:
 
 	static inline bool is_db_set(const string fname, int line);
 	static void db_set(string fname, int line);
+	static void db_read();
 	static inline bool is_enabled() { return enabled; };
 	inline friend bool operator <(const class Debug a, const class Debug b);
 };
