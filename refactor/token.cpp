@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.2 2001/08/21 18:29:45 dds Exp $
+ * $Id: token.cpp,v 1.3 2001/08/21 19:25:25 dds Exp $
  */
 
 #include <iostream>
@@ -85,7 +85,7 @@ unify(const Token &a, const Token &b)
 	// Now merge the corresponding ECs
 	dequeTpart::const_iterator ai, bi;
 	for (ai = ac.begin(), bi = bc.begin(); ai != ac.end(); ai++, bi++)
-		merge((*ai).get_tokid().get_ec(), (*ai).get_tokid().get_ec());
+		merge((*ai).get_tokid().get_ec(), (*bi).get_tokid().get_ec());
 	assert(bi == bc.end());
 }
 
