@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.1 2001/08/24 10:54:29 dds Exp $
+ * $Id: tchar.cpp,v 1.2 2001/08/24 14:03:24 dds Exp $
  */
 
 #include <iostream>
@@ -23,6 +23,11 @@
 #include "tchar.h"
 
 stackTchar Tchar::ps;			// Putback Tchars (from putback())
+dequePtoken Tchar::iq;		// Input queue
+dequePtoken::const_iterator Tchar::qi;
+dequeTpart::const_iterator Tchar::pi;
+int Tchar::part_idx;
+int Tchar::val_idx;
 
 void
 Tchar::putback(Tchar c)
