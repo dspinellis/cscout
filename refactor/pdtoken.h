@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.18 2001/09/02 17:41:45 dds Exp $
+ * $Id: pdtoken.h,v 1.19 2001/09/03 10:08:51 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -39,7 +39,7 @@ private:
 
 	static void process_directive();	// Handle a cpp directive
 	static void eat_to_eol();		// Consume input including \n
-	static void process_include();		// Handle a #include
+	static void process_include(bool next);	// Handle a #include
 	static void process_define();		// Handle a #define
 	static void process_undef();		// Handle a #undef
 	static void process_if();		// Handle #if

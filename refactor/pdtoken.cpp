@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.43 2001/09/03 09:34:54 dds Exp $
+ * $Id: pdtoken.cpp,v 1.44 2001/09/03 10:08:51 dds Exp $
  */
 
 #include <iostream>
@@ -375,11 +375,17 @@ can_open(const string& s)
 		return (false);
 }
 
+/*
+ * When next is true we start scanning the include path from where we left
+ * off.  This is a crude hack to approximate the unkown semantics of the
+ * gcc include_next command.
+ */
 void
-Pdtoken::process_include()
+Pdtoken::process_include(bool next)
 {
 	Pltoken t;
 	listPtoken tokens;
+	static vectorstring::const_iterator next_i;
 
 	if (skiplevel >= 1)
 		return;
@@ -432,11 +438,12 @@ Pdtoken::process_include()
 			return;
 		}
 	vectorstring::const_iterator i;
-	for (i = include_path.begin(); i != include_path.end(); i++) {
+	for (i = next ? next_i : include_path.begin(); i != include_path.end(); i++) {
 		string fname = *i + "/" + f.get_val();
 		if (DP()) cout << "Try open " << fname << "\n";
 		if (can_open(fname)) {
 			Fchar::push_input(fname);
+			next_i = ++i;
 			return;
 		}
 	}
@@ -618,8 +625,10 @@ Pdtoken::process_directive()
 	}
 	if (t.get_val() == "define")
 		process_define();
+	else if (t.get_val() == "include_next") // GCC extension
+		process_include(true);
 	else if (t.get_val() == "include")
-		process_include();
+		process_include(false);
 	else if (t.get_val() == "if")
 		process_if();
 	else if (t.get_val() == "ifdef")
