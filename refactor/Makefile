@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.18 2002/09/09 17:55:54 dds Exp $
+# $Id: Makefile,v 1.19 2002/09/13 10:38:20 dds Exp $
 #
 
 # Common object files
@@ -54,11 +54,11 @@ simple_cpp.o: pltoken.h
 
 eval.cpp: eval.y
 	$(YACC) -b eval -p eval_ eval.y
-	mv eval_tab.c eval.cpp
+	mv -f eval_tab.c eval.cpp
 
 parse.cpp: parse.y
 	$(YACC) -b parse -p parse_ parse.y
-	mv parse_tab.c parse.cpp
+	mv -f parse_tab.c parse.cpp
 
 tokname.cpp: ytoken.h
 	$(YACC) -d -b parse -p parse_ parse.y
