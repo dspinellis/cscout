@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.1 2002/09/14 12:13:11 dds Exp $
+ * $Id: workdb.cpp,v 1.2 2002/09/14 17:52:42 dds Exp $
  */
 
 #include <map>
@@ -60,15 +60,12 @@ public:
 	}
 };
 
-// Modifiable identifiers stored as a vector
-class MIdentifier : public Identifier {
-	bool xfile;		// True if it crosses files
-public:
-	MIdentifier(Identifier i) : xfile(false), Identifier(i) {}
-	MIdentifier() : xfile(false) {}
-	void set_xfile(bool v) { xfile = v; }
-	bool get_xfile() const { return xfile; }
-};
+// Return SQL equivalent for the logical value v
+static inline const char *
+sql_bool(bool v)
+{
+	return v ? "true" : "false";
+}
 
 // Return SQL equivalent of character c
 static char *
@@ -173,87 +170,50 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 	fo <<
-		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME VARCHAR)\n"
+		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME VARCHAR,"
+		"readonly BIT, \n"
+		"macro BIT, \n"
+		"macroarg BIT, \n"
+		"ordinary BIT, \n"
+		"suetag BIT, \n"
+		"sumember BIT, \n"
+		"label BIT, \n"
+		"typedef BIT, \n"
+		"cscope BIT, \n"
+		"lscope BIT, \n"
+		"unused BIT)\n"
 		"CREATE TABLE TOKENS(FID INTEGER,OFFSET INTEGER,EID INTEGER)\n"
 		"CREATE TABLE STRINGS(FID INTEGER,OFFSET INTEGER,TEXT VARCHAR)\n"
 		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,NAME VARCHAR,RO BIT)\n";
 
 	// Details for each file 
-	// As a side effect populite the EC identifier member
+	// As a side effect populate the EC identifier member
 	for (vector <Fileid>::const_iterator i = files.begin(); i != files.end(); i++) {
 		fo << "INSERT INTO FILES VALUES(" << 
 		(*i).get_id() << ",'" <<
 		(*i).get_path() << "'," <<
-		(*i).get_readonly() << ")\n";
+		sql_bool((*i).get_readonly()) << ")\n";
 		file_dump(fo, (*i));
 	}
 
 	// Equivalence classes
-	vector <MIdentifier> mids(ids.begin(), ids.end());
-	for (vector <MIdentifier>::const_iterator i = mids.begin(); i != mids.end(); i++) {
+	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
 		fo << "INSERT INTO IDS VALUES(" << 
 		(unsigned)(*i).get_ec() << ",'" <<
-		(*i).get_id() << "')\n";
+		(*i).get_id() << "'," <<
+		sql_bool((*i).get_ec()->get_attribute(is_readonly)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_macro)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_macroarg)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_ordinary)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_suetag)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_sumember)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_label)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_typedef)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_cscope)) << ',' <<
+		sql_bool((*i).get_ec()->get_attribute(is_lscope)) << ',' <<
+		sql_bool(((*i).get_ec()->get_size() == 1)) << 
+		")\n";
 	}
-
-#ifdef ndef
-	// Details for each identifier
-	// Set xfile as a side-effect
-	for (vector <MIdentifier>::iterator i = mids.begin(); i != mids.end(); i++) {
-		ostringstream fname;
-		fname << (unsigned)(*i).get_ec();
-		html_head(fo, (string("i") + fname.str()).c_str(), string("Identifier: ") + html((*i).get_id()));
-		fo << "<ul>\n";
-		fo << "<li> Read-only: " << ((*i).get_ec()->get_attribute(is_readonly) ? "Yes" : "No") << "\n";
-		fo << "<li> Macro: " << ((*i).get_ec()->get_attribute(is_macro) ? "Yes" : "No") << "\n";
-		fo << "<li> Macro argument: " << ((*i).get_ec()->get_attribute(is_macroarg) ? "Yes" : "No") << "\n";
-		fo << "<li> Ordinary identifier: " << ((*i).get_ec()->get_attribute(is_ordinary) ? "Yes" : "No") << "\n";
-		fo << "<li> Tag for struct/union/enum: " << ((*i).get_ec()->get_attribute(is_suetag) ? "Yes" : "No") << "\n";
-		fo << "<li> Member of struct/union: " << ((*i).get_ec()->get_attribute(is_sumember) ? "Yes" : "No") << "\n";
-		fo << "<li> Label: " << ((*i).get_ec()->get_attribute(is_label) ? "Yes" : "No") << "\n";
-		fo << "<li> Typedef: " << ((*i).get_ec()->get_attribute(is_typedef) ? "Yes" : "No") << "\n";
-		fo << "<li> File scope: " << ((*i).get_ec()->get_attribute(is_cscope) ? "Yes" : "No") << "\n";
-		fo << "<li> Project scope: " << ((*i).get_ec()->get_attribute(is_lscope) ? "Yes" : "No") << "\n";
-		fo << "<li> Unused: " << ((*i).get_ec()->get_size() == 1 ? "Yes" : "No") << "\n";
-		fo << "</ul>\n";
-		typedef set <Fileid, fname_order> IFSet;
-		IFSet ifiles = (*i).get_ec()->sorted_files();
-		(*i).set_xfile(ifiles.size() > 1);
-		fo << "<h2>Dependent Files (Writable)</h2>\n";
-		fo << "<ul>\n";
-		for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
-			if ((*j).get_readonly() == false) {
-				fo << "\n<li>";
-				html_file(fo, (*j).get_path());
-			}
-		}
-		fo << "</ul>\n";
-		fo << "<h2>Dependent Files (All)</h2>\n";
-		fo << "<ul>\n";
-		for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
-			fo << "\n<li>";
-			html_file(fo, (*j).get_path());
-		}
-		fo << "</ul>\n";
-		fo << "<h2>Substitution Script</h2>\n";
-		fo << "<pre>\n";
-		const setTokid & toks = (*i).get_ec()->get_members();
-		Fileid ofid;
-		for (setTokid::const_iterator j = toks.begin(); j != toks.end(); j++) {
-			if (ofid != (*j).get_fileid()) {
-				fo << "f " << (*j).get_fileid().get_path() << "\n";
-				ofid = (*j).get_fileid();
-			}
-			fo << "s " << 
-				(*j).get_streampos() << ' ' <<
-				(*i).get_ec()->get_len() << ' ' <<
-				"NEWID\n";
-		}
-		fo << "</pre>\n";
-
-		html_tail(fo);
-	}
-#endif
 
 	return (0);
 }
