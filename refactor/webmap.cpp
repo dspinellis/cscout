@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.18 2002/10/06 19:18:53 dds Exp $
+ * $Id: webmap.cpp,v 1.19 2002/10/06 19:26:18 dds Exp $
  */
 
 #include <map>
@@ -162,7 +162,8 @@ file_hypertext(ofstream &of, ofstream &uof, Fileid fi, bool write_uof)
 				if (write_uof)
 					html_id(uof, i);
 				has_unused = true;
-			}
+			} else if (write_uof)
+					uof << html(s);
 		} else {
 			of << html((char)val);
 			fi.metrics().process_char((char)val);
@@ -191,7 +192,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.18 2002/10/06 19:18:53 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.19 2002/10/06 19:26:18 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
