@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.2 2002/09/14 17:52:42 dds Exp $
+ * $Id: workdb.cpp,v 1.3 2002/09/15 16:46:15 dds Exp $
  */
 
 #include <map>
@@ -184,6 +184,8 @@ main(int argc, char *argv[])
 		"unused BIT)\n"
 		"CREATE TABLE TOKENS(FID INTEGER,OFFSET INTEGER,EID INTEGER)\n"
 		"CREATE TABLE STRINGS(FID INTEGER,OFFSET INTEGER,TEXT VARCHAR)\n"
+		"CREATE TABLE IDPROJ(EID INTEGER ,PID INTEGER)\n"
+		"CREATE TABLE PROJECTS(PID INTEGER,NAME VARCHAR)\n"
 		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,NAME VARCHAR,RO BIT)\n";
 
 	// Details for each file 
@@ -196,24 +198,36 @@ main(int argc, char *argv[])
 		file_dump(fo, (*i));
 	}
 
+	// Project names
+	const Project::proj_map_type &m = Project::get_project_map();
+	Project::proj_map_type::const_iterator pm;
+	for (pm = m.begin(); pm != m.end(); pm++)
+		fo << "INSERT INTO PROJECTS VALUES(" << 
+		(*pm).second << ",'" << (*pm).first << "')\n";
+
 	// Equivalence classes
 	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+		Eclass *e = (*i).get_ec();
 		fo << "INSERT INTO IDS VALUES(" << 
-		(unsigned)(*i).get_ec() << ",'" <<
+		(unsigned)e << ",'" <<
 		(*i).get_id() << "'," <<
-		sql_bool((*i).get_ec()->get_attribute(is_readonly)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_macro)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_macroarg)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_ordinary)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_suetag)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_sumember)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_label)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_typedef)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_cscope)) << ',' <<
-		sql_bool((*i).get_ec()->get_attribute(is_lscope)) << ',' <<
-		sql_bool(((*i).get_ec()->get_size() == 1)) << 
+		sql_bool(e->get_attribute(is_readonly)) << ',' <<
+		sql_bool(e->get_attribute(is_macro)) << ',' <<
+		sql_bool(e->get_attribute(is_macroarg)) << ',' <<
+		sql_bool(e->get_attribute(is_ordinary)) << ',' <<
+		sql_bool(e->get_attribute(is_suetag)) << ',' <<
+		sql_bool(e->get_attribute(is_sumember)) << ',' <<
+		sql_bool(e->get_attribute(is_label)) << ',' <<
+		sql_bool(e->get_attribute(is_typedef)) << ',' <<
+		sql_bool(e->get_attribute(is_cscope)) << ',' <<
+		sql_bool(e->get_attribute(is_lscope)) << ',' <<
+		sql_bool(e->get_size() == 1) << 
 		")\n";
+		// The projects each EC belongs to
+		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+			if (e->get_attribute(j))
+				fo << "INSERT INTO IDPROJ VALUES(" << 
+				(unsigned)e << ',' << j << ")\n";
 	}
-
 	return (0);
 }

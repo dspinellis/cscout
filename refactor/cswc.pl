@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.5 2002/09/13 10:47:55 dds Exp $
+# $Id: cswc.pl,v 1.6 2002/09/15 16:46:15 dds Exp $
 #
 
 # Syntax:
@@ -107,6 +107,7 @@ sub beginunit
 	print "// $unit $name\n";
 	print "#pragma echo \"Processing $unit $name\\n\"\n";
 	if ($unit eq 'project') {
+		print "#pragma project \"$name\"\n";
 		print "#pragma block_enter\n";
 	} elsif ($unit eq 'directory') {
 		directory($name);

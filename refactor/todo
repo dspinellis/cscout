@@ -1,11 +1,7 @@
-$Id: todo,v 1.7 2002/09/14 17:52:22 dds Exp $
+$Id: todo,v 1.8 2002/09/15 16:46:15 dds Exp $
 
-Create separate databsse table with the newlines
+Create separate database table with the newlines
 
-Store for each EC and file
-	A bag of projects it belongs to (#pragma project foo)
-	(the above also per file)
-	The above can be stored as a bitvector
 Collect metrics (and get them over the web)
 	Project name
 	URL

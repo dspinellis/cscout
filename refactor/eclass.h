@@ -11,7 +11,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.15 2002/09/15 15:45:29 dds Exp $
+ * $Id: eclass.h,v 1.16 2002/09/15 16:46:15 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -45,8 +45,8 @@ public:
 	// Other accessor functions
 	const setTokid & get_members(void) const { return members; }
 	set <Fileid, fname_order> sorted_files();
-	void set_attribute(enum e_attribute v) { attr.set_attribute(v); }
-	bool get_attribute(enum e_attribute v) { return attr.get_attribute(v); }
+	void set_attribute(int v) { attr.set_attribute(v); }
+	bool get_attribute(int v) { return attr.get_attribute(v); }
 	void merge_attributes(Eclass *b) { attr.merge_with(b->attr); }
 };
 

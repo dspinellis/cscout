@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.18 2002/09/15 15:45:29 dds Exp $
+ * $Id: eclass.cpp,v 1.19 2002/09/15 16:46:15 dds Exp $
  */
 
 #include <iostream>
@@ -89,6 +89,7 @@ Eclass::add_tokid(Tokid t)
 	t.set_ec(this);
 	if (t.get_readonly())
 		set_attribute(is_readonly);
+	set_attribute(Project::get_current_projid());
 }
 
 // Return a sorted vector of all files used

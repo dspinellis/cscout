@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.60 2002/09/13 10:47:55 dds Exp $
+ * $Id: pdtoken.cpp,v 1.61 2002/09/15 16:46:15 dds Exp $
  */
 
 #include <iostream>
@@ -646,6 +646,14 @@ Pdtoken::process_pragma()
 		string s = t.get_val();
 		for (string::const_iterator i = s.begin(); i != s.end();)
 			cout << unescape_char(s, i);
+	} else if (t.get_val() == "project") {
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma project: string expected");
+			eat_to_eol();
+			return;
+		}
+		Project::set_current_project(t.get_val());
 	} else if (t.get_val() == "readonly") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
