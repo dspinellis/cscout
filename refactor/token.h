@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.5 2001/08/24 12:49:26 dds Exp $
+ * $Id: token.h,v 1.6 2001/09/10 12:17:32 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -35,11 +35,17 @@ class Token {
 protected:
 	int code;			// Token type code
 	dequeTpart parts;		// Identifiers for constituent parts
+protected:
+	string val;		// Token character contents (for identifiers)
 public:
 	Token(int icode) : code(icode) {};
+	Token(int icode, const string& v) 
+		: code(icode), val(v) {};
 	Token() {};
 	// Accessor method
-	inline int get_code() const { return (code); }
+	int get_code() const { return (code); }
+	const string& get_val() const { return (val); };
+	const string& get_name() const { return (val); };
 	// Return the token's symbolic name based on its code
 	string name() const;
 	// Return the constituent Tokids; they may be more than the parts

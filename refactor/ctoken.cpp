@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.3 2001/09/08 17:31:14 dds Exp $
+ * $Id: ctoken.cpp,v 1.4 2001/09/10 12:17:32 dds Exp $
  */
 
 #include <map>
@@ -30,9 +30,9 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "ctoken.h"
+#include "stab.h"
+#include "type.h"
 #include "parse.tab.h"
-
-bool Cidtoken::typedef_context = true;
 
 /*
  * Return the character value of a string containing a C character
@@ -95,14 +95,40 @@ unescape_char(const string& s, string::const_iterator& si)
 	}
 }
 
-int
+// Create the map from identifiers to keyword token values
+static map<string,int> &
+make_keymap()
+{
+	static map<string,int> m;
+
+	m["auto"] = AUTO; m["double"] = DOUBLE; m["int"] = INT;
+	m["struct"] = STRUCT; m["break"] = BREAK; m["else"] = ELSE;
+	m["long"] = LONG; m["switch"] = SWITCH; m["case"] = CASE;
+	m["enum"] = ENUM; m["register"] = REGISTER; m["typedef"] = TYPEDEF;
+	m["char"] = CHAR; m["extern"] = EXTERN; m["return"] = RETURN;
+	m["union"] = UNION; m["const"] = CONST; m["float"] = FLOAT;
+	m["short"] = SHORT; m["unsigned"] = UNSIGNED; m["continue"] = CONTINUE;
+	m["for"] = FOR; m["signed"] = SIGNED; m["void"] = VOID;
+	m["default"] = DEFAULT; m["goto"] = GOTO; m["sizeof"] = SIZEOF;
+	m["volatile"] = VOLATILE; m["do"] = DO; m["if"] = IF;
+	m["static"] = STATIC; m["while"] = WHILE;
+	return m;
+}
+
+// Map from identifiers to keyword token values
+static map<string,int>& keymap = make_keymap();
+
+// Lexical analysis function for yacc
+static int
 parse_lex_real()
 {
 	int c;
+	Id const *id;
+	map<string,int>::const_iterator ik;
 
 	for (;;) {
-		Keyword k;
-		Pdtoken t = t.getnext();
+		Pdtoken t;
+		t.getnext();
 		switch (c = t.get_code()) {
 		case SPACE:
 			continue;
@@ -110,27 +136,28 @@ parse_lex_real()
 			return (0);
 		case ABSFNAME:
 		case PATHFNAME:
-			Error:error(E_INTERNAL, "preprocessor filename, past perprocessor");
+			Error::error(E_INTERNAL, "preprocessor filename, past perprocessor");
 			continue;
 		case PP_NUMBER:
 		case CHAR_LITERAL:
 			// XXX Could also be invalid, or FLOAT_CONST
 			return (INT_CONST);
 		case IDENTIFIER:
-			k = Ctoken::lookup_keyword(t.get_val());
-			if (k.id) {
-				// It is a keyword
-				if (k.is_type_spec) 
-				switch (c) {
-				case 
-				re
-			if (Cidtoken::typedef_context &&
+			ik = keymap.find(t.get_val());
+			if (ik != keymap.end())
+				return (*ik).second;	// Keyword
+			id = obj_lookup(t.get_val());
+			if (id && id->get_type()->is_typedef())
+				return (TYPEDEF_NAME);	// Probably typedef
+			parse_lval.c = new Ctoken(t);
+			return (IDENTIFIER);		// Plain identifier
 		default:
 			return (c);
 		}
 	}
 }
 
+// Lexical analysis function for yacc
 // Used for debugging
 int
 parse_lex()

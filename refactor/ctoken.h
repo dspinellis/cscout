@@ -5,7 +5,7 @@
  * The getnext() method for these tokens converts preprocessor tokens to C
  * tokens.
  *
- * $Id: ctoken.h,v 1.2 2001/09/08 17:31:14 dds Exp $
+ * $Id: ctoken.h,v 1.3 2001/09/10 12:17:32 dds Exp $
  */
 
 #ifndef CTOKEN_
@@ -19,13 +19,13 @@ class Ctoken: public Token {
 private:
 	static mapKeyword keywords;
 	static mapKeyword& create_keymap();
-	string name;				// For identifiers
 public:
-	Ctoken(string& n, Token t) :
-		Token(t), name(n) {};
+	Ctoken(Pdtoken& t) :
+		Token(t) {};
 	static int lookup_keyword(const string& s);
-	const string& get_name() const { return (name); };
 	void getnext();
 };
+
+int parse_lex();
 
 #endif // CTOKEN

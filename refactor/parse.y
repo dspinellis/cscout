@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.5 2001/09/06 15:02:44 dds Exp $
+ * $Id: parse.y,v 1.6 2001/09/10 12:17:32 dds Exp $
  *
  */
 
@@ -68,7 +68,12 @@
 #include <deque>
 #include <map>
 #include <set>
+#include <vector>
+#include <list>
 
+#include "ytab.h"
+
+#include "fileid.h"
 #include "fileid.h"
 #include "cpp.h"
 #include "fileid.h"
@@ -76,12 +81,14 @@
 #include "eclass.h"
 #include "token.h"
 #include "error.h"
-#include "id.h"
+#include "ptoken.h"
+#include "macro.h"
+#include "pdtoken.h"
+#include "ctoken.h"
 #include "stab.h"
 #include "type.h"
 
 void yyerror(char *s) {}
-int yylex(void) { return 0;}
 
 
 %}
@@ -94,6 +101,8 @@ int yylex(void) { return 0;}
 };
 
 %type <c> IDENTIFIER
+%type <c> TYPEDEF_NAME
+%type <c> member_name
 
 %type <t> constant
 %type <t> primary_expression
@@ -116,7 +125,6 @@ int yylex(void) { return 0;}
 %type <t> type_name
 %type <t> string_literal_list
 %type <t> comma_expression
-%type <t> member_name
 
 %%
 
@@ -185,13 +193,13 @@ string_literal_list:
 primary_expression:
         IDENTIFIER  /* We cannot use a typedef name as a variable */
 			{
-				Id *id = obj_lookup($1->get_name);
+				Id const *id = obj_lookup($1->get_name());
 				if (id) {
-					unify(id->get_token(), $1);
+					unify(id->get_token(), *$1);
 					$$ = id->get_type();
 				} else {
 					Error::error(E_ERR, "Undeclared identifier: " + $1->get_name());
-					$$ = Tbasic(b_undeclared);
+					$$ = new Tbasic(b_undeclared);
 				}
 				delete $1;
 			}
@@ -218,7 +226,7 @@ postfix_expression:
 				Id *i = $1->member($3->get_name());
 				$$ = i->get_type();
 				assert(i->get_name() == $3->get_name());
-				unify($3->get_token(), i->get_token());
+				unify(*$3, i->get_token());
 				delete $1;
 				delete $3;
 			}
@@ -227,7 +235,7 @@ postfix_expression:
 				Id *i = ($1->deref())->member($3->get_name());
 				$$ = i->get_type();
 				assert(i->get_name() == $3->get_name());
-				unify($3->get_token(), i->get_token());
+				unify(*$3, i->get_token());
 				delete $1;
 				delete $3;
 			}
@@ -662,7 +670,7 @@ parameter_declaration:
  * by default as int, but they a full declaration can follow. */
 identifier_list:
         IDENTIFIER
-			{ obj_define($1->get_name(), Id($1, Tbasic(b_int))); }
+			{ obj_define(*$1, new Tbasic(b_int)); }
         | identifier_list ',' IDENTIFIER
         ;
 

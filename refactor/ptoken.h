@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.8 2001/09/08 18:12:48 dds Exp $
+ * $Id: ptoken.h,v 1.9 2001/09/10 12:17:32 dds Exp $
  */
 
 #ifndef PTOKEN_
@@ -25,15 +25,12 @@ class Ptoken : public Token {
 private:
 	bool nonreplaced;	// True if replacement skipped during macro
 				// expansions ANSI 3.8.3.4 p. 92
-protected:
-	string val;		// Token contents
 public:
 	// Construct it based on the token code and the contents
-	Ptoken(int icode, const string& ival) : Token(icode), val(ival) {nonreplaced = false; };
+	Ptoken(int icode, const string& ival) : Token(icode, ival) {nonreplaced = false; };
 	// Efficient constructor
 	Ptoken() {nonreplaced = false; };
 	// Accessor methods
-	inline const string& get_val() const { return (val); };
 	inline bool can_replace() const { return !nonreplaced; };
 	inline void set_nonreplaced() { nonreplaced = true; };
 	// Print it (for debugging)

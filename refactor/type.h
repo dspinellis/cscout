@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.2 2001/09/06 15:03:43 dds Exp $
+ * $Id: type.h,v 1.3 2001/09/10 12:17:32 dds Exp $
  */
 
 #ifndef TYPE_
@@ -17,6 +17,7 @@ public:
 	virtual Type *type();			// Typedef
 	virtual Id *member(const string& name);	// Structure and union
 	virtual bool is_ptr() { return false; };// True for ptr arithmetic types
+	virtual bool is_typedef() { return false; };// True for typedefs
 };
 
 enum e_btype {
@@ -82,6 +83,7 @@ public:
 	Ttypedef(Type *t) { for_type = t; };
 	~Ttypedef() { delete for_type; };
 	Type *type() const { return for_type; };
+	bool is_typedef() { return true; };// True for typedefs
 };
 
 enum e_tagtype {tt_struct, tt_union, tt_enum};

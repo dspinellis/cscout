@@ -1,12 +1,12 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.7 2001/09/06 15:03:06 dds Exp $
+# $Id: Makefile,v 1.8 2001/09/10 12:17:32 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.tab.o ctoken.o macro.o \
-parse.o type.o
+parse.o type.o stab.o
 
 CC=g++
 CPPFLAGS=-pipe -g
