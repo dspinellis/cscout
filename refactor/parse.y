@@ -1,8 +1,15 @@
 /*
  * (C) Copyright 2001 Diomidis Spinellis.
- * Based on work by Jutta Degener (see below)
+ * Based on an ANSI yacc grammar by Jutta Degener (see below)
  *
- * $Id: parse.y,v 1.1 2001/09/04 06:59:27 dds Exp $
+ * Type inference engine.  Note that for the purposes of this work we do not
+ * need to keep precise track of types, esp. implicit arithmetic conversions.
+ * Type inference is used:
+ * a) To identify the structure or union to use for member access
+ * b) As a sanity check for (a)
+ *
+ *
+ * $Id: parse.y,v 1.2 2001/09/04 13:26:14 dds Exp $
  *
  */
 
@@ -37,49 +44,136 @@ Jutta Degener, 1995
 %start translation_unit
 
 %{
-extern void yyerror(char *s);
-extern int yylex(void);
+#include <iostream>
+#include <string>
+#include <cassert>
+#include <fstream>
+#include <stack>
+#include <deque>
+#include <map>
+#include <set>
+
+#include "fileid.h"
+#include "cpp.h"
+#include "fileid.h"
+#include "tokid.h"
+#include "eclass.h"
+#include "token.h"
+#include "error.h"
+#include "id.h"
+#include "type.h"
+
+void yyerror(char *s) {}
+int yylex(void) { return 0;}
+
+
 %}
+
+
+%union {
+	Type *t;
+	Id *i;
+};
+
+
+%type <i> IDENTIFIER
+
+%type <t> primary_expression
+%type <t> postfix_expression
+%type <t> unary_expression
+%type <t> cast_expression
+%type <t> multiplicative_expression
+%type <t> additive_expression
+%type <t> shift_expression
+%type <t> relational_expression
+%type <t> equality_expression
+%type <t> and_expression
+%type <t> exclusive_or_expression
+%type <t> inclusive_or_expression
+%type <t> logical_and_expression
+%type <t> logical_or_expression
+%type <t> conditional_expression
+%type <t> expression
+%type <t> constant_expression
+%type <t> assignment_expression
+%type <t> type_name
 
 %%
 
 primary_expression
         : IDENTIFIER
+			{ $$ = $1->get_type(); }
         | INT_CONST
+			{ $$ = new Tbasic(b_int); }
         | FLOAT_CONST
+			{ $$ = new Tbasic(b_float); }
         | STRING_LITERAL
-        | '(' expression ')'
+			{ $$ = new Tarray(new Tbasic(b_char)); }
+        | '(' expression ')'	
+			{ $$ = $2; }
         ;
 
 postfix_expression
         : primary_expression
         | postfix_expression '[' expression ']'
+			{ 
+				$$ = $1->subscript(); 
+				delete $1; 
+				delete $3; 
+			}
         | postfix_expression '(' ')'
+			{ $$ = $1->call(); delete $1; }
         | postfix_expression '(' argument_expression_list ')'
+			{ $$ = $1->call(); delete $1; }
         | postfix_expression '.' IDENTIFIER
+			{
+				Id *i = $1->member($3->get_name());
+				$$ = i->get_type();
+				assert(i->get_name() == $3->get_name());
+				unify($3->get_token(), i->get_token());
+				delete $1;
+				delete $3;
+			}
         | postfix_expression PTR_OP IDENTIFIER
+			{
+				Id *i = ($1->deref())->member($3->get_name());
+				$$ = i->get_type();
+				assert(i->get_name() == $3->get_name());
+				unify($3->get_token(), i->get_token());
+				delete $1;
+				delete $3;
+			}
         | postfix_expression INC_OP
         | postfix_expression DEC_OP
         ;
 
 argument_expression_list
         : assignment_expression
+			{ delete $1; }
         | argument_expression_list ',' assignment_expression
+			{ delete $3; }
         ;
 
 unary_expression
         : postfix_expression
         | INC_OP unary_expression
+			{ $$ = $2; }
         | DEC_OP unary_expression
-        | unary_operator cast_expression
+			{ $$ = $2; }
+        | arith_unary_operator cast_expression
+			{ $$ = $2; }
+        | '&' cast_expression
+			{ $$ = new Tptr($2); }
+        | '*' cast_expression
+			{ $$ = $2->deref(); delete $2; }
         | SIZEOF unary_expression
+			{ $$ = new Tbasic(b_int); delete $2; }
         | SIZEOF '(' type_name ')'
+			{ $$ = new Tbasic(b_int); delete $3; }
         ;
 
-unary_operator
-        : '&'
-        | '*'
-        | '+'
+arith_unary_operator
+        : '+'
         | '-'
         | '~'
         | '!'
@@ -88,74 +182,102 @@ unary_operator
 cast_expression
         : unary_expression
         | '(' type_name ')' cast_expression
+			{ $$ = $2;  delete $4; }
         ;
 
 multiplicative_expression
         : cast_expression
         | multiplicative_expression '*' cast_expression
+			{ delete $3; }
         | multiplicative_expression '/' cast_expression
+			{ delete $3; }
         | multiplicative_expression '%' cast_expression
+			{ delete $3; }
         ;
 
 additive_expression
         : multiplicative_expression
         | additive_expression '+' multiplicative_expression
+			{ delete $3; }
         | additive_expression '-' multiplicative_expression
+			{
+				if ($1->is_ptr() && $3->is_ptr()) {
+					$$ = new Tbasic(b_int);
+					delete $1;
+				} else 
+					$$ = $1;
+				delete $3;
+			}
         ;
 
 shift_expression
         : additive_expression
         | shift_expression LEFT_OP additive_expression
+			{ delete $3; }
         | shift_expression RIGHT_OP additive_expression
+			{ delete $3; }
         ;
 
 relational_expression
         : shift_expression
         | relational_expression '<' shift_expression
+			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
         | relational_expression '>' shift_expression
+			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
         | relational_expression LE_OP shift_expression
+			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
         | relational_expression GE_OP shift_expression
+			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
         ;
 
 equality_expression
         : relational_expression
         | equality_expression EQ_OP relational_expression
+			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
         | equality_expression NE_OP relational_expression
+			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
         ;
 
 and_expression
         : equality_expression
         | and_expression '&' equality_expression
+			{ delete $3; }
         ;
 
 exclusive_or_expression
         : and_expression
         | exclusive_or_expression '^' and_expression
+			{ delete $3; }
         ;
 
 inclusive_or_expression
         : exclusive_or_expression
         | inclusive_or_expression '|' exclusive_or_expression
+			{ delete $3; }
         ;
 
 logical_and_expression
         : inclusive_or_expression
         | logical_and_expression AND_OP inclusive_or_expression
+			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
         ;
 
 logical_or_expression
         : logical_and_expression
         | logical_or_expression OR_OP logical_and_expression
+			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
         ;
 
 conditional_expression
         : logical_or_expression
         | logical_or_expression '?' expression ':' conditional_expression
+			{ $$ = $3; delete $1; delete $5; }
         ;
 
 assignment_expression
         : conditional_expression
         | unary_expression assignment_operator assignment_expression
+			{ $$ = $1; delete $3; }
         ;
 
 assignment_operator
@@ -175,6 +297,7 @@ assignment_operator
 expression
         : assignment_expression
         | expression ',' assignment_expression
+			{ $$ = $3; delete $1; }
         ;
 
 constant_expression

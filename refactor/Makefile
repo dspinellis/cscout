@@ -1,11 +1,12 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.5 2001/09/03 10:26:56 dds Exp $
+# $Id: Makefile,v 1.6 2001/09/04 13:26:14 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
-ptoken.o tchar.o token.o tokid.o tokname.o eval.tab.o ctoken.o macro.o
+ptoken.o tchar.o token.o tokid.o tokname.o eval.tab.o ctoken.o macro.o \
+parse.o type.o
 
 CC=g++
 CPPFLAGS=-pipe -g
@@ -34,6 +35,10 @@ simple_cpp.o: pltoken.h
 
 eval.tab.c: eval.y
 	$(YACC) -b eval -p eval_ eval.y
+
+parse.cpp: parse.y
+	$(YACC) -b parse -p parse_ parse.y
+	mv parse.tab.c parse.cpp
 
 # Test
 cpptest: cpp-test $(CPPTEST)
