@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.41 2003/07/31 15:23:30 dds Exp $
+# $Id: Makefile,v 1.42 2003/08/01 09:39:34 dds Exp $
 #
 
 # Common object files
@@ -52,7 +52,7 @@ test/nested.c test/mkfun.c test/ansi-p92.c \
 test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
 test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
 test/empty.c test/def.c test/conddef.c test/concat-empty.c \
-test/macro_rescan.c
+test/macro_rescan.c test/vararg.c
 
 all: cscout.exe
 #all: obfuscate
@@ -139,15 +139,15 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.41 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/07/31 15:23:30 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.42 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/01 09:39:34 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
 	ci -m"New version" -u version.cpp
 
 # Test
-cpptest: cpp-test $(CPPTEST) cscout.exe
+cpptest: cpp-test $(CPPTEST)
 	for i in $(CPPTEST) ; do echo -n $$i && sh cpp-test $$i && echo ' ok' ; done
 
 hellotest: simple_cpp test/hello.c
