@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.11 2003/05/16 19:42:44 dds Exp $
+ * $Id: cscout.cpp,v 1.12 2003/05/17 07:38:32 dds Exp $
  */
 
 #include <map>
@@ -310,7 +310,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.11 2003/05/16 19:42:44 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.12 2003/05/17 07:38:32 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -937,6 +937,13 @@ main(int argc, char *argv[])
 	}
 	mstring << "\n";
 	license_check(mstring.str().c_str());
+#endif
+
+#ifndef PRODUCTION
+	if (CORRECTION_FACTOR - license_offset != 0) {
+		cout << "**********Unable to obtain correct license*********\n";
+		cout << "license_offset = " << license_offset << "\n";
+	}
 #endif
 
 	swill_handle("src.html", source_page, NULL);
