@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.34 2003/08/20 12:37:58 dds Exp $
+ * $Id: type.cpp,v 1.35 2003/09/29 14:35:02 dds Exp $
  */
 
 #include <iostream>
@@ -521,6 +521,29 @@ Tsu::merge(Tbasic *b)
 
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
 	return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), c, q));
+}
+
+Type
+Tpointer::merge(Tbasic *b)
+{
+	enum e_qualifier q;
+
+	if (b == NULL)
+		return Type_node::merge(b);
+	if (!b->is_abstract() ||
+	    b->get_storage_class() != c_unspecified) {
+		/*
+		 * @error
+		 * The type specifier or storage class can not be applied on 
+		 * a pointer
+		 */
+		Error::error(E_ERR, "illegal application of type attributes on a pointer");
+		if (DP())
+			cout << "merge a=" << Type(this) << "\nmerge b=" << Type(b) << "\n";
+	}
+
+	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
+	return Type(new Tpointer(to, q));
 }
 
 Type
