@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.8 2002/09/03 13:27:51 dds Exp $
+ * $Id: fileid.cpp,v 1.9 2002/09/03 14:02:39 dds Exp $
  */
 
 #include <map>
@@ -12,13 +12,17 @@
 #include <map>
 #include <deque>
 #include <set>
+#ifdef unix
+#include <unistd.h>		// access(2)
+#else
+#include <io.h>			// access(2)
+#endif
 
 #include "cpp.h"
 #include "debug.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "error.h"
-#include "io.h"			// access(2)
 
 int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
