@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.2 2002/09/04 14:31:17 dds Exp $
+ * $Id: webmap.cpp,v 1.3 2002/09/04 15:00:22 dds Exp $
  */
 
 #include <map>
@@ -74,7 +74,7 @@ html(string s)
 
 // Display the contents of a file in hypertext form
 static void
-file_hypertext(string fname)
+file_hypertext(ofstream &of, string fname)
 {
 	ifstream in;
 	Fileid fi;
@@ -95,15 +95,21 @@ file_hypertext(string fname)
 			break;
 		Eclass *ec;
 		if ((ec = ti.check_ec()) && ec->get_size() > 1) {
-			cout << "<a href=\"id" << (unsigned)ec << "\">";
+			string s;
+			s = (char)val;
+			char c;
+			of << "<a href=\"i" << (unsigned)ec << "\">";
 			int len = ec->get_len();
-			cout << (char)val;
-			for (int j = 1; j < len; j++)
-				cout << html((char)in.get());
-			cout << "</a>";
+			of << (char)val;
+			for (int j = 1; j < len; j++) {
+				of << html(c = (char)in.get());
+				s += c;
+			}
+			ec->set_identifier(s);
+			of << "</a>";
 			continue;
 		}
-		cout << html((char)val);
+		of << html((char)val);
 	}
 	in.close();
 }
@@ -120,7 +126,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.2 2002/09/04 14:31:17 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.3 2002/09/04 15:00:22 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -217,15 +223,23 @@ main(int argc, char *argv[])
 	fo << "\n</ul>\n";
 	html_tail(fo);
 
-	// Each file
+	// Details for each file 
+	// As a side effect populite the EC identifier member
 	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
 		Fileid fi = Fileid(*i);
 		strstream fname;
-		fname << 'f' << fi.get_id();
+		fname << fi.get_id();
 		string sfname(fname.str(), fname.pcount());
-		html_head(fo, sfname.c_str(), html(*i));
+		html_head(fo, (string("f") + sfname).c_str(), html(*i));
+		fo << "<ul>\n";
 		fo << "Read-only: " << (fi.get_readonly() ? "Yes" : "No") << "<p>\n";
+		fo << "<a href=\"s" << sfname << ".html\">Source code</a>\n";
+		fo << "</ul>\n";
 
+		html_tail(fo);
+		// File source listing
+		html_head(fo, (string("s") + sfname).c_str(), html(*i));
+		file_hypertext(fo, *i);
 		html_tail(fo);
 	}
 
