@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.91 2004/07/30 09:11:09 dds Exp $
+ * $Id: cscout.cpp,v 1.92 2004/07/30 09:17:57 dds Exp $
  */
 
 #include <map>
@@ -1343,12 +1343,14 @@ cgraph_page(FILE *fo, bool html)
 	}
 }
 
+// Call graph: text
 static void
 cgraph_txt_page(FILE *fo, void *p)
 {
 	cgraph_page(fo, false);
 }
 
+// Call graph: HTML
 static void
 cgraph_html_page(FILE *fo, void *p)
 {
@@ -1409,13 +1411,13 @@ cgraph_dot_page(FILE *fo, char *type)
 	fprintf(fo, "}\n");
 }
 
-// Call graph (dot)
+// Call graph: SVG via dot
 static void
 cgraph_svg_page(FILE *fo, void *p)
 {
-	char svg[256];
-	char dot[256];
-	char cmd[1024];
+	char svg[256];		// SVG file name
+	char dot[256];		// dot file name
+	char cmd[1024];		// dot command
 	#ifdef unix
 	strcpy(svg, "/tmp");
 	#else
