@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.2 2001/08/18 22:01:19 dds Exp $
+ * $Id: pltoken.cpp,v 1.3 2001/08/20 15:37:07 dds Exp $
  */
 
 #include <iostream>
@@ -22,7 +22,10 @@
 #include "ptoken.h"
 #include "fchar.h"
 #include "ytab.h"
+#include "error.h"
 #include "pltoken.h"
+
+enum e_cpp_context Pltoken::context = cpp_normal;
 
 #ifdef ndef
 ostream& 
