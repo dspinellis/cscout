@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.15 2001/08/25 07:04:12 dds Exp $
+ * $Id: pdtoken.cpp,v 1.16 2001/08/31 08:10:17 dds Exp $
  */
 
 #include <iostream>
@@ -21,9 +21,9 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
+#include "ytab.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "ytab.h"
 #include "error.h"
 #include "pltoken.h"
 #include "pdtoken.h"
@@ -308,7 +308,7 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
 		}
 		return Ptoken(EOF, "");
 	} else {
-		while (pos != tokens.end() && ((*pos).get_code() == SPACE || (*pos).get_code() == '\n'))
+		while (pos != tokens.end() && (*pos).is_space())
 			pos++;
 		if (pos != tokens.end())
 			return (*pos++);
@@ -316,8 +316,7 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
 			Pltoken t;
 			do {
 				t.template getnext_nospc<Fchar>();
-			} while (t.get_code() != EOF && 
-			       (t.get_code() == SPACE || t.get_code() == '\n'));
+			} while (t.get_code() != EOF && t.is_space());
 			return (t);
 		}
 		return Ptoken(EOF, "");
@@ -404,7 +403,7 @@ stringize(const listPtoken& ts)
 {
 	string res;
 	listPtoken::const_iterator pi;
-	bool seen_space = false;
+	bool seen_space = true;		// To delelte leading spaces
 
 	for (pi = ts.begin(); pi != ts.end(); pi++) {
 		switch ((*pi).get_code()) {
@@ -433,6 +432,35 @@ stringize(const listPtoken& ts)
 	return Ptoken(STRING_LITERAL, res);
 }
 
+
+/*
+ * Return true if if macro-replacement of *p occuring within v is allowed.
+ * According to ANSI 3.8.3.1 p. 91
+ * macro replacement is not performed when the argument is preceded by # or ## 
+ * or followed by ##.
+ * These rules do not take into account space tokens.
+ */
+static bool
+macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
+{
+	dequePtoken::const_iterator i;
+
+	// Check previous first non-white token
+	for (i = p; i != v.begin(); ) {
+		i--;
+		if ((*i).get_code() == '#' || (*i).get_code() == CPP_CONCAT)
+			return (false);
+		if (!(*i).is_space())
+			break;
+	}
+
+	// Check next first non-white token
+	for (i = p + 1; i != v.end() && (*i).is_space(); i++)
+		if ((*i).get_code() == CPP_CONCAT)
+			return (false);
+	return (true);
+}
+
 /*
  * Check for macro at token position pos and possibly expand it  
  * If a macro is expanded, pos is invalidated and replaced with the replacement 
@@ -447,7 +475,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 {
 	mapMacro::const_iterator mi;
 	const string& name = (*pos).get_val();
-	// cout << "macro_replace " << name << "\n";
+	cout << "macro_replace " << name << "\n";
 	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
 		return (false);
 	// cout << "replacing for " << name << "\n";
@@ -476,20 +504,16 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					return (false);
 				}
 				do_stringize = true;
-				i++;
+				// Advance to next non-space
+				do {
+					i++;
+				} while ((*i).is_space());
 			} else
 				do_stringize = false;
 			mapArgval::const_iterator ai;
 			// Is it a formal argument?
 			if ((ai = args.find((*i).get_val())) != args.end()) {
-				// Yes, see if macro-replacement allowed
-				// ANSI 3.8.3.1 p. 91
-				// Not preceded by # or ## or followed by ##
-				if ((i == m.value.begin() ||
-				     ((*(i - 1)).get_code() != '#' &&
-				      (*(i - 1)).get_code() != CPP_CONCAT)) &&
-				    (i + 1 == m.value.end() ||
-				     (*(i + 1)).get_code() != CPP_CONCAT)) {
+				if (macro_replacement_allowed(m.value, i)) {
 					// Allowed, macro replace the parameter
 					// in temporary var arg, and
 					// copy that back to the main

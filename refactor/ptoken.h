@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.5 2001/08/24 14:18:24 dds Exp $
+ * $Id: ptoken.h,v 1.6 2001/08/31 08:10:17 dds Exp $
  */
 
 #ifndef PTOKEN_
@@ -34,6 +34,8 @@ public:
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Ptoken &t);
 	inline friend bool operator ==(const Ptoken& a, const Ptoken& b);
+	// Return true if \n or SPACE
+	inline bool is_space() const;
 };
 
 typedef list<Ptoken> listPtoken;
@@ -45,4 +47,8 @@ bool operator ==(const Ptoken& a, const Ptoken& b)
 	return (a.val == b.val);
 }
 
+inline bool Ptoken::is_space() const
+{
+	return (code == SPACE || code == '\n');
+}
 #endif /* PTOKEN_ */
