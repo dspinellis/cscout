@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.69 2003/08/02 12:45:39 dds Exp $
+ * $Id: parse.y,v 1.70 2003/08/02 20:14:16 dds Exp $
  *
  */
 
@@ -1452,7 +1452,7 @@ function_definition:
 		{ Block::param_use(); } declaration_list
 		{ Block::param_use_end(); $2.declare(); }
 					function_body
-        ;
+         ;
 
 declarator:
 	/* *a[3] */
@@ -1633,6 +1633,7 @@ file:
 			yacc_type.clear();
 		} yacc_body
 	| translation_unit
+	| /* Empty */
 	;
 
 yacc_body:
