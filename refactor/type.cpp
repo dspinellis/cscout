@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.26 2003/06/17 11:07:46 dds Exp $
+ * $Id: type.cpp,v 1.27 2003/06/19 11:11:01 dds Exp $
  */
 
 #include <iostream>
@@ -178,7 +178,11 @@ const Id *
 Tincomplete::member(const string& s) const
 {
 	const Id *id = tag_lookup(scope_level, t.get_name());
-	if (!id) {
+	if (DP() && id) {
+		cout << "Incomplete member access of " << t.get_name() << "." << s;
+		cout << " Type: " << id->get_type() << "\n";
+	}
+	if (!id || id->get_type().is_incomplete()) {
 		/*
 		 * @error
 		 * The member access for a structure or union is applied

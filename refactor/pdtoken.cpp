@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.73 2003/06/17 11:07:46 dds Exp $
+ * $Id: pdtoken.cpp,v 1.74 2003/06/19 11:11:01 dds Exp $
  */
 
 #include <iostream>
@@ -126,6 +126,16 @@ again:
 		*this = t;
 		break;
 	case IDENTIFIER:
+		extern bool parse_yacc_defs;
+		if (parse_yacc_defs) {
+			/* 
+			 * We do not want the preprocessor to do macro processing 
+			 * outside the context of C code in yacc files, since 
+			 * terminals are often defined as numbers using macros.
+			 */
+			*this = t;
+			break;
+		}
 		expand.push_front(t);
 		tabu.clear();
 		macro_replace(expand, expand.begin(), tabu, true);
@@ -930,6 +940,8 @@ Pdtoken::process_directive()
 	t.template getnext_nospc<Fchar>();
 	if (t.get_code() == '\n')		// Empty directive
 		return;
+	if (DP())
+		cout << "Directive: " << t << "\n";
 	if (t.get_code() != IDENTIFIER) {
 		/*
 		 * @error

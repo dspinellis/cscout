@@ -14,13 +14,13 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.49 2003/06/02 17:01:09 dds Exp $
+ * $Id: parse.y,v 1.50 2003/06/19 11:11:01 dds Exp $
  *
  */
 
 %include ytoken.h
 
-%start translation_unit
+%start file
 
 %{
 #include <iostream>
@@ -63,6 +63,27 @@ void parse_error(char *s)
 
 #define YYSTYPE_CONSTRUCTOR
 
+// Elements used for parsing yacc code
+/*
+ * Lexical tie in
+ * Set to true when we are parsing yacc definitions 
+ * (the first part of a yacc file, but not C code like
+ * this part
+ */
+bool parse_yacc_defs;
+
+// The symbol name of each rule RHS
+static vector<string> yacc_dollar;
+
+// The tag declared for each terminal or nonterminal symbol
+typedef map<string, Type> YaccTypeMap;
+static YaccTypeMap yacc_type;
+
+// An appropriately typed yacc l/rvalue (int, or %union)
+static Type yacc_stack;
+
+// True if the %union mechanism is used
+static bool yacc_typing;
 %}
 
 
@@ -138,6 +159,15 @@ void parse_error(char *s)
 %type <t> unary_identifier_declarator
 %type <t> identifier_declarator
 
+/* Needed for yacc */
+%type <t> INT_CONST
+%type <t> CHAR_LITERAL
+%type <t> yacc_tag
+%type <t> yacc_name_list_declaration
+%type <t> yacc_name_number
+%type <t> yacc_name
+%type <t> yacc_variable
+
 %%
 
 /* This refined grammar resolves several typedef ambiguities  in  the
@@ -185,7 +215,9 @@ int moo(const int identifier1 (T identifier2 (int identifier3)));
 
 /* CONSTANTS */
 constant:
-        INT_CONST
+        CHAR_LITERAL
+			{ $$ = basic(b_int); }
+        | INT_CONST
 			{ $$ = basic(b_int); }
         | FLOAT_CONST
 			{ $$ = basic(b_float); }
@@ -218,6 +250,32 @@ primary_expression:
 					 */
 					Error::error(E_WARN, "undeclared identifier: " + $1.get_name());
 					$$ = $1;
+				}
+			}
+	| yacc_variable
+			{
+				if (!Fchar::is_yacc_file())
+					/*
+					 * @error
+					 * A '$' token was encountered in C code.
+					 * Values starting with a '$' token are only allowed inside
+					 * yacc rules
+					 */
+					Error::error(E_FATAL, "Invalid C token: '$'");
+				Id const *id = yacc_stack.member($1.get_name());
+				if (id) {
+					$$ = id->get_type();
+					if (DP())
+						cout << ". returns " << $$ << "\n";
+					assert(id->get_name() == $1.get_name());
+				} else {
+					/*
+					 * @error
+					 * The member used in a $&lt;name&gt;X yacc construct
+					 * was not defined as a %union member.
+					 */
+					Error::error(E_ERR, "%union does not have a member " + $1.get_name());
+					$$ = basic(b_undeclared);
 				}
 			}
         | constant
@@ -1353,6 +1411,239 @@ postfix_abstract_declarator:
         | '(' unary_abstract_declarator ')' postfixing_abstract_declarator
 		{ $2.set_abstract($4); $$ = $2; }
         ;
+
+/***************************** YACC RULES ***************************************/
+
+file:
+	YACC_COOKIE { 
+			if (DP())
+				cout << "Parsing yacc code\n";
+			parse_yacc_defs = true; 
+			yacc_typing = false;
+			yacc_type.clear();
+		} yacc_body
+	| translation_unit
+	;
+
+yacc_body:
+	yacc_defs YMARK 
+		{
+			// typedef YYSTYPE int if not defined
+			if (!yacc_typing)
+				obj_define(Token(IDENTIFIER, "YYSTYPE"), yacc_stack = basic(b_int, s_none, c_typedef));
+			// define YYSTYPE yacc_stack
+			if (DP())
+				cout << "Yacc stack is of type " << yacc_stack << "\n";
+		} yacc_rules 
+		{
+			parse_yacc_defs = false; 
+		} yacc_tail
+	;
+
+yacc_tail:
+	/* Empty */
+	| YMARK translation_unit
+	;
+
+yacc_defs:
+	/* Empty */
+	| yacc_defs yacc_def
+	;
+
+yacc_def:
+	YSTART IDENTIFIER
+		{ obj_define($2.get_token(), basic(b_int, s_none, c_static)); }
+	| UNION '{' { parse_yacc_defs = false; } member_declaration_list  '}' 
+		{
+			Type ut = $4.clone();
+			ut.set_storage_class(basic(b_abstract, s_none, c_typedef));
+			obj_define(Token(IDENTIFIER, "YYSTYPE"), yacc_stack = ut);
+			yacc_typing = true;
+			parse_yacc_defs = true;
+		}
+	| YLCURL translation_unit YRCURL
+	| yacc_rword yacc_name_list_declaration
+	;
+
+yacc_rword:
+	YTOKEN
+	| YLEFT
+	| YRIGHT
+	| YNONASSOC
+	| YTYPE
+	;
+
+yacc_tag:
+	/* Empty: union tag is optional */
+		{ $$ = basic(b_undeclared); }
+	| '<' IDENTIFIER '>'
+			{
+				Id const *id = yacc_stack.member($2.get_name());
+				if (id) {
+					if (DP())
+						cout << ". returns " << id->get_type() << "\n";
+					assert(id->get_name() == $2.get_name());
+					unify($2.get_token(), id->get_token());
+				} else {
+					/*
+					 * @error
+					 * The yacc %union 
+					 * does not have as a member the
+					 * identifier appearing on the
+					 * element's tag
+					 */
+					Error::error(E_ERR, "unkown %union element tag " + $2.get_name());
+				}
+				$$ = $2;
+			}
+	;
+
+yacc_name_list_declaration:
+	yacc_tag yacc_name_number
+		{
+			YaccTypeMap::const_iterator i = yacc_type.find($2.get_name());
+			// Set the type of the token to its tag
+			if (i != yacc_type.end() && (*i).second.is_valid())
+				yacc_type[$2.get_name()] = (*i).second;
+			else
+				yacc_type[$2.get_name()] = $1;
+			// Declare the token as an integer
+			obj_define($2.get_token(), basic(b_int, s_none, c_static));
+			$$ = $1;
+		}
+	| yacc_name_list_declaration yacc_opt_comma yacc_name_number
+		{
+			YaccTypeMap::const_iterator i = yacc_type.find($3.get_name());
+			if (i != yacc_type.end() && (*i).second.is_valid())
+				yacc_type[$3.get_name()] = (*i).second;
+			else
+				yacc_type[$3.get_name()] = $1;
+			obj_define($3.get_token(), basic(b_int, s_none, c_static));
+			$$ = $1;
+		}
+	;
+
+yacc_opt_comma:
+	/* Empty */
+	| ','
+	;
+
+yacc_name_number:
+	yacc_name
+	| yacc_name INT_CONST
+	;
+
+yacc_name:
+	IDENTIFIER
+		{
+			Id const *id = obj_lookup($1.get_name());
+			if (DP())
+				cout << "Lookup for " << $1.get_name() << " returns " << id << "\n";
+			if (id)
+				unify(id->get_token(), $1.get_token());
+			$$ = $1;
+		}
+	| CHAR_LITERAL
+	;
+
+/* rules section */
+
+yacc_rules:
+	yacc_rule
+	| yacc_rules yacc_rule
+	;
+
+/*
+ * Older yacc versions apparently accepted rules without terminating ;
+ * We deviate from Johnson's yacc grammar published as appendix B
+ * of his "Yacc---Yet Another Compiler-Compiler" report and only
+ * accept the modern syntax
+ */
+
+yacc_rule:
+	/* yacc_dollar[0] is the name for $$ */
+	IDENTIFIER ':' { yacc_dollar.clear(); yacc_dollar.push_back($1.get_name()); } yacc_rule_body_list ';'
+		{
+			Id const *id = obj_lookup($1.get_name());
+			if (id)
+				unify(id->get_token(), $1.get_token());
+		}
+	;
+
+yacc_rule_body_list:
+	yacc_rule_body
+	| yacc_rule_body_list '|' yacc_rule_body
+	;
+
+yacc_rule_body:
+	{
+		/* Erase $1 ... $n */
+		yacc_dollar.erase(yacc_dollar.begin() + 1, yacc_dollar.end());
+	}
+	yacc_id_action_list yacc_prec
+	;
+
+yacc_id_action_list:
+	/* Empty */
+	| yacc_id_action_list yacc_name
+		{ yacc_dollar.push_back($2.get_name()); }
+        | yacc_id_action_list { parse_yacc_defs = false; } compound_statement 
+		{
+			parse_yacc_defs = true; 
+			yacc_dollar.push_back("_ACTION_"); 
+		}
+	;
+
+yacc_prec:
+	/* Empty */
+	| YPREC yacc_name
+	| YPREC yacc_name { parse_yacc_defs = false; } compound_statement
+		{ parse_yacc_defs = true; }
+	;
+
+yacc_variable:
+	'$' '$'
+		{
+			YaccTypeMap::const_iterator i = yacc_type.find(yacc_dollar[0]);
+			if (i == yacc_type.end())
+				$$ = basic(b_int);
+			else
+				$$ = (*i).second;
+		}
+	| '$' INT_CONST
+		{
+			const char *num = $2.get_name().c_str();
+			char *endptr;
+			int val = strtol(num, &endptr, 0);
+			if ((unsigned)val >= yacc_dollar.size()) {
+				/*
+				 * @error
+				 * The number used in a $n yacc variable was greater than the
+				 * number of identifiers and actions on the rule's left side
+				 */
+				Error::error(E_ERR, "yacc $value out of range");
+				$$ = basic(b_int);
+			}
+			YaccTypeMap::const_iterator i = yacc_type.find(yacc_dollar[val]);
+			if (i == yacc_type.end())
+				$$ = basic(b_int);
+			else
+				$$ = (*i).second;
+			if (DP())
+				cout << "yacc type of $" << val << " which is " << 
+				yacc_dollar[val] << " resolves to " << $$ << "\n";
+		}
+	| '$' '-' INT_CONST
+		{ $$ = basic(b_int); }
+	| '$' '<' IDENTIFIER '>' yacc_variable_suffix
+		{ $$ = $3; }
+	;
+
+yacc_variable_suffix:
+	'$'
+	| INT_CONST
+	| '-' INT_CONST
+	;
 
 %%
 /* ----end of grammar----*/

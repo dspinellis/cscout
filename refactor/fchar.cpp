@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.21 2003/06/01 09:03:06 dds Exp $
+ * $Id: fchar.cpp,v 1.22 2003/06/19 11:11:01 dds Exp $
  */
 
 #include <iostream>
@@ -26,12 +26,14 @@
 #include "tokid.h"
 #include "fchar.h"
 #include "error.h"
+#include "ytab.h"
 
 ifstream Fchar::in;
 Fileid Fchar::fi;
 stackFchar_context Fchar::cs;		// Pushed contexts (from push_input())
 stackFchar Fchar::ps;			// Putback Fchars (from putback())
 int Fchar::line_number;			// Current line number
+bool Fchar::yacc_file;			// True input comes from .y
 stackFchar::size_type Fchar::stack_lock_size;	// Locked elements in file stack
 
 void 
@@ -47,6 +49,7 @@ Fchar::set_input(const string& s)
 	if (DP())
 		cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;
+	yacc_file = (s[s.length() - 1] == 'y');
 }
 
 void 
@@ -58,6 +61,12 @@ Fchar::push_input(const string& s)
 	fc.line_number = line_number;
 	cs.push(fc);
 	set_input(s);
+	/*
+	 * First time through:
+	 * push the magic yacc cookie to direct us to parse yacc code
+	 */
+	if (yacc_file)
+		putback(Fchar(YACC_COOKIE));
 }
 
 void

@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.24 2003/06/01 09:03:06 dds Exp $
+ * $Id: pltoken.h,v 1.25 2003/06/19 11:11:01 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -130,10 +130,32 @@ Pltoken::getnext()
 		if (c0.get_char() == '=') {
 			val = "%=";
 			code = MOD_ASSIGN;
-		} else {
-			C::putback(c0);
-			val = (char)(code = '%');
+			break;
 		}
+		// Yacc tokens
+		if (Fchar::is_yacc_file()) {
+			extern bool parse_yacc_defs;
+
+			if (c0.get_char() == '%') {
+				val = "%%";
+				code = YMARK;
+				break;
+			}
+			if (c0.get_char() == '{') {
+				val = "%{";
+				code = YLCURL;
+				parse_yacc_defs = false;
+				break;
+			}
+			if (c0.get_char() == '}') {
+				val = "%}";
+				code = YRCURL;
+				parse_yacc_defs = true;
+				break;
+			}
+		}
+		C::putback(c0);
+		val = (char)(code = '%');
 		break;
 	case '*':
 		c0.getnext();

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.19 2003/06/01 09:03:06 dds Exp $
+ * $Id: ctoken.cpp,v 1.20 2003/06/19 11:11:01 dds Exp $
  */
 
 #include <map>
@@ -205,6 +205,7 @@ parse_lex_real()
 	Id const *id;
 	map<string,int>::const_iterator ik;
 	extern YYSTYPE parse_lval;
+	extern bool parse_yacc_defs;
 
 	for (;;) {
 		Pdtoken t;
@@ -221,11 +222,16 @@ again:
 			Error::error(E_INTERNAL, "preprocessor filename, past perprocessor");
 			continue;
 		case PP_NUMBER:
-		case CHAR_LITERAL:
+			/* We need the value in the $x yacc variables */
+			if (Fchar::is_yacc_file())
+				parse_lval.t = identifier(t);
 			// XXX Could also be invalid, or FLOAT_CONST
 			return (INT_CONST);
 		case IDENTIFIER:
 			if (DP()) cout << "id: [" << t.get_val() << "]\n";
+			parse_lval.t = identifier(t);
+			if (parse_yacc_defs)
+				return (IDENTIFIER);
 			ik = keymap.find(t.get_val());
 			if (ik != keymap.end())
 				// Keyword
@@ -237,10 +243,43 @@ again:
 					return (*ik).second;
 				}
 			id = obj_lookup(t.get_val());
-			parse_lval.t = identifier(t);
 			if (id && id->get_type().is_typedef())
 				return (TYPEDEF_NAME);	// Probably typedef
 			return (IDENTIFIER);		// Plain identifier
+		case '%':
+			/* Recognize yacc reserved words */
+			if (!parse_yacc_defs)
+				return (c);
+			t.getnext();
+			if (t.get_code() != IDENTIFIER) {
+				/*
+				 * @error
+				 * In the definitions section of a yacc file the
+				 * % symbol was not followed by a legal yacc keyword
+				 */
+				Error::error(E_ERR, "% not followed by yacc keyword");
+				return YBAD;
+			}
+			/* Ordered by frequency; good enough for yacc */
+			if (t.get_val() == "type") return (YTYPE);
+			if (t.get_val() == "token") return (YTOKEN);
+			if (t.get_val() == "left") return (YLEFT);
+			if (t.get_val() == "right") return (YRIGHT);
+			if (t.get_val() == "nonassoc") return (YNONASSOC);
+			if (t.get_val() == "prec") return (YPREC);
+			if (t.get_val() == "start") return (YSTART);
+			if (t.get_val() == "union") return (UNION);
+			/*
+			 * @error
+			 * In the definitions section of a yacc file the
+			 * % symbol was not followed by a legal yacc keyword
+			 */
+			Error::error(E_ERR, "% not followed by yacc keyword");
+			return YBAD;
+		case CHAR_LITERAL:
+			/* We need the value in the $x yacc variables */
+			if (Fchar::is_yacc_file())
+				parse_lval.t = identifier(t);
 		default:
 			return (c);
 		}

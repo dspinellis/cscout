@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.10 2002/12/26 12:46:24 dds Exp $
+ * $Id: fchar.h,v 1.11 2003/06/19 11:11:01 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -41,6 +41,7 @@ private:
 	static ifstream in;		// Stream we are reading from
 	static Fileid fi;		// and its Fileid
 	static int line_number;		// Current line number
+	static bool yacc_file;		// True if input file is yacc, not C
 	static stackFchar_context cs;	// Pushed contexts (from push_input())
 	static stackFchar ps;		// Putback stack
 	static stackFchar::size_type stack_lock_size;	// So many elements can not be removed
@@ -82,6 +83,7 @@ public:
 	static Fileid get_fileid() { return fi; }
 	// Return true if the class's source is a file
 	static bool is_file_source() { return true; }
+	static bool is_yacc_file() { return yacc_file; }
 };
 
 #endif /* FCHAR_ */

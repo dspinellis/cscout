@@ -5,7 +5,7 @@
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.4 2002/09/07 09:47:15 dds Exp $
+ * $Id: ytoken.h,v 1.5 2003/06/19 11:11:01 dds Exp $
  */
 
 
@@ -58,3 +58,12 @@
 %token TYPEOF
 /* MSC _asm directive */
 %token MSC_ASM
+
+/* Yacc tokens */
+%token YMARK	YLCURL	YRCURL			/* %%	%{	%}	*/
+%token YLEFT YRIGHT YNONASSOC YTOKEN YPREC YTYPE YSTART YBAD
+/* 
+ * Magic cookie we push at the beginning of yacc files to turn the parser
+ * into yacc mode
+ */
+%token YACC_COOKIE
