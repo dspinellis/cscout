@@ -7,8 +7,6 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"
-#include "tokmap.h"
-
 
 Eclass *
 merge(Eclass *a, Eclass *b)
@@ -52,16 +50,16 @@ void
 Eclass::add_tokid(Tokid t)
 {
 	members.push_front(t);
-	set_ec(t, this);
+	t.set_ec(this);
 }
 
 #ifdef UNIT_TEST
-// cl -GX -DWIN32 -DUNIT_TEST eclass.cpp tokmap.obj tokid.obj fileid.obj kernel32.lib
+// cl -GX -DWIN32 -DUNIT_TEST eclass.cpp tokid.obj fileid.obj kernel32.lib
 
 main()
 {
-	Tokid a("tokid.cpp", 10);
-	Tokid b("./tokid.cpp", 15);
+	Tokid a(Fileid("tokid.cpp"), 10);
+	Tokid b(Fileid("./tokid.cpp"), 15);
 	Eclass e1(5);
 
 	e1.add_tokid(a);
@@ -69,8 +67,8 @@ main()
 	cout << "e1:\n" << e1;
 
 	Eclass e2(5);
-	Tokid c("tokid.h", 1);
-	Tokid d("./tokid.h", 5);
+	Tokid c(Fileid("tokid.h"), 1);
+	Tokid d(Fileid("./tokid.h"), 5);
 	e2.add_tokid(c);
 	e2.add_tokid(d);
 	cout << "e2:\n" << e2;
