@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.21 2001/08/31 19:03:51 dds Exp $
+ * $Id: pdtoken.cpp,v 1.22 2001/08/31 21:25:49 dds Exp $
  */
 
 #include <iostream>
@@ -354,10 +354,7 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 {
 	Ptoken t;
 	t = arg_token(tokens, pos, get_more, false);
-	if (t.get_code() != '(') {
-		Error::error(E_ERR, "macro [" + name + "]: open bracket expected for function-like macro");
-		return false;
-	}
+	assert (t.get_code() == '(');
 	dequePtoken::const_iterator i;
 	for (i = formal_args.begin(); i != formal_args.end(); i++) {
 		listPtoken& v = args[(*i).get_val()];
@@ -528,13 +525,33 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 	//cout << "macro_replace " << name << "\n";
 	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
 		return (++pos);
+	const Macro& m = (*mi).second;
+	if (m.is_function) {
+		// Peek for a left bracket, if not found this is not a macro
+		listPtoken::iterator peek = pos;
+		peek++;
+		while (peek != tokens.end() && (*peek).is_space())
+			peek++;
+		if (peek == tokens.end()) {
+			if (get_more) {
+				Pltoken t;
+				do {
+					t.template getnext<Fchar>();
+					tokens.push_back(t);
+				} while (t.get_code() != EOF && t.is_space());
+				if (t.get_code() != '(')
+					return (++pos);
+			} else
+				return (++pos);
+		} else if ((*peek).get_code() != '(')
+			return (++pos);
+	}
 	// cout << "replacing for " << name << "\n";
 	unify(*pos, (*mi).second.name_token);
 	listPtoken::iterator expand_start = pos;
 	expand_start++;
 	tokens.erase(pos);
 	pos = expand_start;
-	const Macro& m = (*mi).second;
 	if (m.is_function) {
 		mapArgval args;			// Map from formal name to value
 		bool do_stringize;
