@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.93 2004/07/31 18:32:06 dds Exp $
+ * $Id: pdtoken.cpp,v 1.94 2004/08/05 20:39:18 dds Exp $
  */
 
 #include <iostream>
@@ -381,7 +381,10 @@ void
 Pdtoken::create_undefined_macro(const Ptoken &name)
 {
 	name.set_ec_attribute(is_undefined_macro);
-	macros.insert(mapMacro::value_type(name.get_val(), Macro(name, false, false)));
+	mapMacro::value_type v(name.get_val(), Macro(name, false, false));
+	// XXX Passing the above value directly causes a crash with
+	// gcc version 3.2
+	macros.insert(v);
 }
 
 void
