@@ -1,9 +1,11 @@
 /* 
  * (C) Copyright 2001 Diomidis Spinellis.
  *
- * Standard definitions read when startip up
+ * Standard definitions read when starting up
  *
- * $Id: defs.h,v 1.1 2001/09/03 10:30:17 dds Exp $
+ * To create this file look at /usr/lib/gcc-lib/ * / * /specs
+ *
+ * $Id: defs.h,v 1.2 2001/09/14 07:42:17 dds Exp $
  */
 
 #define __cplusplus
@@ -19,14 +21,14 @@
 #define __linux__ 
 #define __unix 
 #define __GNUC__ 2 
-#define __GNUC_MINOR__ 91 
+#define __GNUC_MINOR__ 96
+#define __WCHAR_TYPE__ short unsigned int
 
 #ifdef __cplusplus
-#pragma includepath "/usr/include/g++-2"
-#define __GNUG__ 2 
+#pragma includepath "/usr/include/g++-3"
+#define __GNUG__ 3
 #define __EXCEPTIONS
 #endif
 
-#pragma includepath "/usr/i386-redhat-linux/include"
-#pragma includepath "/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include"
+#pragma includepath "/usr/lib/gcc-lib/i386-redhat-linux/2.96/include"
 #pragma includepath "/usr/include"
