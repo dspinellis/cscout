@@ -1,9 +1,9 @@
 #
-# $Id: Makefile,v 1.2 2004/06/06 08:26:54 dds Exp $
+# $Id: Makefile,v 1.3 2004/07/31 12:42:09 dds Exp $
 #
 
 DESTDIR="c:/dds/pubs/web/home/cscout"
-VERSION=1.16
+VERSION=$(shell sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' refactor/version.cpp)
 NEUTRAL-ZIP=${DESTDIR}/cscout-${VERSION}-neutral.zip
 
 all: html fbsd-i386-tar linux-i386-tar win32-i386-tar fbsd-sparc64-tar \
