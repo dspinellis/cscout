@@ -22,7 +22,7 @@ merge(Eclass *a, Eclass *b)
 		small = a;
 	}
 
-	EC_members::iterator i;
+	dequeTokid::iterator i;
 	for (i = small->members.begin(); i != small->members.end(); i++)
 		large->add_tokid(*i);
 	delete small;
@@ -37,7 +37,7 @@ split(Eclass *ec, int pos)
 ostream&
 operator<<(ostream& o,const Eclass& ec)
 {
-	EC_members::iterator i;
+	dequeTokid::iterator i;
 
 	// When used for real we can also open the file and print the content
 	o << "len=" << ec.len << "\n";
