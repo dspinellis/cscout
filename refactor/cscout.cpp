@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.55 2003/08/11 14:15:17 dds Exp $
+ * $Id: cscout.cpp,v 1.56 2003/08/11 17:19:01 dds Exp $
  */
 
 #include <map>
@@ -1789,7 +1789,7 @@ garbage_collect(Fileid root)
 		// Recursively mark all the files containing definitions for us
 		Fdep::mark_required(root);
 		// Store them in a set to calculate set difference
-		for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
+		for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
 			if ((*i).required())
 				required_files.insert(*i);
 
