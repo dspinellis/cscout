@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.87 2004/07/29 14:33:53 dds Exp $
+ * $Id: cscout.cpp,v 1.88 2004/07/29 15:24:30 dds Exp $
  */
 
 #include <map>
@@ -1318,6 +1318,11 @@ index_page(FILE *of, void *data)
 		"<h2>Functions and Macros</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"cgraph.html\">Call graph</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All Functions</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&pscope=1&match=L&ncallerop=0&ncallers=&n=Project-scoped+Writable+Functions&qi=x\">Project-scoped writable functions</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&fscope=1&match=L&ncallerop=0&ncallers=&n=File-scoped+Writable+Functions&qi=x\">File-scoped writable functions</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=0&n=Writable+Functions+that+Are+Not+Directly+Called&qi=x\">Writable functions that are not directly called</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=1&n=Writable+Functions+that+Are++Called+Exactly+Once&qi=x\">Writable functions that are called exactly once</a>\n"
 		"<li> <a href=\"funquery.html\">Specify new function query</a>\n"
 		"</ul>\n"
 		"<h2>Operations</h2>"
