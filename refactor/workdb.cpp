@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.4 2002/09/17 07:55:39 dds Exp $
+ * $Id: workdb.cpp,v 1.5 2002/09/17 09:27:45 dds Exp $
  */
 
 #include <map>
@@ -92,10 +92,40 @@ sql(string s)
 	return r;
 }
 
-static set <Identifier> ids;
+// Insert an equivalence classe in the database
+static void
+insert_eclass(ofstream &of, Eclass *e, const string &name)
+{
+	// Avoid duplicate entries (could also have a dumped Eclass attr)
+	static set <Eclass *> dumped;
+	if (dumped.find(e) != dumped.end())
+		return;
+	dumped.insert(e);
+
+	of << "INSERT INTO IDS VALUES(" << 
+	(unsigned)e << ",'" <<
+	name << "'," <<
+	sql_bool(e->get_attribute(is_readonly)) << ',' <<
+	sql_bool(e->get_attribute(is_macro)) << ',' <<
+	sql_bool(e->get_attribute(is_macroarg)) << ',' <<
+	sql_bool(e->get_attribute(is_ordinary)) << ',' <<
+	sql_bool(e->get_attribute(is_suetag)) << ',' <<
+	sql_bool(e->get_attribute(is_sumember)) << ',' <<
+	sql_bool(e->get_attribute(is_label)) << ',' <<
+	sql_bool(e->get_attribute(is_typedef)) << ',' <<
+	sql_bool(e->get_attribute(is_cscope)) << ',' <<
+	sql_bool(e->get_attribute(is_lscope)) << ',' <<
+	sql_bool(e->get_size() == 1) << 
+	")\n";
+	// The projects each EC belongs to
+	for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+		if (e->get_attribute(j))
+			of << "INSERT INTO IDPROJ VALUES(" << 
+			(unsigned)e << ',' << j << ")\n";
+}
 
 // Add the contents of a file to the Tokens and Strings tables
-// As a side-effect add identifier into ids
+// As a side-effect insert corresponding identifiers in the database
 static void
 file_dump(ofstream &of, Fileid fid)
 {
@@ -129,12 +159,11 @@ file_dump(ofstream &of, Fileid fid)
 			int len = ec->get_len();
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
-			Identifier i(ec, s);
+			insert_eclass(of, ec, s);
 			fid.metrics().process_id(s);
 			of << "INSERT INTO TOKENS VALUES(" << fid.get_id() <<
 			"," << (unsigned)ti.get_streampos() << "," << 
 			(unsigned)ec << ")\n";
-			ids.insert(i);
 			if (plain.length() > 0) {
 				of << "INSERT INTO STRINGS VALUES(" << 
 				fid.get_id() <<
@@ -173,6 +202,13 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 	fo <<
+		"DROP TABLE TOKENS IF EXISTS\n"
+		"DROP TABLE STRINGS IF EXISTS\n"
+		"DROP TABLE IDPROJ IF EXISTS\n"
+		"DROP TABLE IDS IF EXISTS\n"
+		"DROP TABLE PROJECTS IF EXISTS\n"
+		"DROP TABLE FILES IF EXISTS\n"
+
 		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME VARCHAR,"
 		"readonly BIT, \n"
 		"macro BIT, \n"
@@ -185,10 +221,14 @@ main(int argc, char *argv[])
 		"cscope BIT, \n"
 		"lscope BIT, \n"
 		"unused BIT)\n"
-		"CREATE TABLE TOKENS(FID INTEGER,OFFSET INTEGER,EID INTEGER)\n"
-		"CREATE TABLE STRINGS(FID INTEGER,OFFSET INTEGER,TEXT VARCHAR)\n"
-		"CREATE TABLE IDPROJ(EID INTEGER ,PID INTEGER)\n"
-		"CREATE TABLE PROJECTS(PID INTEGER,NAME VARCHAR)\n"
+		"CREATE TABLE TOKENS(FID INTEGER,OFFSET INTEGER,EID INTEGER,\n"
+		"PRIMARY KEY(FID, OFFSET), FOREIGN KEY (EID) REFERENCES IDS)\n"
+		"CREATE TABLE STRINGS(FID INTEGER,OFFSET INTEGER,TEXT VARCHAR,"
+		"PRIMARY KEY(FID, OFFSET))\n"
+		"CREATE TABLE PROJECTS(PID INTEGER PRIMARY KEY,NAME VARCHAR)\n"
+		"CREATE TABLE IDPROJ(EID INTEGER ,PID INTEGER,\n"
+		"FOREIGN KEY (EID) REFERENCES IDS,\n"
+		"FOREIGN KEY (PID) REFERENCES PROJECTS)\n"
 		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,"
 		"NAME VARCHAR,"
 		"RO BIT,"
@@ -205,6 +245,13 @@ main(int argc, char *argv[])
 		"NINCFILE INTEGER,"
 		"NSTATEMENT INTEGER"
 		")\n";
+
+	// Project names
+	const Project::proj_map_type &m = Project::get_project_map();
+	Project::proj_map_type::const_iterator pm;
+	for (pm = m.begin(); pm != m.end(); pm++)
+		fo << "INSERT INTO PROJECTS VALUES(" << 
+		(*pm).second << ",'" << (*pm).first << "')\n";
 
 	// Details for each file 
 	// As a side effect populate the EC identifier member
@@ -228,36 +275,5 @@ main(int argc, char *argv[])
 		")\n";
 	}
 
-	// Project names
-	const Project::proj_map_type &m = Project::get_project_map();
-	Project::proj_map_type::const_iterator pm;
-	for (pm = m.begin(); pm != m.end(); pm++)
-		fo << "INSERT INTO PROJECTS VALUES(" << 
-		(*pm).second << ",'" << (*pm).first << "')\n";
-
-	// Equivalence classes
-	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
-		Eclass *e = (*i).get_ec();
-		fo << "INSERT INTO IDS VALUES(" << 
-		(unsigned)e << ",'" <<
-		(*i).get_id() << "'," <<
-		sql_bool(e->get_attribute(is_readonly)) << ',' <<
-		sql_bool(e->get_attribute(is_macro)) << ',' <<
-		sql_bool(e->get_attribute(is_macroarg)) << ',' <<
-		sql_bool(e->get_attribute(is_ordinary)) << ',' <<
-		sql_bool(e->get_attribute(is_suetag)) << ',' <<
-		sql_bool(e->get_attribute(is_sumember)) << ',' <<
-		sql_bool(e->get_attribute(is_label)) << ',' <<
-		sql_bool(e->get_attribute(is_typedef)) << ',' <<
-		sql_bool(e->get_attribute(is_cscope)) << ',' <<
-		sql_bool(e->get_attribute(is_lscope)) << ',' <<
-		sql_bool(e->get_size() == 1) << 
-		")\n";
-		// The projects each EC belongs to
-		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
-			if (e->get_attribute(j))
-				fo << "INSERT INTO IDPROJ VALUES(" << 
-				(unsigned)e << ',' << j << ")\n";
-	}
 	return (0);
 }
