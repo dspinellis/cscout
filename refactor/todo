@@ -1,4 +1,4 @@
-$Id: todo,v 1.17 2003/05/25 14:47:44 dds Exp $
+$Id: todo,v 1.18 2003/05/25 15:41:18 dds Exp $
 
 ceescape (swill) front end:
 
@@ -6,8 +6,6 @@ Show project and workspace metrics
 
 Identifier query when searching for files containings ids should offer to display them with matched identifiers marked
 
-Options page
-Remove common path prefix from files (option)
 
 Convert color to cgi/command-line
 

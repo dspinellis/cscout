@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.25 2003/05/25 14:53:09 dds Exp $
+ * $Id: cscout.cpp,v 1.26 2003/05/25 15:41:18 dds Exp $
  */
 
 #include <map>
@@ -345,7 +345,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.25 2003/05/25 14:53:09 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.26 2003/05/25 15:41:18 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -361,6 +361,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.26 2003/05/25 15:41:18 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -387,13 +388,56 @@ local_access(FILE *fo)
 }
 #endif
 
+static bool html_file_starting;
+static string odir;
+
+static void
+html_file_begin(FILE *of)
+{
+	html_file_starting = true;
+	fprintf(of, "<ul>\n");
+}
+
+static void
+html_file_end(FILE *of)
+{
+	if (remove_fp && !html_file_starting)
+		fprintf(of, "</ul>\n");
+	fprintf(of, "</ul>\n");
+}
+
 // Display a filename on an html file
 static void
 html_file(FILE *of, Fileid fi)
 {
-	fprintf(of, "<a href=\"file.html?id=%u\">%s</a>",
+	if (!remove_fp) {
+		fprintf(of, "\n<li><a href=\"file.html?id=%u\">%s</a>",
+			fi.get_id(),
+			fi.get_path().c_str());
+		return;
+	}
+
+	// Split path into dir and fname
+	string s(fi.get_path());
+	string::size_type k = s.find_last_of("/\\");
+	if (k == s.npos)
+		k = 0;
+	else
+		k++;
+	string dir(s, 0, k);
+	string fname(s, k);
+
+	if (html_file_starting) {
+		html_file_starting = false;
+		fprintf(of, "<li>%s\n<ul>\n", dir.c_str());
+		odir = dir;
+	} else if (odir != dir) {
+		fprintf(of, "</ul><li>%s\n<ul>\n", dir.c_str());
+		odir = dir;
+	}
+	fprintf(of, "\n<li><a href=\"file.html?id=%u\">%s</a>",
 		fi.get_id(),
-		fi.get_path().c_str());
+		fname.c_str());
 }
 
 static void
@@ -554,14 +598,14 @@ xfquery_page(FILE *of,  void *p)
 		if (add)
 			sorted_files.insert(*i);
 	}
-	fprintf(of, "<ul>\n");
+	html_file_begin(of);
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project)) 
 			continue;
-		fprintf(of, "\n<li>");
 		html_file(of, *i);
 	}
+	html_file_end(of);
 	fprintf(of, "\n</ul>\n");
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
@@ -774,15 +818,14 @@ xiquery_page(FILE *of,  void *p)
 	}
 	if (q_file) {
 		fputs("<h2>Matching Files</h2>\n", of);
-		fprintf(of, "<ul>\n");
+		html_file_begin(of);
 		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 			Fileid f = *i;
 			if (current_project && !f.get_attribute(current_project)) 
 				continue;
-			fprintf(of, "\n<li>");
 			html_file(of, *i);
 		}
-		fprintf(of, "\n</ul>\n");
+		html_file_end(of);
 	}
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
@@ -847,20 +890,17 @@ identifier_page(FILE *fo, void *p)
 	fprintf(fo, "</ul>\n");
 	IFSet ifiles = e->sorted_files();
 	fprintf(fo, "<h2>Dependent Files (Writable)</h2>\n");
-	fprintf(fo, "<ul>\n");
+	html_file_begin(fo);
 	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
-		if ((*j).get_readonly() == false) {
-			fprintf(fo, "\n<li>");
+		if ((*j).get_readonly() == false)
 			html_file(fo, (*j).get_path());
-		}
 	}
-	fprintf(fo, "</ul>\n");
-	fprintf(fo, "<h2>Dependent Files (All)</h2>\n<ul>\n");
-	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
-		fprintf(fo, "\n<li>");
+	html_file_end(fo);
+	fprintf(fo, "<h2>Dependent Files (All)</h2>\n");
+	html_file_begin(fo);
+	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++)
 		html_file(fo, (*j).get_path());
-	}
-	fprintf(fo, "</ul>\n");
+	html_file_end(fo);
 	fprintf(fo, "</FORM>\n");
 	html_tail(fo);
 }
