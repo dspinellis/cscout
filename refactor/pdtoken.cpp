@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.81 2003/07/31 15:23:30 dds Exp $
+ * $Id: pdtoken.cpp,v 1.82 2003/08/01 14:52:30 dds Exp $
  */
 
 #include <iostream>
@@ -1039,6 +1039,8 @@ Pdtoken::process_directive()
 		process_error(E_WARN);
 	else if (t.get_val() == "pragma")
 		process_pragma();
+	else if (t.get_val() == "ident")	// GCC extension
+		eat_to_eol();
 	else
 		/*
 		 * @error
