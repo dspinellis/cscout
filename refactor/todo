@@ -1,4 +1,4 @@
-$Id: todo,v 1.31 2003/06/22 19:13:43 dds Exp $
+$Id: todo,v 1.32 2003/07/07 13:37:09 dds Exp $
 
 Borland configuration file
 Solaris compilation
@@ -9,11 +9,12 @@ ceescape (swill) front end:
 Allow interruptions in id queries
 
 lex preprocessor / hooks
+#pragma sync "filename" offset
+#pragma nosync (default. Input is parsed, but unify is a null op)
 
 getopt and usage
--v (version + pointer to licensing)
--d directory for configuration files
--p portno (must be > 1024)
+-d directory for configuration files (cswc)
+-E
 
 C99 extensions
 

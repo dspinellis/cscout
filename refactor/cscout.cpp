@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.48 2003/07/06 08:23:42 dds Exp $
+ * $Id: cscout.cpp,v 1.49 2003/07/07 13:37:09 dds Exp $
  */
 
 #include <map>
@@ -21,9 +21,11 @@
 #include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
+#include <cstdlib>		// atoi
 
 #include "swill.h"
 #include "regex.h"
+#include "getopt.h"
 
 #ifdef unix
 #include <sys/types.h>		// mkdir
@@ -60,6 +62,10 @@ static bool sort_rev;			// Reverse sort of identifier names
 static bool show_true;			// Only show true identifier properties
 static bool file_icase;			// File name case-insensitive match
 static int tab_width = 8;		// Tab width for code output
+
+// Global command-line options
+static bool preprocess;			// Preprocess-only (-E)
+static int portno = 8081;		// Port number (-p n)
 
 // Our identifiers to store as a map
 class Identifier {
@@ -1456,10 +1462,15 @@ simple_cpp()
 }
 
 // Report usage information and exit
-void
-usage()
+static void
+usage(char *fname)
 {
-	cerr << "usage: cscout [-E] filename\n";
+	cerr << "usage: " << fname << " [-Ev] [-p port] file\n"
+		"\t-E\tDisplay preprocessed results on the standard output\n"
+		"\t\t(the workspace file must have also been processed with -E)\n"
+		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
+		"\t\t(the port number must be in the range 1024-32767)\n"
+		"\t-v\tDisplay version and copyright information and exit\n";
 	exit(1);
 }
 
@@ -1468,20 +1479,50 @@ main(int argc, char *argv[])
 {
 	Pdtoken t;
 	char *motd;
+	int c;
 
 	Debug::db_read();
 
-	if (argc < 2)
-		usage();
-	if (string(argv[1]) == "-E") {
-		if (argc < 3)
-			usage();
-		Fchar::set_input(argv[2]);
+	while ((c = getopt(argc, argv, "vEp:")) != EOF)
+		switch (c) {
+		case 'E':
+			preprocess = true;
+			break;
+		case 'p':
+			if (!optarg)
+				usage(argv[0]);
+			portno = atoi(optarg);
+			if (portno < 1024 || portno > 32767)
+				usage(argv[0]);
+			break;
+		case 'v':
+			cerr << "CScout version " <<
+			Version::get_revision() << " - " <<
+			Version::get_date() << "\n\n"
+			// 80 column terminal width---------------------------------------------------
+			"(C) Copyright 2003 Diomidis Spinelllis, Athens, Greece.\n\n"
+#ifndef COMMERCIAL
+			"Unsupported version.  Can be used and distributed under the terms of the\n"
+			"CScout Public License available in the CScout documentation and online at\n"
+			"http://www.spinellis.gr/cscout/doc/license.html\n";
+#endif
+			exit(0);
+		case '?':
+			usage(argv[0]);
+		}
+
+
+	// We require exactly one argument
+	if (argv[optind] == NULL || argv[optind + 1] != NULL)
+		usage(argv[0]);
+
+	if (preprocess) {
+		Fchar::set_input(argv[optind]);
 		return simple_cpp();
 	}
 		
-	if (!swill_init(8081)) {
-		cerr << "Couldn't initialize the SWILL server.\n";
+	if (!swill_init(portno)) {
+		cerr << "Couldn't initialize our web server on port " << portno << "\n";
 		exit(1);
 	}
 
@@ -1492,7 +1533,7 @@ main(int argc, char *argv[])
 #endif
 
 	// Pass 1: process master file loop
-	Fchar::set_input(argv[1]);
+	Fchar::set_input(argv[optind]);
 	do
 		t.getnext();
 	while (t.get_code() != EOF);
@@ -1585,7 +1626,7 @@ main(int argc, char *argv[])
 		cout << motd << "\n";
 	// Serve web pages
 	if (!must_exit)
-		cout << "We are now ready to serve you at http://localhost:8081\n";
+		cout << "We are now ready to serve you at http://localhost:" << portno << "\n";
 	while (!must_exit)
 		swill_serve();
 
