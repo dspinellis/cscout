@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.96 2004/08/01 07:51:30 dds Exp $
+ * $Id: cscout.cpp,v 1.97 2004/08/01 08:02:56 dds Exp $
  */
 
 #include <map>
@@ -461,8 +461,9 @@ file_replace(Fileid fid)
 }
 
 // Create a new HTML file with a given filename and title
+// The heading, if not given, will be the same as the title
 static void
-html_head(FILE *of, const string fname, const string title, const char *prehead = "")
+html_head(FILE *of, const string fname, const string title, const char *heading = NULL)
 {
 	swill_title(title.c_str());
 	if (DP())
@@ -482,10 +483,11 @@ html_head(FILE *of, const string fname, const string title, const char *prehead 
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
-		"<h1>%s%s</h1>\n",
+		"<h1>%s</h1>\n",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str(),
-		title.c_str(), prehead, title.c_str());
+		title.c_str(),
+		heading ? heading : title.c_str());
 }
 
 // And an HTML file end
@@ -1549,7 +1551,7 @@ set_project_page(FILE *fo, void *p)
 void
 index_page(FILE *of, void *data)
 {
-	html_head(of, "index", "Scout Main Page", "<img src=\"logo.gif\"> ");
+	html_head(of, "index", "CScout Main Page", "<img src=\"logo.gif\">Scout Main Page");
 	fprintf(of,
 		"<table><tr><td valign=\"top\">\n"
 		"<h2>Files</h2>\n"
