@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.5 2001/09/03 10:28:38 dds Exp $
+ * $Id: macro.cpp,v 1.6 2001/10/27 16:09:00 dds Exp $
  */
 
 #include <iostream>
@@ -342,8 +342,8 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 	listPtoken::iterator ti, next;
 	for (ti = tokens.begin(); ti != tokens.end() && ti != pos; ti = next) {
 		if ((*ti).get_code() == CPP_CONCAT && ti != tokens.begin()) {
-			listPtoken::iterator left = tokens.end();
-			listPtoken::iterator right = tokens.end();
+			listPtoken::iterator left = ti;
+			listPtoken::iterator right = pos;
 			listPtoken::iterator i;
 
 			// Find left non-space operand
@@ -364,25 +364,26 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					break;
 				}
 			}
-			if (left != tokens.end() && right != tokens.end() && right != pos) {
-				next = right;
-				next++;
-				Tchar::clear();
+			Tchar::clear();
+			// See if non-empty left operand
+			if (left != ti)
 				Tchar::push_input(*left);
+			next = right;
+			// See if non-empty right operand
+			if (right != pos) {
 				Tchar::push_input(*(right));
-				if (DP()) cout << "concat A:" << *left << "B: " << *right << "\n";
-				Tchar::rewind_input();
-				tokens.erase(left, next);
-				for (;;) {
-					Pltoken t;
-					t.template getnext<Tchar>();
-					if (t.get_code() == EOF)
-						break;
-					if (DP()) cout << "Result: " << t ;
-					tokens.insert(next, t);
-				}
-			} else {
-				Error::error(E_ERR, "Missing operands for ## operator");
+				next++;
+			}
+			if (DP()) cout << "concat A:" << *left << "B: " << *right << "\n";
+			Tchar::rewind_input();
+			tokens.erase(left, next);
+			for (;;) {
+				Pltoken t;
+				t.template getnext<Tchar>();
+				if (t.get_code() == EOF)
+					break;
+				if (DP()) cout << "Result: " << t ;
+				tokens.insert(next, t);
 			}
 		} else {
 			next = ti;

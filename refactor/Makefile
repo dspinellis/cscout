@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.15 2001/10/24 17:55:18 dds Exp $
+# $Id: Makefile,v 1.16 2001/10/27 16:09:00 dds Exp $
 #
 
 # Common object files
@@ -26,7 +26,7 @@ test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
 test/nested.c test/mkfun.c test/ansi-p92.c \
 test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
 test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
-test/empty.c test/def.c test/conddef.c
+test/empty.c test/def.c test/conddef.c test/concat-empty.c
 
 all: color
 #all: engine
