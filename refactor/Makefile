@@ -1,9 +1,9 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.29 2003/05/25 14:47:44 dds Exp $
+# $Id: Makefile,v 1.30 2003/05/26 08:55:23 dds Exp $
 #
-
+ -DPRODUCTION
 # Common object files
 OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
@@ -48,6 +48,12 @@ cscout: cscout.o $(STANDOBJ) $(OBJ)
 
 cscout.exe: cscout.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o cscout $(STANDOBJ) $(OBJ) cscout.o -L. -lswill -lws2_32 -lregex
+
+ccheck: license.c license.h des.c des.h
+	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
+
+ccheck-install: ccheck
+	cp ccheck /home/dds/web/istlab-cgi-bin
 
 webmap: webmap.o $(STANDOBJ) $(OBJ)
 	$(CC) $(CPPFLAGS) -o webmap $(STANDOBJ) $(OBJ) webmap.o
