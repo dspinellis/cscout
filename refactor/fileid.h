@@ -10,7 +10,7 @@
  * #include <string>
  * #include <vector>
  *
- * $Id: fileid.h,v 1.6 2002/09/04 08:52:59 dds Exp $
+ * $Id: fileid.h,v 1.7 2002/09/04 13:42:01 dds Exp $
  */
 
 #ifndef FILEID_
@@ -59,6 +59,7 @@ public:
 	// Handle the read-only file detail information
 	bool get_readonly() const;
 	void set_readonly(bool r);
+	int get_id() const {return id; }
 	// Clear the maps
 	static void clear();
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
