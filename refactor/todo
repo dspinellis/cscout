@@ -1,4 +1,14 @@
-$Id: todo,v 1.11 2002/10/06 19:18:53 dds Exp $
+$Id: todo,v 1.12 2002/12/25 17:44:10 dds Exp $
+
+ceescape (swill) front end:
+Add change identifier and save options
+View unused and global identifiers per file
+View projects, files per project
+Generic query for files, identifiers
+
+Convert metrics to XML and use appropriate file to view them
+Send metrics to web server
+Convert color to cgi/command-line
 
 Convert the _asm handling into generic handlers for excluding line and
 block-based compiler extensions via compiler-specific preprocess-specific preprocessor defs.
@@ -14,18 +24,10 @@ Create separate database table with the newlines
 Collect metrics (and get them over the web)
 	Project name
 	URL
-	Identifier length (for various types)
-		Function
-		File
-		Project
-	Files
 	Directly / indirectly included files
 	Which r/o functions were called (library facilities)
-	Number of functions (per file, global, static)
 Optimize (hash for map)
-Separate engine driver from post-processor
 Create editor
 Run obfuscator on big programs
 Report identifiers only used once
-Verify memory management
 #ifndef foo #defin
