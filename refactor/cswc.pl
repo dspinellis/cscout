@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.11 2003/06/22 23:33:34 dds Exp $
+# $Id: cswc.pl,v 1.12 2003/07/08 08:48:12 dds Exp $
 #
 
 # Syntax:
@@ -35,15 +35,31 @@
 #}
 #
 
-if ($ARGV[0] eq '-E') {
-	$cpp = 1;
-	shift @ARGV;
+use Getopt::Std;
+if (!getopts('vEd:')) {
+	print STDERR "usage: $0 [-vE] [-d directory] [file]\n";
+	exit(1);
+}
+
+if ($opt_v) {
+	my $rel = '$Revision: 1.12 $';
+	$rel =~ s/\//;
+	$rel =~ s/\$//;
+	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
+	# 80 column terminal width----------------------------------------------------
+	"(C) Copyright 2003 Diomidis Spinelllis.\n\n" .
+	"Unsupported version.  Can be used and distributed under the terms of the\n" .
+	"CScout Public License available in the CScout documentation and online at\n" .
+	"http://www.spinellis.gr/cscout/doc/license.html\n";
+	exit(0);
 }
 
 # Installation directory:
 # Search order
-# .cscout, $CSCOUT_HOME, and $HOME/.cscout
-if (-d '.cscout') {
+# $opt_d, .cscout, $CSCOUT_HOME, and $HOME/.cscout
+if (defined($opt_d) && -d $opt_d) {
+	$instdir = $opt_d;
+} elsif (-d '.cscout') {
 	$instdir = '.cscout';
 } elsif (defined($ENV{CSCOUT_HOME})) {
 	$instdir = $ENV{CSCOUT_HOME};
@@ -51,7 +67,7 @@ if (-d '.cscout') {
 	$instdir = $ENV{HOME} . '/.cscout';
 } else {
 	print STDERR "Unable to identify a cscout installation directory\n";
-	print STDERR 'Create ./.cscout, or $HOME/.cscout or set the $CSCOUT_HOME variable\n';
+	print STDERR 'Create ./.cscout, or $HOME/.cscout, use -d, or set the $CSCOUT_HOME variable' . "\n";
 	exit(1);
 }
 
@@ -65,6 +81,10 @@ if (!-r ($f = "$instdir/cscout_defs.h")) {
 	print STDERR "Unable to read $f: $!\n";
 	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
 	exit(1);
+}
+
+if ($#ARGV == -1) {
+	print STDERR "Reading workspace decription from the standard input\n";
 }
 
 while (<>) {
@@ -112,18 +132,18 @@ sub endunit
 		print $ipaths{'file'};
 		print $defines{'file'};
 		print "#include \"$instdir/cscout_incs.h\"\n";
-		if ($cpp) {
+		if ($opt_E) {
 			print "#include \"$name\"\n\n";
 		} else {
 			print "#pragma process \"$name\"\n\n";
 		}
 	}
 	if (defined($dir{$unit})) {
-		print "#pragma echo \"Exiting directory $dir{$unit}\\n\"\n" unless ($cpp);
+		print "#pragma echo \"Exiting directory $dir{$unit}\\n\"\n" unless ($opt_E);
 		print "#pragma popd\n";
 	}
 	print "#pragma block_exit\n" unless($unit eq 'workspace' || $unit eq 'directory');
-	print "#pragma echo \"Done processing $unit $name\\n\"\n" unless ($cpp);
+	print "#pragma echo \"Done processing $unit $name\\n\"\n" unless ($opt_E);
 	$unit = pop(@units);
 	$name = pop(@names);
 }
@@ -138,7 +158,7 @@ sub beginunit
 	undef $defines{$unit};
 	undef $ipaths{$unit};
 	print "// $unit $name\n";
-	print "#pragma echo \"Processing $unit $name\\n\"\n" unless ($cpp);
+	print "#pragma echo \"Processing $unit $name\\n\"\n" unless ($opt_E);
 	if ($unit eq 'project') {
 		print "#pragma project \"$name\"\n";
 		print "#pragma block_enter\n";
@@ -156,6 +176,6 @@ sub directory
 {
 	my($dir) = @_;
 	$dir{$unit} = $dir;
-	print "#pragma echo \"Entering directory $dir\n\"\n" unless ($cpp);
+	print "#pragma echo \"Entering directory $dir\n\"\n" unless ($opt_E);
 	print "#pragma pushd \"$dir\"\n";
 }
