@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "tchar.h"
  *
- * $Id: tchar.h,v 1.1 2001/08/24 10:54:29 dds Exp $
+ * $Id: tchar.h,v 1.2 2001/08/31 11:34:22 dds Exp $
  */
 
 #ifndef TCHAR_
@@ -38,11 +38,11 @@ private:
 	// If any points to end() it means there is nothing more to return
 	// Token from iq use for getnext
 	static dequePtoken::const_iterator qi;
-	// Token part from *ip to use for getnext
+	// Token part from *qi to use for getnext
 	static dequeTpart::const_iterator pi;
 	// Index to character of token part to use for getnext
 	static int part_idx;
-	// Index to character from val to use for getnext
+	// Index to character from token val to use for getnext
 	static int val_idx;
 
 	int val;

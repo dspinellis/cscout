@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.3 2001/08/25 19:23:00 dds Exp $
+ * $Id: tchar.cpp,v 1.4 2001/08/31 11:34:22 dds Exp $
  */
 
 #include <iostream>
@@ -19,6 +19,7 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
+#include "ytab.h"
 #include "ptoken.h"
 #include "fchar.h"
 #include "tchar.h"
@@ -50,18 +51,31 @@ Tchar::getnext()
 		return;
 	}
 	const Ptoken& pt = (*qi);
-	const Tpart& tp = *pi;
-	ti = tp.get_tokid() + part_idx;
-	val = pt.get_val()[val_idx];
-	// Advance pointers
-	val_idx++;
-	if (++part_idx == tp.get_len()) {
-		if (++pi == pt.get_parts_end()) {
+	val = pt.get_val()[val_idx++];
+	if (pt.get_parts_begin() == pt.get_parts_end()) {
+		// This is a simple token that does not consist of parts
+		// Tokid is unknown, advance pointers
+		if (val_idx == pt.get_val().length()) {
 			if (++qi == iq.end())
 				return;
 			pi = (*qi).get_parts_begin();
+			val_idx = part_idx = 0;
 		}
-		part_idx = 0;
+	} else {
+		// Identifier or identifier to be token (PP_NUMBER) consisting
+		// of parts
+		const Tpart& tp = *pi;
+		ti = tp.get_tokid() + part_idx;
+		// Advance pointers
+		if (++part_idx == tp.get_len()) {
+			if (++pi == pt.get_parts_end()) {
+				if (++qi == iq.end())
+					return;
+				pi = (*qi).get_parts_begin();
+				val_idx = 0;
+			}
+			part_idx = 0;
+		}
 	}
 }
 
@@ -70,6 +84,8 @@ Tchar::rewind_input()
 {
 	qi = iq.begin();
 	pi = (*qi).get_parts_begin();
+	while (!ps.empty())
+		ps.pop();
 	part_idx = val_idx = 0;
 }
 

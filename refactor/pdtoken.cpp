@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.17 2001/08/31 08:44:26 dds Exp $
+ * $Id: pdtoken.cpp,v 1.18 2001/08/31 11:34:22 dds Exp $
  */
 
 #include <iostream>
@@ -90,6 +90,23 @@ Pdtoken::eat_to_eol()
 	do {
 		t.template getnext<Fchar>();
 	} while (t.get_code() != EOF && t.get_code() != '\n');
+}
+
+/*
+ * Read tokens comprising a cpp expression up to the newsline and return
+ * its value.
+ * Algorithm:
+ * -. Read tokens.
+ * -. Process defined operator
+ * -. Macro-expand sequence
+ * -. Replace all identifiers with 0
+ * -. Parse and evaluate sequence
+ */
+static int
+eval()
+{
+	Pltoken t;
+	t.template getnext_nospc<Fchar>();
 }
 
 /*
@@ -295,7 +312,7 @@ Pdtoken::process_directive()
  * If get_more is true when tokens is exhausted read using pltoken::getnext
  * If want_space is true return spaces, otherwise discard them
  */
-static Ptoken
+Ptoken
 arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool want_space)
 {
 	if (want_space) {
@@ -444,7 +461,7 @@ stringize(const listPtoken& ts)
  * or followed by ##.
  * These rules do not take into account space tokens.
  */
-static bool
+bool
 macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
 {
 	dequePtoken::const_iterator i;
@@ -479,7 +496,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 {
 	mapMacro::const_iterator mi;
 	const string& name = (*pos).get_val();
-	cout << "macro_replace " << name << "\n";
+	//cout << "macro_replace " << name << "\n";
 	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
 		return (false);
 	// cout << "replacing for " << name << "\n";
@@ -547,21 +564,45 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 	listPtoken::iterator ti, next;
 	listPtoken::iterator tadv, t2;
 	for (ti = tokens.begin(); ti != tokens.end(); ti = next) {
-		tadv = ti;
-		if (++tadv != tokens.end() && 
-		    (*(tadv)).get_code() == CPP_CONCAT &&
-		    (t2 = ++tadv) != tokens.end()) {
-			next = ++tadv;
-			Tchar::push_input(*ti);
-			Tchar::push_input(*(t2));
-			Tchar::rewind_input();
-			tokens.erase(ti, next);
-			for (;;) {
-				Pltoken t;
-				t.template getnext<Tchar>();
-				if (t.get_code() == EOF)
+		if ((*ti).get_code() == CPP_CONCAT && ti != tokens.begin()) {
+			listPtoken::iterator left = tokens.end();
+			listPtoken::iterator right = tokens.end();
+			listPtoken::iterator i;
+
+			// Find left non-space operand
+			for (i = ti; i != tokens.begin(); ) {
+				i--;
+				if (!(*i).is_space()) {
+					left = i;
 					break;
-				tokens.insert(next, t);
+				}
+			}
+			// Find right non-space operand
+			for (i = ti;; ) {
+				i++;
+				if (i == tokens.end())
+					break;
+				if (!(*i).is_space()) {
+					right = i;
+					break;
+				}
+			}
+			if (left != tokens.end() && right != tokens.end()) {
+				next = right;
+				next++;
+				Tchar::push_input(*left);
+				Tchar::push_input(*(right));
+				Tchar::rewind_input();
+				tokens.erase(left, next);
+				for (;;) {
+					Pltoken t;
+					t.template getnext<Tchar>();
+					if (t.get_code() == EOF)
+						break;
+					tokens.insert(next, t);
+				}
+			} else {
+				Error::error(E_ERR, "Missing operands for ## operator");
 			}
 		} else {
 			next = ti;
