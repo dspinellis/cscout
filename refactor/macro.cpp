@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.26 2004/07/24 10:44:23 dds Exp $
+ * $Id: macro.cpp,v 1.27 2004/07/25 12:18:01 dds Exp $
  */
 
 #include <iostream>
@@ -636,13 +636,16 @@ Macro::register_macro_body(mapMacroBody &map) const
 }
 
 // Constructor
-Macro::Macro( const Ptoken& name, bool id) :
+Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 	name_token(name),
+	is_function(isfun),
 	is_defined(id)
 {
-	mcall = dynamic_cast<MCall *>(Call::get_call(name.get_parts_begin()->get_tokid()));
-	if (!mcall)
-		mcall = new MCall(name, name.get_name());
-	if (DP())
-		cout << "Mcall is " << mcall << "\n";
+	if (isfun) {
+		mcall = dynamic_cast<MCall *>(Call::get_call(name.get_parts_begin()->get_tokid()));
+		if (!mcall)
+			mcall = new MCall(name, name.get_name());
+		if (DP())
+			cout << "Mcall is " << mcall << "\n";
+	}
 }

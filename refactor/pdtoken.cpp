@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.91 2004/07/25 07:32:53 dds Exp $
+ * $Id: pdtoken.cpp,v 1.92 2004/07/25 12:18:01 dds Exp $
  */
 
 #include <iostream>
@@ -381,7 +381,7 @@ void
 Pdtoken::create_undefined_macro(const Ptoken &name)
 {
 	name.set_ec_attribute(is_undefined_macro);
-	macros.insert(mapMacro::value_type(name.get_val(), Macro(name, false)));
+	macros.insert(mapMacro::value_type(name.get_val(), Macro(name, false, false)));
 }
 
 void
@@ -619,13 +619,12 @@ Pdtoken::process_define()
 	}
 	t.set_ec_attribute(is_macro);
 	Pltoken nametok = t;
-	Macro m(t, true);
 	name = t.get_val();
 	t.template getnext<Fchar>();	// Space is significant: a(x) vs a (x)
-	m.set_is_function(false);
-	if (t.get_code() == '(') {
+	bool is_function = (t.get_code() == '(');
+	Macro m(nametok, true, is_function);
+	if (is_function) {
 		// Function-like macro
-		m.set_is_function(true);
 		m.set_is_vararg(false);
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != ')') {

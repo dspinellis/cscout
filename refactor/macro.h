@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.11 2004/07/24 10:44:49 dds Exp $
+ * $Id: macro.h,v 1.12 2004/07/25 12:18:01 dds Exp $
  */
 
 #ifndef MACRO_
@@ -37,7 +37,7 @@ private:
 	dequePtoken value;		// Macro value
 	MCall *mcall;			// Function call info
 public:
-	Macro( const Ptoken& name, bool id);
+	Macro( const Ptoken& name, bool id, bool is_function);
 	// Accessor functions
 	const Ptoken& get_name_token() const {return name_token; };
 	void set_is_function(bool v) { is_function = v; };
