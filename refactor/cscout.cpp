@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.34 2003/05/31 08:19:21 dds Exp $
+ * $Id: cscout.cpp,v 1.35 2003/05/31 09:05:49 dds Exp $
  */
 
 #include <map>
@@ -161,6 +161,21 @@ static vector <Fileid> files;
 static Attributes::size_type current_project;
 
 void index_page(FILE *of, void *data);
+
+// Display identifier loop progress (non-reentant)
+static void
+progress(IdProp::iterator i)
+{
+	static int count, opercent;
+
+	if (i == ids.begin())
+		count = 0;
+	int percent = ++count * 100 / ids.size();
+	if (percent != opercent) {
+		cout << "\r" << percent << '%';
+		opercent = percent;
+	}
+}
 
 /* 
  * Return as a C string the HTML equivalent of character c
@@ -429,7 +444,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.34 2003/05/31 08:19:21 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.35 2003/05/31 09:05:49 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -445,7 +460,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.34 2003/05/31 08:19:21 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.35 2003/05/31 09:05:49 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -961,12 +976,18 @@ xiquery_page(FILE *of,  void *p)
 	char *qname = swill_getvar("n");
 	IdQuery query(of);
 
+#ifndef COMMERCIAL
+		if (!local_access(of))
+			return;
+#endif
+
 	if (!query.is_valid())
 		return;
 
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
-
+	cout << "Evaluating identifier query\n";
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		progress(i);
 		if (!query.eval(*i))
 			continue;
 		if (q_id)
@@ -976,6 +997,7 @@ xiquery_page(FILE *of,  void *p)
 			sorted_files.insert(f.begin(), f.end());
 		}
 	}
+	cout << '\n';
 	if (q_id) {
 		fputs("<h2>Matching Identifiers</h2>\n", of);
 		display_sorted_ids(of, sorted_ids);
@@ -1284,17 +1306,23 @@ write_quit_page(FILE *of, void *p)
 #endif
 	// Determine files we need to process
 	IFSet process;
+	cout << "Examing identifiers for replacement\n";
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		progress(i);
 		if ((*i).second.get_replaced()) {
 			Eclass *e = (*i).first;
 			IFSet ifiles = e->sorted_files();
 			process.insert(ifiles.begin(), ifiles.end());
 		}
 	}
+	cout << '\n';
 	// Now do the replacements
 	int replacements = 0;
-	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++)
+	cout << "Processing files\n";
+	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++) {
+		cout << "Processing file " << (*i).get_path() << "\n";
 		replacements += file_replace(*i);
+	}
 	html_head(of, "quit", "CScout exiting");
 	fprintf(of, "A total of %d replacements were made in %d files.", replacements, process.size());
 	fprintf(of, "<p>Bye...</body></html>");
@@ -1407,7 +1435,9 @@ main(int argc, char *argv[])
 
 
 	// Set xfile and  metrics for each identifier
+	cout << "Processing identifiers\n";
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		progress(i);
 		Eclass *e = (*i).first;
 		IFSet ifiles = e->sorted_files();
 		(*i).second.set_xfile(ifiles.size() > 1);
@@ -1418,7 +1448,7 @@ main(int argc, char *argv[])
 		// Update metrics
 		id_msum.add_unique_id(e);
 	}
-
+	cout << '\n';
 
 	// Update fle metrics
 	file_msum.summarize_files();

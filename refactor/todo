@@ -1,4 +1,4 @@
-$Id: todo,v 1.25 2003/05/31 08:19:21 dds Exp $
+$Id: todo,v 1.26 2003/05/31 09:05:49 dds Exp $
 
 Web page
 documentation
@@ -8,8 +8,7 @@ experiment with hashmap performance
 
 ceescape (swill) front end:
 
-Display progress in id queries and allow interruptions
-Do not allow id queries from remote hosts in free version
+Allow interruptions in id queries
 
 yacc and lex preprocessor / hooks
 
@@ -26,13 +25,5 @@ Add ispointer identifier property
 
 Create separate database table with the newlines
 
-Collect metrics (and get them over the web)
-	Project name
-	URL
-	Directly / indirectly included files
-	Which r/o functions were called (library facilities)
 Optimize (hash for map)
 Create editor
-Run obfuscator on big programs
-Report identifiers only used once
-#ifndef foo #defin
