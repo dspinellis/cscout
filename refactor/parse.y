@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.31 2002/09/05 16:07:33 dds Exp $
+ * $Id: parse.y,v 1.32 2002/09/05 16:29:02 dds Exp $
  *
  */
 
@@ -656,6 +656,17 @@ basic_type_name:
         | SIGNED	{ $$ = basic(b_abstract, s_signed); }
         | UNSIGNED	{ $$ = basic(b_abstract, s_unsigned); }
         | VOID		{ $$ = basic(b_void); }
+        | TYPEOF '(' IDENTIFIER ')'
+			{
+				Id const *id = obj_lookup($3.get_name());
+				if (id) {
+					unify(id->get_token(), $3.get_token());
+					$$ = id->get_type();
+				} else {
+					Error::error(E_WARN, "undeclared identifier: " + $3.get_name());
+					$$ = $3;
+				}
+			}
         ;
 
 elaborated_type_name:
