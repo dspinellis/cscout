@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.8 2004/07/27 11:14:28 dds Exp $
+ * $Id: call.h,v 1.9 2004/07/27 12:59:23 dds Exp $
  */
 
 #ifndef CALL_
@@ -80,6 +80,7 @@ public:
 	static const_fmap_iterator_type fbegin() { return all.begin(); }
 	static const_fmap_iterator_type fend() { return all.end(); }
 	static int fsize() { return all.size(); }
+	static const fun_map &functions() { return all; }
 
 	// Get a call site for a given Tokid
 	static Call *get_call(Tokid t);
