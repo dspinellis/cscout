@@ -11,51 +11,11 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.9 2001/09/12 09:52:12 dds Exp $
+ * $Id: parse.y,v 1.10 2001/09/14 07:54:46 dds Exp $
  *
  */
 
-
-
-/* Define terminal tokens */
-
-/* keywords */
-%token AUTO            DOUBLE          INT             STRUCT
-%token BREAK           ELSE            LONG            SWITCH
-%token CASE            ENUM            REGISTER        TYPEDEF
-%token CHAR            EXTERN          RETURN          UNION
-%token CONST           FLOAT           SHORT           UNSIGNED
-%token CONTINUE        FOR             SIGNED          VOID
-%token DEFAULT         GOTO            SIZEOF          VOLATILE
-%token DO              IF              STATIC          WHILE
-
-/* ANSI Grammar suggestions */
-%token IDENTIFIER         STRING_LITERAL
-%token FLOAT_CONST        INT_CONST        
-
-/* New Lexical element, whereas ANSI suggested non-terminal */
-
-%token TYPEDEF_NAME /* Lexer will tell the difference between this and
-    an  identifier!   An  identifier  that is CURRENTLY in scope as a
-    typedef name is provided to the parser as a TYPEDEF_NAME.*/
-
-/* Multi-Character operators */
-%token  PTR_OP                       /*    ->                              */
-%token  INC_OP DEC_OP                /*    ++      --                      */
-%token  LEFT_OP RIGHT_OP             /*    <<      >>                      */
-%token  LE_OP GE_OP EQ_OP NE_OP      /*    <=      >=      ==      !=      */
-%token  AND_OP OR_OP                 /*    &&      ||                      */
-%token  ELLIPSIS                     /*    ...                             */
-
-/* modifying assignment operators */
-%token MUL_ASSIGN  DIV_ASSIGN    MOD_ASSIGN   /*   *=      /=      %=      */
-%token ADD_ASSIGN  SUB_ASSIGN                 /*   +=      -=              */
-%token LEFT_ASSIGN RIGHT_ASSIGN               /*   <<=     >>=             */
-%token AND_ASSIGN  XOR_ASSIGN    OR_ASSIGN    /*   &=      ^=      |=      */
-
-
-/* Tokens needed by the pre-processor */
-%token CPP_CONCAT SPACE ABSFNAME PATHFNAME CHAR_LITERAL PP_NUMBER
+%include ytoken.h
 
 %start translation_unit
 
@@ -198,7 +158,7 @@ primary_expression:
 					$$ = id->get_type();
 				} else {
 					Error::error(E_WARN, "undeclared identifier: " + $1.get_name());
-					$$ = basic(b_undeclared);
+					$$ = $1;
 				}
 			}
         | constant
