@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.26 2003/08/11 14:15:17 dds Exp $
+ * $Id: fchar.cpp,v 1.27 2003/08/12 11:25:22 dds Exp $
  */
 
 #include <iostream>
@@ -70,11 +70,13 @@ void
 Fchar::push_input(const string& s)
 {
 	struct fchar_context fc;
+	Fileid includer = fi;
 
 	fc.ti = Tokid(fi, in.tellg());
 	fc.line_number = line_number;
 	cs.push(fc);
 	set_input(s);
+	Fdep::add_include(includer, fi);
 	/*
 	 * First time through:
 	 * push the magic yacc cookie to direct us to parse yacc code

@@ -14,7 +14,7 @@
  * #include "metrics.h"
  * #include "fileid.h"
  *
- * $Id: fdep.h,v 1.2 2003/08/11 19:00:57 dds Exp $
+ * $Id: fdep.h,v 1.3 2003/08/12 11:25:22 dds Exp $
  */
 
 #ifndef FDEP_
@@ -26,6 +26,7 @@ class Fdep {
 private:
 	static bool monitoring;				// True if we are monitoring file dependencies
 	static map <Fileid, set <Fileid> > definers;	// Files containing definitions needed in a given file
+	static map <Fileid, set <Fileid> > includers;	// Files including a given file
 	static set <Fileid> providers;			// Files providing code and data
 	static set <Fileid> direct_includes;		// Files included directly
 	static Fileid last_provider;			// Cache last value entered
@@ -38,6 +39,13 @@ public:
 			return;
 		definers[ref].insert(def);
 	}
+	// File includer includes the file included
+	static void add_include(Fileid includer, Fileid included) {
+		if (!monitoring)
+			return;
+		includers[included].insert(includer);
+	}
+	// File f provides code or data
 	static void add_provider(Fileid f) {
 		if (!monitoring || f == last_provider)
 			return;
