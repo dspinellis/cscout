@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.20 2003/08/21 19:50:05 dds Exp $
+ * $Id: fileid.h,v 1.21 2003/08/21 20:57:27 dds Exp $
  */
 
 #ifndef FILEID_
@@ -72,8 +72,8 @@ private:
 public:
 	Attributes attr;
 	class Metrics m;
-	Filedetails(string n, bool r) : name(n), m_compilation_unit(false) { set_readonly(r); }
-	Filedetails() : m_compilation_unit(false) {}
+	Filedetails(string n, bool r);
+	Filedetails();
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.28 2003/08/21 19:50:05 dds Exp $
+ * $Id: fileid.cpp,v 1.29 2003/08/21 20:57:27 dds Exp $
  */
 
 #include <map>
@@ -202,6 +202,16 @@ Fileid::set_readonly(bool r)
 	i2d[id].set_readonly(r);
 }
 
+Filedetails::Filedetails(string n, bool r) : 
+	name(n), m_compilation_unit(false)
+{
+	set_readonly(r);
+}
+
+Filedetails::Filedetails() :
+	m_compilation_unit(false)
+{
+}
 
 int
 Filedetails::line_number(streampos p) const
