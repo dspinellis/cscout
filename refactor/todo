@@ -1,7 +1,6 @@
-$Id: todo,v 1.14 2003/03/27 18:46:03 dds Exp $
+$Id: todo,v 1.15 2003/04/07 18:13:41 dds Exp $
 
 ceescape (swill) front end:
-View projects, files per project
 Generic query for files, identifiers
 
 Convert metrics to XML and use appropriate file to view them

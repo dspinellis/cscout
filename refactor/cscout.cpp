@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.8 2003/04/07 13:47:03 dds Exp $
+ * $Id: cscout.cpp,v 1.9 2003/04/07 18:13:41 dds Exp $
  */
 
 #include <map>
@@ -79,6 +79,7 @@ public:
 typedef set <Fileid, fname_order> IFSet;
 typedef map <Eclass *, Identifier> IdProp;
 static IdProp ids; 
+Attributes::size_type current_project;
 
 // Return HTML equivalent of character c
 static char *
@@ -309,7 +310,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.8 2003/04/07 13:47:03 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.9 2003/04/07 18:13:41 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -320,6 +321,8 @@ html_head(FILE *of, const string fname, const string title)
 static void
 html_tail(FILE *of)
 {
+	if (current_project)
+		fprintf(of, "<p> <b>Project %s is currently selected</b>\n", Project::get_projname(current_project).c_str());
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
@@ -350,7 +353,9 @@ rofiles_page(FILE *fo, vector <Fileid> *files)
 {
 	html_head(fo, "rofiles", "Read-only Files");
 	fprintf(fo, "<ul>\n");
-	for (vector <Fileid>::const_iterator i = (*files).begin(); i != (*files).end(); i++) {
+	for (vector <Fileid>::iterator i = (*files).begin(); i != (*files).end(); i++) {
+		if (current_project && !(*i).get_attribute(current_project)) 
+			continue;
 		if ((*i).get_readonly() == true) {
 			fprintf(fo, "\n<li>");
 			html_file(fo, *i);
@@ -366,7 +371,9 @@ wfiles_page(FILE *fo, vector <Fileid> *files)
 {
 	html_head(fo, "wfiles", "Writable Files");
 	fprintf(fo, "<ul>\n");
-	for (vector <Fileid>::const_iterator i = (*files).begin(); i != (*files).end(); i++) {
+	for (vector <Fileid>::iterator i = (*files).begin(); i != (*files).end(); i++) {
+		if (current_project && !(*i).get_attribute(current_project)) 
+			continue;
 		if ((*i).get_readonly() == false) {
 			fprintf(fo, "\n<li>");
 			html_file(fo, *i);
@@ -382,7 +389,9 @@ afiles_page(FILE *fo, vector <Fileid> *files)
 {
 	html_head(fo, "afiles", "All Files");
 	fprintf(fo, "<ul>\n");
-	for (vector <Fileid>::const_iterator i = (*files).begin(); i != (*files).end(); i++) {
+	for (vector <Fileid>::iterator i = (*files).begin(); i != (*files).end(); i++) {
+		if (current_project && !(*i).get_attribute(current_project)) 
+			continue;
 		fprintf(fo, "\n<li>");
 		html_file(fo, (*i).get_path());
 	}
@@ -397,6 +406,8 @@ aids_page(FILE *of, void *p)
 	html_head(of, "aids", "All Identifiers");
 	fprintf(of, "<ul>\n");
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if (current_project && !(*i).first->get_attribute(current_project)) 
+			continue;
 		fprintf(of, "\n<li>");
 		html_id(of, *i);
 	}
@@ -411,6 +422,8 @@ roids_page(FILE *of,  void *p)
 	html_head(of, "roids", "Read-only Identifiers");
 	fprintf(of, "<ul>\n");
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if (current_project && !(*i).first->get_attribute(current_project)) 
+			continue;
 		if ((*i).first->get_attribute(is_readonly) == true) {
 			fprintf(of, "\n<li>");
 			html_id(of, *i);
@@ -495,6 +508,8 @@ wids_page(FILE *fo, void *p)
 	html_head(fo, "wids", "Writable Identifiers");
 	fprintf(fo, "<ul>\n");
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if (current_project && !(*i).first->get_attribute(current_project)) 
+			continue;
 		if ((*i).first->get_attribute(is_readonly) == false) {
 			fprintf(fo, "\n<li>");
 			html_id(fo, *i);
@@ -511,6 +526,8 @@ xids_page(FILE *fo, void *p)
 	html_head(fo, "xids", "File-spanning Writable Identifiers");
 	fprintf(fo, "<ul>\n");
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		if (current_project && !(*i).first->get_attribute(current_project)) 
+			continue;
 		if ((*i).second.get_xfile() == true &&
 		    (*i).first->get_attribute(is_readonly) == false) {
 			fprintf(fo, "\n<li>");
@@ -529,6 +546,8 @@ upids_page(FILE *fo, void *p)
 	fprintf(fo, "<ul>\n");
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		Eclass *e = (*i).first;
+		if (current_project && !e->get_attribute(current_project)) 
+			continue;
 		if (
 		    e->get_size() == 1 &&
 		    e->get_attribute(is_lscope) == true &&
@@ -549,6 +568,8 @@ ufids_page(FILE *fo, void *p)
 	fprintf(fo, "<ul>\n");
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		Eclass *e = (*i).first;
+		if (current_project && !e->get_attribute(current_project)) 
+			continue;
 		if (
 		    e->get_size() == 1 &&
 		    e->get_attribute(is_cscope) == true &&
@@ -561,7 +582,7 @@ ufids_page(FILE *fo, void *p)
 	html_tail(fo);
 }
 
-	// Unused macro writable identifiers
+// Unused macro writable identifiers
 void
 umids_page(FILE *fo, void *p)
 {
@@ -569,6 +590,8 @@ umids_page(FILE *fo, void *p)
 	fprintf(fo, "<ul>\n");
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		Eclass *e = (*i).first;
+		if (current_project && !e->get_attribute(current_project)) 
+			continue;
 		if (
 		    e->get_size() == 1 &&
 		    e->get_attribute(is_macro) == true &&
@@ -580,6 +603,33 @@ umids_page(FILE *fo, void *p)
 	fprintf(fo, "</ul>\n");
 	html_tail(fo);
 }
+
+// Display all projects, allowing user to select
+void
+select_project_page(FILE *fo, void *p)
+{
+	html_head(fo, "sproject", "Select Project");
+	fprintf(fo, "<ul>\n");
+	fprintf(fo, "<li> <a href=\"setproj.html?projid=0\">All projects</a>\n");
+	for (Attributes::size_type j = attr_max; j < Attributes::get_num_attributes(); j++)
+		fprintf(fo, "<li> <a href=\"setproj.html?projid=%u\">%s</a>\n", (unsigned)j, Project::get_projname(j).c_str());
+	fprintf(fo, "\n</ul>\n");
+	html_tail(fo);
+}
+
+// Select a single project (or none) to restrict file/identifier results
+void
+set_project_page(FILE *fo, void *p)
+{
+	void index_page(FILE *of, void *data);
+
+	if (!swill_getargs("i(projid)", &current_project)) {
+		fprintf(fo, "Missing value");
+		return;
+	}
+	index_page(fo, p);
+}
+
 
 // Index
 void
@@ -601,6 +651,7 @@ index_page(FILE *of, void *data)
 		"</ul>"
 		"<h2>Operations</h2>"
 		"<ul>\n"
+		"<li> <a href=\"sproject.html\">Select project</a>\n"
 		"<li> <a href=\"sexit.html\">Exit - saving changes</a>\n"
 		"<li> <a href=\"qexit.html\">Exit - ignore changes</a>\n"
 		"</ul>");
@@ -734,6 +785,7 @@ main(int argc, char *argv[])
 	vector <Fileid> files = Fileid::sorted_files();
 
 	swill_handle("index.html", index_page, 0);
+	swill_handle("sproject.html", select_project_page, 0);
 	swill_handle("sexit.html", write_quit_page, 0);
 	swill_handle("qexit.html", quit_page, 0);
 	swill_handle("afiles.html", afiles_page, &files);
@@ -760,6 +812,7 @@ main(int argc, char *argv[])
 	swill_handle("umids.html", umids_page, NULL);
 
 	swill_handle("id.html", identifier_page, NULL);
+	swill_handle("setproj.html", set_project_page, NULL);
 
 	// Set xfile and  metrics for each identifier
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
