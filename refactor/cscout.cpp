@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.30 2003/05/28 12:17:09 dds Exp $
+ * $Id: cscout.cpp,v 1.31 2003/05/28 15:57:59 dds Exp $
  */
 
 #include <map>
@@ -408,7 +408,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.30 2003/05/28 12:17:09 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.31 2003/05/28 15:57:59 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -424,7 +424,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.30 2003/05/28 12:17:09 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.31 2003/05/28 15:57:59 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -511,6 +511,14 @@ html_file(FILE *of, string fname)
 	html_file(of, fi);
 }
 
+enum e_cmp {
+	ec_ignore,
+	ec_eq,
+	ec_ne,
+	ec_lt,
+	ec_gt
+};
+
 // File query page
 static void
 fquery_page(FILE *of,  void *p)
@@ -523,13 +531,14 @@ fquery_page(FILE *of,  void *p)
 	for (int i = 0; i < metric_max; i++) {
 		fprintf(of, "<tr><td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
 			Metrics::name(i).c_str(), i);
-		fputs(
-			"<option value=\"0\">ignore"
-			"<option value=\"1\">=="
-			"<option value=\"2\">!="
-			"<option value=\"3\">&lt;"
-			"<option value=\"4\">&gt;"
-			"</select></td><td>", of);
+		fprintf(of,
+			"<option value=\"%d\">ignore"
+			"<option value=\"%d\">=="
+			"<option value=\"%d\">!="
+			"<option value=\"%d\">&lt;"
+			"<option value=\"%d\">&gt;"
+			"</select></td><td>", 
+			ec_ignore, ec_eq, ec_ne, ec_lt, ec_gt);
 		fprintf(of, "<INPUT TYPE=\"text\" NAME=\"n%d\" SIZE=5 MAXLENGTH=10></td></tr>\n", i);
 	}
 	fputs(
@@ -565,18 +574,18 @@ apply(int op, int a, int b)
 	if (DP()) {
 		cout << a;
 		switch (op) {
-		case 1: cout << " == "; break;
-		case 2: cout << " != "; break;
-		case 3: cout << " < "; break;
-		case 4: cout << " > "; break;
+		case ec_eq: cout << " == "; break;
+		case ec_ne: cout << " != "; break;
+		case ec_lt: cout << " < "; break;
+		case ec_gt: cout << " > "; break;
 		}
 		cout << b << "\n";
 	}
 	switch (op) {
-	case 1: return a == b;
-	case 2: return a != b;
-	case 3: return a < b;
-	case 4: return a > b;
+	case ec_eq: return a == b;
+	case ec_ne: return a != b;
+	case ec_lt: return a < b;
+	case ec_gt: return a > b;
 	default: return false;
 	}
 }
@@ -1112,8 +1121,13 @@ index_page(FILE *of, void *data)
 		"<ul>\n"
 		"<li> <a href=\"xfquery.html?ro=1&writable=1&match=Y&n=All+Files&qf=1\">All files</a>\n"
 		"<li> <a href=\"xfquery.html?ro=1&match=Y&n=Read-only+Files&qf=1\">Read-only files</a>\n"
-		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n"
-		"<li> <a href=\"fquery.html\">Specify new file query</a>\n"
+		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n");
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+Project-scoped+Writable+Identifiers\">Files containing unused project-scoped writable identifiers</a>\n", is_lscope);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+File-scoped+Writable+Identifiers\">Files containing unused file-scoped writable identifiers</a>\n", is_cscope);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statments&qf=1\">Writable .c files without any statements</a>\n", em_nstatement, ec_eq, em_nstatement);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", em_nstring, ec_gt, em_nstring);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", em_nincfile, ec_gt, em_nincfile);
+		fprintf(of, "<li> <a href=\"fquery.html\">Specify new file query</a>\n"
 		"</ul>\n"
 		"<h2>Identifier Queries</h2>\n"
 		"<ul>\n");
@@ -1123,7 +1137,7 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"xiquery.html?writable=1&xfile=1&match=L&qi=1&n=File-spanning+Writable+Identifiers\">File-spanning writable identifiers</a>\n", of);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Project-scoped+Writable+Identifiers\">Unused project-scoped writable identifiers</a>\n", is_lscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+File-scoped+Writable+Identifiers\">Unused file-scoped writable identifiers</a>\n", is_cscope);
-	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Macro+Writable+Identifiers\">Unused macro writable identifiers</a>\n", is_macro);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Writable+Macros\">Unused writable macros</a>\n", is_macro);
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
 		"</ul>"
@@ -1159,6 +1173,7 @@ file_page(FILE *of, void *p)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(of, "</ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
+	fprintf(of, "<li> <a href=\"qsrc.html?id=%s&match=L&unused=1&writable=1&a9=1\">Source code with any global unused writable identifiers marked</a>\n", fname.str().c_str());
 	fprintf(of, "</ul>\n");
 	html_tail(of);
 }
