@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.21 2001/09/22 07:59:48 dds Exp $
+ * $Id: parse.y,v 1.22 2001/09/22 09:53:04 dds Exp $
  *
  */
 
@@ -115,6 +115,8 @@ void parse_error(char *s)
 %type <t> elaborated_type_name
 %type <t> aggregate_name
 %type <t> enum_name
+%type <t> old_function_declarator
+%type <t> postfix_old_function_declarator
 
 %type <t> declarator
 %type <t> typedef_declarator
@@ -958,12 +960,14 @@ function_definition:
         | declaration_qualifier_list identifier_declarator compound_statement
         | type_qualifier_list        identifier_declarator compound_statement
 
+	/* foo(a, b) @ { } */
         |                            old_function_declarator compound_statement
         | declaration_specifier      old_function_declarator compound_statement
         | type_specifier             old_function_declarator compound_statement
         | declaration_qualifier_list old_function_declarator compound_statement
         | type_qualifier_list        old_function_declarator compound_statement
 
+	/* foo(a, b) @ int a; int b; @ { } */
         |                            old_function_declarator declaration_list
                 compound_statement
         | declaration_specifier      old_function_declarator declaration_list
@@ -1079,13 +1083,18 @@ paren_identifier_declarator:
 old_function_declarator:
         postfix_old_function_declarator
         | '*' old_function_declarator
+		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list old_function_declarator
+		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
         ;
 
 postfix_old_function_declarator:
         paren_identifier_declarator '(' identifier_list ')'
+		{ $1.set_abstract(function_returning(basic())); $$ = $1; }
         | '(' old_function_declarator ')'
+		{ $$ = $2; }
         | '(' old_function_declarator ')' postfixing_abstract_declarator
+		{ $2.set_abstract($4); $$ = $2; }
         ;
 
 abstract_declarator:
