@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.22 2003/08/15 16:27:07 dds Exp $
+ * $Id: macro.cpp,v 1.23 2003/08/16 21:40:32 dds Exp $
  */
 
 #include <iostream>
@@ -231,9 +231,13 @@ macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
 	}
 
 	// Check next first non-white token
-	for (i = p + 1; i != v.end() && (*i).is_space(); i++)
+	for (i = p + 1; i != v.end(); i++) {
 		if ((*i).get_code() == CPP_CONCAT)
 			return (false);
+		if (!(*i).is_space())
+			break;
+	}
+
 	return (true);
 }
 
