@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.6 2001/09/04 13:26:14 dds Exp $
+# $Id: Makefile,v 1.7 2001/09/06 15:03:06 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -37,7 +37,7 @@ eval.tab.c: eval.y
 	$(YACC) -b eval -p eval_ eval.y
 
 parse.cpp: parse.y
-	$(YACC) -b parse -p parse_ parse.y
+	$(YACC) -d -b parse -p parse_ parse.y
 	mv parse.tab.c parse.cpp
 
 # Test
