@@ -21,7 +21,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.1 2001/08/18 17:38:02 dds Exp $
+ * $Id: pltoken.h,v 1.2 2001/08/18 22:01:19 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -31,7 +31,8 @@ class Fchar;
 
 class Pltoken: public Ptoken {
 public:
-	Pltoken();
+	Pltoken() {};
+	template <class C> void getnext();
 };
 
 /*
@@ -43,7 +44,9 @@ public:
  *
  * Should probably be declared as export, but VC 5 can not handle it.
  */
-Pltoken::Pltoken()
+template <class C>
+void
+Pltoken::getnext()
 {
 	int n;
 	Fchar cn1 = Fchar::empty;

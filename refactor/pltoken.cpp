@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.1 2001/08/18 17:37:54 dds Exp $
+ * $Id: pltoken.cpp,v 1.2 2001/08/18 22:01:19 dds Exp $
  */
 
 #include <iostream>
@@ -12,6 +12,7 @@
 #include <deque>
 #include <stack>
 #include <iterator>
+#include <fstream>
 #include <cassert>
 
 #include "cpp.h"
@@ -45,6 +46,7 @@ main()
 	for (;;) {
 		Pltoken t;
 
+		t.template getnext<Fchar>();
 		if (t.get_code() == EOF)
 			break;
 		cout << t;
