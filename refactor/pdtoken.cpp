@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.28 2001/09/01 13:26:23 dds Exp $
+ * $Id: pdtoken.cpp,v 1.29 2001/09/01 13:34:35 dds Exp $
  */
 
 #include <iostream>
@@ -456,11 +456,8 @@ stringize(const listPtoken& ts)
 		}
 	}
 	// Remove trailing spaces
-	string::reverse_iterator i;
-	int sublen = res.length();
-	for (i = res.rbegin(); i != res.rend() && *i == ' '; i++)
-		sublen--;
-	return (Ptoken(STRING_LITERAL, res.substr(0, sublen)));
+	res.erase((find_if(res.rbegin(), res.rend(), not1(ptr_fun(isspace)))).base(), res.end());
+	return (Ptoken(STRING_LITERAL, res));
 }
 
 
@@ -539,7 +536,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		(*pos).set_nonreplaced();
 		return (++pos);
 	}
-	const Macro& m = (*mi).second;
+	const Macro& m = mi->second;
 	if (m.is_function) {
 		// Peek for a left bracket, if not found this is not a macro
 		listPtoken::iterator peek = pos;
