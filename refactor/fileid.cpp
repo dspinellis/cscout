@@ -6,6 +6,7 @@
 int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
 FI_id_to_path Fileid::i2p;	// From id to full path
+Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
 
 #ifdef WIN32
 #include <windows.h>
@@ -54,6 +55,14 @@ Fileid::Fileid(const string &name)
 		id = (*i).second;
 }
 
+Fileid::Fileid(const string &name, int i)
+{
+	u2i[name] = i;
+	i2p[i] = name;
+	id = i;
+	counter = i + 1;
+}
+
 string
 Fileid::get_path() const
 {
@@ -68,6 +77,8 @@ Fileid::get_path() const
 
 main()
 {
+	Fileid x1;
+	Fileid x2;
 	Fileid a("fileid.cpp");
 	Fileid b("./fileid.cpp");
 	Fileid c(".");
@@ -81,6 +92,8 @@ main()
 	cout << "e=" << e.get_path() << " (should be .)\n";
 	cout << "a==b: " << (a == b) << " (should be 1)\n";
 	cout << "size=" << sizeof(a) << " (it better be 4)\n";
+	cout << "x2=" << x2.get_path() << " (should be ANONYMOUS)\n";
+	cout << "x1==x2: " << (x1 == x2) << " (should be 1)\n";
 	return (0);
 }
 #endif

@@ -9,7 +9,7 @@
  * #include <map>
  * #include <string>
  *
- * $Id: fileid.h,v 1.1 2001/08/15 18:08:00 dds Exp $
+ * $Id: fileid.h,v 1.2 2001/08/16 09:16:06 dds Exp $
  */
 
 #ifndef FILEID_
@@ -29,9 +29,17 @@ private:
 	static FI_uname_to_id u2i;	// From unique name to id
 	static FI_id_to_path i2p;	// From id to full path
 
+	// Construct a new Fileid given a name and id value
+	// Only used internally for creating the anonymous id
+	Fileid(const string& name, int id);
+	// An anonymous id
+	static Fileid anonymous;
+
 public:
 	// Construct a new Fileid given a filename
 	Fileid(const string& fname);
+	// Construct an anonymous Fileid
+	Fileid() { *this = Fileid::anonymous; };
 	// Return the full file path of a given id
 	string get_path() const;
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
