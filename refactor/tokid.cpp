@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.21 2003/07/29 21:31:14 dds Exp $
+ * $Id: tokid.cpp,v 1.22 2003/08/20 12:44:23 dds Exp $
  */
 
 #include <iostream>
@@ -103,7 +103,15 @@ Tokid::constituents(int l)
 			return (r);
 		t += covered;
 		e = tm.find(t);
-		assert(e != Tokid::tm.end());
+		// assert(e != Tokid::tm.end());
+		// Can only happen if we are deleting ECs with -m
+		if (e == Tokid::tm.end()) {
+			// No EC defined, create a new one covering the rest
+			new Eclass(t, l);
+			Tpart tp(t, l);
+			r.push_back(tp);
+			return (r);
+		}
 	}
 }
 
