@@ -21,7 +21,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.4 2001/08/20 08:02:34 dds Exp $
+ * $Id: pltoken.h,v 1.5 2001/08/20 08:43:07 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -79,128 +79,118 @@ again:
 		default:  C::putback(c0); val = (char)(code = '+'); break;
 		}
 		break;
-#ifdef ndef
 	case '-':
-		cn1 = in_get();
-		switch (cn1->get_char()) {
-		case '-': t->set_props(DEC_OP, c0, cn1); delete(cn1); break;
-		case '=': t->set_props(SUB_ASSIGN, c0, cn1); delete(cn1); break;
-		case '>': t->set_props(PTR_OP, c0, cn1); delete(cn1); break;
-		default:  in_unget(cn1); t->set_props('-', c0, c0); break;
+		c0.getnext();
+		switch (c0.get_char()) {
+		case '-': val = "--"; code = DEC_OP; break;
+		case '=': val = "-="; code = SUB_ASSIGN; break;
+		case '>': val = "->"; code = PTR_OP; break;
+		default:  C::putback(c0); val = (char)(code = '-'); break;
 		}
-		delete (c0);
 		break;
 	case '&':
-		cn1 = in_get();
-		switch (cn1->get_char()) {
-		case '&': t->set_props(AND_OP, c0, cn1); delete(cn1); break;
-		case '=': t->set_props(AND_ASSIGN, c0, cn1); delete(cn1); break;
-		default:  in_unget(cn1); t->set_props('&', c0, c0); break;
+		c0.getnext();
+		switch (c0.get_char()) {
+		case '&': val = "&&"; code = AND_OP; break;
+		case '=': val = "&="; code = AND_ASSIGN; break;
+		default:  C::putback(c0); val = (char)(code = '&'); break;
 		}
-		delete (c0);
 		break;
 	case '|':
-		cn1 = in_get();
-		switch (cn1->get_char()) {
-		case '|': t->set_props(OR_OP, c0, cn1); delete(cn1); break;
-		case '=': t->set_props(OR_ASSIGN, c0, cn1); delete(cn1); break;
-		default:  in_unget(cn1); t->set_props('|', c0, c0); break;
+		c0.getnext();
+		switch (c0.get_char()) {
+		case '|': val = "||"; code = OR_OP; break;
+		case '=': val = "|="; code = OR_ASSIGN; break;
+		default:  C::putback(c0); val = (char)(code = '|'); break;
 		}
-		delete (c0);
 		break;
 	/* Simple single/double character tokens (e.g. !, !=) */
 	case '!':
-		cn1 = in_get();
-		if (cn1->get_char() == '=') {
-			t->set_props(NE_OP, c0, cn1);
-			delete (cn1);
+		c0.getnext();
+		if (c0.get_char() == '=') {
+			val = "!=";
+			code = NE_OP;
 		} else {
-			in_unget(cn1);
-			t->set_props('!', c0, c0);
+			C::putback(c0);
+			val = (char)(code = '!');
 		}
-		delete (c0);
 		break;
 	case '%':
-		cn1 = in_get();
-		if (cn1->get_char() == '=') {
-			t->set_props(MOD_ASSIGN, c0, cn1);
-			delete (cn1);
+		c0.getnext();
+		if (c0.get_char() == '=') {
+			val = "%=";
+			code = MOD_ASSIGN;
 		} else {
-			in_unget(cn1);
-			t->set_props('%', c0, c0);
+			C::putback(c0);
+			val = (char)(code = '%');
 		}
-		delete (c0);
 		break;
 	case '*':
-		cn1 = in_get();
-		if (cn1->get_char() == '=') {
-			t->set_props(MUL_ASSIGN, c0, cn1);
-			delete (cn1);
+		c0.getnext();
+		if (c0.get_char() == '=') {
+			val = "*=";
+			code = MUL_ASSIGN;
 		} else {
-			in_unget(cn1);
-			t->set_props('*', c0, c0);
+			C::putback(c0);
+			val = (char)(code = '*');
 		}
-		delete (c0);
 		break;
 	case '=':
-		cn1 = in_get();
-		if (cn1->get_char() == '=') {
-			t->set_props(EQ_OP, c0, cn1);
-			delete (cn1);
+		c0.getnext();
+		if (c0.get_char() == '=') {
+			val = "==";
+			code = EQ_OP;
 		} else {
-			in_unget(cn1);
-			t->set_props('=', c0, c0);
+			C::putback(c0);
+			val = (char)(code = '=');
 		}
-		delete (c0);
 		break;
 	case '^':
-		cn1 = in_get();
-		if (cn1->get_char() == '=') {
-			t->set_props(XOR_ASSIGN, c0, cn1);
-			delete (cn1);
+		c0.getnext();
+		if (c0.get_char() == '=') {
+			val = "^=";
+			code = XOR_ASSIGN;
 		} else {
-			in_unget(cn1);
-			t->set_props('^', c0, c0);
+			C::putback(c0);
+			val = (char)(code = '^');
 		}
-		delete (c0);
 		break;
 	case '#':	/* C-preprocessor token only */
-		incpp = true;			// Overkill, but good enough
-		cn1 = in_get();
-		if (cn1->get_char() == '=') {
-			t->set_props(CPP_CONCAT, c0, cn1);
-			delete (cn1);
+		// incpp = true;		// Overkill, but good enough
+		c0.getnext();
+		if (c0.get_char() == '#') {
+			val = "##";
+			code = CPP_CONCAT;
 		} else {
-			in_unget(cn1);
-			t->set_props('#', c0, c0);
+			C::putback(c0);
+			val = (char)(code = '#');
 		}
-		delete (c0);
 		break;
+#ifdef ndef
 	/* Operators starting with < or > */
 	case '>':
-		cn1 = in_get();
-		switch (cn1->get_char()) {
+		c0.getnext();
+		switch (c0.get_char()) {
 		case '=':				/* >= */
-			t->set_props(GE_OP, c0, cn1); 
-			delete (cn1);
+			code = GE_OP; 
+			val = ">=";
 			break;
 		case '>':
 			cn = in_get();
 			if (cn->get_char() == '=') {	/* >>= */
-				t->set_props(RIGHT_ASSIGN, c0, cn);
-				delete (cn);
+				code = RIGHT_ASSIGN, c0, cn);
+				val = ">>=";
 			} else {			/* >> */
-				in_unget(cn);
-				t->set_props(RIGHT_OP, c0, cn1);
+				C::putback(c0);
+				code = RIGHT_OP;
+				val = ">>";
 			}
-			delete (cn1);
 			break;
 		default:				/* > */
-			in_unget(cn1);
-			t->set_props('>', c0, c0);
+			C::putback(c0);
+			val = (char)(code = '>');
 			break;
 		}
-		delete (c0);
 		break;
 	case '<':
 		if (incpp) {
