@@ -1,6 +1,5 @@
-$Id: todo,v 1.39 2003/08/21 19:50:05 dds Exp $
+$Id: todo,v 1.40 2003/08/21 20:57:44 dds Exp $
 
-Is __unused__ working?  Check e.g. boot_verbose
 In the query change check boxes into yes/no/don't care radio buttos
 Option to specify leading file path to hide
 
