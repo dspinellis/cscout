@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.63 2003/08/17 17:00:27 dds Exp $
+ * $Id: cscout.cpp,v 1.64 2003/08/21 19:50:05 dds Exp $
  */
 
 #include <map>
@@ -71,6 +71,8 @@ static bool preprocess;			// Preprocess-only (-E)
 static bool compile_only;		// Process-only (-c)
 static bool report;			// Generate a warning report
 static int portno = 8081;		// Port number (-p n)
+
+static Fileid input_file_id;
 
 // Our identifiers to store as a map
 class Identifier {
@@ -565,7 +567,7 @@ html_file_end(FILE *of)
 	fprintf(of, "</ul>\n");
 }
 
-// Display a filename on an html file
+// Display a filename of an html file
 static void
 html_file(FILE *of, Fileid fi)
 {
@@ -1384,7 +1386,7 @@ file_page(FILE *of, void *p)
 	const string &pathname = i.get_path();
 	fname << i.get_id();
 	html_head(of, "file", string("File: ") + html(pathname));
-	fprintf(of, "<ul>\n");
+	fprintf(of, "<h2>Metrics</h2><ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
 	for (int j = 0; j < metric_max; j++)
 		fprintf(of, "\n<li> %s: %d", Metrics::name(j).c_str(), i.metrics().get_metric(j));
@@ -1392,9 +1394,14 @@ file_page(FILE *of, void *p)
 	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
-	fprintf(of, "</ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
+	fprintf(of, "</ul>\n</ul><h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
 	fprintf(of, "<li> <a href=\"qsrc.html?id=%s&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", fname.str().c_str(), is_readonly);
 	fprintf(of, "<li> <a href=\"qsrc.html?id=%s&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", fname.str().c_str(), is_lscope);
+	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
+	fprintf(of, "<li> <a href=\"qinc.html?id=%s&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", fname.str().c_str());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%s&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", fname.str().c_str());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%s&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", fname.str().c_str());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%s&n=Files+Including+the+File\">Files including this file</a>\n", fname.str().c_str());
 	fprintf(of, "</ul>\n");
 	html_tail(of);
 }
@@ -1402,7 +1409,6 @@ file_page(FILE *of, void *p)
 void
 source_page(FILE *of, void *p)
 {
-	ostringstream fname;
 	int id;
 	if (!swill_getargs("i(id)", &id)) {
 		fprintf(of, "Missing value");
@@ -1410,7 +1416,6 @@ source_page(FILE *of, void *p)
 	}
 	Fileid i(id);
 	const string &pathname = i.get_path();
-	fname << i.get_id();
 	html_head(of, "src", string("Source: ") + html(pathname));
 	file_hypertext(of, i, false);
 	html_tail(of);
@@ -1419,7 +1424,6 @@ source_page(FILE *of, void *p)
 void
 query_source_page(FILE *of, void *p)
 {
-	ostringstream fname;
 	int id;
 	if (!swill_getargs("i(id)", &id)) {
 		fprintf(of, "Missing value");
@@ -1427,7 +1431,6 @@ query_source_page(FILE *of, void *p)
 	}
 	Fileid i(id);
 	const string &pathname = i.get_path();
-	fname << i.get_id();
 	char *qname = swill_getvar("n");
 	if (qname && *qname)
 		html_head(of, "qsrc", string(qname) + ": " + html(pathname));
@@ -1435,6 +1438,49 @@ query_source_page(FILE *of, void *p)
 		html_head(of, "qsrc", string("Source with queried identifiers marked: ") + html(pathname));
 	fputs("<p>(Use the tab key to move to each marked identifier.)<p>", of);
 	file_hypertext(of, i, true);
+	html_tail(of);
+}
+
+void
+query_include_page(FILE *of, void *p)
+{
+	int id;
+	if (!swill_getargs("i(id)", &id)) {
+		fprintf(of, "Missing value");
+		return;
+	}
+	Fileid f(id);
+	const string &pathname = f.get_path();
+	char *qname = swill_getvar("n");
+	if (qname && *qname)
+		html_head(of, "qinc", string(qname) + ": " + html(pathname));
+	else
+		html_head(of, "qinc", string("Include File Query: ") + html(pathname));
+	bool writable = !!swill_getvar("writable");
+	bool direct = !!swill_getvar("direct");
+	bool unused = !!swill_getvar("unused");
+	bool includes = !!swill_getvar("includes");
+	const FileIncMap &m = includes ? f.get_includes() : f.get_includers();
+	html_file_begin(of);
+	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
+		Fileid f2 = (*i).first;
+		const IncDetails &id = (*i).second;
+		if ((!writable || !f2.get_readonly()) &&
+		    (!direct || id.is_directly_included()) &&
+		    (!unused || !id.is_required())) {
+			html_file(of, f2);
+			if (id.is_directly_included()) {
+				fprintf(of, " - line ");
+				const set <int> &lines = id.include_line_numbers();
+				for (set <int>::const_iterator j = lines.begin(); j != lines.end(); j++)
+					fprintf(of, "%d ", *j);
+			}
+			if (!id.is_required())
+				fprintf(of, " (not required)");
+		}
+	}
+	html_file_end(of);
+	fputs("</ul>\n", of);
 	html_tail(of);
 }
 
@@ -1578,7 +1624,7 @@ warning_report()
 		  "L:writable:unused:fscope" },
 		{ "unused writable macro",
 		  "L:writable:unused:macro" },
-		{ "writable identifier that should be made static",
+		{ "writable identifier should be made static",
 		  "T:writable:obj:pscope" }, // xfile is implicitly 0
 	};
 
@@ -1596,6 +1642,23 @@ warning_report()
 				id << ": " << reports[i].message << '\n';
 		}
 	}
+
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+		if ((*i).get_readonly() || !(*i).compilation_unit() || *i == input_file_id)
+			continue;
+		const FileIncMap &m = (*i).get_includes();
+		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
+			Fileid f2 = (*j).first;
+			const IncDetails &id = (*j).second;
+			if (id.is_directly_included() && !id.is_required()) {
+				const set <int> &lines = id.include_line_numbers();
+				for (set <int>::const_iterator k = lines.begin(); k != lines.end(); k++)
+					cerr << (*i).get_path() << ':' << 
+						*k << ": unused included file " <<
+						f2.get_path() << '\n';
+			}
+		}
+	}
 }
 
 // Report usage information and exit
@@ -1608,8 +1671,7 @@ usage(char *fname)
 		"\t\t(the workspace file must have also been processed with -E)\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
-		"\t-r\tGenerate an identifier warning report\n"
-		"\t-u\tDerive and report unused included files\n"
+		"\t-r\tGenerate an identifier and include file warning report\n"
 		"\t-v\tDisplay version and copyright information and exit\n"
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n";
 	exit(1);
@@ -1624,7 +1686,7 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "cruvEp:m:")) != EOF)
+	while ((c = getopt(argc, argv, "crvEp:m:")) != EOF)
 		switch (c) {
 		case 'E':
 			preprocess = true;
@@ -1646,9 +1708,6 @@ main(int argc, char *argv[])
 			break;
 		case 'r':
 			report = true;
-			break;
-		case 'u':
-			Fdep::set_monitoring_dependencies(true);
 			break;
 		case 'v':
 			cerr << "CScout version " <<
@@ -1692,6 +1751,8 @@ main(int argc, char *argv[])
 	do
 		t.getnext();
 	while (t.get_code() != EOF);
+
+	input_file_id = Fileid(argv[optind]);
 
 	if (compile_only && !report)
 		return 0;
@@ -1776,6 +1837,7 @@ main(int argc, char *argv[])
 		// File query and execution
 		swill_handle("fquery.html", fquery_page, NULL);
 		swill_handle("xfquery.html", xfquery_page, NULL);
+		swill_handle("qinc.html", query_include_page, NULL);
 
 		swill_handle("id.html", identifier_page, NULL);
 		swill_handle("fmetrics.html", file_metrics_page, NULL);
@@ -1810,25 +1872,21 @@ main(int argc, char *argv[])
 void
 garbage_collect(Fileid root)
 {
-	if (!monitor.is_valid() && !Fdep::monitoring_dependencies())
-		return;
-
 	vector <Fileid> files(Fileid::files(false));
 	set <Fileid> touched_files;
 
 	int count = 0;
 	int sum = 0;
 
+	root.set_compilation_unit(true);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		Fileid fi = (*i);
 
 		if (fi.garbage_collected())
 			continue;
 
-		if (Fdep::monitoring_dependencies()) {
-			fi.set_required(false);	// Mark the file as not being required
-			touched_files.insert(*i);
-		}
+		fi.set_required(false);	// Mark the file as not being required
+		touched_files.insert(*i);
 
 		if (!monitor.is_valid()) {
 			fi.set_gc(true);	// Mark the file as garbage collected
@@ -1868,29 +1926,17 @@ garbage_collect(Fileid root)
 	}
 	if (DP())
 		cout << "Garbage collected " << count << " out of " << sum << " ECs\n";
-	if (Fdep::monitoring_dependencies()) {
-		set <Fileid> required_files;
 
-		// Recursively mark all the files containing definitions for us
-		Fdep::mark_required(root);
-		// Store them in a set to calculate set difference
-		for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
-			if ((*i).required())
-				required_files.insert(*i);
+	// Monitor dependencies
+	set <Fileid> required_files;
 
-		vector <Fileid> unused_files;
-		set_difference(touched_files.begin(), touched_files.end(), 
-			required_files.begin(), required_files.end(),
-			inserter(unused_files, unused_files.begin()));
-		for (vector <Fileid>::iterator i = unused_files.begin(); i != unused_files.end(); i++) {
-			cout << (*i).get_path() << ": unused";
-			if (!Fdep::is_directly_included(*i))
-				cout << " (only indirectly included)\n";
-			else
-				cout << '\n';
-		}
-		Fdep::reset();
-	}
+	// Recursively mark all the files containing definitions for us
+	Fdep::mark_required(root);
+	// Store them in a set to calculate set difference
+	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
+		if (*i != root && *i != input_file_id)
+			root.includes(*i, /* directly included = */ false, (*i).required());
+	Fdep::reset();
 
 	return;
 }

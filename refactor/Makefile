@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.55 2003/08/17 08:44:19 dds Exp $
+# $Id: Makefile,v 1.56 2003/08/21 19:50:05 dds Exp $
 #
 
 # Common object files
@@ -44,11 +44,11 @@ CC=g++
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
 
 # Local development flags
-#CPPFLAGS=-pipe -g -Wall -DOFFICE_SERVER
+CPPFLAGS=-pipe -g -Wall -DOFFICE_SERVER
 #CPPFLAGS+=-DTEST_LICENSING
 
 # Production flags
-CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION -static
+#CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION -static
 
 # Realistic debug flags
 #CPPFLAGS=-pipe -O2 -g -DSPINELLIS_SERVER -DPRODUCTION
@@ -145,8 +145,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.55 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2003/08/17 08:44:19 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.56 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2003/08/21 19:50:05 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

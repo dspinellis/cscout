@@ -10,11 +10,12 @@
  * #include <string>
  * #include <vector>
  * #include <list>
+ * #include <set>
  *
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.19 2003/08/15 10:00:33 dds Exp $
+ * $Id: fileid.h,v 1.20 2003/08/21 19:50:05 dds Exp $
  */
 
 #ifndef FILEID_
@@ -22,34 +23,78 @@
 
 
 using namespace std;
-//
+
+// Details we keep for each included file for a given includer
+// Only updated when Fdep::monitoring_dependencies is set
+class IncDetails {
+private:
+	bool direct;		// True if directly included
+	bool required;		// True if its inclusion is required
+	set <int> lnum;		// Line numbers that include it (for direct includes)
+public:
+	// Construct with r and d
+	IncDetails(bool d, bool r) : direct(d), required(r) {}
+
+	// Conservatively update r and d
+	void update(bool d, bool r) {
+		direct = (direct || d);
+		required = (required || r);
+	}
+
+	// Add another line number in the set
+	void add_line(int line) {
+		lnum.insert(line);
+	}
+	bool is_required() const {return required; }
+	bool is_directly_included() const {return direct; }
+	const set <int>& include_line_numbers() const {return lnum; }
+};
+
+class Fileid;
+
+typedef map <Fileid, IncDetails> FileIncMap;
+
 // Details we keep for each file
 class Filedetails {
 private:
 	string name;	// File name (complete path)
-	bool gc;	// When postprocessing files to garbage collect ECs
-	bool rq;	// When postprocessing files actually required (containing definitions)
+	bool m_garbage_collected;	// When postprocessing files to garbage collect ECs
+	bool m_required;		// When postprocessing files actually required (containing definitions)
+	bool m_compilation_unit;	// This file is a compilation unit (set by gc)
 	// Line end offsets; collected during postprocessing
 	// when we are generating warning reports
 	vector <streampos> line_ends;
+	FileIncMap includes;	// Files we include
+	FileIncMap includers;	// Files that include us
+
+	// Update the specified map
+	void include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line);
 public:
 	Attributes attr;
 	class Metrics m;
-	Filedetails(string n, bool r) : name(n) { set_readonly(r); }
-	Filedetails() {}
+	Filedetails(string n, bool r) : name(n), m_compilation_unit(false) { set_readonly(r); }
+	Filedetails() : m_compilation_unit(false) {}
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
-	bool garbage_collected() const { return gc; }
-	void set_gc(bool r) { gc = r; }
-	bool required() const { return rq; }
-	void set_required(bool r) { rq = r; }
+	bool garbage_collected() const { return m_garbage_collected; }
+	void set_gc(bool r) { m_garbage_collected = r; }
+	bool required() const { return m_required; }
+	void set_required(bool r) { m_required = r; }
+	bool compilation_unit() const { return m_compilation_unit; }
+	void set_compilation_unit(bool r) { m_compilation_unit = r; }
 
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered
 	void add_line_end(streampos p) { line_ends.push_back(p); }
 	// Return a line number given a file offset
 	int line_number(streampos p) const;
+
+	// Update maps when includer (us) includes included
+	void include_update_included(const Fileid included, bool directly, bool required, int line);
+	void include_update_includer(const Fileid includer, bool directly, bool required, int line);
+	const FileIncMap& get_includes() const { return includes; }
+	const FileIncMap& get_includers() const { return includers; }
 };
 
 typedef map <string, int> FI_uname_to_id;
@@ -107,12 +152,24 @@ public:
 	// Get/set required property (for include files)
 	void set_required(bool v) { i2d[id].set_required(v); }
 	bool required() const { return i2d[id].required(); }
+	// Get/set compilation_unit property (for include files)
+	void set_compilation_unit(bool v) { i2d[id].set_compilation_unit(v); }
+	bool compilation_unit() const { return i2d[id].compilation_unit(); }
 
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered
 	void add_line_end(streampos p) { i2d[id].add_line_end(p); }
 	// Return a line number given a file offset
 	int line_number(streampos p) const { return i2d[id].line_number(p); }
+
+	// Called when we include file f
+	void includes(const Fileid f, bool directly, bool required, int line = -1) {
+		i2d[id].include_update_included(f, directly, required, line);
+		i2d[f.get_id()].include_update_includer(id, directly, required, line);
+	}
+
+	const FileIncMap& get_includes() const { return i2d[id].get_includes(); }
+	const FileIncMap& get_includers() const { return i2d[id].get_includers(); }
 
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);

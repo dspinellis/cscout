@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.27 2003/08/12 11:25:22 dds Exp $
+ * $Id: fchar.cpp,v 1.28 2003/08/21 19:50:05 dds Exp $
  */
 
 #include <iostream>
@@ -53,12 +53,6 @@ Fchar::set_input(const string& s)
 		Error::error(E_FATAL, s + ": " + string(strerror(errno)), false);
 	fi = Fileid(s);
 	fi.set_gc(false);	// Mark the file for garbage collection
-	if (cs.size() - stack_lock_size <= 1) {
-		Fdep::add_direct_include(fi);
-		if (DP())
-			cout << "cs.size=" << cs.size() << " lock_size=" << stack_lock_size <<
-				" direct include " << fi.get_path() << "\n";
-	}
 	if (DP())
 		cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;
@@ -71,12 +65,13 @@ Fchar::push_input(const string& s)
 {
 	struct fchar_context fc;
 	Fileid includer = fi;
+	int include_lnum = line_number - 1;
 
 	fc.ti = Tokid(fi, in.tellg());
 	fc.line_number = line_number;
 	cs.push(fc);
 	set_input(s);
-	Fdep::add_include(includer, fi);
+	Fdep::add_include(includer, fi, include_lnum);
 	/*
 	 * First time through:
 	 * push the magic yacc cookie to direct us to parse yacc code

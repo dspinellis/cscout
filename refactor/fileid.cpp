@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.27 2003/08/15 10:00:33 dds Exp $
+ * $Id: fileid.cpp,v 1.28 2003/08/21 19:50:05 dds Exp $
  */
 
 #include <map>
@@ -207,6 +207,46 @@ int
 Filedetails::line_number(streampos p) const
 {
 	return (upper_bound(line_ends.begin(), line_ends.end(), p) - line_ends.begin()) + 1;
+}
+
+// Update the specified map
+void
+Filedetails::include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line)
+{
+	FileIncMap::iterator i;
+
+	if ((i = (this->*map).find(f)) == (this->*map).end()) {
+		pair<FileIncMap::iterator, bool> result = (this->*map).insert(
+			FileIncMap::value_type(f, IncDetails(directly, required)));
+		i = result.first;
+	} else
+		(*i).second.update(directly, required);
+	if (line != -1)
+		(*i).second.add_line(line);
+}
+
+// Update maps when we include included
+void
+Filedetails::include_update_included(const Fileid included, bool directly, bool required, int line)
+{
+	if (DP())
+		cout << "File includes " << included.get_path() << 
+			(directly ? " directly " : " indirectly ") <<
+			(required ? " required " : " non required ") <<
+			" line " << line << "\n";
+	include_update(included, &Filedetails::includes, directly, required, line);
+}
+
+// Update maps when we are included by includer
+void
+Filedetails::include_update_includer(const Fileid includer, bool directly, bool required, int line)
+{
+	if (DP())
+		cout << "File " << includer.get_path() << " included " <<
+			(directly ? " directly " : " indirectly ") <<
+			(required ? " required " : " non required ") <<
+			" line " << line << "\n";
+	include_update(includer, &Filedetails::includers, directly, required, line);
 }
 
 // Return a sorted list of all filenames used
