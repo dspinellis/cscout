@@ -12,7 +12,7 @@
  * #include "cpp.h"
  * #include "fileid.h"
  *
- * $Id: tokid.h,v 1.5 2001/08/17 16:04:34 dds Exp $
+ * $Id: tokid.h,v 1.6 2001/08/18 06:58:25 dds Exp $
  */
 
 #ifndef TOKID_
@@ -34,7 +34,9 @@ private:
 	offset_t offs;			// Offset
 public:
 	// Construct it, based on the fileid and offset in that file
-	Tokid(Fileid fi, offset_t l);
+	Tokid(Fileid i, streampos l) : fi(i), offs((offset_t)l) {};
+	// Construct it uninitialised to be filled-in later
+	Tokid() {}
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Tokid t);
 	inline friend bool operator ==(const class Tokid a, const class Tokid b);
@@ -55,6 +57,11 @@ public:
 	dequeTokid Tokid::constituents(int l);
 	// Print the contents of the class map
 	friend ostream& operator<<(ostream& o,const map <Tokid, Eclass *>& dummy);
+	// Accessor functions
+	inline string get_path() const { return fi.get_path(); }
+	inline Fileid get_fileid() const { return fi; }
+	inline streampos get_streampos() const { return (streampos)offs; }
+
 };
 
 // Print dequeTokid sequences

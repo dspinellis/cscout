@@ -14,11 +14,6 @@ TE_map Tokid::tm;
 mapTokidEclass tokid_map;		// Dummy; used for printing
 mapTokidEclass TE_map::tm;
 
-Tokid::Tokid(Fileid f, offset_t o)
-	: fi(f), offs(o)
-{
-}
-
 ostream&
 operator<<(ostream& o,const Tokid t)
 {
