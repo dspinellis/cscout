@@ -14,14 +14,14 @@
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.1 2001/08/18 15:49:07 dds Exp $
+ * $Id: ptoken.h,v 1.2 2001/08/18 21:43:35 dds Exp $
  */
 
 #ifndef PTOKEN_
 #define PTOKEN_
 
 class Ptoken : public Token {
-private:
+protected:
 	string val;		// Token contents
 public:
 	// Construct it based on the token code and the contents
