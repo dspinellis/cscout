@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.39 2003/06/12 16:29:56 dds Exp $
+ * $Id: cscout.cpp,v 1.40 2003/06/15 15:34:04 dds Exp $
  */
 
 #include <map>
@@ -1373,7 +1373,7 @@ quit_page(FILE *of, void *p)
 /*
  * Parse the access control list .cscout_acl.
  * The ACL is searched in three different directories:
- * ., $CSCOUT_HOME, and $HOME
+ * .cscout, $CSCOUT_HOME, and $HOME/.cscout
  */
 static void
 parse_acl()
@@ -1382,16 +1382,18 @@ parse_acl()
 	ifstream in;
 	string ad, host;
 	vector <char *> dirs;
-	dirs.push_back(".");
-	dirs.push_back(getenv("CSCOUT_HOME"));
-	dirs.push_back(getenv("HOME"));
+	dirs.push_back(".cscout");
+	if (getenv("CSCOUT_HOME"))
+		dirs.push_back(getenv("CSCOUT_HOME"));
+	if (getenv("HOME"))
+		dirs.push_back(getenv("HOME") + "/.cscout");
 	vector <char *>::const_iterator i;
 	string fname;
 
 	for (i = dirs.begin(); i != dirs.end(); i++) {
 		if (!*i)
 			continue;
-		fname = string(*i) + "/.cscout_acl";
+		fname = string(*i) + "/cscout_acl";
 		in.open(fname.c_str());
 		if (in.fail())
 			in.clear();

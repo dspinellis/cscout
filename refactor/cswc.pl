@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.8 2003/06/12 16:29:56 dds Exp $
+# $Id: cswc.pl,v 1.9 2003/06/15 15:34:04 dds Exp $
 #
 
 # Syntax:
@@ -40,12 +40,19 @@ if ($ARGV[0] eq '-E') {
 	shift @ARGV;
 }
 
-# Installation directory
-if (!defined($ENV{CSCOUT_HOME})) {
-	print STDERR "The CSCOUT_HOME environment variable is not set\n";
-	exit(1);
-} else {
+# Installation directory:
+# Search order
+# .cscout, $CSCOUT_HOME, and $HOME/.cscout
+if (-d '.cscout') {
+	$instdir = '.cscout';
+} elsif (defined($ENV{CSCOUT_HOME})) {
 	$instdir = $ENV{CSCOUT_HOME};
+} elsif (defined($ENV{HOME})) && -d $ENV{HOME} . '/.cscout') {
+	$instdir = $ENV{HOME} . '/.cscout';
+} else {
+	print STDERR "Unable to identify a cscout installation directory\n";
+	print STDERR 'Create ./.cscout, or $HOME/.cscout or set the $CSCOUT_HOME variable\n';
+	exit(1);
 }
 
 if (!-r ($f = "$instdir/cscout_incs.h")) {
