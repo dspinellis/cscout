@@ -18,9 +18,10 @@
  * minor changes by D. Spinellis
  * posted to Usenet net.sources list
  *
- * $Id: getopt.c,v 1.1 2003/07/07 13:36:54 dds Exp $
+ * $Id: getopt.c,v 1.2 2003/07/07 23:18:17 dds Exp $
  */
 
+#ifndef unix
 #include <stdio.h>
 #include <string.h>
 
@@ -31,10 +32,7 @@ static char	*scan = NULL;	/* Private scan pointer. */
 
 
 int
-getopt(argc, argv, optstring)
-int argc;
-char *argv[];
-char *optstring;
+getopt(int argc, char * const argv[], const char *optstring)
 {
 	register char c;
 	register char *place;
@@ -77,3 +75,4 @@ char *optstring;
 
 	return(c);
 }
+#endif /* !unix */
