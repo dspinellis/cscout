@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.95 2004/07/31 18:08:38 dds Exp $
+ * $Id: parse.y,v 1.96 2004/08/05 21:08:39 dds Exp $
  *
  */
 
@@ -1894,7 +1894,7 @@ yacc_body:
 			// Set current function to yyparse()
 			Id const *id = obj_lookup("yyparse");
 			if (!id) {
-				obj_define(Token(IDENTIFIER, "YYSTYPE"), function_returning(basic()));
+				obj_define(Token(IDENTIFIER, "yyparse"), function_returning(basic()));
 				id = obj_lookup("yyparse");
 			}
 			FCall::set_current_fun(id);
