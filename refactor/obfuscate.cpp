@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.1 2002/10/06 18:39:05 dds Exp $
+ * $Id: obfuscate.cpp,v 1.2 2003/07/02 10:47:15 dds Exp $
  */
 
 #include <map>
@@ -22,8 +22,8 @@
 
 #include "cpp.h"
 #include "ytab.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
