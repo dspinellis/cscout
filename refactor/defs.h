@@ -4,8 +4,9 @@
  * Standard definitions read when starting up
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
+ * This file should have read-only permissions
  *
- * $Id: defs.h,v 1.10 2002/12/16 09:04:05 dds Exp $
+ * $Id: defs.h,v 1.11 2002/12/16 10:52:07 dds Exp $
  */
 
 #define __DATE__ ""
