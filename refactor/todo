@@ -1,11 +1,17 @@
-$Id: todo,v 1.18 2003/05/25 15:41:18 dds Exp $
+$Id: todo,v 1.19 2003/05/27 17:48:55 dds Exp $
+
+Web page
+documentation
+Borland configuration file
+Solaris compilation
 
 ceescape (swill) front end:
 
+Do not show reserved words as identifiers
+
 Show project and workspace metrics
 
-Identifier query when searching for files containings ids should offer to display them with matched identifiers marked
-
+yacc and lex preprocessor
 
 Convert color to cgi/command-line
 

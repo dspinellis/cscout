@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.26 2003/05/25 15:41:18 dds Exp $
+ * $Id: cscout.cpp,v 1.27 2003/05/27 17:48:42 dds Exp $
  */
 
 #include <map>
@@ -17,6 +17,7 @@
 #include <list>
 #include <set>
 #include <functional>
+#include <cctype>
 #include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
@@ -85,6 +86,7 @@ public:
 };
 
 typedef map <Eclass *, Identifier> IdProp;
+typedef IdProp::value_type IdPropElem;
 
 /*
  * Function object to compare IdProp identifier pointers
@@ -111,6 +113,47 @@ struct idcmp : public binary_function <const IdProp::value_type *, const IdProp:
 typedef set <Fileid, fname_order> IFSet;
 typedef multiset <const IdProp::value_type *, idcmp> Sids;
 
+/*
+ * Encapsulates an identifier query
+ * Can be used to evaluate against IdProp elements
+ */
+class IdQuery {
+private:
+	bool lazy;		// Do not evaluate
+	bool return_val;	// Default return value
+	bool valid;		// True if query is valid
+	char match_type;	// Type of boolean match
+	// Regular expression match specs
+	string str_fre, str_ire;// Original REs
+	regex_t fre, ire;	// Compiled REs
+	bool match_fre, match_ire;
+	// Attribute match specs
+	vector <bool> match;
+	// Other query arguments
+	bool xfile;		// True if cross file 
+	bool unused;		// True if unused id (EC size == 1)
+	bool writable;		// True if writable
+public:
+	// Construct object based on URL parameters
+	IdQuery(FILE *f, bool e = true, bool r = true);
+
+	// Destructor
+	~IdQuery() {
+		if (match_ire)
+			regfree(&ire);
+		if (match_fre)
+			regfree(&fre);
+	}
+
+	// Perform a query
+	bool eval(const IdPropElem &i);
+	// Transform the query back into a URL
+	string url();
+	// Accessor functions
+	bool is_valid() { return valid; }
+	bool need_eval() { return !lazy; }
+};
+
 static IdProp ids; 
 static vector <Fileid> files;
 static Attributes::size_type current_project;
@@ -136,13 +179,34 @@ html(char c)
 	}
 }
 
+// HTML-encode the given string
 static string
-html(string s)
+html(const string &s)
 {
 	string r;
 
 	for (string::const_iterator i = s.begin(); i != s.end(); i++)
 		r += html(*i);
+	return r;
+}
+
+// URL-encode the given string
+static string
+url(const string &s)
+{
+	string r;
+
+	for (string::const_iterator i = s.begin(); i != s.end(); i++)
+		if (*i == ' ')
+			r += '+';
+		else if (isalnum(*i) || *i == '_')
+			r += *i;
+		else {
+			char buff[4];
+
+			sprintf(buff, "%%%02x", (unsigned)*i);
+			r += buff;
+		}
 	return r;
 }
 
@@ -192,26 +256,21 @@ file_analyze(Fileid fi)
 		if ((val = in.get()) == EOF)
 			break;
 		Eclass *ec;
-		// Identifiers worth marking
+		// Identifiers we can mark
 		if ((ec = ti.check_ec())) {
 			// Update metrics
 			msum.add_id(ec);
-			// Worth identifying?
-			if (ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
-			      ec->get_attribute(is_lscope) || 
-			      ec->get_attribute(is_cscope) || 
-			      ec->get_attribute(is_macro)))) {
-				string s;
-				s = (char)val;
-				int len = ec->get_len();
-				for (int j = 1; j < len; j++)
-					s += (char)in.get();
-				fi.metrics().process_id(s);
-				ids[ec] = Identifier(ec, s);
-				if (ec->get_size() == 1)
-					has_unused = true;
-				continue;
-			}
+			// Add to the map
+			string s;
+			s = (char)val;
+			int len = ec->get_len();
+			for (int j = 1; j < len; j++)
+				s += (char)in.get();
+			fi.metrics().process_id(s);
+			ids[ec] = Identifier(ec, s);
+			if (ec->get_size() == 1)
+				has_unused = true;
+			continue;
 		}
 		fi.metrics().process_char((char)val);
 	}
@@ -224,10 +283,11 @@ file_analyze(Fileid fi)
 // Display the contents of a file in hypertext form
 // Set show_unused to only mark unused identifiers
 static void
-file_hypertext(FILE *of, Fileid fi, bool show_unused)
+file_hypertext(FILE *of, Fileid fi, bool eval_query)
 {
 	ifstream in;
 	const string &fname = fi.get_path();
+	IdQuery query(of, eval_query);
 
 	if (DP())
 		cout << "Write to " << fname << "\n";
@@ -245,29 +305,20 @@ file_hypertext(FILE *of, Fileid fi, bool show_unused)
 		if ((val = in.get()) == EOF)
 			break;
 		Eclass *ec;
-		// Identifiers worth marking
-		if ((ec = ti.check_ec())) {
-			// Worth marking?
-			if (ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
-			      ec->get_attribute(is_lscope) || 
-			      ec->get_attribute(is_cscope) || 
-			      ec->get_attribute(is_macro)))) {
-				string s;
-				s = (char)val;
-				int len = ec->get_len();
-				for (int j = 1; j < len; j++)
-					s += (char)in.get();
-				Identifier i(ec, s);
-				const IdProp::value_type ip(ec, i);
-				if (show_unused) {
-					if (ec->get_size() == 1)
-						html_id(of, ip);
-					else
-						html_string(of, s);
-				} else
-					html_id(of, ip);
-				continue;
-			}
+		// Identifiers we can mark
+		if ((ec = ti.check_ec()) && query.need_eval()) {
+			string s;
+			s = (char)val;
+			int len = ec->get_len();
+			for (int j = 1; j < len; j++)
+				s += (char)in.get();
+			Identifier i(ec, s);
+			const IdPropElem ip(ec, i);
+			if (query.eval(ip))
+				html_id(of, ip);
+			else
+				html_string(of, s);
+			continue;
 		}
 		fprintf(of, "%s", html((char)val));
 	}
@@ -345,7 +396,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.26 2003/05/25 15:41:18 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.27 2003/05/27 17:48:42 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -361,7 +412,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.26 2003/05/25 15:41:18 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.27 2003/05/27 17:48:42 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -680,53 +731,59 @@ iquery_page(FILE *of,  void *p)
 	html_tail(of);
 }
 
-// Process an identifier query
-static void
-xiquery_page(FILE *of,  void *p)
+
+// Construct an object based on URL parameters
+IdQuery::IdQuery(FILE *of, bool e, bool r) :
+	lazy(!e),
+	return_val(r),
+	match(attr_max)
 {
-	Sids sorted_ids;
-	IFSet sorted_files;
-	char match_type;
-	vector <bool> match(attr_max);
-	bool xfile = !!swill_getvar("xfile");
-	bool unused = !!swill_getvar("unused");
-	bool writable = !!swill_getvar("writable");
-	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
-	bool q_file = !!swill_getvar("qf");	// Show matching files
-	char *qname = swill_getvar("n");
+	if (lazy)
+		return;
 
-	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
-
+	valid = true;
+	// Type of boolean match
 	char *m;
 	if (!(m = swill_getvar("match"))) {
 		fprintf(of, "Missing value: match");
+		html_tail(of);
+		valid = return_val = false;
+		lazy = true;
 		return;
 	}
 	match_type = *m;
 
+	xfile = !!swill_getvar("xfile");
+	unused = !!swill_getvar("unused");
+	writable = !!swill_getvar("writable");
+
 	// Compile regular expression specs
-	regex_t fre, ire;
-	bool match_fre, match_ire;
 	char *s;
-	int r;
+	int ret;
 	match_fre = match_ire = false;
 	if ((s = swill_getvar("ire")) && *s) {
 		match_ire = true;
-		if ((r = regcomp(&ire, s, REG_EXTENDED | REG_NOSUB))) {
+		str_ire = s;
+		if ((ret = regcomp(&ire, s, REG_EXTENDED | REG_NOSUB))) {
 			char buff[1024];
-			regerror(r, &ire, buff, sizeof(buff));
+			regerror(ret, &ire, buff, sizeof(buff));
 			fprintf(of, "<h2>Identifier regular expression error</h2>%s", buff);
 			html_tail(of);
+			valid = return_val = false;
+			lazy = true;
 			return;
 		}
 	}
 	if ((s = swill_getvar("fre")) && *s) {
 		match_fre = true;
-		if ((r = regcomp(&fre, s, REG_EXTENDED | REG_NOSUB | (file_icase ? REG_ICASE : 0)))) {
+		str_fre = s;
+		if ((ret = regcomp(&fre, s, REG_EXTENDED | REG_NOSUB | (file_icase ? REG_ICASE : 0)))) {
 			char buff[1024];
-			regerror(r, &fre, buff, sizeof(buff));
+			regerror(ret, &fre, buff, sizeof(buff));
 			fprintf(of, "<h2>Filename regular expression error</h2>%s", buff);
 			html_tail(of);
+			valid = return_val = false;
+			lazy = true;
 			return;
 		}
 	}
@@ -740,71 +797,128 @@ xiquery_page(FILE *of,  void *p)
 		if (DP())
 			cout << "v=[" << varname.str() << "] m=" << match[i] << "\n";
 	}
+}
+
+// Return the query's parameters as a URL
+string
+IdQuery::url()
+{
+	string r("match=");
+	r += ::url(string(1, match_type));
+	if (xfile)
+		r += "&xfile=1";
+	if (unused)
+		r += "&unused=1";
+	if (writable)
+		r += "&writable=1";
+	if (match_ire)
+		r += "&ire=" + ::url(str_ire);
+	if (match_fre)
+		r += "&fre=" + ::url(str_fre);
+	for (int i = 0; i < attr_max; i++) {
+		if (match[i]) {
+			ostringstream varname;
+
+			varname << "&a" << i << "=1";
+			r += varname.str();
+		}
+	}
+	return r;
+}
+
+// Evaluate the object's identifier query against i
+// return true if it matches
+bool
+IdQuery::eval(const IdPropElem &i)
+{
+	if (lazy)
+		return return_val;
+
+	if (current_project && !i.first->get_attribute(current_project)) 
+		return false;
+	if (match_ire && regexec(&ire, i.second.get_id().c_str(), 0, NULL, 0) == REG_NOMATCH)
+		return false;
+	bool add;
+	switch (match_type) {
+	case 'Y':	// anY match
+		add = false;
+		for (int j = 0; j < attr_max; j++)
+			if (match[j] && i.first->get_attribute(j)) {
+				add = true;
+				break;
+			}
+		add = (add || (xfile && i.second.get_xfile()));
+		add = (add || (unused && i.first->get_size() == 1));
+		add = (add || (writable && !i.first->get_attribute(is_readonly)));
+		break;
+	case 'L':	// alL match
+		add = true;
+		for (int j = 0; j < attr_max; j++)
+			if (match[j] && !i.first->get_attribute(j)) {
+				add = false;
+				break;
+			}
+		add = (add && (!xfile || i.second.get_xfile()));
+		add = (add && (!unused || i.first->get_size() == 1));
+		add = (add && (!writable || !i.first->get_attribute(is_readonly)));
+		break;
+	case 'E':	// excludE match
+		add = true;
+		for (int j = 0; j < attr_max; j++)
+			if (match[j] && i.first->get_attribute(j)) {
+				add = false;
+				break;
+			}
+		add = (add && (!xfile || !i.second.get_xfile()));
+		add = (add && (!unused || !(i.first->get_size() == 1)));
+		add = (add && (!writable || i.first->get_attribute(is_readonly)));
+		break;
+	case 'T':	// exactT match
+		add = true;
+		for (int j = 0; j < attr_max; j++)
+			if (match[j] != i.first->get_attribute(j)) {
+				add = false;
+				break;
+			}
+		add = (add && (xfile == i.second.get_xfile()));
+		add = (add && (unused == (i.first->get_size() == 1)));
+		add = (add && (writable == !i.first->get_attribute(is_readonly)));
+		break;
+	}
+	if (!add)
+		return false;
+	if (match_fre) {
+		// Before we add it check if its filename matches the RE
+		IFSet f = i.first->sorted_files();
+		IFSet::iterator j;
+		for (j = f.begin(); j != f.end(); j++)
+			if (regexec(&fre, (*j).get_path().c_str(), 0, NULL, 0) == 0)
+				break;	// Yes is matches
+		if (j == f.end())
+			return false;	// No match found
+	}
+	return true;
+}
+
+// Process an identifier query
+static void
+xiquery_page(FILE *of,  void *p)
+{
+	Sids sorted_ids;
+	IFSet sorted_files;
+	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
+	bool q_file = !!swill_getvar("qf");	// Show matching files
+	char *qname = swill_getvar("n");
+	IdQuery query(of);
+
+	if (!query.is_valid())
+		return;
+
+	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
 
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		if (current_project && !(*i).first->get_attribute(current_project)) 
+		if (!query.eval(*i))
 			continue;
-		if (match_ire && regexec(&ire, (*i).second.get_id().c_str(), 0, NULL, 0) == REG_NOMATCH)
-			continue;
-		bool add;
-		switch (match_type) {
-		case 'Y':	// anY match
-			add = false;
-			for (int j = 0; j < attr_max; j++)
-				if (match[j] && (*i).first->get_attribute(j)) {
-					add = true;
-					break;
-				}
-			add = (add || (xfile && (*i).second.get_xfile()));
-			add = (add || (unused && (*i).first->get_size() == 1));
-			add = (add || (writable && !(*i).first->get_attribute(is_readonly)));
-			break;
-		case 'L':	// alL match
-			add = true;
-			for (int j = 0; j < attr_max; j++)
-				if (match[j] && !(*i).first->get_attribute(j)) {
-					add = false;
-					break;
-				}
-			add = (add && (!xfile || (*i).second.get_xfile()));
-			add = (add && (!unused || (*i).first->get_size() == 1));
-			add = (add && (!writable || !(*i).first->get_attribute(is_readonly)));
-			break;
-		case 'E':	// excludE match
-			add = true;
-			for (int j = 0; j < attr_max; j++)
-				if (match[j] && (*i).first->get_attribute(j)) {
-					add = false;
-					break;
-				}
-			add = (add && (!xfile || !(*i).second.get_xfile()));
-			add = (add && (!unused || !((*i).first->get_size() == 1)));
-			add = (add && (!writable || (*i).first->get_attribute(is_readonly)));
-			break;
-		case 'T':	// exactT match
-			add = true;
-			for (int j = 0; j < attr_max; j++)
-				if (match[j] != (*i).first->get_attribute(j)) {
-					add = false;
-					break;
-				}
-			add = (add && (xfile == (*i).second.get_xfile()));
-			add = (add && (unused == ((*i).first->get_size() == 1)));
-			add = (add && (writable == !(*i).first->get_attribute(is_readonly)));
-			break;
-		}
-		if (!add)
-			continue;
-		if (match_fre) {
-			// Before we add it check if its filename matches the RE
-			IFSet f = (*i).first->sorted_files();
-			IFSet::iterator j;
-			for (j = f.begin(); j != f.end(); j++)
-				if (regexec(&fre, (*j).get_path().c_str(), 0, NULL, 0) == 0)
-					break;	// Yes is matches
-			if (j == f.end())
-				continue;	// No match found
-		}
 		if (q_id)
 			sorted_ids.insert(&*i);
 		if (q_file) {
@@ -817,6 +931,8 @@ xiquery_page(FILE *of,  void *p)
 		display_sorted_ids(of, sorted_ids);
 	}
 	if (q_file) {
+		const string query_url(query.url());
+
 		fputs("<h2>Matching Files</h2>\n", of);
 		html_file_begin(of);
 		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
@@ -824,15 +940,14 @@ xiquery_page(FILE *of,  void *p)
 			if (current_project && !f.get_attribute(current_project)) 
 				continue;
 			html_file(of, *i);
+			fprintf(of, " - <a href=\"qsrc.html?id=%u&%s\">marked source</a>",
+				f.get_id(),
+				query_url.c_str());
 		}
 		html_file_end(of);
 	}
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
-	if (match_ire)
-		regfree(&ire);
-	if (match_fre)
-		regfree(&fre);
 }
 
 // Display an identifier property
@@ -1031,7 +1146,6 @@ file_page(FILE *of, void *p)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(of, "</ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
-	fprintf(of, "\n<li> <a href=\"usrc.html?id=%s\">Source code with unused non-local writable identifiers marked</a>\n", fname.str().c_str());
 	fprintf(of, "</ul>\n");
 	html_tail(of);
 }
@@ -1054,7 +1168,7 @@ source_page(FILE *of, void *p)
 }
 
 void
-unused_source_page(FILE *of, void *p)
+query_source_page(FILE *of, void *p)
 {
 	ostringstream fname;
 	int id;
@@ -1065,7 +1179,7 @@ unused_source_page(FILE *of, void *p)
 	Fileid i(id);
 	const string &pathname = i.get_path();
 	fname << i.get_id();
-	html_head(of, "usrc", string("Source with unused non-local writable identifiers marked: ") + html(pathname));
+	html_head(of, "qsrc", string("Source with queried identifiers marked: ") + html(pathname));
 	file_hypertext(of, i, true);
 	html_tail(of);
 }
@@ -1257,7 +1371,7 @@ main(int argc, char *argv[])
 #endif
 
 	swill_handle("src.html", source_page, NULL);
-	swill_handle("usrc.html", unused_source_page, NULL);
+	swill_handle("qsrc.html", query_source_page, NULL);
 	swill_handle("file.html", file_page, NULL);
 
 	// Identifier query and execution
