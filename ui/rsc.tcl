@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.23 2001/10/25 06:41:57 dds Exp $
+# $Id: rsc.tcl,v 1.24 2001/10/26 08:58:53 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -480,7 +480,7 @@ proc select_workspace {uid sel} {
 	}
 
 	# Enable/disable project menus based on selection
-	if {[regexp {^wp[^]*$} $uid]} {
+	if {[isproject $uid]} {
 		set projstate normal
 	} else {
 		set projstate disabled
@@ -521,7 +521,7 @@ proc get_workspace {uid} {
 	} elseif {$uid == "wp"} {
 		set r {}
 		foreach i [array names name] {
-			if {[regexp {^wp[^]*$} $i]} {
+			if {[isproject $i]} {
 				lappend r [list $i $name($i) branch]
 			}
 		}
@@ -716,6 +716,18 @@ proc isdir {entry} {
 	return [expr $fileholder($entry) && [regexp {^wp.*} $entry]];
 }
 
+# Return true if entry is a project
+proc isproject {entry} {
+	return [regexp {^wp[^]*$} $entry]
+}
+
+# Return true if entry is a file
+proc isfile {entry} {
+	global fileholder
+
+	return [expr [regexp {^wp} $entry] && !$fileholder($entry)]
+}
+
 # Return true if path is absolute
 proc isabs {path} {
 	return [expr [regexp {^/} $path] || [regexp {^[a-zA-Z]:/} $path]];
@@ -869,7 +881,7 @@ proc save_workspace_to {filename} {
 	
 	set f [open $filename w]
 	puts $f "#RSC 1.1 Workspace"
-	puts $f {#$Id: rsc.tcl,v 1.23 2001/10/25 06:41:57 dds Exp $}
+	puts $f {#$Id: rsc.tcl,v 1.24 2001/10/26 08:58:53 dds Exp $}
 	puts $f [list array set name [array get name]]
 	puts $f [list array set readonly [array get readonly]]
 	puts $f [list array set dir [array get dir]]
@@ -1051,15 +1063,20 @@ proc analyze {} {
 	$taboutput.text insert end "Analyzing ...\n"
 	tcl_init
 	block_enter
-	foreach i [array names name] {
+	foreach i [lsort [array names name]] {
+		set name name($i)
 		# Project
-		if {[regexp {^wp[^]*$} $i]} {
+		if {[isproject $i]} {
 			$taboutput.text insert end "Project $i\n"
 			block_exit
 			block_enter
 		}
+		# Directory
+		if {[isdir $i]} {
+			$taboutput.text insert end "Entering directory $i\n"
+		}
 		# File
-		if {[regexp {^wp} $i] && !$fileholder($i)} {
+		if {[isfile $i]} {
 			$taboutput.text insert end "File $i\n"
 			block_enter
 			set_input $name($i)
@@ -1077,3 +1094,22 @@ proc showerror {msg} {
 	global taboutput
 	$taboutput.text insert end "$msg\n"
 }
+
+# Provide a dummy version of C++ commands when these are not linked-in
+proc dummy_commands {} {
+	if {[llength [info commands parse]] == 0} {
+		proc parse {} {}
+		proc tcl_init {} {}
+		proc block_enter {} {}
+		proc block_exit {} {}
+		proc set_input {fname} {}
+		proc push_input {fname} {}
+		proc macros_clear {} {}
+		proc eclass_clear {} {}
+		proc num_errors {} {}
+		proc num_warnings {} {}
+	}
+}
+
+dummy_commands
+
