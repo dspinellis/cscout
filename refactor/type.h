@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.28 2003/08/17 17:00:27 dds Exp $
+ * $Id: type.h,v 1.29 2003/08/20 12:37:58 dds Exp $
  */
 
 #ifndef TYPE_
@@ -16,7 +16,6 @@ enum e_btype {
 	b_padbit,
 	b_undeclared,		// Undeclared object
 	b_llong,		// long long
-	b_unused_attr		// Specified using __attribute__(unused)
 };
 
 enum e_sign {
@@ -35,11 +34,19 @@ enum e_storage_class {
 	c_enum
 };
 
+enum e_qualifier {
+	q_none = 	0x00,
+	q_const =	0x01,
+	q_volatile = 	0x02,
+	q_unused =	0x04,	// gcc __attribute__((unused))
+};
+
 
 class Id;
 class Tbasic;
 class Type;
 class Stab;
+class Tqualifier;
 
 class Type_node {
 	friend class Type;
@@ -77,7 +84,9 @@ protected:
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
 	virtual bool is_padbit() const { return false; }// True for pad bit field
-	virtual bool is_unused_attr() const { return false; }// True for constructs containing the unused attribute
+	virtual bool qualified_unused() const { return false; }// True for constructs containing the unused attribute
+	virtual bool qualified_const() const { return false; }// True for constructs containing the unused attribute
+	virtual bool qualified_volatile() const { return false; }// True for constructs containing the unused attribute
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual bool is_array() const { return false; }	// True for arrays
@@ -87,6 +96,8 @@ protected:
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
 	virtual void set_storage_class(Type t);	// Set typedef's underlying storage class to t
 	virtual enum e_storage_class get_storage_class() const;// Return the declaration's storage class
+	virtual int get_qualifiers() const;// Return the declaration's qualifiers
+	virtual void add_qualifiers(Type t);		// Set our qualifiers to t
 	virtual void add_member(const Token &tok, const Type &typ);
 	virtual Type get_default_specifier() const;
 	virtual void merge_with(Type t);
@@ -105,15 +116,38 @@ public:
 #endif
 };
 
-// Used by types with a storage class: Tbasic and Tsu
+// Used by types with a storage class: Tbasic, Tsu, Tenum, Tincomplete
 class Tstorage {
 private:
 	enum e_storage_class sclass;
 public:
 	Tstorage (enum e_storage_class sc) : sclass(sc) {}
-	Tstorage() { sclass = c_unspecified; }
+	Tstorage() : sclass(c_unspecified) {}
 	enum e_storage_class get_storage_class() const {return sclass; }
 	void set_storage_class(Type t);
+	void print(ostream &o) const;
+};
+
+// Used by types with a qualifier: Tbasic, Tsu, Tenum, Tincomplete
+// Normally it should also be associated with Tptr Tarray, but we are currently
+// too lazy for this
+class Tqualifier {
+public:
+	typedef int qualifiers_t;
+private:
+	qualifiers_t qualifiers;
+public:
+	Tqualifier (Tqualifier::qualifiers_t q) : qualifiers(q) {}
+	Tqualifier() : qualifiers(q_none) {}
+	bool qualified_const() const { return qualifiers & q_const; }
+	bool qualified_unused() const { return qualifiers & q_unused; }
+	bool qualified_volatile() const { return qualifiers & q_volatile; }
+	void set_qualifiers(Type t);
+	void set_qualifiers(qualifiers_t q) { qualifiers = q; }
+	qualifiers_t get_qualifiers() const { return qualifiers; }
+	void add_qualifier(enum e_qualifier q) { qualifiers |= q; }
+	void add_qualifiers(qualifiers_t q) { qualifiers |= q; }
+	inline void add_qualifiers(Type t);
 	void print(ostream &o) const;
 };
 
@@ -124,21 +158,26 @@ private:
 	enum e_btype type;
 	enum e_sign sign;
 	Tstorage sclass;
+	Tqualifier qualifier;
 public:
 	Tbasic(enum e_btype t = b_abstract, enum e_sign s = s_none,
-		enum e_storage_class sc = c_unspecified) :
-		type(t), sign(s), sclass(sc) {}
+		enum e_storage_class sc = c_unspecified, Tqualifier::qualifiers_t q = q_none) :
+		type(t), sign(s), sclass(sc), qualifier(q) {}
 	Type clone() const;
 	bool is_valid() const { return type != b_undeclared && type != b_padbit; }
 	bool is_abstract() const { return type == b_abstract; }
 	bool is_basic() const { return true; }// False for undeclared
 	bool is_padbit() const { return type == b_padbit; }
-	bool is_unused_attr() const { return type == b_unused_attr; }
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
 	Tbasic *tobasic() { return this; }
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	inline void set_storage_class(Type t);
+	inline void add_qualifiers(Type t);
+	bool qualified_unused() const { return qualifier.qualified_unused(); }
+	bool qualified_const() const { return qualifier.qualified_const(); }
+	bool qualified_volatile() const { return qualifier.qualified_volatile(); }
+	Tqualifier::qualifiers_t get_qualifiers() const { return qualifier.get_qualifiers(); }
 	void set_abstract(Type t);		//For padbits
 };
 
@@ -155,7 +194,7 @@ public:
 	Type() { p = new Tbasic(b_undeclared); }
 	// Creation functions
 	friend Type basic(enum e_btype t = b_abstract, enum e_sign s = s_none,
-			  enum e_storage_class sc = c_unspecified);
+			  enum e_storage_class sc = c_unspecified, Tqualifier::qualifiers_t = q_none);
 	friend Type array_of(Type t);
 	friend Type pointer_to(Type t);
 	friend Type function_returning(Type t);
@@ -193,10 +232,14 @@ public:
 	bool is_valid() const		{ return p->is_valid(); }
 	bool is_basic() const		{ return p->is_basic(); }
 	bool is_padbit() const		{ return p->is_padbit(); }
-	bool is_unused_attr() const	{ return p->is_unused_attr(); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
 	bool is_array() const		{ return p->is_array(); }
+	bool qualified_unused() const	{ return p->qualified_unused(); }
+	bool qualified_const() const	{ return p->qualified_const(); }
+	bool qualified_volatile() const	{ return p->qualified_volatile(); }
+	void add_qualifiers(Type t)	{ return p->add_qualifiers(t); }
+	Tqualifier::qualifiers_t get_qualifiers() const { return p->get_qualifiers(); }
 	const string& get_name() const	{ return p->get_name(); }
 	const Ctoken& get_token() const { return p->get_token(); }
 	enum e_storage_class get_storage_class() const 
@@ -216,7 +259,9 @@ public:
 };
 
 
+inline void Tqualifier::add_qualifiers(Type t) {qualifiers |= t.get_qualifiers(); }
 inline void Tbasic::set_storage_class(Type t) { sclass.set_storage_class(t); }
+inline void Tbasic::add_qualifiers(Type t) { qualifier.add_qualifiers(t); }
 
 /*
  * We can not use a union since its members have constructors and desctructors.

@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.87 2003/08/17 17:00:27 dds Exp $
+ * $Id: parse.y,v 1.88 2003/08/20 12:37:58 dds Exp $
  *
  */
 
@@ -202,6 +202,7 @@ static bool yacc_typing;
 %type <t> storage_class
 %type <t> declaration_qualifier_list
 %type <t> type_qualifier_list
+%type <t> type_qualifier_list_opt
 %type <t> declaration_qualifier
 %type <t> type_qualifier
 %type <t> basic_declaration_specifier
@@ -248,6 +249,9 @@ static bool yacc_typing;
 
 %type <t> attribute
 %type <t> attribute_list
+%type <t> attribute_list_opt
+%type <t> assembly_decl
+%type <t> asm_or_attribute_list
 
 /* To allow compound statements as expressions (gcc extension) */
 %type <t> statement
@@ -708,32 +712,32 @@ declaration:
 
 default_declaring_list:  /* Can't  redeclare typedef names */
 	/* static volatile @ a[3] @ = { 1, 2, 3} */
-        declaration_qualifier_list identifier_declarator attribute_list
+        declaration_qualifier_list identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
 			designator_init($2);
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
 	/* volatile @ a[3] @ = { 1, 2, 3} */
-        | type_qualifier_list identifier_declarator attribute_list
+        | type_qualifier_list identifier_declarator asm_or_attribute_list
 		{
 			$2.declare();
 			designator_init($2);
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
-        | default_declaring_list ',' identifier_declarator attribute_list
+        | default_declaring_list ',' identifier_declarator asm_or_attribute_list
 		{
 			$3.set_abstract($1);
 			$3.declare();
 			designator_init($3);
-			if ($4.is_unused_attr())
+			if ($1.qualified_unused() || $3.qualified_unused() || $4.qualified_unused())
 				$3.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
@@ -759,6 +763,8 @@ declaring_list:
 			$2.set_abstract($1);
 			$2.declare();
 			designator_init($2);
+			if ($1.qualified_unused() || $2.qualified_unused())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -768,6 +774,8 @@ declaring_list:
 			$2.set_abstract($1);
 			$2.declare();
 			designator_init($2);
+			if ($1.qualified_unused() || $2.qualified_unused())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -776,6 +784,8 @@ declaring_list:
 			$3.set_abstract($1);
 			$3.declare();
 			designator_init($3);
+			if ($1.qualified_unused() || $3.qualified_unused())
+				$3.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
@@ -799,7 +809,7 @@ type_specifier:
 declaration_qualifier_list:  /* const/volatile, AND storage class */
         storage_class
         | type_qualifier_list storage_class
-			{ $$ = $2; }
+			{ $$ = merge($1, $2); }
         | declaration_qualifier_list declaration_qualifier
 			{ $$ = merge($1, $2); }
         ;
@@ -807,7 +817,9 @@ declaration_qualifier_list:  /* const/volatile, AND storage class */
 /* e.g. const volatile */
 type_qualifier_list:
         type_qualifier
+		{ $$ = $1; }
         | type_qualifier_list type_qualifier
+		{ $$ = merge($1, $2); }
         ; /* default rules */
 
 /* One of: static extern typedef register auto const volatile */
@@ -817,8 +829,9 @@ declaration_qualifier:
         ; /* default rules */
 
 type_qualifier:
-        TCONST		{ $$ = basic(); }
-        | VOLATILE	{ $$ = basic(); }
+        TCONST		{ $$ = basic(b_abstract, s_none, c_unspecified, q_const); }
+        | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, q_volatile); }
+	| attribute	{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
         ;
 
 basic_declaration_specifier:      /* Storage Class+Arithmetic or void */
@@ -836,10 +849,10 @@ basic_declaration_specifier:      /* Storage Class+Arithmetic or void */
 
 basic_type_specifier:
         basic_type_name            /* Arithmetic or void */
-        | type_qualifier_list  basic_type_name		/* const, int */
-			{ $$ = $2; }
+        | type_qualifier_list basic_type_name		/* const, int */
+			{ $$ = merge($1, $2); }
         | basic_type_specifier type_qualifier		/* int, volatile */
-			{ $$ = $1; }
+			{ $$ = merge($1, $2); }
         | basic_type_specifier basic_type_name		/* long, int */
 			{ $$ = merge($1, $2); }
         ;
@@ -851,15 +864,15 @@ sue_declaration_specifier:          /* Storage Class + struct/union/enum */
         | sue_type_specifier        storage_class
 		{ $$ = $1.clone(); $$.set_storage_class($2); }
         | sue_declaration_specifier declaration_qualifier
-		{ $$ = $1; }
+		{ $$ = merge($1, $2); }
         ;
 
 sue_type_specifier:
         elaborated_type_name              /* struct/union/enum */
         | type_qualifier_list elaborated_type_name
-		{ $$ = $2; }
+		{ $$ = merge($2, $1); }
         | sue_type_specifier type_qualifier
-		{ $$ = $1; }
+		{ $$ = merge($1, $2); }
         ;
 
 
@@ -876,10 +889,11 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 			Token::unify(id->get_token(), $2.get_token());
 			$$ = id->get_type().clone();
 			$$.set_storage_class($1);
+			$$.add_qualifiers($1);
 		}
         | typedef_declaration_specifier declaration_qualifier
 		{
-			$$ = $1;
+			$$ = merge($1, $2);
 		}
         ;
 
@@ -899,9 +913,10 @@ typedef_type_specifier:              /* typedef types */
 			Token::unify(id->get_token(), $2.get_token());
 			$$ = id->get_type().clone();
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
+			$$.add_qualifiers($1);
 		}
         | typedef_type_specifier type_qualifier
-		{ $$ = $1; }
+		{ $$ = merge($1, $2); }
         ;
 
 storage_class:
@@ -966,8 +981,8 @@ aggregate_name:
         ;
 
 aggregate_key:
-        STRUCT attribute_list
-        | UNION attribute_list
+        STRUCT attribute_list_opt
+        | UNION attribute_list_opt
         ;
 
 member_declaration_list:
@@ -1082,7 +1097,7 @@ member_declarator:
 
 member_identifier_declarator:
 	/* a[3]; also typedef names */
-        identifier_declarator attribute_list bit_field_size_opt 
+        identifier_declarator asm_or_attribute_list bit_field_size_opt 
 		{ $$ = $1; }
         | bit_field_size
 		/* Padding bit field */
@@ -1099,11 +1114,11 @@ bit_field_size:
         ;
 
 enum_name:
-        ENUM attribute_list '{' enumerator_list comma_opt '}'
+        ENUM attribute_list_opt '{' enumerator_list comma_opt '}'
 		{ $$ = enum_tag(); }
-        | ENUM attribute_list identifier_or_typedef_name '{' enumerator_list comma_opt '}'
+        | ENUM attribute_list_opt identifier_or_typedef_name '{' enumerator_list comma_opt '}'
 		{ tag_define($3.get_token(), $$ = enum_tag()); }
-        | ENUM attribute_list identifier_or_typedef_name
+        | ENUM attribute_list_opt identifier_or_typedef_name
 		{ 
 			Id const *id = tag_lookup($3.get_name());
 			if (id) {
@@ -1150,11 +1165,11 @@ parameter_declaration:
 	/* int [] */
         | declaration_specifier abstract_declarator
 	/* int i[2] */
-        | declaration_specifier identifier_declarator attribute_list
+        | declaration_specifier identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 	/* int FILE */
@@ -1162,40 +1177,44 @@ parameter_declaration:
 		{
 			$2.set_abstract($1);
 			$2.declare();
+			if ($1.qualified_unused() || $2.qualified_unused())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 	/* volatile */
         | declaration_qualifier_list
 	/* volatile int */
         | declaration_qualifier_list abstract_declarator
 	/* volatile int a */
-        | declaration_qualifier_list identifier_declarator attribute_list
+        | declaration_qualifier_list identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 	/* int */
         | type_specifier
         | type_specifier abstract_declarator
-        | type_specifier identifier_declarator attribute_list
+        | type_specifier identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
         | type_specifier parameter_typedef_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
+			if ($1.qualified_unused() || $2.qualified_unused())
+				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
         | type_qualifier_list
         | type_qualifier_list abstract_declarator
-        | type_qualifier_list identifier_declarator attribute_list
+        | type_qualifier_list identifier_declarator asm_or_attribute_list
 		{
 			$2.declare();
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
         ;
@@ -1223,9 +1242,9 @@ type_name:
         | type_specifier abstract_declarator
 		{ $2.set_abstract($1); $$ = $2; }
         | type_qualifier_list
-		{ $$ = basic(); }	/* We are ignoring qualifiers */
+		{ $$ = $1; }
         | type_qualifier_list abstract_declarator
-		{ $$ = $2; }
+		{ $$ = merge($1, $2); }
         ;
 
 initializer_opt:
@@ -1430,6 +1449,7 @@ jump_statement:
 /* Gcc __asm__  syntax */
 assembly_decl:
 	GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')'
+		{ $$ = $2; }
 	;
 
 assembly_statement: 
@@ -1467,6 +1487,7 @@ asm_clobber_list:
 
 type_qualifier_list_opt:
 	/* Empty */
+		{ $$ = basic(); }
 	| type_qualifier_list
 	;
 
@@ -1488,41 +1509,41 @@ external_definition:
 
 function_definition:
 	/* foo(int a, int b) @ { } (and many illegal constructs) */
-                                     identifier_declarator attribute_list
+                                     identifier_declarator asm_or_attribute_list
 		{
 			$1.declare();
-			if ($2.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$1.get_token().set_ec_attribute(is_declared_unused);
 		}
 					function_body
-        | declaration_specifier      identifier_declarator attribute_list
+        | declaration_specifier      identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 					function_body
-        | type_specifier             identifier_declarator attribute_list
+        | type_specifier             identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 					function_body
-        | declaration_qualifier_list identifier_declarator attribute_list
+        | declaration_qualifier_list identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 					function_body
-        | type_qualifier_list        identifier_declarator attribute_list
+        | type_qualifier_list        identifier_declarator asm_or_attribute_list
 		{ 
 			$2.declare();
-			if ($3.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 					function_body
@@ -1569,24 +1590,31 @@ function_definition:
 
 declarator:
 	/* *a[3] */
-        identifier_declarator attribute_list
+        identifier_declarator asm_or_attribute_list
 		{
 			$$ = $1;
-			if ($2.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$1.get_token().set_ec_attribute(is_declared_unused);
 		}
-        | typedef_declarator attribute_list
+        | typedef_declarator asm_or_attribute_list
 		{
 			$$ = $1;
-			if ($2.is_unused_attr())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$1.get_token().set_ec_attribute(is_declared_unused);
 		}
         ;
 
+attribute_list_opt:
+	/* Empty */
+		{ $$ = basic(); }
+	| attribute_list
+		{ $$ = $1; }
+	;
+
 attribute_list:
-	/* EMPTY */
-		{ $$ = basic(b_undeclared); }
-	| attribute attribute_list
+	attribute
+		{ $$ = $1; }
+	| attribute_list attribute
 		{ $$ = merge($1, $2); }
 	;
 
@@ -1595,10 +1623,17 @@ attribute:
 	 * register u_int64_t a0 @ __asm__("$16") = pfn; (alpha code) 
 	 * int enter(void) __asm__("enter");
 	 */
-	assembly_decl
+	UNUSED
+		{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
+	;
+
+asm_or_attribute_list:
+	/* EMPTY */
 		{ $$ = basic(b_undeclared); }
-	| UNUSED
-		{ $$ = basic(b_unused_attr); }
+	| asm_or_attribute_list attribute
+		{ $$ = merge($1, $2); }
+	| asm_or_attribute_list assembly_decl
+		{ $$ = $1; }
 	;
 
 typedef_declarator:
@@ -1621,7 +1656,7 @@ clean_typedef_declarator:
         | '*' parameter_typedef_declarator
 		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list parameter_typedef_declarator
-		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
+		{ $3.set_abstract(pointer_to($2)); $$ = $3; }
         ;
 
 clean_postfix_typedef_declarator:
@@ -1640,11 +1675,11 @@ paren_typedef_declarator:
 		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
         | '*' type_qualifier_list
                 '(' simple_paren_typedef_declarator ')' /* redundant paren */
-		{ $4.set_abstract(pointer_to(basic())); $$ = $4; }
+		{ $4.set_abstract(pointer_to($2)); $$ = $4; }
         | '*' paren_typedef_declarator
 		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list paren_typedef_declarator
-		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
+		{ $3.set_abstract(pointer_to($2)); $$ = $3; }
         ;
 
 paren_postfix_typedef_declarator: /* redundant paren to left of tname*/
@@ -1675,18 +1710,28 @@ unary_identifier_declarator:
 		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
 	/* * const a[3] */
         | '*' type_qualifier_list identifier_declarator
-		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
+		{ $3.set_abstract(pointer_to($2)); $$ = $3; }
         ;
 
 postfix_identifier_declarator:
 	/* int a[5]: declare a as array 5 of int */
         paren_identifier_declarator postfixing_abstract_declarator
-		{ $1.set_abstract($2); $$ = $1; }
+		{
+			$1.set_abstract($2);
+			$$ = $1;
+			if ($$.qualified_unused())
+				$$.get_token().set_ec_attribute(is_declared_unused);
+		}
         | '(' unary_identifier_declarator ')'
 		{ $$ = $2; }
 	/*  int (*a)[10]: declare a as pointer to array 10 of int */
         | '(' unary_identifier_declarator ')' postfixing_abstract_declarator
-		{ $2.set_abstract($4); $$ = $2; }
+		{
+			$2.set_abstract($4);
+			$$ = $2;
+			if ($$.qualified_unused())
+				$$.get_token().set_ec_attribute(is_declared_unused);
+		}
         ;
 
 paren_identifier_declarator:
@@ -1701,7 +1746,7 @@ old_function_declarator:
         | '*' old_function_declarator
 		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list old_function_declarator
-		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
+		{ $3.set_abstract(pointer_to($2)); $$ = $3; }
         ;
 
 postfix_old_function_declarator:
@@ -1740,11 +1785,11 @@ unary_abstract_declarator:
         '*'
 		{ $$ = pointer_to(basic()); }
         | '*' type_qualifier_list
-		{ $$ = pointer_to(basic()); }
+		{ $$ = pointer_to($2); }
         | '*' abstract_declarator
 		{ $2.set_abstract(pointer_to(basic())); $$ = $2; }
         | '*' type_qualifier_list abstract_declarator
-		{ $3.set_abstract(pointer_to(basic())); $$ = $3; }
+		{ $3.set_abstract(pointer_to($2)); $$ = $3; }
         ;
 
 postfix_abstract_declarator:
