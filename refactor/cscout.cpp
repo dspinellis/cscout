@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.104 2004/08/07 21:49:01 dds Exp $
+ * $Id: cscout.cpp,v 1.105 2004/08/08 09:16:32 dds Exp $
  */
 
 #include <map>
@@ -71,13 +71,16 @@
 
 
 // Global Web options
-static bool fname_in_context;			// Remove common file prefix
+static bool fname_in_context;		// Remove common file prefix
 static bool show_true;			// Only show true identifier properties
 static bool show_line_number;		// Annotate source with line numbers
 static bool file_icase;			// File name case-insensitive match
 static int tab_width = 8;		// Tab width for code output
 static char cgraph_type = 'h';		// Call graph type t(text h(tml d(ot s(vg
 static char cgraph_show = 'f';		// Call graph show e(dge n(ame f(ile p(ath
+static regex_t sfile_re;		// Saved files replacement location RE
+static string sfile_re_string;		// Saved files replacement location RE string
+static string sfile_repl_string;	// Saved files replacement string
 
 // Global command-line options
 static bool preprocess;			// Preprocess-only (-E)
@@ -213,6 +216,8 @@ html_string(FILE *of, const string &s, Tokid t)
 		html(of, ip);
 		pos += ec->get_len();
 		t += ec->get_len();
+		if (pos < len)
+			fprintf(of, "][");
 	}
 }
 
@@ -419,7 +424,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 // Go through the file doing any replacements needed
 // Return the numebr of replacements made
 static int
-file_replace(Fileid fid)
+file_replace(FILE *of, Fileid fid)
 {
 	string plain;
 	ifstream in;
@@ -430,7 +435,7 @@ file_replace(Fileid fid)
 		perror(fid.get_path().c_str());
 		exit(1);
 	}
-	string ofname = fid.get_path() + ".repl";
+	string ofname(fid.get_path() + ".repl");
 	out.open(ofname.c_str(), ios::binary);
 	if (out.fail()) {
 		perror(ofname.c_str());
@@ -466,7 +471,22 @@ file_replace(Fileid fid)
 	in.close();
 	out.close();
 	// Should actually be an assertion
-	if (replacements) {
+	if (!replacements)
+		return 0;
+	if (sfile_re_string.length()) {
+		regmatch_t be;
+		if (regexec(&sfile_re, fid.get_path().c_str(), 1, &be, 0) == REG_NOMATCH ||
+		    be.rm_so == -1 || be.rm_eo == -1)
+			fprintf(of, "File %s does not match file replacement RE."
+				"Replacements will be saved in %s.repl.<br>\n",
+				ofname.c_str(), ofname.c_str());
+		else {
+			string newname(fid.get_path().c_str());
+			newname.replace(be.rm_so, be.rm_eo - be.rm_so, sfile_repl_string);
+			unlink(newname.c_str());
+			rename(ofname.c_str(), newname.c_str());
+		}
+	} else {
 		string cmd("cscout_checkout " + fid.get_path());
 		system(cmd.c_str());
 		unlink(fid.get_path().c_str());
@@ -1341,6 +1361,11 @@ Do not show No in identifier properties (option)
 	fprintf(fo, "<input type=\"radio\" name=\"cgraph_show\" value=\"f\" %s>file and function names\n", cgraph_show == 'f' ? "checked" : "");
 	fprintf(fo, "<input type=\"radio\" name=\"cgraph_show\" value=\"p\" %s>path and function names\n", cgraph_show == 'p' ? "checked" : "");
 
+	fprintf(fo, "<p>When saving modified files replace RE "
+		"<input type=\"text\" name=\"sfile_re\" size=20 maxlength=80 value=\"%s\">"
+		" with <input type=\"text\" name=\"sfile_repl_string\" size=20 maxlength=80 value=\"%s\">",
+		sfile_re_string.c_str(), sfile_repl_string.c_str());
+
 	fprintf(fo, "<p><p><INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"OK\">\n");
 	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Cancel\">\n");
 	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Apply\">\n");
@@ -1368,6 +1393,17 @@ set_options_page(FILE *fo, void *p)
 		cgraph_show = *m;
 	if (!swill_getargs("I(tab_width)", &tab_width) || tab_width <= 0)
 		tab_width = 8;
+	sfile_re_string = swill_getvar("sfile_re");
+	sfile_repl_string = swill_getvar("sfile_repl_string");
+	int r;
+	if (sfile_re_string.length() && (r = regcomp(&sfile_re, sfile_re_string.c_str(), REG_EXTENDED))) {
+		char buff[1024];
+		html_head(fo, "regerror", "Regular Expression Error");
+		regerror(r, &sfile_re, buff, sizeof(buff));
+		fprintf(fo, "<h2>Filename regular expression error</h2>%s", buff);
+		html_tail(fo);
+		return;
+	}
 	if (string(swill_getvar("set")) == "Apply")
 		options_page(fo, p);
 	else
@@ -1740,6 +1776,7 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"options.html\">Global options</a>\n"
 		" - <a href=\"save_options.html\">save global options</a>\n"
 		"<li> <a href=\"sproject.html\">Select active project</a>\n"
+		"<li> <a href=\"save.html\">Save changes and continue</a>\n"
 		"<li> <a href=\"sexit.html\">Exit - saving changes</a>\n"
 		"<li> <a href=\"qexit.html\">Exit - ignore changes</a>\n"
 		"</ul>"
@@ -1873,12 +1910,16 @@ logo_page(FILE *fo, void *p)
 static bool must_exit = false;
 
 void
-write_quit_page(FILE *of, void *p)
+write_quit_page(FILE *of, void *exit)
 {
 #ifndef COMMERCIAL
 	if (!local_access(of))
 		return;
 #endif
+	if (exit)
+		html_head(of, "quit", "CScout exiting");
+	else
+		html_head(of, "save", "Saving changes");
 	// Determine files we need to process
 	IFSet process;
 	cout << "Examing identifiers for replacement\n";
@@ -1896,12 +1937,14 @@ write_quit_page(FILE *of, void *p)
 	cout << "Processing files\n";
 	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++) {
 		cout << "Processing file " << (*i).get_path() << "\n";
-		replacements += file_replace(*i);
+		replacements += file_replace(of, *i);
 	}
-	html_head(of, "quit", "CScout exiting");
 	fprintf(of, "A total of %d replacements were made in %d files.", replacements, process.size());
-	fprintf(of, "<p>Bye...</body></html>");
-	must_exit = true;
+	if (exit) {
+		fprintf(of, "<p>Bye...</body></html>");
+		must_exit = true;
+	} else
+		html_tail(of);
 }
 
 void
@@ -2193,7 +2236,8 @@ main(int argc, char *argv[])
 		swill_handle("options.html", options_page, 0);
 		swill_handle("soptions.html", set_options_page, 0);
 		swill_handle("save_options.html", save_options_page, 0);
-		swill_handle("sexit.html", write_quit_page, 0);
+		swill_handle("sexit.html", write_quit_page, "exit");
+		swill_handle("save.html", write_quit_page, 0);
 		swill_handle("qexit.html", quit_page, 0);
 	}
 
