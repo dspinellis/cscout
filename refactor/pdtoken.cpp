@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.30 2001/09/01 16:05:36 dds Exp $
+ * $Id: pdtoken.cpp,v 1.31 2001/09/01 16:18:30 dds Exp $
  */
 
 #include <iostream>
@@ -107,6 +107,7 @@ Pdtoken::eat_to_eol()
 static int
 eval()
 {
+	dequePtoken tokens;
 	Pltoken t;
 	t.template getnext_nospc<Fchar>();
 }
@@ -261,7 +262,11 @@ Pdtoken::process_undef()
 		eat_to_eol();
 		return;
 	}
-	Pdtoken::macros.erase(t.get_val());
+	mapMacro::iterator mi;
+	if ((mi = Pdtoken::macros.find(t.get_val())) != Pdtoken::macros.end()) {
+		unify(t, (*mi).second.name_token);
+		Pdtoken::macros.erase(mi);
+	}
 	eat_to_eol();
 }
 
