@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.25 2003/07/31 15:23:30 dds Exp $
+ * $Id: fileid.cpp,v 1.26 2003/08/02 21:02:04 dds Exp $
  */
 
 #include <map>
@@ -15,6 +15,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <cassert>
 #ifdef unix
 #include <unistd.h>		// access(2)
 #else
