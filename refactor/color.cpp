@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.5 2001/09/14 10:09:51 dds Exp $
+ * $Id: color.cpp,v 1.6 2001/09/22 15:26:04 dds Exp $
  */
 
 #include <iostream>
@@ -81,7 +81,7 @@ main(int argc, char *argv[])
 		}
 		Block::enter();	// Compilation unit
 		Fchar::set_input(argv[i]);
-		Fchar::push_input("defs.h");
+		Fchar::push_input("/home/dds/src/refactor/defs.h");
 		Pdtoken::macros_clear();
 		if (parse_parse() != 0)
 			exit(1);
