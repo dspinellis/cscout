@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.16 2001/09/22 16:56:02 dds Exp $
+ * $Id: type.h,v 1.17 2002/09/05 12:39:06 dds Exp $
  */
 
 #ifndef TYPE_
@@ -13,6 +13,7 @@
 enum e_btype {
 	b_abstract,		// Abstract declaration target, to be filled-in
 	b_void, b_char, b_short, b_int, b_long, b_float, b_double, b_ldouble,
+	b_padbit,
 	b_undeclared,		// Undeclared object
 	b_llong			// long long
 };
@@ -56,6 +57,7 @@ protected:
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
+	virtual bool is_padbit() const { return false; }// True for pad bit field
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual const string& get_name() const;	// True for identifiers
@@ -103,11 +105,13 @@ public:
 	bool is_valid() const { return type != b_undeclared; }
 	bool is_abstract() const { return type == b_abstract; }
 	bool is_basic() const { return true; }// False for undeclared
+	bool is_padbit() const { return type == b_padbit; }
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
 	Tbasic *tobasic() { return this; }
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	inline void set_storage_class(Type t);
+	void set_abstract(Type t);		//For padbits
 };
 
 /*
@@ -157,6 +161,7 @@ public:
 	bool is_typedef() const		{ return p->is_typedef(); }
 	bool is_valid() const		{ return p->is_valid(); }
 	bool is_basic() const		{ return p->is_basic(); }
+	bool is_padbit() const		{ return p->is_padbit(); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
 	const string& get_name() const	{ return p->get_name(); }

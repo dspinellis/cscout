@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.16 2002/09/05 12:02:09 dds Exp $
+ * $Id: type.cpp,v 1.17 2002/09/05 12:39:06 dds Exp $
  */
 
 #include <iostream>
@@ -414,6 +414,15 @@ void
 Type_node::set_abstract(Type t)
 {
 	Error::error(E_ERR, "invalid type specification");
+	if (DP())
+		this->print(cerr);
+}
+
+void
+Tbasic::set_abstract(Type t)
+{
+	if (type != b_padbit)
+		Error::error(E_ERR, "invalid type specification");
 	if (DP())
 		this->print(cerr);
 }
