@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.70 2003/12/04 23:24:46 dds Exp $
+ * $Id: cscout.cpp,v 1.71 2003/12/07 10:44:24 dds Exp $
  */
 
 #include <map>
@@ -1453,6 +1453,22 @@ id_metrics_page(FILE *fo, void *p)
 	html_tail(fo);
 }
 
+// Call graph
+void
+cgraph_page(FILE *fo, void *p)
+{
+	html_head(fo, "cgraph", "Call Graph");
+	FCall::const_fiterator_type fun, call;
+	for (fun = FCall::fbegin(); fun != FCall::fend(); fun++)
+		for (call = (*fun)->call_begin(); call != (*fun)->call_end(); call++)
+			fprintf(fo, "%s:%s %s:%s <br />\n",
+			    (*fun)->get_declaration().get_fileid().get_path().c_str(),
+			    (*fun)->get_name().c_str(),
+			    (*call)->get_declaration().get_fileid().get_path().c_str(),
+			    (*call)->get_name().c_str());
+	html_tail(fo);
+}
+
 // Display all projects, allowing user to select
 void
 select_project_page(FILE *fo, void *p)
@@ -1518,6 +1534,10 @@ index_page(FILE *of, void *data)
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
 		"</ul>"
+		"<h2>Functions</h2>\n"
+		"<ul>\n"
+		"<li> <a href=\"cgraph.html\">Call graph</a>\n"
+		"</ul>\n"
 		"<h2>Operations</h2>"
 		"<ul>\n"
 		"<li> <a href=\"options.html\">Global options</a>\n"
@@ -2058,6 +2078,7 @@ main(int argc, char *argv[])
 		swill_handle("funlist.html", funlist_page, NULL);
 		swill_handle("fmetrics.html", file_metrics_page, NULL);
 		swill_handle("idmetrics.html", id_metrics_page, NULL);
+		swill_handle("cgraph.html", cgraph_page, NULL);
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
 	}
