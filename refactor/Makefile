@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.11 2001/09/14 07:43:44 dds Exp $
+# $Id: Makefile,v 1.12 2001/09/14 08:26:06 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -20,8 +20,8 @@ test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
 test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
 test/empty.c test/def.c test/conddef.c
 
-all: engine
-#all: color
+all: color
+#all: engine
 #all: simple_cpp
 
 simple_cpp: simple_cpp.o $(OBJ)
