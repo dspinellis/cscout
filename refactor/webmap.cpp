@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.14 2002/09/13 10:58:37 dds Exp $
+ * $Id: webmap.cpp,v 1.15 2002/09/13 15:02:47 dds Exp $
  */
 
 #include <map>
@@ -12,6 +12,7 @@
 #include <vector>
 #include <stack>
 #include <iterator>
+#include <iostream>
 #include <fstream>
 #include <list>
 #include <set>
@@ -119,12 +120,14 @@ static set <Identifier> ids;
 // As a side-effect add identifier into ids
 // Return true if the file contains unused identifiers
 static bool
-file_hypertext(ofstream &of, ofstream &uof, string fname)
+file_hypertext(ofstream &of, ofstream &uof, string fname, bool write_uof)
 {
 	ifstream in;
 	Fileid fi;
 	bool has_unused = false;
 
+	if (DP())
+		cout << "Write to " << fname << "\n";
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
 		perror(fname.c_str());
@@ -155,12 +158,14 @@ file_hypertext(ofstream &of, ofstream &uof, string fname)
 			ids.insert(i);
 			html_id(of, i);
 			if (ec->get_size() == 1) {
-				html_id(uof, i);
+				if (write_uof)
+					html_id(uof, i);
 				has_unused = true;
 			}
 		} else {
 			of << html((char)val);
-			uof << html((char)val);
+			if (write_uof)
+				uof << html((char)val);
 		}
 	}
 	in.close();
@@ -171,6 +176,9 @@ file_hypertext(ofstream &of, ofstream &uof, string fname)
 static void
 html_head(ofstream &of, const string fname, const string title)
 {
+	cout << "Writing " << title << "\n";
+	if (DP())
+		cout << "Write to " << fname << "\n";
 	of.open((string("html/") + fname + ".html").c_str(), ios::out);
 	if (!of) {
 		perror(fname.c_str());
@@ -179,7 +187,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.14 2002/09/13 10:58:37 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.15 2002/09/13 15:02:47 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -245,9 +253,9 @@ main(int argc, char *argv[])
 		"<li> <a href=\"roids.html\">Read-only identifiers</a>\n"
 		"<li> <a href=\"wids.html\">Writable identifiers</a>\n"
 		"<li> <a href=\"xids.html\">File-spanning writable identifiers</a>\n"
-		"<li> <a href=\"upids.html\">Unused Project-scoped Writable Identifiers</a>\n"
-		"<li> <a href=\"ufids.html\">Unused File-scoped Writable Identifiers</a>\n"
-		"<li> <a href=\"umids.html\">Unused Macro Writable Identifiers</a>\n"
+		"<li> <a href=\"upids.html\">Unused project-scoped writable identifiers</a>\n"
+		"<li> <a href=\"ufids.html\">Unused file-scoped writable identifiers</a>\n"
+		"<li> <a href=\"umids.html\">Unused macro writable identifiers</a>\n"
 		"</ul>";
 	html_tail(fo);
 
@@ -298,7 +306,7 @@ main(int argc, char *argv[])
 		html_head(sfo, (string("s") + fname.str()).c_str(), string("Source: ") + html(pathname));
 		if ((*i).get_readonly() == false)
 			html_head(usfo, (string("u") + fname.str()).c_str(), string("Source (with unused identifiers marked): ") + html(pathname));
-		bool has_unused = file_hypertext(sfo, usfo, pathname);
+		bool has_unused = file_hypertext(sfo, usfo, pathname, !(*i).get_readonly());
 		html_tail(sfo);
 		if ((*i).get_readonly() == false)
 			html_tail(usfo);
