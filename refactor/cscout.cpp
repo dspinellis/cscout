@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.51 2003/07/28 20:32:51 dds Exp $
+ * $Id: cscout.cpp,v 1.52 2003/07/29 21:31:53 dds Exp $
  */
 
 #include <map>
@@ -1700,6 +1700,8 @@ main(int argc, char *argv[])
 
 	if (motd)
 		cout << motd << "\n";
+	if (DP())
+		cout  << "Tokid EC map size is " << Tokid::map_size() << "\n";
 	// Serve web pages
 	if (!must_exit)
 		cout << "We are now ready to serve you at http://localhost:" << portno << "\n";
@@ -1725,6 +1727,8 @@ garbage_collect(Fileid fi)
 		exit(1);
 	}
 	// Go through the file character by character
+	int count = 0;
+	int sum = 0;
 	for (;;) {
 		Tokid ti;
 		int val;
@@ -1734,14 +1738,18 @@ garbage_collect(Fileid fi)
 			break;
 		mapTokidEclass::iterator ei = ti.find_ec();
 		if (ei != ti.end_ec()) {
+			sum++;
 			Eclass *ec = (*ei).second;
 			IdPropElem ec_id(ec, Identifier());
 			if (!monitor.eval(ec_id)) {
+				count++;
 				ec->remove_from_tokid_map();
 				delete ec;
 			}
 		}
 	}
+	if (DP())
+		cout << "Garbage collected " << count << " out of " << sum << " ECs\n";
 	in.close();
 	return;
 }
