@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.19 2002/09/11 11:32:15 dds Exp $
+ * $Id: type.cpp,v 1.20 2002/09/13 14:37:53 dds Exp $
  */
 
 #include <iostream>
@@ -390,8 +390,8 @@ Tbasic::merge(Tbasic *b)
 		c = this->sclass.get_storage_class();
 	}
 	if (DP()) {
-		cout << "merge a=" << Type(this) << "\nmerge b=" << Type(b) <<
-			"\nmerge r=" << Type(basic(t, s, c)) << "\n";
+		cout << "merge a=" << Type(this->clone()) << "\nmerge b=" << 
+			Type(b) << "\nmerge r=" <<  Type(basic(t, s, c)) << "\n";
 	}
 	return basic(t, s, c);
 }
