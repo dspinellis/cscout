@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.82 2003/08/15 20:57:47 dds Exp $
+ * $Id: parse.y,v 1.83 2003/08/15 21:38:55 dds Exp $
  *
  */
 
@@ -248,6 +248,7 @@ static bool yacc_typing;
 
 /* To allow compound statements as expressions (gcc extension) */
 %type <t> statement
+%type <t> statement_or_declaration
 %type <t> any_statement
 %type <t> statement_list
 %type <t> compound_statement
@@ -1350,19 +1351,13 @@ brace_end: '}'
 compound_statement:
         brace_begin brace_end
 		{ $$ = basic(b_void); }
-        | brace_begin declaration_list brace_end
-		{ $$ = basic(b_void); }
         | brace_begin statement_list brace_end
 		{ $$ = $2; }
-        | brace_begin declaration_list statement_list brace_end
-		{ $$ = $3; }
         ;
 
 function_body:
         function_brace_begin brace_end
-        | function_brace_begin declaration_list brace_end
         | function_brace_begin statement_list brace_end
-        | function_brace_begin declaration_list statement_list brace_end
         ;
 
 declaration_list:
@@ -1370,10 +1365,17 @@ declaration_list:
         | declaration_list declaration
         ;
 
-statement_list:
-        statement
+statement_or_declaration:
+	declaration
+		{ $$ = basic(b_void); }
+	| statement
 		{ $$ = $1; }
-        | statement_list statement
+	;
+
+statement_list:
+        statement_or_declaration
+		{ $$ = $1; }
+        | statement_list statement_or_declaration
 		{ $$ = $2; }
         ;
 
