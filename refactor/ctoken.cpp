@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.8 2002/09/03 13:26:57 dds Exp $
+ * $Id: ctoken.cpp,v 1.9 2002/09/05 15:56:47 dds Exp $
  */
 
 #include <map>
@@ -112,11 +112,33 @@ make_keymap()
 	m["default"] = DEFAULT; m["goto"] = GOTO; m["sizeof"] = SIZEOF;
 	m["volatile"] = VOLATILE; m["do"] = DO; m["if"] = IF;
 	m["static"] = STATIC; m["while"] = WHILE;
+	m["__asm__"] = GNUC_ASM; m["_asm"] = MSC_ASM;
 	return m;
 }
 
 // Map from identifiers to keyword token values
 static map<string,int>& keymap = make_keymap();
+
+static int parse_lex_real();
+
+// Consume tokens within an asm block
+static void
+eat_block(int open, int close)
+{
+	int matches = 1;
+	int tok;
+
+	tok = parse_lex_real();
+	if (tok != open)
+		Error::error(E_ERR, "asm block syntax");
+	do {
+		tok = parse_lex_real();
+		if (tok == open)
+			matches++;
+		else if (tok == close)
+			matches--;
+	} while (matches > 0);
+}
 
 // Lexical analysis function for yacc
 static int
@@ -148,7 +170,17 @@ parse_lex_real()
 			if (DP()) cout << "id: [" << t.get_val() << "]\n";
 			ik = keymap.find(t.get_val());
 			if (ik != keymap.end())
-				return (*ik).second;	// Keyword
+				// Keyword
+				switch ((*ik).second) {
+				case GNUC_ASM:
+					eat_block('(', ')');
+					continue;
+				case MSC_ASM:
+					eat_block('{', '}');
+					continue;
+				default:
+					return (*ik).second;
+				}
 			id = obj_lookup(t.get_val());
 			parse_lval.t = identifier(t);
 			if (id && id->get_type().is_typedef())

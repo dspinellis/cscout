@@ -5,7 +5,7 @@
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.1 2001/09/14 07:56:08 dds Exp $
+ * $Id: ytoken.h,v 1.2 2002/09/05 15:56:47 dds Exp $
  */
 
 
@@ -52,3 +52,7 @@
 /* Tokens needed by the pre-processor */
 %token CPP_CONCAT SPACE ABSFNAME PATHFNAME CHAR_LITERAL PP_NUMBER
 
+/* gcc __asm__ directive */
+%token GNUC_ASM
+/* MSC _asm directive */
+%token MSC_ASM
