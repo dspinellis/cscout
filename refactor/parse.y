@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.8 2001/09/12 07:09:08 dds Exp $
+ * $Id: parse.y,v 1.9 2001/09/12 09:52:12 dds Exp $
  *
  */
 
@@ -88,11 +88,13 @@
 #include "type.h"
 #include "stab.h"
 
-void yyerror(char *s)
+void parse_error(char *s)
 {
 	Error::error(E_ERR, "syntax error");
 }
 
+
+#define YYSTYPE_CONSTRUCTOR
 
 %}
 
