@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.5 2004/07/27 15:23:21 dds Exp $
+ * $Id: funquery.cpp,v 1.6 2004/07/27 15:46:43 dds Exp $
  */
 
 #include <map>
@@ -158,32 +158,6 @@ FunQuery::eval(const Call *c)
 	Eclass *ec = c->get_tokid().get_ec();
 	if (current_project && !ec->get_attribute(current_project))
 		return false;
-	int retval = exclude_fnre ? 0 : REG_NOMATCH;
-	if (match_fnre && regexec(&fnre, c->get_name().c_str(), 0, NULL, 0) == retval)
-		return false;
-	if (match_fre && regexec(&fre, c->get_fileid().get_path().c_str(), 0, NULL, 0) != 0)
-			return false;	// No match found
-	Call::const_fiterator_type c2;
-	if (match_fdre) {
-		for (c2 = c->call_begin(); c2 != c->call_end(); c2++)
-			if (regexec(&fdre, (*c2)->get_name().c_str(), 0, NULL, 0) == 0)
-				if (exclude_fdre)
-					return false;
-				else
-					break;
-		if (!exclude_fdre && c2 == c->call_end())
-			return false;
-	}
-	if (match_fure) {
-		for (c2 = c->caller_begin(); c2 != c->caller_end(); c2++)
-			if (regexec(&fure, (*c2)->get_name().c_str(), 0, NULL, 0) == 0)
-				if (exclude_fure)
-					return false;
-				else
-					break;
-		if (!exclude_fure && c2 == c->caller_end())
-			return false;
-	}
 
 	bool add;
 	switch (match_type) {
@@ -230,5 +204,35 @@ FunQuery::eval(const Call *c)
 	}
 	if (!add)
 		return false;
+
+	if (ncallerop && !Query::apply(ncallerop, c->get_num_caller(), ncallers))
+		return false;
+
+	int retval = exclude_fnre ? 0 : REG_NOMATCH;
+	if (match_fnre && regexec(&fnre, c->get_name().c_str(), 0, NULL, 0) == retval)
+		return false;
+	if (match_fre && regexec(&fre, c->get_fileid().get_path().c_str(), 0, NULL, 0) != 0)
+			return false;	// No match found
+	Call::const_fiterator_type c2;
+	if (match_fdre) {
+		for (c2 = c->call_begin(); c2 != c->call_end(); c2++)
+			if (regexec(&fdre, (*c2)->get_name().c_str(), 0, NULL, 0) == 0)
+				if (exclude_fdre)
+					return false;
+				else
+					break;
+		if (!exclude_fdre && c2 == c->call_end())
+			return false;
+	}
+	if (match_fure) {
+		for (c2 = c->caller_begin(); c2 != c->caller_end(); c2++)
+			if (regexec(&fure, (*c2)->get_name().c_str(), 0, NULL, 0) == 0)
+				if (exclude_fure)
+					return false;
+				else
+					break;
+		if (!exclude_fure && c2 == c->caller_end())
+			return false;
+	}
 	return true;
 }

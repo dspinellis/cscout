@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.84 2004/07/27 15:23:21 dds Exp $
+ * $Id: cscout.cpp,v 1.85 2004/07/27 15:46:43 dds Exp $
  */
 
 #include <map>
@@ -731,8 +731,8 @@ funquery_page(FILE *of,  void *p)
 	fputs("<FORM ACTION=\"xfunquery.html\" METHOD=\"GET\">\n"
 	"<input type=\"checkbox\" name=\"cfun\" value=\"1\">C function<br>\n"
 	"<input type=\"checkbox\" name=\"macro\" value=\"1\">Function-like macro<br>\n"
-	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable definition<br>\n"
-	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only definition<br>\n"
+	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable declaration<br>\n"
+	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only declaration<br>\n"
 	"<input type=\"checkbox\" name=\"pscope\" value=\"1\">Project scope<br>\n"
 	"<input type=\"checkbox\" name=\"fscope\" value=\"1\">File scope<br>\n"
 	"<input type=\"checkbox\" name=\"defined\" value=\"1\">Defined<br>\n"
@@ -748,7 +748,7 @@ funquery_page(FILE *of,  void *p)
 	"<table>\n"
 
 	"<tr><td>\n"
-	"Number of callers\n"
+	"Number of direct callers\n"
 	"<select name=\"ncallerop\" value=\"1\">\n",
 	of);
 	Query::equality_selection(of);
