@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.19 2002/09/11 11:32:15 dds Exp $
+ * $Id: type.h,v 1.20 2002/09/13 12:37:27 dds Exp $
  */
 
 #ifndef TYPE_
@@ -55,6 +55,7 @@ protected:
 	virtual Type clone() const;		// Deep copy
 	virtual Id const* member(const string& name) const;	// Structure and union
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
+	virtual bool is_su() const { return false; }// True for struct/union
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
 	virtual bool is_padbit() const { return false; }// True for pad bit field
@@ -159,6 +160,7 @@ public:
 	void set_abstract(Type t)	{ return p->set_abstract(t); }
 	void set_storage_class(Type t)	{ return p->set_storage_class(t); }
 	bool is_ptr() const		{ return p->is_ptr(); }
+	bool is_su() const		{ return p->is_su(); }
 	bool is_typedef() const		{ return p->is_typedef(); }
 	bool is_valid() const		{ return p->is_valid(); }
 	bool is_basic() const		{ return p->is_basic(); }

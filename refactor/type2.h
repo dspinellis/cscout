@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.8 2002/09/11 11:32:15 dds Exp $
+ * $Id: type2.h,v 1.9 2002/09/13 12:37:27 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -20,7 +20,7 @@ public:
 	Type clone() const { return Type(new Tarray(of.clone())); }
 	Type deref() const { return of; }
 	Type subscript() const { return of; }
-	bool is_ptr() { return true; }
+	bool is_ptr() const { return true; }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { of.set_storage_class(t); }
@@ -36,7 +36,7 @@ public:
 	Type clone() const { return Type(new Tpointer(to.clone())); }
 	Type deref() const { return to; }
 	Type subscript() const { return to; }
-	bool is_ptr() { return true; }
+	bool is_ptr() const { return true; }
 	Type call() const { return to.call(); }
 	void set_storage_class(Type t) { to.set_storage_class(t); }
 	enum e_storage_class get_storage_class() const {return to.get_storage_class(); }
@@ -88,6 +88,7 @@ public:
 	Tsu(const Type &spec) { default_specifier = spec; }
 	Tsu(const Stab& m, const Type& ds, const Tstorage& sc) :
 		members(m), default_specifier(ds), sclass(sc) {}
+	bool is_su() const { return true; }
 	Type clone() const { return Type(new Tsu(members, default_specifier, sclass)); }
 	void add_member(const Token &tok, const Type &typ) { 
 		if (DP()) cout << "Adding member " << tok << "\n";

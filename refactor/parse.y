@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.38 2002/09/11 11:32:15 dds Exp $
+ * $Id: parse.y,v 1.39 2002/09/13 12:37:27 dds Exp $
  *
  */
 
@@ -716,7 +716,9 @@ member_declaration_list:
 				cout << "$1: " << $1 << "\n";
 				cout << "$2: " << $2 << "\n";
 			}
-			$1.merge_with($2);
+			// To avoid internal errors
+			if ($1.is_valid() && $2.is_valid())
+				$1.merge_with($2);
 			$$ = $1;
 		}
         ;
@@ -769,6 +771,31 @@ member_declaring_list:
 			}
 			$$ = $1;
 		}
+	/* struct {int hi, low;} - gcc/msc extension (anonymous structs) */
+        | type_specifier
+	{
+		if (DP())
+			cout << "anon member: " << $1 << "\n";
+		if ($1.is_su()) {
+			const Stab &s = $1.get_members();
+			Stab_element::const_iterator i;
+			
+			for (i = s.begin(); i != s.end(); i++)
+				if (i == s.begin())
+					$$ = struct_union(
+						(*i).second.get_token(),
+						(*i).second.get_type(), $1);
+				else
+					$$.add_member(
+						(*i).second.get_token(),
+						(*i).second.get_type());
+			if (DP())
+				cout << "(out)member_declaring_list = " << $$ << "\n";
+		} else {
+			Error::error(E_ERR, "Only struct/union anonymous elements allowed");
+			$$ = basic(b_undeclared);
+		}
+	}
         ;
 
 member_declarator:
