@@ -1,8 +1,40 @@
-$Id: todo,v 1.37 2003/08/17 17:00:27 dds Exp $
+$Id: todo,v 1.38 2003/08/21 19:21:01 dds Exp $
 
+Is __unused__ working?  Check e.g. boot_verbose
 Show include files in reports
 Option to remove file name prefix
-__unused__
+In the query change check boxes into yes/no/don't care radio buttos
+Option to specify leading file path to hide
+
+Function information
+	New identifier attribute is_function
+	Per file: Defined functions
+	Per function:
+		Define in file href line href
+		Functions that call it
+		All functions that call it
+		Functions it calls
+		All functions it calls
+		Note: function calls through pointers are not included
+		in the call graph.
+	Functions
+		Function metrics
+		All functions
+		Project-scoped writable functions
+		File-scoped writable functions
+		Call graph 
+		Call graph in GraphViz dot format
+		Function query
+			Writable
+			Read-only
+			Project scope
+			File scope
+			Name should match RE
+			Name of functions that call it should match RE
+			Name of functions it calls should match RE
+			Select functions from filenames matching RE
+			Query title
+
 
 Borland configuration file
 Solaris compilation
