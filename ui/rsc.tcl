@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.20 2001/10/05 13:21:44 dds Exp $
+# $Id: rsc.tcl,v 1.21 2001/10/15 09:46:17 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -108,7 +108,7 @@ $m add command -label "Directory" -command insert_directory
 $m add separator
 $m add command -label "File" -command insert_file
 $m add command -label "Directory Files" -command insert_dir_files
-$m add command -label "Hierarchy"
+$m add command -label "Hierarchy" -command insert_hierarchy
 $m add command -label "File to all Projects"
 
 
@@ -862,7 +862,7 @@ proc save_workspace_to {filename} {
 	
 	set f [open $filename w]
 	puts $f "#RSC 1.1 Workspace"
-	puts $f {#$Id: rsc.tcl,v 1.20 2001/10/05 13:21:44 dds Exp $}
+	puts $f {#$Id: rsc.tcl,v 1.21 2001/10/15 09:46:17 dds Exp $}
 	puts $f [list array set name [array get name]]
 	puts $f [list array set readonly [array get readonly]]
 	puts $f [list array set dir [array get dir]]
@@ -971,6 +971,59 @@ proc insert_directory {} {
 		}
 		set name($entry$newdir) $newdir
 		set fileholder($entry$newdir) 1
+		# Expand is needed to internally refresh _nodes so that we do not
+		# get a node does not exist error!
+		$tabfiles.hier expand $entry
+		$tabfiles.hier refresh $entry
+	}	
+	# else cancelled
+}
+
+# Insert all files and directories to a project
+proc insert_all_files {mydir entry} {
+	global name
+	global tabfiles
+	global dir
+	global fileholder
+
+	# Insert all files
+	foreach filename [glob -nocomplain -directory $mydir -types {f} {*.[Cc]}] {
+		if {[dir_entry $mydir $filename]} {
+			# We can make it relative
+			set filename [string range $filename [expr [string length $mydir] + 1] end]
+		}
+		if {![info exists name($entry$filename)]} {
+			set name($entry$filename) $filename
+		}
+		set fileholder($entry$filename) 0
+	}
+	# Insert all directories
+	foreach fdir [glob -nocomplain -directory $mydir -types {d} {*}] {
+		if {[dir_entry $mydir $fdir]} {
+			# We can make it relative
+			set dirname [string range $fdir [expr [string length $mydir] + 1] end]
+		}
+		if {![info exists name($entry$dirname)]} {
+			set name($entry$dirname) $dirname
+		}
+		set fileholder($entry$dirname) 1
+		insert_all_files $fdir "$entry$dirname"
+	}
+}
+
+# Recursively insert directory and program files to a project
+proc insert_hierarchy {} {
+	global name
+	global tabfiles
+	global dir
+	global fileholder
+
+	set mydir [wp_getdir]
+	set mydir [tk_chooseDirectory -title "Directory hierarchy to insert" \
+		-initialdir $mydir -mustexist true]
+	if {$mydir != ""} {
+		set entry [wp_getentry]
+		insert_all_files $mydir $entry
 		# Expand is needed to internally refresh _nodes so that we do not
 		# get a node does not exist error!
 		$tabfiles.hier expand $entry
