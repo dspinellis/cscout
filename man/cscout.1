@@ -10,13 +10,13 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.5 2003/08/17 12:47:25 dds Exp $
+.\" $Id: cscout.1,v 1.6 2003/08/21 19:30:16 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
 \fBcscout\fP 
-[\fB\-cEruv\fP]
+[\fB\-cErv\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
 \fIfile\fR
@@ -165,16 +165,10 @@ Since the \fI-m\fP optimization is performed after each single file is
 processed, the locations where an identifier is found may be misrepresented.
 .IP "\fB\-r\fP"
 Report on the standard error output warnings about unused and wrongly
-scoped identifiers.
+scoped identifiers and unused included files.
 The error message format is compatible with \fIgcc\fP and can
 therefore be automatically processed by editors that recognize this
 format.
-.IP "\fB\-u\fP"
-Monitor and report superfluously included header files.
-This check is performed while processing the files, and the corresponding
-files are reported on the command's standard output.
-Note that this option performs additional processing and will slightly slow down
-the \fICScout\fP processing.
 .IP "\fB\-v\fP"
 Display  the \fICScout\fP version and copyright information and exit.
 .PP
