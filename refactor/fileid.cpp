@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.20 2002/09/17 16:20:37 dds Exp $
+ * $Id: fileid.cpp,v 1.21 2002/10/02 07:20:09 dds Exp $
  */
 
 #include <map>
@@ -133,11 +133,15 @@ get_full_path(const char *name)
 bool
 Fileid::is_readonly(string fname)
 {
+	if (DP())
+		cout << "Testing: " << fname << "\n";
 	for (list <string>::const_iterator i = ro_prefix.begin(); i != ro_prefix.end(); i++)
-		if(fname.compare((*i), 0, (*i).length()) == 0)
+		if(string(fname, 0, (*i).length()).compare((*i)) == 0)
 			return true;
 	if (access(fname.c_str(), W_OK) != 0)
 		return true;
+	if (DP())
+		cout << fname << ": is writable\n";
 	return false;
 }
 
