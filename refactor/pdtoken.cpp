@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.44 2001/09/03 10:08:51 dds Exp $
+ * $Id: pdtoken.cpp,v 1.45 2001/09/03 10:15:26 dds Exp $
  */
 
 #include <iostream>
@@ -22,6 +22,7 @@
 #include <cstdlib>		// strtol
 
 #include "cpp.h"
+#include "debug.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
@@ -34,7 +35,6 @@
 #include "pdtoken.h"
 #include "tchar.h"
 #include "ctoken.h"
-#include "debug.h"
 
 bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;
