@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.18 2001/08/31 11:34:22 dds Exp $
+ * $Id: pdtoken.cpp,v 1.19 2001/08/31 12:53:05 dds Exp $
  */
 
 #include <iostream>
@@ -482,6 +482,28 @@ macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
 	return (true);
 }
 
+// Macro replace all tokens in the sequence
+static void
+macro_replace_all(listPtoken& tokens, setstring tabu, bool get_more)
+{
+	for (;;) {
+		bool replaced = false;
+		listPtoken::iterator ti;
+
+		// Restart every time at the beginning because the list
+		// is invalidated
+		for (ti = tokens.begin(); ti != tokens.end(); ti++) {
+			// cout << "Recurse on " << tokens << "---\n";
+			if (macro_replace(tokens, ti, tabu, get_more)) {
+				replaced = true;
+				break;
+			}
+		}
+		if (!replaced)
+			return;
+	}
+}
+
 /*
  * Check for macro at token position pos and possibly expand it  
  * If a macro is expanded, pos is invalidated and replaced with the replacement 
@@ -540,7 +562,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					// copy that back to the main
 					listPtoken arg((*ai).second.begin(), (*ai).second.end());
 					// cout << "Arg macro " << arg << "---\n";
-					macro_replace(arg, arg.begin(), tabu, false);
+					macro_replace_all(arg, tabu, false);
 					// cout << "Arg macro result" << arg << "---\n";
 					copy(arg.begin(), arg.end(), inserter(tokens, pos));
 				} else if (do_stringize)
@@ -562,7 +584,6 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 
 	// Check and apply CPP_CONCAT (ANSI 3.8.3.3)
 	listPtoken::iterator ti, next;
-	listPtoken::iterator tadv, t2;
 	for (ti = tokens.begin(); ti != tokens.end(); ti = next) {
 		if ((*ti).get_code() == CPP_CONCAT && ti != tokens.begin()) {
 			listPtoken::iterator left = tokens.end();
@@ -609,23 +630,10 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			next++;
 		}
 	}
-	
-	// Continously rescan the sequence while replacements are made
-	for (;;) {
-		bool replaced = false;
-		// We should start at expand_start, but this may be
-		// invalided by a replacement
-		for (ti = tokens.begin(); ti != tokens.end(); ti++) {
-			// cout << "Recurse on " << tokens << "---\n";
-			if (macro_replace(tokens, ti, tabu, true)) {
-				replaced = true;
-				break;
-			}
-		}
-		if (!replaced)
-			return (true);
-	}
+	macro_replace_all(tokens, tabu, get_more);
+	return true;
 }
+
 
 #ifdef UNIT_TEST
 
