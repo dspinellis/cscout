@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.80 2004/07/27 11:14:28 dds Exp $
+ * $Id: cscout.cpp,v 1.81 2004/07/27 11:40:07 dds Exp $
  */
 
 #include <map>
@@ -94,30 +94,16 @@ static Attributes::size_type current_project;
 
 void index_page(FILE *of, void *data);
 
-// Display identifier loop progress (non-reentant)
+// Display loop progress (non-reentant)
+template <typename container>
 static void
-progress(IdProp::iterator i)
+progress(typename container::const_iterator i, const container &c)
 {
 	static int count, opercent;
 
-	if (i == ids.begin())
+	if (i == c.begin())
 		count = 0;
-	int percent = ++count * 100 / ids.size();
-	if (percent != opercent) {
-		cout << '\r' << percent << '%' << flush;
-		opercent = percent;
-	}
-}
-
-// Display call loop progress (non-reentant)
-static void
-progress(Call::const_fmap_iterator_type i)
-{
-	static int count, opercent;
-
-	if (i == Call::fbegin())
-		count = 0;
-	int percent = ++count * 100 / Call::fsize();
+	int percent = ++count * 100 / c.size();
 	if (percent != opercent) {
 		cout << '\r' << percent << '%' << flush;
 		opercent = percent;
@@ -884,7 +870,7 @@ xiquery_page(FILE *of,  void *p)
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
 	cout << "Evaluating identifier query\n";
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		progress(i);
+		progress(i, ids);
 		if (!query.eval(*i))
 			continue;
 		if (q_id)
@@ -941,7 +927,7 @@ xfunquery_page(FILE *of,  void *p)
 	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
 	cout << "Evaluating function query\n";
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
-		progress(i);
+		progress(i, Call::functions());
 		if (!query.eval(i->second))
 			continue;
 		if (q_id)
@@ -1270,16 +1256,15 @@ cgraph_page(FILE *fo, void *p)
 	Call::const_fmap_iterator_type fun;
 	Call::const_fiterator_type call;
 	for (fun = Call::fbegin(); fun != Call::fend(); fun++) {
-		for (call = fun->second->call_begin(); call != fun->second->call_end(); call++)
-			fprintf(fo, "%s:%s calls %s:%s <br />\n",
-			    fun->second->get_site().get_fileid().get_path().c_str(),
-			    fun->second->get_name().c_str(),
+		fprintf(fo, "%s:%s <br />\n",
+		    fun->second->get_site().get_fileid().get_path().c_str(),
+		    fun->second->get_name().c_str());
+	for (call = fun->second->call_begin(); call != fun->second->call_end(); call++)
+			fprintf(fo, "&nbsp;&nbsp;&nbsp;&nbsp; calls %s:%s <br />\n",
 			    (*call)->get_site().get_fileid().get_path().c_str(),
 			    (*call)->get_name().c_str());
 		for (call = fun->second->caller_begin(); call != fun->second->caller_end(); call++)
-			fprintf(fo, "%s:%s called-by %s:%s <br />\n",
-			    fun->second->get_site().get_fileid().get_path().c_str(),
-			    fun->second->get_name().c_str(),
+			fprintf(fo, "&nbsp;&nbsp;&nbsp;&nbsp; called-by %s:%s <br />\n",
 			    (*call)->get_site().get_fileid().get_path().c_str(),
 			    (*call)->get_name().c_str());
 	}
@@ -1490,7 +1475,7 @@ write_quit_page(FILE *of, void *p)
 	IFSet process;
 	cout << "Examing identifiers for replacement\n";
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		progress(i);
+		progress(i, ids);
 		if ((*i).second.get_replaced()) {
 			Eclass *e = (*i).first;
 			IFSet ifiles = e->sorted_files();
@@ -1827,7 +1812,7 @@ main(int argc, char *argv[])
 	// Set xfile and  metrics for each identifier
 	cout << "Processing identifiers\n";
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		progress(i);
+		progress(i, ids);
 		Eclass *e = (*i).first;
 		IFSet ifiles = e->sorted_files();
 		(*i).second.set_xfile(ifiles.size() > 1);
