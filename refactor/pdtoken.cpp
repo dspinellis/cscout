@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.20 2001/08/31 16:14:32 dds Exp $
+ * $Id: pdtoken.cpp,v 1.21 2001/08/31 19:03:51 dds Exp $
  */
 
 #include <iostream>
@@ -311,6 +311,7 @@ Pdtoken::process_directive()
  * Return a macro argument token from tokens position pos.
  * Used by gather_args.
  * If get_more is true when tokens is exhausted read using pltoken::getnext
+ * Update pos to the first token not gathered.
  * If want_space is true return spaces, otherwise discard them
  */
 Ptoken
@@ -345,6 +346,7 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
  * Get the macro arguments specified in formal_args, initiallly from pos,
  * then, if get_more is true, from pltoken<fchar>.getnext.
  * Build the map from formal name to argument value args.
+ * Update pos to the first token not gathered.
  * Return true if ok, false on error.
  */
 static bool
@@ -483,25 +485,28 @@ macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
 	return (true);
 }
 
-// Macro replace all tokens in the sequence
+/*
+ * Macro replace all tokens in the sequence.
+ * Update tabu with the union of all macros that were used while replacing
+ */
 static void
 macro_replace_all(listPtoken& tokens, setstring& tabu, bool get_more)
 {
-	for (;;) {
-		bool replaced = false;
-		listPtoken::iterator ti;
+	listPtoken::iterator ti;
+	setstring rescan_tabu(tabu);
 
-		// Restart every time at the beginning because the list
-		// is invalidated
-		for (ti = tokens.begin(); ti != tokens.end(); ti++) {
-			// cout << "Recurse on " << tokens << "---\n";
-			if (macro_replace(tokens, ti, tabu, get_more)) {
-				replaced = true;
-				break;
-			}
-		}
-		if (!replaced)
-			return;
+	for (ti = tokens.begin(); ti != tokens.end(); ) {
+		/*
+		 * The dance with the various tabu variables is needed to
+		 * ensure that while the set is updated when a macro is used
+		 * inside macro_replace, this does not poison the list for
+		 * further replacements done while we progress in the list.
+		 */
+		setstring tmptabu(rescan_tabu);
+		ti = macro_replace(tokens, ti, tmptabu, get_more);
+		setstring oldtabu(tabu);
+		tabu.clear();
+		set_union(oldtabu.begin(), oldtabu.end(), tmptabu.begin(), tmptabu.end(), inserter(tabu, tabu.begin()));
 	}
 }
 
@@ -512,16 +517,17 @@ macro_replace_all(listPtoken& tokens, setstring& tabu, bool get_more)
  * Macros that are members of the tabu set are not expanded to avoid
  * infinite recursion.
  * If get_more is true, more data can be retrieved from Pltoken::get_next
- * Return true if a  replacemement was made
+ * Return the first position in tokens sequence that was not 
+ * examined or replaced.
  */
-bool
+listPtoken::iterator
 macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, bool get_more)
 {
 	mapMacro::const_iterator mi;
 	const string name = (*pos).get_val();
 	//cout << "macro_replace " << name << "\n";
 	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
-		return (false);
+		return (++pos);
 	// cout << "replacing for " << name << "\n";
 	unify(*pos, (*mi).second.name_token);
 	listPtoken::iterator expand_start = pos;
@@ -536,7 +542,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 
 		expand_start = pos;
 		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more))
-			return (false);
+			return (pos);
 		tokens.erase(expand_start, pos);
 		dequePtoken::const_iterator i;
 		// Substitute with macro's replacement value
@@ -545,7 +551,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 			if ((*i).get_code() == '#') {
 				if (i + 1 == m.value.end()) {
 					Error::error(E_ERR,  "Application of macro \"" + name + "\": operator # at end of macro pattern");
-					return (false);
+					return (pos);
 				}
 				do_stringize = true;
 				// Advance to next non-space
@@ -563,6 +569,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 					// copy that back to the main
 					listPtoken arg((*ai).second.begin(), (*ai).second.end());
 					// cout << "Arg macro:" << arg << "---\n";
+					// See comment in macro_replace_all
 					setstring tmptabu(argtabu);
 					macro_replace_all(arg, tmptabu, false);
 					setstring oldtabu(tabu);
@@ -589,7 +596,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 
 	// Check and apply CPP_CONCAT (ANSI 3.8.3.3)
 	listPtoken::iterator ti, next;
-	for (ti = tokens.begin(); ti != tokens.end(); ti = next) {
+	for (ti = tokens.begin(); ti != tokens.end() && ti != pos; ti = next) {
 		if ((*ti).get_code() == CPP_CONCAT && ti != tokens.begin()) {
 			listPtoken::iterator left = tokens.end();
 			listPtoken::iterator right = tokens.end();
@@ -606,14 +613,14 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 			// Find right non-space operand
 			for (i = ti;; ) {
 				i++;
-				if (i == tokens.end())
+				if (i == tokens.end() || i == pos)
 					break;
 				if (!(*i).is_space()) {
 					right = i;
 					break;
 				}
 			}
-			if (left != tokens.end() && right != tokens.end()) {
+			if (left != tokens.end() && right != tokens.end() && right != pos) {
 				next = right;
 				next++;
 				Tchar::push_input(*left);
@@ -639,7 +646,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, boo
 	// cout << "Rescan-" << name << "\n";
 	macro_replace_all(tokens, tabu, get_more);
 	// cout << "Rescan ends\n";
-	return true;
+	return (pos);
 }
 
 
