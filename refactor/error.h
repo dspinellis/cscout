@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Error reporting
@@ -8,7 +8,7 @@
  * #include <string>
  * #include "tokid.h"
  *
- * $Id: error.h,v 1.4 2001/10/27 13:46:12 dds Exp $
+ * $Id: error.h,v 1.5 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef ERROR_

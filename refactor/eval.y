@@ -3,7 +3,7 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.10 2003/08/21 19:50:05 dds Exp $
+ * $Id: eval.y,v 1.11 2004/07/23 06:55:38 dds Exp $
  *
  */
 
@@ -63,7 +63,7 @@ cast_expression
 multiplicative_expression
         : cast_expression
         | multiplicative_expression '*' cast_expression	{ $$ = $1 * $3; }
-        | multiplicative_expression '/' cast_expression	
+        | multiplicative_expression '/' cast_expression
 			{
 				if ($3 == 0) {
 					/*
@@ -82,7 +82,7 @@ multiplicative_expression
 					/*
 					 * @error
 					 * A <code>#if</code> expression
-					 * divided by zero in a modulo 
+					 * divided by zero in a modulo
 					 * expression
 					 */
 					Error::error(E_ERR, "modulo division by zero in #if expression");
@@ -135,7 +135,7 @@ inclusive_or_expression
 
 logical_and_expression
         : inclusive_or_expression
-        | logical_and_expression AND_OP inclusive_or_expression	
+        | logical_and_expression AND_OP inclusive_or_expression
 							{ $$ = ($1 & $3); }
         ;
 

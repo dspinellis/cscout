@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.18 2003/11/17 20:45:32 dds Exp $
+ * $Id: stab.h,v 1.19 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef STAB_
@@ -111,9 +111,9 @@ public:
 
 	/*
 	 * Special block for handling function parameters.
-	 * Function parameters can appear in parameter_type_lists or in 
+	 * Function parameters can appear in parameter_type_lists or in
 	 * identifier lists.  These are entered as usual with Block::enter()
-	 * to define a new scope.  However, they are exited with 
+	 * to define a new scope.  However, they are exited with
 	 * Block::param_exit() which saves a copy of the block in param_block.
 	 * (Note that nested scopes are correctly ignored).
 	 * The function block starts with Block::param_enter() which copies

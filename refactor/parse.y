@@ -2,19 +2,19 @@
  * (C) Copyright 2001 Diomidis Spinellis.
  * Portions Copyright (c)  1989,  1990  James  A.  Roskind
  * Based on work by James A. Roskind; see comments at the end of this file.
- * Grammar obtained from http://www.empathy.com/pccts/roskind.html 
+ * Grammar obtained from http://www.empathy.com/pccts/roskind.html
  *
- * Declarations and type checking engine.  
+ * Declarations and type checking engine.
  * Note that for the purposes of this work we do not
  * need to keep precise track of types, esp. implicit arithmetic conversions.
  * Type checking is used:
  * 1) To identify the structure or union to use for member access
  * 2) As a sanity check for (1)
- * 3) To avoid mistakes caused by ommitting arbitrary part of the type checking 
+ * 3) To avoid mistakes caused by ommitting arbitrary part of the type checking
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.92 2004/07/23 06:20:27 dds Exp $
+ * $Id: parse.y,v 1.93 2004/07/23 06:55:38 dds Exp $
  *
  */
 
@@ -66,7 +66,7 @@ void parse_error(char *s)
 
 /*
  * A stack needed for handling C9X designators
- * The stack's top always contains the type of the 
+ * The stack's top always contains the type of the
  * element that can be designated.
  */
 typedef struct {
@@ -98,7 +98,7 @@ designator_open()
 	if (DP() && !designator_stack.empty())
 		cout << "Top designator " << designator_stack.top().t << " ordinal " << designator_stack.top().ordinal << "\n";
 	d.ordinal = 0;
-	if (designator_stack.empty()) 
+	if (designator_stack.empty())
 		d.t = initialized_element;
 	else if (designator_stack.top().t.is_array())
 		d.t = designator_stack.top().t.subscript();
@@ -133,7 +133,7 @@ designator_open()
 static void
 designator_next()
 {
-	if (!designator_stack.empty()) 
+	if (!designator_stack.empty())
 		designator_stack.top().ordinal++;
 }
 
@@ -142,7 +142,7 @@ designator_next()
 static void
 designator_close()
 {
-	if (!designator_stack.empty()) 
+	if (!designator_stack.empty())
 		designator_stack.pop();
 	else
 		; // The error will be reported as a syntax error
@@ -155,7 +155,7 @@ designator_close()
 // Elements used for parsing yacc code
 /*
  * Lexical tie in
- * Set to true when we are parsing yacc definitions 
+ * Set to true when we are parsing yacc definitions
  * (the first part of a yacc file, but not C code like
  * this part
  */
@@ -491,17 +491,17 @@ arith_unary_operator:
 cast_expression:
         unary_expression
         | '(' type_name ')' cast_expression
-		{ 
-			$$ = $2;  
+		{
+			$$ = $2;
 			if (DP())
-				cout << "cast to " << $2 << "\n"; 
+				cout << "cast to " << $2 << "\n";
 		}
 	/* C9X feature */
         | '(' type_name ')' compound_literal
 		{ $$ = $2; }
         ;
 
-/* 
+/*
  * XXX Can designators and compound literals be used in compound literals?
  * If so our designators must be redesigned, because they can not be nested
  */
@@ -531,14 +531,14 @@ additive_expression:
 				/* Propagate pointer property */
 				if ($3.is_ptr())
 					$$ = $3;
-				else 
+				else
 					$$ = $1;
 			}
         | additive_expression '-' multiplicative_expression
 			{
 				if ($1.is_ptr() && $3.is_ptr())
 					$$ = basic(b_int);
-				else 
+				else
 					$$ = $1;
 			}
         ;
@@ -604,8 +604,8 @@ logical_or_expression:
 conditional_expression:
         logical_or_expression
         | logical_or_expression '?' comma_expression ':' conditional_expression
-			{ 
-				/* 
+			{
+				/*
 				 * A number of complicated rules specify the result's type
 				 * See ANSI 3.3.15
 				 * For our purpose it may be enough to check if one of the
@@ -618,8 +618,8 @@ conditional_expression:
 					$$ = $3;
 			}
         | logical_or_expression '?' ':' conditional_expression
-			{ 
-				/* 
+			{
+				/*
 				 * gcc extension: second argument is optional, in that
 				 * case the result is the first.
 				 */
@@ -635,9 +635,9 @@ assignment_expression:
         conditional_expression
 		{
 			Fdep::add_provider(Fchar::get_fileid());
-			$$ = $1; 
+			$$ = $1;
 		}
-	/* 
+	/*
 	 * $1 was unary expression.  Changed to cast_expression
 	 * to allow the illegal construct "(int)a = 3" that gcc accepts.
 	 * In any case, the existing form allowed "-(int)a = 3"
@@ -645,7 +645,7 @@ assignment_expression:
         | cast_expression assignment_operator assignment_expression
 		{
 			Fdep::add_provider(Fchar::get_fileid());
-			$$ = $1; 
+			$$ = $1;
 		}
         ;
 
@@ -899,7 +899,7 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 			$$ = $1;
 		}
         | declaration_qualifier_list    TYPEDEF_NAME
-		{ 
+		{
 			Id const *id = obj_lookup($2.get_name());
 			assert(id);	// If it's a typedef it can be found
 			Token::unify(id->get_token(), $2.get_token());
@@ -915,7 +915,7 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 
 typedef_type_specifier:              /* typedef types */
         TYPEDEF_NAME
-		{ 
+		{
 			Id const *id = obj_lookup($1.get_name());
 			assert(id);	// If it's a typedef it can be found
 			Token::unify(id->get_token(), $1.get_token());
@@ -923,7 +923,7 @@ typedef_type_specifier:              /* typedef types */
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
 		}
         | type_qualifier_list    TYPEDEF_NAME
-		{ 
+		{
 			Id const *id = obj_lookup($2.get_name());
 			assert(id);	// If it's a typedef it can be found
 			Token::unify(id->get_token(), $2.get_token());
@@ -974,7 +974,7 @@ aggregate_name:
 			$$ = $4;
 		}
         | aggregate_key identifier_or_typedef_name
-		{ 
+		{
 			Id const *id = tag_lookup($2.get_name());
 			if (id) {
 				Token::unify(id->get_token(), $2.get_token());
@@ -1074,7 +1074,7 @@ member_declaring_list:
 		if ($1.is_su()) {
 			const Stab &s = $1.get_members_by_name();
 			Stab_element::const_iterator i;
-			
+
 			for (i = s.begin(); i != s.end(); i++)
 				if (i == s.begin())
 					$$ = struct_union(
@@ -1113,7 +1113,7 @@ member_declarator:
 
 member_identifier_declarator:
 	/* a[3]; also typedef names */
-        identifier_declarator asm_or_attribute_list bit_field_size_opt 
+        identifier_declarator asm_or_attribute_list bit_field_size_opt
 		{ $$ = $1; }
         | bit_field_size
 		/* Padding bit field */
@@ -1135,7 +1135,7 @@ enum_name:
         | ENUM attribute_list_opt identifier_or_typedef_name '{' enumerator_list comma_opt '}'
 		{ tag_define($3.get_token(), $$ = enum_tag()); }
         | ENUM attribute_list_opt identifier_or_typedef_name
-		{ 
+		{
 			Id const *id = tag_lookup($3.get_name());
 			if (id) {
 				Token::unify(id->get_token(), $3.get_token());
@@ -1313,7 +1313,7 @@ initializer_member:
 designator:
         '[' constant_expression ']'
 		{
-			if (designator_stack.empty()) 
+			if (designator_stack.empty())
 				$$ = basic(b_undeclared);
 			else
 				$$ = designator_stack.top().t.subscript();
@@ -1352,12 +1352,12 @@ designator:
 
 
 /*************************** STATEMENTS *******************************/
-statement: 
+statement:
 	any_statement
-		{ 
+		{
 			Fchar::get_fileid().metrics().add_statement();
 			Fdep::add_provider(Fchar::get_fileid());
-			$$ = $1; 
+			$$ = $1;
 		}
 	;
 
@@ -1389,18 +1389,18 @@ labeled_statement:
         | DEFAULT ':'
         ;
 
-function_brace_begin: '{' 
-		{ 
-			Block::param_enter(); 
+function_brace_begin: '{'
+		{
+			Block::param_enter();
 			Fchar::get_fileid().metrics().add_function();
 		}
 	;
 
-brace_begin: '{' 
+brace_begin: '{'
 		{ Block::enter(); }
 	;
 
-brace_end: '}' 
+brace_end: '}'
 		{ Block::exit(); }
 	;
 
@@ -1470,7 +1470,7 @@ assembly_decl:
 		{ $$ = $2; }
 	;
 
-assembly_statement: 
+assembly_statement:
 	GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')' ';'
 	;
 
@@ -1480,12 +1480,12 @@ asm_operands_opt:
 	| ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt
 	;
 
-asm_operand_list_opt: 
+asm_operand_list_opt:
 	/* Empty */
 	| asm_operand_list
 	;
 
-asm_operand_list: 
+asm_operand_list:
 	asm_operand
 	| asm_operand_list ',' asm_operand
 	;
@@ -1493,12 +1493,12 @@ asm_operand_list:
 asm_operand: string_literal_list '(' comma_expression ')'
 	;
 
-asm_clobber_list_opt: 
+asm_clobber_list_opt:
 	/* Empty */
 	| ':' asm_clobber_list
 	;
 
-asm_clobber_list: 
+asm_clobber_list:
 	STRING_LITERAL
 	| asm_clobber_list ',' STRING_LITERAL
 	;
@@ -1563,7 +1563,7 @@ function_definition:
 		}
 					function_body
         | type_qualifier_list        identifier_declarator asm_or_attribute_list
-		{ 
+		{
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
@@ -1574,40 +1574,40 @@ function_definition:
 	/* foo(a, b) @ { } */
         |                            old_function_declarator
 		{
-			$1.declare(); 
+			$1.declare();
 			FCall::set_current_fun($1);
 		}
 					function_body
         | declaration_specifier      old_function_declarator
 		{
-			$2.set_abstract($1); 
-			$2.declare(); 
+			$2.set_abstract($1);
+			$2.declare();
 			FCall::set_current_fun($2);
 		}
 					function_body
         | type_specifier             old_function_declarator
 		{
-			$2.set_abstract($1); 
-			$2.declare(); 
+			$2.set_abstract($1);
+			$2.declare();
 			FCall::set_current_fun($2);
 		}
 					function_body
         | declaration_qualifier_list old_function_declarator
 		{
-			$2.set_abstract($1); 
-			$2.declare(); 
+			$2.set_abstract($1);
+			$2.declare();
 			FCall::set_current_fun($2);
 		}
 					function_body
         | type_qualifier_list        old_function_declarator
 		{
-			$2.declare(); 
+			$2.declare();
 			FCall::set_current_fun($2);
 		}
 					function_body
 
 	/* foo(a, b) @ int a; int b; @ { } */
-        |                            old_function_declarator 
+        |                            old_function_declarator
 		{ Block::param_use(); } declaration_list
 		{
 			Block::param_use_end();
@@ -1683,8 +1683,8 @@ attribute_list:
 	;
 
 attribute:
-	/*  
-	 * register u_int64_t a0 @ __asm__("$16") = pfn; (alpha code) 
+	/*
+	 * register u_int64_t a0 @ __asm__("$16") = pfn; (alpha code)
 	 * int enter(void) __asm__("enter");
 	 */
 	UNUSED
@@ -1870,10 +1870,10 @@ postfix_abstract_declarator:
 /***************************** YACC RULES ***************************************/
 
 file:
-	YACC_COOKIE { 
+	YACC_COOKIE {
 			if (DP())
 				cout << "Parsing yacc code\n";
-			parse_yacc_defs = true; 
+			parse_yacc_defs = true;
 			yacc_typing = false;
 			yacc_type.clear();
 		} yacc_body
@@ -1882,7 +1882,7 @@ file:
 	;
 
 yacc_body:
-	yacc_defs YMARK 
+	yacc_defs YMARK
 		{
 			// typedef YYSTYPE int if not defined
 			if (!yacc_typing)
@@ -1897,9 +1897,9 @@ yacc_body:
 				id = obj_lookup("yyparse");
 			}
 			FCall::set_current_fun(id);
-		} yacc_rules 
+		} yacc_rules
 		{
-			parse_yacc_defs = false; 
+			parse_yacc_defs = false;
 		} yacc_tail
 	;
 
@@ -1946,7 +1946,7 @@ yacc_tag:
 					/*
 					 * @error
 					 * The yacc $<tag>n syntax was used
-					 * to specify an element of the %union 
+					 * to specify an element of the %union
 					 * but no union was defined.
 					 */
 					Error::error(E_ERR, "explicit element tag without no %union in effect");
@@ -1959,7 +1959,7 @@ yacc_tag:
 				} else {
 					/*
 					 * @error
-					 * The yacc %union 
+					 * The yacc %union
 					 * does not have as a member the
 					 * identifier appearing on the
 					 * element's tag
@@ -2054,10 +2054,10 @@ yacc_id_action_list:
 	/* Empty */
 	| yacc_id_action_list yacc_name
 		{ yacc_dollar.push_back($2.get_name()); }
-        | yacc_id_action_list { parse_yacc_defs = false; } equal_opt compound_statement 
+        | yacc_id_action_list { parse_yacc_defs = false; } equal_opt compound_statement
 		{
-			parse_yacc_defs = true; 
-			yacc_dollar.push_back("_ACTION_"); 
+			parse_yacc_defs = true;
+			yacc_dollar.push_back("_ACTION_");
 		}
 	;
 
@@ -2097,7 +2097,7 @@ yacc_variable:
 			else
 				$$ = (*i).second;
 			if (DP())
-				cout << "yacc type of $" << val << " which is " << 
+				cout << "yacc type of $" << val << " which is " <<
 				yacc_dollar[val] << " resolves to " << $$ << "\n";
 		}
 	| '$' '-' INT_CONST

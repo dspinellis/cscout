@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.20 2002/10/07 20:13:59 dds Exp $
+ * $Id: webmap.cpp,v 1.21 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <map>
@@ -24,7 +24,7 @@
 #include <sys/types.h>		// mkdir
 #include <sys/stat.h>		// mkdir
 #else
-#include <io.h>			// mkdir 
+#include <io.h>			// mkdir
 #endif
 
 
@@ -149,8 +149,8 @@ file_hypertext(ofstream &of, ofstream &uof, Fileid fi, bool write_uof)
 			msum.add_id(ec);
 			// Worth marking?
 			if (ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
-			      ec->get_attribute(is_lscope) || 
-			      ec->get_attribute(is_cscope) || 
+			      ec->get_attribute(is_lscope) ||
+			      ec->get_attribute(is_cscope) ||
 			      ec->get_attribute(is_macro)))) {
 				string s;
 				s = (char)val;
@@ -196,7 +196,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.20 2002/10/07 20:13:59 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.21 2004/07/23 06:55:38 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -207,7 +207,7 @@ html_head(ofstream &of, const string fname, const string title)
 static void
 html_tail(ofstream &of)
 {
-	of <<	"<p>" 
+	of <<	"<p>"
 		"<a href=\"index.html\">Main page</a>\n"
 		"</body>"
 		"</html>";
@@ -302,7 +302,7 @@ main(int argc, char *argv[])
 	fo << "\n</ul>\n";
 	html_tail(fo);
 
-	// Details for each file 
+	// Details for each file
 	// As a side effect populate the EC identifier member
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		ostringstream fname;
@@ -318,39 +318,39 @@ main(int argc, char *argv[])
 		if ((*i).get_readonly() == false)
 			html_tail(usfo);
 		fo << "<ul>\n" <<
-		"<li> Read-only: " << 
+		"<li> Read-only: " <<
 		((*i).get_readonly() ? "Yes" : "No") <<
-		"\n<li> Number of characters: " << 
+		"\n<li> Number of characters: " <<
 		(*i).metrics().get_nchar() <<
-		"\n<li> Comment characters: " << 
+		"\n<li> Comment characters: " <<
 		(*i).metrics().get_nccomment() <<
-		"\n<li> Space characters: " << 
+		"\n<li> Space characters: " <<
 		(*i).metrics().get_nspace() <<
-		"\n<li> Number of line comments: " << 
+		"\n<li> Number of line comments: " <<
 		(*i).metrics().get_nlcomment() <<
-		"\n<li> Number of block comments: " << 
+		"\n<li> Number of block comments: " <<
 		(*i).metrics().get_nbcomment() <<
-		"\n<li> Number of lines: " << 
+		"\n<li> Number of lines: " <<
 		(*i).metrics().get_nline() <<
-		"\n<li> Length of longest line: " << 
+		"\n<li> Length of longest line: " <<
 		(*i).metrics().get_maxlinelen() <<
-		"\n<li> Number of preprocessor directives: " << 
+		"\n<li> Number of preprocessor directives: " <<
 		(*i).metrics().get_nppdirective() <<
-		"\n<li> Number of directly included files: " << 
+		"\n<li> Number of directly included files: " <<
 		(*i).metrics().get_nincfile() <<
-		"\n<li> Number of defined functions: " << 
+		"\n<li> Number of defined functions: " <<
 		(*i).metrics().get_nfunction() <<
-		"\n<li> Number of C statements: " << 
+		"\n<li> Number of C statements: " <<
 		(*i).metrics().get_nstatement() <<
-		"\n<li> Number of C strings: " << 
+		"\n<li> Number of C strings: " <<
 		(*i).metrics().get_nstring() <<
-		"\n<li> Contains unused identifiers: " << 
+		"\n<li> Contains unused identifiers: " <<
 		(has_unused ? "Yes" : "No") <<
 		"\n<li> Used in project(s): \n<ul>";
 		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
 			if ((*i).get_attribute(j))
 				fo << "<li>" << Project::get_projname(j) << "\n";
-		fo << "</ul>\n<li> <a href=\"s" 
+		fo << "</ul>\n<li> <a href=\"s"
 		<< fname.str() << ".html\">Source code</a>\n";
 		if (has_unused)
 			fo << "<li> <a href=\"u" << fname.str() << ".html\">Source code (with unused identifiers marked)</a>\n";
@@ -436,7 +436,7 @@ main(int argc, char *argv[])
 				fo << "f " << (*j).get_fileid().get_path() << "\n";
 				ofid = (*j).get_fileid();
 			}
-			fo << "s " << 
+			fo << "s " <<
 				(*j).get_streampos() << ' ' <<
 				e->get_len() << ' ' <<
 				"NEWID\n";

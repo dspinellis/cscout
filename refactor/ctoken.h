@@ -1,11 +1,11 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A C token.
  * The getnext() method for these tokens converts preprocessor tokens to C
  * tokens.
  *
- * $Id: ctoken.h,v 1.4 2001/09/12 07:09:08 dds Exp $
+ * $Id: ctoken.h,v 1.5 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef CTOKEN_

@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001-2003 Diomidis Spinellis.
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.72 2004/07/23 06:20:27 dds Exp $
+ * $Id: cscout.cpp,v 1.73 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <map>
@@ -33,7 +33,7 @@
 #include <sys/stat.h>		// mkdir
 #include <unistd.h>		// unlink
 #else
-#include <io.h>			// mkdir 
+#include <io.h>			// mkdir
 #endif
 
 #include "cpp.h"
@@ -154,10 +154,10 @@ private:
 	// Attribute match specs
 	vector <bool> match;
 	// Other query arguments
-	bool xfile;		// True if cross file 
+	bool xfile;		// True if cross file
 	bool unused;		// True if unused id (EC size == 1 and not declared unused)
 	bool writable;		// True if writable
-	Eclass *ec;		// True if identifier EC matches 
+	Eclass *ec;		// True if identifier EC matches
 				// No other evaluation takes place
 	string name;		// Query name
 public:
@@ -190,7 +190,7 @@ public:
 // Identifiers to monitor (-m parameter)
 static IdQuery monitor;
 
-static IdProp ids; 
+static IdProp ids;
 static vector <Fileid> files;
 static Attributes::size_type current_project;
 
@@ -211,7 +211,7 @@ progress(IdProp::iterator i)
 	}
 }
 
-/* 
+/*
  * Return as a C string the HTML equivalent of character c
  * Handles tab-stop expansion provided all output is processed through this
  * function
@@ -228,7 +228,7 @@ html(char c)
 	case '<': column++; return "&lt;";
 	case '>': column++; return "&gt;";
 	case ' ': column++; return "&nbsp;";
-	case '\t': 
+	case '\t':
 		if ((int)(spaces.size()) != tab_width) {
 			spaces.resize(tab_width);
 			for (int i = 0; i < tab_width; i++) {
@@ -239,7 +239,7 @@ html(char c)
 			}
 		}
 		return spaces[column % tab_width].c_str();
-	case '\n': 
+	case '\n':
 		column = 0;
 		return "<br>\n";
 	default:
@@ -519,7 +519,7 @@ html_head(FILE *of, const string fname, const string title)
 	swill_title(title.c_str());
 	if (DP())
 		cerr << "Write to " << fname << "\n";
-	fprintf(of, 
+	fprintf(of,
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
@@ -527,7 +527,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
-		"<h1>%s</h1>\n", 
+		"<h1>%s</h1>\n",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str(),
 		title.c_str(), title.c_str());
@@ -539,8 +539,8 @@ html_tail(FILE *of)
 {
 	if (current_project)
 		fprintf(of, "<p> <b>Project %s is currently selected</b>\n", Project::get_projname(current_project).c_str());
-	fprintf(of, 
-		"<p>" 
+	fprintf(of,
+		"<p>"
 		"<a href=\"index.html\">Main page</a>\n"
 		" - Web: "
 		"<a href=\"http://www.spinellis.gr/cscout\">Home</a>\n"
@@ -659,7 +659,7 @@ fquery_page(FILE *of,  void *p)
 			"<option value=\"%d\">!="
 			"<option value=\"%d\">&lt;"
 			"<option value=\"%d\">&gt;"
-			"</select></td><td>", 
+			"</select></td><td>",
 			ec_ignore, ec_eq, ec_ne, ec_lt, ec_gt);
 		fprintf(of, "<INPUT TYPE=\"text\" NAME=\"n%d\" SIZE=5 MAXLENGTH=10></td></tr>\n", i);
 	}
@@ -761,7 +761,7 @@ xfquery_page(FILE *of,  void *p)
 	}
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if (current_project && !(*i).get_attribute(current_project)) 
+		if (current_project && !(*i).get_attribute(current_project))
 			continue;
 		if (match_fre && regexec(&fre, (*i).get_path().c_str(), 0, NULL, 0) == REG_NOMATCH)
 			continue;
@@ -795,7 +795,7 @@ xfquery_page(FILE *of,  void *p)
 	html_file_begin(of);
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
-		if (current_project && !f.get_attribute(current_project)) 
+		if (current_project && !f.get_attribute(current_project))
 			continue;
 		html_file(of, *i);
 	}
@@ -839,7 +839,7 @@ iquery_page(FILE *of,  void *p)
 	fputs("<FORM ACTION=\"xiquery.html\" METHOD=\"GET\">\n"
 	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable<br>\n", of);
 	for (int i = attr_begin; i < attr_end; i++)
-		fprintf(of, "<input type=\"checkbox\" name=\"a%d\" value=\"1\">%s<br>\n", i, 
+		fprintf(of, "<input type=\"checkbox\" name=\"a%d\" value=\"1\">%s<br>\n", i,
 			Attributes::name(i).c_str());
 	fputs(
 	"<input type=\"checkbox\" name=\"xfile\" value=\"1\">Crosses file boundary<br>\n"
@@ -1056,7 +1056,7 @@ IdQuery::eval(const IdPropElem &i)
 
 	if (ec)
 		return (i.first == ec);
-	if (current_project && !i.first->get_attribute(current_project)) 
+	if (current_project && !i.first->get_attribute(current_project))
 		return false;
 	int retval = exclude_ire ? 0 : REG_NOMATCH;
 	if (match_ire && regexec(&ire, i.second.get_id().c_str(), 0, NULL, 0) == retval)
@@ -1167,7 +1167,7 @@ xiquery_page(FILE *of,  void *p)
 		html_file_begin(of);
 		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 			Fileid f = *i;
-			if (current_project && !f.get_attribute(current_project)) 
+			if (current_project && !f.get_attribute(current_project))
 				continue;
 			html_file(of, *i);
 			fprintf(of, " - <a href=\"qsrc.html?id=%u&%s\">marked source</a>",
@@ -1317,13 +1317,13 @@ function_page(FILE *fo, void *p)
 
 /*
  * List all functions associated with a call/caller relationship with f
- * The methods to obtain the relationship containers are passed through 
+ * The methods to obtain the relationship containers are passed through
  * the fbegin and fend method pointers.
  * If recurse is true the also list will contain all correspondingly
  * associated children functions.
  */
 void
-list_functions(FILE *fo, Call *f, 
+list_functions(FILE *fo, Call *f,
 	Call::const_fiterator_type (Call::*fbegin)() const,
 	Call::const_fiterator_type (Call::*fend)() const,
 	bool recurse)
@@ -1506,7 +1506,7 @@ void
 index_page(FILE *of, void *data)
 {
 	html_head(of, "index", "CScout Main Page");
-	fprintf(of, 
+	fprintf(of,
 		"<h2>Files</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"fmetrics.html\">File Metrics</a>\n"
@@ -1717,7 +1717,7 @@ quit_page(FILE *of, void *p)
 static void
 parse_acl()
 {
-	
+
 	ifstream in;
 	string ad, host;
 	vector <string> dirs;
@@ -1832,7 +1832,7 @@ warning_report()
 				continue;
 			const Tokid t = *((*j).first->get_members().begin());
 			const string &id = (*j).second.get_id();
-			cerr << t.get_path() << ':' << 
+			cerr << t.get_path() << ':' <<
 				t.get_fileid().line_number(t.get_streampos()) << ": " <<
 				id << ": " << reports[i].message << '\n';
 		}
@@ -1875,7 +1875,7 @@ warning_report()
 				const set <Fileid> &sf = (*si).second.get_files();
 				int line = (*si).first;
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
-					cerr << (*i).get_path() << ':' << 
+					cerr << (*i).get_path() << ':' <<
 						line << ": unused included file " <<
 						(*fi).get_path() << '\n';
 			}
@@ -1970,7 +1970,7 @@ main(int argc, char *argv[])
 		Fchar::set_input(argv[optind]);
 		return simple_cpp();
 	}
-		
+
 	if (!compile_only && !swill_init(portno)) {
 		cerr << "Couldn't initialize our web server on port " << portno << "\n";
 		exit(1);
@@ -2028,10 +2028,10 @@ main(int argc, char *argv[])
 #ifdef COMMERCIAL
 	motd = license_check(licensee, url(Version::get_revision()).c_str(), file_msum.get_total(em_nchar));
 #else
-	/* 
+	/*
 	 * Send the metrics
 	 * up to 10 project names
-	 * up 50 cross-file identifiers 
+	 * up 50 cross-file identifiers
 	 */
 	ostringstream mstring;
 	mstring << file_msum;
@@ -2106,7 +2106,7 @@ main(int argc, char *argv[])
 }
 
 
-// Clear equivalence classes that do not 
+// Clear equivalence classes that do not
 // satisfy the monitoring criteria
 void
 garbage_collect(Fileid root)

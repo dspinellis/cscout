@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A unique file identifier.  This is constructed from the file's name.
@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.21 2003/08/21 20:57:27 dds Exp $
+ * $Id: fileid.h,v 1.22 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef FILEID_
@@ -199,7 +199,7 @@ operator <(const class Fileid a, const class Fileid b)
 
 // Can be used to order Fileid sets
 struct fname_order : public binary_function <const Fileid &, const Fileid &, bool> {
-      bool operator()(const Fileid &a, const Fileid &b) const { 
+      bool operator()(const Fileid &a, const Fileid &b) const {
 	      return a.get_path() < b.get_path();
       }
 };

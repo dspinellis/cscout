@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A character coming from a file.
@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.11 2003/06/19 11:11:01 dds Exp $
+ * $Id: fchar.h,v 1.12 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef FCHAR_

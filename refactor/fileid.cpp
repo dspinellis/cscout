@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.29 2003/08/21 20:57:27 dds Exp $
+ * $Id: fileid.cpp,v 1.30 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <map>
@@ -41,7 +41,7 @@ void
 Fileid::clear()
 {
 	u2i.clear();
-	i2d.clear(); 
+	i2d.clear();
 	Fileid::anonymous = Fileid("ANONYMOUS", 0);
 }
 
@@ -54,16 +54,16 @@ werror(LONG err)
 {
 	LPVOID lpMsgBuf;
 
-	FormatMessage( 
-	    FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-	    FORMAT_MESSAGE_FROM_SYSTEM | 
+	FormatMessage(
+	    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+	    FORMAT_MESSAGE_FROM_SYSTEM |
 	    FORMAT_MESSAGE_IGNORE_INSERTS,
 	    NULL,
 	    err,		// GetLastError() does not seem to work reliably
 	    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
 	    (LPTSTR) &lpMsgBuf,
 	    0,
-	    NULL 
+	    NULL
 	);
 	string s((const char *)lpMsgBuf);
 	LocalFree(lpMsgBuf);
@@ -190,7 +190,7 @@ Fileid::get_path() const
 }
 
 
-bool 
+bool
 Fileid::get_readonly() const
 {
 	return i2d[id].get_readonly();
@@ -202,7 +202,7 @@ Fileid::set_readonly(bool r)
 	i2d[id].set_readonly(r);
 }
 
-Filedetails::Filedetails(string n, bool r) : 
+Filedetails::Filedetails(string n, bool r) :
 	name(n), m_compilation_unit(false)
 {
 	set_readonly(r);
@@ -240,7 +240,7 @@ void
 Filedetails::include_update_included(const Fileid included, bool directly, bool required, int line)
 {
 	if (DP())
-		cout << "File includes " << included.get_path() << 
+		cout << "File includes " << included.get_path() <<
 			(directly ? " directly " : " indirectly ") <<
 			(required ? " required " : " non required ") <<
 			" line " << line << "\n";
@@ -260,7 +260,7 @@ Filedetails::include_update_includer(const Fileid includer, bool directly, bool 
 }
 
 // Return a sorted list of all filenames used
-vector <Fileid> 
+vector <Fileid>
 Fileid::files(bool sorted)
 {
 	vector <Fileid> r(i2d.size() - 1);

@@ -1,11 +1,11 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A global map from tokids to equivalence classes.
  *
  * Include synopsis:
  *
- * $Id: tokmap.h,v 1.1 2001/08/15 18:08:00 dds Exp $
+ * $Id: tokmap.h,v 1.2 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef TOKMAP_

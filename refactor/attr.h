@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2002 Diomidis Spinellis.
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.14 2003/11/17 13:47:17 dds Exp $
+ * $Id: attr.h,v 1.15 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef ATTR_
@@ -25,7 +25,7 @@ enum e_attribute {
 	is_undefined_macro,	// Macro (heuristic: ifdef, defined)
 	is_macroarg,		// Macro argument
 	// The following are valid if is_ordinary is true:
-	is_cscope,		// Compilation-unit (file) scoped 
+	is_cscope,		// Compilation-unit (file) scoped
 				// identifier  (static)
 	is_lscope,		// Linkage-unit scoped identifier
 	is_typedef,		// Typedef

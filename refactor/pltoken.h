@@ -1,10 +1,10 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.25 2003/06/19 11:11:01 dds Exp $
+ * $Id: pltoken.h,v 1.26 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -26,7 +26,7 @@ public:
 };
 
 /*
- * Given "base" that marks the beginning of a token 
+ * Given "base" that marks the beginning of a token
  * "follow" that follows its characters as they are read, and
  * c0, a new character read, check that the new character
  * is indeed agreeing with the value of "follow".
@@ -64,21 +64,21 @@ Pltoken::getnext()
 	parts.clear();
 	c0.getnext();
 	switch (c0.get_char()) {
-	/* 
-	 * Single character C operators and punctuators 
+	/*
+	 * Single character C operators and punctuators
 	 * ANSI 3.1.5 p. 32 and 3.1.6 p. 33
 	 */
 	case '\n':	// Needed for processing directives
 		context = cpp_normal;
 		// FALLTRHOUGH
-	case '[': case ']': case '(': case ')': 
+	case '[': case ']': case '(': case ')':
 	case '~': case '?': case ':': case ',': case ';':
 	case '{': case '}':
 	case EOF:
 		val = (char)(code = c0.get_char());
 		break;
-	/* 
-	 * Double character C tokens with more than 2 different outcomes 
+	/*
+	 * Double character C tokens with more than 2 different outcomes
 	 * (e.g. +, +=, ++)
 	 */
 	case '+':
@@ -203,7 +203,7 @@ Pltoken::getnext()
 		c0.getnext();
 		switch (c0.get_char()) {
 		case '=':				/* >= */
-			code = GE_OP; 
+			code = GE_OP;
 			val = ">=";
 			break;
 		case '>':
@@ -239,7 +239,7 @@ Pltoken::getnext()
 		c0.getnext();
 		switch (c0.get_char()) {
 		case '=':				/* <= */
-			code = LE_OP; 
+			code = LE_OP;
 			val = "<=";
 			break;
 		case '<':
@@ -264,7 +264,7 @@ Pltoken::getnext()
 		c0.getnext();
 		switch (c0.get_char()) {
 		case '=':				/* /= */
-			code = DIV_ASSIGN; 
+			code = DIV_ASSIGN;
 			val = "/=";
 			break;
 		case '*':				/* Block comment */
@@ -280,7 +280,7 @@ Pltoken::getnext()
 				if (c0.get_char() == EOF)
 					/*
 					 * @error
-					 * The end of file was reached while 
+					 * The end of file was reached while
 					 * processing a block comment
 					 */
 					Error::error(E_FATAL, "EOF in comment");
@@ -302,7 +302,7 @@ Pltoken::getnext()
 			val = " ";
 			break;
 		no_comment:
-			/* 
+			/*
 			 * Comment in an expanded macro.
 			 * Could issue a warning here, but Microsoft uses such
 			 * line comments, so we handle it in pdtoken.cpp
@@ -334,7 +334,7 @@ Pltoken::getnext()
 		code = ELLIPSIS;
 		val = "...";
 		break;
-	/* 
+	/*
 	 * Convert whitespace into a single token; whitespace is needed
 	 * by the C preprocessor.
 	 */
@@ -358,14 +358,14 @@ Pltoken::getnext()
 			C::putback(c1);
 			goto identifier;
 		}
-	case '_': case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': 
-	case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': 
-	case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't': 
-	case 'u': case 'v': case 'w': case 'x': case 'y': case 'z': 
-	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': 
-	case 'H': case 'I': case 'J': case 'K': case 'M': case 'N': case 'O': 
-	case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': 
-	case 'W': case 'X': case 'Y': case 'Z': 
+	case '_': case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+	case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm':
+	case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't':
+	case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
+	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+	case 'H': case 'I': case 'J': case 'K': case 'M': case 'N': case 'O':
+	case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V':
+	case 'W': case 'X': case 'Y': case 'Z':
 	identifier:
 		{
 		val = c0.get_char();
@@ -402,7 +402,7 @@ Pltoken::getnext()
 				if (c0.get_char() == EOF) {
 					/*
 					 * @error
-					 * The end of file was reached while 
+					 * The end of file was reached while
 					 * processing a character literal:
 					 * a single quote was never closed
 					 */
@@ -452,7 +452,7 @@ Pltoken::getnext()
 				if (c0.get_char() == EOF) {
 					/*
 					 * @error
-					 * The end of file was reached while 
+					 * The end of file was reached while
 					 * processing a string
 					 */
 					Error::error(E_ERR, "End of file in string literal");
@@ -472,7 +472,7 @@ Pltoken::getnext()
 		break;
 	/* Various numbers */
 	case '0': case '1': case '2': case '3': case '4':
-	case '5': case '6': case '7': case '8': case '9': 
+	case '5': case '6': case '7': case '8': case '9':
 		val = c0.get_char();
 	pp_number:
 		{

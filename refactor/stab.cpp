@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.33 2004/07/23 06:20:27 dds Exp $
+ * $Id: stab.cpp,v 1.34 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <map>
@@ -342,7 +342,7 @@ label_define(const Token& tok)
 		if (id->get_type().is_valid())
 			/*
 			 * @error
-			 * The same <code>goto</code> label is defined more 
+			 * The same <code>goto</code> label is defined more
 			 * than once in a given function
 			 */
 			Error::error(E_ERR, "label " + tok.get_name() + " already defined");
@@ -388,7 +388,7 @@ Function::exit()
 	label.clear();
 }
 
-ostream& 
+ostream&
 operator<<(ostream& o,const Stab &s)
 {
 	Stab_element::const_iterator i;

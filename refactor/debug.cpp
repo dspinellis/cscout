@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: debug.cpp,v 1.2 2001/09/03 08:13:51 dds Exp $
+ * $Id: debug.cpp,v 1.3 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <set>

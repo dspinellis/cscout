@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.86 2003/08/15 16:56:45 dds Exp $
+ * $Id: pdtoken.cpp,v 1.87 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -129,9 +129,9 @@ again:
 	case IDENTIFIER:
 		extern bool parse_yacc_defs;
 		if (parse_yacc_defs) {
-			/* 
-			 * We do not want the preprocessor to do macro processing 
-			 * outside the context of C code in yacc files, since 
+			/*
+			 * We do not want the preprocessor to do macro processing
+			 * outside the context of C code in yacc files, since
 			 * terminals are often defined as numbers using macros.
 			 */
 			*this = t;
@@ -267,7 +267,7 @@ eval()
 
 	// Process the "defined" operator
 	listPtoken::iterator i, arg, last, i2;
-	for (i = eval_tokens.begin(); 
+	for (i = eval_tokens.begin();
 	     (i = i2 = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<string>(),"defined"), mem_fun_ref(&Ptoken::get_val)))) != eval_tokens.end(); ) {
 	     	bool need_bracket = false;
 		i2++;
@@ -280,7 +280,7 @@ eval()
 		if (arg == eval_tokens.end() || (*arg).get_code() != IDENTIFIER) {
 			/*
 			 * @error
-			 * The 
+			 * The
 			 * <code>defined</code> operator was not followed
 			 * by an identifier
 			 */
@@ -293,7 +293,7 @@ eval()
 			if (last == eval_tokens.end() || (*last).get_code() != ')') {
 					/*
 					 * @error
-					 * The identifier of a 
+					 * The identifier of a
 					 * <code>defined</code> operator was not
 					 * followed by a closing bracket
 					 */
@@ -315,7 +315,7 @@ eval()
 		eval_tokens.insert(last, Ptoken(PP_NUMBER, Pdtoken::macro_is_defined(mi) ? "1" : "0"));
 		i = last;
 	}
-	
+
 	if (DP()) {
 		cout << "Tokens after defined:\n";
 		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
@@ -323,7 +323,7 @@ eval()
 
 
 	// Change remaining identifiers to 0
-	for (i = eval_tokens.begin(); 
+	for (i = eval_tokens.begin();
 	     (i = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<int>(),IDENTIFIER), mem_fun_ref(&Ptoken::get_code)))) != eval_tokens.end(); )
 	     	*i = Ptoken(PP_NUMBER, "0");
 	eval_ptr = eval_tokens.begin();
@@ -356,9 +356,9 @@ eval()
  * if false continue processing input.
  * At #endif execute iftaken.pop()
  *
- * Skipping is performed by setting skiplevel=1 and looking for a 
+ * Skipping is performed by setting skiplevel=1 and looking for a
  * #e* when skiplevel == 1.
- * While skiplevel > 0 each #if* results in skiplevel++, each #endif in 
+ * While skiplevel > 0 each #if* results in skiplevel++, each #endif in
  * skiplevel--.
  * Skiplevel handling:
  * 0 normal processing
@@ -607,7 +607,7 @@ Pdtoken::process_define()
 	if (t.get_code() != IDENTIFIER) {
 		/*
 		 * @error
-		 * The macro name specified in a 
+		 * The macro name specified in a
 		 * <code>#define</code> or
 		 * <code>#undef</code>
 		 * directive is not a valid identifier
@@ -640,7 +640,7 @@ Pdtoken::process_define()
 				if (t.get_code() != IDENTIFIER && t.get_code() != ELLIPSIS) {
 					/*
 					 * @error
-					 * A macro parameter name specified in a 
+					 * A macro parameter name specified in a
 					 * <code>#define</code>
 					 * directive is not a valid identifier
 					 */
@@ -821,7 +821,7 @@ Pdtoken::process_pragma()
 			 * @error
 			 * The
 			 * <code>#pragma sync</code>
-			 * CScout-specific directive was not followed by a 
+			 * CScout-specific directive was not followed by a
 			 * string
 			 */
 			Error::error(E_ERR, "#pragma sync: string expected");
@@ -833,7 +833,7 @@ Pdtoken::process_pragma()
 		if (t.get_code() != PP_NUMBER) {
 			/*
 			 * @error
-			 * The filename of the 
+			 * The filename of the
 			 * <code>#pragma sync</code>
 			 * CScout-specific directive was not followed by an
 			 * integer
@@ -854,7 +854,7 @@ Pdtoken::process_pragma()
 			 * @error
 			 * The
 			 * <code>#pragma includepath</code>
-			 * CScout-specific directive was not followed by a 
+			 * CScout-specific directive was not followed by a
 			 * string
 			 */
 			Error::error(E_ERR, "#pragma includepath: string expected");
@@ -870,7 +870,7 @@ Pdtoken::process_pragma()
 			 * @error
 			 * The
 			 * <code>#pragma echo</code>
-			 * CScout-specific directive was not followed by a 
+			 * CScout-specific directive was not followed by a
 			 * string
 			 */
 			Error::error(E_ERR, "#pragma echo: string expected");
@@ -887,7 +887,7 @@ Pdtoken::process_pragma()
 			 * @error
 			 * The
 			 * <code>#pragma project</code>
-			 * CScout-specific directive was not followed by a 
+			 * CScout-specific directive was not followed by a
 			 * string
 			 */
 			Error::error(E_ERR, "#pragma project: string expected");
@@ -902,7 +902,7 @@ Pdtoken::process_pragma()
 			 * @error
 			 * The
 			 * <code>#pragma readonly</code>
-			 * CScout-specific directive was not followed by a 
+			 * CScout-specific directive was not followed by a
 			 * string
 			 */
 			Error::error(E_ERR, "#pragma readonly: string expected");
@@ -921,7 +921,7 @@ Pdtoken::process_pragma()
 			 * @error
 			 * The
 			 * <code>#pragma process</code>
-			 * CScout-specific directive was not followed by a 
+			 * CScout-specific directive was not followed by a
 			 * string
 			 */
 			Error::error(E_ERR, "#pragma process: string expected");
@@ -941,7 +941,7 @@ Pdtoken::process_pragma()
 			/*
 			 * @error
 			 * The call to <code>getcwd</code> failed while
-			 * processing the 
+			 * processing the
 			 * <code>#pragma pushd</code>
 			 * CScout-specific directive
 			 */
@@ -953,7 +953,7 @@ Pdtoken::process_pragma()
 			 * @error
 			 * The
 			 * <code>#pragma pushd</code>
-			 * CScout-specific directive was not followed by a 
+			 * CScout-specific directive was not followed by a
 			 * string
 			 */
 			Error::error(E_ERR, "#pragma pushd: string expected");
@@ -989,7 +989,7 @@ Pdtoken::process_pragma()
 			 * @error
 			 * The
 			 * <code>#pragma ro_prefix</code>
-			 * CScout-specific directive was not followed by a 
+			 * CScout-specific directive was not followed by a
 			 * string
 			 */
 			Error::error(E_ERR, "#pragma ro_prefix: string expected");

@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.22 2003/08/20 12:44:23 dds Exp $
+ * $Id: tokid.cpp,v 1.23 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>

@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ptoken.cpp,v 1.10 2003/08/21 19:50:05 dds Exp $
+ * $Id: ptoken.cpp,v 1.11 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -24,7 +24,7 @@
 #include "token.h"
 #include "ptoken.h"
 
-ostream& 
+ostream&
 operator<<(ostream& o,const Ptoken &t)
 {
 	o << (Token)t;

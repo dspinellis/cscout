@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.38 2004/07/23 06:20:27 dds Exp $
+ * $Id: type.cpp,v 1.39 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -66,7 +66,7 @@ Type_node::subscript() const
 	return basic(b_undeclared);
 }
 
-const Stab& 
+const Stab&
 Type_node::get_members_by_name() const
 {
 	static Stab dummy;
@@ -115,7 +115,7 @@ Tidentifier::call() const
 }
 
 
-const Ctoken& 
+const Ctoken&
 Type_node::get_token() const
 {
 	static Ctoken c;
@@ -172,7 +172,7 @@ Type_node::type() const
 }
 
 
-enum e_storage_class 
+enum e_storage_class
 Type_node::get_storage_class() const
 {
 	Error::error(E_INTERNAL, "object has no storage class");
@@ -491,7 +491,7 @@ Tbasic::merge(Tbasic *b)
 
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
 	if (DP()) {
-		cout << "merge a=" << Type(this->clone()) << "\nmerge b=" << 
+		cout << "merge a=" << Type(this->clone()) << "\nmerge b=" <<
 			Type(b) << "\nmerge r=" <<  Type(basic(t, s, c, q)) << "\n";
 	}
 	return basic(t, s, c, q);
@@ -538,7 +538,7 @@ Tpointer::merge(Tbasic *b)
 	    b->get_storage_class() != c_unspecified) {
 		/*
 		 * @error
-		 * The type specifier or storage class can not be applied on 
+		 * The type specifier or storage class can not be applied on
 		 * a pointer
 		 */
 		Error::error(E_ERR, "illegal application of type attributes on a pointer");
@@ -561,7 +561,7 @@ Tarray::merge(Tbasic *b)
 	    b->get_storage_class() != c_unspecified) {
 		/*
 		 * @error
-		 * The type specifier or storage class can not be applied on 
+		 * The type specifier or storage class can not be applied on
 		 * an array
 		 */
 		Error::error(E_ERR, "illegal application of type attributes on an array");
@@ -750,7 +750,7 @@ Type::declare()
 	obj_define(this->get_token(), this->type());
 }
 
-Type 
+Type
 Tbasic::clone() const
 {
 	return Type(new Tbasic(type, sign, sclass.get_storage_class(), get_qualifiers()));

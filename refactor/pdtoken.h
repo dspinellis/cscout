@@ -1,11 +1,11 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A preprocessor directive token.
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.24 2003/07/15 07:40:00 dds Exp $
+ * $Id: pdtoken.h,v 1.25 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef PDTOKEN_

@@ -1,10 +1,10 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
- * Simple preprocessor.  
+ * Simple preprocessor.
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.14 2002/10/03 10:54:01 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.15 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>

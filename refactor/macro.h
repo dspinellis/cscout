@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.8 2003/08/02 10:52:41 dds Exp $
+ * $Id: macro.h,v 1.9 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef MACRO_

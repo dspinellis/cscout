@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Tcl interface functions
  *
- * $Id: tclfuns.cpp,v 1.7 2002/09/17 10:53:02 dds Exp $
+ * $Id: tclfuns.cpp,v 1.8 2004/07/23 06:55:38 dds Exp $
  */
 
 #include "appinit.h"
@@ -192,17 +192,17 @@ Error::error(enum e_error_level level, string msg, bool showloc = true)
 	case E_WARN:
 		num_warnings++;
 		break;
-	case E_ERR: 
-		num_errors++; 
+	case E_ERR:
+		num_errors++;
 		if (num_errors > 100)
 			Error::error(E_FATAL, "error count exceeds 100; exiting", false);
 		break;
-	case E_INTERNAL: 
-		num_errors++; 
-		break;	// Should have an assertion before
-	case E_FATAL: 
+	case E_INTERNAL:
 		num_errors++;
-		throw Fatal(); 
+		break;	// Should have an assertion before
+	case E_FATAL:
+		num_errors++;
+		throw Fatal();
 	}
 	if (DP()) cout << "Error: " << out << "\n";
 }

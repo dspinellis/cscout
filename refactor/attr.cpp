@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2002 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.15 2003/11/17 13:47:17 dds Exp $
+ * $Id: attr.cpp,v 1.16 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <map>

@@ -1,7 +1,7 @@
 /*
- * $Id: getopt.h,v 1.2 2003/07/07 23:08:25 dds Exp $
+ * $Id: getopt.h,v 1.3 2004/07/23 06:55:38 dds Exp $
  */
- 
+
 #ifdef __cplusplus
 extern "C" {
 #endif

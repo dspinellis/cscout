@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * An identifier equivalence class.
@@ -11,7 +11,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.19 2003/08/17 17:00:27 dds Exp $
+ * $Id: eclass.h,v 1.20 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef ECLASS_

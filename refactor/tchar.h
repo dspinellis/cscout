@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A character coming from a token.
@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "tchar.h"
  *
- * $Id: tchar.h,v 1.5 2002/12/26 12:46:24 dds Exp $
+ * $Id: tchar.h,v 1.6 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef TCHAR_

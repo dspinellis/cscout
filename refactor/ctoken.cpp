@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.23 2003/08/17 17:00:27 dds Exp $
+ * $Id: ctoken.cpp,v 1.24 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <map>
@@ -93,7 +93,7 @@ unescape_char(const string& s, string::const_iterator& si)
 			/*
 			 * @error
 			 * A hexadecimal character escape sequence
-			 * <code>\x</code> continued with a non-hexadecimal 
+			 * <code>\x</code> continued with a non-hexadecimal
 			 * character
 			 */
 			Error::error(E_ERR, "Illegal characters in hex escape sequence");
@@ -173,7 +173,7 @@ eat_block(int open, int close)
 			cout << t << "Starting line-style asm block\n";
 		/*
 		 * Horrible MSC line-style abomination.
-		 * These apparently terminate on a new-line, an __asm, 
+		 * These apparently terminate on a new-line, an __asm,
 		 * or even a }
 		 */
 		for (;;) {

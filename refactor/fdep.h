@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2003 Diomidis Spinellis.
  *
  * File dependency monitoring
@@ -14,7 +14,7 @@
  * #include "metrics.h"
  * #include "fileid.h"
  *
- * $Id: fdep.h,v 1.4 2003/08/21 19:50:05 dds Exp $
+ * $Id: fdep.h,v 1.5 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef FDEP_
@@ -50,11 +50,11 @@ public:
 		last_provider = f;
 	}
 
-	/* 
+	/*
 	 * Mark as used:
 	 * - the passed file (the file currently being processed)
 	 * - all files that provided code and data
-	 * - all the files that contain definitions for them 
+	 * - all the files that contain definitions for them
 	 */
 	static void mark_required(Fileid f);
 	// Clear definers and providers starting another round

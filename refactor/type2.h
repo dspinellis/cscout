@@ -1,11 +1,11 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * The derived types of the type-system structure
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.19 2003/09/29 18:10:08 dds Exp $
+ * $Id: type2.h,v 1.20 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -77,7 +77,7 @@ class Tenum: public QType_node {
 private:
 	Tstorage sclass;
 public:
-	Tenum(enum e_storage_class sc = c_unspecified, qualifiers_t q = q_none) : 
+	Tenum(enum e_storage_class sc = c_unspecified, qualifiers_t q = q_none) :
 		 QType_node(q), sclass(sc) {}
 	Type clone() const { return Type(new Tenum(sclass.get_storage_class(), get_qualifiers()));}
 	void print(ostream &o) const;
@@ -96,12 +96,12 @@ private:
 	Type default_specifier;	// Used while declaring a series of members
 	Tstorage sclass;
 public:
-	Tsu(const Token &tok, const Type &typ, const Type &spec) { 
+	Tsu(const Token &tok, const Type &typ, const Type &spec) {
 		tok.set_ec_attribute(is_sumember);
 		if (DP()) cout << "Adding member " << tok << "\n";
-		members_by_name.define(tok, typ); 
+		members_by_name.define(tok, typ);
 		members_by_ordinal.push_back(Id(tok, typ));
-		default_specifier = spec; 
+		default_specifier = spec;
 	}
 	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc, qualifiers_t q) :
 			 QType_node(q),
@@ -115,19 +115,19 @@ public:
 	virtual ~Tsu() {}
 	bool is_su() const { return true; }
 	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class(), get_qualifiers())); }
-	void add_member(const Token &tok, const Type &typ) { 
+	void add_member(const Token &tok, const Type &typ) {
 		if (DP()) cout << "Adding member " << tok << "\n";
 		tok.set_ec_attribute(is_sumember);
-		members_by_name.define(tok, typ); 
+		members_by_name.define(tok, typ);
 		members_by_ordinal.push_back(Id(tok, typ));
 	}
 	Type get_default_specifier() const { return default_specifier; }
-	void merge_with(Type t) { 
+	void merge_with(Type t) {
 		members_by_name.merge_with(t.get_members_by_name());
 		const vector <Id> &m2 = t.get_members_by_ordinal();
 		members_by_ordinal.insert(members_by_ordinal.end(), m2.begin(), m2.end());
 	}
-	Id const* member(const string& s) const 
+	Id const* member(const string& s) const
 		{ return members_by_name.lookup(s); }
 	Id const* member(unsigned n) const {
 		if (n >= members_by_ordinal.size())
@@ -151,10 +151,10 @@ private:
 	int scope_level;		// Level to lookup for complete definitions
 public:
 	Tincomplete(const Ctoken& tok, int l) : t(tok), scope_level(l) {}
-	Tincomplete(const Ctoken& tok, enum e_storage_class sc, int l, qualifiers_t q) : 
+	Tincomplete(const Ctoken& tok, enum e_storage_class sc, int l, qualifiers_t q) :
 		QType_node(q),
-		t(tok), 
-		sclass(sc), 
+		t(tok),
+		sclass(sc),
 		scope_level(l)
 		{}
 	virtual ~Tincomplete() {}
@@ -183,7 +183,7 @@ public:
 	const Ctoken& get_token() const { return t; }
 	const string& get_name() const { return t.get_name(); }
 	Type type() const { return of; }
-	Id const* member(const string& s) const 
+	Id const* member(const string& s) const
 		{ return of.member(s); }
 	Id const* member(unsigned n) const
 		{ return of.member(n); }

@@ -1,10 +1,10 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.30 2003/09/29 18:10:08 dds Exp $
+ * $Id: type.h,v 1.31 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef TYPE_
@@ -59,15 +59,15 @@ private:
 	Type_node(const Type_node &);
 	Type_node& operator=(const Type_node &);
 protected:
-	Type_node() : use(1) { 
+	Type_node() : use(1) {
 #ifdef NODE_USE_PROFILE
-		count++; 
+		count++;
 #endif
 	}
 
-	virtual ~Type_node() { 
+	virtual ~Type_node() {
 #ifdef NODE_USE_PROFILE
-		count--; 
+		count--;
 #endif
 	}
 	virtual Type subscript() const;		// Arrays and pointers
@@ -232,9 +232,9 @@ public:
 	qualifiers_t get_qualifiers() const { return p->get_qualifiers(); }
 	const string& get_name() const	{ return p->get_name(); }
 	const Ctoken& get_token() const { return p->get_token(); }
-	enum e_storage_class get_storage_class() const 
+	enum e_storage_class get_storage_class() const
 					{return p->get_storage_class(); }
-	Type get_default_specifier() const 
+	Type get_default_specifier() const
 					{ return p->get_default_specifier(); }
 	void add_member(const Token &tok, const Type &typ)
 					{ p->add_member(tok, typ); }

@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A token identifier.
@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.17 2003/08/13 17:13:27 dds Exp $
+ * $Id: tokid.h,v 1.18 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef TOKID_

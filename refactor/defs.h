@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Standard definitions read when starting up
@@ -6,7 +6,7 @@
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  * This file should have read-only permissions
  *
- * $Id: defs.h,v 1.12 2002/12/25 19:35:42 dds Exp $
+ * $Id: defs.h,v 1.13 2004/07/23 06:55:38 dds Exp $
  */
 
 #define __DATE__ ""
@@ -17,17 +17,17 @@
 
 //#define __cplusplus
 #define __STDC__ 1
-#define __ELF__ 
-#define unix 
-#define i386 
-#define __i386 
-#define __i386__ 
+#define __ELF__
+#define unix
+#define i386
+#define __i386
+#define __i386__
 #define __tune_i386__
 #define linux
 #define __linux
-#define __linux__ 
-#define __unix 
-#define __GNUC__ 2 
+#define __linux__
+#define __unix
+#define __GNUC__ 2
 #define __GNUC_MINOR__ 96
 #define __WCHAR_TYPE__ short unsigned int
 

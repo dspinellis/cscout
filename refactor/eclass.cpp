@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.25 2003/10/08 13:08:14 dds Exp $
+ * $Id: eclass.cpp,v 1.26 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -42,7 +42,7 @@ merge(Eclass *a, Eclass *b)
 	Eclass *little, *large;
 	if (a == b)
 		return a;
-	if (DP()) 
+	if (DP())
 		cout << "merge a=" << a << *a << " b=" << b << *b << "\n";
 	assert(a->len == b->len);
 	// It is more efficient to append the little at the end of the large one

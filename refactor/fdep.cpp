@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.4 2003/08/21 19:50:05 dds Exp $
+ * $Id: fdep.cpp,v 1.5 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <set>
@@ -24,11 +24,11 @@ map <Fileid, set <Fileid> > Fdep::includers;	// Files including a given file
 set <Fileid> Fdep::providers;			// Files providing code and data
 Fileid Fdep::last_provider;			// Cache last value entered
 
-/* 
+/*
  * Mark as used:
  * - the passed file (starting from the file currently being processed)
  * - all files that provided code and data
- * - all the files that contain definitions for it 
+ * - all the files that contain definitions for it
  * - all files that include it
  */
 void

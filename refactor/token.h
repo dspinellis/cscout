@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A lexical token.
@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.12 2003/11/17 20:44:46 dds Exp $
+ * $Id: token.h,v 1.13 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -44,7 +44,7 @@ public:
 	static void unify(const Token &def, const Token &ref);
 
 	Token(int icode) : code(icode) {};
-	Token(int icode, const string& v) 
+	Token(int icode, const string& v)
 		: code(icode), val(v) {};
 	Token() {};
 	// Accessor method

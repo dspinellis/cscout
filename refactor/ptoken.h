@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A preprocessor token.
@@ -8,13 +8,13 @@
  * #include <map>
  * #include <string>
  * #include <deque>
- * 
+ *
  * #include "cpp.h"
  * #include "fileid.h"
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.9 2001/09/10 12:17:32 dds Exp $
+ * $Id: ptoken.h,v 1.10 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef PTOKEN_

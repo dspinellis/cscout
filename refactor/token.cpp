@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.18 2003/11/17 20:44:46 dds Exp $
+ * $Id: token.cpp,v 1.19 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -29,7 +29,7 @@
 #include "fdep.h"
 
 // Display a token part
-ostream& 
+ostream&
 operator<<(ostream& o,const Tpart &t)
 {
 	cout << t.ti << ",l=" << t.len;
@@ -44,7 +44,7 @@ operator<<(ostream& o,const Tpart &t)
 	return o;
 }
 
-ostream& 
+ostream&
 operator<<(ostream& o,const Token &t)
 {
 	cout << "Token code:" << t.name() << "(" << t.code << "):[" << t.val << "]\n";
@@ -65,7 +65,7 @@ Token::constituents() const
 	return (r);
 }
 
-void 
+void
 Token::set_ec_attribute(enum e_attribute a) const
 {
 	dequeTpart::const_iterator i;

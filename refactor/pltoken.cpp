@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.11 2003/08/21 19:50:05 dds Exp $
+ * $Id: pltoken.cpp,v 1.12 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -33,7 +33,7 @@
 enum e_cpp_context Pltoken::context = cpp_normal;
 
 #ifdef ndef
-ostream& 
+ostream&
 operator<<(ostream& o,const Pltoken &t)
 {
 	o << (Ptoken)t;

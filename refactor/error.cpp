@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.13 2003/08/21 19:50:05 dds Exp $
+ * $Id: error.cpp,v 1.14 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -43,7 +43,7 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	cerr << msg << "\n";
 	switch (level) {
 	case E_WARN: num_warnings++; break;
-	case E_ERR: 
+	case E_ERR:
 		num_errors++;
 		if (num_errors > 100)
 			/*

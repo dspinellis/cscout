@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 2002 Diomidis Spinellis.
  *
  * A metrics and a metrics summary container.
@@ -6,7 +6,7 @@
  * One metrics object is created and updated for every file.
  * Most metrics are collected during the postprocessing phase to
  * keep the main engine fast and clean.
- * This design also ensures that the character-based metrics processing 
+ * This design also ensures that the character-based metrics processing
  * overhead will be incured exactly once for each file.
  *
  * During postprocessing call:
@@ -14,8 +14,8 @@
  * msum.add_unique_id once() for every EC
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
- * 
- * $Id: metrics.h,v 1.10 2003/08/17 17:00:27 dds Exp $
+ *
+ * $Id: metrics.h,v 1.11 2004/07/23 06:55:38 dds Exp $
  */
 
 #ifndef METRICS_
@@ -83,35 +83,35 @@ public:
 	void add_statement() { if (!processed) count[em_nstatement]++; }
 	void add_function() { if (!processed) count[em_nfunction]++; }
 	void done_processing() { processed = true; }
-	
+
 	// Get methods
 	// Generic
-	int get_metric(int n) const { return count[n]; }		
+	int get_metric(int n) const { return count[n]; }
 
 	// Number of characters
-	int get_nchar() const { return count[em_nchar]; }		
+	int get_nchar() const { return count[em_nchar]; }
 	// Number of line comments
-	int get_nlcomment() const { return count[em_nlcomment]; }		
+	int get_nlcomment() const { return count[em_nlcomment]; }
 	// Number of block comments
-	int get_nbcomment() const { return count[em_nbcomment]; }		
+	int get_nbcomment() const { return count[em_nbcomment]; }
 	// Number of lines
-	int get_nline() const { return count[em_nline]; }		
+	int get_nline() const { return count[em_nline]; }
 	// Maximum number of characters in a line
-	int get_maxlinelen() const { return count[em_maxlinelen]; }		
+	int get_maxlinelen() const { return count[em_maxlinelen]; }
 	// Comment characters
-	int get_nccomment() const { return count[em_nccomment]; }		
+	int get_nccomment() const { return count[em_nccomment]; }
 	// Space characters
-	int get_nspace() const { return count[em_nspace]; }		
+	int get_nspace() const { return count[em_nspace]; }
 	// Defined functions (function_brace_begin)
-	int get_nfunction() const { return count[em_nfunction]; }		
+	int get_nfunction() const { return count[em_nfunction]; }
 	// Number of cpp directives
-	int get_nppdirective() const { return count[em_nppdirective]; }	
+	int get_nppdirective() const { return count[em_nppdirective]; }
 	// Number of directly included files
-	int get_nincfile() const { return count[em_nincfile]; }		
+	int get_nincfile() const { return count[em_nincfile]; }
 	// Number of statements
-	int get_nstatement() const { return count[em_nstatement]; }		
+	int get_nstatement() const { return count[em_nstatement]; }
 	// Number of character strings
-	int get_nstring() const { return count[em_nstring]; }		
+	int get_nstring() const { return count[em_nstring]; }
 };
 
 class Eclass;
@@ -139,7 +139,7 @@ public:
 class Fileid;
 class IdMetricsSet;
 
-// Counting file details 
+// Counting file details
 class FileCount {
 private:
 	// Totals for all files
@@ -197,7 +197,7 @@ class FileMetricsSummary {
 	FileMetricsSet rw[2];			// For read-only and writable cases
 public:
 	// Create file-based summary
-	void summarize_files();	
+	void summarize_files();
 	friend ostream& operator<<(ostream& o,const FileMetricsSummary &ms);
 	int get_total(int i) { return rw[0].get_total(i) + rw[1].get_total(i); }
 };

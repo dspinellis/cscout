@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.28 2003/08/21 19:50:05 dds Exp $
+ * $Id: fchar.cpp,v 1.29 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -42,7 +42,7 @@ int Fchar::line_number;			// Current line number
 bool Fchar::yacc_file;			// True input comes from .y
 stackFchar::size_type Fchar::stack_lock_size;	// Locked elements in file stack
 
-void 
+void
 Fchar::set_input(const string& s)
 {
 	if (in.is_open())
@@ -60,7 +60,7 @@ Fchar::set_input(const string& s)
 	Pdtoken::file_switch();
 }
 
-void 
+void
 Fchar::push_input(const string& s)
 {
 	struct fchar_context fc;
@@ -157,7 +157,7 @@ Fchar::getnext()
 		if (val == EOF && oval != '\n')
 			/*
 			 * @error
-			 * An included file does not end with a newline 
+			 * An included file does not end with a newline
 			 * character.
 			 * The processing of the first following preprocessor
 			 * command is unspecified.

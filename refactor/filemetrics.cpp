@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2002 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.11 2003/08/17 17:00:27 dds Exp $
+ * $Id: filemetrics.cpp,v 1.12 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -54,7 +54,7 @@ IdMetricsSummary id_msum;
 FileMetricsSummary file_msum;
 
 // Called for every identifier
-void 
+void
 Metrics::process_id(const string &s)
 {
 	count[em_nchar] += s.length();
@@ -62,7 +62,7 @@ Metrics::process_id(const string &s)
 }
 
 // Called for all file characters appart from identifiers
-void 
+void
 Metrics::process_char(char c)
 {
 	count[em_nchar]++;

@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.23 2003/08/16 21:40:32 dds Exp $
+ * $Id: macro.cpp,v 1.24 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
@@ -74,7 +74,7 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
 		return Ptoken(EOF, "");
 	}
 }
-				
+
 /*
  * Get the macro arguments specified in formal_args, initiallly from pos,
  * then, if get_more is true, from pltoken<fchar>.getnext.
@@ -92,7 +92,7 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 	for (i = formal_args.begin(); i != formal_args.end(); i++) {
 		listPtoken& v = args[(*i).get_val()];
 		char terminate;
-		if (i + 1 == formal_args.end()) 
+		if (i + 1 == formal_args.end())
 			terminate = ')';
 		else if (is_vararg && i + 2 == formal_args.end())
 			terminate = '.';	// Vararg last argument is optional; terminate with ) or ,
@@ -116,7 +116,7 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 			case EOF:
 				/*
 				 * @error
-				 * The end of file was reached while 
+				 * The end of file was reached while
 				 * gathering a macro's arguments
 				 */
 				Error::error(E_ERR, "macro [" + name + "]: EOF while reading function macro arguments");
@@ -212,7 +212,7 @@ stringize(const listPtoken& ts)
 /*
  * Return true if if macro-replacement of *p occuring within v is allowed.
  * According to ANSI 3.8.3.1 p. 91
- * macro replacement is not performed when the argument is preceded by # or ## 
+ * macro replacement is not performed when the argument is preceded by # or ##
  * or followed by ##.
  * These rules do not take into account space tokens.
  */
@@ -258,7 +258,7 @@ revalidate(listPtoken::iterator& valid_iterator, listPtoken::iterator start, lis
 
 
 /*
- * Macro replace all tokens in the sequence from tokens.begin() up to the 
+ * Macro replace all tokens in the sequence from tokens.begin() up to the
  * "end" iterator
  * If skip_defined is set macros inside or following the "defined" string,
  * such as "defined X" or "defined(X)" will not be replaced
@@ -324,8 +324,8 @@ find_formal_argument(const mapArgval &args, Ptoken t)
 }
 
 /*
- * Check for macro at token position pos and possibly expand it  
- * If a macro is expanded, pos is invalidated and replaced with the replacement 
+ * Check for macro at token position pos and possibly expand it
+ * If a macro is expanded, pos is invalidated and replaced with the replacement
  * macro value.
  * Macros that are members of the tabu set are not expanded to avoid
  * infinite recursion.
@@ -333,7 +333,7 @@ find_formal_argument(const mapArgval &args, Ptoken t)
  * valid_iterator is an iterator in tokens.  macro_replace will keep this
  * iterator valid, even when it could have been invalidated by removing elements
  * from tokens.
- * Return the first position in tokens sequence that was not 
+ * Return the first position in tokens sequence that was not
  * examined or replaced.
  */
 listPtoken::iterator
@@ -402,7 +402,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					/*
 					 * @error
 					 * No argument was supplied to the right
-					 * of the stringizing operator 
+					 * of the stringizing operator
 					 * <code>#</code>
 					 */
 					Error::error(E_ERR,  "Application of macro \"" + name + "\": operator # at end of macro pattern");
@@ -455,7 +455,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 				// <non-formal> <##> <empty-formal>
 				// by leaving i to its current value
 				continue;
-			condition_failed: 
+			condition_failed:
 				i = start;
 			}
 
@@ -577,7 +577,7 @@ operator ==(const Macro& a, const Macro& b)
 {
 	if (a.is_function != b.is_function || a.formal_args != b.formal_args)
 		return false;
-	
+
 	// Remove consecutive spaces
 	dequePtoken va(a.value);
 	dequePtoken vb(b.value);

@@ -1,11 +1,11 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Token definitions for btyacc
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.7 2003/08/17 17:00:27 dds Exp $
+ * $Id: ytoken.h,v 1.8 2004/07/23 06:55:38 dds Exp $
  */
 
 
@@ -23,16 +23,16 @@
 
 /* ANSI Grammar suggestions */
 %token IDENTIFIER         STRING_LITERAL
-%token FLOAT_CONST        INT_CONST        
+%token FLOAT_CONST        INT_CONST
 
 
-/* 
+/*
  * New Lexical element, whereas ANSI suggested non-terminal
  * Lexer will tell part of the difference between this and
  * an  identifier!   An  identifier  that is CURRENTLY in scope as a
  * typedef name is provided to the parser as a TYPEDEF_NAME.
  */
-%token TYPEDEF_NAME 
+%token TYPEDEF_NAME
 
 /* Multi-Character operators */
 %token  PTR_OP                       /*    ->                              */
@@ -71,7 +71,7 @@
 /* Yacc tokens */
 %token YMARK	YLCURL	YRCURL			/* %%	%{	%}	*/
 %token YLEFT YRIGHT YNONASSOC YTOKEN YPREC YTYPE YSTART YBAD
-/* 
+/*
  * Magic cookie we push at the beginning of yacc files to turn the parser
  * into yacc mode
  */

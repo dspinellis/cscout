@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.13 2003/08/21 19:50:05 dds Exp $
+ * $Id: tchar.cpp,v 1.14 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>

@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.3 2003/08/17 12:16:18 dds Exp $
+ * $Id: obfuscate.cpp,v 1.4 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <map>
@@ -73,7 +73,7 @@ file_obfuscate(Fileid fid)
 		Eclass *ec;
 		// Identifiers that can be obfuscated
 		if ((ec = ti.check_ec()) &&
-		    (ec->get_attribute(is_readonly) == false) && 
+		    (ec->get_attribute(is_readonly) == false) &&
 		    (ec->get_attribute(is_macro) ||
 		     ec->get_attribute(is_macroarg) ||
 		     ec->get_attribute(is_ordinary) ||

@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.10 2002/10/07 20:13:59 dds Exp $
+ * $Id: workdb.cpp,v 1.11 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <map>
@@ -104,7 +104,7 @@ insert_eclass(ofstream &of, Eclass *e, const string &name)
 	// Update metrics
 	msum.add_unique_id(e);
 
-	of << "INSERT INTO IDS VALUES(" << 
+	of << "INSERT INTO IDS VALUES(" <<
 	(unsigned)e << ",'" <<
 	name << "'," <<
 	sql_bool(e->get_attribute(is_readonly)) << ',' <<
@@ -117,12 +117,12 @@ insert_eclass(ofstream &of, Eclass *e, const string &name)
 	sql_bool(e->get_attribute(is_typedef)) << ',' <<
 	sql_bool(e->get_attribute(is_cscope)) << ',' <<
 	sql_bool(e->get_attribute(is_lscope)) << ',' <<
-	sql_bool(e->get_size() == 1) << 
+	sql_bool(e->get_size() == 1) <<
 	");\n";
 	// The projects each EC belongs to
 	for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
-			of << "INSERT INTO IDPROJ VALUES(" << 
+			of << "INSERT INTO IDPROJ VALUES(" <<
 			(unsigned)e << ',' << j << ");\n";
 }
 
@@ -155,8 +155,8 @@ file_dump(ofstream &of, Fileid fid)
 		// Identifiers worth marking
 		if (ec && (
 		    ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
-		      ec->get_attribute(is_lscope) || 
-		      ec->get_attribute(is_cscope) || 
+		      ec->get_attribute(is_lscope) ||
+		      ec->get_attribute(is_cscope) ||
 		      ec->get_attribute(is_macro))))) {
 			string s;
 			s = (char)val;
@@ -166,10 +166,10 @@ file_dump(ofstream &of, Fileid fid)
 			insert_eclass(of, ec, s);
 			fid.metrics().process_id(s);
 			of << "INSERT INTO TOKENS VALUES(" << fid.get_id() <<
-			"," << (unsigned)ti.get_streampos() << "," << 
+			"," << (unsigned)ti.get_streampos() << "," <<
 			(unsigned)ec << ");\n";
 			if (plain.length() > 0) {
-				of << "INSERT INTO STRINGS VALUES(" << 
+				of << "INSERT INTO STRINGS VALUES(" <<
 				fid.get_id() <<
 				"," << (unsigned)plainstart.get_streampos() <<
 				",'" << plain << "');\n";
@@ -265,14 +265,14 @@ main(int argc, char *argv[])
 	const Project::proj_map_type &m = Project::get_project_map();
 	Project::proj_map_type::const_iterator pm;
 	for (pm = m.begin(); pm != m.end(); pm++)
-		fo << "INSERT INTO PROJECTS VALUES(" << 
+		fo << "INSERT INTO PROJECTS VALUES(" <<
 		(*pm).second << ",'" << (*pm).first << "');\n";
 
-	// Details for each file 
+	// Details for each file
 	// As a side effect populate the EC identifier member
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		file_dump(fo, (*i));
-		fo << "INSERT INTO FILES VALUES(" << 
+		fo << "INSERT INTO FILES VALUES(" <<
 		(*i).get_id() << ",'" <<
 		(*i).get_path() << "'," <<
 		sql_bool((*i).get_readonly()) << ',' <<
@@ -292,7 +292,7 @@ main(int argc, char *argv[])
 		// The projects this file belongs to
 		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
 			if ((*i).get_attribute(j))
-				fo << "INSERT INTO FILEPROJ VALUES(" << 
+				fo << "INSERT INTO FILEPROJ VALUES(" <<
 				(*i).get_id() << ',' << j << ");\n";
 	}
 

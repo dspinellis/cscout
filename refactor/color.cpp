@@ -1,9 +1,9 @@
-/* 
+/*
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.9 2002/09/28 13:22:40 dds Exp $
+ * $Id: color.cpp,v 1.10 2004/07/23 06:55:38 dds Exp $
  */
 
 #include <iostream>
