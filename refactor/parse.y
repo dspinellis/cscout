@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.88 2003/08/20 12:37:58 dds Exp $
+ * $Id: parse.y,v 1.89 2003/10/15 08:55:24 dds Exp $
  *
  */
 
@@ -611,6 +611,17 @@ conditional_expression:
 					$$ = $5;
 				else
 					$$ = $3;
+			}
+        | logical_or_expression '?' ':' conditional_expression
+			{ 
+				/* 
+				 * gcc extension: second argument is optional, in that
+				 * case the result is the first.
+				 */
+				if ($4.is_basic() && $1.is_ptr())
+					$$ = $1;
+				else
+					$$ = $4;
 			}
         ;
 
