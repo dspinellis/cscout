@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.9 2001/09/29 13:34:21 dds Exp $
+# $Id: rsc.tcl,v 1.10 2001/09/29 15:49:37 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -243,6 +243,9 @@ iwidgets::hierarchy $tabfiles.hier -querycommand "get_workspace %n" -alwaysquery
 -selectbackground blue -selectcommand "select_workspace {%n} %s"
 pack $tabfiles.hier -expand yes -fill both
 
+# Default selection is the workspace
+$tabfiles.hier selection add wp
+
 ######################################################
 # Matched Files
 iwidgets::scrolledlistbox $tabmatches.list
@@ -292,58 +295,81 @@ pack $tabunused.hier -expand true -fill both -side top -pady 2 -anchor nw
 
 ######################################################
 # Settings
-frame $tabsettings.select
-radiobutton $tabsettings.select.macro -text "Macro definitions" -variable size \
-    -relief flat -value "macro" -variable configlist
-radiobutton $tabsettings.select.path -text "Include paths" -variable size \
-    -relief flat -value "path" -variable configlist
-pack $tabsettings.select.macro $tabsettings.select.path -side left -pady 2
-set configlist macro
-
-frame $tabsettings.listgroup
-iwidgets::scrolledlistbox $tabsettings.listgroup.list \
-    -selectmode single 
-$tabsettings.listgroup.list insert 0 "/usr/include"
-
-frame $tabsettings.listgroup.commands
-frame $tabsettings.listgroup.commands.add
-button $tabsettings.listgroup.commands.add.command -text "Add" -width 10
-entry $tabsettings.listgroup.commands.add.entry -text "Add" 
-pack	$tabsettings.listgroup.commands.add.command -side left -anchor e
-pack	$tabsettings.listgroup.commands.add.entry -expand true -fill x -padx 4 -side left -anchor e
-button $tabsettings.listgroup.commands.moveup -text "Move Up" -width 10
-button $tabsettings.listgroup.commands.movedown -text "Move Down" -width 10
-button $tabsettings.listgroup.commands.delete -text "Delete" -width 10
-button $tabsettings.listgroup.commands.reset -text "Reset" -width 10
-button $tabsettings.listgroup.commands.clearall -text "Clear All" -width 10
-
-pack  $tabsettings.listgroup.commands.add  -expand true -fill x \
-	-side top -padx 4 -pady 4 -anchor w
-pack $tabsettings.listgroup.commands.moveup \
-	$tabsettings.listgroup.commands.movedown \
-	$tabsettings.listgroup.commands.delete \
-	$tabsettings.listgroup.commands.reset \
-	$tabsettings.listgroup.commands.clearall \
-	-side top -padx 4 -pady 4 -anchor w
 
 # Directory selection
 frame $tabsettings.dir
-label $tabsettings.dir.lab -text "Directory" -anchor e
-entry $tabsettings.dir.ent -width 20
+label $tabsettings.dir.lab -text "Working directory" -anchor e
+entry $tabsettings.dir.ent -width 20 -state disabled
 button $tabsettings.dir.but -text "Browse ..." -command "tk_chooseDirectory"
 pack $tabsettings.dir.lab -side left
 pack $tabsettings.dir.ent -side left -expand yes -fill x
 pack $tabsettings.dir.but -padx 4 -side left
 
+# Macro and include file group
+frame $tabsettings.mi
+
+# Macros
+frame $tabsettings.mi.macro
+label $tabsettings.mi.macro.lab -text "Macro definitions" -anchor w
+
+iwidgets::scrolledlistbox $tabsettings.mi.macro.list \
+    -selectmode single 
+$tabsettings.mi.macro.list insert 0 "/usr/include"
+
+frame $tabsettings.mi.macro.commands
+button $tabsettings.mi.macro.commands.add -text "Add" -width 10
+button $tabsettings.mi.macro.commands.delete -text "Delete" -width 10
+pack	$tabsettings.mi.macro.commands.add $tabsettings.mi.macro.commands.delete \
+	-side left -anchor e -expand no
+
+pack	$tabsettings.mi.macro.lab \
+	-side top -anchor nw -expand no
+pack	$tabsettings.mi.macro.list \
+	-side top -anchor nw \
+	-expand yes -fill both
+pack	$tabsettings.mi.macro.commands \
+	-side top -anchor nw -expand no
+
+# Include path
+frame $tabsettings.mi.ipath
+label $tabsettings.mi.ipath.lab -text "Include paths" -anchor e
+
+iwidgets::scrolledlistbox $tabsettings.mi.ipath.list \
+    -selectmode single 
+$tabsettings.mi.ipath.list insert 0 "/usr/include"
+
+frame $tabsettings.mi.ipath.commands
+button $tabsettings.mi.ipath.commands.add -text "Add" -width 10
+button $tabsettings.mi.ipath.commands.delete -text "Delete" -width 10
+pack	$tabsettings.mi.ipath.commands.add $tabsettings.mi.ipath.commands.delete \
+	-side left -anchor e -expand no
+button $tabsettings.mi.ipath.commands.moveup -text "Move Up" -width 10
+button $tabsettings.mi.ipath.commands.movedown -text "Move Down" -width 10
+pack	$tabsettings.mi.ipath.commands.moveup $tabsettings.mi.ipath.commands.movedown \
+	-side left -anchor e -expand no
+
+pack	$tabsettings.mi.ipath.lab \
+	-side top -anchor nw -expand no
+pack	$tabsettings.mi.ipath.list \
+	-side top -anchor nw \
+	-expand yes -fill both
+pack	$tabsettings.mi.ipath.commands \
+	-side top -anchor nw -expand no
+
+# Combine them
+pack $tabsettings.mi.macro \
+	$tabsettings.mi.ipath \
+	-side left -anchor nw \
+	-expand yes -fill both -padx 4
+
+# Other file settings
 pack $tabsettings.dir -expand no -fill x -side top -padx 4 -pady 4 -anchor nw
-pack $tabsettings.select -side top -padx 4 -pady 4 -anchor nw
-pack $tabsettings.listgroup.list -expand yes -fill both -side left -padx 4 -pady 4 -anchor nw
-pack $tabsettings.listgroup.commands -side left -padx 4 -pady 4 -anchor nw -expand yes -fill x
+pack $tabsettings.mi -side top -padx 4 -pady 4 -anchor nw -expand yes -fill both
 
 checkbutton $tabsettings.ro -text "File is read-only" -relief flat
-button $tabsettings.clearsub -text "Clear Subitem Settings" 
-pack $tabsettings.listgroup -expand yes -fill both -side top -padx 4 -pady 4 -anchor nw
-pack $tabsettings.ro $tabsettings.clearsub -side top -padx 4 -pady 4 -anchor nw
+button $tabsettings.clearme -text "Clear item's customized settings" -width 30
+button $tabsettings.clearsub -text "Clear subitems' customized settings" -width 30
+pack $tabsettings.ro $tabsettings.clearme $tabsettings.clearsub -side top -padx 4 -pady 4 -anchor nw
 
 ######################################################
 # Output
@@ -374,8 +400,16 @@ proc ierror {msg} {
 # sel is the selection value of that node
 proc select_workspace {uid sel} {
 	global tabfiles
+	global out
 	$tabfiles.hier selection clear
 	$tabfiles.hier selection add $uid
+	if {[regexp ^wp $uid]} {
+		$out.l pageconfigure Settings -state normal
+	} else {
+		$out.l pageconfigure Settings -state disabled
+		$out.l select Output
+	}
+		
 }
 
 proc get_workspace {uid} {
