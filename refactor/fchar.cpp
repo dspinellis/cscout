@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.2 2001/08/18 15:30:47 dds Exp $
+ * $Id: fchar.cpp,v 1.3 2001/08/18 16:46:21 dds Exp $
  */
 
 #include <iostream>
@@ -23,6 +23,7 @@
 ifstream Fchar::in;
 Fileid Fchar::fi;
 Fchar Fchar::putback_fchar;
+Fchar Fchar::empty = Fchar(0);
 bool Fchar::have_putback = false;	// True when a put back char is waiting
 stackTokid Fchar::st;			// Pushed contexts (from push_input())
 

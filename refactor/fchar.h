@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.1 2001/08/18 08:11:38 dds Exp $
+ * $Id: fchar.h,v 1.2 2001/08/18 16:46:21 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -39,6 +39,8 @@ private:
 	Tokid ti;			// (pos_type from tellg(), fi)
 
 public:
+	static Fchar empty;		// To avoid the default constructor
+
 	// Will read characters from file named s
 	static void set_input(const string& s);
 	// From now on will read from s; on EOF resume with previous file
@@ -48,6 +50,9 @@ public:
 
 	// Construct a new one (reading from in)
 	Fchar();
+	// Construct it with a given value and tokid
+	Fchar(int v, Tokid t) : val(v), ti(t) {};
+	Fchar(int v) : val(v) {};
 	// Return the character value (or EOF)
 	inline int get_char() const { return (val); };
 	// Return the character's Tokid
