@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.23 2003/06/01 08:52:05 dds Exp $
+ * $Id: eclass.cpp,v 1.24 2003/07/28 20:09:31 dds Exp $
  */
 
 #include <iostream>
@@ -24,6 +24,17 @@
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"
+
+// Remove references to the equivalence class from the tokid map
+// Should be called when we delete the ec for good
+void
+Eclass::remove_from_tokid_map()
+{
+	if (DP())
+		cout << "Destructing " << *this << "\n";
+	for (setTokid::const_iterator i = members.begin(); i != members.end(); i++)
+		(*i).erase_ec(this);
+}
 
 Eclass *
 merge(Eclass *a, Eclass *b)

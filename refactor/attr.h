@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.10 2003/05/27 19:57:35 dds Exp $
+ * $Id: attr.h,v 1.11 2003/07/28 20:09:31 dds Exp $
  */
 
 #ifndef ATTR_
@@ -41,6 +41,7 @@ private:
 					// Hopefully specialized to 1 bit/val
 	void fix_size() { if (attr.size() < size) attr.resize(size, false); }
 	static string attribute_names[];
+	static string attribute_short_names[];
 public:
 	// Add another attribute (typically project)
 	static void add_attribute() { size++; }
@@ -48,6 +49,8 @@ public:
 	static size_type get_num_attributes() { return size; }
 	// Return the name given the enumeration member
 	static const string &name(int n) { return attribute_names[n]; }
+	// Return the short name given the enumeration member
+	static const string &shortname(int n) { return attribute_short_names[n]; }
 	Attributes() : attr(size, false) {}
 	void set_attribute(int v) { fix_size(); attr[v] = true; }
 	void set_attribute_val(int v, bool n) { fix_size(); attr[v] = n; }

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.49 2003/07/07 13:37:09 dds Exp $
+ * $Id: cscout.cpp,v 1.50 2003/07/28 20:09:31 dds Exp $
  */
 
 #include <map>
@@ -148,6 +148,10 @@ private:
 public:
 	// Construct object based on URL parameters
 	IdQuery(FILE *f, bool e = true, bool r = true);
+	// Construct object based on a string specification
+	IdQuery::IdQuery(const string &s);
+	// Default
+	IdQuery::IdQuery() : valid(false) {}
 
 	// Destructor
 	~IdQuery() {
@@ -164,7 +168,11 @@ public:
 	// Accessor functions
 	bool is_valid() { return valid; }
 	bool need_eval() { return !lazy; }
+	static void usage();	// Report string constructor usage information
 };
+
+// Identifiers to monitor (-m parameter)
+static IdQuery monitor;
 
 static IdProp ids; 
 static vector <Fileid> files;
@@ -300,6 +308,15 @@ file_analyze(Fileid fi)
 		mapTokidEclass::iterator ei = ti.find_ec();
 		if (ei != ti.end_ec()) {
 			Eclass *ec = (*ei).second;
+			// Remove identifiers we are not supposed to monitor
+			if (monitor.is_valid()) {
+				IdPropElem ec_id(ec, Identifier());
+				if (!monitor.eval(ec_id)) {
+					ec->remove_from_tokid_map();
+					delete ec;
+					continue;
+				}
+			}
 			// Identifiers we can mark
 			if (ec->is_identifier()) {
 				// Update metrics
@@ -322,7 +339,7 @@ file_analyze(Fileid fi)
 				 * even reserved words get an EC. These are
 				 * cleared here.)
 				 */
-				ti.erase_ec(ei);
+				ec->remove_from_tokid_map();
 				delete ec;
 			}
 		}
@@ -882,6 +899,59 @@ IdQuery::IdQuery(FILE *of, bool e, bool r) :
 		if (DP())
 			cout << "v=[" << varname.str() << "] m=" << match[i] << "\n";
 	}
+}
+
+// Report the string query specification usage
+void
+IdQuery::usage(void)
+{
+	cerr << "The attribute query must be specified using the syntax: "
+		"Y|L|E|T[:attr1][:attr2]...\n"
+		"Y: Match any of the specified attributes\n"
+		"L: Match all of the specified attributes\n"
+		"E: Exclude the specified attributes matched\n"
+		"T: Exact match of the specified attributes\n\n"
+
+		"Allowable attribute names are:\n"
+		"unused: Unused\n"
+		"writable: Writable\n";
+	for (int i = 0; i < attr_max; i++)
+		cerr << Attributes::shortname(i) << ": " << Attributes::name(i) << "\n";
+	exit(1);
+}
+
+// Construct an object based on a string specification
+// The syntax is Y|L|E|T[:attr1][:attr2]...
+IdQuery::IdQuery(const string &s) :
+	lazy(false),
+	return_val(false),
+	valid(true),
+	match_fre(false),
+	match_ire(false),
+	match(attr_max),
+	xfile(false),
+	ec(NULL)
+{
+	// Type of boolean match
+	if (s.length() == 0)
+		usage();
+	switch (s[0]) {
+	case 'Y':
+	case 'L':
+	case 'E':
+	case 'T':
+		match_type = s[0];
+		break;
+	default:
+		usage();
+	}
+
+	unused = (s.find(":unused") != string::npos);
+	writable = (s.find(":writable") != string::npos);
+
+	// Store match specifications in a vector
+	for (int i = 0; i < attr_max; i++)
+		match[i] = (s.find(":" + Attributes::shortname(i)) != string::npos);
 }
 
 // Return the query's parameters as a URL
@@ -1465,13 +1535,14 @@ simple_cpp()
 static void
 usage(char *fname)
 {
-	cerr << "usage: " << fname << " [-Ev] [-p port] file\n"
+	cerr << "usage: " << fname << " [-Ev] [-p port] [-m spec] file\n"
 		"\t-E\tDisplay preprocessed results on the standard output\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
-		"\t-v\tDisplay version and copyright information and exit\n";
-	exit(1);
+		"\t-v\tDisplay version and copyright information and exit\n"
+		"\t-m spec\tSpecify identifiers to monitor (unsound)\n";
+	IdQuery::usage();
 }
 
 int
@@ -1483,7 +1554,7 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "vEp:")) != EOF)
+	while ((c = getopt(argc, argv, "vEp:m:")) != EOF)
 		switch (c) {
 		case 'E':
 			preprocess = true;
@@ -1494,6 +1565,11 @@ main(int argc, char *argv[])
 			portno = atoi(optarg);
 			if (portno < 1024 || portno > 32767)
 				usage(argv[0]);
+			break;
+		case 'm':
+			if (!optarg)
+				usage(argv[0]);
+			monitor = IdQuery(optarg);
 			break;
 		case 'v':
 			cerr << "CScout version " <<
@@ -1631,4 +1707,41 @@ main(int argc, char *argv[])
 		swill_serve();
 
 	return (0);
+}
+
+// Clear equivalence classes found in the file that do not 
+// satisfy the monitoring criteria
+void
+garbage_collect(Fileid fi)
+{
+	if (!monitor.is_valid())
+		return;
+	ifstream in;
+	const string &fname = fi.get_path();
+
+	in.open(fname.c_str(), ios::binary);
+	if (in.fail()) {
+		perror(fname.c_str());
+		exit(1);
+	}
+	// Go through the file character by character
+	for (;;) {
+		Tokid ti;
+		int val;
+
+		ti = Tokid(fi, in.tellg());
+		if ((val = in.get()) == EOF)
+			break;
+		mapTokidEclass::iterator ei = ti.find_ec();
+		if (ei != ti.end_ec()) {
+			Eclass *ec = (*ei).second;
+			IdPropElem ec_id(ec, Identifier());
+			if (!monitor.eval(ec_id)) {
+				ec->remove_from_tokid_map();
+				delete ec;
+			}
+		}
+	}
+	in.close();
+	return;
 }

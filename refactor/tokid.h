@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.14 2003/05/28 12:13:46 dds Exp $
+ * $Id: tokid.h,v 1.15 2003/07/28 20:09:31 dds Exp $
  */
 
 #ifndef TOKID_
@@ -59,18 +59,19 @@ public:
 	// Return offset distance
 	inline friend int operator -(const Tokid& a, const Tokid& b);
 	// Return its equivalence class
-	inline Eclass *get_ec();
+	inline Eclass *get_ec() const;
 	// Return its equivalence class or NULL if none
-	inline Eclass *check_ec();
+	inline Eclass *check_ec() const;
 	// Set its equivalence class to ec (done when adding it to an Eclass)
 	// use Eclass:add_tokid, not this method in all other contexts
-	inline void set_ec(Eclass *ec);
+	inline void set_ec(Eclass *ec) const;
 	// Return an iterator for accessing the map or the end_ec() value
-	inline mapTokidEclass::iterator find_ec();
+	inline mapTokidEclass::iterator find_ec() const;
 	// The not-found value
 	inline mapTokidEclass::iterator end_ec();
 	// Erase the tokid's EC from the map
-	inline void erase_ec(mapTokidEclass::iterator i);
+	inline void erase_ec(mapTokidEclass::iterator i) const;
+	inline void erase_ec(Eclass *e) const;
 	// Returns the Tokids participating in all ECs for a token of length l
 	dequeTpart Tokid::constituents(int l);
 	// Set the Tokid's equivalence class attribute
@@ -149,13 +150,13 @@ operator <(const class Tokid a, const class Tokid b)
 }
 
 inline Eclass *
-Tokid::get_ec()
+Tokid::get_ec() const
 {
 	return tm.tm[*this];
 }
 
 inline Eclass *
-Tokid::check_ec()
+Tokid::check_ec() const
 {
 	mapTokidEclass::const_iterator i = tm.tm.find(*this);
 	if (i == tm.tm.end())
@@ -165,19 +166,27 @@ Tokid::check_ec()
 }
 
 inline void
-Tokid::set_ec(Eclass *ec)
+Tokid::set_ec(Eclass *ec) const
 {
 	tm.tm[*this] = ec;
 }
 
 inline void
-Tokid::erase_ec(mapTokidEclass::iterator i)
+Tokid::erase_ec(mapTokidEclass::iterator i) const
 {
 	tm.tm.erase(i);
 }
 
+inline void
+Tokid::erase_ec(Eclass *e) const
+{
+	mapTokidEclass::iterator i = tm.tm.find(*this);
+	assert(i != tm.tm.end());
+	tm.tm.erase(i);
+}
+
 inline mapTokidEclass::iterator
-Tokid::find_ec()
+Tokid::find_ec() const
 {
 	return tm.tm.find(*this);
 }

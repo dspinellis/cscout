@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.11 2003/06/16 06:22:29 dds Exp $
+ * $Id: attr.cpp,v 1.12 2003/07/28 20:09:31 dds Exp $
  */
 
 #include <map>
@@ -50,6 +50,25 @@ string Attributes::attribute_names[] = {
 	"Project scope",
 
 	"Typedef",
+};
+
+// Keep this in sync with the enumeration
+string Attributes::attribute_short_names[] = {
+	"ro",
+
+	"tag",
+	"member",
+	"label",
+	"obj",
+
+	"macro",
+	"umacro",
+	"macroarg",
+
+	"fscope",
+	"pscope",
+
+	"typedef",
 };
 
 void
