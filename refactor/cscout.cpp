@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.24 2003/05/25 14:47:44 dds Exp $
+ * $Id: cscout.cpp,v 1.25 2003/05/25 14:53:09 dds Exp $
  */
 
 #include <map>
@@ -345,7 +345,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.24 2003/05/25 14:47:44 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.25 2003/05/25 14:53:09 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -938,12 +938,17 @@ set_project_page(FILE *fo, void *p)
 void
 index_page(FILE *of, void *data)
 {
-	html_head(of, "index", "CScout Results");
+	html_head(of, "index", "CScout Home");
 	fprintf(of, 
+		"<h2>File Queries</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"xfquery.html?ro=1&writable=1&match=Y&n=All+Files&qf=1\">All files</a>\n"
 		"<li> <a href=\"xfquery.html?ro=1&match=Y&n=Read-only+Files&qf=1\">Read-only files</a>\n"
-		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n");
+		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n"
+		"<li> <a href=\"fquery.html\">Specify new file query</a>\n"
+		"</ul>\n"
+		"<h2>Identifier Queries</h2>\n"
+		"<ul>\n");
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&match=Y&qi=1&n=All+Identifiers\">All identifiers</a>\n", is_readonly);
 	fprintf(of, "<li> <a href=\"xiquery.html?a%d=1&match=Y&qi=1&n=Read-only+Identifiers\">Read-only identifiers</a>\n", is_readonly);
 	fputs("<li> <a href=\"xiquery.html?writable=1&match=Y&qi=1&n=Writable+Identifiers\">Writable identifiers</a>\n"
@@ -952,8 +957,7 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+File-scoped+Writable+Identifiers\">Unused file-scoped writable identifiers</a>\n", is_cscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Macro+Writable+Identifiers\">Unused macro writable identifiers</a>\n", is_macro);
 	fprintf(of,
-		"<li> <a href=\"iquery.html\">Identifier query</a>\n"
-		"<li> <a href=\"fquery.html\">File query</a>\n"
+		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
 		"</ul>"
 		"<h2>Operations</h2>"
 		"<ul>\n"
