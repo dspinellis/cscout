@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.13 2001/09/22 07:59:48 dds Exp $
+ * $Id: type.cpp,v 1.14 2001/09/22 15:25:27 dds Exp $
  */
 
 #include <iostream>
@@ -53,6 +53,8 @@ Type
 Type_node::subscript() const
 {
 	Error::error(E_ERR, "subscript not on array or pointer");
+	if (DP())
+		this->print(cerr);
 	return basic(b_undeclared);
 }
 
@@ -121,6 +123,8 @@ Type
 Type_node::deref() const
 {
 	Error::error(E_ERR, "illegal pointer dereference");
+	if (DP())
+		this->print(cerr);
 	return basic(b_undeclared);
 }
 
