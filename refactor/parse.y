@@ -14,11 +14,12 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.94 2004/07/24 10:44:23 dds Exp $
+ * $Id: parse.y,v 1.95 2004/07/31 18:08:38 dds Exp $
  *
  */
 
-%include ytoken.h
+/* Leave the space at the end of the following line! */
+%include ytoken.h 
 
 %start file
 

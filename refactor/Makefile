@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.65 2004/07/30 09:58:45 dds Exp $
+# $Id: Makefile,v 1.66 2004/07/31 18:08:38 dds Exp $
 #
 
 #
@@ -35,8 +35,10 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
 	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
-	fdep.h fcall.cpp fcall.h call.cpp call.h idquery.cpp idquery.h \
-	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h
+	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
+	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h
+
+ALLSRC=$(SRC) logo.gif
 
 # Stand-alone object files
 STANDOBJ=error.o
@@ -162,8 +164,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.65 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2004/07/30 09:58:45 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.66 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2004/07/31 18:08:38 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -184,8 +186,8 @@ boottest: simple_cpp
 	$(CC) $(CPPFLAGS) -o simple_cpp  $(OBJ) simple_cpp.o
 
 # Distribution
-rdist-jonathan:
-	tar cvf - $(SRC) | $(SSH) jonathan tar -C src/cscout -xvf -
+rdist-debian:
+	tar cvf - $(SRC) | $(SSH) debian tar -C src/cscout -xvf -
 
 rdist-spiti:
 	tar cvf - $(SRC) | $(SSH) spiti tar -C src/cscout -xvf -
@@ -199,9 +201,6 @@ rdist-freefall:
 
 rdist-istlab:
 	tar cvf - $(SRC) | $(SSH) istlab tar -C src/cscout -xvf -
-
-rdist-debian:
-	tar cvf - $(SRC) | $(SSH) debian tar -C src/cscout -xvf -
 
 lf: mkdir
 	chmod +w $(SRC)
@@ -222,7 +221,8 @@ istlab-server:
 spiti-server:
 	cc -o /usr/local/www/cgi-bin/ccheck -DSERVER des.c license.c
 
-logo.cpp: logo.gif
+# Used for regenerating the logo
+Xlogo.cpp: logo.gif
 	echo '#include <stdio.h>' >logo.cpp
 	echo '#include "logo.h"' >>logo.cpp
 	echo 'const char Logo::logo_bytes[] = {' >>logo.cpp

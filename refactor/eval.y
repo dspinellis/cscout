@@ -3,11 +3,12 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.11 2004/07/23 06:55:38 dds Exp $
+ * $Id: eval.y,v 1.12 2004/07/31 18:08:38 dds Exp $
  *
  */
 
-%include ytoken.h
+/* Leave the space at the end of the following line! */
+%include ytoken.h 
 
 %start constant_expression
 
