@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.107 2004/08/09 08:01:08 dds Exp $
+ * $Id: cscout.cpp,v 1.108 2004/08/09 09:46:26 dds Exp $
  */
 
 #include <map>
@@ -206,6 +206,24 @@ html(FILE *of, const Call &c)
 	fputs("</a>", of);
 }
 
+// Display a system error on the HTML output.
+static void
+html_perror(FILE *of, const string &user_msg, bool svg = false)
+{
+	string error_msg(user_msg + ": " + string(strerror(errno)) + "\n");
+	fputs(error_msg.c_str(), stderr);
+	if (svg)
+		fprintf(of, "<?xml version=\"1.0\" ?>\n"
+			"<svg>\n"
+			"<text  x=\"20\" y=\"50\" >%s</text>\n"
+			"</svg>\n", error_msg.c_str());
+	else {
+		fputs(error_msg.c_str(), of);
+		fputs("</p><p>The operation you requested is incomplete.  "
+			"Please correct the underlying cause, and return to the "
+			"CScout <a href=\"index.html\">main page</a> to retry the operation.</p>", of);
+	}
+}
 
 // Display a hyperlink based on a string and its starting tokid
 static void
@@ -350,7 +368,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		cout << "Write to " << fname << "\n";
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
-		perror(fname.c_str());
+		html_perror(of, "Unable to open " + fname + " for reading");
 		return;
 	}
 	fputs("<hr><code>", of);
@@ -369,7 +387,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 				fprintf(of, "<span class=\"unused\">");
 			if (show_line_number) {
 				char buff[50];
-				sprintf(buff, "%5d ", line_number);
+				snprintf(buff, sizeof(buff), "%5d ", line_number);
 				// Do not go via HTML string to keep tabs ok
 				for (char *s = buff; *s; s++)
 					if (*s == ' ')
@@ -425,7 +443,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 }
 
 // Go through the file doing any replacements needed
-// Return the numebr of replacements made
+// Return the number of replacements made
 static int
 file_replace(FILE *of, Fileid fid)
 {
@@ -435,14 +453,14 @@ file_replace(FILE *of, Fileid fid)
 
 	in.open(fid.get_path().c_str(), ios::binary);
 	if (in.fail()) {
-		perror(fid.get_path().c_str());
-		exit(1);
+		html_perror(of, "Unable to open " + fid.get_path() + " for reading");
+		return 0;
 	}
 	string ofname(fid.get_path() + ".repl");
 	out.open(ofname.c_str(), ios::binary);
 	if (out.fail()) {
-		perror(ofname.c_str());
-		exit(1);
+		html_perror(of, "Unable to open " + ofname + " for writing");
+		return 0;
 	}
 	cout << "Processing file " << fid.get_path() << "\n";
 	int replacements = 0;
@@ -487,14 +505,20 @@ file_replace(FILE *of, Fileid fid)
 		else {
 			string newname(fid.get_path().c_str());
 			newname.replace(be.rm_so, be.rm_eo - be.rm_so, sfile_repl_string);
-			unlink(newname.c_str());
-			rename(ofname.c_str(), newname.c_str());
+			(void)unlink(newname.c_str());
+			if (rename(ofname.c_str(), newname.c_str()) < 0) {
+				html_perror(of, "Renaming the file " + ofname + " to " + newname + " failed");
+				return 0;
+			}
 		}
 	} else {
 		string cmd("cscout_checkout " + fid.get_path());
 		system(cmd.c_str());
-		unlink(fid.get_path().c_str());
-		rename(ofname.c_str(), fid.get_path().c_str());
+		(void)unlink(fid.get_path().c_str());
+		if (rename(ofname.c_str(), fid.get_path().c_str()) < 0) {
+			html_perror(of, "Renaming the file " + ofname + " to " + fid.get_path() + " failed");
+			return 0;
+		}
 		string cmd2("cscout_checkin " + fid.get_path());
 		system(cmd2.c_str());
 	}
@@ -1432,8 +1456,7 @@ save_options_page(FILE *fo, void *p)
 	#endif
 	ofstream out(".cscout/options");
 	if (out.fail()) {
-		perror(".cscout/options");
-		fprintf(fo, "Unable to open the file .cscout/options");
+		html_perror(fo, "Unable to open .cscout/options for writing");
 		return;
 	}
 	out << "fname_in_context: " << fname_in_context << "\n";
@@ -1560,12 +1583,12 @@ cgraph_page(FILE *fo, bool html)
 		if (!all && fun->second->is_file_scoped())
 			continue;
 		if (html)
-			sprintf(buff1, "<a href=\"fun.html?f=%p\">", fun->second);
+			snprintf(buff1, sizeof(buff1), "<a href=\"fun.html?f=%p\">", fun->second);
 		for (call = fun->second->call_begin(); call != fun->second->call_end(); call++) {
 			if (!all && (*call)->is_file_scoped())
 				continue;
 			if (html)
-				sprintf(buff2, "<a href=\"fun.html?f=%p\">", *call);
+				snprintf(buff2, sizeof(buff2), "<a href=\"fun.html?f=%p\">", *call);
 			if (only_visited && !(fun->second->is_visited() && (*call)->is_visited()))
 				continue;
 			fprintf(fo,
@@ -1682,24 +1705,27 @@ cgraph_svg_page(FILE *fo, void *p)
 	mktemp(svg);
 	FILE *fdot = fopen(dot, "w");
 	if (fdot == NULL) {
-		perror(dot);
+		html_perror(fo, "Unable to open " + string(dot) + " for writing", true);
 		return;
 	}
 	cgraph_dot_page(fdot, "svg");
 	fclose(fdot);
 	snprintf(cmd, sizeof(cmd), "dot -Tsvg \"%s\" \"-o%s\"", dot, svg);
-	system(cmd);
+	if (system(cmd) != 0) {
+		html_perror(fo, "Unable to execute " + string(cmd) + ". Shell execution", true);
+		return;
+	}
 	FILE *fsvg = fopen(svg, "r");
 	if (fsvg == NULL) {
-		perror(svg);
+		html_perror(fo, "Unable to open " + string(svg) + " for reading", true);
 		return;
 	}
 	int c;
 	while ((c = getc(fsvg)) != EOF)
 		putc(c, fo);
 	fclose(fsvg);
-	(void)unlink(svg);
 	(void)unlink(dot);
+	(void)unlink(svg);
 }
 
 // Display all projects, allowing user to select
@@ -1960,14 +1986,14 @@ xreplacements_page(FILE *of,  void *p)
 		progress(i, ids);
 		if (i->second.get_replaced()) {
 			char varname[128];
-			sprintf(varname, "r%p", &(i->second));
+			snprintf(varname, sizeof(varname), "r%p", &(i->second));
 			char *subst;
 			if ((subst = swill_getvar(varname))) {
 				string ssubst(subst);
 				i->second.set_newid(ssubst);
 			}
 
-			sprintf(varname, "a%p", &(i->second));
+			snprintf(varname, sizeof(varname), "a%p", &(i->second));
 			i->second.set_active(!!swill_getvar(varname));
 		}
 	}
@@ -1983,8 +2009,18 @@ write_quit_page(FILE *of, void *exit)
 
 	if (exit)
 		html_head(of, "quit", "CScout exiting");
-	else
+	else {
+		if (sfile_re_string.length() == 0) {
+			html_head(of, "save", "Not Allowed");
+			fputs("This in-place save and continue operation is not allowed, "
+			"because it may corrupt CScout's idea of the source code.  "
+			"Either set the filename substitution rule option, "
+			"or select the save and exit operation.", of);
+			html_tail(of);
+			return;
+		}
 		html_head(of, "save", "Saving changes");
+	}
 	// Determine files we need to process
 	IFSet process;
 	cout << "Examing identifiers for replacement\n";
