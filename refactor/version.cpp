@@ -1,10 +1,10 @@
 #include <string>
 using namespace std;
 #include "version.h"
-char Version::revision[] = "$Revision: 1.9 $";
-char Version::date[] = "$Date: 2003/06/19 11:11:50 $";
+char Version::revision[] = "$Revision: 1.10 $";
+char Version::date[] = "$Date: 2003/06/22 17:43:17 $";
 char *Version::ident[] = {
-"$" "Id:" " Makefile 1.36 2003/06/16 20:22:40 dds Exp $",
+"$" "Id:" " makefile 1.36 2003/06/16 20:22:40 dds Exp $",
 "$" "Id:" " attr.cpp 1.11 2003/06/16 06:22:29 dds Exp $",
 "$" "Id:" " attr.h 1.10 2003/05/27 19:57:35 dds Exp $",
 "$" "Id:" " color.cpp 1.9 2002/09/28 13:22:40 dds Exp $",
@@ -37,7 +37,7 @@ char *Version::ident[] = {
 "$" "Id:" " defs.h 1.9 2002/09/05 16:51:23 dds Exp $",
 "$" "Id:" " incs.h 1.1 2002/09/05 16:43:58 dds Exp $",
 "$" "Id:" " obfuscate.cpp 1.1 2002/10/06 18:39:05 dds Exp $",
-"$" "Id:" " parse.y 1.50 2003/06/19 11:11:01 dds Exp $",
+"$" "Id:" " parse.y 1.56 2003/06/22 17:42:44 dds Exp $",
 "$" "Id:" " pdtoken.cpp 1.74 2003/06/19 11:11:01 dds Exp $",
 "$" "Id:" " pdtoken.h 1.23 2002/12/15 19:03:37 dds Exp $",
 "$" "Id:" " pltoken.cpp 1.10 2003/06/01 08:54:27 dds Exp $",
