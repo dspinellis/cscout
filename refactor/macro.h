@@ -2,10 +2,8 @@
  * (C) Copyright 2001 Diomidis Spinellis.
  *
  * A preprocessor macro definition.
- * The getnext() method for these tokens performs preprocessor directives
- * on the lexical tokens.
  *
- * $Id: macro.h,v 1.1 2001/09/02 15:02:00 dds Exp $
+ * $Id: macro.h,v 1.2 2001/09/02 15:13:44 dds Exp $
  */
 
 #ifndef MACRO_
