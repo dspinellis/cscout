@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.19 2003/05/24 17:57:50 dds Exp $
+ * $Id: cscout.cpp,v 1.20 2003/05/24 18:06:12 dds Exp $
  */
 
 #include <map>
@@ -341,7 +341,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.19 2003/05/24 17:57:50 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.20 2003/05/24 18:06:12 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -501,15 +501,16 @@ iquery_page(FILE *of,  void *p)
 	"<tr><td>\n"
 	"Identifier names should match RE\n"
 	"</td><td>\n"
-	"<INPUT TYPE=\"text\" NAME=\"iname\" SIZE=20 MAXLENGTH=256>\n"
+	"<INPUT TYPE=\"text\" NAME=\"ire\" SIZE=20 MAXLENGTH=256>\n"
 	"</td></tr>\n"
 	"<tr><td>\n"
 	"Select identifiers from filenames matching RE\n"
 	"</td><td>\n"
-	"<INPUT TYPE=\"text\" NAME=\"fname\" SIZE=20 MAXLENGTH=256>\n"
+	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"</td></tr>\n"
 	"</table>\n"
 	"<hr>\n"
+	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
 	"<p><INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
@@ -530,8 +531,9 @@ xiquery_page(FILE *of,  void *p)
 	bool writable = !!swill_getvar("writable");
 	bool q_id = !!swill_getvar("qi");
 	bool q_file = !!swill_getvar("qf");
+	char *qname = swill_getvar("n");
 
-	html_head(of, "xiquery", "Identifier Query Results");
+	html_head(of, "xiquery", qname ? qname : "Identifier Query Results");
 
 	char *m;
 	if (!(m = swill_getvar("match"))) {
@@ -777,13 +779,13 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"afiles.html\">All files</a>\n"
 		"<li> <a href=\"rofiles.html\">Read-only files</a>\n"
 		"<li> <a href=\"wfiles.html\">Writable files</a>\n");
-	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&match=Y&qi=1\">All identifiers</a>\n", is_readonly);
-	fprintf(of, "<li> <a href=\"xiquery.html?a%d=1&match=Y&qi=1\">Read-only identifiers</a>\n", is_readonly);
-	fputs("<li> <a href=\"xiquery.html?writable=1&match=Y&qi=1\">Writable identifiers</a>\n"
-		"<li> <a href=\"xiquery.html?writable=1&xfile=1&match=L&qi=1\">File-spanning writable identifiers</a>\n", of);
-	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1\">Unused project-scoped writable identifiers</a>\n", is_lscope);
-	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1\">Unused file-scoped writable identifiers</a>\n", is_cscope);
-	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1\">Unused macro writable identifiers</a>\n", is_macro);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&match=Y&qi=1&n=All+Identifiers\">All identifiers</a>\n", is_readonly);
+	fprintf(of, "<li> <a href=\"xiquery.html?a%d=1&match=Y&qi=1&n=Read-only+Identifiers\">Read-only identifiers</a>\n", is_readonly);
+	fputs("<li> <a href=\"xiquery.html?writable=1&match=Y&qi=1&n=Writable+Identifiers\">Writable identifiers</a>\n"
+		"<li> <a href=\"xiquery.html?writable=1&xfile=1&match=L&qi=1&n=File-spanning+Writable+Identifiers\">File-spanning writable identifiers</a>\n", of);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Project-scoped+Writable+Identifiers\">Unused project-scoped writable identifiers</a>\n", is_lscope);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+File-scoped+Writable+Identifiers\">Unused file-scoped writable identifiers</a>\n", is_cscope);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Macro+Writable+Identifiers\">Unused macro writable identifiers</a>\n", is_macro);
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Identifier query</a>\n"
 		"</ul>"
