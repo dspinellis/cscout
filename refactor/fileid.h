@@ -14,7 +14,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.14 2002/10/02 10:53:50 dds Exp $
+ * $Id: fileid.h,v 1.15 2002/12/25 15:46:47 dds Exp $
  */
 
 #ifndef FILEID_
@@ -51,8 +51,6 @@ private:
 	// Construct a new Fileid given a name and id value
 	// Only used internally for creating the anonymous id
 	Fileid(const string& name, int id);
-	// Create it without any checking from an integer
-	Fileid(int i) : id(i) {}
 	// An anonymous id
 	static Fileid anonymous;
 	// The prefix for read-only files
@@ -63,6 +61,8 @@ private:
 public:
 	// Construct a new Fileid given a filename
 	Fileid(const string& fname);
+	// Create it without any checking from an integer
+	Fileid(int i) : id(i) {}
 	// Construct an anonymous Fileid
 	Fileid() { *this = Fileid::anonymous; };
 	// Return the full file path of a given id
