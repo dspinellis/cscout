@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.81 2003/08/11 14:15:17 dds Exp $
+ * $Id: parse.y,v 1.82 2003/08/15 20:57:47 dds Exp $
  *
  */
 
@@ -912,23 +912,8 @@ basic_type_name:
         | SIGNED	{ $$ = basic(b_abstract, s_signed); }
         | UNSIGNED	{ $$ = basic(b_abstract, s_unsigned); }
         | TVOID		{ $$ = basic(b_void); }
-        | TYPEOF '(' IDENTIFIER ')'
-			{
-				Id const *id = obj_lookup($3.get_name());
-				if (id) {
-					Token::unify(id->get_token(), $3.get_token());
-					$$ = id->get_type();
-				} else {
-					/*
-					 * @error
-					 * The identifier appearing within
-					 * <code>typeof</code>
-					 * has not been declared
-					 */
-					Error::error(E_WARN, "undeclared identifier in typeof expression: " + $3.get_name());
-					$$ = $3;
-				}
-			}
+        | TYPEOF '(' comma_expression ')'
+			{ $$ = $3; }
         ;
 
 elaborated_type_name:
