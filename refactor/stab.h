@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.6 2001/09/21 14:14:19 dds Exp $
+ * $Id: stab.h,v 1.7 2001/09/22 11:46:18 dds Exp $
  */
 
 #ifndef STAB_
@@ -69,6 +69,8 @@ class Block {
 private:
 	static int current_block;	// Current block: >= 1
 	static vectorBlock scope_block;
+	static Block param_block;	// Function parameter declarations
+	static bool use_param;		// Declare in param_block when true
 	Stab obj;
 	Stab tag;
 
@@ -79,6 +81,46 @@ public:
 	static const int cu_block = 1;	// Compilation unit definitions: 1
 	static void enter();
 	static void exit();
+
+	/*
+	 * Special block for handling function parameters.
+	 * Function parameters can appear in parameter_type_lists or in 
+	 * identifier lists.  These are entered as usual with Block::enter()
+	 * to define a new scope.  However, they are exited with 
+	 * Block::param_exit() which saves a copy of the block in param_block.
+	 * (Note that nested scopes are correctly ignored).
+	 * The function block starts with Block::param_enter() which copies
+	 * the last saved param_block into the current block.
+	 * All definitions and declarations call Block::param_clear() to keep
+	 * the, possibly contaminated, param_blockfresh for new function
+	 * definitions.
+	 * Old-style function parameter declarations occur outside the function
+	 * parameter list and would therefore be defined at file scope.
+	 * Calling Block::param_use() instructs the symbol table to add all
+	 * definitions in param_block instead. This special state is
+	 * automatically cleared when entering the function body with
+	 * Block::param_enter().
+	 *
+	 * The following diagram depicts where each function is called:
+	 * *
+	 * int newfun(@enter@int i, void (bar)(@enter@void@param_exit@)@param_exit@)
+	 * {@param_enter@
+	 * 	return i;
+	 * }@exit,param_clear@
+	 *
+	 * oldfun(@enter@a, b@param_exit@)
+	 * 	@param_use@
+	 * 	int a;
+	 * 	double b;
+	 * {@param_enter@
+	 * 	return i;
+	 * }@exit,param_clear@
+	 */
+	static void param_enter();
+	static void param_exit();
+	static void param_clear(void);
+	static void param_use(void) { use_param = true; }
+
 	static int get_cur_block() { return current_block; }
 
 	// Lookup and define of objects and struct/union/enum tags

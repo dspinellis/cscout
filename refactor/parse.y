@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.22 2001/09/22 09:53:04 dds Exp $
+ * $Id: parse.y,v 1.23 2001/09/22 11:46:18 dds Exp $
  *
  */
 
@@ -812,20 +812,49 @@ parameter_list:
         ;
 
 parameter_declaration:
+	/* int */
         declaration_specifier
+	/* int [] */
         | declaration_specifier abstract_declarator
+	/* int i[2] */
         | declaration_specifier identifier_declarator
+		{
+			$2.set_abstract($1);
+			$2.declare();
+		}
+	/* int FILE */
         | declaration_specifier parameter_typedef_declarator
+		{
+			$2.set_abstract($1);
+			$2.declare();
+		}
+	/* volatile */
         | declaration_qualifier_list
+	/* volatile int */
         | declaration_qualifier_list abstract_declarator
+	/* volatile int a */
         | declaration_qualifier_list identifier_declarator
+		{
+			$2.set_abstract($1);
+			$2.declare();
+		}
+	/* int */
         | type_specifier
         | type_specifier abstract_declarator
         | type_specifier identifier_declarator
+		{
+			$2.set_abstract($1);
+			$2.declare();
+		}
         | type_specifier parameter_typedef_declarator
+		{
+			$2.set_abstract($1);
+			$2.declare();
+		}
         | type_qualifier_list
         | type_qualifier_list abstract_declarator
         | type_qualifier_list identifier_declarator
+		{ $2.declare(); }
         ;
 
     /*  ANSI  C  section  3.7.1  states  "An identifier declared as a
@@ -838,6 +867,7 @@ identifier_list:
         IDENTIFIER
 			{ obj_define($1.get_token(), basic(b_int)); }
         | identifier_list ',' IDENTIFIER
+			{ obj_define($3.get_token(), basic(b_int)); }
         ;
 
 identifier_or_typedef_name:
@@ -889,12 +919,16 @@ labeled_statement:
         | DEFAULT ':' statement
         ;
 
+function_brace_begin: '{' 
+		{ Block::param_enter(); }
+	;
+
 brace_begin: '{' 
-			{ Block::enter(); }
+		{ Block::enter(); }
 	;
 
 brace_end: '}' 
-			{ Block::exit(); }
+		{ Block::exit(); }
 	;
 
 compound_statement:
@@ -902,6 +936,13 @@ compound_statement:
         | brace_begin declaration_list brace_end
         | brace_begin statement_list brace_end
         | brace_begin declaration_list statement_list brace_end
+        ;
+
+function_body:
+        function_brace_begin brace_end
+        | function_brace_begin declaration_list brace_end
+        | function_brace_begin statement_list brace_end
+        | function_brace_begin declaration_list statement_list brace_end
         ;
 
 declaration_list:
@@ -949,35 +990,37 @@ translation_unit:
 
 external_definition:
         function_definition
-			{ Function::exit(); }
+			{ Function::exit(); Block::param_clear(); }
         | declaration
+			{ Block::param_clear(); }
         ;
 
 function_definition:
-                                     identifier_declarator compound_statement
-        | declaration_specifier      identifier_declarator compound_statement
-        | type_specifier             identifier_declarator compound_statement
-        | declaration_qualifier_list identifier_declarator compound_statement
-        | type_qualifier_list        identifier_declarator compound_statement
+	/* foo(int a, int b) @ { } (and many illegal constructs) */
+                                     identifier_declarator function_body
+        | declaration_specifier      identifier_declarator function_body
+        | type_specifier             identifier_declarator function_body
+        | declaration_qualifier_list identifier_declarator function_body
+        | type_qualifier_list        identifier_declarator function_body
 
 	/* foo(a, b) @ { } */
-        |                            old_function_declarator compound_statement
-        | declaration_specifier      old_function_declarator compound_statement
-        | type_specifier             old_function_declarator compound_statement
-        | declaration_qualifier_list old_function_declarator compound_statement
-        | type_qualifier_list        old_function_declarator compound_statement
+        |                            old_function_declarator function_body
+        | declaration_specifier      old_function_declarator function_body
+        | type_specifier             old_function_declarator function_body
+        | declaration_qualifier_list old_function_declarator function_body
+        | type_qualifier_list        old_function_declarator function_body
 
 	/* foo(a, b) @ int a; int b; @ { } */
-        |                            old_function_declarator declaration_list
-                compound_statement
-        | declaration_specifier      old_function_declarator declaration_list
-                compound_statement
-        | type_specifier             old_function_declarator declaration_list
-                compound_statement
-        | declaration_qualifier_list old_function_declarator declaration_list
-                compound_statement
-        | type_qualifier_list        old_function_declarator declaration_list
-                compound_statement
+        |                            old_function_declarator { Block::param_use(); } declaration_list
+                function_body
+        | declaration_specifier      old_function_declarator { Block::param_use(); } declaration_list
+                function_body
+        | type_specifier             old_function_declarator { Block::param_use(); } declaration_list
+                function_body
+        | declaration_qualifier_list old_function_declarator { Block::param_use(); } declaration_list
+                function_body
+        | type_qualifier_list        old_function_declarator { Block::param_use(); } declaration_list
+                function_body
         ;
 
 declarator:
@@ -1089,7 +1132,7 @@ old_function_declarator:
         ;
 
 postfix_old_function_declarator:
-        paren_identifier_declarator '(' identifier_list ')'
+        paren_identifier_declarator '(' { Block::enter(); } identifier_list { Block::param_exit(); } ')'
 		{ $1.set_abstract(function_returning(basic())); $$ = $1; }
         | '(' old_function_declarator ')'
 		{ $$ = $2; }
@@ -1107,7 +1150,7 @@ postfixing_abstract_declarator:
         array_abstract_declarator
         | '(' ')'
 		{ $$ = function_returning(basic()); }
-        | '(' parameter_type_list ')'
+        | '(' { Block::enter(); } parameter_type_list { Block::param_exit(); } ')'
 		{ $$ = function_returning(basic()); }
         ;
 

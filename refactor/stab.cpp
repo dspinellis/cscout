@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.8 2001/09/21 14:14:19 dds Exp $
+ * $Id: stab.cpp,v 1.9 2001/09/22 11:46:18 dds Exp $
  */
 
 #include <map>
@@ -38,12 +38,26 @@
 int Block::current_block = -1;
 vectorBlock Block::scope_block;
 Stab Function::label;
+Block Block::param_block;	// Function parameter declarations
+bool Block::use_param;		// Declare in param_block when true
 
+// Called when entering a scope
 void
 Block::enter()
 {
 	scope_block.push_back(Block());
 	current_block++;
+}
+
+// Called when entering a function block statement
+void
+Block::param_enter()
+{
+	if (DP())
+		cout << "On param_enter " << param_block.obj << "\n";
+	scope_block.push_back(param_block);
+	current_block++;
+	use_param = false;
 }
 
 void
@@ -53,6 +67,17 @@ Block::exit()
 	current_block--;
 }
 
+// Called when exiting a function parameter list
+void
+Block::param_exit()
+{
+	param_block = scope_block.back();
+	scope_block.pop_back();
+	current_block--;
+	if (DP())
+		cout << "On param_exit " << param_block.obj << "\n";
+}
+
 /*
  * Define name to be the identifier id
  */
@@ -60,6 +85,14 @@ void
 Block::define(Stab Block::*table, const Token& tok, const Type& typ)
 {
 	(scope_block[current_block].*table).define(tok, typ);
+}
+
+// Called when exiting a function block statement
+void
+Block::param_clear(void)
+{
+	param_block.obj.clear();
+	param_block.tag.clear();
 }
 
 /*
@@ -73,6 +106,16 @@ obj_define(const Token& tok, Type typ)
 
 	if (DP())
 		cout << "Define object [" << tok.get_name() << "]: " << typ << "\n";
+	if (Block::use_param) {
+		// Old-style function definition declarations
+		// No checking
+		if (id = Block::param_block.obj.lookup(tok.get_name()))
+			unify(id->get_token(), tok);
+		else
+			Error::error(E_ERR, "declared parameter does not appear in old-style function parameter list: " + tok.get_name());
+		(Block::param_block.obj).define(tok, typ);
+		return;
+	}
 	if (sc == c_extern && (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
 		// If the declaration of an identifier contains extern the identifier
 		// has the same linage as any visible declaration of the identifier
@@ -121,11 +164,12 @@ tag_define(const Token& tok, const Type& typ)
 {
 	if (DP())
 		cout << "Define tag [" << tok.get_name() << "]: " << typ << "\n";
-	if (Block::scope_block[Block::current_block].tag.lookup(tok.get_name())) {
+	if (Block::use_param)
+		(Block::param_block.tag).define(tok, typ);
+	else if (Block::scope_block[Block::current_block].tag.lookup(tok.get_name()))
 		Error::error(E_ERR, "Duplicate definition of tag  " + tok.get_name());
-		return;
-	}
-	Block::define(&(Block::tag), tok, typ);
+	else
+		Block::define(&(Block::tag), tok, typ);
 }
 
 /*
