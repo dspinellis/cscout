@@ -10,7 +10,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.1 2003/07/07 16:07:55 dds Exp $
+.\" $Id: cscout.1,v 1.2 2003/07/07 16:30:06 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
@@ -93,8 +93,8 @@ Preprocess the specified file and send the result to the standard
 output.
 Note that for this option to work correctly, you need to 
 also process the workspace definition file with \fB-E\fP.
-.IP "\fB\-p\fP \fIport number\fP"
-The web server will listen for requests on the TCP \fIport number\fP specified.
+.IP "\fB\-p\fP \fIport\fP"
+The web server will listen for requests on the TCP port number specified.
 By default the \fICScout\fP server will listen at port 8081.
 The port number must be in the range 1024-32767.
 .IP "\fB\-v\fP"
