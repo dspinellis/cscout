@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.9 2004/07/24 07:56:06 dds Exp $
+ * $Id: fcall.h,v 1.10 2004/07/25 11:47:35 dds Exp $
  */
 
 #ifndef FCALL_
@@ -29,6 +29,11 @@ public:
 
 	virtual Tokid get_definition() const { return definition; }
 	virtual bool is_defined() const { return defined; }
+	virtual bool is_declared() const { return true; }
+	virtual const string & entity_type_name() const {
+		static string s("C function");
+		return (s);
+	}
 	FCall(const Token& t, Type typ, const string &s);
 
 	virtual ~FCall() {}

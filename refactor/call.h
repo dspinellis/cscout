@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.5 2004/07/24 17:03:10 dds Exp $
+ * $Id: call.h,v 1.6 2004/07/25 11:47:35 dds Exp $
  */
 
 #ifndef CALL_
@@ -104,6 +104,10 @@ public:
 
 	// Return true if the function is defined
 	virtual bool is_defined() const = 0;
+	// Return true if the function is declared
+	virtual bool is_declared() const = 0;
+	// Return the name of the entity's type
+	virtual const string & entity_type_name() const = 0;
 
 	virtual Tokid get_definition() const = 0;
 	// Return an entry's identifying site

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.75 2004/07/24 07:56:06 dds Exp $
+ * $Id: cscout.cpp,v 1.76 2004/07/25 11:47:35 dds Exp $
  */
 
 #include <map>
@@ -1225,16 +1225,21 @@ identifier_page(FILE *fo, void *p)
 		if (e->get_attribute(j))
 			fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(fo, "</ul>\n");
-	if (e->get_attribute(is_function)) {
-		fprintf(fo, "<li> Occurs in function name(s): \n<ol>\n");
+	if (e->get_attribute(is_function) || e->get_attribute(is_macro)) {
+		bool found = false;
 		for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 			if (i->second->contains(e)) {
+				if (!found) {
+					fprintf(fo, "<li> The identifier occurs (wholy or in part) in function name(s): \n<ol>\n");
+					found = true;
+				}
 				fprintf(fo, "\n<li>");
 				html_string(fo, i->second->get_name(), i->first);
 				fprintf(fo, " - <a href=\"fun.html?f=%p\">function page</a>", i->second);
 			}
 		}
-		fprintf(fo, "</ol><br />\n");
+		if (found)
+			fprintf(fo, "</ol><br />\n");
 	}
 	if (id.get_replaced())
 		fprintf(fo, "<li> Substituted with: [%s]\n", id.get_newid().c_str());
@@ -1245,6 +1250,7 @@ identifier_page(FILE *fo, void *p)
 		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", e);
 	}
 	fprintf(fo, "</ul>\n");
+
 	IFSet ifiles = e->sorted_files();
 	fprintf(fo, "<h2>Dependent Files (Writable)</h2>\n");
 	html_file_begin(fo);
@@ -1278,19 +1284,21 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "Missing value");
 		return;
 	}
-	html_head(fo, "fun", string("Function: ") + html(f->get_name()));
+	html_head(fo, "fun", string("Function: ") + html(f->get_name()) + " (" + f->entity_type_name() + ')');
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> Associated identifier: ");
 	Tokid t = f->get_tokid();
 	html_string(fo, f->get_name(), t);
-	fprintf(fo, "\n<li> Declared in file <a href=\"file.html?id=%u\">%s</a>",
-		t.get_fileid().get_id(),
-		t.get_fileid().get_path().c_str());
-	ostringstream fname;
-	fname << t.get_fileid().get_id();
-	int lnum = t.get_fileid().line_number(t.get_streampos());
-	fprintf(fo, " <a href=\"src.html?id=%s#%d\">line %d</a><br />(and possibly in other places)\n",
-		fname.str().c_str(), lnum, lnum);
+	if (f->is_declared()) {
+		fprintf(fo, "\n<li> Declared in file <a href=\"file.html?id=%u\">%s</a>",
+			t.get_fileid().get_id(),
+			t.get_fileid().get_path().c_str());
+		ostringstream fname;
+		fname << t.get_fileid().get_id();
+		int lnum = t.get_fileid().line_number(t.get_streampos());
+		fprintf(fo, " <a href=\"src.html?id=%s#%d\">line %d</a><br />(and possibly in other places)\n",
+			fname.str().c_str(), lnum, lnum);
+	}
 	if (f->is_defined()) {
 		t = f->get_definition();
 		fprintf(fo, "<li> Defined in file <a href=\"file.html?id=%u\">%s</a>",

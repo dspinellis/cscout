@@ -1,4 +1,4 @@
-$Id: todo,v 1.50 2004/07/24 17:12:07 dds Exp $
+$Id: todo,v 1.51 2004/07/25 11:47:35 dds Exp $
 
 Maintain file coverage analysis (%) as a metric
 
@@ -45,8 +45,11 @@ Function information
 		Project-scoped writable functions
 		File-scoped writable functions
 		Call graph
-		Call graph in GraphViz dot format (with function names)
-		Call graph in GraphViz dot format (without function names)
+		Call graph in GraphViz dot format
+			Without function names
+			With function names
+			With function and file names
+			With function and file path names
 		Function query
 			C function
 			Macro
