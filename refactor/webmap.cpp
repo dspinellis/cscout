@@ -3,10 +3,9 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.1 2002/09/04 11:11:35 dds Exp $
+ * $Id: webmap.cpp,v 1.2 2002/09/04 14:31:17 dds Exp $
  */
 
-#include <iostream>
 #include <map>
 #include <string>
 #include <deque>
@@ -17,7 +16,11 @@
 #include <list>
 #include <set>
 #include <cassert>
+#include <strstream>
 #include <cstdio>		// perror
+
+#include <sys/types.h>		// mkdir
+#include <sys/stat.h>		// mkdir
 
 
 #include "cpp.h"
@@ -59,6 +62,16 @@ html(char c)
 	}
 }
 
+static string
+html(string s)
+{
+	string r;
+
+	for (string::const_iterator i = s.begin(); i != s.end(); i++)
+		r += html(*i);
+	return r;
+}
+
 // Display the contents of a file in hypertext form
 static void
 file_hypertext(string fname)
@@ -95,6 +108,53 @@ file_hypertext(string fname)
 	in.close();
 }
 
+// Create a new HTML file with a given filename and title
+static void
+html_head(ofstream &of, const string fname, const string title)
+{
+	of.open((string("html/") + fname + ".html").c_str(), ios::out);
+	if (!of) {
+		perror(fname.c_str());
+		exit(1);
+	}
+	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
+		"<html>\n"
+		"<head>\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.2 2002/09/04 14:31:17 dds Exp $\">\n"
+		"<title>" << title << "</title>\n"
+		"</head>\n"
+		"<body>\n"
+		"<h1>" << title << "</h1>\n";
+}
+
+// And an HTML file
+static void
+html_tail(ofstream &of)
+{
+	of <<	"<p>" 
+		"<a href=\"index.html\">Main page</a>\n"
+		"</body>"
+		"</html>";
+	of.close();
+}
+
+// Display a filename on an html file
+static void
+html_file(ofstream &of, Fileid fi)
+{
+	of << "<a href=\"f" << fi.get_id() << ".html\">" << fi.get_path() << "</a>";
+}
+
+static void
+html_file(ofstream &of, string fname)
+{
+	Fileid fi = Fileid(fname);
+
+	html_file(of, fi);
+}
+
+
+
 main(int argc, char *argv[])
 {
 	Pdtoken t;
@@ -107,9 +167,68 @@ main(int argc, char *argv[])
 	while (t.get_code() != EOF);
 
 	// Pass 2: Create web pages
-
 	vector <string> files = Fileid::file_vector();
-	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++)
-		cout << "file: [" << *i << "]\n";
+	ofstream fo;
+
+	mkdir("html", 0777);
+
+	// Index
+	html_head(fo, "index", "Table of Contents");
+	fo <<	"<ul>\n"
+		"<li> <a href=\"afiles.html\">All files</a>\n"
+		"<li> <a href=\"rofiles.html\">Read-only files</a>\n"
+		"<li> <a href=\"wfiles.html\">Writable files</a>\n"
+		"</ul>";
+	html_tail(fo);
+
+	// Read-only files
+	html_head(fo, "rofiles", "Read-only Files");
+	fo << "<ul>";
+	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
+		Fileid fi = Fileid(*i);
+		if (fi.get_readonly() == true) {
+			fo << "\n<li>";
+			html_file(fo, fi);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
+	// Writable files
+	html_head(fo, "wfiles", "Writable Files");
+	fo << "<ul>";
+	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
+		Fileid fi = Fileid(*i);
+		if (fi.get_readonly() == false) {
+			fo << "\n<li>";
+			html_file(fo, fi);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
+	// All files
+	html_head(fo, "afiles", "All Files");
+	fo << "<ul>";
+	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
+		fo << "\n<li>";
+		html_file(fo, *i);
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
+	// Each file
+	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
+		Fileid fi = Fileid(*i);
+		strstream fname;
+		fname << 'f' << fi.get_id();
+		string sfname(fname.str(), fname.pcount());
+		html_head(fo, sfname.c_str(), html(*i));
+		fo << "Read-only: " << (fi.get_readonly() ? "Yes" : "No") << "<p>\n";
+
+		html_tail(fo);
+	}
+
+
 	return (0);
 }
