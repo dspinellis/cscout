@@ -4,7 +4,7 @@
  * Simple preprocessor.  
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.13 2002/09/17 16:53:21 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.14 2002/10/03 10:54:01 dds Exp $
  */
 
 #include <iostream>
@@ -20,12 +20,12 @@
 #include <cassert>
 
 #include "cpp.h"
+#include "ytab.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
-#include "ytab.h"
 #include "ptoken.h"
 #include "fchar.h"
 #include "error.h"
