@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.7 2002/09/03 13:27:31 dds Exp $
+ * $Id: color.cpp,v 1.8 2002/09/13 13:00:56 dds Exp $
  */
 
 #include <iostream>
@@ -21,6 +21,7 @@
 
 
 #include "cpp.h"
+#include "attr.h"
 #include "ytab.h"
 #include "fileid.h"
 #include "tokid.h"

@@ -4,7 +4,7 @@
  * Simple preprocessor.  
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.10 2001/09/22 15:26:04 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.11 2002/09/13 13:00:56 dds Exp $
  */
 
 #include <iostream>
@@ -20,6 +20,7 @@
 #include <cassert>
 
 #include "cpp.h"
+#include "attr.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
@@ -37,7 +38,7 @@ main(int argc, char *argv[])
 	Fchar::set_input(argv[1]);
 
 	Debug::db_read();
-	Fchar::push_input("/home/dds/src/refactor/defs.h");
+	//Fchar::push_input("/home/dds/src/refactor/defs.h");
 
 	for (;;) {
 		Pdtoken t;
