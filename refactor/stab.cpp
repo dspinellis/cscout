@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.1 2001/09/13 18:36:14 dds Exp $
+ * $Id: stab.cpp,v 1.2 2001/09/14 07:57:09 dds Exp $
  */
 
 #include <map>
@@ -35,8 +35,22 @@
 #include "parse.tab.h"
 
 
-int Block::current_block = 0;
+int Block::current_block = -1;
 vectorBlock Block::scope_block;
+
+void
+Block::scope_enter()
+{
+	scope_block.push_back(Block());
+	current_block++;
+}
+
+void
+Block::scope_exit()
+{
+	scope_block.pop_back();
+	current_block--;
+}
 
 /*
  * Define name to be the identifier id

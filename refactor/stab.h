@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.1 2001/09/13 18:36:14 dds Exp $
+ * $Id: stab.h,v 1.2 2001/09/14 07:57:09 dds Exp $
  */
 
 #ifndef STAB_
@@ -51,6 +51,8 @@ private:
 public:
 	static const int lu_block;	// Linkage unit definitions: 0
 	static const int cu_block;	// Compilation unit definitions: 1
+	static void scope_enter();
+	static void scope_exit();
 	static int get_cur_block() { return current_block; }
 
 	// Lookup and defined
