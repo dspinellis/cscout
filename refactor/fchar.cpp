@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.23 2003/07/15 07:40:00 dds Exp $
+ * $Id: fchar.cpp,v 1.24 2003/07/16 23:15:45 dds Exp $
  */
 
 #include <iostream>
@@ -147,6 +147,19 @@ Fchar::getnext()
 	// Loop for unwinding the pushed file context stack
 	for (;;) {
 		simple_getnext();
+
+		static int oval;
+		if (val == EOF && oval != '\n')
+			/*
+			 * @error
+			 * An included file does not end with a newline 
+			 * character.
+			 * The processing of the first following preprocessor
+			 * command is unspecified.
+			 */
+			Error::error(E_ERR, "Included file does not end with a newline.");
+		if (val != EOF)
+			oval = val;
 		if (val == EOF) {
 			fi.metrics().done_processing();
 			fi.set_attribute(Project::get_current_projid());
