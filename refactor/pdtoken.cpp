@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.5 2001/08/23 09:30:43 dds Exp $
+ * $Id: pdtoken.cpp,v 1.6 2001/08/23 19:41:42 dds Exp $
  */
 
 #include <iostream>
@@ -243,6 +243,91 @@ Pdtoken::process_directive()
 		Error::error(E_ERR, "Unknown preprocessor directive: " + t.get_val());
 }
 
+typedef list<Pltoken> listPltoken;
+typedef set<string> setstring;
+typedef map<string, listPltoken> mapArgval;
+
+static bool
+gather_args(listPltoken::iterator pos, const dequePltoken& formal_args, mapArgval& args, bool get_more)
+{
+}
+
+/*
+ * Check for macro at token position pos and possibly expand it  
+ * If a macro is expanded pos is invalidated and replaced with the replacement 
+ * macro value.
+ * Macros that are members of the tabu set are not expanded.
+ * If get_more is true, more data can be retrieved from Pltoken::get_next
+ * Return true if a  replacemement was made
+ */
+bool
+mreplace(listPdtoken& tokens, listPltoken::iterator pos, setstring& tabu, bool get_more)
+{
+	mapMacro::const_iterator mi;
+	Macro& m;
+	iterator expand_end;
+	string& name = (*pos).get_val();
+	if ((mi = macros.find(name)) == macros.end() || tabu.find(name) != tabu.end())
+		return (false);
+	listPlotken::iterator expand_start = pos + 1;	// For rescan
+	tokens.erase(pos);
+	pos = expand_start();
+	tabu.insert(name);
+	m = *mi;
+	if (m.is_function) {
+		int nargs = m.formal_args.count();
+		mapArgval args;			// Map from formal name to value
+		gather_args(pos, m.formal_args, args, get_more);
+		dequePltoken::const_iterator i;
+		// Substitute with macro's replacement value
+		for(i = m.value.begin(); i != m.value.end(); i++) {
+			mapArgval::const_iterator ai;
+			// Is it a formal argument?
+			if ((ai = args.find((*i).get_val())) != args.end()) {
+				// Yes, see if macro-replacement allowed
+				// ANSI 3.8.3.1 p. 91
+				// Not preceded by # or ## or followed by ##
+				if ((i == m.value.begin() ||
+				     ((*(i - 1)).get_code() != '#' &&
+				      (*(i - 1)).get_code() != CPP_CONCAT)) &&
+				    (i + 1 == m.value.end() ||
+				     (*(i + 1)).get_code != CPP_CONCAT))
+					// Allowed, macro replace the parameter
+					mreplace((*ai).second, (*ai).second.begin(), tabu, false);
+				// See if stringizing is needed
+				if ((i != m.value.begin() &&
+				     (*(i - 1)).get_code() == '#')
+					tokens.insert(pos, stringize((*ai).second));
+				else
+					copy((*ai).second.begin(), (*ai).second.end(), inserter(tokens, pos));
+			} else {
+				// Not a formal argument, plain replacement
+				// Check for misplaced # operator (3.8.3.2)
+				if ((i != m.value.begin() &&
+				     (*(i - 1)).get_code() == '#')
+					Error:error(E_WARN, "Operator # only valid before macro parameters");
+				tokens.insert(pos, *i);
+			}
+		}
+	} else {
+		// Object-like macro
+		tokens.insert(pos, m.value.begin(), m.value.end());
+	}
+	// XXX Check and apply CPP_CONCAT 3.8.3.3
+	// TODO
+
+	// Continously rescan the sequence while replacements are made
+	for (;;) {
+		bool replaced = false;
+		for (i = tokens.begin(); i != tokens.end(); i++)
+			if (mreplace(tokens, i, tabu, true)) {
+				replaced = true;
+				break;
+			}
+		if (!replaced)
+			return (true);
+	}
+}
 
 #ifdef UNIT_TEST
 

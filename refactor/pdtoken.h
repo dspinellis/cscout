@@ -25,7 +25,7 @@
  * #include "ytab.h"
  * #include "pltoken.h"
  *
- * $Id: pdtoken.h,v 1.3 2001/08/21 18:29:45 dds Exp $
+ * $Id: pdtoken.h,v 1.4 2001/08/23 19:41:42 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -36,7 +36,6 @@ class Pdtoken;
 typedef list<Pdtoken> listPdtoken;
 
 typedef deque<Pltoken> dequePltoken;
-typedef map<string, dequePltoken> mapArgval;
 
 // A macro definition
 class Macro {
