@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.9 2001/08/24 12:49:26 dds Exp $
+ * $Id: pdtoken.cpp,v 1.10 2001/08/24 13:17:53 dds Exp $
  */
 
 #include <iostream>
@@ -248,9 +248,57 @@ gather_args(listPtoken::iterator pos, const dequePtoken& formal_args, mapArgval&
 {
 }
 
-static Ptoken
-stringize(const listPtoken &ts)
+// Return s with all \ and " characters \ escaped
+static string
+escape(const string& s)
 {
+	string r;
+
+	for (string::const_iterator i = s.begin(); i != s.end(); i++)
+		switch (*i) {
+		case '\\':
+		case '"':
+			r += '\\';
+			// FALTHROUGH
+		default:
+			r += *i;
+		}
+	return (r);
+}
+
+/*
+ * Convert a list of tokens into a string as specified by the # operator
+ * Multiple spaces are converted to a single space, \ and " are
+ * escaped
+ */
+static Ptoken
+stringize(const listPtoken& ts)
+{
+	string res;
+	listPtoken::const_iterator pi;
+	bool seen_space = false;
+
+	for (pi = ts.begin(); pi != ts.end(); pi++) {
+		switch ((*pi).get_code()) {
+		case '\n':
+		case SPACE:
+			if (seen_space)
+				continue;
+			else
+				seen_space = true;
+			res += ' ';
+			break;
+		case STRING_LITERAL:
+			seen_space = false;
+			res += '"' + escape((*pi).get_val()) + '"';
+			break;
+		default:
+			seen_space = false;
+			res += escape((*pi).get_val());
+			break;
+		}
+	}
+	return Ptoken(STRING_LITERAL, res);
 }
 
 /*
