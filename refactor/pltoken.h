@@ -22,7 +22,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.6 2001/08/20 15:37:26 dds Exp $
+ * $Id: pltoken.h,v 1.7 2001/08/20 17:05:40 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -55,9 +55,8 @@ void
 Pltoken::getnext()
 {
 	int n;
-	C c0;
+	C c0, c1;
 
-again:
 	c0.getnext();
 	switch (c0.get_char()) {
 	/* 
@@ -269,33 +268,27 @@ again:
 			break;
 		}
 		break;
-#ifdef ndef
 	case '.':	/* . and ... */
-		cn1 = in_get();
-		if (isdigit(cn1.get_char())) {
-			cn = NULL;
-			goto float_fraction;
+		c0.getnext();
+		if (isdigit(c0.get_char())) {
+			val = "." + c0.get_char();
+			goto pp_number;
 		}
-		if (cn1.get_char() != '.') {
-			in_unget(cn1);
-			t->set_props('.', c0, c0);
-			delete (c0);
+		if (c0.get_char() != '.') {
+			C::putback(c0);
+			val = (char)(code = '.');
 			break;
 		}
-		cn = in_get();
-		if (cn.get_char() != '.') {
-			in_unget(cn);
-			in_unget(cn1);
-			t->set_props('.', c0, c0);
-			delete (c0);
+		c1.getnext();
+		if (c1.get_char() != '.') {
+			C::putback(c1);
+			C::putback(c0);
+			val = (char)(code = '.');
 			break;
 		}
-		t->set_props(ELLIPSIS, c0, cn);
-		delete (c0);
-		delete (cn1);
-		delete (cn);
+		code = ELLIPSIS;
+		val = "...";
 		break;
-#endif // ndef
 	/* 
 	 * Convert whitespace into a single token; whitespace is needed
 	 * by the C preprocessor.
@@ -376,7 +369,7 @@ again:
 			val += c0.get_char();
 			n++;
 		}
-		val = CHAR_LIT;
+		val = CHAR_LITERAL;
 		if (n == 0)
 			Error::error(E_WARN, "Empty character literal");
 		if (c0.get_char() == EOF)
@@ -414,129 +407,32 @@ again:
 		if (c0.get_char() == EOF)
 			Error::error(E_ERR, "End of file in string literal");
 		break;
-#ifdef ndef
 	/* Various numbers */
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9': 
-		cn1 = in_get();
-		if (cn1.get_char() == 'x' || cn1.get_char() == 'X') {
-			// Hex constant
-			cn = NULL;
-			n = 0;
-			do {
-				if (cn)
-					delete (cn);
-				cn = cn1;
-				cn1 = in_get();
-				n++;
-			} while (isxdigit(cn1.get_char()));
-			if (n == 1)
-				Error::error(E_ERR, c0, "Missing digit in hex constant");
-		} else {
-			// Decimal constant
-			cn = NULL;
-			while (isdigit(cn1.get_char())) {
-				if (cn)
-					delete (cn);
-				cn = cn1;
-				cn1 = in_get();
-			}
-			switch (cn1.get_char()) {
-			case 'e': case 'E':
-				goto float_exp;
-			case '.':
-				if (cn)
-					delete(cn);
-				cn = cn1;
-				cn1 = in_get();
-				goto float_fraction;
-			}
-		}
-		// Continue with integer suffix
-		bool have_u, have_l;
-		have_u = have_l = false;
+		val = c0.get_char();
+	pp_number:
 		for (;;) {
-			switch (cn1.get_char()) {
-			case 'u': case 'U':
-				if (have_u)
-					error(E_ERR, c0, "Bad integer suffix");
-				have_u = true;
-				break;
-			case 'l': case 'L':
-				if (have_l)
-					error(E_ERR, c0, "Bad integer suffix");
-				have_l = true;
-				break;
-			default:
-				goto suffix_end;
+			c0.getnext();
+			if (c0.get_char() == 'e' || c0.get_char() == 'E') {
+				val += c0.get_char();
+				c0.getnext();
+				if (c0.get_char() == '+' || c0.get_char() == '-') {
+					val += c0.get_char();
+					continue;
+				} else
+					C::putback(c0);
 			}
-			if (cn)
-				delete(cn);
-			cn = cn1;
-			cn1 = in_get();
+			if (c0.get_char() == EOF ||
+		            (!isalnum(c0.get_char()) && c0.get_char() != '_'))
+		         	break;
+			val += c0.get_char();
 		}
-	suffix_end:
-		in_unget(cn1);
-		if (cn)
-			t->set_props(INT_CONST, c0, cn);
-		else
-			t->set_props(INT_CONST, c0, c0);
-		delete(c0);
-		delete(cn);
-		break;
-	float_fraction:
-		/*
-		 * cn1 contains the first character after the '.'
-		 * It is either a digit, or we have already seen
-		 * digits before the ., so we know the number has at least
-		 * one digit.
-		 */
-		 while (isdigit(cn1.get_char())) {
-			if (cn)
-				delete (cn);
-			cn = cn1;
-			cn1 = in_get();
-		}
-		if (cn1.get_char() == 'e' || cn1.get_char() == 'E') {
-	float_exp:
-			if (cn)
-				delete(cn);
-			cn = cn1;
-			cn1 = in_get();
-			if (cn1.get_char() == '+' || cn1.get_char() == '-') {
-				delete(cn);
-				cn = cn1;
-				cn1 = in_get();
-			}
-			n = 0;
-			while (isdigit(cn1.get_char())) {
-				delete (cn);
-				cn = cn1;
-				cn1 = in_get();
-				n++;
-			}
-			if (n == 0)
-				error(E_ERR, c0, "Malformed floating point exponent");
-		}
-		// Floating point suffix (in cn1)
-		switch (cn1.get_char()) {
-		case 'f': case 'F': case 'l': case 'L':
-			if (cn)
-				delete(cn);
-			cn = cn1;
-			break;
-		default:
-			in_unget(cn1);
-		}
-		t->set_props(FLOAT_CONST, c0, cn);
-		delete(c0);
-		delete(cn);
+		C::putback(c0);
+		code = PP_NUMBER;
 		break;
 	default:
-		error(E_WARN, c0, "Bad character value %c (%d - 0x%02x)", 
-			c0.get_char(), c0.get_char(), c0.get_char());
-		goto again;
-#endif  //ndef
+		val = (char)(code = c0.get_char());
 	}
 }
 
