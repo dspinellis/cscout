@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.3 2002/09/05 12:55:59 dds Exp $
+# $Id: cswc.pl,v 1.4 2002/09/05 16:51:23 dds Exp $
 #
 
 # Syntax:
@@ -32,6 +32,9 @@
 #	}
 #}
 #
+
+# Installation directory
+$instdir = '/home/dds/src/refactor';
 
 while (<>) {
 	chop;
@@ -75,6 +78,7 @@ sub endunit
 		print $defines{'directory'};
 		print $ipaths{'file'};
 		print $defines{'file'};
+		print "#include \"$instdir/incs.h\"\n";
 		print "#pragma process \"$name\"\n\n";
 	}
 	if (defined($dir{$unit})) {
@@ -106,7 +110,7 @@ sub beginunit
 		print "#pragma block_enter\n";
 		print "#pragma clear_defines\n";
 		print "#pragma clear_include\n";
-		print "#include \"/home/dds/src/refactor/defs.h\"\n";
+		print "#include \"$instdir/defs.h\"\n";
 	}
 }
 

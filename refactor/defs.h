@@ -5,7 +5,7 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: defs.h,v 1.8 2002/09/05 15:56:23 dds Exp $
+ * $Id: defs.h,v 1.9 2002/09/05 16:51:23 dds Exp $
  */
 
 #define __FILE__ ""
@@ -29,17 +29,13 @@
 #define __WCHAR_TYPE__ short unsigned int
 
 #ifdef __cplusplus
-#pragma includepath "/usr/include/g++-3"
 #define __GNUG__ 3
 #define __EXCEPTIONS
 #endif
 
-#pragma includepath "/usr/lib/gcc-lib/i386-redhat-linux/2.96/include"
-#pragma includepath "/usr/include"
-
 #define __extension__
 #define __attribute__(x)
-#define __const
+#define __const const
 #define __restrict
 #define __builtin_va_list void *
 #define __builtin_stdarg_start
