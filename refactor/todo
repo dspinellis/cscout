@@ -1,14 +1,22 @@
-$Id: todo,v 1.49 2004/07/24 17:03:10 dds Exp $
+$Id: todo,v 1.50 2004/07/24 17:12:07 dds Exp $
+
+Maintain file coverage analysis (%) as a metric
 
 Handle conditional compilation!!!!
-Each conditional compilation statement can be trivially handled by creating
-and processing a parallel universe (we know how to do this, cd. 4 BSD kernel
-processing).  Find ways to do it automatically, and efficiently by
-maintaining merged virtual copies of the environment.
+	Each conditional compilation statement can be trivially handled
+	by creating and processing a parallel universe (we know how
+	to do this, cf. 4 BSD kernel processing).  Find ways to do it
+	automatically, and efficiently by maintaining merged virtual
+	copies of the environment.
 
 Add generalized query language, based on the C preprocessor syntax.
 
 Option to specify leading file path to hide
+
+Refactorings
+	- Inline macro
+	- Add nth function argument (with default value)
+	- Remove nth function argument
 
 Add type specifiers:
 	_Bool
@@ -27,6 +35,8 @@ Function information
 	Per function:
 		Functions that call this function
 		Functions this function calls
+		All functions that call this function
+		All functions this function calls
 		Note: function calls through pointers are not included
 		in the call graph.
 	Functions
@@ -35,7 +45,8 @@ Function information
 		Project-scoped writable functions
 		File-scoped writable functions
 		Call graph
-		Call graph in GraphViz dot format
+		Call graph in GraphViz dot format (with function names)
+		Call graph in GraphViz dot format (without function names)
 		Function query
 			C function
 			Macro
@@ -44,6 +55,7 @@ Function information
 			Project scope
 			File scope
 			Defined
+			Number of callers
 			Name should match RE
 			Name of functions that call it should match RE
 			Name of functions it calls should match RE
@@ -59,8 +71,9 @@ ceescape (swill) front end:
 Allow interruptions in id queries
 
 lex preprocessor / hooks
-#pragma sync "filename" offset
-#pragma nosync (default. Input is parsed, but unify is a null op)
+	(Partly implemented)
+	#pragma sync "filename" offset
+	#pragma nosync (default. Input is parsed, but unify is a null op)
 
 C99 extensions
 
