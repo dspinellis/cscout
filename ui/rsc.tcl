@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.5 2001/09/25 15:38:22 dds Exp $
+# $Id: rsc.tcl,v 1.6 2001/09/27 12:35:18 dds Exp $
 #
 
 package require Iwidgets 3.0
@@ -80,6 +80,8 @@ $m add separator
 $m add command -label "Remove File"
 $m add command -label "Remove File from All Projects"
 $m add command -label "Remove Project"
+$m add separator
+$m add command -label "Rename Project"
 
 set m .menu.view
 menu $m -tearoff 0
@@ -88,10 +90,11 @@ $m add command -label "Workspace Files"
 $m add command -label "Matched Files"
 $m add separator
 $m add command -label "Contents"
-$m add command -label "Settings"
-$m add command -label "Output"
 $m add command -label "Dependencies"
 $m add command -label "Unused"
+$m add command -label "Settings"
+$m add command -label "Output"
+$m add command -label "Statistics"
 
 set m .menu.insert
 menu $m -tearoff 0
@@ -226,7 +229,7 @@ pack $out.l -side left -expand yes -fill both
 
 ######################################################
 # Workspace Files
-iwidgets::hierarchy $tabfiles.hier
+iwidgets::hierarchy $tabfiles.hier -querycommand "get_workspace %n"
 pack $tabfiles.hier -expand yes -fill both
 
 ######################################################
@@ -321,3 +324,23 @@ pack $tabsettings.ro $tabsettings.clearsub -side top -padx 4 -pady 4 -anchor nw
 # Output
 iwidgets::scrolledtext $taboutput.text -wrap none
 pack $taboutput.text -side left -expand yes -fill both
+
+######################################################
+# Subroutines
+
+proc get_workspace {uid} {
+	if {$uid == ""} {
+		return {
+			# uid Text branch/leaf
+			{wp	"Workspace" branch} 
+			{dep	"Dependent Files" branch} 
+			{ro	"Read-only Files" branch}
+			{wr	"Writable Files" branch}
+			{edit	"Edited Files" branch}
+			{all	"All Files" branch}
+			{int	"Internal Settings" leaf}
+		};
+	} else {
+		return "";
+	}
+}
