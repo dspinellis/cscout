@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.53 2003/06/21 14:06:00 dds Exp $
+ * $Id: parse.y,v 1.54 2003/06/21 14:50:10 dds Exp $
  *
  */
 
@@ -262,20 +262,24 @@ primary_expression:
 					 * yacc rules
 					 */
 					Error::error(E_FATAL, "Invalid C token: '$'");
-				Id const *id = yacc_stack.member($1.get_name());
-				if (id) {
-					$$ = id->get_type();
-					if (DP())
-						cout << ". returns " << $$ << "\n";
-					assert(id->get_name() == $1.get_name());
-				} else {
-					/*
-					 * @error
-					 * The member used in a $&lt;name&gt;X yacc construct
-					 * was not defined as a %union member.
-					 */
-					Error::error(E_ERR, "%union does not have a member " + $1.get_name());
-					$$ = basic(b_undeclared);
+				if (!yacc_typing)
+					$$ = yacc_stack;
+				else {
+					Id const *id = yacc_stack.member($1.get_name());
+					if (id) {
+						$$ = id->get_type();
+						if (DP())
+							cout << ". returns " << $$ << "\n";
+						assert(id->get_name() == $1.get_name());
+					} else {
+						/*
+						 * @error
+						 * The member used in a $&lt;name&gt;X yacc construct
+						 * was not defined as a %union member.
+						 */
+						Error::error(E_ERR, "%union does not have a member " + $1.get_name());
+						$$ = basic(b_undeclared);
+					}
 				}
 			}
         | constant
@@ -1484,6 +1488,14 @@ yacc_tag:
 		{ $$ = basic(b_undeclared); }
 	| '<' IDENTIFIER '>'
 			{
+				if (!yacc_typing)
+					/*
+					 * @error
+					 * The yacc $<tag>n syntax was used
+					 * to specify an element of the %union 
+					 * but no union was defined.
+					 */
+					Error::error(E_ERR, "explicit element tag without no %union in effect");
 				Id const *id = yacc_stack.member($2.get_name());
 				if (id) {
 					if (DP())
@@ -1598,7 +1610,7 @@ yacc_id_action_list:
 yacc_prec:
 	/* Empty */
 	| YPREC yacc_name
-	| YPREC yacc_name { parse_yacc_defs = false; } equal_opt yacc_compound_statement
+	| YPREC yacc_name { parse_yacc_defs = false; } equal_opt compound_statement
 		{ parse_yacc_defs = true; }
 	;
 
