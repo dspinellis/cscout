@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.56 2003/08/11 17:19:01 dds Exp $
+ * $Id: cscout.cpp,v 1.57 2003/08/12 11:18:31 dds Exp $
  */
 
 #include <map>
@@ -66,6 +66,7 @@ static int tab_width = 8;		// Tab width for code output
 
 // Global command-line options
 static bool preprocess;			// Preprocess-only (-E)
+static bool compile_only;		// Process-only (-c)
 static int portno = 8081;		// Port number (-p n)
 
 // Our identifiers to store as a map
@@ -1536,8 +1537,9 @@ simple_cpp()
 static void
 usage(char *fname)
 {
-	cerr << "usage: " << fname << " [-Ev] [-p port] [-m spec] file\n"
-		"\t-E\tDisplay preprocessed results on the standard output\n"
+	cerr << "usage: " << fname << " [-cEuv] [-p port] [-m spec] file\n"
+		"\t-c\tProcess the file and exit\n"
+		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
@@ -1556,10 +1558,13 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "uvEp:m:")) != EOF)
+	while ((c = getopt(argc, argv, "cuvEp:m:")) != EOF)
 		switch (c) {
 		case 'E':
 			preprocess = true;
+			break;
+		case 'c':
+			compile_only = true;
 			break;
 		case 'p':
 			if (!optarg)
@@ -1602,7 +1607,7 @@ main(int argc, char *argv[])
 		return simple_cpp();
 	}
 		
-	if (!swill_init(portno)) {
+	if (!compile_only && !swill_init(portno)) {
 		cerr << "Couldn't initialize our web server on port " << portno << "\n";
 		exit(1);
 	}
@@ -1618,6 +1623,9 @@ main(int argc, char *argv[])
 	do
 		t.getnext();
 	while (t.get_code() != EOF);
+
+	if (compile_only)
+		return 0;
 
 	// Pass 2: Create web pages
 	files = Fileid::files(true);
