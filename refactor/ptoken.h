@@ -14,11 +14,12 @@
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.4 2001/08/21 18:29:45 dds Exp $
+ * $Id: ptoken.h,v 1.5 2001/08/24 14:18:24 dds Exp $
  */
 
 #ifndef PTOKEN_
 #define PTOKEN_
+
 
 class Ptoken : public Token {
 protected:
@@ -34,6 +35,10 @@ public:
 	friend ostream& operator<<(ostream& o,const Ptoken &t);
 	inline friend bool operator ==(const Ptoken& a, const Ptoken& b);
 };
+
+typedef list<Ptoken> listPtoken;
+
+ostream& operator<<(ostream& o,const listPtoken &t);
 
 bool operator ==(const Ptoken& a, const Ptoken& b)
 {
