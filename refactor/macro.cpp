@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.16 2003/08/01 13:19:07 dds Exp $
+ * $Id: macro.cpp,v 1.17 2003/08/02 10:52:41 dds Exp $
  */
 
 #include <iostream>
@@ -39,7 +39,6 @@
 #include "tchar.h"
 #include "ctoken.h"
 
-void macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined);
 
 /*
  * Return a macro argument token from tokens position pos.
@@ -257,10 +256,11 @@ revalidate(listPtoken::iterator& valid_iterator, listPtoken::iterator start, lis
 /*
  * Macro replace all tokens in the sequence from tokens.begin() up to the 
  * "end" iterator
- * if skip_defined is set macros inside or following the defined string will not be replaced
+ * If skip_defined is set macros inside or following the "defined" string,
+ * such as "defined X" or "defined(X)" will not be replaced
  * This is the rule when processing #if #elif expressions
  */
-void
+listPtoken::iterator
 macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined)
 {
 	listPtoken::iterator ti;
@@ -303,6 +303,7 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
 		}
 	}
 	if (DP()) cout << "Exit replace_all\n";
+	return end;
 }
 
 /*
@@ -327,6 +328,9 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		cout << "macro_replace: [" << name << "] tabu: ";
 		for (setstring::const_iterator si = tabu.begin(); si != tabu.end(); si++)
 			cout << *si << " ";
+		cout << "\nTokens:";
+		for (listPtoken::const_iterator ti = tokens.begin(); ti != tokens.end(); ti++)
+			cout << (*ti).get_val();
 		cout << "\n";
 	}
 	mi = Pdtoken::macros_find(name);
@@ -528,11 +532,19 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 	tabu.insert(name);
 	if (DP()) {
 		cout << "Rescan-" << name << " for:\n";
-		copy(tokens.begin(), pos, ostream_iterator<Ptoken>(cout));
-		cout << "tokens\n";
+		for (listPtoken::const_iterator ti = tokens.begin(); ti != tokens.end(); ti++)
+			cout << (*ti).get_val();
+		cout << "\n";
 	}
-	macro_replace_all(tokens, pos, tabu, get_more, skip_defined);
-	if (DP()) cout << "Rescan ends\n";
+	pos = macro_replace_all(tokens, pos, tabu, get_more, skip_defined);
+	if (DP()) {
+		cout << "Rescan ends returing ";
+		if (pos == tokens.end())
+			cout << "EOF";
+		else
+			cout << (*pos);
+		cout << "\n";
+	}
 	return (pos);
 }
 

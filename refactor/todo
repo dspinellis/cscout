@@ -1,10 +1,4 @@
-$Id: todo,v 1.35 2003/08/01 19:16:34 dds Exp $
-
-/vol/src/sys/compile/LINT/../../dev/vinum/vinumvar.h(412): error: Syntax error in preprocessor expression
-/vol/src/sys/compile/LINT/../../i4b/driver/i4b_trace.c(222): error: structure or union does not have a member ifq_mtx
-Done processing file ../../i4b/driver/i4b_ipr.c
-Processing file ../../net/slcompress.c
-out of memory
+$Id: todo,v 1.36 2003/08/02 10:52:41 dds Exp $
 
 
 Borland configuration file

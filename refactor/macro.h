@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.7 2003/07/29 20:07:23 dds Exp $
+ * $Id: macro.h,v 1.8 2003/08/02 10:52:41 dds Exp $
  */
 
 #ifndef MACRO_
@@ -51,7 +51,7 @@ public:
 	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator);
 };
 
-void macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined);
+listPtoken::iterator macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined);
 
 
 #endif // MACRO
