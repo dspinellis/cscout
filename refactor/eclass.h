@@ -11,7 +11,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.14 2002/09/11 11:32:15 dds Exp $
+ * $Id: eclass.h,v 1.15 2002/09/15 15:45:29 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -23,8 +23,7 @@ class Eclass {
 private:
 	int len;			// Identifier length
 	setTokid members;		// Class members
-	vector <bool> attr;		// Attributes and projects
-					// Hopefully specialized to 1 bit/val
+	Attributes attr;
 public:
 	// An equivalence class shall know its length
 	inline Eclass(int len);
@@ -46,19 +45,20 @@ public:
 	// Other accessor functions
 	const setTokid & get_members(void) const { return members; }
 	set <Fileid, fname_order> sorted_files();
-	void set_attribute(enum e_attribute v) { attr[v] = true; }
-	bool get_attribute(enum e_attribute v) { return attr[v]; }
+	void set_attribute(enum e_attribute v) { attr.set_attribute(v); }
+	bool get_attribute(enum e_attribute v) { return attr.get_attribute(v); }
+	void merge_attributes(Eclass *b) { attr.merge_with(b->attr); }
 };
 
 inline
 Eclass::Eclass(int l)
-: len(l), attr(attr_max, false)
+: len(l)
 {
 }
 
 inline
 Eclass::Eclass(Tokid t, int l)
-: len(l), attr(attr_max, false)
+: len(l)
 {
 	add_tokid(t);
 }

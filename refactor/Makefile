@@ -1,13 +1,13 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.20 2002/09/14 17:52:13 dds Exp $
+# $Id: Makefile,v 1.21 2002/09/15 15:45:29 dds Exp $
 #
 
 # Common object files
 OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
-parse.o type.o stab.o
+parse.o type.o stab.o attr.o
 
 # Stand-alone object files
 STANDOBJ=error.o

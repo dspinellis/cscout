@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.17 2002/09/13 10:47:55 dds Exp $
+ * $Id: eclass.cpp,v 1.18 2002/09/15 15:45:29 dds Exp $
  */
 
 #include <iostream>
@@ -44,9 +44,7 @@ merge(Eclass *a, Eclass *b)
 
 	for (setTokid::const_iterator i = little->members.begin(); i != little->members.end(); i++)
 		large->add_tokid(*i);
-	// If one is read-only; the result is too
-	for (int i = 0; i < attr_max; i++)
-		large->attr[i] = (little->attr[i] || large->attr[i]);
+	large->merge_attributes(little);
 	delete little;
 	return (large);
 }
@@ -89,7 +87,8 @@ Eclass::add_tokid(Tokid t)
 {
 	members.insert(t);
 	t.set_ec(this);
-	attr[is_readonly] = (t.get_readonly() || attr[is_readonly]);
+	if (t.get_readonly())
+		set_attribute(is_readonly);
 }
 
 // Return a sorted vector of all files used
