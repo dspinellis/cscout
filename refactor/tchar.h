@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "tchar.h"
  *
- * $Id: tchar.h,v 1.2 2001/08/31 11:34:22 dds Exp $
+ * $Id: tchar.h,v 1.3 2001/09/01 05:57:55 dds Exp $
  */
 
 #ifndef TCHAR_
@@ -49,6 +49,8 @@ private:
 	Tokid ti;			// (pos_type from tellg(), fi)
 
 public:
+	// Clear queues before pushing new tokens
+	static void clear();
 	// Call it before the first getnext()
 	static void rewind_input();
 	// Will read characters from tokens p

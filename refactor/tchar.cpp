@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.4 2001/08/31 11:34:22 dds Exp $
+ * $Id: tchar.cpp,v 1.5 2001/09/01 05:57:55 dds Exp $
  */
 
 #include <iostream>
@@ -84,9 +84,15 @@ Tchar::rewind_input()
 {
 	qi = iq.begin();
 	pi = (*qi).get_parts_begin();
+	part_idx = val_idx = 0;
+}
+
+void
+Tchar::clear()
+{
+	iq.clear();
 	while (!ps.empty())
 		ps.pop();
-	part_idx = val_idx = 0;
 }
 
 void

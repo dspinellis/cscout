@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.24 2001/09/01 05:33:56 dds Exp $
+ * $Id: pdtoken.cpp,v 1.25 2001/09/01 05:57:55 dds Exp $
  */
 
 #include <iostream>
@@ -639,8 +639,10 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			if (left != tokens.end() && right != tokens.end() && right != pos) {
 				next = right;
 				next++;
+				Tchar::clear();
 				Tchar::push_input(*left);
 				Tchar::push_input(*(right));
+				// cout << "concat A:" << *left << "B: " << *right << "\n";
 				Tchar::rewind_input();
 				tokens.erase(left, next);
 				for (;;) {
@@ -648,6 +650,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					t.template getnext<Tchar>();
 					if (t.get_code() == EOF)
 						break;
+					// cout << "Result: " << t ;
 					tokens.insert(next, t);
 				}
 			} else {
