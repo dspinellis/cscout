@@ -12,7 +12,7 @@
  * #include "cpp.h"
  * #include "fileid.h"
  *
- * $Id: tokid.h,v 1.4 2001/08/17 15:54:59 dds Exp $
+ * $Id: tokid.h,v 1.5 2001/08/17 16:04:34 dds Exp $
  */
 
 #ifndef TOKID_
@@ -42,6 +42,8 @@ public:
 	// Advance i character positions
 	inline Tokid& operator +=(int i);
 	inline friend Tokid operator +(const Tokid& a, int i);
+	// Advance one position
+	inline Tokid operator ++(int);		// Int signifies postfix (Str97 11.11 p. 292)
 	// Return offset distance
 	inline friend int operator -(const Tokid& a, const Tokid& b);
 	// Return its equivalence class
@@ -85,6 +87,13 @@ inline Tokid&
 Tokid::operator +=(int i)
 {
 	offs += i;
+	return (*this);
+}
+
+inline Tokid
+Tokid::operator ++(int dummy)
+{
+	offs++;
 	return (*this);
 }
 

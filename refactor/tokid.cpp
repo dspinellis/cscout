@@ -89,7 +89,8 @@ main()
 
 	cout << (b - a) << " should be 5\n";
 	cout << a << " should be tokid.cpp(10)\n";
-	a += 5;
+	a += 4;
+	a++;
 	cout << a << " should be tokid.cpp(15)\n";
 	cout << (a == b) << " should be 1\n";
 	b = b + 1;
