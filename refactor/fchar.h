@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.8 2002/09/17 07:55:39 dds Exp $
+ * $Id: fchar.h,v 1.9 2002/10/03 11:36:25 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -80,6 +80,8 @@ public:
 	static string  get_path() { return fi.get_path(); }
 	// Return the fileid of the file we are processing
 	static Fileid get_fileid() { return fi; }
+	// Return true if the class's source is a file
+	static bool is_file_source() { return true; }
 };
 
 #endif /* FCHAR_ */

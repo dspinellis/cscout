@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.22 2002/09/05 14:09:19 dds Exp $
+ * $Id: pltoken.h,v 1.23 2002/10/03 11:36:25 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -246,6 +246,9 @@ Pltoken::getnext()
 			val = "/=";
 			break;
 		case '*':				/* Block comment */
+			// Do not delete comments from expanded macros
+			if (!C::is_file_source())
+				goto no_comment;
 			c0.getnext();
 			for (;;) {
 				while (c0.get_char() != '*' && c0.get_char() != EOF) {
@@ -261,6 +264,9 @@ Pltoken::getnext()
 			val = " ";
 			break;
 		case '/':				/* Line comment */
+			// Do not delete comments from expanded macros
+			if (!C::is_file_source())
+				goto no_comment;
 			do {
 				c0.getnext();
 			} while (c0.get_char() != '\n' && c0.get_char() != EOF);
@@ -268,6 +274,12 @@ Pltoken::getnext()
 			code = SPACE;
 			val = " ";
 			break;
+		no_comment:
+			/* 
+			 * Comment in an expanded macro.
+			 * Could issue a warning here, but Microsoft uses such
+			 * line comments, so we handle it in pdtoken.cpp
+			 */
 		default:				/* / */
 			C::putback(c0);
 			val = (char)(code = '/');

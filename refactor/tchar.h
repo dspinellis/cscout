@@ -14,7 +14,7 @@
  * #include "tokid.h"
  * #include "tchar.h"
  *
- * $Id: tchar.h,v 1.3 2001/09/01 05:57:55 dds Exp $
+ * $Id: tchar.h,v 1.4 2002/10/03 11:36:25 dds Exp $
  */
 
 #ifndef TCHAR_
@@ -61,14 +61,16 @@ public:
 	// Construct an unititialized one
 	Tchar() {};
 	// Construct it with a given value and tokid
-	Tchar(int v, Tokid t) : val(v), ti(t) {};
-	Tchar(int v) : val(v) {};
+	Tchar(int v, Tokid t) : val(v), ti(t) {}
+	Tchar(int v) : val(v) {}
 	// Read next from stream
 	void getnext();
 	// Return the character value (or EOF)
-	inline int get_char() const { return (val); };
+	inline int get_char() const { return (val); }
 	// Return the character's Tokid
-	inline Tokid get_tokid() const { return (ti); };
+	inline Tokid get_tokid() const { return (ti); }
+	// Return true if the class's source is a file
+	static bool is_file_source() { return false; }
 };
 
 #endif /* TCHAR_ */

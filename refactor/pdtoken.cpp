@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.64 2002/09/17 16:35:46 dds Exp $
+ * $Id: pdtoken.cpp,v 1.65 2002/10/03 11:36:25 dds Exp $
  */
 
 #include <iostream>
@@ -71,6 +71,19 @@ expand_get:
 		Pdtoken n(expand.front());
 		*this = n;
 		expand.pop_front();
+		/*
+		 * MSC extension: macros expand into a //
+		 * sequence which is then treated as a comment!
+		 * Search in MS headers for /##/ to see where it is used.
+		 */
+		if (n.get_code() == '/' && !expand.empty() && expand.front().get_code() == '/') {
+			if (DP())
+				cout << "Handling expanded C++ comment\n";
+			while (!expand.empty())
+				expand.pop_front();
+			eat_to_eol();
+			goto again;
+		}
 		return;
 	}
 again:
