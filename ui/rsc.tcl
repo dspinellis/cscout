@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.6 2001/09/27 12:35:18 dds Exp $
+# $Id: rsc.tcl,v 1.7 2001/09/29 07:08:21 dds Exp $
 #
 
 package require Iwidgets 3.0
@@ -86,15 +86,15 @@ $m add command -label "Rename Project"
 set m .menu.view
 menu $m -tearoff 0
 .menu add cascade -label "View" -menu $m -underline 0
-$m add command -label "Workspace Files"
-$m add command -label "Matched Files"
+$m add command -label "Workspace" -command {$files.l select Workspace}
+$m add command -label "Matches" -command {$files.l select Matches}
 $m add separator
-$m add command -label "Contents"
-$m add command -label "Dependencies"
-$m add command -label "Unused"
-$m add command -label "Settings"
-$m add command -label "Output"
-$m add command -label "Statistics"
+$m add command -label "Contents" -command {$out.l select Contents}
+$m add command -label "Dependencies" -command {$out.l select Dependencies}
+$m add command -label "Unused" -command {$out.l select Unused}
+$m add command -label "Settings" -command {$out.l select Settings}
+$m add command -label "Output" -command {$out.l select Output}
+$m add command -label "Statistics" -command {$out.l select Statistics}
 
 set m .menu.insert
 menu $m -tearoff 0
@@ -208,15 +208,18 @@ set files [.panes childsite "files"]
 ######################################################
 # The tabbed areas
 iwidgets::tabnotebook $files.l -tabpos n
+# Warning: the names are used in the view menu
 set tabfiles [$files.l add -label "Workspace"]
 set tabmatches [$files.l add -label "Matches"]
 pack $files.l -side left -expand yes -fill both
 
+$files.l select Workspace
 
 .panes add "out"
 set out [.panes childsite "out"]
 
 iwidgets::tabnotebook $out.l -tabpos n
+# Warning: the names are used in the view menu
 set tabcontents [$out.l add -label "Contents"]
 set tabdependencies [$out.l add -label "Dependencies"]
 set tabunused [$out.l add -label "Unused"]
@@ -225,6 +228,8 @@ set taboutput [$out.l add -label "Output"]
 set tabstatistics [$out.l add -label "Statistics"]
 pack $out.l -side left -expand yes -fill both
  
+$out.l select Settings
+
 .panes fraction 25 75
 
 ######################################################
@@ -249,10 +254,11 @@ label $tabdependencies.label -text "External dependencies of project or file"
 
 frame $tabdependencies.select
 radiobutton $tabdependencies.select.symbol -text "List by symbol" -variable size \
-    -relief flat -value "path"
+    -relief flat -value "symbol" -variable dependlist
 radiobutton $tabdependencies.select.file -text "List by file" -variable size \
-    -relief flat -value "macro"
+    -relief flat -value "file" -variable dependlist
 pack $tabdependencies.select.symbol $tabdependencies.select.file -side left -pady 2
+set dependlist symbol
 
 iwidgets::hierarchy $tabdependencies.hier -visibleitems 30x15 
 
@@ -266,10 +272,11 @@ label $tabunused.label -text "Unused symbols in workspace, project, or file"
 
 frame $tabunused.select
 radiobutton $tabunused.select.symbol -text "Order by symbol" -variable size \
-    -relief flat -value "path"
+    -relief flat -value "symbol" -variable unusedorder
 radiobutton $tabunused.select.file -text "Order by file name" -variable size \
-    -relief flat -value "macro"
+    -relief flat -value "name" -variable unusedorder
 pack $tabunused.select.symbol $tabunused.select.file -side left -pady 2
+set unusedorder symbol
 
 iwidgets::scrolledlistbox $tabunused.hier
 
@@ -280,11 +287,12 @@ pack $tabunused.hier -expand true -fill both -side top -pady 2 -anchor nw
 ######################################################
 # Settings
 frame $tabsettings.select
-radiobutton $tabsettings.select.path -text "Include paths" -variable size \
-    -relief flat -value "path"
 radiobutton $tabsettings.select.macro -text "Macro definitions" -variable size \
-    -relief flat -value "macro"
+    -relief flat -value "macro" -variable configlist
+radiobutton $tabsettings.select.path -text "Include paths" -variable size \
+    -relief flat -value "path" -variable configlist
 pack $tabsettings.select.macro $tabsettings.select.path -side left -pady 2
+set configlist macro
 
 frame $tabsettings.listgroup
 iwidgets::scrolledlistbox $tabsettings.listgroup.list \
@@ -330,8 +338,8 @@ pack $taboutput.text -side left -expand yes -fill both
 
 proc get_workspace {uid} {
 	if {$uid == ""} {
-		return {
 			# uid Text branch/leaf
+		return {
 			{wp	"Workspace" branch} 
 			{dep	"Dependent Files" branch} 
 			{ro	"Read-only Files" branch}
