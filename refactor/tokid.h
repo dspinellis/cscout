@@ -16,13 +16,12 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.16 2003/07/29 21:31:14 dds Exp $
+ * $Id: tokid.h,v 1.17 2003/08/13 17:13:27 dds Exp $
  */
 
 #ifndef TOKID_
 #define TOKID_
 
-class TE_map;
 class Eclass;
 
 class Tokid;
@@ -89,11 +88,6 @@ public:
 
 // Print dequeTokid sequences
 ostream& operator<<(ostream& o,const dequeTokid& dt);
-
-class TE_map {
-public:
-	static mapTokidEclass tm;		// Map from tokens to their equivalence
-};
 
 extern mapTokidEclass tokid_map;		// Dummy; used for printing
 
