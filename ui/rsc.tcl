@@ -3,15 +3,15 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.12 2001/09/29 19:19:59 dds Exp $
+# $Id: rsc.tcl,v 1.13 2001/09/29 20:41:41 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
-# To save an array: puts $f [list array set $arr [array get $arr]]
 
 package require Iwidgets 3.0
 
-wm title . "Refactoring Studio for C"
+set workspace_filename "Untitled"
+
 
 
 ######################################################
@@ -54,10 +54,10 @@ set m .menu.file
 menu $m -tearoff 0
 .menu add cascade -label "File" -menu $m -underline 0
 $m add command -label "New Workspace"
-$m add command -label "Open Workspace..."
+$m add command -label "Open Workspace..." -command open_workspace
 $m add command -label "Open File..."
-$m add command -label "Save Workspace"
-$m add command -label "Save Workspace As..."
+$m add command -label "Save Workspace" -command save_workspace
+$m add command -label "Save Workspace As..." -command save_workspace_as
 $m add command -label "Save Changes"
 $m add separator
 $m add command -label "Print Setup..."
@@ -160,7 +160,8 @@ set imagedir "."
 .tb add button savewp \
     -image [image create photo -file [file join $imagedir save.gif]] \
     -helpstr "Save current workspace" \
-    -balloonstr "Save Workspace"
+    -balloonstr "Save Workspace" \
+    -command save_workspace
 
 .tb add button savech \
     -image [image create photo -file [file join $imagedir savech.gif]] \
@@ -297,7 +298,9 @@ pack $tabunused.hier -expand true -fill both -side top -pady 2 -anchor nw
 # Directory selection
 frame $tabsettings.dir
 label $tabsettings.dir.lab -text "Working directory" -anchor e
-entry $tabsettings.dir.ent -width 20 -state disabled
+label $tabsettings.dir.ent -width 20 \
+	-relief sunken -borderwidth 2 -anchor w
+#-state disabled
 button $tabsettings.dir.but -text "Browse ..." -command "tk_chooseDirectory"
 pack $tabsettings.dir.lab -side left
 pack $tabsettings.dir.ent -side left -expand yes -fill x
@@ -394,15 +397,26 @@ iwidgets::promptdialog .dialog_macro_define -title "Preprocessor Macro Definitio
 # Read-only
 set readonly(wp) 1
 # Working directory
-set dir(wp) {}
+set dir(wp) [pwd]
 # Preprocessor macros
 set macro(wp) {}
 # Preprocessor include paths
 set ipath(wp) {}
+# Workspace entry names (name(wp) isn't really used)
+set name(wp) Workspace
+# Working directory
 
 
 ######################################################
 # Subroutines
+
+
+# Set window title
+proc set_window_title {} {
+	global workspace_filename
+
+	wm title . "Refactoring Studio for C - $workspace_filename"
+}
 
 # Display an error dialog box with the given mesage
 proc ierror {msg} {
@@ -577,20 +591,27 @@ proc macro_delete {} {
 proc settings_refresh {} {
 	global tabsettings
 	global macro
+	global dir
 
+	# Find the entry to get the settings from
 	set entry [wp_getentry]
 	while {![info exists macro($entry)]} {
 		# We are inheriting our parent
 		set entry [parent $entry]
 	}
+	# Update macro definitions
 	$tabsettings.mi.macro.list delete 0 end
 	foreach i $macro($entry) {
 		$tabsettings.mi.macro.list insert end $i
 	}
+	# Set directory
+	$tabsettings.dir.ent configure -text $dir($entry)
 }
 
+# Various initialization bits and pieces
 # Default selection is the workspace
 select_workspace wp 0
+set_window_title
 
 # Insert file to a project
 proc insert_file {} {
@@ -612,4 +633,69 @@ proc insert_file {} {
 		$tabfiles.hier refresh wp/$projname
 	}	
 	# else cancelled
+}
+
+# Save current workspace asking used for name
+proc save_workspace_as {} {
+	set filename [tk_getSaveFile -defaultextension .rsw \
+		-filetypes {{"Refactoring Studio Workspaces" {.rsw}}}]
+	if {$filename == ""} {
+		return
+	} else {
+		save_workspace_to $filename
+		set workspace_filename $filename
+		set_window_title
+	}
+}
+
+# Save current workspace using workspace_filename
+proc save_workspace {} {
+	global workspace_filename
+	if {$workspace_filename == "Untitled"} {
+		save_workspace_as
+	} else {
+		save_workspace_to $workspace_filename
+	}
+}
+
+# Save current workspace to filename specified
+proc save_workspace_to {filename} {
+	global readonly
+	global dir
+	global macro
+	global ipath
+	global name
+	
+	set f [open $filename w]
+	puts $f "#RSC 1.0 Workspace"
+	puts $f [list array set name [array get name]]
+	puts $f [list array set readonly [array get readonly]]
+	puts $f [list array set dir [array get dir]]
+	puts $f [list array set macro [array get macro]]
+	puts $f [list array set ipath [array get ipath]]
+	close $f
+}
+
+# Open workspace
+proc open_workspace {} {
+	global tabfiles
+	global readonly
+	global dir
+	global macro
+	global ipath
+	global name
+	global workspace_filename
+
+	set filename [tk_getOpenFile -defaultextension .rsw \
+		-filetypes {{"Refactoring Studio Workspaces" {.rsw}}}]
+	if {$filename == ""} {
+		return
+	} else {
+		source $filename
+		set workspace_filename $filename
+		set_window_title
+		$tabfiles.hier expand wp
+		$tabfiles.hier refresh wp
+		settings_refresh
+	}
 }
