@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.37 2001/09/02 15:45:20 dds Exp $
+ * $Id: pdtoken.cpp,v 1.38 2001/09/02 16:01:40 dds Exp $
  */
 
 #include <iostream>
@@ -459,13 +459,30 @@ Pdtoken::process_undef()
 void
 Pdtoken::process_line()
 {
+	static bool supress = false;
+
+	if (!supress) {
+		Error::error(E_WARN, "Processing automatically generated file; #line directive ignored.");
+		Error::error(E_WARN, "(further #line warning messages supressed)");
+		supress = 1;
+	}
 	eat_to_eol();
 }
 
 void
 Pdtoken::process_error()
 {
-	eat_to_eol();
+	string msg;
+	Pltoken t;
+
+	for (;;) {
+		t.template getnext<Fchar>();
+		if (t.get_code() == EOF || t.get_code() == '\n')
+			break;
+		else
+			msg += t.get_val();
+	}
+	Error::error(E_ERR, msg);
 }
 
 void
