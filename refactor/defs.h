@@ -5,7 +5,7 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: defs.h,v 1.3 2001/09/21 14:14:19 dds Exp $
+ * $Id: defs.h,v 1.4 2001/09/22 09:03:15 dds Exp $
  */
 
 //#define __cplusplus
@@ -34,3 +34,7 @@
 #pragma includepath "/usr/include"
 
 #define __extension__
+#define __attribute__(x)
+#define __const
+#define __restrict
+typedef void * __builtin_va_list;
