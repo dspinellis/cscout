@@ -10,12 +10,12 @@
  * overhead will be incured exactly once for each file.
  *
  * During postprocessing call:
- * process_file() or process_id() while going through each file
+ * process_char() or process_id() while going through each file
  * msum.add_unique_id once() for every EC
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  * 
- * $Id: filemetrics.h,v 1.4 2002/10/07 20:04:35 dds Exp $
+ * $Id: filemetrics.h,v 1.5 2002/10/07 20:10:32 dds Exp $
  */
 
 #ifndef METRICS_
