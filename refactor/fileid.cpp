@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.11 2002/09/04 11:06:27 dds Exp $
+ * $Id: fileid.cpp,v 1.12 2002/09/04 13:42:01 dds Exp $
  */
 
 #include <map>
@@ -147,20 +147,17 @@ Fileid::set_readonly(bool r)
 	i2d[id].set_readonly(r);
 }
 
-struct i2d_getfname : public unary_function<FI_id_to_details ::value_type, string>
-{
-      string operator()(FI_id_to_details ::value_type v) { return v.second.get_name(); }
-};
-
-
 // Return a sorted list of all filenames used
 vector <string> 
 Fileid::file_vector()
 {
-	vector <string> r(i2d.size());
+	vector <string> r(i2d.size() - 1);
+	FI_id_to_details::const_iterator i;
+	int j;
 
-	// Copy filenames into the vector
-	transform(i2d.begin(), i2d.end(), r.begin(), i2d_getfname());
+	for (i = i2d.begin(), j = 0; i != i2d.end(); i++)
+		if ((*i).first != 0)	// All but the anonymous entry
+			r[j++] = ((*i).second.get_name());
 	sort(r.begin(), r.end());
 	return (r);
 }
