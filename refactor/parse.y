@@ -9,7 +9,7 @@
  * b) As a sanity check for (a)
  *
  *
- * $Id: parse.y,v 1.2 2001/09/04 13:26:14 dds Exp $
+ * $Id: parse.y,v 1.3 2001/09/04 13:40:30 dds Exp $
  *
  */
 
@@ -188,17 +188,17 @@ cast_expression
 multiplicative_expression
         : cast_expression
         | multiplicative_expression '*' cast_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         | multiplicative_expression '/' cast_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         | multiplicative_expression '%' cast_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         ;
 
 additive_expression
         : multiplicative_expression
         | additive_expression '+' multiplicative_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         | additive_expression '-' multiplicative_expression
 			{
 				if ($1->is_ptr() && $3->is_ptr()) {
@@ -213,9 +213,9 @@ additive_expression
 shift_expression
         : additive_expression
         | shift_expression LEFT_OP additive_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         | shift_expression RIGHT_OP additive_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         ;
 
 relational_expression
@@ -241,19 +241,19 @@ equality_expression
 and_expression
         : equality_expression
         | and_expression '&' equality_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         ;
 
 exclusive_or_expression
         : and_expression
         | exclusive_or_expression '^' and_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         ;
 
 inclusive_or_expression
         : exclusive_or_expression
         | inclusive_or_expression '|' exclusive_or_expression
-			{ delete $3; }
+			{ $$ = $1; delete $3; }
         ;
 
 logical_and_expression
