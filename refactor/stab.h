@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.3 2001/09/14 10:09:51 dds Exp $
+ * $Id: stab.h,v 1.4 2001/09/14 15:48:43 dds Exp $
  */
 
 #ifndef STAB_
@@ -26,14 +26,22 @@ public:
 	const string& get_name() const { return token.get_name(); }
 };
 
+typedef map<string,Id> Stab_element;
+
 // A symbol table instance (used (two per block) for objects and tags)
 class Stab {
 private:
-	map<string,Id> m;
+	Stab_element m;
 public:
 	Id const* lookup(const string& s) const;
 	void define(const Token& tok, const Type& typ);
 	void clear() { m.clear(); }
+	Stab_element::const_iterator begin() const { return m.begin(); }
+	Stab_element::const_iterator end() const { return m.end(); }
+	static const string& get_name(const Stab_element::const_iterator x)
+		{ return (*x).first; }
+	static const Id& get_id(const Stab_element::const_iterator x)
+		{ return (*x).second; }
 };
 
 class Block;
@@ -49,8 +57,9 @@ public:
 	// Called when entering or exiting a function
 	// Either call will be enough
 	static void enter() { label.clear(); }
-	static void exit() { label.clear(); }
+	static void exit();
 	friend void label_define(const Token& tok);
+	friend void label_use(const Token& tok);
 };
 
 class Block {

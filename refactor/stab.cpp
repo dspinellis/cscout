@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.3 2001/09/14 10:09:51 dds Exp $
+ * $Id: stab.cpp,v 1.4 2001/09/14 15:48:43 dds Exp $
  */
 
 #include <map>
@@ -105,8 +105,36 @@ void
 label_define(const Token& tok)
 {
 	Id const *id = Function::label.lookup(tok.get_name());
+	if (id) {
+		if (id->get_type().is_valid())
+			Error::error(E_ERR, "label " + tok.get_name() + " already defined");
+		unify(id->get_token(), tok);
+	}
+	Function::label.define(tok, label());
+}
+
+/*
+ * Use tok as a label in the current function (with goto).
+ * If it is already defined, unify it with the previous definition.
+ */
+void
+label_use(const Token& tok)
+{
+	Id const *id = Function::label.lookup(tok.get_name());
 	if (id)
 		unify(id->get_token(), tok);
 	else
-		Function::label.define(tok, label());
+		Function::label.define(tok, Type());
+}
+
+// Called at the end of a function definition
+void
+Function::exit()
+{
+	Stab_element::const_iterator i;
+
+	for (i = label.begin(); i != label.end(); i++)
+		if (!Stab::get_id(i).get_type().is_valid())
+			Error::error(E_ERR, "undefined label " + Stab::get_name(i));
+	label.clear();
 }
