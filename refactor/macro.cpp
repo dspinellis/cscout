@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.14 2003/07/29 20:07:23 dds Exp $
+ * $Id: macro.cpp,v 1.15 2003/08/01 09:39:55 dds Exp $
  */
 
 #include <iostream>
@@ -84,7 +84,7 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
  * Return true if ok, false on error.
  */
 static bool
-gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, const dequePtoken& formal_args, mapArgval& args, bool get_more)
+gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, const dequePtoken& formal_args, mapArgval& args, bool get_more, bool is_vararg)
 {
 	Ptoken t;
 	t = arg_token(tokens, pos, get_more, false);
@@ -92,13 +92,21 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 	dequePtoken::const_iterator i;
 	for (i = formal_args.begin(); i != formal_args.end(); i++) {
 		listPtoken& v = args[(*i).get_val()];
-		char term = (i + 1 == formal_args.end()) ? ')' : ',';
+		char terminate;
+		if (i + 1 == formal_args.end()) 
+			terminate = ')';
+		else if (is_vararg && i + 2 == formal_args.end())
+			terminate = '.';	// Vararg last argument is optional; terminate with ) or ,
+		else
+			terminate = ',';
 		int bracket = 0;
 		// Get a single argument
 		for (;;) {
 			t = arg_token(tokens, pos, get_more, true);
-			if (bracket == 0 && t.get_code() == term)
-				break;
+			if (bracket == 0 && (
+				(terminate == '.' && (t.get_code() == ',' || t.get_code() == ')')) ||
+				(t.get_code() == terminate)))
+					break;
 			switch (t.get_code()) {
 			case '(':
 				bracket++;
@@ -118,6 +126,13 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 			v.push_back(t);
 		}
 		if (DP()) cout << "Gather args returns: " << v << "\n";
+		// Check if varargs last optional argument was not supplied
+		if (terminate == '.' && t.get_code() == ')') {
+			i++;
+			// Instantiate argument with an empty value list
+			args[(*i).get_val()];
+			break;
+		}
 	}
 	if (formal_args.size() == 0) {
 		t = arg_token(tokens, pos, get_more, false);
@@ -353,7 +368,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		bool do_stringize;
 
 		expand_start = pos;
-		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more))
+		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more, m.is_vararg))
 			return (pos);
 		revalidate(valid_iterator, expand_start, pos);
 		tokens.erase(expand_start, pos);
