@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.13 2002/09/11 11:32:15 dds Exp $
+ * $Id: stab.cpp,v 1.14 2002/09/11 12:00:43 dds Exp $
  */
 
 #include <map>
@@ -12,6 +12,7 @@
 #include <vector>
 #include <stack>
 #include <iterator>
+#include <fstream>
 #include <iostream>
 #include <list>
 #include <set>

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.57 2002/09/11 11:32:15 dds Exp $
+ * $Id: pdtoken.cpp,v 1.58 2002/09/11 12:00:43 dds Exp $
  */
 
 #include <iostream>
@@ -47,7 +47,9 @@
 #include "type.h"		// stab.h
 #include "stab.h"		// Block::enter()
 
+#if __GLIBCPP__ >= 20020816
 using namespace __gnu_cxx;	// STL extensions
+#endif
 
 bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;

@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.12 2002/09/11 11:32:15 dds Exp $
+ * $Id: webmap.cpp,v 1.13 2002/09/11 12:00:43 dds Exp $
  */
 
 #include <map>
@@ -142,7 +142,7 @@ file_hypertext(ofstream &of, ofstream &uof, string fname)
 		Eclass *ec;
 		// Identifiers worth marking
 		if ((ec = ti.check_ec()) && (
-		    ec->get_size() > 1 || (ec->get_attribute(is_readonly) == FALSE && (
+		    ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
 		      ec->get_attribute(is_lscope) || 
 		      ec->get_attribute(is_cscope) || 
 		      ec->get_attribute(is_macro))))) {
@@ -179,7 +179,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.12 2002/09/11 11:32:15 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.13 2002/09/11 12:00:43 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -296,11 +296,11 @@ main(int argc, char *argv[])
 		fo << "<li> Read-only: " << ((*i).get_readonly() ? "Yes" : "No") << "\n";
 		// File source listing
 		html_head(sfo, (string("s") + fname.str()).c_str(), string("Source: ") + html(pathname));
-		if ((*i).get_readonly() == FALSE)
+		if ((*i).get_readonly() == false)
 			html_head(usfo, (string("u") + fname.str()).c_str(), string("Source (with unused identifiers marked): ") + html(pathname));
 		bool has_unused = file_hypertext(sfo, usfo, pathname);
 		html_tail(sfo);
-		if ((*i).get_readonly() == FALSE)
+		if ((*i).get_readonly() == false)
 			html_tail(usfo);
 		fo << "<li> Contains unused identifiers: " << (has_unused ? "Yes" : "No") << "\n";
 		fo << "<li> <a href=\"s" << fname.str() << ".html\">Source code</a>\n";
