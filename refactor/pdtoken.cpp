@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.79 2003/07/29 18:34:52 dds Exp $
+ * $Id: pdtoken.cpp,v 1.80 2003/07/29 20:07:23 dds Exp $
  */
 
 #include <iostream>
@@ -140,7 +140,7 @@ again:
 		expand.push_front(t);
 		tabu.clear();
 		dummy = expand.begin();
-		macro_replace(expand, expand.begin(), tabu, true, dummy);
+		macro_replace(expand, expand.begin(), tabu, true, false, dummy);
 		goto expand_get;
 		// FALLTRHOUGH
 	default:
@@ -233,8 +233,8 @@ eval_lex()
  * its value.
  * Algorithm:
  * -. Read tokens.
+ * -. Macro-expand sequence (ignoring the defined operator arguments)
  * -. Process defined operator
- * -. Macro-expand sequence
  * -. Replace all identifiers with 0
  * -. Parse and evaluate sequence
  */
@@ -251,8 +251,19 @@ eval()
 		eval_tokens.push_back(t);
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 
-	//cout << "Tokens after reading:\n";
-	//copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+	if (DP()) {
+		cout << "Tokens after reading:\n";
+		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+	}
+
+	// Macro replace
+	setstring tabu;
+	macro_replace_all(eval_tokens, eval_tokens.end(), tabu, false, true);
+
+	if (DP()) {
+		cout << "Tokens after macro replace:\n";
+		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+	}
 
 	// Process the "defined" operator
 	listPtoken::iterator i, arg, last, i2;
@@ -304,12 +315,12 @@ eval()
 		eval_tokens.insert(last, Ptoken(PP_NUMBER, Pdtoken::macro_is_defined(mi) ? "1" : "0"));
 		i = last;
 	}
-	//cout << "Tokens after defined:\n";
-	//copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+	
+	if (DP()) {
+		cout << "Tokens after defined:\n";
+		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+	}
 
-	// Macro replace
-	setstring tabu;
-	macro_replace_all(eval_tokens, eval_tokens.end(), tabu, false);
 
 	// Change remaining identifiers to 0
 	for (i = eval_tokens.begin(); 
@@ -528,7 +539,7 @@ Pdtoken::process_include(bool next)
 		// Need to macro process
 		// 1. Macro replace
 		setstring tabu;
-		macro_replace_all(tokens, tokens.end(), tabu, false);
+		macro_replace_all(tokens, tokens.end(), tabu, false, false);
 		if (DP()) {
 			cout << "Replaced after macro :\n";
 			copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));

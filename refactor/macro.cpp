@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.13 2003/07/19 12:30:44 dds Exp $
+ * $Id: macro.cpp,v 1.14 2003/07/29 20:07:23 dds Exp $
  */
 
 #include <iostream>
@@ -39,7 +39,7 @@
 #include "tchar.h"
 #include "ctoken.h"
 
-void macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more);
+void macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined);
 
 /*
  * Return a macro argument token from tokens position pos.
@@ -242,19 +242,50 @@ revalidate(listPtoken::iterator& valid_iterator, listPtoken::iterator start, lis
 /*
  * Macro replace all tokens in the sequence from tokens.begin() up to the 
  * "end" iterator
+ * if skip_defined is set macros inside or following the defined string will not be replaced
+ * This is the rule when processing #if #elif expressions
  */
 void
-macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more)
+macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined)
 {
 	listPtoken::iterator ti;
 	setstring rescan_tabu(tabu);
+	enum {d_scanning, d_defined, d_bracket, d_ignoring} state;
 
+	state = skip_defined ? d_scanning : d_ignoring;
 	if (DP()) cout << "Enter replace_all\n";
 	for (ti = tokens.begin(); ti != end; ) {
-		if ((*ti).get_code() == IDENTIFIER)
-			ti = macro_replace(tokens, ti, tabu, get_more, end);
-		else
+		if ((*ti).get_code() == IDENTIFIER) {
+			switch (state) {
+			case d_scanning:
+				if ((*ti).get_val() == "defined") {
+					state = d_defined;
+					ti++;
+					continue;
+				}
+				break;
+			case d_bracket:
+			case d_defined:
+				state = d_scanning;
+				ti++;
+				continue;
+			}
+			ti = macro_replace(tokens, ti, tabu, get_more, skip_defined, end);
+		} else {
+			if ((*ti).get_code() != SPACE)
+				switch (state) {
+				case d_defined:
+					if ((*ti).get_code() == '(')
+						state = d_bracket;
+					else
+						state = d_scanning;
+					break;
+				case d_bracket:
+					state = d_scanning;
+					break;
+				}
 			ti++;
+		}
 	}
 	if (DP()) cout << "Exit replace_all\n";
 }
@@ -273,7 +304,7 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
  * examined or replaced.
  */
 listPtoken::iterator
-macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, listPtoken::iterator& valid_iterator)
+macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator)
 {
 	mapMacro::const_iterator mi;
 	const string name = (*pos).get_val();
@@ -357,7 +388,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					// copy that back to the main
 					listPtoken arg((*ai).second.begin(), (*ai).second.end());
 					if (DP()) cout << "Arg macro:" << arg << "---\n";
-					macro_replace_all(arg, arg.end(), tabu, false);
+					macro_replace_all(arg, arg.end(), tabu, false, skip_defined);
 					if (DP()) cout << "Arg macro result:" << arg << "---\n";
 					copy(arg.begin(), arg.end(), inserter(tokens, pos));
 				} else if (do_stringize)
@@ -442,7 +473,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 		copy(tokens.begin(), pos, ostream_iterator<Ptoken>(cout));
 		cout << "tokens\n";
 	}
-	macro_replace_all(tokens, pos, tabu, get_more);
+	macro_replace_all(tokens, pos, tabu, get_more, skip_defined);
 	if (DP()) cout << "Rescan ends\n";
 	return (pos);
 }
