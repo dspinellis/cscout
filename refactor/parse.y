@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.62 2003/07/19 14:21:41 dds Exp $
+ * $Id: parse.y,v 1.63 2003/07/29 13:54:42 dds Exp $
  *
  */
 
@@ -792,6 +792,14 @@ aggregate_name:
 				tag_define($2.get_token(), $$);
 			}
 		}
+	/* gcc extension */
+        | aggregate_key identifier_or_typedef_name '{'  /* EMPTY member_declaration_list */ '}'
+		{
+			Id const *id = tag_lookup($2.get_name());
+			if (id)
+				unify(id->get_token(), $2.get_token());
+			$$ = struct_union();
+		}
         ;
 
 aggregate_key:
@@ -800,7 +808,7 @@ aggregate_key:
         ;
 
 member_declaration_list:
-        member_declaration
+	member_declaration
         |  member_declaration_list member_declaration
 		{
 			if (DP()) {

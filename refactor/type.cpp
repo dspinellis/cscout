@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.27 2003/06/19 11:11:01 dds Exp $
+ * $Id: type.cpp,v 1.28 2003/07/29 13:54:42 dds Exp $
  */
 
 #include <iostream>
@@ -236,6 +236,12 @@ Type
 struct_union(const Type &spec)
 {
 	return Type(new Tsu(spec));
+}
+
+Type
+struct_union()
+{
+	return Type(new Tsu());
 }
 
 Type

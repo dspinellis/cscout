@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.21 2002/12/26 12:46:24 dds Exp $
+ * $Id: type.h,v 1.22 2003/07/29 13:54:42 dds Exp $
  */
 
 #ifndef TYPE_
@@ -137,6 +137,7 @@ public:
 	friend Type enum_tag();
 	friend Type struct_union(const Token &tok, const Type &typ, const Type &spec);
 	friend Type struct_union(const Type &spec);
+	friend Type struct_union();
 	friend Type label();
 	friend Type identifier(const Ctoken& c);
 	friend Type incomplete(const Ctoken& c, int l);
