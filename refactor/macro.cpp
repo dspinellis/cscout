@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.15 2003/08/01 09:39:55 dds Exp $
+ * $Id: macro.cpp,v 1.16 2003/08/01 13:19:07 dds Exp $
  */
 
 #include <iostream>
@@ -394,7 +394,50 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 				} while ((*i).is_space());
 			} else
 				do_stringize = false;
+
 			mapArgval::const_iterator ai;
+			/*
+			 * Is the next non-space a concatenation operator followed by an empty formal
+			 * argument in a vararg macro?  If so discard this non-formal arg token
+			 * to satisfy the following horrendous gcc extension:
+			 *  "`##' before a
+			 *   rest argument that is empty discards the preceding sequence of
+			 *   non-whitespace characters from the macro definition.  (If another macro
+			 *   argument precedes, none of it is discarded.)"
+			 * The implemented semantics are not the same, but are hopefully close enough
+			 */
+			if (m.is_vararg && i + 1 != m.value.end()) {
+				dequePtoken::const_iterator start;
+				start = i;
+				// Advance to next non-space token
+				do {
+					i++;
+				} while ((*i).is_space());
+				// Is the token a ## operator followed by something?
+				if ((*i).get_code() != CPP_CONCAT || i + 1 == m.value.end())
+					goto condition_failed;
+				// Is the token preceding ## a formal arg?
+				// (Out of order test, because it is slightly more expensive)
+				if ((ai = args.find((*start).get_val())) != args.end())
+					goto condition_failed;
+				// Advance to next non-space token
+				do {
+					i++;
+				} while ((*i).is_space());
+				// Is the token following ## a formal arg?
+				if ((ai = args.find((*i).get_val())) == args.end())
+					goto condition_failed;
+				// Is the arg empty?
+				if ((*ai).second.size() != 0)
+					goto condition_failed;
+				// All conditions satasfied; discard elements:
+				// <non-formal> <##> <empty-formal>
+				// by leaving i to its current value
+				continue;
+			condition_failed: 
+				i = start;
+			}
+
 			// Is it a formal argument?
 			if ((ai = args.find((*i).get_val())) != args.end()) {
 				if (macro_replacement_allowed(m.value, i)) {
