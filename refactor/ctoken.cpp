@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.13 2002/09/11 12:00:43 dds Exp $
+ * $Id: ctoken.cpp,v 1.14 2002/09/13 12:42:06 dds Exp $
  */
 
 #include <map>
@@ -125,13 +125,16 @@ static map<string,int>& keymap = make_keymap();
 static int parse_lex_real();
 
 // Consume tokens within an asm block
+// The block can be prefixed by identifiers like volatile (gcc)
 static void
 eat_block(int open, int close)
 {
 	int matches = 1;
 	int tok;
 
-	tok = parse_lex_real();
+	do {
+		tok = parse_lex_real();
+	} while (tok != IDENTIFIER && tok != open);
 	if (tok != open)
 		Error::error(E_ERR, "asm block syntax");
 	do {
