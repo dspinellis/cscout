@@ -2,32 +2,33 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.1 2002/09/05 10:09:17 dds Exp $
+# $Id: cswc.pl,v 1.2 2002/09/05 10:38:49 dds Exp $
 #
 
 # Syntax:
 #
 ## Comment
-#workspace "name" {
+#workspace name {
 #	cd "dirname"
 #	define foo bar
 #	ipath "blah"
 #	ipath "foobar"
 #	readonly "fname"
 #	# Linkage unit
-#	project "name" {	# Or library name {
+#	project name {
 #		cd ...
 #		define ...
 #		ipath ...
-#		file "fname.c" {
-#			cd ...
-#			define ...
-#			ipath ...
-#			readonly
+#		directory name {
+#			file "fname.c" {
+#				cd ...
+#				define ...
+#				ipath ...
+#				readonly
+#			}
 #		}
 #		# Or:
 #		file fname2.c ...
-#		uselib name ...
 #	}
 #}
 #
@@ -38,7 +39,7 @@ while (<>) {
 	s/^\s+//;
 	s/\s+$//;
 	next if (/^$/);
-	if (/(^workspace|project|file)\s+([^ ]+)\s*\{$/) {
+	if (/(^workspace|project|file|directory)\s+([^ ]+)\s*\{$/) {
 		beginunit($1, $2);
 	} elsif (/^file\s+(.*[^{])$/) {
 		@files = split(/\s+/, $1);
@@ -47,9 +48,7 @@ while (<>) {
 			endunit();
 		}
 	} elsif (/^cd\s+\"(.*)\"$/) {
-		$dir{$unit} = $1;
-		print "#pragma echo \"Entering directory $dir{$unit}\\n\"\n";
-		print "#pragma pushd \"$dir{$unit}\"\n";
+		directory($1);
 	} elsif (/^define\s+(.*)$/) {
 		$defines{$unit} .= "#define $1\n";
 	} elsif (/^ipath\s+(\".*\")$/) {
@@ -72,6 +71,8 @@ sub endunit
 		print $defines{'workspace'};
 		print $ipaths{'project'};
 		print $defines{'project'};
+		print $ipaths{'directory'};
+		print $defines{'directory'};
 		print $ipaths{'file'};
 		print $defines{'file'};
 		print "#pragma process \"$name\"\n\n";
@@ -99,10 +100,20 @@ sub beginunit
 	print "#pragma echo \"Processing $unit $name\\n\"\n";
 	if ($unit eq 'project') {
 		print "#pragma block_enter\n";
+	} elsif ($unit eq 'directory') {
+		directory($name);
 	} elsif ($unit eq 'file') {
 		print "#pragma block_enter\n";
 		print "#pragma clear_defines\n";
 		print "#pragma clear_include\n";
 		print "#include \"/home/dds/src/refactor/defs.h\"\n";
 	}
+}
+
+sub directory
+{
+	my($dir) = @_;
+	$dir{$unit} = $dir;
+	print "#pragma echo \"Entering directory $dir\n\"\n";
+	print "#pragma pushd \"$dir\"\n";
 }
