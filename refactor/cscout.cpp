@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.50 2003/07/28 20:09:31 dds Exp $
+ * $Id: cscout.cpp,v 1.51 2003/07/28 20:32:51 dds Exp $
  */
 
 #include <map>
@@ -905,18 +905,18 @@ IdQuery::IdQuery(FILE *of, bool e, bool r) :
 void
 IdQuery::usage(void)
 {
-	cerr << "The attribute query must be specified using the syntax: "
+	cerr << "The monitored identifier attributes must be specified using the syntax:\n"
 		"Y|L|E|T[:attr1][:attr2]...\n"
-		"Y: Match any of the specified attributes\n"
-		"L: Match all of the specified attributes\n"
-		"E: Exclude the specified attributes matched\n"
-		"T: Exact match of the specified attributes\n\n"
+		"\tY: Match any of the specified attributes\n"
+		"\tL: Match all of the specified attributes\n"
+		"\tE: Exclude the specified attributes matched\n"
+		"\tT: Exact match of the specified attributes\n\n"
 
 		"Allowable attribute names are:\n"
-		"unused: Unused\n"
-		"writable: Writable\n";
+		"\tunused: Unused\n"
+		"\twritable: Writable\n";
 	for (int i = 0; i < attr_max; i++)
-		cerr << Attributes::shortname(i) << ": " << Attributes::name(i) << "\n";
+		cerr << "\t" << Attributes::shortname(i) << ": " << Attributes::name(i) << "\n";
 	exit(1);
 }
 
