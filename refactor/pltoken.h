@@ -22,7 +22,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.11 2001/08/21 18:29:45 dds Exp $
+ * $Id: pltoken.h,v 1.12 2001/08/21 18:59:38 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -58,6 +58,7 @@ Pltoken::getnext()
 	int n;
 	C c0, c1;
 
+	parts.clear();
 	c0.getnext();
 	switch (c0.get_char()) {
 	/* 
