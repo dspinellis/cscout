@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.29 2003/11/17 13:02:46 dds Exp $
+ * $Id: stab.cpp,v 1.30 2003/11/17 13:47:17 dds Exp $
  */
 
 #include <map>
@@ -48,9 +48,10 @@ bool Block::use_param;		// Declare in param_block when true
 Id::Id(const Token& tok, Type typ) :
 	token(tok), type(typ)
 {
-	if (typ.is_function())
+	if (typ.is_function()) {
 		fcall = new FCall(tok, typ);
-	else
+		tok.set_ec_attribute(is_function);
+	} else
 		fcall = NULL;
 }
 

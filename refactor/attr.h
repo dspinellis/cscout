@@ -3,14 +3,14 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.13 2003/08/17 17:00:27 dds Exp $
+ * $Id: attr.h,v 1.14 2003/11/17 13:47:17 dds Exp $
  */
 
 #ifndef ATTR_
 #define ATTR_
 
 // Attributes that can be set for an EC
-// Keep in sync with attribute_names[]
+// Keep in sync with attribute_names[] and short_names[]
 enum e_attribute {
 	is_declared_unused,
 	is_readonly,		// Read-only; true if any member
@@ -30,6 +30,7 @@ enum e_attribute {
 	is_lscope,		// Linkage-unit scoped identifier
 	is_typedef,		// Typedef
 	is_enum,		// Enumeration member
+	is_function,		// Function
 
 	attr_end,		// From here-on we store projects
 	attr_begin = is_readonly // First user-visible attribute

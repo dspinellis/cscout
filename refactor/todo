@@ -1,10 +1,9 @@
-$Id: todo,v 1.41 2003/09/25 13:20:50 dds Exp $
+$Id: todo,v 1.42 2003/11/17 13:47:17 dds Exp $
 
 In the query change check boxes into yes/no/don't care radio buttos
 Option to specify leading file path to hide
 
 Function information
-	New identifier attribute is_function
 	Per file: Defined functions
 	Per function:
 		Define in file href line href
@@ -31,7 +30,6 @@ Function information
 			Name of functions it calls should match RE
 			Select functions from filenames matching RE
 			Query title
-
 
 Borland configuration file
 Solaris compilation
@@ -72,9 +70,6 @@ those comments or use them to improve CScout if you like:
 and would like a control to cause a browser to open automatically in
 Windows.
 5) I had to edit cswc to correct the directory to pick up perl.
-6) I ran CScout on a small workspace. I was unhappy with all the
-diagnostics which refer to lines. I will provide chapters and verses if
-you like.
 7) My comments on the generated html are obviously first impressions:
 a) I would like to see context information such as date and command in
 "CScout Main Page".
@@ -93,3 +88,5 @@ use...'
 results are not made or are rendered in a different way. Example: I have
 no "Writable .c Files Without Any Statments". (sic in result!)
 2) "syntax error" should show current and next symbols.
+
+include command in cswc

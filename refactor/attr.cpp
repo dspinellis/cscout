@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.14 2003/08/17 17:00:27 dds Exp $
+ * $Id: attr.cpp,v 1.15 2003/11/17 13:47:17 dds Exp $
  */
 
 #include <map>
@@ -54,6 +54,7 @@ string Attributes::attribute_names[] = {
 
 	"Typedef",
 	"Enumeration constant",
+	"Function",
 };
 
 // Keep this in sync with the enumeration
@@ -77,6 +78,7 @@ string Attributes::attribute_short_names[] = {
 
 	"typedef",
 	"enumconst",
+	"function",
 };
 
 void
