@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.90 2003/11/17 13:02:46 dds Exp $
+ * $Id: parse.y,v 1.91 2003/12/05 07:42:31 dds Exp $
  *
  */
 
@@ -1411,7 +1411,9 @@ compound_statement:
 
 function_body:
         function_brace_begin brace_end
+		{ FCall::unset_current_fun(); }
         | function_brace_begin statement_list brace_end
+		{ FCall::unset_current_fun(); }
         ;
 
 declaration_list:

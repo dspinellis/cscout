@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.5 2003/12/04 23:24:46 dds Exp $
+ * $Id: fcall.h,v 1.6 2003/12/05 07:42:31 dds Exp $
  */
 
 #ifndef FCALL_
@@ -39,6 +39,8 @@ public:
 	// Set the funciton currently being parsed
 	static void set_current_fun(const Type &t);
 	static void set_current_fun(const Id *id);
+	// Called when outside a function body scope
+	static void unset_current_fun() { current_fun = NULL; }
 	// The current function makes a call to f
 	static void register_call(FCall *f);
 

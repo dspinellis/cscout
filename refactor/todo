@@ -1,16 +1,13 @@
-$Id: todo,v 1.42 2003/11/17 13:47:17 dds Exp $
+$Id: todo,v 1.43 2003/12/05 07:42:31 dds Exp $
 
 In the query change check boxes into yes/no/don't care radio buttos
 Option to specify leading file path to hide
 
+Document function graph
+
 Function information
 	Per file: Defined functions
 	Per function:
-		Define in file href line href
-		Functions that call it
-		All functions that call it
-		Functions it calls
-		All functions it calls
 		Note: function calls through pointers are not included
 		in the call graph.
 	Functions
