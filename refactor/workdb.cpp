@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.6 2002/09/17 10:53:02 dds Exp $
+ * $Id: workdb.cpp,v 1.7 2002/09/17 16:20:37 dds Exp $
  */
 
 #include <map>
@@ -169,7 +169,7 @@ file_dump(ofstream &of, Fileid fid)
 				fid.get_id() <<
 				"," << (unsigned)plainstart.get_streampos() <<
 				",'" << plain << "')\n";
-				plain.clear();
+				plain.erase();
 			}
 			plainstart = Tokid(fid, in.tellg());
 		} else {

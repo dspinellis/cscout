@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.19 2002/09/17 10:53:02 dds Exp $
+ * $Id: fileid.cpp,v 1.20 2002/09/17 16:20:37 dds Exp $
  */
 
 #include <map>
@@ -134,7 +134,7 @@ bool
 Fileid::is_readonly(string fname)
 {
 	for (list <string>::const_iterator i = ro_prefix.begin(); i != ro_prefix.end(); i++)
-		if(fname.compare(0, (*i).length(), (*i)) == 0)
+		if(fname.compare((*i), 0, (*i).length()) == 0)
 			return true;
 	if (access(fname.c_str(), W_OK) != 0)
 		return true;
