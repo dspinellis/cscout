@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.8 2001/09/20 13:15:00 dds Exp $
+ * $Id: type.cpp,v 1.9 2001/09/21 08:56:31 dds Exp $
  */
 
 #include <iostream>
@@ -171,12 +171,6 @@ function_returning(Type t)
 }
 
 Type
-typedef_for(Type t)
-{
-	return Type(new Ttypedef(t));
-}
-
-Type
 enum_tag()
 {
 	return Type(new Ttag(tt_enum));
@@ -279,12 +273,6 @@ void
 Tlabel::print(ostream &o) const
 {
 	o << "label ";
-}
-
-void
-Ttypedef::print(ostream &o) const
-{
-	o << "typedef for " << for_type;
 }
 
 void

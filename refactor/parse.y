@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.15 2001/09/20 13:15:00 dds Exp $
+ * $Id: parse.y,v 1.16 2001/09/21 08:56:31 dds Exp $
  *
  */
 
@@ -560,7 +560,10 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 		}
         | declaration_qualifier_list    TYPEDEF_NAME
 		{ 
-			$$ = obj_lookup($2.get_name())->get_type().clone();
+			Id const *id = obj_lookup($2.get_name());
+			assert(id);	// If it's a typedef it can be found
+			unify(id->get_token(), $2.get_token());
+			$$ = id->get_type().clone();
 			$$.set_storage_class($1);
 		}
         | typedef_declaration_specifier declaration_qualifier
@@ -572,9 +575,21 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 
 typedef_type_specifier:              /* typedef types */
         TYPEDEF_NAME
-		{ $$ = obj_lookup($1.get_name())->get_type().clone(); }
+		{ 
+			Id const *id = obj_lookup($1.get_name());
+			assert(id);	// If it's a typedef it can be found
+			unify(id->get_token(), $1.get_token());
+			$$ = id->get_type().clone();
+			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
+		}
         | type_qualifier_list    TYPEDEF_NAME
-		{ $$ = obj_lookup($2.get_name())->get_type().clone(); }
+		{ 
+			Id const *id = obj_lookup($2.get_name());
+			assert(id);	// If it's a typedef it can be found
+			unify(id->get_token(), $2.get_token());
+			$$ = id->get_type().clone();
+			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
+		}
         | typedef_type_specifier type_qualifier
         ;
 

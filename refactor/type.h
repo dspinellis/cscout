@@ -3,7 +3,7 @@
  *
  * The type-system structure
  *
- * $Id: type.h,v 1.11 2001/09/20 13:15:00 dds Exp $
+ * $Id: type.h,v 1.12 2001/09/21 08:56:31 dds Exp $
  */
 
 #ifndef TYPE_
@@ -50,11 +50,10 @@ protected:
 	virtual Type subscript() const;		// Arrays and pointers
 	virtual Type deref() const;		// Arrays and pointers
 	virtual Type call() const;		// Function
-	virtual Type type() const;		// Typedef, identifier
+	virtual Type type() const;		// Identifier
 	virtual Type clone() const;		// Deep copy
 	virtual Id member(const string& name) const;	// Structure and union
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
-	virtual bool is_typedef() const { return false; }// True for typedefs
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
 	virtual bool is_abstract() const { return false; }	// True for abstract types
@@ -63,6 +62,8 @@ protected:
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
 	virtual void set_storage_class(Type t);	// Set typedef's underlying storage class to t
 	virtual enum e_storage_class get_storage_class() const;// Return the declaration's storage class
+
+	bool is_typedef() const { return get_storage_class() == c_typedef; }// True for typedefs
 public:
 	// For merging
 	virtual Type merge(Tbasic *b);
@@ -84,7 +85,6 @@ public:
 	Type clone() const;
 	bool is_valid() const { return type != b_undeclared; }
 	bool is_abstract() const { return type == b_abstract; }
-	bool is_typedef() const { return sclass != c_typedef; }
 	bool is_basic() const { return true; }// False for undeclared
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
@@ -111,7 +111,6 @@ public:
 	friend Type pointer_to(Type t);
 	friend Type function_returning(Type t);
 	friend Type implict_function();
-	friend Type typedef_for(Type t);
 	friend Type enum_tag();
 	friend Type struct_tag();
 	friend Type union_tag();
@@ -191,18 +190,6 @@ public:
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { returning.set_storage_class(t); }
 	enum e_storage_class get_storage_class() const {return returning.get_storage_class(); }
-};
-
-// Typedef for ...
-class Ttypedef: public Type_node {
-private:
-	Type for_type;
-public:
-	Ttypedef(Type t) : for_type(t) {}
-	Type clone() const { return Type(new Ttypedef(for_type.clone())); }
-	Type type() const { return for_type; }
-	bool is_typedef() { return true; };// True for typedefs
-	void print(ostream &o) const;
 };
 
 // Tag for ..

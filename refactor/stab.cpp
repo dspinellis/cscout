@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.6 2001/09/20 13:40:56 dds Exp $
+ * $Id: stab.cpp,v 1.7 2001/09/21 08:56:31 dds Exp $
  */
 
 #include <map>
@@ -71,6 +71,8 @@ obj_define(const Token& tok, const Type& typ)
 	enum e_storage_class sc = typ.get_storage_class();
 	Id const * id;
 
+	if (DP())
+		cout << "Define [" << tok.get_name() << "]: " << typ << "\n";
 	if (sc == c_extern && (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
 		// If the declaration of an identifier contains extern the identifier
 		// has the same linage as any visible declaration of the identifier
