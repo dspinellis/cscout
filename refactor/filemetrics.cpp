@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.13 2004/07/30 17:19:03 dds Exp $
+ * $Id: filemetrics.cpp,v 1.14 2004/10/10 10:29:48 dds Exp $
  */
 
 #include <iostream>
@@ -239,6 +239,8 @@ operator<<(ostream& o, const FileMetricsSet &mi)
 	FileMetricsSet &m = (FileMetricsSet &)mi;
 
 	o << "Number of files: " << m.total.nfile << "<p>\n";
+	if (m.total.nfile == 0)
+		return o;
 	o << "<table border=1>"
 		"<tr><th>" "File metric" "</th>"
 		"<th>" "Total" "</th>"
