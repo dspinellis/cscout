@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.2 2001/08/24 14:03:24 dds Exp $
+ * $Id: tchar.cpp,v 1.3 2001/08/25 19:23:00 dds Exp $
  */
 
 #include <iostream>
@@ -12,6 +12,7 @@
 #include <deque>
 #include <cassert>
 #include <fstream>
+#include <list>
 #include <stack>
 
 #include "cpp.h"
