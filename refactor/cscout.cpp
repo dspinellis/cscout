@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.99 2004/08/01 13:23:19 dds Exp $
+ * $Id: cscout.cpp,v 1.100 2004/08/01 13:29:53 dds Exp $
  */
 
 #include <map>
@@ -1632,7 +1632,6 @@ index_page(FILE *of, void *data)
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines&qf=x\">Writable files containing unprocessed lines</a>\n", em_uline, em_uline, Query::ec_gt, em_uline);
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", em_nstring, Query::ec_gt, em_nstring);
 		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", em_nincfile, Query::ec_gt, em_nincfile);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&n=Writable+Files+Containing+Unprocessed+Regions&qf=1\">Writable files containing unprocessed regions</a>\n", em_uline, Query::ec_gt, em_uline);
 		fprintf(of, "<li> <a href=\"fquery.html\">Specify new file query</a>\n"
 		"</ul>\n");
 
