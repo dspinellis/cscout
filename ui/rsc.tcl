@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.18 2001/09/30 08:44:23 dds Exp $
+# $Id: rsc.tcl,v 1.19 2001/10/05 10:31:07 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -104,10 +104,11 @@ set m .menu.insert
 menu $m -tearoff 0
 .menu add cascade -label "Insert" -menu $m -underline 0
 $m add command -label "Project" -command insert_project
+$m add command -label "Directory" -command insert_directory
 $m add separator
-$m add command -label "File to Project" -command insert_file
-$m add command -label "Directory Files to Project" -command insert_dir_files
-$m add command -label "Hierarchy Files to Project"
+$m add command -label "File" -command insert_file
+$m add command -label "Directory Files" -command insert_dir_files
+$m add command -label "Hierarchy"
 $m add command -label "File to all Projects"
 
 
@@ -367,9 +368,14 @@ pack $tabsettings.dir -expand no -fill x -side top -padx 4 -pady 4 -anchor nw
 pack $tabsettings.mi -side top -padx 4 -pady 4 -anchor nw -expand yes -fill both
 
 checkbutton $tabsettings.ro -text "Entry is read-only" -relief flat
+checkbutton $tabsettings.prop -text "Propagate changes" -relief flat
 button $tabsettings.clearme -text "Clear item's customized settings" -width 30 -command entry_clearme
 button $tabsettings.clearsub -text "Clear subitems' customized settings" -width 30 -command entry_clearsub
-pack $tabsettings.ro $tabsettings.clearme $tabsettings.clearsub -side top -padx 4 -pady 4 -anchor nw
+pack	$tabsettings.ro \
+	$tabsettings.prop \
+	$tabsettings.clearme \
+	$tabsettings.clearsub \
+	-side top -padx 4 -pady 4 -anchor nw
 
 ######################################################
 # Output
@@ -411,6 +417,8 @@ set macro(wp) {}
 set ipath(wp) {}
 # Workspace entry names (name(wp) isn't really used)
 set name(wp) Workspace
+# True if entry can contain files
+set fileholder(wp) 0
 
 # Default internal settings
 # Read-only
@@ -423,6 +431,8 @@ set macro(int) {__STDC__}
 set ipath(int) .
 # Workspace entry names (name(wp) isn't really used)
 set name(int) {Internal Settings}
+# True if entry can contain files
+set fileholder(int) 0
 
 
 ######################################################
@@ -446,6 +456,7 @@ proc ierror {msg} {
 proc select_workspace {uid sel} {
 	global tabfiles
 	global out
+	global fileholder
 
 	# Update selection
 	$tabfiles.hier selection clear
@@ -469,9 +480,17 @@ proc select_workspace {uid sel} {
 	}
 	.menu.edit entryconfigure "Remove Project" -state $projstate
 	.menu.edit entryconfigure "Rename Project" -state $projstate
-	.menu.insert entryconfigure "File to Project" -state $projstate
-	.menu.insert entryconfigure "Directory Files to Project" -state $projstate
-	.menu.insert entryconfigure "Hierarchy Files to Project" -state $projstate
+	.menu.edit entryconfigure "Clone Project" -state $projstate
+
+	if {$fileholder($uid)} {
+		set projstate normal
+	} else {
+		set projstate disabled
+	}
+	.menu.insert entryconfigure "Directory" -state $projstate
+	.menu.insert entryconfigure "File" -state $projstate
+	.menu.insert entryconfigure "Directory Files" -state $projstate
+	.menu.insert entryconfigure "Hierarchy" -state $projstate
 }
 
 
@@ -516,6 +535,7 @@ proc get_workspace {uid} {
 # Called from the menu insert_project command
 proc insert_project {} {
 	global name
+	global fileholder
 	global tabfiles
 	if {[.dialog_project_name activate]} {
 		# Invoke dialog box to get the project's name
@@ -529,6 +549,7 @@ proc insert_project {} {
 			return
 		}
 		set name(wp/$projname) $projname
+		set fileholder(wp/$projname) 1
 		# Expand is needed to internally refresh _nodes so that we do not
 		# get a node does not exist error!
 		$tabfiles.hier expand wp
@@ -733,6 +754,7 @@ proc insert_file {} {
 	global name
 	global tabfiles
 	global dir
+	global fileholder
 
 	set mydir $dir([wp_getsettings])
 	set filename [tk_getOpenFile -initialdir $mydir -filetypes {{"C Source Files" {.c}}}]
@@ -747,6 +769,7 @@ proc insert_file {} {
 			return
 		}
 		set name(wp/$projname/$filename) $filename
+		set fileholder(wp/$projname) 0
 		# Expand is needed to internally refresh _nodes so that we do not
 		# get a node does not exist error!
 		$tabfiles.hier expand wp/$projname
@@ -785,14 +808,17 @@ proc save_workspace_to {filename} {
 	global macro
 	global ipath
 	global name
+	global fileholder
 	
 	set f [open $filename w]
-	puts $f "#RSC 1.0 Workspace"
+	puts $f "#RSC 1.1 Workspace"
+	puts $f "#$Id: rsc.tcl,v 1.19 2001/10/05 10:31:07 dds Exp $"
 	puts $f [list array set name [array get name]]
 	puts $f [list array set readonly [array get readonly]]
 	puts $f [list array set dir [array get dir]]
 	puts $f [list array set macro [array get macro]]
 	puts $f [list array set ipath [array get ipath]]
+	puts $f [list array set fileholder [array get fileholder]]
 	close $f
 }
 
@@ -804,6 +830,7 @@ proc open_workspace {} {
 	global macro
 	global ipath
 	global name
+	global fileholder
 	global workspace_filename
 
 	set filename [tk_getOpenFile -defaultextension .rsw \
@@ -825,6 +852,7 @@ proc insert_dir_files {} {
 	global name
 	global tabfiles
 	global dir
+	global fileholder
 
 	set mydir $dir([wp_getsettings])
 	set mydir [tk_chooseDirectory -title "Directory to search for .c files" \
@@ -839,6 +867,7 @@ proc insert_dir_files {} {
 			if {![info exists name(wp/$projname/$filename)]} {
 				set name(wp/$projname/$filename) $filename
 			}
+			set fileholder(wp/$projname) 0
 		}
 		# Expand is needed to internally refresh _nodes so that we do not
 		# get a node does not exist error!
@@ -864,3 +893,36 @@ proc set_entry_directory {} {
 	# else cancelled
 }
 
+# Called from the menu insert_directory command
+proc insert_directory {} {
+	global name
+	global fileholder
+	global tabfiles
+	global dir
+
+	set mydir $dir([wp_getsettings])
+	set newdir [tk_chooseDirectory -title "Directory to add" \
+		-initialdir $mydir -mustexist false]
+	if {$newdir != ""} {
+		set thisentry [wp_getentry]
+		if {$mydir == [string range $newdir 0 [expr [string length $mydir] - 1]]} {
+			# We can make it relative
+			set newdir [string range $newdir [expr [string length $mydir] + 1] end]
+		}
+		if {[info exists name(wp/$thisentry/$mydir)]} {
+			ierror "Directory $mydir is already defined here"
+			return
+		}
+		if {[regexp {/} $mydir]} {
+			ierror "Project names can not contain an embedded slash"
+			return
+		}
+		set name(wp/$thisentry/$mydir) $mydir
+		set fileholder(wp/$thisentry/$mydir) 1
+		# Expand is needed to internally refresh _nodes so that we do not
+		# get a node does not exist error!
+		$tabfiles.hier expand wp
+		$tabfiles.hier refresh wp
+	}	
+	# else cancelled
+}
