@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.3 2001/08/20 08:02:34 dds Exp $
+ * $Id: fchar.h,v 1.4 2001/08/20 15:34:11 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -23,7 +23,12 @@
 
 using namespace std;
 
-typedef stack <Tokid> stackTokid;
+struct fchar_context {
+	int line_number;
+	Tokid ti;
+};
+
+typedef stack <fchar_context> stackFchar_context;
 
 class Fchar {
 private:
@@ -32,7 +37,8 @@ private:
 	static Fileid fi;		// and its Fileid
 	static Fchar putback_fchar;	// Character that was put back
 	static bool have_putback;	// True when a put back char is waiting
-	static stackTokid st;		// Pushed contexts (from push_input())
+	static stackFchar_context st;	// Pushed contexts (from push_input())
+	static int line_number;		// Current line number
 
 
 	int val;
@@ -57,6 +63,9 @@ public:
 	inline int get_char() const { return (val); };
 	// Return the character's Tokid
 	inline Tokid get_tokid() const { return (ti); };
+	// Return the current line number
+	static int get_line_num() { return line_number; }
+	static string  get_path() { return fi.get_path(); }
 };
 
 #endif /* FCHAR_ */

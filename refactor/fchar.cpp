@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.5 2001/08/20 08:02:34 dds Exp $
+ * $Id: fchar.cpp,v 1.6 2001/08/20 15:34:11 dds Exp $
  */
 
 #include <iostream>
@@ -28,7 +28,8 @@ ifstream Fchar::in;
 Fileid Fchar::fi;
 Fchar Fchar::putback_fchar;
 bool Fchar::have_putback = false;	// True when a put back char is waiting
-stackTokid Fchar::st;			// Pushed contexts (from push_input())
+stackFchar_context Fchar::st;		// Pushed contexts (from push_input())
+int Fchar::line_number;			// Current line number
 
 void 
 Fchar::set_input(const string& s)
@@ -42,13 +43,17 @@ Fchar::set_input(const string& s)
 		exit(1);
 	}
 	fi = Fileid(s);
+	line_number = 1;
 }
 
 void 
 Fchar::push_input(const string& s)
 {
-	st.push(Tokid(fi, in.tellg()));
-	//in.close();
+	struct fchar_context fc;
+
+	fc.ti = Tokid(fi, in.tellg());
+	fc.line_number = line_number;
+	st.push(fc);
 	set_input(s);
 }
 
@@ -72,9 +77,10 @@ again:
 	backslash:
 	case '\\':			// \newline splicing
 		c2 = in.get();
-		if (c2 == '\n')
+		if (c2 == '\n') {
+			line_number++;
 			goto again;
-		else {
+		} else {
 			in.putback(c2);
 			return;
 		}
@@ -97,6 +103,9 @@ again:
 		case '-': val = '~'; return;
 		default: in.putback(c3); in.putback(c2); return;
 		}
+	case '\n':
+		line_number++;
+		break;
 	}
 }
 
@@ -113,9 +122,11 @@ Fchar::getnext()
 		simple_getnext();
 		if (val != EOF || st.empty())
 			return;
-		Tokid t = st.top();
-		set_input(t.get_path());
-		in.seekg(t.get_streampos());
+
+		fchar_context fc = st.top();
+		set_input(fc.ti.get_path());
+		in.seekg(fc.ti.get_streampos());
+		line_number = fc.line_number;
 		st.pop();
 	}
 }
