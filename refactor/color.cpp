@@ -3,13 +3,14 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.3 2001/09/02 15:01:23 dds Exp $
+ * $Id: color.cpp,v 1.4 2001/09/14 08:29:49 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
+#include <vector>
 #include <stack>
 #include <iterator>
 #include <fstream>
@@ -35,6 +36,10 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "eclass.h"
+#include "debug.h"
+#include "ctoken.h"
+#include "type.h"
+#include "stab.h"
 
 typedef deque<string> deque_string;
 
@@ -49,6 +54,8 @@ html(char c)
 	case '&': return "&amp;";
 	case '<': return "&lt;";
 	case '>': return "&gt;";
+	case ' ': return "&nbsp;";
+	case '\t': return "&nbsp;&nbsp;&nbsp;&nbsp;";
 	case '\n': return "<br>\n";
 	default:
 		str[0] = c;
@@ -61,19 +68,26 @@ typedef map<Eclass *, string> Colormap;
 main(int argc, char *argv[])
 {
 	int i;
+	int parse_parse();
 
+	Debug::db_read();
 	// Pass 1: scan files
+	Block::scope_enter();		// Linkage unit
 	for (i = 1; i < argc; i++) {
-		Fchar::set_input(argv[i]);
-		Pdtoken::macros_clear();
-		for (;;) {
-			Pdtoken t;
-
-			t.getnext();
-			if (t.get_code() == EOF)
-				break;
+		if (argv[i] == "-") {	// Linkage unit separator
+			Block::scope_exit();
+			Block::scope_enter();
+			continue;
 		}
+		Block::scope_enter();	// Compilation unit
+		Fchar::set_input(argv[i]);
+		Fchar::push_input("defs.h");
+		Pdtoken::macros_clear();
+		if (parse_parse() != 0)
+			exit(1);
+		Block::scope_exit();	// Compilation unit
 	}
+	Block::scope_exit();		// Linkage unit
 
 	// Pass 2: go through the files annotating identifiers
 	deque_string color_names;
@@ -94,6 +108,10 @@ main(int argc, char *argv[])
 	cout << "<html><title>Identifier groups</title>\n"
 		"<body bgcolor=\"#ffffff\">\n";
 	for (i = 1; i < argc; i++) {
+		if (argv[i] == "-") {	// Linkage unit separator
+			cout << "<p><hr><p>\n";
+			continue;
+		}
 		if (in.is_open())
 			in.close();
 		in.clear();		// Otherwise flags are dirty and open fails
