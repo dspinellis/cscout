@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.42 2001/09/03 09:08:48 dds Exp $
+ * $Id: pdtoken.cpp,v 1.43 2001/09/03 09:34:54 dds Exp $
  */
 
 #include <iostream>
@@ -494,11 +494,15 @@ Pdtoken::process_define()
 		} else
 			t.template getnext<Fchar>();
 	}
+	if (DP()) cout << "Body starts with " << t;
 	// Continue gathering macro body
 	for (bool lead = true; t.get_code() != '\n';) {
-		// Ignore leading whitespace
+		// Ignore leading whitespace (not newlines)
 		if (lead && t.is_space()) {
-			t.template getnext<Fchar>();
+			if (t.get_code() == SPACE)
+				t.template getnext<Fchar>();
+			if (t.get_code() == '\n')
+				break;
 			continue;
 		}
 		lead = false;

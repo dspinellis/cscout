@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.16 2001/09/02 17:24:19 dds Exp $
+ * $Id: pltoken.h,v 1.17 2001/09/03 09:34:54 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -301,7 +301,7 @@ Pltoken::getnext()
 	case ' ': case '\t': case '\v': case '\f': case '\r':
 		do {
 			c0.getnext();
-		} while (c0.get_char() != EOF && isspace(c0.get_char()));
+		} while (c0.get_char() != EOF && c0.get_char() != '\n' && isspace(c0.get_char()));
 		C::putback(c0);
 		val = " ";
 		code = SPACE;
