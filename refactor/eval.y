@@ -3,7 +3,7 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.8 2002/09/17 16:20:37 dds Exp $
+ * $Id: eval.y,v 1.9 2003/06/01 09:03:06 dds Exp $
  *
  */
 
@@ -23,8 +23,8 @@
 #include <list>
 
 #include "cpp.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
@@ -65,6 +65,11 @@ multiplicative_expression
         | multiplicative_expression '/' cast_expression	
 			{
 				if ($3 == 0) {
+					/*
+					 * @error
+					 * A <code>#if</code> expression
+					 * divided by zero
+					 */
 					Error::error(E_ERR, "division by zero in #if expression");
 					$$ = 0;
 				} else
@@ -73,6 +78,12 @@ multiplicative_expression
         | multiplicative_expression '%' cast_expression
 			{
 				if ($3 == 0) {
+					/*
+					 * @error
+					 * A <code>#if</code> expression
+					 * divided by zero in a modulo 
+					 * expression
+					 */
 					Error::error(E_ERR, "modulo division by zero in #if expression");
 					$$ = $1;
 				} else

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.18 2002/12/16 09:29:29 dds Exp $
+ * $Id: ctoken.cpp,v 1.19 2003/06/01 09:03:06 dds Exp $
  */
 
 #include <map>
@@ -20,8 +20,8 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
@@ -49,6 +49,11 @@ unescape_char(const string& s, string::const_iterator& si)
 	if (*si != '\\')
 		return *si++;
 	if (++si == s.end()) {
+		/*
+		 * @error
+		 * A character escape sequence (<code>\c</code>) was not
+		 * completed; no character follows the backslash
+		 */
 		Error::error(E_ERR, "Unexpected end in character escape sequence");
 		return 0;
 	}
@@ -86,6 +91,12 @@ unescape_char(const string& s, string::const_iterator& si)
 		val = strtol(cs, &endptr, 0);
 		if (endptr - cs == 1)
 			// All we could read was 0x
+			/*
+			 * @error
+			 * A hexadecimal character escape sequence
+			 * <code>\x</code> continued with a non-hexadecimal 
+			 * character
+			 */
 			Error::error(E_ERR, "Illegal characters in hex escape sequence");
 		si += endptr - cs - 2;
 		// if (si != s.end()) cout << "Next char is [" << *si << "]\n";
@@ -93,6 +104,11 @@ unescape_char(const string& s, string::const_iterator& si)
 	}
 
 	default:
+		/*
+		 * @error
+		 * A character escape sequence <code>\c</code> can not be
+		 * recognised
+		 */
 		Error::error(E_ERR, "Invalid character escape sequence");
 		return 0;
 	}

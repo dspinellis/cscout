@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.70 2003/05/24 16:17:01 dds Exp $
+ * $Id: pdtoken.cpp,v 1.71 2003/06/01 09:03:06 dds Exp $
  */
 
 #include <iostream>
@@ -31,8 +31,8 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
@@ -104,6 +104,15 @@ again:
 		if (t.get_code() == '\n')
 			at_bol = true;
 		else if (t.get_code() == EOF) {
+			/*
+			 * @error
+			 * The processing of code within a <code>#if</code>
+			 * block reached the end of file, without a
+			 * corresponding
+			 * <code>#endif</code> /
+			 * <code>#else</code> /
+			 * <code>#elif</code> directive.
+			 */
 			Error::error(E_ERR, "EOF while processing #if directive");
 			*this = t;
 			return;
@@ -246,6 +255,12 @@ eval()
 			need_bracket = true;
 		}
 		if (arg == eval_tokens.end() || (*arg).get_code() != IDENTIFIER) {
+			/*
+			 * @error
+			 * The 
+			 * <code>defined</code> operator was not followed
+			 * by an identifier
+			 */
 			Error::error(E_ERR, "No identifier following defined operator");
 			return 1;
 		}
@@ -253,8 +268,14 @@ eval()
 			i2++;
 			last = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
 			if (last == eval_tokens.end() || (*last).get_code() != ')') {
-				Error::error(E_ERR, "Missing close bracket in defined operator");
-				return 1;
+					/*
+					 * @error
+					 * The identifier of a 
+					 * <code>defined</code> operator was not
+					 * followed by a closing bracket
+					 */
+					Error::error(E_ERR, "Missing close bracket in defined operator");
+					return 1;
 			}
 		} else
 			last = arg;
@@ -288,6 +309,13 @@ eval()
 		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
 	}
 	if (eval_parse() != 0) {
+		/*
+		 * @error
+		 * A
+		 * <code>#if</code> or
+		 * <code>#elif</code> expression was syntactically
+		 * incorrect
+		 */
 		Error::error(E_ERR, "Syntax error in preprocessor expression");
 		return 1;
 	}
@@ -342,6 +370,12 @@ Pdtoken::process_ifdef(bool isndef)
 
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != IDENTIFIER)
+			/*
+			 * @error
+			 * The token following a
+			 * <code>#ifdef</code>
+			 * directive is not a legal identifier
+			 */
 			Error::error(E_WARN, "#ifdef argument is not an identifier");
 		mapMacro::const_iterator i = macros.find(t.get_val());
 		if (i == macros.end())
@@ -362,6 +396,13 @@ void
 Pdtoken::process_elif()
 {
 	if (iftaken.empty()) {
+		/*
+		 * @error
+		 * A
+		 * <code>#elif</code>
+		 * directive was found without a corresponding
+		 * <code>#if</code>
+		 */
 		Error::error(E_ERR, "Unbalanced #elif");
 		eat_to_eol();
 		return;
@@ -381,6 +422,13 @@ void
 Pdtoken::process_else()
 {
 	if (iftaken.empty()) {
+		/*
+		 * @error
+		 * A
+		 * <code>#else</code>
+		 * directive was found without a corresponding
+		 * <code>#if</code>
+		 */
 		Error::error(E_ERR, "Unbalanced #else");
 		eat_to_eol();
 		return;
@@ -399,6 +447,13 @@ void
 Pdtoken::process_endif()
 {
 	if (iftaken.empty()) {
+		/*
+		 * @error
+		 * A
+		 * <code>#endif</code>
+		 * directive was found without a corresponding
+		 * <code>#if</code>
+		 */
 		Error::error(E_ERR, "Unbalanced #endif");
 		eat_to_eol();
 		return;
@@ -447,6 +502,12 @@ Pdtoken::process_include(bool next)
 	// Remove leading space
 	tokens.erase(tokens.begin(), find_if(tokens.begin(), tokens.end(), not1(mem_fun_ref(&Ptoken::is_space))));
 	if (tokens.size() == 0) {
+		/*
+		 * @error
+		 * A
+		 * <code>#include</code>
+		 * directive was not followed by a filename specification
+		 */
 		Error::error(E_ERR, "Empty #include directive");
 		return;
 	}
@@ -475,6 +536,12 @@ Pdtoken::process_include(bool next)
 	}
 
 	if (f.get_code() != PATHFNAME && f.get_code() != ABSFNAME) {
+		/*
+		 * @error
+		 * A
+		 * <code>#include</code>
+		 * directive was followed by a legal filename specification
+		 */
 		Error::error(E_ERR, "Invalid #include syntax");
 		if (DP()) cout << f;
 		return;
@@ -495,6 +562,10 @@ Pdtoken::process_include(bool next)
 			return;
 		}
 	}
+	/*
+	 * @error
+	 * The specified include file could not be opened
+	 */
 	Error::error(E_ERR, "Unable to open include file " + f.get_val());
 }
 
@@ -511,6 +582,13 @@ Pdtoken::process_define()
 	Pltoken::set_context(cpp_define);
 	t.template getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
+		/*
+		 * @error
+		 * The macro name specified in a 
+		 * <code>#define</code> or
+		 * <code>#undef</code>
+		 * directive is not a valid identifier
+		 */
 		Error::error(E_ERR, "Invalid macro name");
 		eat_to_eol();
 		return;
@@ -529,6 +607,12 @@ Pdtoken::process_define()
 			// Formal args follow; gather them
 			for (;;) {
 				if (t.get_code() != IDENTIFIER) {
+					/*
+					 * @error
+					 * A macro parameter name specified in a 
+					 * <code>#define</code>
+					 * directive is not a valid identifier
+					 */
 					Error::error(E_ERR, "Invalid macro parameter name");
 					eat_to_eol();
 					return;
@@ -542,6 +626,13 @@ Pdtoken::process_define()
 					break;
 				}
 				if (t.get_code() != ',') {
+					/*
+					 * @error
+					 * The formal parameters in a
+					 * <code>#define</code> macro
+					 * definition are not separated
+					 * by commas
+					 */
 					Error::error(E_ERR, "Invalid macro parameter punctuation");
 					eat_to_eol();
 					return;
@@ -575,6 +666,11 @@ Pdtoken::process_define()
 	mapMacro::const_iterator i = macros.find(name);
 	if (i != macros.end())
 		if ((*i).second.get_is_defined() && (*i).second != m) {
+			/*
+			 * @error
+			 * A defined macro can be redefined only if the
+			 * two definitions are exactly the same
+			 */
 			Error::error(E_WARN, "Duplicate (different) macro definition of macro " + name);
 			if (DP()) cout << (*i).second;
 		} else
@@ -612,6 +708,16 @@ Pdtoken::process_line()
 	if (skiplevel >= 1)
 		return;
 	if (!supress) {
+		/*
+		 * @error
+		 * A
+		 * <code>#line</code>
+		 * directive was found.
+		 * This signifies that the source file is automatically
+		 * generated and refactoring changes on that file may
+		 * be lost in the future.
+		 * References to the original source file are ignored.
+		 */
 		Error::error(E_WARN, "Processing automatically generated file; #line directive ignored.");
 		Error::error(E_WARN, "(further #line warning messages supressed)");
 		supress = 1;
@@ -656,6 +762,13 @@ Pdtoken::process_pragma()
 	if (t.get_val() == "includepath") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma includepath</code>
+			 * CScout-specific directive was not followed by a 
+			 * string
+			 */
 			Error::error(E_ERR, "#pragma includepath: string expected");
 			eat_to_eol();
 			return;
@@ -665,6 +778,13 @@ Pdtoken::process_pragma()
 	} else if (t.get_val() == "echo") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma echo</code>
+			 * CScout-specific directive was not followed by a 
+			 * string
+			 */
 			Error::error(E_ERR, "#pragma echo: string expected");
 			eat_to_eol();
 			return;
@@ -675,6 +795,13 @@ Pdtoken::process_pragma()
 	} else if (t.get_val() == "project") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma project</code>
+			 * CScout-specific directive was not followed by a 
+			 * string
+			 */
 			Error::error(E_ERR, "#pragma project: string expected");
 			eat_to_eol();
 			return;
@@ -683,6 +810,13 @@ Pdtoken::process_pragma()
 	} else if (t.get_val() == "readonly") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma readonly</code>
+			 * CScout-specific directive was not followed by a 
+			 * string
+			 */
 			Error::error(E_ERR, "#pragma readonly: string expected");
 			eat_to_eol();
 			return;
@@ -694,6 +828,13 @@ Pdtoken::process_pragma()
 
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma process</code>
+			 * CScout-specific directive was not followed by a 
+			 * string
+			 */
 			Error::error(E_ERR, "#pragma process: string expected");
 			eat_to_eol();
 			return;
@@ -714,10 +855,24 @@ Pdtoken::process_pragma()
 		char buff[4096];
 
 		if (getcwd(buff, sizeof(buff)) == NULL)
+			/*
+			 * @error
+			 * The call to <code>getcwd</call> failed while
+			 * processing the 
+			 * <code>#pragma pushd</code>
+			 * CScout-specific directive
+			 */
 			Error::error(E_FATAL, "#pragma pushd: unable to get current directory: " + string(strerror(errno)));
 		dirstack.push(buff);
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma pushd</code>
+			 * CScout-specific directive was not followed by a 
+			 * string
+			 */
 			Error::error(E_ERR, "#pragma pushd: string expected");
 			eat_to_eol();
 			return;
@@ -726,6 +881,13 @@ Pdtoken::process_pragma()
 			Error::error(E_FATAL, "chdir " + t.get_val() + ": " + string(strerror(errno)));
 	} else if (t.get_val() == "popd") {
 		if (dirstack.empty()) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma popd</code>
+			 * CScout-specific directive was performed on an
+			 * empty directory stack
+			 */
 			Error::error(E_ERR, "popd: directory stack empty");
 			eat_to_eol();
 			return;
@@ -740,6 +902,13 @@ Pdtoken::process_pragma()
 	else if (t.get_val() == "ro_prefix") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma ro_prefix</code>
+			 * CScout-specific directive was not followed by a 
+			 * string
+			 */
 			Error::error(E_ERR, "#pragma ro_prefix: string expected");
 			eat_to_eol();
 			return;
@@ -762,7 +931,12 @@ Pdtoken::process_directive()
 	if (t.get_code() == '\n')		// Empty directive
 		return;
 	if (t.get_code() != IDENTIFIER) {
-		Error::error(E_ERR, "Preprocessor syntax");
+		/*
+		 * @error
+		 * An invalid preprocessor directive was found.
+		 * The directive did not match an identifier
+		 */
+		Error::error(E_ERR, "Invalid preprocessor directive");
 		eat_to_eol();
 		return;
 	}
@@ -795,6 +969,10 @@ Pdtoken::process_directive()
 	else if (t.get_val() == "pragma")
 		process_pragma();
 	else
+		/*
+		 * @error
+		 * An unkown preprocessor directive was found.
+		 */
 		Error::error(E_ERR, "Unknown preprocessor directive: " + t.get_val());
 }
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.11 2002/12/15 19:03:37 dds Exp $
+ * $Id: macro.cpp,v 1.12 2003/06/01 09:03:06 dds Exp $
  */
 
 #include <iostream>
@@ -24,8 +24,8 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
@@ -107,6 +107,11 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 				bracket--;
 				break;
 			case EOF:
+				/*
+				 * @error
+				 * The end of file was reached while 
+				 * gathering a macro's arguments
+				 */
 				Error::error(E_ERR, "macro [" + name + "]: EOF while reading function macro arguments");
 				return (false);
 			}
@@ -117,6 +122,11 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 	if (formal_args.size() == 0) {
 		t = arg_token(tokens, pos, get_more, false);
 		if (t.get_code() != ')') {
+				/*
+				 * @error
+				 * The arguments to a function-like macro did
+				 * not terminate with a closing bracket
+				 */
 				Error::error(E_ERR, "macro [" + name + "]: close bracket expected for function-like macro");
 			return false;
 		}
@@ -302,6 +312,12 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			// Is it a stringizing operator ?
 			if ((*i).get_code() == '#') {
 				if (i + 1 == m.value.end()) {
+					/*
+					 * @error
+					 * No argument was supplied to the right
+					 * of the stringizing operator 
+					 * <code>#</code>
+					 */
 					Error::error(E_ERR,  "Application of macro \"" + name + "\": operator # at end of macro pattern");
 					return (pos);
 				}
@@ -332,6 +348,12 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 				// Not a formal argument, plain replacement
 				// Check for misplaced # operator (3.8.3.2)
 				if (do_stringize)
+					/*
+					 * @error
+					 * The stringizing operator
+					 * <code>#</code> was not followed
+					 * by a macro parameter
+					 */
 					Error::error(E_WARN, "Application of macro \"" + name + "\": operator # only valid before macro parameters");
 				tokens.insert(pos, *i);
 			}

@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.23 2002/10/03 11:36:25 dds Exp $
+ * $Id: pltoken.h,v 1.24 2003/06/01 09:03:06 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -256,6 +256,11 @@ Pltoken::getnext()
 				}
 				c0.getnext();
 				if (c0.get_char() == EOF)
+					/*
+					 * @error
+					 * The end of file was reached while 
+					 * processing a block comment
+					 */
 					Error::error(E_FATAL, "EOF in comment");
 				if (c0.get_char() == '/')
 					break;
@@ -373,6 +378,12 @@ Pltoken::getnext()
 				val += '\\';
 				c0.getnext();
 				if (c0.get_char() == EOF) {
+					/*
+					 * @error
+					 * The end of file was reached while 
+					 * processing a character literal:
+					 * a single quote was never closed
+					 */
 					Error::error(E_ERR, "End of file in character literal");
 					break;
 				}
@@ -388,6 +399,10 @@ Pltoken::getnext()
 		}
 		code = CHAR_LITERAL;
 		if (n == 0)
+			/*
+			 * @error
+			 * Character lirerals must include a character
+			 */
 			Error::error(E_WARN, "Empty character literal");
 		if (c0.get_char() == EOF)
 			Error::error(E_ERR, "End of file in character literal");
@@ -413,6 +428,11 @@ Pltoken::getnext()
 				// Consume one character after the backslash
 				c0.getnext();
 				if (c0.get_char() == EOF) {
+					/*
+					 * @error
+					 * The end of file was reached while 
+					 * processing a string
+					 */
 					Error::error(E_ERR, "End of file in string literal");
 					break;
 				}

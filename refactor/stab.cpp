@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.18 2002/12/26 12:46:24 dds Exp $
+ * $Id: stab.cpp,v 1.19 2003/06/01 09:03:06 dds Exp $
  */
 
 #include <map>
@@ -20,8 +20,8 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
@@ -124,6 +124,13 @@ obj_define(const Token& tok, Type typ)
 		if ((id = Block::param_block.obj.lookup(tok.get_name())))
 			unify(id->get_token(), tok);
 		else
+			/*
+			 * @error
+			 * While processing an old-style (K&amp;R) parameter
+			 * declaration, a declared parameter did not match
+			 * any of the parameters appearing in the function's
+			 * arguments definition
+			 */
 			Error::error(E_ERR, "declared parameter does not appear in old-style function parameter list: " + tok.get_name());
 		(Block::param_block.obj).define(tok, typ);
 		return;
@@ -147,6 +154,13 @@ obj_define(const Token& tok, Type typ)
 			tok.set_ec_attribute(is_cscope);
 			if ((id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
 				if (id->get_type().get_storage_class() == c_unspecified)
+					/*
+					 * @error
+					 * An identifier is declared twice
+					 * with compilation or linkage
+					 * unit scope with conflicting
+					 * declarations
+					 */
 					Error::error(E_ERR, "conflicting declarations for identifier " + id->get_name());
 				unify(id->get_token(), tok);
 			}
@@ -159,6 +173,11 @@ obj_define(const Token& tok, Type typ)
 		// Definitions at function block scope
 		if (sc != c_extern &&
 		    Block::scope_block[Block::current_block].obj.lookup(tok.get_name())) {
+			/*
+			 * @error
+			 * An identifier is declared twice within tha
+			 * same block
+			 */
 			Error::error(E_ERR, "Duplicate definition of identifier " + tok.get_name());
 			return;
 		}
@@ -192,6 +211,11 @@ tag_define(const Token& tok, const Type& typ)
 		(Block::param_block.tag).define(tok, typ);
 	else if ((id = Block::scope_block[Block::current_block].tag.lookup(tok.get_name())) &&
 		 !id->get_type().is_incomplete())
+		/*
+		 * @error
+		 * A structure, union, or enumeration tag was defined
+		 * twice for the same entity
+		 */
 		Error::error(E_ERR, "Duplicate definition of tag  " + tok.get_name());
 	else
 		Block::define(tagptr, tok, typ);
@@ -243,6 +267,11 @@ label_define(const Token& tok)
 	Id const *id = Function::label.lookup(tok.get_name());
 	if (id) {
 		if (id->get_type().is_valid())
+			/*
+			 * @error
+			 * The same <code>goto</code> label is defined more 
+			 * than once in a given function
+			 */
 			Error::error(E_ERR, "label " + tok.get_name() + " already defined");
 		unify(id->get_token(), tok);
 	}
@@ -271,6 +300,11 @@ Function::exit()
 
 	for (i = label.begin(); i != label.end(); i++)
 		if (!Stab::get_id(i).get_type().is_valid())
+			/*
+			 * @error
+			 * A <code>goto</code>
+			 * label used within a function was never defined
+			 */
 			Error::error(E_ERR, "undefined label " + Stab::get_name(i));
 	label.clear();
 }

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.23 2002/12/26 16:22:43 dds Exp $
+ * $Id: fileid.cpp,v 1.24 2003/06/01 09:03:06 dds Exp $
  */
 
 #include <map>
@@ -23,8 +23,8 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "error.h"
@@ -78,6 +78,11 @@ get_uniq_fname_string(const char *name)
 	unsigned n = GetFullPathName(name, sizeof(buff), buff, &nptr);
 	if (n > sizeof(buff) || n == 0) {	// No space or other error!
 		string s = string(name) + ": " + werror(GetLastError());
+		/*
+		 * @error
+		 * The Win32 GetfullPathName system call used to retrieve the
+		 * unique path file name failed (Windows-specific)
+		 */
 		Error::error(E_FATAL, "Unable to get path of file " + s, false);
 	}
 	return (buff);
@@ -104,6 +109,11 @@ get_uniq_fname_string(const char *name)
 
 	if (stat(name, &sb) != 0) {
 		string s(name);
+		/*
+		 * @error
+		 * The POSIX stat system call used to retrieve the
+		 * unique file identifier failed (Unix-specific)
+		 */
 		Error::error(E_FATAL, "Unable to stat file " + s, false);
 	}
 	sprintf(buff, "%ld:%ld", (long)sb.st_dev, (long)sb.st_ino);

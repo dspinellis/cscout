@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.23 2002/12/26 16:24:54 dds Exp $
+ * $Id: type.cpp,v 1.24 2003/06/01 09:03:06 dds Exp $
  */
 
 #include <iostream>
@@ -21,8 +21,8 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"
@@ -53,6 +53,11 @@ Type::operator=(const Type& rhs)
 Type
 Type_node::subscript() const
 {
+	/*
+	 * @error
+	 * The object being subscripted using the <code>[]</code>
+	 * operator is not an array or a pointer
+	 */
 	Error::error(E_ERR, "subscript not on array or pointer");
 	if (DP())
 		this->print(cerr);
@@ -64,6 +69,12 @@ Type_node::get_members() const
 {
 	static Stab dummy;
 
+	/*
+	 * @error
+	 * The target of a member access using a 
+	 * <code>.</code> or <code>-></code>
+	 * operator is not a structure or a union
+	 */
 	Error::error(E_INTERNAL, "get_members: not structure or union");
 	this->print(cout);
 	return dummy;
@@ -72,6 +83,11 @@ Type_node::get_members() const
 Type
 Type_node::call() const
 {
+	/*
+	 * @error
+	 * The object used as a function to be called is not a function
+	 * or a pointer to a function
+	 */
 	Error::error(E_ERR, "object is not a function");
 	return basic(b_undeclared);
 }
@@ -81,6 +97,10 @@ Tidentifier::call() const
 {
 	// Undeclared identifiers f when called are declared as int f(...)
 	obj_define(this->get_token(), function_returning(basic(b_int)));
+	/*
+	 * @error
+	 * An undeclared identifier is used as a function
+	 */
 	Error::error(E_WARN, "assuming declaration int " + this->get_name() + "(...)");
 	return basic(b_int);
 }
@@ -123,6 +143,10 @@ Type_node::get_name() const
 Type
 Type_node::deref() const
 {
+	/*
+	 * @error
+	 * An attempt was made to dereference an element that is not a pointer
+	 */
 	Error::error(E_ERR, "illegal pointer dereference");
 	if (DP())
 		this->print(cerr);
@@ -161,6 +185,11 @@ Tincomplete::member(const string& s) const
 {
 	const Id *id = tag_lookup(scope_level, t.get_name());
 	if (!id) {
+		/*
+		 * @error
+		 * The member access for a structure or union is applied
+		 * on an object with an incomplete definition
+		 */
 		Error::error(E_ERR, string("member access in incomplete struct/union: ") + t.get_name());
 		if (DP())
 			this->print(cerr);
@@ -363,6 +392,11 @@ Tbasic::merge(Tbasic *b)
 	         (this->type == b_int && b->type == b_llong))
 		t = b_llong;		// Extension to ANSI
 	else {
+		/*
+		 * @error
+		 * The type specifiers used can not be combined
+		 * (e.g. <code>double char</code>)
+		 */
 		Error::error(E_ERR, "illegal combination of type specifiers");
 		if (DP())
 			cout << "merge a=" << Type(this) << "\nmerge b=" << Type(b) << "\n";
@@ -374,11 +408,20 @@ Tbasic::merge(Tbasic *b)
 	else if (b->sign == s_none)
 		s = this->sign;
 	else {
+		/*
+		 * @error
+		 * The signedness specifiers used can not be combined
+		 * (e.g. <code>unsigned signed</code>)
+		 */
 		Error::error(E_WARN, "illegal combination of sign specifiers");
 		s = s_none;
 	}
 
 	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble)) {
+		/*
+		 * @error
+		 * A signedness specification was given on a non-integral type
+		 */
 		Error::error(E_WARN, "sign specification on non-integral type - ignored");
 		s = s_none;
 	}
@@ -388,6 +431,11 @@ Tbasic::merge(Tbasic *b)
 	else if (b->sclass.get_storage_class() == c_unspecified)
 		c = this->sclass.get_storage_class();
 	else {
+		/*
+		 * @error
+		 * More than one storage class was given for the same
+		 * object
+		 */
 		Error::error(E_ERR, "at most one storage class can be specified");
 		c = this->sclass.get_storage_class();
 	}
@@ -401,6 +449,11 @@ Tbasic::merge(Tbasic *b)
 Type
 Type_node::merge(Tbasic *b)
 {
+	/*
+	 * @error
+	 * A basic type, storage class or type specified was specified in
+	 * an invalid underlying object
+	 */
 	Error::error(E_ERR, "invalid application of basic type, storage class, or type specifier");
 	if (DP()) {
 		cout << "a=";
@@ -415,6 +468,11 @@ Type_node::merge(Tbasic *b)
 void
 Type_node::set_abstract(Type t)
 {
+	/*
+	 * @error
+	 * An attempt was made to specify a type on an object that
+	 * did not allow this specification
+	 */
 	Error::error(E_ERR, "invalid type specification");
 	if (DP())
 		this->print(cerr);
@@ -436,6 +494,11 @@ Tarray::set_abstract(Type t)
 		if (of.is_abstract())
 			of = t;
 		else {
+			/*
+			 * @error
+			 * The unerlying array object for which a type is
+			 * specified is not an abstract type
+			 */
 			Error::error(E_ERR, "array not an abstract type");
 			cerr << "[" << of << "]\n";
 		}
@@ -450,6 +513,11 @@ Tpointer::set_abstract(Type t)
 		if (to.is_abstract())
 			to = t;
 		else {
+			/*
+			 * @error
+			 * The unerlying pointer object for which a type is
+			 * specified is not an abstract type
+			 */
 			Error::error(E_ERR, "pointer not an abstract type");
 			cerr << "[" << to << "]\n";
 		}
@@ -503,6 +571,11 @@ Tstorage::set_storage_class(Type t)
 	if (sclass != c_unspecified &&
 	    sclass != c_typedef &&
 	    newclass != c_unspecified)
+		/*
+		 * @error
+		 * Incompatible storage classes were specified in a single
+		 * type declaration
+		 */
 		Error::error(E_ERR, "multiple storage classes in type declaration");
 	// if sclass is already e.g. extern and t is just volatile don't destry sclass
 	if (sclass == c_unspecified || sclass == c_typedef)

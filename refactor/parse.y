@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.47 2003/05/28 10:24:03 dds Exp $
+ * $Id: parse.y,v 1.48 2003/06/01 09:03:06 dds Exp $
  *
  */
 
@@ -38,8 +38,8 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "metrics.h"
 #include "attr.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"		// get_fileid()
@@ -211,6 +211,11 @@ primary_expression:
 					unify(id->get_token(), $1.get_token());
 					$$ = id->get_type();
 				} else {
+					/*
+					 * @error
+					 * An undeclared identifier was used
+					 * in a primary expression
+					 */
 					Error::error(E_WARN, "undeclared identifier: " + $1.get_name());
 					$$ = $1;
 				}
@@ -239,6 +244,16 @@ postfix_expression:
 					assert(id->get_name() == $3.get_name());
 					unify($3.get_token(), id->get_token());
 				} else {
+					/*
+					 * @error
+					 * The structure or union on the left
+					 * of the
+					 * <code>.</code> or
+					 * <code>-&gt;</code> operator
+					 * does not have as a member the
+					 * identifier appearing on the
+					 * operator's right
+					 */
 					Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
 					$$ = basic(b_undeclared);
 				}
@@ -673,7 +688,13 @@ basic_type_name:
 					unify(id->get_token(), $3.get_token());
 					$$ = id->get_type();
 				} else {
-					Error::error(E_WARN, "undeclared identifier: " + $3.get_name());
+					/*
+					 * @error
+					 * The identifier appearing within
+					 * <code>typeof</code>
+					 * has not been declared
+					 */
+					Error::error(E_WARN, "undeclared identifier in typeof expression: " + $3.get_name());
 					$$ = $3;
 				}
 			}
@@ -799,6 +820,14 @@ member_declaring_list:
 			if (DP())
 				cout << "(out)member_declaring_list = " << $$ << "\n";
 		} else {
+					/*
+					 * @error
+					 * Anonymous members within a member
+					 * declaring list (e.g.
+					 * <code>struct {int x, y;}</code>)
+					 * can only be structures or unions.
+					 * (GCC/Microsoft C extension).
+					 */
 			Error::error(E_ERR, "Only struct/union anonymous elements allowed");
 			$$ = basic(b_undeclared);
 		}
