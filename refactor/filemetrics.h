@@ -1,7 +1,7 @@
 /* 
  * (C) Copyright 2002 Diomidis Spinellis.
  *
- * A metrics container.
+ * A metrics and a metrics summary container.
  *
  * One metrics object is created and updated for every file.
  * Most metrics are collected during the postprocessing phase to
@@ -9,7 +9,7 @@
  * This design also ensures that the character-based metrics processing 
  * overhead will be incured exactly once for each file.
  *
- * $Id: filemetrics.h,v 1.2 2002/10/06 19:18:53 dds Exp $
+ * $Id: filemetrics.h,v 1.3 2002/10/06 21:21:42 dds Exp $
  */
 
 #ifndef METRICS_
@@ -107,5 +107,103 @@ public:
 	// Number of character strings
 	int get_nstring() const { return nstring; }		
 };
+
+class Eclass;
+
+// A class for keeping taly of various identifier type counts
+class IdCount {
+private:
+	int total;
+	// The four C namespaces
+	int suetag;		// Struct/union/enum tag
+	int sumember;		// Struct/union member
+	int label;		// Goto label
+	int ordinary;		// Ordinary identifier
+
+	int macro;		// Macro
+	int macroarg;		// Macro argument
+	// The following are valid if is_ordinary is true:
+	int cscope;		// Compilation-unit (file) scoped 
+				// identifier  (static)
+	int lscope;		// Linkage-unit scoped identifier
+	int xtypedef;		// Typedef
+	int unused;		// True if EC size == 1
+public:
+	IdCount() :
+		total(0),
+		suetag(0),
+		sumember(0),
+		label(0),
+		ordinary(0),
+		macro(0),
+		macroarg(0),
+		cscope(0),
+		lscope(0),
+		xtypedef(0),
+		unused(0)
+	{}
+	// Adjust class members by n according to the attributes of EC
+	void add(Eclass *ec, int n);
+};
+
+class Fileid;
+
+// Counting file details 
+class FileCount {
+private:
+	// Totals for all files
+	int nfile;		// Number of unique files
+	int nchar;		// Number of characters
+	int nlcomment;		// Number of line comments
+	int nbcomment;		// Number of block comments
+	int nline;		// Number of lines
+	int maxlinelen;		// Maximum number of characters in a line
+	int nccomment;		// Comment characters
+	int nspace;		// Space characters
+	int nstring;		// Number of character strings
+	int nfunction;		// Defined functions (function_brace_begin)
+	int nppdirective;	// Number of cpp directives
+	int nincfile;		// Number of directly included files
+	int nstatement;		// Number of statements
+public:
+	FileCount() :
+		nfile(0),
+		nchar(0),
+		nlcomment(0),
+		nbcomment(0),
+		nline(0),
+		maxlinelen(0),
+		nccomment(0),
+		nspace(0),
+		nstring(0),
+
+		nfunction(0),
+		nppdirective(0),
+		nincfile(0),
+		nstatement(0)
+	{}
+	// Add the details of file fi
+	void add(Fileid &fi);
+};
+
+// This can be kept per project and globally
+class MetricsSummary {
+	struct {
+		FileCount fc;	// File details
+		IdCount once;	// Each identifier EC is counted once
+		IdCount len;	// Use the len of each EC
+		IdCount all;	// Each identifier counted for every occurance in a file
+	} rw[2];			// For read-only and writable cases
+public:
+	// Create file-based summary
+	void summarize_files();	
+	// Called for every identifier occurence
+	void add_id(Eclass *ec);
+	// Called for every unique identifier occurence (EC)
+	void add_unique_id(Eclass *ec);
+};
+
+// Global metrics
+extern MetricsSummary msum;
 
 #endif /* METRICS_ */
