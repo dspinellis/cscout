@@ -9,7 +9,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.5 2001/08/17 12:56:58 dds Exp $
+ * $Id: eclass.h,v 1.6 2001/08/25 20:28:25 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -34,6 +34,8 @@ public:
 	friend Eclass *merge(Eclass *a, Eclass *b);
 	// Return length
 	int get_len() { return len; };
+	// Return number of members
+	int get_size() { return members.size(); };
 	friend ostream& operator<<(ostream& o,const Eclass& ec);
 };
 
