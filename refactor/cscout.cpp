@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.45 2003/06/22 23:16:56 dds Exp $
+ * $Id: cscout.cpp,v 1.46 2003/06/22 23:27:04 dds Exp $
  */
 
 #include <map>
@@ -1533,9 +1533,11 @@ main(int argc, char *argv[])
 
 	// Update fle metrics
 	file_msum.summarize_files();
+	if (DP())
+		cout << "Size " << file_msum.get_total(em_nchar) << "\n";
 
 #ifdef COMMERCIAL
-	motd = license_check("", url(Version::get_revision()).c_str());
+	motd = license_check("", url(Version::get_revision()).c_str(), file_msum.get_total(em_nchar));
 #else
 	/* 
 	 * Send the metrics
@@ -1561,7 +1563,7 @@ main(int argc, char *argv[])
 			break;
 	}
 	mstring << "\n";
-	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str());
+	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str(), file_msum.get_total(em_nchar));
 #endif
 
 	if ((must_exit = (CORRECTION_FACTOR - license_offset != 0))) {
