@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.85 2004/07/27 15:46:43 dds Exp $
+ * $Id: cscout.cpp,v 1.86 2004/07/27 21:02:11 dds Exp $
  */
 
 #include <map>
@@ -278,16 +278,38 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 {
 	ifstream in;
 	const string &fname = fi.get_path();
-	IdQuery query(of, file_icase, current_project, eval_query);
 	bool at_bol = true;
 	int line_number = 1;
+
+	/*
+	 * In theory this could be handled by adding a class
+	 * factory method to Query, and making eval virtual.
+	 * In practice the IdQuery and FunQuery eval methods
+	 * take incompatible arguments, and are difficult to
+	 * reconcile.
+	 */
+	IdQuery idq;
+	FunQuery funq;
+	bool have_funq, have_idq;
+	char *qtype = swill_getvar("qt");
+	have_funq = have_idq = false;
+	if (strcmp(qtype, "fun") == 0) {
+		funq = FunQuery(of, file_icase, current_project, eval_query);
+		have_funq = true;
+	} else if (strcmp(qtype, "id") == 0) {
+		idq = IdQuery(of, file_icase, current_project, eval_query);
+		have_idq = true;
+	} else {
+		fprintf(stderr, "Unknown query type (try adding &qt=id to the URL).\n");
+		return;
+	}
 
 	if (DP())
 		cout << "Write to " << fname << "\n";
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
 		perror(fname.c_str());
-		exit(1);
+		return;
 	}
 	fputs("<hr><code>", of);
 	(void)html('\n');	// Reset HTML tab handling
@@ -313,9 +335,9 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			}
 			at_bol = false;
 		}
+		// Identifier we can mark
 		Eclass *ec;
-		// Identifiers we can mark
-		if ((ec = ti.check_ec()) && ec->is_identifier() && query.need_eval()) {
+		if (have_idq && (ec = ti.check_ec()) && ec->is_identifier() && idq.need_eval()) {
 			string s;
 			s = (char)val;
 			int len = ec->get_len();
@@ -323,8 +345,22 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 				s += (char)in.get();
 			Identifier i(ec, s);
 			const IdPropElem ip(ec, i);
-			if (query.eval(ip))
+			if (idq.eval(ip))
 				html(of, ip);
+			else
+				html_string(of, s);
+			continue;
+		}
+		// Function we can mark
+		Call *c;
+		if (have_funq && (c = Call::get_call(ti)) && funq.need_eval()) {
+			string s;
+			s = (char)val;
+			int len = c->get_name().length();
+			for (int j = 1; j < len; j++)
+				s += (char)in.get();
+			if (funq.eval(c))
+				html(of, *c);
 			else
 				html_string(of, s);
 			continue;
@@ -978,7 +1014,7 @@ identifier_page(FILE *fo, void *p)
 	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++)
 		if ((*j).get_readonly() == false) {
 			html_file(fo, (*j).get_path());
-			fprintf(fo, " - <a href=\"qsrc.html?id=%u&ec=%p&n=Identifier+%s\">marked source</a>",
+			fprintf(fo, " - <a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a>",
 				(*j).get_id(),
 				e, id.get_id().c_str());
 		}
@@ -987,7 +1023,7 @@ identifier_page(FILE *fo, void *p)
 	html_file_begin(fo);
 	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
 		html_file(fo, (*j).get_path());
-		fprintf(fo, " - <a href=\"qsrc.html?id=%u&ec=%p&n=Identifier+%s\">marked source</a>",
+		fprintf(fo, " - <a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a>",
 			(*j).get_id(),
 			e, id.get_id().c_str());
 	}
@@ -1313,8 +1349,8 @@ file_page(FILE *of, void *p)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(of, "</ul>\n</ul><h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
-	fprintf(of, "<li> <a href=\"qsrc.html?id=%s&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", fname.str().c_str(), is_readonly);
-	fprintf(of, "<li> <a href=\"qsrc.html?id=%s&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", fname.str().c_str(), is_lscope);
+	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%s&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", fname.str().c_str(), is_readonly);
+	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%s&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", fname.str().c_str(), is_lscope);
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%s&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", fname.str().c_str());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%s&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", fname.str().c_str());
@@ -1353,7 +1389,7 @@ query_source_page(FILE *of, void *p)
 	if (qname && *qname)
 		html_head(of, "qsrc", string(qname) + ": " + html(pathname));
 	else
-		html_head(of, "qsrc", string("Source with queried identifiers marked: ") + html(pathname));
+		html_head(of, "qsrc", string("Source with queried elements marked: ") + html(pathname));
 	fputs("<p>(Use the tab key to move to each marked identifier.)<p>", of);
 	file_hypertext(of, i, true);
 	html_tail(of);
