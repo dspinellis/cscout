@@ -3,11 +3,28 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.11 2002/09/07 09:47:15 dds Exp $
+ * $Id: stab.h,v 1.12 2002/09/09 17:35:44 dds Exp $
  */
 
 #ifndef STAB_
 #define STAB_
+
+/*
+ * A refresher on identifier namespaces (ANSI 3.1.2.3)
+ * Four namespaces:
+ * 1. Label names:
+ *    Disambinuated by the syntax of label declaration and
+ *    used, stored in Function::label
+ * 2. Tags for struct, union, enum:
+ *    Disambiguated by following the respective keyword
+ *    and stored in Block.tag
+ * 3. Members of structures and unions
+ *    One per structure or uionon, disambiguated by the type
+ *    of the expression used to access it.
+ *    Stored in Tsu.members.
+ * 4. All other objects
+ *    AKA ordinary identifiers, stored in Block.obj
+ */
 
 class Type;
 
@@ -64,6 +81,7 @@ public:
 	friend void label_define(const Token& tok);
 	friend void label_use(const Token& tok);
 };
+
 
 class Block {
 private:
