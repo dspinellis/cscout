@@ -4,25 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * Include synopsis:
- * #include <iostream>
- * #include <map>
- * #include <string>
- * #include <deque>
- * #include <stack>
- * #include <iterator>
- * #include <cassert>
- * 
- * #include "cpp.h"
- * #include "fileid.h"
- * #include "tokid.h"
- * #include "token.h"
- * #include "error.h"
- * #include "ptoken.h"
- * #include "fchar.h"
- * #include "ytab.h"
- *
- * $Id: pltoken.h,v 1.13 2001/08/23 09:30:43 dds Exp $
+ * $Id: pltoken.h,v 1.14 2001/08/24 20:20:09 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -353,6 +335,7 @@ Pltoken::getnext()
 	case '\'':
 	char_literal:
 		n = 0;
+		val = "";
 		for (;;) {
 			c0.getnext();
 			if (c0.get_char() == '\\') {
@@ -379,6 +362,7 @@ Pltoken::getnext()
 		break;
 	case '"':
 	string_literal:
+		val = "";
 		if (context == cpp_include) {
 			// C preprocessor #include "filename"
 			for (;;) {

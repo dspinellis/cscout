@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.3 2001/08/20 15:37:07 dds Exp $
+ * $Id: pltoken.cpp,v 1.4 2001/08/24 20:20:09 dds Exp $
  */
 
 #include <iostream>
@@ -13,6 +13,7 @@
 #include <stack>
 #include <iterator>
 #include <fstream>
+#include <list>
 #include <cassert>
 
 #include "cpp.h"
