@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.62 2004/07/25 14:11:24 dds Exp $
+# $Id: Makefile,v 1.63 2004/07/25 14:14:32 dds Exp $
 #
 
 #
@@ -26,7 +26,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	ctoken.h debug.cpp debug.h defs.h des.c des.h eclass.cpp \
 	eclass.h engine.cpp error.cpp error.h eval.y fchar.cpp \
 	fchar.h fileid.cpp fileid.h id.h incs.h license.c license.h \
-	macro.cpp macro.h metrics.cpp metrics.h minihttp.h mscdefs.h \
+	macro.cpp macro.h metrics.cpp metrics.h mscdefs.h \
 	mscincs.h obfuscate.cpp parse.y pdtoken.cpp \
 	pdtoken.h pltoken.cpp pltoken.h ptoken.cpp ptoken.h regex.h \
 	simple_cpp.cpp stab.cpp stab.h swill.h tchar.cpp tchar.h \
@@ -160,8 +160,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.62 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2004/07/25 14:11:24 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.63 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2004/07/25 14:14:32 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -206,7 +206,7 @@ lf: mkdir
 	perl -pi -e 's/\r//' $(SRC)
 
 mkdir:
-	-mkdir alpha  i386  sparc64  amd64  ia64  
+	-mkdir alpha  i386  sparc64  amd64  ia64
 
 rdist-spiti-server:
 	pscp Makefile des.[ch] license.[ch] spiti:src/cscout-server
@@ -219,3 +219,6 @@ istlab-server:
 
 spiti-server:
 	cc -o /usr/local/www/cgi-bin/ccheck -DSERVER des.c license.c
+
+wc:
+	wc -l $(SRC)
