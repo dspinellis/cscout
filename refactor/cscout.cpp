@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.57 2003/08/12 11:18:31 dds Exp $
+ * $Id: cscout.cpp,v 1.58 2003/08/12 12:28:22 dds Exp $
  */
 
 #include <map>
@@ -17,6 +17,7 @@
 #include <list>
 #include <set>
 #include <functional>
+#include <algorithm>		// set_difference
 #include <cctype>
 #include <cassert>
 #include <sstream>		// ostringstream
