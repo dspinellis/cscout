@@ -3,7 +3,7 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.2 2001/09/14 07:27:32 dds Exp $
+ * $Id: eval.y,v 1.3 2001/09/14 07:41:29 dds Exp $
  *
  */
 
@@ -12,6 +12,20 @@
 %start constant_expression
 
 %{
+#include <iostream>
+#include <string>
+#include <cassert>
+#include <fstream>
+#include <stack>
+#include <deque>
+#include <map>
+
+#include "fileid.h"
+#include "cpp.h"
+#include "tokid.h"
+#include "fchar.h"
+#include "error.h"
+
 #define YYSTYPE long
 
 void eval_error(char *) {}
@@ -44,8 +58,22 @@ cast_expression
 multiplicative_expression
         : cast_expression
         | multiplicative_expression '*' cast_expression	{ $$ = $1 * $3; }
-        | multiplicative_expression '/' cast_expression	{ $$ = $1 / $3; }
-        | multiplicative_expression '%' cast_expression	{ $$ = $1 % $3; }
+        | multiplicative_expression '/' cast_expression	
+			{
+				if ($3 == 0) {
+					Error::error(E_ERR, "division by zero in #if expression");
+					$$ = 0;
+				} else
+					$$ = $1 / $3;
+			}
+        | multiplicative_expression '%' cast_expression
+			{
+				if ($3 == 0) {
+					Error::error(E_ERR, "modulo division by zero in #if expression");
+					$$ = $1;
+				} else
+					$$ = $1 / $3;
+			}
         ;
 
 additive_expression
