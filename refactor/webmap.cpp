@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.19 2002/10/06 19:26:18 dds Exp $
+ * $Id: webmap.cpp,v 1.20 2002/10/07 20:13:59 dds Exp $
  */
 
 #include <map>
@@ -144,31 +144,35 @@ file_hypertext(ofstream &of, ofstream &uof, Fileid fi, bool write_uof)
 			break;
 		Eclass *ec;
 		// Identifiers worth marking
-		if ((ec = ti.check_ec()) && (
-		    ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
-		      ec->get_attribute(is_lscope) || 
-		      ec->get_attribute(is_cscope) || 
-		      ec->get_attribute(is_macro))))) {
-			string s;
-			s = (char)val;
-			int len = ec->get_len();
-			for (int j = 1; j < len; j++)
-				s += (char)in.get();
-			Identifier i(ec, s);
-			fi.metrics().process_id(s);
-			ids.insert(i);
-			html_id(of, i);
-			if (ec->get_size() == 1) {
+		if (ec = ti.check_ec()) {
+			// Update metrics
+			msum.add_id(ec);
+			// Worth marking?
+			if (ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
+			      ec->get_attribute(is_lscope) || 
+			      ec->get_attribute(is_cscope) || 
+			      ec->get_attribute(is_macro)))) {
+				string s;
+				s = (char)val;
+				int len = ec->get_len();
+				for (int j = 1; j < len; j++)
+					s += (char)in.get();
+				Identifier i(ec, s);
+				fi.metrics().process_id(s);
+				ids.insert(i);
+				html_id(of, i);
+				if (ec->get_size() == 1) {
+					if (write_uof)
+						html_id(uof, i);
+					has_unused = true;
+				} else if (write_uof)
+						uof << html(s);
+			} else {
+				of << html((char)val);
+				fi.metrics().process_char((char)val);
 				if (write_uof)
-					html_id(uof, i);
-				has_unused = true;
-			} else if (write_uof)
-					uof << html(s);
-		} else {
-			of << html((char)val);
-			fi.metrics().process_char((char)val);
-			if (write_uof)
-				uof << html((char)val);
+					uof << html((char)val);
+			}
 		}
 	}
 	if (DP())
@@ -192,7 +196,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.19 2002/10/06 19:26:18 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.20 2002/10/07 20:13:59 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -380,6 +384,9 @@ main(int argc, char *argv[])
 	// Details for each identifier
 	// Set xfile as a side-effect
 	for (vector <MIdentifier>::iterator i = mids.begin(); i != mids.end(); i++) {
+		// Update metrics
+		msum.add_unique_id((*i).get_ec());
+
 		ostringstream fname;
 		fname << (unsigned)(*i).get_ec();
 		html_head(fo, (string("i") + fname.str()).c_str(), string("Identifier: ") + html((*i).get_id()));
@@ -510,6 +517,12 @@ main(int argc, char *argv[])
 	}
 	fo << "\n</ul>\n";
 	html_tail(fo);
+
+	// Update fle metrics
+	msum.summarize_files();
+
+	ofstream mf("metrics.txt");
+	mf << msum;
 
 	return (0);
 }

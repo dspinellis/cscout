@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.9 2002/10/06 19:18:53 dds Exp $
+ * $Id: workdb.cpp,v 1.10 2002/10/07 20:13:59 dds Exp $
  */
 
 #include <map>
@@ -101,6 +101,8 @@ insert_eclass(ofstream &of, Eclass *e, const string &name)
 	if (dumped.find(e) != dumped.end())
 		return;
 	dumped.insert(e);
+	// Update metrics
+	msum.add_unique_id(e);
 
 	of << "INSERT INTO IDS VALUES(" << 
 	(unsigned)e << ",'" <<
@@ -148,8 +150,10 @@ file_dump(ofstream &of, Fileid fid)
 		if ((val = in.get()) == EOF)
 			break;
 		Eclass *ec;
+		if (ec = ti.check_ec())
+			msum.add_id(ec);
 		// Identifiers worth marking
-		if ((ec = ti.check_ec()) && (
+		if (ec && (
 		    ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
 		      ec->get_attribute(is_lscope) || 
 		      ec->get_attribute(is_cscope) || 
@@ -291,6 +295,12 @@ main(int argc, char *argv[])
 				fo << "INSERT INTO FILEPROJ VALUES(" << 
 				(*i).get_id() << ',' << j << ");\n";
 	}
+
+	// Update fle metrics
+	msum.summarize_files();
+
+	ofstream mf("metrics.txt");
+	mf << msum;
 
 	return (0);
 }
