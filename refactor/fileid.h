@@ -9,7 +9,7 @@
  * #include <map>
  * #include <string>
  *
- * $Id: fileid.h,v 1.4 2001/10/27 13:35:18 dds Exp $
+ * $Id: fileid.h,v 1.5 2002/09/04 07:52:15 dds Exp $
  */
 
 #ifndef FILEID_
@@ -21,7 +21,7 @@ using namespace std;
 // Details we keep for each file
 class Filedetails {
 private:
-	string name;		// File name
+	string name;		// File name (complete path)
 	bool ro;		// Read-only
 public:
 	Filedetails(string n, bool r) : name(n), ro(r) {}
