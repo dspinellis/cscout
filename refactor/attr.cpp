@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.8 2003/05/24 14:41:13 dds Exp $
+ * $Id: attr.cpp,v 1.9 2003/05/24 16:17:01 dds Exp $
  */
 
 #include <map>
@@ -43,6 +43,7 @@ string Attributes::attribute_names[] = {
 	"Ordinary identifier",
 
 	"Macro",
+	"Undefined macro",
 	"Macro argument",
 
 	"File scope",

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.69 2002/12/26 12:46:24 dds Exp $
+ * $Id: pdtoken.cpp,v 1.70 2003/05/24 16:17:01 dds Exp $
  */
 
 #include <iostream>
@@ -328,6 +328,7 @@ Pdtoken::process_if()
 void
 Pdtoken::create_undefined_macro(const Ptoken &name)
 {
+	name.set_ec_attribute(is_undefined_macro);
 	macros[name.get_val()] = Macro(name, false);
 }
 

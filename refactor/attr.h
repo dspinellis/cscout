@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.7 2003/05/24 14:41:13 dds Exp $
+ * $Id: attr.h,v 1.8 2003/05/24 16:17:01 dds Exp $
  */
 
 #ifndef ATTR_
@@ -21,6 +21,7 @@ enum e_attribute {
 	is_ordinary,		// Ordinary identifier
 
 	is_macro,		// Macro
+	is_undefined_macro,	// Macro (heuristic: ifdef, defined)
 	is_macroarg,		// Macro argument
 	// The following are valid if is_ordinary is true:
 	is_cscope,		// Compilation-unit (file) scoped 
