@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.100 2004/08/01 13:29:53 dds Exp $
+ * $Id: cscout.cpp,v 1.101 2004/08/02 07:32:17 dds Exp $
  */
 
 #include <map>
@@ -1266,6 +1266,34 @@ funlist_page(FILE *fo, void *p)
 	html_tail(fo);
 }
 
+/*
+ * Attempt to open a CScout file, setting in to the file stream.
+ * Return true on success, false on error.
+ * The file is searched in three different directories:
+ * .cscout, $CSCOUT_HOME, and $HOME/.cscout
+ */
+static bool
+cscout_file(const string &basename, ifstream &in, string &fname)
+{
+	vector <string> dirs;
+	dirs.push_back(".cscout");
+	if (getenv("CSCOUT_HOME"))
+		dirs.push_back(getenv("CSCOUT_HOME"));
+	if (getenv("HOME"))
+		dirs.push_back(string(getenv("HOME")) + "/.cscout");
+	vector <string>::const_iterator i;
+
+	for (i = dirs.begin(); i != dirs.end(); i++) {
+		fname = *i + "/" + basename;
+		in.open(fname.c_str());
+		if (in.fail())
+			in.clear();
+		else
+			return true;
+	}
+	return false;
+}
+
 
 // Front-end global options page
 void
@@ -1328,52 +1356,69 @@ set_options_page(FILE *fo, void *p)
 		index_page(fo, p);
 }
 
-// Save options in .cscout
+// Save options in .cscout/options
 static void
 save_options_page(FILE *fo, void *p)
 {
-	FILE *f= fopen(".cscout", "w");
-	html_head(fo, "save_options", "Options Saved");
-	if (f == NULL) {
-		perror(".cscout");
-		fprintf(fo, "Unable to open the file .cscout");
+	html_head(fo, "save_options", "Options Save");
+	(void)mkdir(".cscout");
+	ofstream out(".cscout/options");
+	if (out.fail()) {
+		perror(".cscout/options");
+		fprintf(fo, "Unable to open the file .cscout/options");
 		return;
 	}
-	fprintf(f, "fname_in_context=%d\n", fname_in_context);
-	fprintf(f, "sort_rev=%d\n", Query::sort_rev);
-	fprintf(f, "show_true=%d\n", show_true);
-	fprintf(f, "show_line_number=%d\n", show_line_number);
-	fprintf(f, "file_icase=%d\n", file_icase);
-	fprintf(f, "cgraph_type=%c\n", cgraph_type);
-	fprintf(f, "cgraph_show=%c\n", cgraph_show);
-	fprintf(f, "tab_width=%d\n", tab_width);
-	fclose(f);
-	fprintf(fo, "Options have been saved in the file ./.cscout.");
+	out << "fname_in_context: " << fname_in_context << "\n";
+	out << "sort_rev: " << Query::sort_rev << "\n";
+	out << "show_true: " << show_true << "\n";
+	out << "show_line_number: " << show_line_number << "\n";
+	out << "file_icase: " << file_icase << "\n";
+	out << "cgraph_type: " << cgraph_type << "\n";
+	out << "cgraph_show: " << cgraph_show << "\n";
+	out << "tab_width: " << tab_width << "\n";
+	out.close();
+	fprintf(fo, "Options have been saved in the file \".cscout/options\".");
 	fprintf(fo, "They will be loaded when CScout is executed again in this directory.");
 	html_tail(fo);
 }
 
-// Load options from ./.cscout
+// Load the CScout options.
 static void
-load_options(const char *fname)
+load_options()
 {
-	FILE *f= fopen(fname, "r");
-	if (f == NULL) {
-		perror(fname);
-		fprintf(stderr, "Will use default options\n");
+	ifstream in;
+	string fname;
+
+	if (!cscout_file("options", in, fname)) {
+		fprintf(stderr, "No options file found; will use default options.\n");
 		return;
 	}
-	int bval;
-	fscanf(f, "fname_in_context=%d\n", &bval); fname_in_context = (bool)bval;
-	fscanf(f, "sort_rev=%d\n", &bval); Query::sort_rev = (bool)bval;
-	fscanf(f, "show_true=%d\n", &bval); show_true = (bool)bval;
-	fscanf(f, "show_line_number=%d\n", &bval); show_line_number = (bool)bval;
-	fscanf(f, "file_icase=%d\n", &bval); file_icase = (bool)bval;
-	fscanf(f, "cgraph_type=%c\n", &cgraph_type);
-	fscanf(f, "cgraph_show=%c\n", &cgraph_show);
-	fscanf(f, "tab_width=%d\n", &tab_width);
-	fclose(f);
-	fprintf(stderr, "Options loaded from ./.cscout\n");
+	while (!in.eof()) {
+		string val;
+		in >> val;
+		if (val == "fname_in_context:")
+			 in >> fname_in_context;
+		else if (val == "sort_rev:")
+			 in >> Query::sort_rev;
+		else if (val == "show_true:")
+			 in >> show_true;
+		else if (val == "show_line_number:")
+			 in >> show_line_number;
+		else if (val == "file_icase:")
+			 in >> file_icase;
+		else if (val == "cgraph_type:")
+			 in >> cgraph_type;
+		else if (val == "cgraph_show:")
+			 in >> cgraph_show;
+		else if (val == "tab_width:")
+			 in >> tab_width;
+		else if (val.empty())
+			;
+		else
+			fprintf(stderr, "Skipping unknown option %s\n", val.c_str());
+	}
+	in.close();
+	fprintf(stderr, "Options loaded from %s\n", fname.c_str());
 }
 
 void
@@ -1851,51 +1896,33 @@ quit_page(FILE *of, void *p)
 }
 
 #ifdef COMMERCIAL
-/*
- * Parse the access control list cscout_acl.
- * The ACL is searched in three different directories:
- * .cscout, $CSCOUT_HOME, and $HOME/.cscout
- */
+// Parse the access control list acl.
 static void
 parse_acl()
 {
 
 	ifstream in;
 	string ad, host;
-	vector <string> dirs;
-	dirs.push_back(".cscout");
-	if (getenv("CSCOUT_HOME"))
-		dirs.push_back(getenv("CSCOUT_HOME"));
-	if (getenv("HOME"))
-		dirs.push_back(string(getenv("HOME")) + "/.cscout");
-	vector <string>::const_iterator i;
 	string fname;
 
-	for (i = dirs.begin(); i != dirs.end(); i++) {
-		fname = *i + "/cscout_acl";
-		in.open(fname.c_str());
-		if (in.fail())
-			in.clear();
-		else {
-			cout << "Parsing ACL from " << fname << "\n";
-			for (;;) {
-				in >> ad;
-				if (in.eof())
-					break;
-				in >> host;
-				if (ad == "A") {
-					cout << "Allow from IP address " << host << "\n";
-					swill_allow(host.c_str());
-				} else if (ad == "D") {
-					cout << "Deny from IP address " << host << "\n";
-					swill_deny(host.c_str());
-				} else
-					cout << "Bad ACL specification " << ad << " " << host << "\n";
-			}
-			break;
+	if (cscout_file("acl", in, fname)) {
+		cout << "Parsing ACL from " << fname << "\n";
+		for (;;) {
+			in >> ad;
+			if (in.eof())
+				break;
+			in >> host;
+			if (ad == "A") {
+				cout << "Allow from IP address " << host << "\n";
+				swill_allow(host.c_str());
+			} else if (ad == "D") {
+				cout << "Deny from IP address " << host << "\n";
+				swill_deny(host.c_str());
+			} else
+				cout << "Bad ACL specification " << ad << " " << host << "\n";
 		}
-	}
-	if (i == dirs.end()) {
+		in.close();
+	} else {
 		cout << "No ACL found.  Only localhost access will be allowed.\n";
 		swill_allow("127.0.0.1");
 	}
@@ -2032,7 +2059,6 @@ usage(char *fname)
 		"\t-c\tProcess the file and exit\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
-		"\t-o file\tLoad options from file (instead of ./.cscout)\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
 		"\t-r\tGenerate an identifier and include file warning report\n"
@@ -2056,14 +2082,13 @@ main(int argc, char *argv[])
 	char lkey[] = LKEY;
 	cscout_des_init(0);
 	cscout_des_set_key(lkey);
-	for (int i = 0; i < sizeof(licensee) / 8; i++)
+	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
 		cscout_des_decode(licensee + i * 8);
 	cscout_des_done();
 #endif
 
 
-	bool options_loaded = false;
-	while ((c = getopt(argc, argv, "crvEp:m:o:")) != EOF)
+	while ((c = getopt(argc, argv, "crvEp:m:")) != EOF)
 		switch (c) {
 		case 'E':
 			preprocess = true;
@@ -2082,12 +2107,6 @@ main(int argc, char *argv[])
 			if (!optarg)
 				usage(argv[0]);
 			monitor = IdQuery(optarg);
-			break;
-		case 'o':
-			if (!optarg)
-				usage(argv[0]);
-			options_loaded = true;
-			load_options(optarg);
 			break;
 		case 'r':
 			report = true;
@@ -2112,9 +2131,6 @@ main(int argc, char *argv[])
 		}
 
 
-	if (!options_loaded)
-		load_options(".cscout");
-
 	// We require exactly one argument
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
 		usage(argv[0]);
@@ -2131,6 +2147,7 @@ main(int argc, char *argv[])
 
 	license_init();
 
+	load_options();
 #ifdef COMMERCIAL
 	parse_acl();
 #endif
@@ -2180,7 +2197,7 @@ main(int argc, char *argv[])
 		cout << "Size " << file_msum.get_total(em_nchar) << "\n";
 
 #ifdef COMMERCIAL
-	motd = license_check(licensee, url(Version::get_revision()).c_str(), file_msum.get_total(em_nchar));
+	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), file_msum.get_total(em_nchar));
 #else
 	/*
 	 * Send the metrics
