@@ -1,4 +1,4 @@
-.TH CSCOUT 1 "7 July 2003"
+.TH CSCOUT 1 "12 August 2003"
 .\" 
 .\" (C) Copyright 2003 Diomidis Spinellis.  All rights reserved.
 .\" 
@@ -10,13 +10,13 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.3 2003/07/28 20:32:35 dds Exp $
+.\" $Id: cscout.1,v 1.4 2003/08/15 16:59:22 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
 \fBcscout\fP 
-[\fB\-vE\fP]
+[\fB\-cEuv\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
 \fIfile\fR
@@ -55,6 +55,8 @@ filename(s) they are found in,
 perform queries for files, based on their metrics, or properties
 of the identifiers they contain
 .IP \(bu 4
+monitor and report superfluously included header files
+.IP \(bu 4
 provide accurate metrics on identifiers and files
 
 .PP
@@ -89,6 +91,9 @@ found in the online hypertext documentation and at the project's home page
 http://www.spinellis.gr/cscout.
 .PP
 .SH OPTIONS
+.IP "\fB\-c\fP"
+Exit immediately after processing the specified files.
+Useful, when you simply want to check the source code for errors.
 .IP "\fB\-E\fP"
 Preprocess the specified file and send the result to the standard
 output.
@@ -154,6 +159,12 @@ can change the attributes of a given identifier shared
 between different files.
 Since the \fI-m\fP optimization is performed after each single file is
 processed, the locations where an identifier is found may be misrepresented.
+.IP "\fB\-u\fP"
+Monitor and report superfluously included header files.
+This check is performed while processing the files, and the corresponding
+files are reported on the command's standard output.
+Note that this option performs additional processing and will slightly slow down
+the \fICScout\fP processing.
 .IP "\fB\-v\fP"
 Display  the \fICScout\fP version and copyright information and exit.
 .PP
