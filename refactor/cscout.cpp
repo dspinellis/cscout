@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.76 2004/07/25 11:47:35 dds Exp $
+ * $Id: cscout.cpp,v 1.77 2004/07/25 13:35:22 dds Exp $
  */
 
 #include <map>
@@ -876,6 +876,89 @@ iquery_page(FILE *of,  void *p)
 	html_tail(of);
 }
 
+// Function query page
+static void
+funquery_page(FILE *of,  void *p)
+{
+	html_head(of, "funquery", "Function Query");
+	fputs("<FORM ACTION=\"xfunquery.html\" METHOD=\"GET\">\n"
+	"<input type=\"checkbox\" name=\"cfun\" value=\"1\">C function<br>\n"
+	"<input type=\"checkbox\" name=\"macro\" value=\"1\">Function-like macro<br>\n"
+	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable definition<br>\n"
+	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only definition<br>\n"
+	"<input type=\"checkbox\" name=\"pscope\" value=\"1\">Project scope<br>\n"
+	"<input type=\"checkbox\" name=\"fscope\" value=\"1\">File scope<br>\n"
+	"<input type=\"checkbox\" name=\"def\" value=\"1\">Defined<br>\n" , of);
+	fputs(
+	"<input type=\"checkbox\" name=\"xfile\" value=\"1\">Crosses file boundary<br>\n"
+	"<input type=\"checkbox\" name=\"unused\" value=\"1\">Unused<br>\n"
+	"<p>\n"
+	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any marked\n"
+	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
+	"<input type=\"radio\" name=\"match\" value=\"L\">Match all marked\n"
+	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
+	"<input type=\"radio\" name=\"match\" value=\"E\">Exclude marked\n"
+	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
+	"<input type=\"radio\" name=\"match\" value=\"T\" >Exact match\n"
+	"<br><hr>\n"
+	"<table>\n"
+
+	"<tr><td>\n"
+	"Number of callers\n"
+	"<select name=\"callmatch\" value=\"1\">\n",
+	of);
+	fprintf(of,
+		"<option value=\"%d\">ignore"
+		"<option value=\"%d\">=="
+		"<option value=\"%d\">!="
+		"<option value=\"%d\">&lt;"
+		"<option value=\"%d\">&gt;"
+		"</select>",
+		ec_ignore, ec_eq, ec_ne, ec_lt, ec_gt);
+	fputs(
+	"</td><td>\n"
+	"<INPUT TYPE=\"text\" NAME=\"callnum\" SIZE=5 MAXLENGTH=10>\n"
+	"</td><td>\n"
+
+	"<tr><td>\n"
+	"Function names should "
+	"(<input type=\"checkbox\" name=\"xfre\" value=\"1\"> not) \n"
+	" match RE\n"
+	"</td><td>\n"
+	"<INPUT TYPE=\"text\" NAME=\"fire\" SIZE=20 MAXLENGTH=256>\n"
+	"</td></tr>\n"
+
+	"<tr><td>\n"
+	"Names of calling functions should "
+	"(<input type=\"checkbox\" name=\"xfure\" value=\"1\"> not) \n"
+	" match RE\n"
+	"</td><td>\n"
+	"<INPUT TYPE=\"text\" NAME=\"fure\" SIZE=20 MAXLENGTH=256>\n"
+	"</td></tr>\n"
+
+	"<tr><td>\n"
+	"Names of called functions should "
+	"(<input type=\"checkbox\" name=\"xdure\" value=\"1\"> not) \n"
+	" match RE\n"
+	"</td><td>\n"
+	"<INPUT TYPE=\"text\" NAME=\"fdre\" SIZE=20 MAXLENGTH=256>\n"
+	"</td></tr>\n"
+
+	"<tr><td>\n"
+	"Select functions from filenames matching RE\n"
+	"</td><td>\n"
+	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
+	"</td></tr>\n"
+	"</table>\n"
+	"<hr>\n"
+	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show functions\">\n"
+	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
+	"</FORM>\n"
+	, of);
+	html_tail(of);
+}
+
 
 // Construct an object based on URL parameters
 IdQuery::IdQuery(FILE *of, bool e, bool r) :
@@ -1158,6 +1241,64 @@ xiquery_page(FILE *of,  void *p)
 	cout << '\n';
 	if (q_id) {
 		fputs("<h2>Matching Identifiers</h2>\n", of);
+		display_sorted_ids(of, sorted_ids);
+	}
+	if (q_file) {
+		const string query_url(query.url());
+
+		fputs("<h2>Matching Files</h2>\n", of);
+		html_file_begin(of);
+		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !f.get_attribute(current_project))
+				continue;
+			html_file(of, *i);
+			fprintf(of, " - <a href=\"qsrc.html?id=%u&%s\">marked source</a>",
+				f.get_id(),
+				query_url.c_str());
+		}
+		html_file_end(of);
+	}
+	fputs("<p>You can bookmark this page to save the respective query<p>", of);
+	html_tail(of);
+}
+
+// Process a funcion query XXX
+static void
+xfunquery_page(FILE *of,  void *p)
+{
+	// XXX Currently almost a copy paste of the identifier query page
+	Sids sorted_ids;
+	IFSet sorted_files;
+	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
+	bool q_file = !!swill_getvar("qf");	// Show matching files
+	char *qname = swill_getvar("n");
+	IdQuery query(of);
+
+#ifndef COMMERCIAL
+		if (!local_access(of))
+			return;
+#endif
+
+	if (!query.is_valid())
+		return;
+
+	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
+	cout << "Evaluating identifier query\n";
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		progress(i);
+		if (!query.eval(*i))
+			continue;
+		if (q_id)
+			sorted_ids.insert(&*i);
+		if (q_file) {
+			IFSet f = (*i).first->sorted_files();
+			sorted_files.insert(f.begin(), f.end());
+		}
+	}
+	cout << '\n';
+	if (q_id) {
+		fputs("<h2>Matching Functions</h2>\n", of);
 		display_sorted_ids(of, sorted_ids);
 	}
 	if (q_file) {
@@ -1555,6 +1696,7 @@ index_page(FILE *of, void *data)
 		"<h2>Functions</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"cgraph.html\">Call graph</a>\n"
+		"<li> <a href=\"funquery.html\">Specify new function query</a>\n"
 		"</ul>\n"
 		"<h2>Operations</h2>"
 		"<ul>\n"
@@ -2090,6 +2232,10 @@ main(int argc, char *argv[])
 		swill_handle("fquery.html", fquery_page, NULL);
 		swill_handle("xfquery.html", xfquery_page, NULL);
 		swill_handle("qinc.html", query_include_page, NULL);
+
+		// Function query and execution
+		swill_handle("funquery.html", funquery_page, NULL);
+		swill_handle("xfunquery.html", xfunquery_page, NULL);
 
 		swill_handle("id.html", identifier_page, NULL);
 		swill_handle("fun.html", function_page, NULL);

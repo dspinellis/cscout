@@ -1,4 +1,4 @@
-$Id: todo,v 1.52 2004/07/25 12:46:11 dds Exp $
+$Id: todo,v 1.53 2004/07/25 13:35:22 dds Exp $
 
 Maintain file coverage analysis (%) as a metric
 
@@ -47,25 +47,14 @@ Function information
 		Functions that are never called
 		Functions called only once
 		Call graph
+			With function names
+			With function and file names
+			With function and file path names
 		Call graph in GraphViz dot format
 			Without function names
 			With function names
 			With function and file names
 			With function and file path names
-		Function query
-			C function
-			Macro
-			Writable
-			Read-only
-			Project scope
-			File scope
-			Defined
-			Number of callers
-			Name should match RE
-			Name of functions that call it should match RE
-			Name of functions it calls should match RE
-			Select functions from filenames matching RE
-			Query title
 
 Borland configuration file
 Solaris compilation
