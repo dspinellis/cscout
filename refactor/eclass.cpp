@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.16 2002/09/11 11:32:15 dds Exp $
+ * $Id: eclass.cpp,v 1.17 2002/09/13 10:47:55 dds Exp $
  */
 
 #include <iostream>
@@ -14,6 +14,7 @@
 #include <cassert>
 #include <vector>
 #include <algorithm>
+#include <list>
 
 #include "cpp.h"
 #include "debug.h"

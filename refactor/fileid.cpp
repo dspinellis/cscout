@@ -3,13 +3,14 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.16 2002/09/11 11:32:15 dds Exp $
+ * $Id: fileid.cpp,v 1.17 2002/09/13 10:47:55 dds Exp $
  */
 
 #include <map>
 #include <iostream>
 #include <string>
 #include <map>
+#include <list>
 #include <deque>
 #include <set>
 #include <vector>
@@ -31,6 +32,7 @@ int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
 FI_id_to_details Fileid::i2d;	// From id to file details
 Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
+list <string> Fileid::ro_prefix;	// Read-only prefix
 
 // Clear the maps
 void
@@ -126,6 +128,18 @@ get_full_path(const char *name)
 #endif /* unix */
 
 
+// Return true if file fname is read-only
+bool
+Fileid::is_readonly(string fname)
+{
+	for (list <string>::const_iterator i = ro_prefix.begin(); i != ro_prefix.end(); i++)
+		if(fname.compare(0, (*i).length(), (*i)) == 0)
+			return true;
+	if (access(fname.c_str(), W_OK) != 0)
+		return true;
+	return false;
+}
+
 Fileid::Fileid(const string &name)
 {
 	// String identifier
@@ -136,7 +150,7 @@ Fileid::Fileid(const string &name)
 		// New filename; add a new fname/id pair in the map table
 		string fpath(get_full_path(name.c_str()));
 		u2i[sid] = counter;
-		i2d[counter] = Filedetails(fpath, access(name.c_str(), W_OK) != 0);
+		i2d.push_back(Filedetails(fpath, is_readonly(name)));
 		id = counter++;
 	} else
 		// Filename exists; our id is the one from the map
@@ -147,6 +161,7 @@ Fileid::Fileid(const string &name)
 Fileid::Fileid(const string &name, int i)
 {
 	u2i[name] = i;
+	i2d.resize(i + 1);
 	i2d[i] = Filedetails(name, true);
 	id = i;
 	counter = i + 1;
@@ -176,12 +191,9 @@ vector <Fileid>
 Fileid::sorted_files()
 {
 	vector <Fileid> r(i2d.size() - 1);
-	FI_id_to_details::const_iterator i;
-	int j;
 
-	for (i = i2d.begin(), j = 0; i != i2d.end(); i++)
-		if ((*i).first != 0)	// All but the anonymous entry
-			r[j++] = ((*i).second.get_name());
+	for (int i = 0; i < r.size(); i++)
+		r[i] = Fileid(i + 1);
 	sort(r.begin(), r.end(), fname_order());
 	return (r);
 }

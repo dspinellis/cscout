@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.14 2002/09/11 11:32:15 dds Exp $
+ * $Id: fchar.cpp,v 1.15 2002/09/13 10:47:55 dds Exp $
  */
 
 #include <iostream>
@@ -15,6 +15,7 @@
 #include <stack>
 #include <set>
 #include <vector>
+#include <list>
 #include <errno.h>
 
 #include "cpp.h"

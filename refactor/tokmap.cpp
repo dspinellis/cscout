@@ -1,7 +1,14 @@
+/*
+ * Create a token map file
+ *
+ * $Id: tokmap.cpp,v 1.2 2002/09/13 10:47:55 dds Exp $
+ */
+
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
+#include <list>
 
 #include "cpp.h"
 #include "fileid.h"

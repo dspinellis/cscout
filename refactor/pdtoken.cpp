@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.59 2002/09/11 14:36:11 dds Exp $
+ * $Id: pdtoken.cpp,v 1.60 2002/09/13 10:47:55 dds Exp $
  */
 
 #include <iostream>
@@ -639,7 +639,7 @@ Pdtoken::process_pragma()
 	} else if (t.get_val() == "echo") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
-			Error::error(E_ERR, "#pragma process: echo expected");
+			Error::error(E_ERR, "#pragma echo: string expected");
 			eat_to_eol();
 			return;
 		}
@@ -694,9 +694,15 @@ Pdtoken::process_pragma()
 		dirstack.pop();
 	} else if (t.get_val() == "clear_include")
 		Pdtoken::clear_include();
-	else if (t.get_val() == "clear_defines")
-		Pdtoken::macros_clear();
-	else if (t.get_val() == "block_enter")
+	else if (t.get_val() == "ro_prefix") {
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma ro_prefix: string expected");
+			eat_to_eol();
+			return;
+		}
+		Fileid::add_ro_prefix(t.get_val());
+	} else if (t.get_val() == "block_enter")
 		Block::enter();
 	else if (t.get_val() == "block_exit")
 		Block::exit();

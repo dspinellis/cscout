@@ -2,7 +2,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.4 2002/09/05 16:51:23 dds Exp $
+# $Id: cswc.pl,v 1.5 2002/09/13 10:47:55 dds Exp $
 #
 
 # Syntax:
@@ -11,6 +11,8 @@
 #workspace name {
 #	cd "dirname"
 #	define foo bar
+#	ro_prefix "path1"
+#	ro_prefix "path2"
 #	ipath "blah"
 #	ipath "foobar"
 #	readonly "fname"
@@ -50,6 +52,8 @@ while (<>) {
 			beginunit('file', $f);
 			endunit();
 		}
+	} elsif (/^ro_prefix\s+(\".*\")$/) {
+		print "#pragma ro_prefix $1\n";
 	} elsif (/^cd\s+\"(.*)\"$/) {
 		directory($1);
 	} elsif (/^define\s+(.*)$/) {

@@ -9,8 +9,9 @@
  * #include <map>
  * #include <string>
  * #include <vector>
+ * #include <list>
  *
- * $Id: fileid.h,v 1.10 2002/09/07 09:47:15 dds Exp $
+ * $Id: fileid.h,v 1.11 2002/09/13 10:47:55 dds Exp $
  */
 
 #ifndef FILEID_
@@ -33,11 +34,11 @@ public:
 };
 
 typedef map <string, int> FI_uname_to_id;
-typedef map <int, Filedetails> FI_id_to_details;
+typedef vector <Filedetails> FI_id_to_details;
 
 class Fileid {
 private:
-	int id;				// One global unique id per project file
+	int id;				// One global unique id per workspace file
 
 	static int counter;		// To generate ids
 	static FI_uname_to_id u2i;	// From unique name to id
@@ -46,8 +47,14 @@ private:
 	// Construct a new Fileid given a name and id value
 	// Only used internally for creating the anonymous id
 	Fileid(const string& name, int id);
+	// Create it without any checking from an integer
+	Fileid(int i) : id(i) {}
 	// An anonymous id
 	static Fileid anonymous;
+	// The prefix for read-only files
+	static list <string> ro_prefix;
+	// And a function to check fnames against it
+	static bool is_readonly(string fname);
 
 public:
 	// Construct a new Fileid given a filename
@@ -62,6 +69,8 @@ public:
 	int get_id() const {return id; }
 	// Clear the maps
 	static void clear();
+	// Set the prefix for read-only files
+	static void add_ro_prefix(string prefix) { ro_prefix.push_back(prefix); }
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
