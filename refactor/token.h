@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.13 2004/07/23 06:55:38 dds Exp $
+ * $Id: token.h,v 1.14 2004/08/06 05:49:45 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -45,7 +45,10 @@ public:
 
 	Token(int icode) : code(icode) {};
 	Token(int icode, const string& v)
-		: code(icode), val(v) {};
+		: code(icode), val(v)
+	{
+		parts.push_front(Tpart(Tokid(0, 0), v.length()));
+	}
 	Token() {};
 	// Accessor method
 	int get_code() const { return (code); }
