@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.13 2003/08/01 08:41:37 dds Exp $
+ * $Id: type2.h,v 1.14 2003/08/06 17:12:03 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -91,11 +91,16 @@ public:
 		members_by_ordinal.push_back(Id(tok, typ));
 		default_specifier = spec; 
 	}
+	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc) :
+			members_by_name(mbn),
+			members_by_ordinal(mbo),
+			default_specifier(ds),
+			sclass(sc) {}
 	Tsu(const Type &spec) { default_specifier = spec; }
 	Tsu() {}
 	virtual ~Tsu() {}
 	bool is_su() const { return true; }
-	Type clone() const { return Type(new Tsu(*this)); }
+	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class())); }
 	void add_member(const Token &tok, const Type &typ) { 
 		if (DP()) cout << "Adding member " << tok << "\n";
 		tok.set_ec_attribute(is_sumember);
@@ -131,8 +136,9 @@ private:
 	int scope_level;		// Level to lookup for complete definitions
 public:
 	Tincomplete(const Ctoken& tok, int l) : t(tok), scope_level(l) {}
+	Tincomplete(const Ctoken& tok, enum e_storage_class sc, int l) : t(tok), sclass(sc), scope_level(l) {}
 	virtual ~Tincomplete() {}
-	Type clone() const { return Type(new Tincomplete(*this)); }
+	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), scope_level)); }
 	Id const* member(const string& s) const;
 	void print(ostream &o) const;
 	const Ctoken& get_token() const { return t; }

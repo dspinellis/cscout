@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.53 2003/07/31 15:23:30 dds Exp $
+ * $Id: cscout.cpp,v 1.54 2003/08/06 17:12:03 dds Exp $
  */
 
 #include <map>
@@ -1708,6 +1708,9 @@ main(int argc, char *argv[])
 	while (!must_exit)
 		swill_serve();
 
+#ifdef NODE_USE_PROFILE
+	cout << "Type node count = " << Type_node::get_count() << "\n";
+#endif
 	return (0);
 }
 

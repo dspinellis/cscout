@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.30 2003/08/01 08:41:37 dds Exp $
+ * $Id: type.cpp,v 1.31 2003/08/06 17:12:03 dds Exp $
  */
 
 #include <iostream>
@@ -635,3 +635,11 @@ Type_node::merge_with(Type t)
 	cerr << "B: " << t << "\n";
 }
 
+#ifdef NODE_USE_PROFILE
+int Type_node::count;
+
+int Type_node::get_count()
+{
+	return count;
+}
+#endif

@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.25 2003/08/01 08:41:37 dds Exp $
+ * $Id: type.h,v 1.26 2003/08/06 17:12:03 dds Exp $
  */
 
 #ifndef TYPE_
@@ -42,13 +42,27 @@ class Stab;
 class Type_node {
 	friend class Type;
 private:
+#ifdef NODE_USE_PROFILE
+	static int count;
+#endif
 	int use;				// Use count
+	// Do not allow copy and assignment; it has to be performed around Type
+	Type_node(const Type_node &);
+	Type_node& operator=(const Type_node &);
 	// This is also the place to store type qualifiers, because the can be
 	// applied to any type.  Furtunatelly we can afford to ignore them.
 protected:
-	Type_node() : use(1) {}
+	Type_node() : use(1) { 
+#ifdef NODE_USE_PROFILE
+		count++; 
+#endif
+	}
 
-	virtual ~Type_node() {}
+	virtual ~Type_node() { 
+#ifdef NODE_USE_PROFILE
+		count--; 
+#endif
+	}
 	virtual Type subscript() const;		// Arrays and pointers
 	virtual Type deref() const;		// Arrays and pointers
 	virtual Type call() const;		// Function
@@ -82,6 +96,9 @@ public:
 	virtual Type merge(Tbasic *b);
 	virtual Tbasic *tobasic();
 	virtual void print(ostream &o) const = 0;
+#ifdef NODE_USE_PROFILE
+	static int get_count();
+#endif
 };
 
 // Used by types with a storage class: Tbasic and Tsu
