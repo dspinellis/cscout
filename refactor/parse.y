@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.44 2002/09/28 13:19:03 dds Exp $
+ * $Id: parse.y,v 1.45 2002/10/03 12:31:02 dds Exp $
  *
  */
 
@@ -834,9 +834,9 @@ bit_field_size:
         ;
 
 enum_name:
-        ENUM '{' enumerator_list '}'
+        ENUM '{' enumerator_list comma_opt '}'
 		{ $$ = enum_tag(); }
-        | ENUM identifier_or_typedef_name '{' enumerator_list '}'
+        | ENUM identifier_or_typedef_name '{' enumerator_list comma_opt '}'
 		{ tag_define($2.get_token(), $$ = enum_tag()); }
         | ENUM identifier_or_typedef_name
 		{ 
@@ -861,6 +861,12 @@ enumerator_list:
 enumerator_value_opt:
         /* Nothing */
         | '=' constant_expression
+        ;
+
+/* Common extension: enum lists ending with a comma */
+comma_opt:
+        /* Nothing */
+        | ','
         ;
 
 parameter_type_list:
