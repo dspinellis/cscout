@@ -1,15 +1,15 @@
 #include <string>
 using namespace std;
 #include "version.h"
-char Version::revision[] = "$Revision: 1.7 $";
-char Version::date[] = "$Date: 2003/06/16 15:28:29 $";
+char Version::revision[] = "$Revision: 1.8 $";
+char Version::date[] = "$Date: 2003/06/16 19:41:25 $";
 char *Version::ident[] = {
-"$" "Id:" " Makefile 1.35 2003/06/16 15:25:07 dds Exp $",
+"$" "Id:" " Makefile 1.35 2003/06/16 15:25:07 dds Exp dds $",
 "$" "Id:" " attr.cpp 1.11 2003/06/16 06:22:29 dds Exp $",
 "$" "Id:" " attr.h 1.10 2003/05/27 19:57:35 dds Exp $",
 "$" "Id:" " color.cpp 1.9 2002/09/28 13:22:40 dds Exp $",
-"$" "Id:" " cscout.cpp 1.43 2003/06/15 17:02:31 dds Exp $",
-"$" "Id:" " ctoken.cpp 1.19 20033/06/01 09:03:06 dds Exp $",
+"$" "Id:" " cscout.cpp 1.44 2003/06/16 19:40:51 dds Exp $",
+"$" "Id:" " ctoken.cpp 1.19  2003/06/01 09:03:06 dds Exp $",
 "$" "Id:" " ctoken.h 1.4 2001/09/12 07:09:08 dds Exp $",
 "$" "Id:" " debug.cpp 1.2 2001/09/03 08:13:51 dds Exp $",
 "$" "Id:" " debug.h 1.4 2002/12/26 12:46:24 dds Exp $",
