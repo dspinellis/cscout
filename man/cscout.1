@@ -10,13 +10,13 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.4 2003/08/15 16:59:22 dds Exp $
+.\" $Id: cscout.1,v 1.5 2003/08/17 12:47:25 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
 \fBcscout\fP 
-[\fB\-cEuv\fP]
+[\fB\-cEruv\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
 \fIfile\fR
@@ -135,6 +135,8 @@ Member of a struct/union
 Label
 .IP "obj:"
 Ordinary identifier
+(note that enumeration constants and typedefs belong to the ordinary
+identifier namespace)
 .IP "macro:"
 Preprocessor macro
 .IP "umacro:"
@@ -147,6 +149,8 @@ Identifier with file scope
 Identifier with project scope
 .IP "typedef:"
 Typedef
+.IP "enumconst:"
+Enumeration constant
 .RE
 .PP
 The \fI-m\fP flag can provide enormous savings on the memory \fICScout\fP
@@ -159,6 +163,12 @@ can change the attributes of a given identifier shared
 between different files.
 Since the \fI-m\fP optimization is performed after each single file is
 processed, the locations where an identifier is found may be misrepresented.
+.IP "\fB\-r\fP"
+Report on the standard error output warnings about unused and wrongly
+scoped identifiers.
+The error message format is compatible with \fIgcc\fP and can
+therefore be automatically processed by editors that recognize this
+format.
 .IP "\fB\-u\fP"
 Monitor and report superfluously included header files.
 This check is performed while processing the files, and the corresponding
