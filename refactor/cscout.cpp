@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.101 2004/08/02 07:32:17 dds Exp $
+ * $Id: cscout.cpp,v 1.102 2004/08/02 11:42:54 dds Exp $
  */
 
 #include <map>
@@ -1361,7 +1361,7 @@ static void
 save_options_page(FILE *fo, void *p)
 {
 	html_head(fo, "save_options", "Options Save");
-	(void)mkdir(".cscout");
+	(void)mkdir(".cscout", 0777);
 	ofstream out(".cscout/options");
 	if (out.fail()) {
 		perror(".cscout/options");
