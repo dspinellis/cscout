@@ -1,11 +1,10 @@
-$Id: todo,v 1.56 2004/07/30 17:19:03 dds Exp $
+$Id: todo,v 1.57 2004/07/30 17:20:43 dds Exp $
 
 Remember to update SWILL/Source/SWILL/mime.o in the Unix distributions.
 
 Document function functionality (remember, it is more than
 the function section).
-
-Maintain file coverage analysis (%) as a metric
+Document unprocessed region functionality.
 
 Handle conditional compilation!!!!
 	Each conditional compilation statement can be trivially handled
