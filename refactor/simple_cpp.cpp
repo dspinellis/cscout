@@ -4,7 +4,7 @@
  * Simple preprocessor.  
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.2 2001/08/20 21:09:38 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.3 2001/08/24 14:03:51 dds Exp $
  */
 
 #include <iostream>
@@ -15,6 +15,7 @@
 #include <iterator>
 #include <fstream>
 #include <list>
+#include <set>
 #include <cassert>
 
 #include "cpp.h"
