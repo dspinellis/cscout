@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.2 2003/07/02 10:47:15 dds Exp $
+ * $Id: obfuscate.cpp,v 1.3 2003/08/17 12:16:18 dds Exp $
  */
 
 #include <map>
@@ -79,8 +79,7 @@ file_obfuscate(Fileid fid)
 		     ec->get_attribute(is_ordinary) ||
 		     ec->get_attribute(is_suetag) ||
 		     ec->get_attribute(is_sumember) ||
-		     ec->get_attribute(is_label) ||
-		     ec->get_attribute(is_typedef))) {
+		     ec->get_attribute(is_label))) {
 			int len = ec->get_len();
 			for (int j = 1; j < len; j++)
 				(void)in.get();
