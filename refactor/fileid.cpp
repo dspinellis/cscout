@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.32 2004/07/30 17:19:03 dds Exp $
+ * $Id: fileid.cpp,v 1.33 2004/08/10 10:08:15 dds Exp $
  */
 
 #include <fstream>
@@ -150,7 +150,7 @@ Fileid::is_readonly(string fname)
 	if (DP())
 		cout << "Testing: " << fname << "\n";
 	for (list <string>::const_iterator i = ro_prefix.begin(); i != ro_prefix.end(); i++)
-		if(string(fname, 0, (*i).length()).compare((*i)) == 0)
+		if (fname.compare(0, i->length(), *i) == 0)
 			return true;
 	if (access(fname.c_str(), W_OK) != 0)
 		return true;
@@ -169,7 +169,7 @@ Fileid::Fileid(const string &name)
 		// New filename; add a new fname/id pair in the map table
 		string fpath(get_full_path(name.c_str()));
 		u2i[sid] = counter;
-		i2d.push_back(Filedetails(fpath, is_readonly(name)));
+		i2d.push_back(Filedetails(fpath, is_readonly(sid)));
 		id = counter++;
 	} else
 		// Filename exists; our id is the one from the map
