@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.20 2003/06/17 11:07:46 dds Exp $
+ * $Id: stab.cpp,v 1.21 2003/06/23 09:34:15 dds Exp $
  */
 
 #include <map>
@@ -35,7 +35,6 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
-#include "parse_tab.h"
 
 
 int Block::current_block = -1;
