@@ -1,7 +1,7 @@
 #
 # Create a token name map
 #
-# $Id: tokname.pl,v 1.3 2002/09/13 10:47:55 dds Exp $
+# $Id: tokname.pl,v 1.4 2002/09/17 07:55:39 dds Exp $
 #
 
 open(IN, $ARGV[0]) || die;
@@ -24,6 +24,7 @@ print '
 #include <list>
 
 #include "cpp.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "attr.h"
 #include "tokid.h"

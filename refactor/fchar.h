@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.7 2002/09/04 10:50:05 dds Exp $
+ * $Id: fchar.h,v 1.8 2002/09/17 07:55:39 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -78,6 +78,8 @@ public:
 	// Return the current line number
 	static int get_line_num() { return line_number; }
 	static string  get_path() { return fi.get_path(); }
+	// Return the fileid of the file we are processing
+	static Fileid get_fileid() { return fi; }
 };
 
 #endif /* FCHAR_ */

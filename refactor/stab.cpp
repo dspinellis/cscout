@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.14 2002/09/11 12:00:43 dds Exp $
+ * $Id: stab.cpp,v 1.15 2002/09/17 07:55:39 dds Exp $
  */
 
 #include <map>
@@ -20,6 +20,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "attr.h"
 #include "tokid.h"

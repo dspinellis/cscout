@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.41 2002/09/13 14:46:45 dds Exp $
+ * $Id: parse.y,v 1.42 2002/09/17 07:55:39 dds Exp $
  *
  */
 
@@ -38,11 +38,11 @@
 
 #include "cpp.h"
 #include "debug.h"
-#include "fileid.h"
-#include "fileid.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "attr.h"
 #include "tokid.h"
+#include "fchar.h"		// get_fileid()
 #include "eclass.h"
 #include "token.h"
 #include "error.h"
@@ -960,7 +960,12 @@ initializer_list:
 
 
 /*************************** STATEMENTS *******************************/
-statement:
+statement: 
+	any_statement
+		{ Fchar::get_fileid().metrics().add_statement(); }
+	;
+
+any_statement:
         labeled_statement [YYVALID;]
         | compound_statement [YYVALID;]
         | expression_statement [YYVALID;]
@@ -977,7 +982,10 @@ labeled_statement:
         ;
 
 function_brace_begin: '{' 
-		{ Block::param_enter(); }
+		{ 
+			Block::param_enter(); 
+			Fchar::get_fileid().metrics().add_function();
+		}
 	;
 
 brace_begin: '{' 

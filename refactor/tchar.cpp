@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.8 2002/09/11 11:32:15 dds Exp $
+ * $Id: tchar.cpp,v 1.9 2002/09/17 07:55:39 dds Exp $
  */
 
 #include <iostream>
@@ -17,6 +17,7 @@
 #include <stack>
 
 #include "cpp.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "attr.h"
 #include "tokid.h"

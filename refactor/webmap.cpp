@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.15 2002/09/13 15:02:47 dds Exp $
+ * $Id: webmap.cpp,v 1.16 2002/09/17 07:55:39 dds Exp $
  */
 
 #include <map>
@@ -30,6 +30,7 @@
 
 #include "cpp.h"
 #include "ytab.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "attr.h"
 #include "tokid.h"
@@ -120,11 +121,11 @@ static set <Identifier> ids;
 // As a side-effect add identifier into ids
 // Return true if the file contains unused identifiers
 static bool
-file_hypertext(ofstream &of, ofstream &uof, string fname, bool write_uof)
+file_hypertext(ofstream &of, ofstream &uof, Fileid fi, bool write_uof)
 {
 	ifstream in;
-	Fileid fi;
 	bool has_unused = false;
+	const string &fname = fi.get_path();
 
 	if (DP())
 		cout << "Write to " << fname << "\n";
@@ -133,7 +134,6 @@ file_hypertext(ofstream &of, ofstream &uof, string fname, bool write_uof)
 		perror(fname.c_str());
 		exit(1);
 	}
-	fi = Fileid(fname);
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
@@ -155,6 +155,7 @@ file_hypertext(ofstream &of, ofstream &uof, string fname, bool write_uof)
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
 			Identifier i(ec, s);
+			fi.metrics().process_id(s);
 			ids.insert(i);
 			html_id(of, i);
 			if (ec->get_size() == 1) {
@@ -164,10 +165,13 @@ file_hypertext(ofstream &of, ofstream &uof, string fname, bool write_uof)
 			}
 		} else {
 			of << html((char)val);
+			fi.metrics().process_char((char)val);
 			if (write_uof)
 				uof << html((char)val);
 		}
 	}
+	if (DP())
+		cout << "nchar = " << fi.metrics().get_nchar() << '\n';
 	in.close();
 	return has_unused;
 }
@@ -187,7 +191,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.15 2002/09/13 15:02:47 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.16 2002/09/17 07:55:39 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -294,24 +298,49 @@ main(int argc, char *argv[])
 	html_tail(fo);
 
 	// Details for each file 
-	// As a side effect populite the EC identifier member
-	for (vector <Fileid>::const_iterator i = files.begin(); i != files.end(); i++) {
+	// As a side effect populate the EC identifier member
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		ostringstream fname;
 		const string &pathname = (*i).get_path();
 		fname << (*i).get_id();
 		html_head(fo, (string("f") + fname.str()).c_str(), string("File: ") + html(pathname));
-		fo << "<ul>\n";
-		fo << "<li> Read-only: " << ((*i).get_readonly() ? "Yes" : "No") << "\n";
 		// File source listing
 		html_head(sfo, (string("s") + fname.str()).c_str(), string("Source: ") + html(pathname));
 		if ((*i).get_readonly() == false)
 			html_head(usfo, (string("u") + fname.str()).c_str(), string("Source (with unused identifiers marked): ") + html(pathname));
-		bool has_unused = file_hypertext(sfo, usfo, pathname, !(*i).get_readonly());
+		bool has_unused = file_hypertext(sfo, usfo, *i, !(*i).get_readonly());
 		html_tail(sfo);
 		if ((*i).get_readonly() == false)
 			html_tail(usfo);
-		fo << "<li> Contains unused identifiers: " << (has_unused ? "Yes" : "No") << "\n";
-		fo << "<li> <a href=\"s" << fname.str() << ".html\">Source code</a>\n";
+		fo << "<ul>\n" <<
+		"<li> Read-only: " << 
+		((*i).get_readonly() ? "Yes" : "No") <<
+		"\n<li> Number of characters: " << 
+		(*i).metrics().get_nchar() <<
+		"\n<li> Comment characters: " << 
+		(*i).metrics().get_nccomment() <<
+		"\n<li> Space characters: " << 
+		(*i).metrics().get_nspace() <<
+		"\n<li> Number of line comments: " << 
+		(*i).metrics().get_nlcomment() <<
+		"\n<li> Number of block comments: " << 
+		(*i).metrics().get_nbcomment() <<
+		"\n<li> Number of lines: " << 
+		(*i).metrics().get_nline() <<
+		"\n<li> Length of longest line: " << 
+		(*i).metrics().get_maxlinelen() <<
+		"\n<li> Number of preprocessor directives: " << 
+		(*i).metrics().get_nppdirective() <<
+		"\n<li> Number of directly included files: " << 
+		(*i).metrics().get_nincfile() <<
+		"\n<li> Number of defined functions: " << 
+		(*i).metrics().get_nfunction() <<
+		"\n<li> Number of C statements: " << 
+		(*i).metrics().get_nstatement() <<
+		"\n<li> Contains unused identifiers: " << 
+		(has_unused ? "Yes" : "No") <<
+		"\n<li> <a href=\"s" 
+		<< fname.str() << ".html\">Source code</a>\n";
 		if (has_unused)
 			fo << "<li> <a href=\"u" << fname.str() << ".html\">Source code (with unused identifiers marked)</a>\n";
 		fo << "</ul>\n";

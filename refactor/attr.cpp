@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.2 2002/09/15 16:46:15 dds Exp $
+ * $Id: attr.cpp,v 1.3 2002/09/17 07:55:39 dds Exp $
  */
 
 #include <map>
@@ -20,6 +20,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "attr.h"
 

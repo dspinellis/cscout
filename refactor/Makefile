@@ -1,13 +1,13 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.21 2002/09/15 15:45:29 dds Exp $
+# $Id: Makefile,v 1.22 2002/09/17 07:55:39 dds Exp $
 #
 
 # Common object files
 OBJ=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
-parse.o type.o stab.o attr.o
+parse.o type.o stab.o attr.o metrics.o
 
 # Stand-alone object files
 STANDOBJ=error.o
@@ -29,8 +29,8 @@ test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
 test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
 test/empty.c test/def.c test/conddef.c test/concat-empty.c
 
-all: workdb
-#all: webmap
+#all: workdb
+all: webmap
 #all: color
 #all: engine
 #all: simple_cpp
@@ -64,7 +64,7 @@ parse.cpp: parse.y
 	$(YACC) -b parse -p parse_ parse.y
 	mv -f parse_tab.c parse.cpp
 
-tokname.cpp: ytoken.h
+tokname.cpp: ytoken.h tokname.pl
 	$(YACC) -d -b parse -p parse_ parse.y
 	grep 'define ' parse_tab.h >ytab.h
 	perl tokname.pl ytab.h tokname.cpp

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.15 2002/09/13 10:47:55 dds Exp $
+ * $Id: fchar.cpp,v 1.16 2002/09/17 07:55:39 dds Exp $
  */
 
 #include <iostream>
@@ -20,6 +20,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "attr.h"
 #include "tokid.h"
@@ -126,6 +127,8 @@ Fchar::getnext()
 		if (val != EOF || cs.empty() || cs.size() == stack_lock_size) {
 			if (DP())
 				cout << "getnext returns " << this->get_char() << "\n";
+			if (val == EOF)
+				fi.metrics().done_processing();
 			return;
 		}
 		fchar_context fc = cs.top();

@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.3 2002/09/15 16:46:15 dds Exp $
+ * $Id: workdb.cpp,v 1.4 2002/09/17 07:55:39 dds Exp $
  */
 
 #include <map>
@@ -22,6 +22,7 @@
 
 #include "cpp.h"
 #include "ytab.h"
+#include "metrics.h"
 #include "fileid.h"
 #include "attr.h"
 #include "tokid.h"
@@ -129,6 +130,7 @@ file_dump(ofstream &of, Fileid fid)
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
 			Identifier i(ec, s);
+			fid.metrics().process_id(s);
 			of << "INSERT INTO TOKENS VALUES(" << fid.get_id() <<
 			"," << (unsigned)ti.get_streampos() << "," << 
 			(unsigned)ec << ")\n";
@@ -142,6 +144,7 @@ file_dump(ofstream &of, Fileid fid)
 			}
 			plainstart = Tokid(fid, in.tellg());
 		} else {
+			fid.metrics().process_char((char)val);
 			plain += sql((char)val);
 		}
 	}
@@ -186,16 +189,43 @@ main(int argc, char *argv[])
 		"CREATE TABLE STRINGS(FID INTEGER,OFFSET INTEGER,TEXT VARCHAR)\n"
 		"CREATE TABLE IDPROJ(EID INTEGER ,PID INTEGER)\n"
 		"CREATE TABLE PROJECTS(PID INTEGER,NAME VARCHAR)\n"
-		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,NAME VARCHAR,RO BIT)\n";
+		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,"
+		"NAME VARCHAR,"
+		"RO BIT,"
+		"NCHAR INTEGER,"
+		"NLCOMMENT INTEGER,"
+		"NBCOMMENT INTEGER,"
+		"NLINE INTEGER,"
+		"MAXLINELEN INTEGER,"
+		"NCCOMMENT INTEGER,"
+		"NSPACE INTEGER,"
+
+		"NFUNCTION INTEGER,"
+		"NPPDIRECTIVE INTEGER,"
+		"NINCFILE INTEGER,"
+		"NSTATEMENT INTEGER"
+		")\n";
 
 	// Details for each file 
 	// As a side effect populate the EC identifier member
-	for (vector <Fileid>::const_iterator i = files.begin(); i != files.end(); i++) {
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+		file_dump(fo, (*i));
 		fo << "INSERT INTO FILES VALUES(" << 
 		(*i).get_id() << ",'" <<
 		(*i).get_path() << "'," <<
-		sql_bool((*i).get_readonly()) << ")\n";
-		file_dump(fo, (*i));
+		sql_bool((*i).get_readonly()) << ',' <<
+		(*i).metrics().get_nchar() << ',' <<
+		(*i).metrics().get_nlcomment() << ',' <<
+		(*i).metrics().get_nbcomment() << ',' <<
+		(*i).metrics().get_nline() << ',' <<
+		(*i).metrics().get_maxlinelen() << ',' <<
+		(*i).metrics().get_nccomment() << ',' <<
+		(*i).metrics().get_nspace() << ',' <<
+		(*i).metrics().get_nfunction() << ',' <<
+		(*i).metrics().get_nppdirective() << ',' <<
+		(*i).metrics().get_nincfile() << ',' <<
+		(*i).metrics().get_nstatement() <<
+		")\n";
 	}
 
 	// Project names

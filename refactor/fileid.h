@@ -11,7 +11,9 @@
  * #include <vector>
  * #include <list>
  *
- * $Id: fileid.h,v 1.11 2002/09/13 10:47:55 dds Exp $
+ * #include "metrics.h"
+ *
+ * $Id: fileid.h,v 1.12 2002/09/17 07:55:39 dds Exp $
  */
 
 #ifndef FILEID_
@@ -26,6 +28,7 @@ private:
 	string name;		// File name (complete path)
 	bool ro;		// Read-only
 public:
+	class Metrics m;
 	Filedetails(string n, bool r) : name(n), ro(r) {}
 	Filedetails() {}
 	const string& get_name() const { return name; }
@@ -71,11 +74,14 @@ public:
 	static void clear();
 	// Set the prefix for read-only files
 	static void add_ro_prefix(string prefix) { ro_prefix.push_back(prefix); }
+	// Return a reference to the Metrics class
+	Metrics &metrics() { return i2d[id].m; }
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
 	// Return a sorted list of all filenames used
 	static vector <Fileid> sorted_files();
+	// Return a reference to the underlying file's metrics
 };
 
 inline bool
