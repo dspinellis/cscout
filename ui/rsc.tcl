@@ -3,7 +3,7 @@
 #
 # (C) Copyright 2001, Diomidis Spinellis
 #
-# $Id: rsc.tcl,v 1.24 2001/10/26 08:58:53 dds Exp $
+# $Id: rsc.tcl,v 1.25 2001/10/27 15:42:06 dds Exp $
 #
 
 #tk_messageBox -icon info -message "Debug" -type ok
@@ -734,13 +734,12 @@ proc isabs {path} {
 }
 
 
-# Return the current entry's directory
-proc wp_getdir {} {
+# Return an entry's directory
+proc getdir {entry} {
 	global dir
 	global name
 
 	set tail {}
-	set entry [wp_getentry]
 	while {![info exists dir($entry)]} {
 		if {[isdir $entry]} {
 			if {[isabs $name($entry)]} {
@@ -761,6 +760,12 @@ proc wp_getdir {} {
 	} else {
 		return $dir($entry)/$tail
 	}
+}
+
+# Return the current entry's directory
+proc wp_getdir {} {
+	set entry [wp_getentry]
+	return [getdir $entry]
 }
 
 # Return an entry for changing settings 
@@ -881,7 +886,7 @@ proc save_workspace_to {filename} {
 	
 	set f [open $filename w]
 	puts $f "#RSC 1.1 Workspace"
-	puts $f {#$Id: rsc.tcl,v 1.24 2001/10/26 08:58:53 dds Exp $}
+	puts $f {#$Id: rsc.tcl,v 1.25 2001/10/27 15:42:06 dds Exp $}
 	puts $f [list array set name [array get name]]
 	puts $f [list array set readonly [array get readonly]]
 	puts $f [list array set dir [array get dir]]
@@ -1051,48 +1056,61 @@ proc insert_hierarchy {} {
 	# else cancelled
 }
 
+# Add a line in the output window
+proc output {line} {
+	global taboutput
+
+	$taboutput.text insert end "$line\n"
+	$taboutput.text see end
+	update idletasks
+}
+
 # Parse all Workproject files
 proc analyze {} {
 	global name
 	global fileholder
-	global taboutput
 	global out
+	global taboutput
 
 	$taboutput.text clear
 	$out.l select Output
-	$taboutput.text insert end "Analyzing ...\n"
+	output "Analyzing ..."
 	tcl_init
+	workspace_clear
 	block_enter
 	foreach i [lsort [array names name]] {
-		set name name($i)
+		set myname $name($i)
 		# Project
 		if {[isproject $i]} {
-			$taboutput.text insert end "Project $i\n"
+			output "Project $myname"
 			block_exit
 			block_enter
 		}
 		# Directory
 		if {[isdir $i]} {
-			$taboutput.text insert end "Entering directory $i\n"
+			output "Entering directory $myname"
 		}
 		# File
 		if {[isfile $i]} {
-			$taboutput.text insert end "File $i\n"
+			output "File $myname"
+			cd [getdir $i]
 			block_enter
-			set_input $name($i)
+			set_input $myname
 			push_input "/home/dds/src/refactor/defs.h"
 			macros_clear
+			include_clear
 			parse
 			block_exit
 		}
 	}
 	block_exit
-	$taboutput.text insert end "Done\n"
+	output "[num_errors] error(s)"
+	output "[num_warnings] warning(s)"
+	output "Done"
 }
 
 proc showerror {msg} {
-	global taboutput
-	$taboutput.text insert end "$msg\n"
+	output "$msg"
 }
 
 # Provide a dummy version of C++ commands when these are not linked-in
@@ -1105,7 +1123,8 @@ proc dummy_commands {} {
 		proc set_input {fname} {}
 		proc push_input {fname} {}
 		proc macros_clear {} {}
-		proc eclass_clear {} {}
+		proc workspace_clear {} {}
+		proc include_clear {} {}
 		proc num_errors {} {}
 		proc num_warnings {} {}
 	}
