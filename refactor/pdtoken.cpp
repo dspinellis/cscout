@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.71 2003/06/01 09:03:06 dds Exp $
+ * $Id: pdtoken.cpp,v 1.72 2003/06/01 11:36:53 dds2 Exp $
  */
 
 #include <iostream>
@@ -857,7 +857,7 @@ Pdtoken::process_pragma()
 		if (getcwd(buff, sizeof(buff)) == NULL)
 			/*
 			 * @error
-			 * The call to <code>getcwd</call> failed while
+			 * The call to <code>getcwd</code> failed while
 			 * processing the 
 			 * <code>#pragma pushd</code>
 			 * CScout-specific directive

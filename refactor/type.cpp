@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.24 2003/06/01 09:03:06 dds Exp $
+ * $Id: type.cpp,v 1.25 2003/06/01 11:36:53 dds2 Exp $
  */
 
 #include <iostream>
@@ -69,12 +69,6 @@ Type_node::get_members() const
 {
 	static Stab dummy;
 
-	/*
-	 * @error
-	 * The target of a member access using a 
-	 * <code>.</code> or <code>-></code>
-	 * operator is not a structure or a union
-	 */
 	Error::error(E_INTERNAL, "get_members: not structure or union");
 	this->print(cout);
 	return dummy;
