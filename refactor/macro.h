@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.10 2004/07/24 06:54:37 dds Exp $
+ * $Id: macro.h,v 1.11 2004/07/24 10:44:49 dds Exp $
  */
 
 #ifndef MACRO_
@@ -11,15 +11,19 @@
 
 class Pdtoken;
 class Macro;
+class MCall;
 
 typedef deque<Ptoken> dequePtoken;
 typedef list<Ptoken> listPtoken;
 typedef set<string> setstring;
 typedef map<string, listPtoken> mapArgval;
 typedef stack<bool> stackbool;
-typedef map<Tokid, const Macro *> mapMacroBody;
+/*
+ * We map to MCall * instead of Macro *, because Macro are stored
+ * in a container and tend to move around.
+ */
+typedef map<Tokid, MCall *> mapMacroBody;
 
-class MCall;
 
 // A macro definition
 class Macro {
@@ -33,7 +37,6 @@ private:
 	dequePtoken value;		// Macro value
 	MCall *mcall;			// Function call info
 public:
-	Macro() {}
 	Macro( const Ptoken& name, bool id);
 	// Accessor functions
 	const Ptoken& get_name_token() const {return name_token; };
