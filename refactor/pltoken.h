@@ -21,7 +21,7 @@
  * #include "fchar.h"
  * #include "ytab.h"
  *
- * $Id: pltoken.h,v 1.3 2001/08/18 22:02:57 dds Exp $
+ * $Id: pltoken.h,v 1.4 2001/08/20 08:02:34 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -49,10 +49,10 @@ void
 Pltoken::getnext()
 {
 	int n;
-	C cn1 = C::empty;
+	C c0;
 
 again:
-	C c0;
+	c0.getnext();
 	switch (c0.get_char()) {
 	/* 
 	 * Single character C operators and punctuators 
@@ -72,11 +72,11 @@ again:
 	 * (e.g. +, +=, ++)
 	 */
 	case '+':
-		cn1 = C();
-		switch (cn1.get_char()) {
+		c0.getnext();
+		switch (c0.get_char()) {
 		case '+': val = "++"; code = INC_OP; break;
 		case '=': val = "+="; code = ADD_ASSIGN; break;
-		default:  C::putback(cn1); val = (char)(code = '+'); break;
+		default:  C::putback(c0); val = (char)(code = '+'); break;
 		}
 		break;
 #ifdef ndef
@@ -328,7 +328,7 @@ again:
 	 */
 	case ' ': case '\t': case '\v': case '\f': case '\r':
 		do {
-			c0 = C();
+			c0.getnext();
 		} while (c0.get_char() != EOF && isspace(c0.get_char()));
 		C::putback(c0);
 		val = " ";
@@ -363,21 +363,21 @@ again:
 		Tokid base = c0.get_tokid();
 		Tokid follow = base;
 		for (;;) {
-			cn1 = C();
+			c0.getnext();
 			follow++;
-			if (cn1.get_char() == EOF ||
-		            (!isalnum(cn1.get_char()) && cn1.get_char() != '_'))
+			if (c0.get_char() == EOF ||
+		            (!isalnum(c0.get_char()) && c0.get_char() != '_'))
 		         	break;
-			if (cn1.get_tokid() != follow) {
+			if (c0.get_tokid() != follow) {
 				// Discontinuity; save the Tokids we have
 				dequeTokid new_tokids = base.constituents(follow - base);
 				copy(new_tokids.begin(), new_tokids.end(),
 				     back_inserter(parts));
-				follow = base = cn1.get_tokid();
+				follow = base = c0.get_tokid();
 			}
-			val += cn1.get_char();
+			val += c0.get_char();
 		}
-		C::putback(cn1);
+		C::putback(c0);
 		dequeTokid new_tokids = base.constituents(follow - base);
 		copy(new_tokids.begin(), new_tokids.end(), back_inserter(parts));
 		// Later it will become TYPE_NAME, IDENTIFIER, or reserved word

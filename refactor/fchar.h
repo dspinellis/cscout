@@ -15,7 +15,7 @@
  * #include "tokid.h"
  * #include "fchar.h"
  *
- * $Id: fchar.h,v 1.2 2001/08/18 16:46:21 dds Exp $
+ * $Id: fchar.h,v 1.3 2001/08/20 08:02:34 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -27,7 +27,7 @@ typedef stack <Tokid> stackTokid;
 
 class Fchar {
 private:
-	void Fchar::simple_ctor();	// Trigraphs and slicing
+	void Fchar::simple_getnext();	// Trigraphs and slicing
 	static ifstream in;		// Stream we are reading from
 	static Fileid fi;		// and its Fileid
 	static Fchar putback_fchar;	// Character that was put back
@@ -39,8 +39,6 @@ private:
 	Tokid ti;			// (pos_type from tellg(), fi)
 
 public:
-	static Fchar empty;		// To avoid the default constructor
-
 	// Will read characters from file named s
 	static void set_input(const string& s);
 	// From now on will read from s; on EOF resume with previous file
@@ -48,11 +46,13 @@ public:
 	// Next constructor will return c
 	static void putback(Fchar c);
 
-	// Construct a new one (reading from in)
-	Fchar();
+	// Construct an unititialized one
+	Fchar() {};
 	// Construct it with a given value and tokid
 	Fchar(int v, Tokid t) : val(v), ti(t) {};
 	Fchar(int v) : val(v) {};
+	// Read next from stream
+	void getnext();
 	// Return the character value (or EOF)
 	inline int get_char() const { return (val); };
 	// Return the character's Tokid

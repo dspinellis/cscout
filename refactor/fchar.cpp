@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.4 2001/08/20 07:37:00 dds Exp $
+ * $Id: fchar.cpp,v 1.5 2001/08/20 08:02:34 dds Exp $
  */
 
 #include <iostream>
@@ -27,7 +27,6 @@
 ifstream Fchar::in;
 Fileid Fchar::fi;
 Fchar Fchar::putback_fchar;
-Fchar Fchar::empty = Fchar(0);
 bool Fchar::have_putback = false;	// True when a put back char is waiting
 stackTokid Fchar::st;			// Pushed contexts (from push_input())
 
@@ -63,7 +62,7 @@ Fchar::putback(Fchar c)
 
 // Handle trigraphs and line splicing
 inline void
-Fchar::simple_ctor()
+Fchar::simple_getnext()
 {
 	int c2, c3;
 again:
@@ -102,7 +101,8 @@ again:
 }
 
 
-Fchar::Fchar()
+void
+Fchar::getnext()
 {
 	if (have_putback) {
 		have_putback = false;
@@ -110,7 +110,7 @@ Fchar::Fchar()
 		return;
 	}
 	for (;;) {
-		simple_ctor();
+		simple_getnext();
 		if (val != EOF || st.empty())
 			return;
 		Tokid t = st.top();
@@ -128,12 +128,13 @@ main()
 {
 	int i;
 	Fchar::set_input("test/trigtest.c");
+	Fchar c;
 
 	cout << "Characters and tokids:\n";
 	for (i = 0;;i++) {
 		if (i == 25)
 			break;
-		Fchar c;
+		c.getnext();
 		if (i % 5 == 0) {
 			Fchar::putback(c);
 			continue;
@@ -147,7 +148,7 @@ main()
 	cout << "Normal processing:\n";
 	Fchar::set_input("test/trigtest.c");
 	for (i = 0;;i++) {
-		Fchar c;
+		c.getnext();
 		if (i % 5 == 0) {
 			Fchar::putback(c);
 			continue;
