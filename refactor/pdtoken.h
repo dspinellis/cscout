@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.9 2001/08/25 07:04:12 dds Exp $
+ * $Id: pdtoken.h,v 1.10 2001/08/31 16:14:32 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -63,7 +63,7 @@ public:
 	void getnext();
 	// Clear the defined macro table (when changing compilation unit)
 	static void clear_macros() { macros.clear(); }
-	friend bool macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more);
+	friend bool macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, bool get_more);
 };
 
 // True if two macro definitions are the same

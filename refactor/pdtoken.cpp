@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.19 2001/08/31 12:53:05 dds Exp $
+ * $Id: pdtoken.cpp,v 1.20 2001/08/31 16:14:32 dds Exp $
  */
 
 #include <iostream>
@@ -15,6 +15,7 @@
 #include <fstream>
 #include <list>
 #include <set>
+#include <algorithm>
 #include <cassert>
 
 #include "cpp.h"
@@ -484,7 +485,7 @@ macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
 
 // Macro replace all tokens in the sequence
 static void
-macro_replace_all(listPtoken& tokens, setstring tabu, bool get_more)
+macro_replace_all(listPtoken& tokens, setstring& tabu, bool get_more)
 {
 	for (;;) {
 		bool replaced = false;
@@ -514,10 +515,10 @@ macro_replace_all(listPtoken& tokens, setstring tabu, bool get_more)
  * Return true if a  replacemement was made
  */
 bool
-macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more)
+macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring& tabu, bool get_more)
 {
 	mapMacro::const_iterator mi;
-	const string& name = (*pos).get_val();
+	const string name = (*pos).get_val();
 	//cout << "macro_replace " << name << "\n";
 	if ((mi = Pdtoken::macros.find(name)) == Pdtoken::macros.end() || tabu.find(name) != tabu.end())
 		return (false);
@@ -527,11 +528,11 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 	expand_start++;
 	tokens.erase(pos);
 	pos = expand_start;
-	tabu.insert(name);
 	const Macro& m = (*mi).second;
 	if (m.is_function) {
 		mapArgval args;			// Map from formal name to value
 		bool do_stringize;
+		setstring argtabu(tabu);
 
 		expand_start = pos;
 		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more))
@@ -561,9 +562,13 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					// in temporary var arg, and
 					// copy that back to the main
 					listPtoken arg((*ai).second.begin(), (*ai).second.end());
-					// cout << "Arg macro " << arg << "---\n";
-					macro_replace_all(arg, tabu, false);
-					// cout << "Arg macro result" << arg << "---\n";
+					// cout << "Arg macro:" << arg << "---\n";
+					setstring tmptabu(argtabu);
+					macro_replace_all(arg, tmptabu, false);
+					setstring oldtabu(tabu);
+					tabu.clear();
+					set_union(oldtabu.begin(), oldtabu.end(), tmptabu.begin(), tmptabu.end(), inserter(tabu, tabu.begin()));
+					// cout << "Arg macro result:" << arg << "---\n";
 					copy(arg.begin(), arg.end(), inserter(tokens, pos));
 				} else if (do_stringize)
 					tokens.insert(pos, stringize((*ai).second));
@@ -630,7 +635,10 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			next++;
 		}
 	}
+	tabu.insert(name);
+	// cout << "Rescan-" << name << "\n";
 	macro_replace_all(tokens, tabu, get_more);
+	// cout << "Rescan ends\n";
 	return true;
 }
 
