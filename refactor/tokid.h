@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.13 2002/09/11 11:32:15 dds Exp $
+ * $Id: tokid.h,v 1.14 2003/05/28 12:13:46 dds Exp $
  */
 
 #ifndef TOKID_
@@ -29,6 +29,9 @@ class Tokid;
 class Tpart;
 typedef deque <Tokid> dequeTokid;
 typedef deque <Tpart> dequeTpart;
+
+class Tokid;
+typedef map <Tokid, Eclass *> mapTokidEclass;
 
 class Tokid {
 private:
@@ -62,6 +65,12 @@ public:
 	// Set its equivalence class to ec (done when adding it to an Eclass)
 	// use Eclass:add_tokid, not this method in all other contexts
 	inline void set_ec(Eclass *ec);
+	// Return an iterator for accessing the map or the end_ec() value
+	inline mapTokidEclass::iterator find_ec();
+	// The not-found value
+	inline mapTokidEclass::iterator end_ec();
+	// Erase the tokid's EC from the map
+	inline void erase_ec(mapTokidEclass::iterator i);
 	// Returns the Tokids participating in all ECs for a token of length l
 	dequeTpart Tokid::constituents(int l);
 	// Set the Tokid's equivalence class attribute
@@ -81,8 +90,6 @@ public:
 
 // Print dequeTokid sequences
 ostream& operator<<(ostream& o,const dequeTokid& dt);
-
-typedef map <Tokid, Eclass *> mapTokidEclass;
 
 class TE_map {
 public:
@@ -163,4 +170,21 @@ Tokid::set_ec(Eclass *ec)
 	tm.tm[*this] = ec;
 }
 
+inline void
+Tokid::erase_ec(mapTokidEclass::iterator i)
+{
+	tm.tm.erase(i);
+}
+
+inline mapTokidEclass::iterator
+Tokid::find_ec()
+{
+	return tm.tm.find(*this);
+}
+
+inline mapTokidEclass::iterator
+Tokid::end_ec()
+{
+	return tm.tm.end();
+}
 #endif /* TOKID_ */

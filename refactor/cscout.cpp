@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.28 2003/05/27 19:57:35 dds Exp $
+ * $Id: cscout.cpp,v 1.29 2003/05/28 12:13:46 dds Exp $
  */
 
 #include <map>
@@ -240,8 +240,7 @@ file_analyze(Fileid fi)
 	bool has_unused = false;
 	const string &fname = fi.get_path();
 
-	if (DP())
-		cout << "Analyze to " << fname << "\n";
+	cout << "Post-processing " << fname << "\n";
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
 		perror(fname.c_str());
@@ -255,22 +254,34 @@ file_analyze(Fileid fi)
 		ti = Tokid(fi, in.tellg());
 		if ((val = in.get()) == EOF)
 			break;
-		Eclass *ec;
-		// Identifiers we can mark
-		if ((ec = ti.check_ec()) && ec->is_identifier()) {
-			// Update metrics
-			msum.add_id(ec);
-			// Add to the map
-			string s;
-			s = (char)val;
-			int len = ec->get_len();
-			for (int j = 1; j < len; j++)
-				s += (char)in.get();
-			fi.metrics().process_id(s);
-			ids[ec] = Identifier(ec, s);
-			if (ec->get_size() == 1)
-				has_unused = true;
-			continue;
+		mapTokidEclass::iterator ei = ti.find_ec();
+		if (ei != ti.end_ec()) {
+			Eclass *ec = (*ei).second;
+			// Identifiers we can mark
+			if (ec->is_identifier()) {
+				// Update metrics
+				msum.add_id(ec);
+				// Add to the map
+				string s;
+				s = (char)val;
+				int len = ec->get_len();
+				for (int j = 1; j < len; j++)
+					s += (char)in.get();
+				fi.metrics().process_id(s);
+				ids[ec] = Identifier(ec, s);
+				if (ec->get_size() == 1)
+					has_unused = true;
+				continue;
+			} else {
+				/*
+				 * This equivalence class is not needed.
+				 * (All potential identifier tokens,
+				 * even reserved words get an EC. These are
+				 * cleared here.)
+				 */
+				ti.erase_ec(ei);
+				delete ec;
+			}
 		}
 		fi.metrics().process_char((char)val);
 	}
@@ -397,7 +408,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.28 2003/05/27 19:57:35 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.29 2003/05/28 12:13:46 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -413,7 +424,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.28 2003/05/27 19:57:35 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.29 2003/05/28 12:13:46 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
