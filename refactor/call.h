@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.7 2004/07/25 12:46:11 dds Exp $
+ * $Id: call.h,v 1.8 2004/07/27 11:14:28 dds Exp $
  */
 
 #ifndef CALL_
@@ -79,6 +79,7 @@ public:
 	typedef fun_map::const_iterator const_fmap_iterator_type;
 	static const_fmap_iterator_type fbegin() { return all.begin(); }
 	static const_fmap_iterator_type fend() { return all.end(); }
+	static int fsize() { return all.size(); }
 
 	// Get a call site for a given Tokid
 	static Call *get_call(Tokid t);
@@ -101,6 +102,8 @@ public:
 
 	// Return a tokid for the given object
 	Tokid get_tokid() const {return tokid; }
+	// Return the function's file-id
+	Fileid get_fileid() const {return tokid.get_fileid(); }
 
 	// Return true if the function is defined
 	virtual bool is_defined() const = 0;
@@ -110,6 +113,8 @@ public:
 	virtual const string & entity_type_name() const = 0;
 	// Return true if the function is static (e.g. a macro or a static C function)
 	virtual bool is_file_scoped() const = 0;
+	virtual bool is_cfun() const = 0;
+	virtual bool is_macro() const = 0;
 
 	virtual Tokid get_definition() const = 0;
 	// Return an entry's identifying site

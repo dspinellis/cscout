@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.11 2004/07/25 12:46:11 dds Exp $
+ * $Id: fcall.h,v 1.12 2004/07/27 11:14:28 dds Exp $
  */
 
 #ifndef FCALL_
@@ -31,6 +31,8 @@ public:
 	virtual bool is_defined() const { return defined; }
 	virtual bool is_declared() const { return true; }
 	virtual bool is_file_scoped() const { return type.is_static(); }
+	virtual bool is_cfun() const { return true; }
+	virtual bool is_macro() const { return false; }
 	virtual const string & entity_type_name() const {
 		static string s("C function");
 		return (s);

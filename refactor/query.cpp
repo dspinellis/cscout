@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.1 2004/07/25 14:46:35 dds Exp $
+ * $Id: query.cpp,v 1.2 2004/07/27 11:14:28 dds Exp $
  */
 
 #include <map>
@@ -23,6 +23,9 @@
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
 #include <cstdlib>		// atoi
+
+#include "regex.h"
+#include "swill.h"
 
 #include "cpp.h"
 #include "ytab.h"
@@ -50,6 +53,8 @@
 #include "mcall.h"
 #include "query.h"
 
+bool Query::sort_rev;			// Reverse sort of identifier names
+
 // URL-encode the given string
 string
 Query::url(const string &s)
@@ -68,4 +73,26 @@ Query::url(const string &s)
 			r += buff;
 		}
 	return r;
+}
+
+// Compile regular expression specs
+bool
+Query::compile_re(FILE *of, const char *name, const char *varname, regex_t &re, bool &match,  string &str, int compflags)
+{
+	char *s;
+	int ret;
+	match = false;
+	if ((s = swill_getvar(varname)) && *s) {
+		match = true;
+		str = s;
+		if ((ret = regcomp(&re, s, REG_EXTENDED | REG_NOSUB | compflags))) {
+			char buff[1024];
+			regerror(ret, &re, buff, sizeof(buff));
+			fprintf(of, "<h2>%s regular expression error</h2>%s", name, buff);
+			valid = return_val = false;
+			lazy = true;
+			return false;
+		}
+	}
+	return true;
 }

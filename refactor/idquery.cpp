@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.2 2004/07/25 14:47:53 dds Exp $
+ * $Id: idquery.cpp,v 1.3 2004/07/27 11:14:28 dds Exp $
  */
 
 #include <map>
@@ -90,33 +90,10 @@ IdQuery::IdQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r)
 	exclude_ire = !!swill_getvar("xire");
 
 	// Compile regular expression specs
-	char *s;
-	int ret;
-	match_fre = match_ire = false;
-	if ((s = swill_getvar("ire")) && *s) {
-		match_ire = true;
-		str_ire = s;
-		if ((ret = regcomp(&ire, s, REG_EXTENDED | REG_NOSUB))) {
-			char buff[1024];
-			regerror(ret, &ire, buff, sizeof(buff));
-			fprintf(of, "<h2>Identifier regular expression error</h2>%s", buff);
-			valid = return_val = false;
-			lazy = true;
-			return;
-		}
-	}
-	if ((s = swill_getvar("fre")) && *s) {
-		match_fre = true;
-		str_fre = s;
-		if ((ret = regcomp(&fre, s, REG_EXTENDED | REG_NOSUB | (icase ? REG_ICASE : 0)))) {
-			char buff[1024];
-			regerror(ret, &fre, buff, sizeof(buff));
-			fprintf(of, "<h2>Filename regular expression error</h2>%s", buff);
-			valid = return_val = false;
-			lazy = true;
-			return;
-		}
-	}
+	if (!compile_re(of, "Identifier", "ire", ire, match_ire, str_ire))
+		return;
+	if (!compile_re(of, "Filename", "fnre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
+		return;
 
 	// Store match specifications in a vector
 	for (int i = attr_begin; i < attr_end; i++) {

@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.1 2004/07/25 14:46:35 dds Exp $
+ * $Id: funquery.cpp,v 1.2 2004/07/27 11:14:28 dds Exp $
  */
 
 #include <map>
@@ -58,7 +58,6 @@
 // Construct an object based on URL parameters
 FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :
 	Query(!e, r, true),
-	match(attr_end),
 	current_project(cp)
 {
 	if (lazy)
@@ -71,115 +70,35 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	if (qname && *qname)
 		name = qname;
 
-	// Identifier EC match
-	if (!swill_getargs("p(ec)", &ec)) {
-		ec = NULL;
-
-		// Type of boolean match
-		char *m;
-		if (!(m = swill_getvar("match"))) {
-			fprintf(of, "Missing value: match");
-			valid = return_val = false;
-			lazy = true;
-			return;
-		}
-		match_type = *m;
+	// Type of boolean match
+	char *m;
+	if (!(m = swill_getvar("match"))) {
+		fprintf(of, "Missing value: match");
+		valid = return_val = false;
+		lazy = true;
+		return;
 	}
+	match_type = *m;
 
-	xfile = !!swill_getvar("xfile");
-	unused = !!swill_getvar("unused");
+	cfun = !!swill_getvar("cfun");
+	macro = !!swill_getvar("macro");
 	writable = !!swill_getvar("writable");
-	exclude_ire = !!swill_getvar("xire");
+	ro = !!swill_getvar("ro");
+	pscope = !!swill_getvar("pscope");
+	fscope = !!swill_getvar("fscope");
+	defined = !!swill_getvar("defined");
+	(void)swill_getargs("i(ncallers)|i(ncallerop)", &ncallers, &ncallerop);
+
+	exclude_fnre = !!swill_getvar("xfnre");
+	exclude_fure = !!swill_getvar("xunre");
+	exclude_fdre = !!swill_getvar("xdnre");
 
 	// Compile regular expression specs
-	char *s;
-	int ret;
-	match_fre = match_ire = false;
-	if ((s = swill_getvar("ire")) && *s) {
-		match_ire = true;
-		str_ire = s;
-		if ((ret = regcomp(&ire, s, REG_EXTENDED | REG_NOSUB))) {
-			char buff[1024];
-			regerror(ret, &ire, buff, sizeof(buff));
-			fprintf(of, "<h2>Identifier regular expression error</h2>%s", buff);
-			valid = return_val = false;
-			lazy = true;
-			return;
-		}
-	}
-	if ((s = swill_getvar("fre")) && *s) {
-		match_fre = true;
-		str_fre = s;
-		if ((ret = regcomp(&fre, s, REG_EXTENDED | REG_NOSUB | (icase ? REG_ICASE : 0)))) {
-			char buff[1024];
-			regerror(ret, &fre, buff, sizeof(buff));
-			fprintf(of, "<h2>Filename regular expression error</h2>%s", buff);
-			valid = return_val = false;
-			lazy = true;
-			return;
-		}
-	}
-
-	// Store match specifications in a vector
-	for (int i = attr_begin; i < attr_end; i++) {
-		ostringstream varname;
-
-		varname << "a" << i;
-		match[i] = !!swill_getvar(varname.str().c_str());
-		if (DP())
-			cout << "v=[" << varname.str() << "] m=" << match[i] << "\n";
-	}
-}
-
-// Report the string query specification usage
-void
-FunQuery::usage(void)
-{
-	cerr << "The monitored identifier attributes must be specified using the syntax:\n"
-		"Y|L|E|T[:attr1][:attr2]...\n"
-		"\tY: Match any of the specified attributes\n"
-		"\tL: Match all of the specified attributes\n"
-		"\tE: Exclude the specified attributes matched\n"
-		"\tT: Exact match of the specified attributes\n\n"
-
-		"Allowable attribute names are:\n"
-		"\tunused: Unused\n"
-		"\twritable: Writable\n";
-	for (int i = attr_begin; i < attr_end; i++)
-		cerr << "\t" << Attributes::shortname(i) << ": " << Attributes::name(i) << "\n";
-	exit(1);
-}
-
-// Construct an object based on a string specification
-// The syntax is Y|L|E|T[:attr1][:attr2]...
-FunQuery::FunQuery(const string &s) :
-	Query(false, false, true),
-	match_fre(false),
-	match_ire(false),
-	match(attr_end),
-	xfile(false),
-	ec(NULL)
-{
-	// Type of boolean match
-	if (s.length() == 0)
-		usage();
-	switch (s[0]) {
-	case 'Y':
-	case 'L':
-	case 'E':
-	case 'T':
-		match_type = s[0];
-		break;
-	default:
-		usage();
-	}
-
-	unused = (s.find(":unused") != string::npos);
-	writable = (s.find(":writable") != string::npos);
-
-	// Store match specifications in a vector
-	for (int i = attr_begin; i < attr_end; i++)
-		match[i] = (s.find(":" + Attributes::shortname(i)) != string::npos);
+	if (!compile_re(of, "Function name", "fnre", fnre, match_fnre, str_fnre) ||
+	    !compile_re(of, "Calling function name", "fure", fure, match_fure, str_fure) ||
+	    !compile_re(of, "Called function name", "fnre", fdre, match_fdre, str_fdre) ||
+	    !compile_re(of, "Filename", "fnre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
+	    	return;
 }
 
 // Return the query's parameters as a URL
@@ -188,32 +107,42 @@ FunQuery::url()
 {
 	string r("match=");
 	r += Query::url(string(1, match_type));
-	if (ec) {
-		char buff[256];
-
-		sprintf(buff, "&ec=%p", ec);
-		r += buff;
-	}
-	if (xfile)
-		r += "&xfile=1";
-	if (unused)
-		r += "&unused=1";
+	if (cfun)
+		r += "&cfun=1";
+	if (macro)
+		r += "&macro=1";
 	if (writable)
 		r += "&writable=1";
-	if (match_ire)
-		r += "&ire=" + Query::url(str_ire);
-	if (exclude_ire)
-		r += "&xire=1";
+	if (ro)
+		r += "&ro=1";
+	if (pscope)
+		r += "&pscope=1";
+	if (fscope)
+		r += "&fscope=1";
+	if (defined)
+		r += "&defined=1";
+	if (match_fnre)
+		r += "&fnre=" + Query::url(str_fnre);
+	if (match_fure)
+		r += "&fure=" + Query::url(str_fure);
+	if (match_fdre)
+		r += "&fdre=" + Query::url(str_fdre);
 	if (match_fre)
 		r += "&fre=" + Query::url(str_fre);
-	for (int i = attr_begin; i < attr_end; i++) {
-		if (match[i]) {
-			ostringstream varname;
+	if (exclude_fnre)
+		r += "&xfnre=1";
+	if (exclude_fure)
+		r += "&xfure=1";
+	if (exclude_fdre)
+		r += "&xfdre=1";
+	if (ncallerop != 0) {
+		ostringstream varname;
 
-			varname << "&a" << i << "=1";
-			r += varname.str();
-		}
-	}
+		varname << "&ncallers=" << ncallers;
+		varname << "&ncallerop=" << ncallerop;
+		r += varname.str();
+	} else
+		r += "&ncallerop=0";
 	if (name.length())
 		r += "&n=" + Query::url(name);
 	return r;
@@ -222,76 +151,77 @@ FunQuery::url()
 // Evaluate the object's identifier query against i
 // return true if it matches
 bool
-FunQuery::eval(const IdPropElem &i)
+FunQuery::eval(const Call *c)
 {
 	if (lazy)
 		return return_val;
 
-	if (ec)
-		return (i.first == ec);
-	if (current_project && !i.first->get_attribute(current_project))
+	Eclass *ec = c->get_tokid().get_ec();
+	if (current_project && !ec->get_attribute(current_project))
 		return false;
-	int retval = exclude_ire ? 0 : REG_NOMATCH;
-	if (match_ire && regexec(&ire, i.second.get_id().c_str(), 0, NULL, 0) == retval)
+	int retval;
+	retval = exclude_fnre ? 0 : REG_NOMATCH;
+	if (match_fnre && regexec(&fnre, c->get_name().c_str(), 0, NULL, 0) == retval)
 		return false;
+	if (match_fre && regexec(&fre, c->get_fileid().get_path().c_str(), 0, NULL, 0) != 0)
+			return false;	// No match found
+	if (match_fdre)
+		for (Call::const_fiterator_type c2 = c->call_begin(); c2 != c->call_end(); c2++) {
+			retval = exclude_fdre ? 0 : REG_NOMATCH;
+			if (regexec(&fdre, (*c2)->get_name().c_str(), 0, NULL, 0) == retval)
+				return false;
+		}
+	if (match_fure)
+		for (Call::const_fiterator_type c2 = c->caller_begin(); c2 != c->caller_end(); c2++) {
+			retval = exclude_fure ? 0 : REG_NOMATCH;
+			if (regexec(&fure, (*c2)->get_name().c_str(), 0, NULL, 0) == retval)
+				return false;
+		}
+
 	bool add;
 	switch (match_type) {
 	case 'Y':	// anY match
 		add = false;
-		for (int j = attr_begin; j < attr_end; j++)
-			if (match[j] && i.first->get_attribute(j)) {
-				add = true;
-				break;
-			}
-		add = (add || (xfile && i.second.get_xfile()));
-		add = (add || (unused && i.first->is_unused()));
-		add = (add || (writable && !i.first->get_attribute(is_readonly)));
+		add = (add || (cfun && c->is_cfun()));
+		add = (add || (macro && c->is_macro()));
+		add = (add || (writable && !ec->get_attribute(is_readonly)));
+		add = (add || (ro && ec->get_attribute(is_readonly)));
+		add = (add || (pscope && !c->is_file_scoped()));
+		add = (add || (fscope && c->is_file_scoped()));
+		add = (add || (defined && c->is_defined()));
 		break;
 	case 'L':	// alL match
 		add = true;
-		for (int j = attr_begin; j < attr_end; j++)
-			if (match[j] && !i.first->get_attribute(j)) {
-				add = false;
-				break;
-			}
-		add = (add && (!xfile || i.second.get_xfile()));
-		add = (add && (!unused || i.first->is_unused()));
-		add = (add && (!writable || !i.first->get_attribute(is_readonly)));
+		add = (add && (!cfun && c->is_cfun()));
+		add = (add && (!macro && c->is_macro()));
+		add = (add && (!writable && !ec->get_attribute(is_readonly)));
+		add = (add && (!ro && ec->get_attribute(is_readonly)));
+		add = (add && (!pscope && !c->is_file_scoped()));
+		add = (add && (!fscope && c->is_file_scoped()));
+		add = (add && (!defined && c->is_defined()));
 		break;
 	case 'E':	// excludE match
 		add = true;
-		for (int j = attr_begin; j < attr_end; j++)
-			if (match[j] && i.first->get_attribute(j)) {
-				add = false;
-				break;
-			}
-		add = (add && (!xfile || !i.second.get_xfile()));
-		add = (add && (!unused || !(i.first->is_unused())));
-		add = (add && (!writable || i.first->get_attribute(is_readonly)));
+		add = (add && (!cfun && !c->is_cfun()));
+		add = (add && (!macro && !c->is_macro()));
+		add = (add && (!writable && ec->get_attribute(is_readonly)));
+		add = (add && (!ro && !ec->get_attribute(is_readonly)));
+		add = (add && (!pscope && c->is_file_scoped()));
+		add = (add && (!fscope && !c->is_file_scoped()));
+		add = (add && (!defined && !c->is_defined()));
 		break;
 	case 'T':	// exactT match
 		add = true;
-		for (int j = attr_begin; j < attr_end; j++)
-			if (match[j] != i.first->get_attribute(j)) {
-				add = false;
-				break;
-			}
-		add = (add && (xfile == i.second.get_xfile()));
-		add = (add && (unused == (i.first->is_unused())));
-		add = (add && (writable == !i.first->get_attribute(is_readonly)));
+		add = (add && (cfun == c->is_cfun()));
+		add = (add && (macro == c->is_macro()));
+		add = (add && (writable == !ec->get_attribute(is_readonly)));
+		add = (add && (ro == ec->get_attribute(is_readonly)));
+		add = (add && (pscope == !c->is_file_scoped()));
+		add = (add && (fscope == c->is_file_scoped()));
+		add = (add && (defined == c->is_defined()));
 		break;
 	}
 	if (!add)
 		return false;
-	if (match_fre) {
-		// Before we add it check if its filename matches the RE
-		IFSet f = i.first->sorted_files();
-		IFSet::iterator j;
-		for (j = f.begin(); j != f.end(); j++)
-			if (regexec(&fre, (*j).get_path().c_str(), 0, NULL, 0) == 0)
-				break;	// Yes is matches
-		if (j == f.end())
-			return false;	// No match found
-	}
 	return true;
 }

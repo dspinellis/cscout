@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.1 2004/07/25 14:46:35 dds Exp $
+ * $Id: funquery.h,v 1.2 2004/07/27 11:14:28 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -11,44 +11,85 @@
 
 class FunQuery : public Query {
 private:
-	char match_type;	// Type of boolean match
 	// Regular expression match specs
-	string str_fre, str_ire;// Original REs
-	regex_t fre, ire;	// Compiled REs
-	bool match_fre, match_ire;
-	bool exclude_ire;	// Exclude matched identifiers
-	// Attribute match specs
-	vector <bool> match;
-	// Other query arguments
-	bool xfile;		// True if cross file
-	bool unused;		// True if unused id (EC size == 1 and not declared unused)
+	string str_fnre;	// Function name RE
+	string str_fdre;	// Called function name RE (down)
+	string str_fure;	// Calling function name RE (up)
+	string str_fre;		// Filename RE
+	// Compiler REs
+	regex_t fnre;		// Function name RE
+	regex_t fdre;		// Called function name RE (down)
+	regex_t fure;		// Calling function name RE (up)
+	regex_t fre;		// Filename RE
+	// Match rules
+	bool match_fnre;	// Function name RE
+	bool match_fdre;	// Called function name RE (down)
+	bool match_fure;	// Calling function name RE (up)
+	bool match_fre;		// Filename RE
+	// Exclude options
+	bool exclude_fnre;	// Function name RE
+	bool exclude_fdre;	// Called function name RE (down)
+	bool exclude_fure;	// Calling function name RE (up)
+	// Query arguments
+	char match_type;	// Type of boolean match
+	bool cfun;		// True if C function
+	bool macro;		// True if function-like macro
 	bool writable;		// True if writable
-	Eclass *ec;		// True if identifier EC matches
-				// No other evaluation takes place
+	bool ro;		// True if read-only
+	bool pscope;		// True if project scoped
+	bool fscope;		// True if file scoped
+	bool defined;		// True if a definition was found
+	int ncallers;		// Number of callers
+	int ncallerop;		// Operator for comparing them
+
 	string name;		// Query name
 	Attributes::size_type current_project;	// Restrict evaluation to this project
 public:
 	// Construct object based on URL parameters
 	FunQuery(FILE *f, bool icase, Attributes::size_type current_project, bool e = true, bool r = true);
-	// Construct object based on a string specification
-	FunQuery::FunQuery(const string &s);
 	// Default
 	FunQuery::FunQuery() : Query() {}
 
 	// Destructor
 	~FunQuery() {
-		if (match_ire)
-			regfree(&ire);
+		if (match_fnre)
+			regfree(&fnre);
+		if (match_fure)
+			regfree(&fure);
+		if (match_fdre)
+			regfree(&fdre);
 		if (match_fre)
 			regfree(&fre);
 	}
 
 	// Perform a query
-	bool eval(const IdPropElem &i);
+	bool eval(const Call *c);
 	// Transform the query back into a URL
 	string url();
-	static void usage();	// Report string constructor usage information
 };
 
+/*
+ * Function object to compare Call pointers
+ * Will compare from end to start if sort_rev is set
+ */
+struct fcmp : public binary_function <const Call *, const Call *, bool> {
+	bool operator()(const Call *i1, const Call *i2) const
+	{
+		if (Query::sort_rev) {
+			const string &s1 = i1->get_name();
+			const string &s2 = i2->get_name();
+			string::const_reverse_iterator j1, j2;
+
+			for (j1 = s1.rbegin(), j2 = s2.rbegin();
+			     j1 != s1.rend() && j2 != s2.rend(); j1++, j2++)
+				if (*j1 != *j2)
+					return *j1 < *j2;
+			return j1 == s1.rend() && j2 != s2.rend();
+		} else
+			return i1->get_name().compare(i2->get_name()) < 0;
+	}
+};
+
+typedef multiset <const Call *, fcmp> Sfuns;
 
 #endif // FUNQUERY_

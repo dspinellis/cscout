@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.2 2004/07/25 14:47:53 dds Exp $
+ * $Id: idquery.h,v 1.3 2004/07/27 11:14:28 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -80,5 +80,28 @@ public:
 	static void usage();	// Report string constructor usage information
 };
 
+/*
+ * Function object to compare IdProp identifier pointers
+ * Will compare from end to start if sort_rev is set
+ */
+struct idcmp : public binary_function <const IdProp::value_type *, const IdProp::value_type *, bool> {
+	bool operator()(const IdProp::value_type *i1, const IdProp::value_type *i2) const
+	{
+		if (Query::sort_rev) {
+			const string &s1 = (*i1).second.get_id();
+			const string &s2 = (*i2).second.get_id();
+			string::const_reverse_iterator j1, j2;
+
+			for (j1 = s1.rbegin(), j2 = s2.rbegin();
+			     j1 != s1.rend() && j2 != s2.rend(); j1++, j2++)
+				if (*j1 != *j2)
+					return *j1 < *j2;
+			return j1 == s1.rend() && j2 != s2.rend();
+		} else
+			return (*i1).second.get_id().compare((*i2).second.get_id()) < 0;
+	}
+};
+
+typedef multiset <const IdProp::value_type *, idcmp> Sids;
 
 #endif // IDQUERY_

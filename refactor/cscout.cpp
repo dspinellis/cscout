@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.79 2004/07/25 14:47:53 dds Exp $
+ * $Id: cscout.cpp,v 1.80 2004/07/27 11:14:28 dds Exp $
  */
 
 #include <map>
@@ -71,7 +71,6 @@
 
 // Global Web options
 static bool remove_fp;			// Remove common file prefix
-static bool sort_rev;			// Reverse sort of identifier names
 static bool show_true;			// Only show true identifier properties
 static bool show_line_number;		// Annotate source with line numbers
 static bool file_icase;			// File name case-insensitive match
@@ -85,30 +84,6 @@ static int portno = 8081;		// Port number (-p n)
 
 static Fileid input_file_id;
 
-
-/*
- * Function object to compare IdProp identifier pointers
- * Will compare from end to start if sort_rev is set
- */
-struct idcmp : public binary_function <const IdProp::value_type *, const IdProp::value_type *, bool> {
-	bool operator()(const IdProp::value_type *i1, const IdProp::value_type *i2) const
-	{
-		if (sort_rev) {
-			const string &s1 = (*i1).second.get_id();
-			const string &s2 = (*i2).second.get_id();
-			string::const_reverse_iterator j1, j2;
-
-			for (j1 = s1.rbegin(), j2 = s2.rbegin();
-			     j1 != s1.rend() && j2 != s2.rend(); j1++, j2++)
-				if (*j1 != *j2)
-					return *j1 < *j2;
-			return j1 == s1.rend() && j2 != s2.rend();
-		} else
-			return (*i1).second.get_id().compare((*i2).second.get_id()) < 0;
-	}
-};
-
-typedef multiset <const IdProp::value_type *, idcmp> Sids;
 
 // Identifiers to monitor (-m parameter)
 static IdQuery monitor;
@@ -128,6 +103,21 @@ progress(IdProp::iterator i)
 	if (i == ids.begin())
 		count = 0;
 	int percent = ++count * 100 / ids.size();
+	if (percent != opercent) {
+		cout << '\r' << percent << '%' << flush;
+		opercent = percent;
+	}
+}
+
+// Display call loop progress (non-reentant)
+static void
+progress(Call::const_fmap_iterator_type i)
+{
+	static int count, opercent;
+
+	if (i == Call::fbegin())
+		count = 0;
+	int percent = ++count * 100 / Call::fsize();
 	if (percent != opercent) {
 		cout << '\r' << percent << '%' << flush;
 		opercent = percent;
@@ -193,12 +183,21 @@ html_string(FILE *of, string s)
 
 // Display an identifier hyperlink
 static void
-html_id(FILE *of, const IdPropElem &i)
+html(FILE *of, const IdPropElem &i)
 {
 	fprintf(of, "<a href=\"id.html?id=%p\">", i.first);
 	html_string(of, (i.second).get_id());
 	fputs("</a>", of);
 }
+
+static void
+html(FILE *of, const Call &c)
+{
+	fprintf(of, "<a href=\"fun.html?f=%p\">", &c);
+	html_string(of, c.get_name());
+	fputs("</a>", of);
+}
+
 
 // Display a hyperlink based on a string and its starting tokid
 static void
@@ -209,7 +208,7 @@ html_string(FILE *of, const string &s, Tokid t)
 		Eclass *ec = t.get_ec();
 		Identifier id(ec, s.substr(pos, ec->get_len()));
 		const IdPropElem ip(ec, id);
-		html_id(of, ip);
+		html(of, ip);
 		pos += ec->get_len();
 		t += ec->get_len();
 	}
@@ -339,7 +338,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			Identifier i(ec, s);
 			const IdPropElem ip(ec, i);
 			if (query.eval(ip))
-				html_id(of, ip);
+				html(of, ip);
 			else
 				html_string(of, s);
 			continue;
@@ -715,20 +714,22 @@ xfquery_page(FILE *of,  void *p)
  * Display the sorted identifiers, taking into account the reverse sort property
  * for properly aligning the output.
  */
+template <typename container>
 static void
-display_sorted_ids(FILE *of, const Sids &sorted_ids)
+display_sorted(FILE *of, const container &sorted_ids)
 {
-	if (sort_rev)
+	if (Query::sort_rev)
 		fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
 	else
 		fputs("<p>\n", of);
 
-	for (Sids::iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
-		html_id(of, **i);
+	typename container::const_iterator i;
+	for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
+		html(of, **i);
 		fputs("<br>\n", of);
 	}
 
-	if (sort_rev)
+	if (Query::sort_rev)
 		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
 	else
 		fputs("</p>\n", of);
@@ -791,10 +792,7 @@ funquery_page(FILE *of,  void *p)
 	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only definition<br>\n"
 	"<input type=\"checkbox\" name=\"pscope\" value=\"1\">Project scope<br>\n"
 	"<input type=\"checkbox\" name=\"fscope\" value=\"1\">File scope<br>\n"
-	"<input type=\"checkbox\" name=\"def\" value=\"1\">Defined<br>\n" , of);
-	fputs(
-	"<input type=\"checkbox\" name=\"xfile\" value=\"1\">Crosses file boundary<br>\n"
-	"<input type=\"checkbox\" name=\"unused\" value=\"1\">Unused<br>\n"
+	"<input type=\"checkbox\" name=\"defined\" value=\"1\">Defined<br>\n"
 	"<p>\n"
 	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any marked\n"
 	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
@@ -808,7 +806,7 @@ funquery_page(FILE *of,  void *p)
 
 	"<tr><td>\n"
 	"Number of callers\n"
-	"<select name=\"callmatch\" value=\"1\">\n",
+	"<select name=\"ncallerop\" value=\"1\">\n",
 	of);
 	fprintf(of,
 		"<option value=\"%d\">ignore"
@@ -820,15 +818,15 @@ funquery_page(FILE *of,  void *p)
 		ec_ignore, ec_eq, ec_ne, ec_lt, ec_gt);
 	fputs(
 	"</td><td>\n"
-	"<INPUT TYPE=\"text\" NAME=\"callnum\" SIZE=5 MAXLENGTH=10>\n"
+	"<INPUT TYPE=\"text\" NAME=\"ncallers\" SIZE=5 MAXLENGTH=10>\n"
 	"</td><td>\n"
 
 	"<tr><td>\n"
 	"Function names should "
-	"(<input type=\"checkbox\" name=\"xfre\" value=\"1\"> not) \n"
+	"(<input type=\"checkbox\" name=\"xfnre\" value=\"1\"> not) \n"
 	" match RE\n"
 	"</td><td>\n"
-	"<INPUT TYPE=\"text\" NAME=\"fire\" SIZE=20 MAXLENGTH=256>\n"
+	"<INPUT TYPE=\"text\" NAME=\"fnre\" SIZE=20 MAXLENGTH=256>\n"
 	"</td></tr>\n"
 
 	"<tr><td>\n"
@@ -899,7 +897,7 @@ xiquery_page(FILE *of,  void *p)
 	cout << '\n';
 	if (q_id) {
 		fputs("<h2>Matching Identifiers</h2>\n", of);
-		display_sorted_ids(of, sorted_ids);
+		display_sorted(of, sorted_ids);
 	}
 	if (q_file) {
 		const string query_url(query.url());
@@ -921,17 +919,16 @@ xiquery_page(FILE *of,  void *p)
 	html_tail(of);
 }
 
-// Process a funcion query XXX
+// Process a funcion query
 static void
 xfunquery_page(FILE *of,  void *p)
 {
-	// XXX Currently almost a copy paste of the identifier query page
-	Sids sorted_ids;
+	Sfuns sorted_funs;
 	IFSet sorted_files;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
-	IdQuery query(of, file_icase, current_project);
+	FunQuery query(of, file_icase, current_project);
 
 #ifndef COMMERCIAL
 		if (!local_access(of))
@@ -943,23 +940,22 @@ xfunquery_page(FILE *of,  void *p)
 
 	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
 	cout << "Evaluating function query\n";
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 		progress(i);
-		if (!query.eval(*i))
+		if (!query.eval(i->second))
 			continue;
 		if (q_id)
-			sorted_ids.insert(&*i);
-		if (q_file) {
-			IFSet f = (*i).first->sorted_files();
-			sorted_files.insert(f.begin(), f.end());
-		}
+			sorted_funs.insert(i->second);
+		if (q_file)
+			sorted_files.insert(i->second->get_fileid());
 	}
 	cout << '\n';
 	if (q_id) {
 		fputs("<h2>Matching Functions</h2>\n", of);
-		display_sorted_ids(of, sorted_ids);
+		display_sorted(of, sorted_funs);
 	}
 	if (q_file) {
+		// XXX Move to a function
 		const string query_url(query.url());
 
 		fputs("<h2>Matching Files</h2>\n", of);
@@ -1139,8 +1135,10 @@ list_functions(FILE *fo, Call *f,
 
 	f->set_visited();
 	for (i = (f->*fbegin)(); i != (f->*fend)(); i++) {
-		if (!(*i)->is_visited() || *i == f)
-			fprintf(fo, "<li> <a href=\"fun.html?f=%p\">%s</a>", *i, html((*i)->get_name()).c_str());
+		if (!(*i)->is_visited() || *i == f) {
+			fprintf(fo, "<li> ");
+			html(fo, **i);
+		}
 		if (recurse && !(*i)->is_visited())
 			list_functions(fo, *i, fbegin, fend, recurse);
 	}
@@ -1157,7 +1155,9 @@ funlist_page(FILE *fo, void *p)
 	}
 	char *ltype = swill_getvar("n");
 	html_head(fo, "funlist", "Function List");
-	fprintf(fo, "<h2>Function <a href=\"fun.html?f=%p\">%s</a></h2>", f, html(f->get_name()).c_str());
+	fprintf(fo, "<h2>Function ");
+	html(fo, *f);
+	fprintf(fo, "</h2>");
 	char *calltype;
 	bool recurse;
 	switch (*ltype) {
@@ -1205,7 +1205,7 @@ options_page(FILE *fo, void *p)
 	html_head(fo, "options", "Global Options");
 	fprintf(fo, "<FORM ACTION=\"soptions.html\" METHOD=\"GET\">\n");
 	fprintf(fo, "<input type=\"checkbox\" name=\"remove_fp\" value=\"1\" %s>Remove common path prefix in file lists<br>\n", (remove_fp ? "checked" : ""));
-	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (sort_rev ? "checked" : ""));
+	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (Query::sort_rev ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_line_number\" value=\"1\" %s>Show line numbers in source listings<br>\n", (show_line_number ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"file_icase\" value=\"1\" %s>Case-insensitive file name regular expression match<br>\n", (file_icase ? "checked" : ""));
@@ -1230,7 +1230,7 @@ set_options_page(FILE *fo, void *p)
 		return;
 	}
 	remove_fp = !!swill_getvar("remove_fp");
-	sort_rev = !!swill_getvar("sort_rev");
+	Query::sort_rev = !!swill_getvar("sort_rev");
 	show_true = !!swill_getvar("show_true");
 	show_line_number = !!swill_getvar("show_line_number");
 	file_icase = !!swill_getvar("file_icase");
