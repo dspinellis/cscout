@@ -9,7 +9,7 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.12 2002/09/05 19:21:45 dds Exp $
+ * $Id: eclass.h,v 1.13 2002/09/06 06:40:51 dds Exp $
  */
 
 #ifndef ECLASS_
@@ -51,13 +51,13 @@ public:
 
 inline
 Eclass::Eclass(int l)
-	: len(l)
+	: len(l), ro(false)
 {
 }
 
 inline
 Eclass::Eclass(Tokid t, int l)
-	: len(l)
+	: len(l), ro(false)
 {
 	add_tokid(t);
 }
