@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.50 2001/10/27 13:31:13 dds Exp $
+ * $Id: pdtoken.cpp,v 1.51 2002/09/04 06:49:50 dds Exp $
  */
 
 #include <iostream>
@@ -21,6 +21,9 @@
 #include <cassert>
 #include <cstdlib>		// strtol
 
+#include <errno.h>
+#include <unistd.h>		// chdir
+
 #include "cpp.h"
 #include "debug.h"
 #include "fileid.h"
@@ -35,6 +38,8 @@
 #include "pdtoken.h"
 #include "tchar.h"
 #include "ctoken.h"
+#include "type.h"		// stab.h
+#include "stab.h"		// Block::enter()
 
 bool Pdtoken::at_bol = true;
 listPtoken Pdtoken::expand;
@@ -600,17 +605,34 @@ Pdtoken::process_pragma()
 	if (skiplevel >= 1)
 		return;
 	t.template getnext_nospc<Fchar>();
-	if (t.get_code() != IDENTIFIER || t.get_val() != "includepath") {
+	if (t.get_code() != IDENTIFIER) {
 		eat_to_eol();
 		return;
 	}
-	t.template getnext_nospc<Fchar>();
-	if (t.get_code() != STRING_LITERAL) {
-		eat_to_eol();
-		return;
-	}
-	Pdtoken::add_include(t.get_val());
-	if (DP()) cout << "Include path " << t.get_val() << "\n";
+	if (t.get_val() == "includepath") {
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma includepath: string expected");
+			eat_to_eol();
+			return;
+		}
+		Pdtoken::add_include(t.get_val());
+		if (DP()) cout << "Include path " << t.get_val() << "\n";
+	} else if (t.get_val() == "chdir") {
+		t.template getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma chdir: string expected");
+			eat_to_eol();
+			return;
+		}
+		if (chdir(t.get_val().c_str()) != 0)
+			Error::error(E_FATAL, "chdir " + t.get_val() + ": " + string(strerror(errno)), false);
+	} else if (t.get_val() == "clear_include")
+		Pdtoken::clear_include();
+	else if (t.get_val() == "block_enter")
+		Block::enter();
+	else if (t.get_val() == "block_exit")
+		Block::exit();
 	eat_to_eol();
 }
 
