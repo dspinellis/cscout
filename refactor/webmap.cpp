@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.4 2002/09/04 16:54:36 dds Exp $
+ * $Id: webmap.cpp,v 1.5 2002/09/04 17:50:36 dds Exp $
  */
 
 #include <map>
@@ -49,12 +49,15 @@ public:
 	string get_id() const { return id; }
 	Eclass *get_ec() const { return ec; }
 	// To create nicely ordered sets
+	inline bool operator ==(const Identifier b) const {
+		return (this->ec == b.ec) && (this->id == b.id);
+	}
 	inline bool operator <(const Identifier b) const {
 		int r = this->id.compare(b.id);
 		if (r == 0)
 			return ((unsigned)this->ec < (unsigned)b.ec);
 		else
-			return (r);
+			return (r < 0);
 	}
 };
 
@@ -146,7 +149,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.4 2002/09/04 16:54:36 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.5 2002/09/04 17:50:36 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -193,10 +196,10 @@ main(int argc, char *argv[])
 	while (t.get_code() != EOF);
 
 	// Pass 2: Create web pages
-	vector <string> files = Fileid::file_vector();
+	vector <Fileid> files = Fileid::sorted_files();
 	ofstream fo;
 
-	mkdir("html", 0777);
+	(void)mkdir("html", 0777);
 
 	// Index
 	html_head(fo, "index", "Table of Contents");
@@ -205,17 +208,19 @@ main(int argc, char *argv[])
 		"<li> <a href=\"rofiles.html\">Read-only files</a>\n"
 		"<li> <a href=\"wfiles.html\">Writable files</a>\n"
 		"<li> <a href=\"aids.html\">All identifiers</a>\n"
+		"<li> <a href=\"roids.html\">Read-only identifiers</a>\n"
+		"<li> <a href=\"wids.html\">Writable identifiers</a>\n"
+		"<li> <a href=\"uids.html\">Unused identifiers</a>\n"
 		"</ul>";
 	html_tail(fo);
 
 	// Read-only files
 	html_head(fo, "rofiles", "Read-only Files");
 	fo << "<ul>";
-	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
-		Fileid fi = Fileid(*i);
-		if (fi.get_readonly() == true) {
+	for (vector <Fileid>::const_iterator i = files.begin(); i != files.end(); i++) {
+		if ((*i).get_readonly() == true) {
 			fo << "\n<li>";
-			html_file(fo, fi);
+			html_file(fo, *i);
 		}
 	}
 	fo << "\n</ul>\n";
@@ -224,11 +229,10 @@ main(int argc, char *argv[])
 	// Writable files
 	html_head(fo, "wfiles", "Writable Files");
 	fo << "<ul>";
-	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
-		Fileid fi = Fileid(*i);
-		if (fi.get_readonly() == false) {
+	for (vector <Fileid>::const_iterator i = files.begin(); i != files.end(); i++) {
+		if ((*i).get_readonly() == false) {
 			fo << "\n<li>";
-			html_file(fo, fi);
+			html_file(fo, *i);
 		}
 	}
 	fo << "\n</ul>\n";
@@ -237,30 +241,30 @@ main(int argc, char *argv[])
 	// All files
 	html_head(fo, "afiles", "All Files");
 	fo << "<ul>";
-	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
+	for (vector <Fileid>::const_iterator i = files.begin(); i != files.end(); i++) {
 		fo << "\n<li>";
-		html_file(fo, *i);
+		html_file(fo, (*i).get_path());
 	}
 	fo << "\n</ul>\n";
 	html_tail(fo);
 
 	// Details for each file 
 	// As a side effect populite the EC identifier member
-	for (vector <string>::const_iterator i = files.begin(); i != files.end(); i++) {
-		Fileid fi = Fileid(*i);
+	for (vector <Fileid>::const_iterator i = files.begin(); i != files.end(); i++) {
 		strstream fname;
-		fname << fi.get_id();
+		const string &pathname = (*i).get_path();
+		fname << (*i).get_id();
 		string sfname(fname.str(), fname.pcount());
-		html_head(fo, (string("f") + sfname).c_str(), html(*i));
+		html_head(fo, (string("f") + sfname).c_str(), html(pathname));
 		fo << "<ul>\n";
-		fo << "Read-only: " << (fi.get_readonly() ? "Yes" : "No") << "<p>\n";
-		fo << "<a href=\"s" << sfname << ".html\">Source code</a>\n";
+		fo << "<li> Read-only: " << ((*i).get_readonly() ? "Yes" : "No") << "\n";
+		fo << "<li> <a href=\"s" << sfname << ".html\">Source code</a>\n";
 		fo << "</ul>\n";
 
 		html_tail(fo);
 		// File source listing
-		html_head(fo, (string("s") + sfname).c_str(), html(*i));
-		file_hypertext(fo, *i);
+		html_head(fo, (string("s") + sfname).c_str(), html(pathname));
+		file_hypertext(fo, pathname);
 		html_tail(fo);
 	}
 
@@ -274,7 +278,56 @@ main(int argc, char *argv[])
 	fo << "\n</ul>\n";
 	html_tail(fo);
 
+	// Read-only identifiers
+	html_head(fo, "roids", "Read-only Identifiers");
+	fo << "<ul>";
+	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+		if ((*i).get_ec()->get_readonly() == true) {
+			fo << "\n<li>";
+			html_id(fo, *i);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
 
+	// Writable identifiers
+	html_head(fo, "wids", "Writable Identifiers");
+	fo << "<ul>";
+	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+		if ((*i).get_ec()->get_readonly() == false) {
+			fo << "\n<li>";
+			html_id(fo, *i);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
+	// Unused identifiers
+	html_head(fo, "uids", "Unused Identifiers");
+	fo << "<ul>";
+	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+		if ((*i).get_ec()->get_size() == 1) {
+			fo << "\n<li>";
+			html_id(fo, *i);
+		}
+	}
+	fo << "\n</ul>\n";
+	html_tail(fo);
+
+	// Details for each identifier
+	for (set <Identifier>::const_iterator i = ids.begin(); i != ids.end(); i++) {
+		strstream fname;
+		fname << (unsigned)(*i).get_ec();
+		string sfname(fname.str(), fname.pcount());
+		html_head(fo, (string("i") + sfname).c_str(), html((*i).get_id()));
+		fo << "<ul>\n";
+		fo << "<li> Read-only: " << ((*i).get_ec()->get_readonly() ? "Yes" : "No") << "\n";
+		fo << "<li> Unused: " << ((*i).get_ec()->get_size() == 1 ? "Yes" : "No") << "\n";
+		fo << "</ul>\n";
+		fo << "<h2>Dependent files (all)</h2>\n";
+
+		html_tail(fo);
+	}
 
 	return (0);
 }

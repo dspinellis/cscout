@@ -10,7 +10,7 @@
  * #include <string>
  * #include <vector>
  *
- * $Id: fileid.h,v 1.7 2002/09/04 13:42:01 dds Exp $
+ * $Id: fileid.h,v 1.8 2002/09/04 17:50:36 dds Exp $
  */
 
 #ifndef FILEID_
@@ -65,7 +65,7 @@ public:
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
 	// Return a sorted list of all filenames used
-	static vector <string> file_vector();
+	static vector <Fileid> sorted_files();
 };
 
 inline bool
