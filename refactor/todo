@@ -1,4 +1,4 @@
-$Id: todo,v 1.23 2003/05/28 18:03:22 dds Exp $
+$Id: todo,v 1.24 2003/05/28 18:27:13 dds Exp $
 
 Web page
 documentation
@@ -7,8 +7,6 @@ Solaris compilation
 experiment with hashmap performance
 
 ceescape (swill) front end:
-
-Use query name in show with marked identifiers pages
 
 Show project and workspace metrics
 

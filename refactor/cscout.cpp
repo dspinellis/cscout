@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.32 2003/05/28 18:03:22 dds Exp $
+ * $Id: cscout.cpp,v 1.33 2003/05/28 18:27:13 dds Exp $
  */
 
 #include <map>
@@ -134,6 +134,7 @@ private:
 	bool xfile;		// True if cross file 
 	bool unused;		// True if unused id (EC size == 1)
 	bool writable;		// True if writable
+	string name;		// Query name
 public:
 	// Construct object based on URL parameters
 	IdQuery(FILE *f, bool e = true, bool r = true);
@@ -324,7 +325,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		perror(fname.c_str());
 		exit(1);
 	}
-	fputs("<code>", of);
+	fputs("<hr><code>", of);
 	(void)html('\n');	// Reset HTML tab handling
 	// Go through the file character by character
 	for (;;) {
@@ -353,7 +354,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		fprintf(of, "%s", html((char)val));
 	}
 	in.close();
-	fputs("</code>", of);
+	fputs("<hr></code>", of);
 }
 
 // Go through the file doing any replacements needed
@@ -428,7 +429,7 @@ html_head(FILE *of, const string fname, const string title)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.32 2003/05/28 18:03:22 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: cscout.cpp,v 1.33 2003/05/28 18:27:13 dds Exp $\">\n"
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -444,7 +445,7 @@ html_tail(FILE *of)
 	fprintf(of, 
 		"<p>" 
 		"<a href=\"index.html\">Main page</a>\n"
-		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.32 2003/05/28 18:03:22 dds Exp $</font>\n"
+		"<br><hr><font size=-1>$Id: cscout.cpp,v 1.33 2003/05/28 18:27:13 dds Exp $</font>\n"
 		"</body>"
 		"</html>\n");
 }
@@ -735,7 +736,7 @@ iquery_page(FILE *of,  void *p)
 {
 	html_head(of, "iquery", "Identifier Query");
 	fputs("<FORM ACTION=\"xiquery.html\" METHOD=\"GET\">\n"
-	"<input type=\"checkbox\" name=\"writable\" value=\"1\" CHECKED>Writable<br>\n", of);
+	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable<br>\n", of);
 	for (int i = 0; i < attr_max; i++)
 		fprintf(of, "<input type=\"checkbox\" name=\"a%d\" value=\"1\">%s<br>\n", i, 
 			Attributes::name(i).c_str());
@@ -783,6 +784,12 @@ IdQuery::IdQuery(FILE *of, bool e, bool r) :
 		return;
 
 	valid = true;
+
+	// Query name
+	char *qname = swill_getvar("n");
+	if (qname && *qname)
+		name = qname;
+
 	// Type of boolean match
 	char *m;
 	if (!(m = swill_getvar("match"))) {
@@ -864,6 +871,8 @@ IdQuery::url()
 			r += varname.str();
 		}
 	}
+	if (name.length())
+		r += "&n=" + ::url(name);
 	return r;
 }
 
@@ -1026,7 +1035,7 @@ identifier_page(FILE *fo, void *p)
 		show_id_prop(fo, Attributes::name(i), e->get_attribute(i));
 	show_id_prop(fo, "Crosses file boundary", id.get_xfile());
 	show_id_prop(fo, "Unused", e->get_size() == 1);
-	fprintf(fo, "<li> Matches %d occurences\n", e->get_size());
+	fprintf(fo, "<li> Matches %d occurence(s)\n", e->get_size());
 	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
 	if (DP()) {
 		cout << "First project " << attr_max << "\n";
@@ -1072,12 +1081,12 @@ options_page(FILE *fo, void *p)
 	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (sort_rev ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"file_icase\" value=\"1\" %s>Case-insensitive file name regular expression match<br>\n", (file_icase ? "checked" : ""));
-	fprintf(fo, "Code listing tab width <input type=\"text\" name=\"tab_width\" size=3 maxlength=3 value=\"%d\"><br>\n", tab_width);
+	fprintf(fo, "<p>Code listing tab width <input type=\"text\" name=\"tab_width\" size=3 maxlength=3 value=\"%d\"><br>\n", tab_width);
 /*
 Do not show No in identifier properties (option)
 
 */
-	fprintf(fo, "<p><INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"OK\">\n");
+	fprintf(fo, "<p><p><INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"OK\">\n");
 	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Cancel\">\n");
 	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Apply\">\n");
 	fprintf(fo, "</FORM>\n");
@@ -1231,7 +1240,11 @@ query_source_page(FILE *of, void *p)
 	Fileid i(id);
 	const string &pathname = i.get_path();
 	fname << i.get_id();
-	html_head(of, "qsrc", string("Source with queried identifiers marked: ") + html(pathname));
+	char *qname = swill_getvar("n");
+	if (qname && *qname)
+		html_head(of, "qsrc", string(qname) + ": " + html(pathname));
+	else
+		html_head(of, "qsrc", string("Source with queried identifiers marked: ") + html(pathname));
 	fputs("<p>(Use the tab key to move to each marked identifier.)<p>", of);
 	file_hypertext(of, i, true);
 	html_tail(of);
