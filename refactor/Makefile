@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.14 2001/10/24 13:03:00 dds Exp $
+# $Id: Makefile,v 1.15 2001/10/24 17:55:18 dds Exp $
 #
 
 # Common object files
@@ -75,7 +75,7 @@ boottest: simple_cpp
 	$(CC) $(CPPFLAGS) -o simple_cpp $(STANDOBJ) $(OBJ) simple_cpp.o
 
 appinit.h:
-	mktclapp -header >appinit.h
+	mktclapp -header |sed 's/cplusplus/xyzzy/' >appinit.h
 
 tclfuns.o: tclfuns.cpp appinit.h
 	$(CC) $(CFLAGS) -I$(TINCLUDE) -c tclfuns.cpp
