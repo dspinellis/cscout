@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.6 2002/09/04 18:02:43 dds Exp $
+ * $Id: webmap.cpp,v 1.7 2002/09/05 07:02:06 dds Exp $
  */
 
 #include <map>
@@ -19,8 +19,12 @@
 #include <strstream>
 #include <cstdio>		// perror
 
+#ifdef unix
 #include <sys/types.h>		// mkdir
 #include <sys/stat.h>		// mkdir
+#else
+#include <io.h>			// mkdir 
+#endif
 
 
 #include "cpp.h"
@@ -149,7 +153,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.6 2002/09/04 18:02:43 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.7 2002/09/05 07:02:06 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"
@@ -199,7 +203,11 @@ main(int argc, char *argv[])
 	vector <Fileid> files = Fileid::sorted_files();
 	ofstream fo;
 
+	#ifdef unix
 	(void)mkdir("html", 0777);
+	#else
+	(void)mkdir("html");
+	#endif
 
 	// Index
 	html_head(fo, "index", "Table of Contents");
