@@ -11,7 +11,7 @@
  * b) As a sanity check for (a)
  * c) To avoid mistages cause by ommitting part of the inference mechanism
  *
- * $Id: parse.y,v 1.7 2001/09/10 13:48:54 dds Exp $
+ * $Id: parse.y,v 1.8 2001/09/12 07:09:08 dds Exp $
  *
  */
 
@@ -85,8 +85,8 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "ctoken.h"
-#include "stab.h"
 #include "type.h"
+#include "stab.h"
 
 void yyerror(char *s)
 {
@@ -97,15 +97,9 @@ void yyerror(char *s)
 %}
 
 
-%union {
-	Type *t;
-	Id *i;
-	Ctoken *c;
-};
-
-%type <c> IDENTIFIER
-%type <c> TYPEDEF_NAME
-%type <c> member_name
+%type <t> IDENTIFIER
+%type <t> TYPEDEF_NAME
+%type <t> member_name
 
 %type <t> constant
 %type <t> primary_expression
@@ -177,9 +171,9 @@ int moo(const int identifier1 (T identifier2 (int identifier3)));
 /* CONSTANTS */
 constant:
         INT_CONST
-			{ $$ = new Tbasic(b_int); }
+			{ $$ = basic(b_int); }
         | FLOAT_CONST
-			{ $$ = new Tbasic(b_float); }
+			{ $$ = basic(b_float); }
         /* We are not including ENUMERATIONconstant here  because  we
         are  treating  it like a variable with a type of "enumeration
         constant".  */
@@ -187,7 +181,7 @@ constant:
 
 string_literal_list:
                 STRING_LITERAL
-			{ $$ = new Tarray(new Tbasic(b_char)); }
+			{ $$ = array_of(basic(b_char)); }
                 | string_literal_list STRING_LITERAL
                 ;
 
@@ -196,15 +190,14 @@ string_literal_list:
 primary_expression:
         IDENTIFIER  /* We cannot use a typedef name as a variable */
 			{
-				Id const *id = obj_lookup($1->get_name());
+				Id const *id = obj_lookup($1.get_name());
 				if (id) {
-					unify(id->get_token(), *$1);
+					unify(id->get_token(), $1.get_token());
 					$$ = id->get_type();
 				} else {
-					Error::error(E_WARN, "undeclared identifier: " + $1->get_name());
-					$$ = new Tbasic(b_undeclared);
+					Error::error(E_WARN, "undeclared identifier: " + $1.get_name());
+					$$ = basic(b_undeclared);
 				}
-				delete $1;
 			}
         | constant
         | string_literal_list
@@ -215,32 +208,28 @@ primary_expression:
 postfix_expression:
         primary_expression
         | postfix_expression '[' comma_expression ']'
-			{ 
-				$$ = $1->subscript(); 
-				delete $1; 
-				delete $3; 
-			}
+			{ $$ = $1.subscript(); }
         | postfix_expression '(' ')'
-			{ $$ = $1->call(); delete $1; }
+			{ $$ = $1.call(); }
         | postfix_expression '(' argument_expression_list ')'
-			{ $$ = $1->call(); delete $1; }
+			{ $$ = $1.call(); }
         | postfix_expression '.'   member_name
 			{
-				Id *i = $1->member($3->get_name());
-				$$ = i->get_type();
-				assert(i->get_name() == $3->get_name());
-				unify(*$3, i->get_token());
-				delete $1;
-				delete $3;
+				Id i = $1.member($3.get_name());
+				$$ = i.get_type();
+				if ($$.is_valid()) {
+					assert(i.get_name() == $3.get_name());
+					unify($3.get_token(), i.get_token());
+				}
 			}
         | postfix_expression PTR_OP member_name
 			{
-				Id *i = ($1->deref())->member($3->get_name());
-				$$ = i->get_type();
-				assert(i->get_name() == $3->get_name());
-				unify(*$3, i->get_token());
-				delete $1;
-				delete $3;
+				Id i = ($1.deref()).member($3.get_name());
+				$$ = i.get_type();
+				if ($$.is_valid()) {
+					assert(i.get_name() == $3.get_name());
+					unify($3.get_token(), i.get_token());
+				}
 			}
         | postfix_expression INC_OP
         | postfix_expression DEC_OP
@@ -253,9 +242,7 @@ member_name:
 
 argument_expression_list:
         assignment_expression
-			{ delete $1; }
         | argument_expression_list ',' assignment_expression
-			{ delete $3; }
         ;
 
 unary_expression:
@@ -267,13 +254,13 @@ unary_expression:
         | arith_unary_operator cast_expression
 			{ $$ = $2; }
         | '&' cast_expression
-			{ $$ = new Tptr($2); }
+			{ $$ = pointer_to($2); }
         | '*' cast_expression
-			{ $$ = $2->deref(); delete $2; }
+			{ $$ = $2.deref(); }
         | SIZEOF unary_expression
-			{ $$ = new Tbasic(b_int); delete $2; }
+			{ $$ = basic(b_int); }
         | SIZEOF '(' type_name ')'
-			{ $$ = new Tbasic(b_int); delete $3; }
+			{ $$ = basic(b_int); }
         ;
 
 arith_unary_operator:
@@ -286,102 +273,92 @@ arith_unary_operator:
 cast_expression:
         unary_expression
         | '(' type_name ')' cast_expression
-			{ $$ = $2;  delete $4; }
+			{ $$ = $2; }
         ;
 
 multiplicative_expression:
         cast_expression
         | multiplicative_expression '*' cast_expression
-			{ $$ = $1; delete $3; }
         | multiplicative_expression '/' cast_expression
-			{ $$ = $1; delete $3; }
         | multiplicative_expression '%' cast_expression
-			{ $$ = $1; delete $3; }
         ;
 
 additive_expression:
         multiplicative_expression
         | additive_expression '+' multiplicative_expression
-			{ $$ = $1; delete $3; }
         | additive_expression '-' multiplicative_expression
 			{
-				if ($1->is_ptr() && $3->is_ptr()) {
-					$$ = new Tbasic(b_int);
-					delete $1;
-				} else 
+				if ($1.is_ptr() && $3.is_ptr())
+					$$ = basic(b_int);
+				else 
 					$$ = $1;
-				delete $3;
 			}
         ;
 
 shift_expression:
         additive_expression
         | shift_expression LEFT_OP additive_expression
-			{ $$ = $1; delete $3; }
+			{ $$ = $1; }
         | shift_expression RIGHT_OP additive_expression
-			{ $$ = $1; delete $3; }
+			{ $$ = $1; }
         ;
 
 relational_expression:
         shift_expression
         | relational_expression '<' shift_expression
-			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
+			{ $$ = basic(b_int); }
         | relational_expression '>' shift_expression
-			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
+			{ $$ = basic(b_int); }
         | relational_expression LE_OP shift_expression
-			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
+			{ $$ = basic(b_int); }
         | relational_expression GE_OP shift_expression
-			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
+			{ $$ = basic(b_int); }
         ;
 
 equality_expression:
         relational_expression
         | equality_expression EQ_OP relational_expression
-			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
+			{ $$ = basic(b_int); }
         | equality_expression NE_OP relational_expression
-			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
+			{ $$ = basic(b_int); }
         ;
 
 and_expression:
         equality_expression
         | and_expression '&' equality_expression
-			{ $$ = $1; delete $3; }
         ;
 
 exclusive_or_expression:
         and_expression
         | exclusive_or_expression '^' and_expression
-			{ $$ = $1; delete $3; }
         ;
 
 inclusive_or_expression:
         exclusive_or_expression
         | inclusive_or_expression '|' exclusive_or_expression
-			{ $$ = $1; delete $3; }
         ;
 
 logical_and_expression:
         inclusive_or_expression
         | logical_and_expression AND_OP inclusive_or_expression
-			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
+			{ $$ = basic(b_int); }
         ;
 
 logical_or_expression:
         logical_and_expression
         | logical_or_expression OR_OP logical_and_expression
-			{ $$ = new Tbasic(b_int); delete $1; delete $3; }
+			{ $$ = basic(b_int); }
         ;
 
 conditional_expression:
         logical_or_expression
         | logical_or_expression '?' comma_expression ':' conditional_expression
-			{ $$ = $3; delete $1; delete $5; }
+			{ $$ = $3; }
         ;
 
 assignment_expression:
         conditional_expression
         | unary_expression assignment_operator assignment_expression
-			{ $$ = $1; delete $3; }
         ;
 
 assignment_operator:
@@ -401,7 +378,7 @@ assignment_operator:
 comma_expression:
         assignment_expression
         | comma_expression ',' assignment_expression
-			{ $$ = $3; delete $1; }
+			{ $$ = $3; }
         ;
 
 constant_expression:
@@ -673,7 +650,7 @@ parameter_declaration:
  * by default as int, but they a full declaration can follow. */
 identifier_list:
         IDENTIFIER
-			{ obj_define(*$1, new Tbasic(b_int)); }
+			{ obj_define($1.get_token(), basic(b_int)); }
         | identifier_list ',' IDENTIFIER
         ;
 

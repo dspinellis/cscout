@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.5 2001/09/10 13:48:54 dds Exp $
+ * $Id: ctoken.cpp,v 1.6 2001/09/12 07:09:08 dds Exp $
  */
 
 #include <map>
@@ -30,8 +30,8 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "ctoken.h"
-#include "stab.h"
 #include "type.h"
+#include "stab.h"
 #include "parse.tab.h"
 
 /*
@@ -149,7 +149,7 @@ parse_lex_real()
 			if (ik != keymap.end())
 				return (*ik).second;	// Keyword
 			id = obj_lookup(t.get_val());
-			if (id && id->get_type()->is_typedef())
+			if (id && id->get_type().is_typedef())
 				return (TYPEDEF_NAME);	// Probably typedef
 			parse_lval.c = new Ctoken(t);
 			return (IDENTIFIER);		// Plain identifier
