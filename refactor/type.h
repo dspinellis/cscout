@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.14 2001/09/22 07:13:00 dds Exp $
+ * $Id: type.h,v 1.15 2001/09/22 07:59:48 dds Exp $
  */
 
 #ifndef TYPE_
@@ -32,8 +32,6 @@ enum e_storage_class {
 	c_register
 };
 
-
-enum e_tagtype {tt_struct, tt_union, tt_enum};
 
 class Id;
 class Tbasic;
@@ -129,8 +127,6 @@ public:
 	friend Type function_returning(Type t);
 	friend Type implict_function();
 	friend Type enum_tag();
-	friend Type struct_tag();
-	friend Type union_tag();
 	friend Type struct_union(const Token &tok, const Type &typ, const Type &spec);
 	friend Type struct_union(const Type &spec);
 	friend Type label();

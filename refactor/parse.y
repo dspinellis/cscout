@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.20 2001/09/22 07:38:52 dds Exp $
+ * $Id: parse.y,v 1.21 2001/09/22 07:59:48 dds Exp $
  *
  */
 
@@ -114,6 +114,7 @@ void parse_error(char *s)
 %type <t> member_identifier_declarator
 %type <t> elaborated_type_name
 %type <t> aggregate_name
+%type <t> enum_name
 
 %type <t> declarator
 %type <t> typedef_declarator
@@ -651,8 +652,7 @@ basic_type_name:
 elaborated_type_name:
         aggregate_name
         | enum_name
-		{ $$ = basic(b_int); }
-        ;
+        ; /* Default rules */
 
 aggregate_name:
         aggregate_key '{'  member_declaration_list '}'
@@ -771,13 +771,27 @@ bit_field_size:
 
 enum_name:
         ENUM '{' enumerator_list '}'
+		{ $$ = enum_tag(); }
         | ENUM identifier_or_typedef_name '{' enumerator_list '}'
+		{ tag_define($2.get_token(), $$ = enum_tag()); }
         | ENUM identifier_or_typedef_name
+		{ 
+			Id const *id = tag_lookup($2.get_name());
+			if (id) {
+				unify(id->get_token(), $2.get_token());
+				$$ = id->get_type();
+				if (DP())
+					cout << "lookup returns " << $$ << "\n";
+			} else
+				$$ = basic(b_undeclared);
+		}
         ;
 
 enumerator_list:
         identifier_or_typedef_name enumerator_value_opt
+			{ obj_define($1.get_token(), basic(b_int)); }
         | enumerator_list ',' identifier_or_typedef_name enumerator_value_opt
+			{ obj_define($3.get_token(), basic(b_int)); }
         ;
 
 enumerator_value_opt:

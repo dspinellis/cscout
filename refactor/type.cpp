@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.12 2001/09/22 07:42:06 dds Exp $
+ * $Id: type.cpp,v 1.13 2001/09/22 07:59:48 dds Exp $
  */
 
 #include <iostream>
@@ -178,19 +178,7 @@ function_returning(Type t)
 Type
 enum_tag()
 {
-	return Type(new Ttag(tt_enum));
-}
-
-Type
-struct_tag()
-{
-	return Type(new Ttag(tt_struct));
-}
-
-Type
-union_tag()
-{
-	return Type(new Ttag(tt_union));
+	return Type(new Tenum());
 }
 
 Type
@@ -281,20 +269,15 @@ Tlabel::print(ostream &o) const
 }
 
 void
-Ttag::print(ostream &o) const
-{
-	switch (type) {
-	case tt_struct: o << "struct "; break;
-	case tt_union: o << "union "; break;
-	case tt_enum: o << "enum "; break;
-	}
-}
-
-
-void
 Tsu::print(ostream &o) const
 {
 	o << "struct/union " << members;
+}
+
+void
+Tenum::print(ostream &o) const
+{
+	o << "enum ";
 }
 
 void

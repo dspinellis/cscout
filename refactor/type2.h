@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.2 2001/09/22 07:38:52 dds Exp $
+ * $Id: type2.h,v 1.3 2001/09/22 07:59:48 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -55,15 +55,14 @@ public:
 	enum e_storage_class get_storage_class() const {return returning.get_storage_class(); }
 };
 
-// Tag for ..
-class Ttag: public Type_node {
+// Enumeration
+class Tenum: public Type_node {
 private:
-	bool incomplete;
-	enum e_tagtype type;
+	Tstorage sclass;
 public:
-	Ttag(enum e_tagtype e, bool i = true) :
-		incomplete(i), type(e) {}
 	void print(ostream &o) const;
+	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
+	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 };
 
 class Stab;
