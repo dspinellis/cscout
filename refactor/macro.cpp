@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.4 2001/09/03 07:50:22 dds Exp $
+ * $Id: macro.cpp,v 1.5 2001/09/03 10:28:38 dds Exp $
  */
 
 #include <iostream>
@@ -22,6 +22,7 @@
 #include <cstdlib>		// strtol
 
 #include "cpp.h"
+#include "debug.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
@@ -34,7 +35,6 @@
 #include "pdtoken.h"
 #include "tchar.h"
 #include "ctoken.h"
-#include "debug.h"
 
 
 void macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more);
