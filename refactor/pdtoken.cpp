@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.27 2001/09/01 10:59:28 dds Exp $
+ * $Id: pdtoken.cpp,v 1.28 2001/09/01 13:26:23 dds Exp $
  */
 
 #include <iostream>
@@ -676,6 +676,27 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 	macro_replace_all(tokens, pos, tabu, get_more);
 	// cout << "Rescan ends\n";
 	return (pos);
+}
+
+static inline bool
+space_eq(Ptoken& a, Ptoken& b)
+{
+	return a.is_space() && b.is_space();
+}
+
+// True if two macro definitions are the same
+inline bool
+operator ==(const Macro& a, const Macro& b)
+{
+	if (a.is_function != b.is_function || a.formal_args != b.formal_args)
+		return false;
+	
+	// Remove consecutive spaces
+	dequePtoken va(a.value);
+	dequePtoken vb(b.value);
+	va.erase(unique(va.begin(), va.end(), space_eq), va.end());
+	vb.erase(unique(vb.begin(), vb.end(), space_eq), vb.end());
+	return (va == vb);
 }
 
 

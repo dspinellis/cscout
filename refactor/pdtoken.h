@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.12 2001/09/01 05:33:56 dds Exp $
+ * $Id: pdtoken.h,v 1.13 2001/09/01 13:26:23 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -28,7 +28,7 @@ public:
 	bool is_function;		// True if it is a function-macro
 	dequePtoken formal_args;	// Formal arguments (names)
 	dequePtoken value;		// Macro value
-	inline friend bool operator ==(const Macro& a, const Macro& b);
+	friend bool operator ==(const Macro& a, const Macro& b);
 	inline friend bool operator !=(const Macro& a, const Macro& b) { return !(a == b); };
 };
 
@@ -66,13 +66,5 @@ public:
 	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more);
 };
 
-// True if two macro definitions are the same
-inline bool
-operator ==(const Macro& a, const Macro& b)
-{
-	return (a.is_function == b.is_function && 
-		a.formal_args == b.formal_args &&
-		a.value == b.value);
-}
 
 #endif // PDTOKEN
