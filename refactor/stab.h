@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.13 2002/09/10 14:45:18 dds Exp $
+ * $Id: stab.h,v 1.14 2002/09/10 21:33:10 dds Exp $
  */
 
 #ifndef STAB_
@@ -21,7 +21,7 @@
  * 3. Members of structures and unions
  *    One per structure or union, disambiguated by the type
  *    of the expression used to access it.
- *    Stored in Tsu.members, defined using members.define.
+ *    Stored in Tsu.members, defined using Tsu ctor or add_member
  * 4. All other objects
  *    AKA ordinary identifiers, stored in Block.obj
  */
