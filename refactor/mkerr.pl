@@ -1,7 +1,7 @@
 #
 # Generate the warning and error message list
 #
-# $Id: mkerr.pl,v 1.2 2003/06/17 11:07:46 dds Exp $
+# $Id: mkerr.pl,v 1.3 2003/06/21 16:18:28 dds Exp $
 #
 
 
@@ -26,8 +26,11 @@ while (<>) {
 		substr($msg, 0, 1) = uc(substr($msg, 0, 1));
 		$expl =~ s/\s+$//;
 		$expl .= '.' unless ($expl =~ m/\.$/);
-		push(@{$error{$sev}},
-			'<li> <code>' . $msg . '</code><br>' . $expl . '<p>');
+		if (!$seen{$msg . $expl}) {
+			push(@{$error{$sev}},
+				'<li> <code>' . $msg . '</code><br>' . $expl . '<p>');
+			$seen{$msg . $expl} = 1;
+		}
 		undef $expl;
 	}
 }
