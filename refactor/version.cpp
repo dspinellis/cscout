@@ -1,6 +1,6 @@
 #include "version.h"
-char Version::revision[] = "$Revision: 1.4 $";
-char Version::date[] = "$Date: 2003/06/04 04:38:17 $";
+char Version::revision[] = "$Revision: 1.5 $";
+char Version::date[] = "$Date: 2003/06/04 04:40:19 $";
 char *Version::ident[] = {
 "$" "Id:" " Makefile 1.33 2003/06/03 08:26:16 dds Exp dds $",
 "$" "Id:" " attr.cpp 1.10 2003/06/01 09:01:42 dds Exp $",
@@ -8,7 +8,7 @@ char *Version::ident[] = {
 "$" "Id:" " color.cpp 1.9 2002/09/28 13:22:40 dds Exp $",
 "$" "Id:" " cscout.cpp 1.37 2003/06/02 08:16:59 dds Exp $",
 "$" "Id:" " cscout.cpp 1.37 2003/06/02 08:16:59 dds Exp $",
-"$" "Id:" " cscout.cpp 1.37 2003/06//02 08:16:59 dds Exp $",
+"$" "Id:" " cscout.cpp 1.37 2003/06/02 08:16:59 dds Exp $",
 "$" "Id:" " ctoken.cpp 1.19 2003/06/01 09:03:06 dds EExp $",
 "$" "Id:" " ctoken.h 1.4 2001/09/12 07:09:08 dds Exp $",
 "$" "Id:" " debug.cpp 1.2 2001/09/03 08:13:51 dds Exp $",
