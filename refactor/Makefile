@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.3 2001/09/02 15:01:23 dds Exp $
+# $Id: Makefile,v 1.4 2001/09/02 15:29:26 dds Exp $
 #
 
 OBJ=eclass.o error.o fchar.o fileid.o pdtoken.o pltoken.o \
@@ -14,7 +14,8 @@ CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
 test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
 test/nested.c test/mkfun.c test/ansi-p92.c \
 test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
-test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c
+test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
+test/empty.c
 
 #all: color
 all: simple_cpp

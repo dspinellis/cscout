@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.35 2001/09/02 15:01:23 dds Exp $
+ * $Id: pdtoken.cpp,v 1.36 2001/09/02 15:29:26 dds Exp $
  */
 
 #include <iostream>
@@ -368,7 +368,7 @@ Pdtoken::process_define()
 		// Function-like macro
 		m.set_is_function(true);
 		t.template getnext_nospc<Fchar>();
-		if (t.get_code() != ')')
+		if (t.get_code() != ')') {
 			// Formal args follow; gather them
 			for (;;) {
 				if (t.get_code() != IDENTIFIER) {
@@ -379,8 +379,10 @@ Pdtoken::process_define()
 				args[t.get_val()] = t;
 				m.form_args_push_back(t);
 				t.template getnext_nospc<Fchar>();
-				if (t.get_code() == ')')
+				if (t.get_code() == ')') {
+					t.template getnext<Fchar>();
 					break;
+				}
 				if (t.get_code() != ',') {
 					Error::error(E_ERR, "Invalid macro parameter punctuation");
 					eat_to_eol();
@@ -388,21 +390,22 @@ Pdtoken::process_define()
 				}
 				t.template getnext_nospc<Fchar>();
 			}
+		} else
+			t.template getnext<Fchar>();
 	}
 	// Continue gathering macro body
-	for (int i = 0;; i++) {
-		// Non-leading whitespace is significant for comparing same 
-		// definitions.
-		if (i == 0)
-			t.template getnext_nospc<Fchar>();
-		else
+	for (bool lead = true; t.get_code() != '\n';) {
+		// Ignore leading whitespace
+		if (lead && t.is_space()) {
 			t.template getnext<Fchar>();
-		if (t.get_code() == '\n')
-			break;
+			continue;
+		}
+		lead = false;
 		m.value_push_back(t);
 		mapToken::const_iterator i;
 		if ((i = args.find(t.get_val())) != args.end())
 			unify(t, (*i).second);
+		t.template getnext<Fchar>();
 	}
 	m.value_rtrim();
 	// cout << "Macro definition :\n";
