@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.63 2002/09/17 10:53:02 dds Exp $
+ * $Id: pdtoken.cpp,v 1.64 2002/09/17 16:35:46 dds Exp $
  */
 
 #include <iostream>
@@ -704,6 +704,8 @@ Pdtoken::process_pragma()
 		dirstack.pop();
 	} else if (t.get_val() == "clear_include")
 		Pdtoken::clear_include();
+	else if (t.get_val() == "clear_defines")
+		Pdtoken::macros_clear();
 	else if (t.get_val() == "ro_prefix") {
 		t.template getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
