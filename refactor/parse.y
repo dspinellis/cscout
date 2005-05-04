@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.96 2004/08/05 21:08:39 dds Exp $
+ * $Id: parse.y,v 1.97 2005/05/04 14:44:09 dds Exp $
  *
  */
 
@@ -149,6 +149,32 @@ designator_close()
 		; // The error will be reported as a syntax error
 }
 
+/*
+ * According to ANSI C 99 6.2.5 paragraph 22:
+ * A structure or union type of unknown content (as described in 6.7.2.3)
+ * is an incomplete type. It is completed, for all declarations of that
+ * type, by declaring the same structure or union tag with its defining
+ * content later in the same scope.
+ * Here we complete typedefs.  Member access of incomplete types is
+ * handled in a similar manner in Tincomplete::member().
+ */
+static Type
+completed_typedef(Type t)
+{
+	Id const *id = obj_lookup(t.get_name());
+	assert(id);	// If it's a typedef it can be found
+	Token::unify(id->get_token(), t.get_token());
+	if (id->get_type().is_incomplete()) {
+		if (DP())
+			cout << "Lookup for " << id->get_type().get_token().get_name() << "\n";
+		const Id *id2 = tag_lookup(Block::get_scope_level(), id->get_type().get_token().get_name());
+		if (id2)
+			id = id2;
+	}
+	if (DP())
+		cout << "The typedef type is " << id->get_type().clone() << "\n";
+	return id->get_type().clone();
+}
 
 
 #define YYSTYPE_CONSTRUCTOR
@@ -901,10 +927,7 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 		}
         | declaration_qualifier_list    TYPEDEF_NAME
 		{
-			Id const *id = obj_lookup($2.get_name());
-			assert(id);	// If it's a typedef it can be found
-			Token::unify(id->get_token(), $2.get_token());
-			$$ = id->get_type().clone();
+			$$ = completed_typedef($2);
 			$$.set_storage_class($1);
 			$$.add_qualifiers($1);
 		}
@@ -917,18 +940,12 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 typedef_type_specifier:              /* typedef types */
         TYPEDEF_NAME
 		{
-			Id const *id = obj_lookup($1.get_name());
-			assert(id);	// If it's a typedef it can be found
-			Token::unify(id->get_token(), $1.get_token());
-			$$ = id->get_type().clone();
+			$$ = completed_typedef($1);
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
 		}
         | type_qualifier_list    TYPEDEF_NAME
 		{
-			Id const *id = obj_lookup($2.get_name());
-			assert(id);	// If it's a typedef it can be found
-			Token::unify(id->get_token(), $2.get_token());
-			$$ = id->get_type().clone();
+			$$ = completed_typedef($2);
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
 			$$.add_qualifiers($1);
 		}
