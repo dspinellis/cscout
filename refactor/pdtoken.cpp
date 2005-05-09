@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.94 2004/08/05 20:39:18 dds Exp $
+ * $Id: pdtoken.cpp,v 1.95 2005/05/09 12:45:46 dds Exp $
  */
 
 #include <iostream>
@@ -89,7 +89,7 @@ expand_get:
 		return;
 	}
 again:
-	t.template getnext<Fchar>();
+	t.getnext<Fchar>();
 	if (at_bol) {
 		switch (t.get_code()) {
 		case SPACE:
@@ -166,7 +166,7 @@ Pdtoken::eat_to_eol()
 	Pltoken t;
 
 	do {
-		t.template getnext<Fchar>();
+		t.getnext<Fchar>();
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 }
 
@@ -248,7 +248,7 @@ eval()
 	// Read eval_tokens
 	eval_tokens.clear();
 	do {
-		t.template getnext<Fchar>();
+		t.getnext<Fchar>();
 		eval_tokens.push_back(t);
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 
@@ -395,7 +395,7 @@ Pdtoken::process_ifdef(bool isndef)
 	else {
 		Pltoken t;
 
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != IDENTIFIER)
 			/*
 			 * @error
@@ -523,7 +523,7 @@ Pdtoken::process_include(bool next)
 	// Get tokens till end of line
 	Pltoken::set_context(cpp_include);
 	do {
-		t.template getnext<Fchar>();
+		t.getnext<Fchar>();
 		tokens.push_back(t);
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 	// Remove leading space
@@ -554,7 +554,7 @@ Pdtoken::process_include(bool next)
 			Tchar::push_input(*i);
 		Tchar::rewind_input();
 		Pltoken::set_context(cpp_include);
-		t.template getnext<Tchar>();
+		t.getnext<Tchar>();
 		f = t;
 	}
 	if (f.get_code() == EOF) {
@@ -607,7 +607,7 @@ Pdtoken::process_define()
 	if (skiplevel >= 1)
 		return;
 	Pltoken::set_context(cpp_define);
-	t.template getnext_nospc<Fchar>();
+	t.getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
 		/*
 		 * @error
@@ -623,13 +623,13 @@ Pdtoken::process_define()
 	t.set_ec_attribute(is_macro);
 	Pltoken nametok = t;
 	name = t.get_val();
-	t.template getnext<Fchar>();	// Space is significant: a(x) vs a (x)
+	t.getnext<Fchar>();	// Space is significant: a(x) vs a (x)
 	bool is_function = (t.get_code() == '(');
 	Macro m(nametok, true, is_function);
 	if (is_function) {
 		// Function-like macro
 		m.set_is_vararg(false);
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != ')') {
 			/*
 			 * Formal args follow; gather them
@@ -655,9 +655,9 @@ Pdtoken::process_define()
 					t.set_ec_attribute(is_macroarg);
 					args[t.get_val()] = t;
 					m.form_args_push_back(t);
-					t.template getnext_nospc<Fchar>();
+					t.getnext_nospc<Fchar>();
 					if (t.get_code() == ')') {
-						t.template getnext<Fchar>();
+						t.getnext<Fchar>();
 						break;
 					}
 				} else {
@@ -668,7 +668,7 @@ Pdtoken::process_define()
 				// This applies to C99 and gcc varargs
 				if (t.get_code() == ELLIPSIS) {
 					m.set_is_vararg(true);
-					t.template getnext_nospc<Fchar>();
+					t.getnext_nospc<Fchar>();
 					if (t.get_code() != ')') {
 						/*
 						 * @error
@@ -680,7 +680,7 @@ Pdtoken::process_define()
 						eat_to_eol();
 						return;
 					}
-					t.template getnext<Fchar>();
+					t.getnext<Fchar>();
 					break;
 				}
 				if (t.get_code() != ',') {
@@ -695,10 +695,10 @@ Pdtoken::process_define()
 					eat_to_eol();
 					return;
 				}
-				t.template getnext_nospc<Fchar>();
+				t.getnext_nospc<Fchar>();
 			}
 		} else
-			t.template getnext<Fchar>();
+			t.getnext<Fchar>();
 	}
 	if (DP()) cout << "Body starts with " << t;
 	// Continue gathering macro body
@@ -706,7 +706,7 @@ Pdtoken::process_define()
 		// Ignore leading whitespace (not newlines)
 		if (lead && t.is_space()) {
 			if (t.get_code() == SPACE)
-				t.template getnext<Fchar>();
+				t.getnext<Fchar>();
 			if (t.get_code() == '\n')
 				break;
 			continue;
@@ -716,7 +716,7 @@ Pdtoken::process_define()
 		mapToken::const_iterator i;
 		if (t.get_code() == IDENTIFIER && (i = args.find(t.get_val())) != args.end())
 			Token::unify((*i).second, t);
-		t.template getnext<Fchar>();
+		t.getnext<Fchar>();
 	}
 	m.value_rtrim();
 
@@ -755,7 +755,7 @@ Pdtoken::process_undef()
 
 	if (skiplevel >= 1)
 		return;
-	t.template getnext_nospc<Fchar>();
+	t.getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
 		Error::error(E_ERR, "Invalid macro name");
 		eat_to_eol();
@@ -803,7 +803,7 @@ Pdtoken::process_error(enum e_error_level e)
 	if (skiplevel >= 1)
 		return;
 	for (;;) {
-		t.template getnext<Fchar>();
+		t.getnext<Fchar>();
 		if (t.get_code() == EOF || t.get_code() == '\n')
 			break;
 		else
@@ -823,13 +823,13 @@ Pdtoken::process_pragma()
 
 	if (skiplevel >= 1)
 		return;
-	t.template getnext_nospc<Fchar>();
+	t.getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
 		eat_to_eol();
 		return;
 	}
 	if (t.get_val() == "sync") {
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
 			 * @error
@@ -843,7 +843,7 @@ Pdtoken::process_pragma()
 			return;
 		}
 		string fname = t.get_val();
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != PP_NUMBER) {
 			/*
 			 * @error
@@ -863,7 +863,7 @@ Pdtoken::process_pragma()
 	} else if (t.get_val() == "nosync") {
 		// XXX now do the work
 	} else if (t.get_val() == "includepath") {
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
 			 * @error
@@ -879,7 +879,7 @@ Pdtoken::process_pragma()
 		Pdtoken::add_include(t.get_val());
 		if (DP()) cout << "Include path " << t.get_val() << "\n";
 	} else if (t.get_val() == "echo") {
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
 			 * @error
@@ -896,7 +896,7 @@ Pdtoken::process_pragma()
 		for (string::const_iterator i = s.begin(); i != s.end();)
 			cout << unescape_char(s, i);
 	} else if (t.get_val() == "project") {
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
 			 * @error
@@ -911,7 +911,7 @@ Pdtoken::process_pragma()
 		}
 		Project::set_current_project(t.get_val());
 	} else if (t.get_val() == "readonly") {
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
 			 * @error
@@ -930,7 +930,7 @@ Pdtoken::process_pragma()
 		int parse_parse();
 		void garbage_collect(Fileid fi);
 
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
 			 * @error
@@ -962,7 +962,7 @@ Pdtoken::process_pragma()
 			 */
 			Error::error(E_FATAL, "#pragma pushd: unable to get current directory: " + string(strerror(errno)));
 		dirstack.push(buff);
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
 			 * @error
@@ -998,7 +998,7 @@ Pdtoken::process_pragma()
 	else if (t.get_val() == "clear_defines")
 		Pdtoken::macros_clear();
 	else if (t.get_val() == "ro_prefix") {
-		t.template getnext_nospc<Fchar>();
+		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
 			 * @error
@@ -1025,7 +1025,7 @@ Pdtoken::process_directive()
 	Pltoken t;
 
 	Fchar::get_fileid().metrics().add_ppdirective();
-	t.template getnext_nospc<Fchar>();
+	t.getnext_nospc<Fchar>();
 	if (t.get_code() == '\n')		// Empty directive
 		return;
 	if (DP())
