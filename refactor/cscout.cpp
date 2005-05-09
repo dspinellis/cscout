@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.113 2004/08/10 10:21:47 dds Exp $
+ * $Id: cscout.cpp,v 1.114 2005/05/09 12:46:43 dds Exp $
  */
 
 #include <map>
@@ -38,6 +38,7 @@
 #endif
 
 #include "cpp.h"
+#include "debug.h"
 #include "ytab.h"
 #include "attr.h"
 #include "metrics.h"
@@ -51,7 +52,6 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "eclass.h"
-#include "debug.h"
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
