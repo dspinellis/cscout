@@ -1,21 +1,21 @@
-.TH CSCOUT 1 "12 August 2003"
-.\" 
-.\" (C) Copyright 2003 Diomidis Spinellis.  All rights reserved.
-.\" 
+.TH CSCOUT 1 "8 May 2005"
+.\"
+.\" (C) Copyright 2003-2005 Diomidis Spinellis.  All rights reserved.
+.\"
 .\" This software can be copied, distributed, and used subject to the
-.\" terms of the CScout public license available in the CScout documentation 
+.\" terms of the CScout public license available in the CScout documentation
 .\" and online at http://www.spinellis.gr/cscout/doc/license.html
-.\" 
+.\"
 .\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.6 2003/08/21 19:30:16 dds Exp $
+.\" $Id: cscout.1,v 1.7 2005/05/09 14:10:47 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
-\fBcscout\fP 
+\fBcscout\fP
 [\fB\-cErv\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
@@ -26,7 +26,7 @@ of C programs.
 It can process workspaces of multiple projects (we define
 a project as a collection of C source files that are linked together)
 mapping the complexity introduced by the C preprocessor back into the
-original C source code files. 
+original C source code files.
 \fICScout\fP takes advantage of modern hardware
 advances (fast processors and large memory capacities) to analyze C
 source code beyond the level of detail and accuracy provided by current
@@ -45,7 +45,7 @@ determine whether a given identifier belongs to the application
 or to an external library based on the accessibility and location of the
 header files that declare or define it
 .IP \(bu 4
-locate unused identifiers taking into account inter-project 
+locate unused identifiers taking into account inter-project
 dependencies
 .IP \(bu 4
 perform queries for identifiers based on their namespace,
@@ -97,7 +97,7 @@ Useful, when you simply want to check the source code for errors.
 .IP "\fB\-E\fP"
 Preprocess the specified file and send the result to the standard
 output.
-Note that for this option to work correctly, you need to 
+Note that for this option to work correctly, you need to
 also process the workspace definition file with \fB-E\fP.
 .IP "\fB\-p\fP \fIport\fP"
 The web server will listen for requests on the TCP port number specified.
@@ -105,7 +105,7 @@ By default the \fICScout\fP server will listen at port 8081.
 The port number must be in the range 1024-32767.
 .IP "\fB\-m\fP \fIspecification\fP"
 Specify the type of identifiers that \fICScout\fP will monitor.
-The identifier attribute specification is given using the syntax: 
+The identifier attribute specification is given using the syntax:
 Y\fB|\fPL\fB|\fPE\fB|\fPT\fB[:\fP\fIattr1\fB][:\fP\fIattr2\fP\fB]\fP...
 The meaning of the first letter is:
 .RS 4
@@ -171,6 +171,15 @@ therefore be automatically processed by editors that recognize this
 format.
 .IP "\fB\-v\fP"
 Display  the \fICScout\fP version and copyright information and exit.
+.IP "\fB\-H\fP \fIproxy host\fP"
+Specify a proxy HTTP host for connecting to the program's
+registration and licensing server.
+This option is only available on the commercial version of \fICScout\fP.
+.IP "\fB\-P\fP \fIproxy host port\fP"
+Specify the proxy HTTP host port for connecting to the program's
+registration and licensing server.
+The default port is 80.
+This option is only available on the commercial version of \fICScout\fP.
 .PP
 .SH EXAMPLE
 Assume you want to analyze three programs in \fC/usr/src/bin\fP.
@@ -255,4 +264,4 @@ We are now ready to serve you at http://localhost:8081
 .SH "SEE ALSO"
 cswc(1)
 .SH AUTHOR
-(C) Copyright 2003 Diomidis Spinellis.
+(C) Copyright 2003-2005 Diomidis Spinellis.
