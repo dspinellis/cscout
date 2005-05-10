@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.114 2005/05/09 12:46:43 dds Exp $
+ * $Id: cscout.cpp,v 1.115 2005/05/10 21:56:48 dds Exp $
  */
 
 #include <map>
@@ -2252,7 +2252,12 @@ usage(char *fname)
 		"\t\t(the port number must be in the range 1024-32767)\n"
 		"\t-r\tGenerate an identifier and include file warning report\n"
 		"\t-v\tDisplay version and copyright information and exit\n"
-		"\t-m spec\tSpecify identifiers to monitor (unsound)\n";
+		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
+#ifdef COMMERCIAL
+		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n"
+		"\t-P port\tHTTP proxy host port (default 80)\n"
+#endif
+		;
 	exit(1);
 }
 
@@ -2274,10 +2279,13 @@ main(int argc, char *argv[])
 	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
 		cscout_des_decode(licensee + i * 8);
 	cscout_des_done();
+#define COMMERCIAL_OPTIONS "H:P:"
+#else
+#define COMMERCIAL_OPTIONS ""
 #endif
 
 
-	while ((c = getopt(argc, argv, "crvEp:m:")) != EOF)
+	while ((c = getopt(argc, argv, "crvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
 		switch (c) {
 		case 'E':
 			preprocess = true;
@@ -2305,7 +2313,7 @@ main(int argc, char *argv[])
 			Version::get_revision() << " - " <<
 			Version::get_date() << "\n\n"
 			// 80 column terminal width---------------------------------------------------
-			"(C) Copyright 2003 Diomidis Spinelllis, Athens, Greece.\n\n"
+			"(C) Copyright 2003-2005 Diomidis Spinelllis, Athens, Greece.\n\n"
 #ifdef COMMERCIAL
 			"Commercial version.  All rights reserved.\n"
 			"Licensee: " << licensee << ".\n";
@@ -2315,6 +2323,18 @@ main(int argc, char *argv[])
 			"http://www.spinellis.gr/cscout/doc/license.html\n";
 #endif
 			exit(0);
+#ifdef COMMERCIAL
+		case 'H':
+			if (!optarg)
+				usage(argv[0]);
+			license_set_proxy_host(optarg);
+			break;
+		case 'P':
+			if (!optarg)
+				usage(argv[0]);
+			license_set_proxy_port(atoi(optarg));
+			break;
+#endif /* COMMERCIAL */
 		case '?':
 			usage(argv[0]);
 		}
