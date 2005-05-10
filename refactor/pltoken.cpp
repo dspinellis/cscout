@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.12 2004/07/23 06:55:38 dds Exp $
+ * $Id: pltoken.cpp,v 1.13 2005/05/10 21:10:17 dds Exp $
  */
 
 #include <iostream>
@@ -19,6 +19,7 @@
 #include <cassert>
 
 #include "cpp.h"
+#include "debug.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
