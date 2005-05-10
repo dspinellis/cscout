@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.29 2004/08/07 21:49:01 dds Exp $
+ * $Id: macro.cpp,v 1.30 2005/05/10 21:11:10 dds Exp $
  */
 
 #include <iostream>
@@ -58,7 +58,7 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
 			return (*pos++);
 		if (get_more) {
 			Pltoken t;
-			t.template getnext<Fchar>();
+			t.getnext<Fchar>();
 			return (t);
 		}
 		return Ptoken(EOF, "");
@@ -70,7 +70,7 @@ arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool wan
 		if (get_more) {
 			Pltoken t;
 			do {
-				t.template getnext_nospc<Fchar>();
+				t.getnext_nospc<Fchar>();
 			} while (t.get_code() != EOF && t.is_space());
 			return (t);
 		}
@@ -375,7 +375,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			if (get_more) {
 				Pltoken t;
 				do {
-					t.template getnext<Fchar>();
+					t.getnext<Fchar>();
 					tokens.push_back(t);
 				} while (t.get_code() != EOF && t.is_space());
 				if (t.get_code() != '(')
@@ -550,7 +550,7 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 			tokens.erase(left, next);
 			for (;;) {
 				Pltoken t;
-				t.template getnext<Tchar>();
+				t.getnext<Tchar>();
 				if (t.get_code() == EOF)
 					break;
 				if (DP()) cout << "Result: " << t ;
