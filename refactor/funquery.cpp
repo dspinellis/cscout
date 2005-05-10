@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.9 2004/08/01 07:51:30 dds Exp $
+ * $Id: funquery.cpp,v 1.10 2005/05/10 22:09:54 dds Exp $
  */
 
 #include <map>
@@ -28,6 +28,7 @@
 #include "getopt.h"
 
 #include "cpp.h"
+#include "debug.h"
 #include "ytab.h"
 #include "attr.h"
 #include "metrics.h"
@@ -41,7 +42,6 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "eclass.h"
-#include "debug.h"
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"

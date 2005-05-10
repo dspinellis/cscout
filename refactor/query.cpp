@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.4 2004/08/01 12:51:14 dds Exp $
+ * $Id: query.cpp,v 1.5 2005/05/10 22:09:54 dds Exp $
  */
 
 #include <map>
@@ -28,6 +28,7 @@
 #include "swill.h"
 
 #include "cpp.h"
+#include "debug.h"
 #include "ytab.h"
 #include "attr.h"
 #include "metrics.h"
@@ -41,7 +42,6 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "eclass.h"
-#include "debug.h"
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
