@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.95 2005/05/09 12:45:46 dds Exp $
+ * $Id: pdtoken.cpp,v 1.96 2005/05/10 21:08:50 dds Exp $
  */
 
 #include <iostream>
@@ -18,7 +18,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
-#if __GLIBCPP__ >= 20020816
+#if __GNUG__ >= 3
 #include <ext/functional>	// compose1
 #else
 #include <functional>		// compose1
@@ -48,8 +48,8 @@
 #include "type.h"		// stab.h
 #include "stab.h"		// Block::enter()
 
-#if __GLIBCPP__ >= 20020816
-using namespace __gnu_cxx;	// STL extensions
+#if __GNUG__ >= 3
+using __gnu_cxx::compose1;	// STL extensions
 #endif
 
 bool Pdtoken::at_bol = true;
