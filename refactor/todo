@@ -1,19 +1,33 @@
-$Id: todo,v 1.60 2004/08/08 09:16:32 dds Exp $
+$Id: todo,v 1.61 2005/05/14 07:53:18 dds Exp $
+
+Test the proxy host and port specification
+
+Collect maintainability index and oo metrics (see SSAO04.)
+Pointer analysis
+Locate similar / same lines (irrelevant, but useful for refactoring)
+Precise Call Graphs for C Programs with Function Pointers
+Milanova A., Rountev A., Ryder B.   Automated Software Engineering 11(1): 7-26, 2004.
+
+Create a cc-compatible front-end that will accumulate invocation
+intructions in a script, or send them to a cscout server,
+as an alternative to the current configuration approach.
+
+See perforce terms:
+http://www.perforce.com/perforce/price.html
 
 Document:
 File substitution RE
 
 - option to review and undo changes
+- option to color highlighted elements
+- option to color comments
+
 
 Regression tests
 Eliminate the dybamic cast by storing Call* pointers
 Remove virtual method qualifiers from leaf classes
 
 Remember to update SWILL/Source/SWILL/mime.o in the Unix distributions.
-
-Document function functionality (remember, it is more than
-the function section).
-Document unprocessed region functionality.
 
 Handle conditional compilation!!!!
 	Each conditional compilation statement can be trivially handled
@@ -31,7 +45,7 @@ Refactorings
 	- Add nth function argument (with default value)
 	- Remove nth function argument
 
-Add type specifiers:
+Add support for type specifiers:
 	_Bool
 	_Complex
 	_Imaginary

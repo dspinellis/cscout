@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.115 2005/05/10 21:56:48 dds Exp $
+ * $Id: cscout.cpp,v 1.116 2005/05/14 07:53:18 dds Exp $
  */
 
 #include <map>
@@ -68,6 +68,7 @@
 
 #ifdef COMMERCIAL
 #include "des.h"
+#include "workdb.h"
 #endif
 
 
@@ -86,6 +87,7 @@ static string sfile_repl_string;	// Saved files replacement string
 // Global command-line options
 static bool preprocess;			// Preprocess-only (-E)
 static bool compile_only;		// Process-only (-c)
+static bool sql_output;			// Create SQL output
 static bool report;			// Generate a warning report
 static int portno = 8081;		// Port number (-p n)
 
@@ -2095,24 +2097,24 @@ parse_acl()
 	string fname;
 
 	if (cscout_file("acl", in, fname)) {
-		cout << "Parsing ACL from " << fname << "\n";
+		cerr << "Parsing ACL from " << fname << "\n";
 		for (;;) {
 			in >> ad;
 			if (in.eof())
 				break;
 			in >> host;
 			if (ad == "A") {
-				cout << "Allow from IP address " << host << "\n";
+				cerr << "Allow from IP address " << host << "\n";
 				swill_allow(host.c_str());
 			} else if (ad == "D") {
-				cout << "Deny from IP address " << host << "\n";
+				cerr << "Deny from IP address " << host << "\n";
 				swill_deny(host.c_str());
 			} else
-				cout << "Bad ACL specification " << ad << " " << host << "\n";
+				cerr << "Bad ACL specification " << ad << " " << host << "\n";
 		}
 		in.close();
 	} else {
-		cout << "No ACL found.  Only localhost access will be allowed.\n";
+		cerr << "No ACL found.  Only localhost access will be allowed.\n";
 		swill_allow("127.0.0.1");
 	}
 }
@@ -2279,7 +2281,7 @@ main(int argc, char *argv[])
 	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
 		cscout_des_decode(licensee + i * 8);
 	cscout_des_done();
-#define COMMERCIAL_OPTIONS "H:P:"
+#define COMMERCIAL_OPTIONS "sH:P:"
 #else
 #define COMMERCIAL_OPTIONS ""
 #endif
@@ -2324,6 +2326,9 @@ main(int argc, char *argv[])
 #endif
 			exit(0);
 #ifdef COMMERCIAL
+		case 's':
+			sql_output = true;
+			break;
 		case 'H':
 			if (!optarg)
 				usage(argv[0]);
@@ -2371,6 +2376,11 @@ main(int argc, char *argv[])
 
 	if (compile_only && !report)
 		return 0;
+
+#ifdef COMMERCIAL
+	if (sql_output)
+		return workdb();
+#endif
 
 	// Pass 2: Create web pages
 	files = Fileid::files(true);

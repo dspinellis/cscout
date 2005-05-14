@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.67 2004/08/07 21:49:01 dds Exp $
+# $Id: Makefile,v 1.68 2005/05/14 07:53:18 dds Exp $
 #
 
 #
@@ -14,7 +14,9 @@ OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
 getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
-logo.o
+logo.o workdb.o
+
+# monitor.o
 
 ifndef ARCH
 ARCH=i386
@@ -53,9 +55,11 @@ CC=g++
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
 
 # Local development flags
-CPPFLAGS=-pipe -g -Wall -DNO_LOCK
+CPPFLAGS=-pipe -g -Wall
+#CPPFLAGS=-DNO_LOCK
 #CPPFLAGS=-DOFFICE_SERVER
 #CPPFLAGS+=-DTEST_LICENSING
+CPPFLAGS+=-DSPINELLIS_SERVER
 
 # Production flags
 #CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION -static
@@ -68,6 +72,8 @@ CPPFLAGS += -DCOMMERCIAL=1
 dummy := $(shell gcc -o ccode -DCCODE des.c)
 dummy := $(shell ./ccode "$(LICENSEE)")
 endif
+
+CPPFLAGS+=$(EXTRA_CPPFLAGS)
 
 CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
 test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
@@ -97,15 +103,13 @@ SSH=ssh
 FREEFALL=freefall.freebsd.org
 endif
 
+SF=dspin@cf-shell.sourceforge.net
+
 #all: obfuscate
-#all: workdb
 #all: webmap
 #all: color
 #all: engine
 #all: simple_cpp
-
-workdb: workdb.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o workdb  $(OBJ) workdb.o
 
 $(ARCH)/cscout: $(ARCH)/cscout.o  $(OBJ)
 	$(CC) $(CPPFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
@@ -165,8 +169,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.67 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2004/08/07 21:49:01 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.68 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/14 07:53:18 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -190,6 +194,9 @@ boottest: simple_cpp
 rdist-debian:
 	tar cvf - $(SRC) | $(SSH) debian tar -C src/cscout -xvf -
 
+rdist-icarian:
+	tar cf - $(SRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
+
 rdist-spiti:
 	tar cvf - $(SRC) | $(SSH) spiti tar -C src/cscout -xvf -
 
@@ -202,6 +209,13 @@ rdist-freefall:
 
 rdist-istlab:
 	tar cvf - $(SRC) | $(SSH) istlab tar -C src/cscout -xvf -
+
+rdist-sourceforge:
+	$(SSH) $(SF) "mkdir src/cs src/cs/sun4 ; chmod 700 src/cscout"
+	tar cf - $(SRC) | gzip -c | $(SSH) $(SF) tar -C src/cs -xzvf -
+
+rdist-tar:
+	tar cvf - $(SRC) | gzip -c >cscout.tar.gz
 
 lf: mkdir
 	chmod +w $(SRC)

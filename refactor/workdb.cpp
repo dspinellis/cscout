@@ -3,8 +3,10 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.11 2004/07/23 06:55:38 dds Exp $
+ * $Id: workdb.cpp,v 1.12 2005/05/14 07:53:18 dds Exp $
  */
+
+#ifdef COMMERCIAL
 
 #include <map>
 #include <string>
@@ -21,6 +23,7 @@
 #include <cstdio>		// perror
 
 #include "cpp.h"
+#include "attr.h"
 #include "ytab.h"
 #include "metrics.h"
 #include "attr.h"
@@ -38,6 +41,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "workdb.h"
 
 // Our identifiers to store as a set
 class Identifier {
@@ -82,7 +86,7 @@ sql(char c)
 	}
 }
 
-static string
+string
 sql(string s)
 {
 	string r;
@@ -94,7 +98,7 @@ sql(string s)
 
 // Insert an equivalence classe in the database
 static void
-insert_eclass(ofstream &of, Eclass *e, const string &name)
+insert_eclass(ostream &of, Eclass *e, const string &name)
 {
 	// Avoid duplicate entries (could also have a dumped Eclass attr)
 	static set <Eclass *> dumped;
@@ -102,7 +106,7 @@ insert_eclass(ofstream &of, Eclass *e, const string &name)
 		return;
 	dumped.insert(e);
 	// Update metrics
-	msum.add_unique_id(e);
+	id_msum.add_unique_id(e);
 
 	of << "INSERT INTO IDS VALUES(" <<
 	(unsigned)e << ",'" <<
@@ -120,7 +124,7 @@ insert_eclass(ofstream &of, Eclass *e, const string &name)
 	sql_bool(e->get_size() == 1) <<
 	");\n";
 	// The projects each EC belongs to
-	for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+	for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
 			of << "INSERT INTO IDPROJ VALUES(" <<
 			(unsigned)e << ',' << j << ");\n";
@@ -129,7 +133,7 @@ insert_eclass(ofstream &of, Eclass *e, const string &name)
 // Add the contents of a file to the Tokens and Strings tables
 // As a side-effect insert corresponding identifiers in the database
 static void
-file_dump(ofstream &of, Fileid fid)
+file_dump(ostream &of, Fileid fid)
 {
 	string plain;
 	Tokid plainstart;
@@ -144,14 +148,14 @@ file_dump(ofstream &of, Fileid fid)
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
-		int val, len;
+		int val;
 
 		ti = Tokid(fid, in.tellg());
 		if ((val = in.get()) == EOF)
 			break;
 		Eclass *ec;
-		if (ec = ti.check_ec())
-			msum.add_id(ec);
+		if ((ec = ti.check_ec()) != NULL)
+			id_msum.add_id(ec);
 		// Identifiers worth marking
 		if (ec && (
 		    ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
@@ -169,7 +173,7 @@ file_dump(ofstream &of, Fileid fid)
 			"," << (unsigned)ti.get_streampos() << "," <<
 			(unsigned)ec << ");\n";
 			if (plain.length() > 0) {
-				of << "INSERT INTO STRINGS VALUES(" <<
+				of << "INSERT INTO REST VALUES(" <<
 				fid.get_id() <<
 				"," << (unsigned)plainstart.get_streampos() <<
 				",'" << plain << "');\n";
@@ -182,32 +186,20 @@ file_dump(ofstream &of, Fileid fid)
 		}
 	}
 	if (plain.length() > 0)
-		of << "INSERT INTO STRINGS VALUES(" << fid.get_id() <<
+		of << "INSERT INTO REST VALUES(" << fid.get_id() <<
 		"," << (unsigned)plainstart.get_streampos() <<
 		",'" << plain << "');\n";
 }
 
-main(int argc, char *argv[])
+int
+workdb(void)
 {
-	Pdtoken t;
-
-	Debug::db_read();
-	// Pass 1: process master file loop
-	Fchar::set_input(argv[1]);
-	do
-		t.getnext();
-	while (t.get_code() != EOF);
-
 	// Pass 2: Create the SQL script
-	vector <Fileid> files = Fileid::sorted_files();
-	ofstream fo("workdb.sql");
-	if (!fo) {
-		perror("workdb.sql");
-		exit(1);
-	}
-	fo <<
+	vector <Fileid> files = Fileid::files(true);
+
+	cout <<
 		"DROP TABLE TOKENS;\n"
-		"DROP TABLE STRINGS;\n"
+		"DROP TABLE REST;\n"
 		"DROP TABLE IDPROJ;\n"
 		"DROP TABLE FILEPROJ;\n"
 		"DROP TABLE IDS;\n"
@@ -230,7 +222,7 @@ main(int argc, char *argv[])
 		"CREATE TABLE TOKENS(FID INTEGER,FOFFSET INTEGER,EID INTEGER,\n"
 		"PRIMARY KEY(FID, FOFFSET), FOREIGN KEY (EID) REFERENCES IDS);\n"
 
-		"CREATE TABLE STRINGS(FID INTEGER,FOFFSET INTEGER,TEXT VARCHAR,"
+		"CREATE TABLE REST(FID INTEGER,FOFFSET INTEGER,TEXT VARCHAR,"
 		"PRIMARY KEY(FID, FOFFSET));\n"
 
 		"CREATE TABLE PROJECTS(PID INTEGER PRIMARY KEY,NAME VARCHAR);\n"
@@ -265,14 +257,14 @@ main(int argc, char *argv[])
 	const Project::proj_map_type &m = Project::get_project_map();
 	Project::proj_map_type::const_iterator pm;
 	for (pm = m.begin(); pm != m.end(); pm++)
-		fo << "INSERT INTO PROJECTS VALUES(" <<
+		cout << "INSERT INTO PROJECTS VALUES(" <<
 		(*pm).second << ",'" << (*pm).first << "');\n";
 
 	// Details for each file
 	// As a side effect populate the EC identifier member
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		file_dump(fo, (*i));
-		fo << "INSERT INTO FILES VALUES(" <<
+		file_dump(cout, (*i));
+		cout << "INSERT INTO FILES VALUES(" <<
 		(*i).get_id() << ",'" <<
 		(*i).get_path() << "'," <<
 		sql_bool((*i).get_readonly()) << ',' <<
@@ -290,17 +282,13 @@ main(int argc, char *argv[])
 		(*i).metrics().get_nstring() <<
 		");\n";
 		// The projects this file belongs to
-		for (int j = attr_max; j < Attributes::get_num_attributes(); j++)
+		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
 			if ((*i).get_attribute(j))
-				fo << "INSERT INTO FILEPROJ VALUES(" <<
+				cout << "INSERT INTO FILEPROJ VALUES(" <<
 				(*i).get_id() << ',' << j << ");\n";
 	}
 
-	// Update fle metrics
-	msum.summarize_files();
-
-	ofstream mf("metrics.txt");
-	mf << msum;
-
 	return (0);
 }
+
+#endif /* COMMERCIAL */

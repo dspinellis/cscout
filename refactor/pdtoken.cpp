@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.96 2005/05/10 21:08:50 dds Exp $
+ * $Id: pdtoken.cpp,v 1.97 2005/05/14 07:53:18 dds Exp $
  */
 
 #include <iostream>
@@ -894,7 +894,7 @@ Pdtoken::process_pragma()
 		}
 		string s = t.get_val();
 		for (string::const_iterator i = s.begin(); i != s.end();)
-			cout << unescape_char(s, i);
+			cerr << unescape_char(s, i);
 	} else if (t.get_val() == "project") {
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
