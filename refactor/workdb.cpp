@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.13 2005/05/14 12:20:04 dds Exp $
+ * $Id: workdb.cpp,v 1.14 2005/05/14 12:44:59 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -142,6 +142,7 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 	(unsigned)e << ",'" <<
 	name << "'," <<
 	db->boolval(e->get_attribute(is_readonly)) << ',' <<
+	db->boolval(e->get_attribute(is_undefined_macro)) << ',' <<
 	db->boolval(e->get_attribute(is_macro)) << ',' <<
 	db->boolval(e->get_attribute(is_macroarg)) << ',' <<
 	db->boolval(e->get_attribute(is_ordinary)) << ',' <<
@@ -149,9 +150,11 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 	db->boolval(e->get_attribute(is_sumember)) << ',' <<
 	db->boolval(e->get_attribute(is_label)) << ',' <<
 	db->boolval(e->get_attribute(is_typedef)) << ',' <<
+	db->boolval(e->get_attribute(is_enum)) << ',' <<
+	db->boolval(e->get_attribute(is_function)) << ',' <<
 	db->boolval(e->get_attribute(is_cscope)) << ',' <<
 	db->boolval(e->get_attribute(is_lscope)) << ',' <<
-	db->boolval(e->get_size() == 1) <<
+	db->boolval(e->is_unused()) <<
 	");\n";
 	// The projects each EC belongs to
 	for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
@@ -184,14 +187,8 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 		if ((val = in.get()) == EOF)
 			break;
 		Eclass *ec;
-		if ((ec = ti.check_ec()) != NULL)
+		if ((ec = ti.check_ec()) && ec->is_identifier()) {
 			id_msum.add_id(ec);
-		// Identifiers worth marking
-		if (ec && (
-		    ec->get_size() > 1 || (ec->get_attribute(is_readonly) == false && (
-		      ec->get_attribute(is_lscope) ||
-		      ec->get_attribute(is_cscope) ||
-		      ec->get_attribute(is_macro))))) {
 			string s;
 			s = (char)val;
 			int len = ec->get_len();
@@ -244,6 +241,7 @@ workdb(const char *dbengine)
 	cout <<
 		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME " << db->varchar() << ","
 		"READONLY " << db->booltype() << ", "
+		"UNDEFMACRO " << db->booltype() << ", "
 		"MACRO " << db->booltype() << ", "
 		"MACROARG " << db->booltype() << ", "
 		"ORDINARY " << db->booltype() << ", "
@@ -251,6 +249,8 @@ workdb(const char *dbengine)
 		"SUMEMBER " << db->booltype() << ", "
 		"LABEL " << db->booltype() << ", "
 		"TYPEDEF " << db->booltype() << ", "
+		"ENUM " << db->booltype() << ", "
+		"FUN " << db->booltype() << ", "
 		"CSCOPE " << db->booltype() << ", "
 		"LSCOPE " << db->booltype() << ", "
 		"UNUSED " << db->booltype() <<
