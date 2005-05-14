@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.68 2005/05/14 07:53:18 dds Exp $
+# $Id: Makefile,v 1.69 2005/05/14 13:42:21 dds Exp $
 #
 
 #
@@ -38,7 +38,8 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
-	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h
+	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
+	workdb.h
 
 ALLSRC=$(SRC) logo.gif
 
@@ -103,7 +104,7 @@ SSH=ssh
 FREEFALL=freefall.freebsd.org
 endif
 
-SF=dspin@cf-shell.sourceforge.net
+SF=shell.cf.sourceforge.net
 
 #all: obfuscate
 #all: webmap
@@ -169,8 +170,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.68 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/14 07:53:18 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.69 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/14 13:42:21 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -211,7 +212,7 @@ rdist-istlab:
 	tar cvf - $(SRC) | $(SSH) istlab tar -C src/cscout -xvf -
 
 rdist-sourceforge:
-	$(SSH) $(SF) "mkdir src/cs src/cs/sun4 ; chmod 700 src/cscout"
+	$(SSH) $(SF) "mkdir src/cs src/cs/sun4 ; chmod 700 src/cs"
 	tar cf - $(SRC) | gzip -c | $(SSH) $(SF) tar -C src/cs -xzvf -
 
 rdist-tar:
