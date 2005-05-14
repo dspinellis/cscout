@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.117 2005/05/14 12:20:04 dds Exp $
+ * $Id: cscout.cpp,v 1.118 2005/05/14 13:43:44 dds Exp $
  */
 
 #include <map>
@@ -87,9 +87,11 @@ static string sfile_repl_string;	// Saved files replacement string
 // Global command-line options
 static bool preprocess;			// Preprocess-only (-E)
 static bool compile_only;		// Process-only (-c)
-static char *sql_db;			// Create SQL output for a specific db
 static bool report;			// Generate a warning report
 static int portno = 8081;		// Port number (-p n)
+#ifdef COMMERCIAL
+static char *sql_db;			// Create SQL output for a specific db
+#endif
 
 static Fileid input_file_id;
 
