@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.116 2005/05/14 07:53:18 dds Exp $
+ * $Id: cscout.cpp,v 1.117 2005/05/14 12:20:04 dds Exp $
  */
 
 #include <map>
@@ -87,7 +87,7 @@ static string sfile_repl_string;	// Saved files replacement string
 // Global command-line options
 static bool preprocess;			// Preprocess-only (-E)
 static bool compile_only;		// Process-only (-c)
-static bool sql_output;			// Create SQL output
+static char *sql_db;			// Create SQL output for a specific db
 static bool report;			// Generate a warning report
 static int portno = 8081;		// Port number (-p n)
 
@@ -2246,7 +2246,11 @@ warning_report()
 static void
 usage(char *fname)
 {
-	cerr << "usage: " << fname << " [-cEruv] [-p port] [-m spec] file\n"
+	cerr << "usage: " << fname << " [-cEruv] [-p port] [-m spec] "
+#ifdef COMMERCIAL
+		"[-H host] [-P port] [-s db] "
+#endif
+		"file\n"
 		"\t-c\tProcess the file and exit\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
@@ -2258,6 +2262,7 @@ usage(char *fname)
 #ifdef COMMERCIAL
 		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n"
 		"\t-P port\tHTTP proxy host port (default 80)\n"
+		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
 #endif
 		;
 	exit(1);
@@ -2281,7 +2286,7 @@ main(int argc, char *argv[])
 	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
 		cscout_des_decode(licensee + i * 8);
 	cscout_des_done();
-#define COMMERCIAL_OPTIONS "sH:P:"
+#define COMMERCIAL_OPTIONS "s:H:P:"
 #else
 #define COMMERCIAL_OPTIONS ""
 #endif
@@ -2327,7 +2332,9 @@ main(int argc, char *argv[])
 			exit(0);
 #ifdef COMMERCIAL
 		case 's':
-			sql_output = true;
+			if (!optarg)
+				usage(argv[0]);
+			sql_db = strdup(optarg);
 			break;
 		case 'H':
 			if (!optarg)
@@ -2378,8 +2385,8 @@ main(int argc, char *argv[])
 		return 0;
 
 #ifdef COMMERCIAL
-	if (sql_output)
-		return workdb();
+	if (sql_db)
+		return workdb(sql_db);
 #endif
 
 	// Pass 2: Create web pages

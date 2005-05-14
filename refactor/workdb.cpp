@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.12 2005/05/14 07:53:18 dds Exp $
+ * $Id: workdb.cpp,v 1.13 2005/05/14 12:20:04 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -65,11 +65,41 @@ public:
 	}
 };
 
+class Sql {
+public:
+	virtual const char *booltype() { return "BOOLEAN"; }
+	virtual const char *varchar() { return "CHARACTER VARYING"; }
+	virtual const char *boolval(bool v);
+};
+
+class Mysql: public Sql {
+public:
+	const char *booltype() { return "bool"; }
+	const char *varchar() { return "TEXT"; }
+	const char *boolval(bool v);
+};
+
+class Hsqldb: public Sql {
+public:
+	const char *varchar() { return "VARCHAR"; }
+};
+
+class Postgres: public Sql {
+public:
+};
+
+
 // Return SQL equivalent for the logical value v
-static inline const char *
-sql_bool(bool v)
+inline const char *
+Sql::boolval(bool v)
 {
 	return v ? "true" : "false";
+}
+
+inline const char *
+Mysql::boolval(bool v)
+{
+	return v ? "1" : "0";
 }
 
 // Return SQL equivalent of character c
@@ -98,7 +128,7 @@ sql(string s)
 
 // Insert an equivalence classe in the database
 static void
-insert_eclass(ostream &of, Eclass *e, const string &name)
+insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 {
 	// Avoid duplicate entries (could also have a dumped Eclass attr)
 	static set <Eclass *> dumped;
@@ -111,17 +141,17 @@ insert_eclass(ostream &of, Eclass *e, const string &name)
 	of << "INSERT INTO IDS VALUES(" <<
 	(unsigned)e << ",'" <<
 	name << "'," <<
-	sql_bool(e->get_attribute(is_readonly)) << ',' <<
-	sql_bool(e->get_attribute(is_macro)) << ',' <<
-	sql_bool(e->get_attribute(is_macroarg)) << ',' <<
-	sql_bool(e->get_attribute(is_ordinary)) << ',' <<
-	sql_bool(e->get_attribute(is_suetag)) << ',' <<
-	sql_bool(e->get_attribute(is_sumember)) << ',' <<
-	sql_bool(e->get_attribute(is_label)) << ',' <<
-	sql_bool(e->get_attribute(is_typedef)) << ',' <<
-	sql_bool(e->get_attribute(is_cscope)) << ',' <<
-	sql_bool(e->get_attribute(is_lscope)) << ',' <<
-	sql_bool(e->get_size() == 1) <<
+	db->boolval(e->get_attribute(is_readonly)) << ',' <<
+	db->boolval(e->get_attribute(is_macro)) << ',' <<
+	db->boolval(e->get_attribute(is_macroarg)) << ',' <<
+	db->boolval(e->get_attribute(is_ordinary)) << ',' <<
+	db->boolval(e->get_attribute(is_suetag)) << ',' <<
+	db->boolval(e->get_attribute(is_sumember)) << ',' <<
+	db->boolval(e->get_attribute(is_label)) << ',' <<
+	db->boolval(e->get_attribute(is_typedef)) << ',' <<
+	db->boolval(e->get_attribute(is_cscope)) << ',' <<
+	db->boolval(e->get_attribute(is_lscope)) << ',' <<
+	db->boolval(e->get_size() == 1) <<
 	");\n";
 	// The projects each EC belongs to
 	for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
@@ -133,7 +163,7 @@ insert_eclass(ostream &of, Eclass *e, const string &name)
 // Add the contents of a file to the Tokens and Strings tables
 // As a side-effect insert corresponding identifiers in the database
 static void
-file_dump(ostream &of, Fileid fid)
+file_dump(Sql *db, ostream &of, Fileid fid)
 {
 	string plain;
 	Tokid plainstart;
@@ -167,7 +197,7 @@ file_dump(ostream &of, Fileid fid)
 			int len = ec->get_len();
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
-			insert_eclass(of, ec, s);
+			insert_eclass(db, of, ec, s);
 			fid.metrics().process_id(s);
 			of << "INSERT INTO TOKENS VALUES(" << fid.get_id() <<
 			"," << (unsigned)ti.get_streampos() << "," <<
@@ -192,48 +222,55 @@ file_dump(ostream &of, Fileid fid)
 }
 
 int
-workdb(void)
+workdb(const char *dbengine)
 {
+	Sql *db;
+
+	if (strcmp(dbengine, "mysql") == 0)
+		db = new Mysql();
+	else if (strcmp(dbengine, "hsqldb") == 0)
+		db = new Hsqldb();
+	else if (strcmp(dbengine, "postgres") == 0)
+		db = new Postgres();
+	else {
+		cerr << "Unknown database engine " << dbengine << "\n";
+		cerr << "Supported database engine types are: mysql postgres hsqldb\n";
+		return 1;
+	}
+
 	// Pass 2: Create the SQL script
 	vector <Fileid> files = Fileid::files(true);
 
 	cout <<
-		"DROP TABLE TOKENS;\n"
-		"DROP TABLE REST;\n"
-		"DROP TABLE IDPROJ;\n"
-		"DROP TABLE FILEPROJ;\n"
-		"DROP TABLE IDS;\n"
-		"DROP TABLE PROJECTS;\n"
-		"DROP TABLE FILES;\n"
-
-		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME VARCHAR,"
-		"READONLY \"boolean\",\n"
-		"MACRO \"boolean\",\n"
-		"MACROARG \"boolean\",\n"
-		"ORDINARY \"boolean\",\n"
-		"SUETAG \"boolean\",\n"
-		"SUMEMBER \"boolean\",\n"
-		"LABEL \"boolean\",\n"
-		"TYPEDEF \"boolean\",\n"
-		"CSCOPE \"boolean\",\n"
-		"LSCOPE \"boolean\",\n"
-		"UNUSED \"boolean\");\n"
+		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME " << db->varchar() << ","
+		"READONLY " << db->booltype() << ", "
+		"MACRO " << db->booltype() << ", "
+		"MACROARG " << db->booltype() << ", "
+		"ORDINARY " << db->booltype() << ", "
+		"SUETAG " << db->booltype() << ", "
+		"SUMEMBER " << db->booltype() << ", "
+		"LABEL " << db->booltype() << ", "
+		"TYPEDEF " << db->booltype() << ", "
+		"CSCOPE " << db->booltype() << ", "
+		"LSCOPE " << db->booltype() << ", "
+		"UNUSED " << db->booltype() <<
+		");\n"
 
 		"CREATE TABLE TOKENS(FID INTEGER,FOFFSET INTEGER,EID INTEGER,\n"
 		"PRIMARY KEY(FID, FOFFSET), FOREIGN KEY (EID) REFERENCES IDS);\n"
 
-		"CREATE TABLE REST(FID INTEGER,FOFFSET INTEGER,TEXT VARCHAR,"
+		"CREATE TABLE REST(FID INTEGER,FOFFSET INTEGER,CODE " << db->varchar() << ","
 		"PRIMARY KEY(FID, FOFFSET));\n"
 
-		"CREATE TABLE PROJECTS(PID INTEGER PRIMARY KEY,NAME VARCHAR);\n"
+		"CREATE TABLE PROJECTS(PID INTEGER PRIMARY KEY,NAME " << db->varchar() << ");\n"
 
 		"CREATE TABLE IDPROJ(EID INTEGER ,PID INTEGER,\n"
 		"FOREIGN KEY (EID) REFERENCES IDS,\n"
 		"FOREIGN KEY (PID) REFERENCES PROJECTS);\n"
 
 		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,"
-		"NAME VARCHAR,\n"
-		"RO \"boolean\",\n"
+		"NAME " << db->varchar() << ",\n"
+		"RO " << db->booltype() << ",\n"
 		"NCHAR INTEGER,\n"
 		"NLCOMMENT INTEGER,\n"
 		"NBCOMMENT INTEGER,\n"
@@ -263,11 +300,11 @@ workdb(void)
 	// Details for each file
 	// As a side effect populate the EC identifier member
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		file_dump(cout, (*i));
+		file_dump(db, cout, (*i));
 		cout << "INSERT INTO FILES VALUES(" <<
 		(*i).get_id() << ",'" <<
 		(*i).get_path() << "'," <<
-		sql_bool((*i).get_readonly()) << ',' <<
+		db->boolval((*i).get_readonly()) << ',' <<
 		(*i).metrics().get_nchar() << ',' <<
 		(*i).metrics().get_nlcomment() << ',' <<
 		(*i).metrics().get_nbcomment() << ',' <<
