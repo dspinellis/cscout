@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.23 2004/07/23 06:55:38 dds Exp $
+ * $Id: tokid.cpp,v 1.24 2005/05/14 06:50:57 dds Exp $
  */
 
 #include <iostream>
@@ -12,6 +12,7 @@
 #include <deque>
 #include <set>
 #include <vector>
+#include <stack>
 #include <cassert>
 #include <list>
 
@@ -22,6 +23,13 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
+#include "ytab.h"
+#include "ptoken.h"
+#include "fchar.h"
+#include "error.h"
+#include "pltoken.h"
+#include "macro.h"
+#include "pdtoken.h"
 #include "eclass.h"
 
 
@@ -93,8 +101,12 @@ Tokid::constituents(int l)
 		if (DP())
 			cout << "Tokid = " << (e->first) << " Eclass = " << e->second << "\n" << (*(e->second)) << "\n";
 		int covered = (e->second)->get_len();
-		// Add the existing classes to our current project
-		(e->second)->set_attribute(Project::get_current_projid());
+		if (!Pdtoken::skipping()) {
+			// Add the existing classes to our current project
+			(e->second)->set_attribute(Project::get_current_projid());
+			if (DP())
+				cout << "Set projid to " << Project::get_current_projid() << "\n";
+		}
 		Tpart tp(t, covered);
 		r.push_back(tp);
 		l -= covered;

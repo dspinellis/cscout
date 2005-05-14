@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.26 2004/07/23 06:55:38 dds Exp $
+ * $Id: eclass.cpp,v 1.27 2005/05/14 06:50:57 dds Exp $
  */
 
 #include <iostream>
@@ -15,6 +15,7 @@
 #include <vector>
 #include <algorithm>
 #include <list>
+#include <stack>
 
 #include "cpp.h"
 #include "debug.h"
@@ -22,8 +23,15 @@
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
-#include "eclass.h"
 #include "token.h"
+#include "ytab.h"
+#include "ptoken.h"
+#include "fchar.h"
+#include "error.h"
+#include "pltoken.h"
+#include "macro.h"
+#include "pdtoken.h"
+#include "eclass.h"
 
 // Remove references to the equivalence class from the tokid map
 // Should be called when we delete the ec for good
@@ -104,9 +112,11 @@ Eclass::add_tokid(Tokid t)
 			cout << "readonly " << *this << "\n";
 		set_attribute(is_readonly);
 	}
-	set_attribute(Project::get_current_projid());
-	if (DP())
-		cout << "Set_attribute for " << t << " to " << Project::get_current_projid() << "\n";
+	if (!Pdtoken::skipping()) {
+		set_attribute(Project::get_current_projid());
+		if (DP())
+			cout << "Set_attribute for " << t << " to " << Project::get_current_projid() << "\n";
+	}
 }
 
 // Return a sorted vector of all files used
