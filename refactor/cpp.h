@@ -1,6 +1,6 @@
 using namespace std;
 
-typedef long offset_t;
+typedef long cs_offset_t;
 
 #ifdef NDEBUG
 #define ASSERT(x) ((void)0)

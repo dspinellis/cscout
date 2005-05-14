@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.18 2004/07/23 06:55:38 dds Exp $
+ * $Id: tokid.h,v 1.19 2005/05/14 13:42:21 dds Exp $
  */
 
 #ifndef TOKID_
@@ -37,10 +37,10 @@ private:
 	static mapTokidEclass tm;	// Map from tokens to their equivalence
 					// classes
 	Fileid fi;			// File
-	offset_t offs;			// Offset
+	cs_offset_t offs;		// Offset
 public:
 	// Construct it, based on the fileid and offset in that file
-	Tokid(Fileid i, streampos l) : fi(i), offs((offset_t)l) {};
+	Tokid(Fileid i, streampos l) : fi(i), offs((cs_offset_t)l) {};
 	// Construct it uninitialised to be filled-in later
 	Tokid() {}
 	// Print it (for debugging)

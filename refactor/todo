@@ -1,4 +1,6 @@
-$Id: todo,v 1.61 2005/05/14 07:53:18 dds Exp $
+$Id: todo,v 1.62 2005/05/14 13:42:21 dds Exp $
+
+Add functions to the SQL output.
 
 Test the proxy host and port specification
 
