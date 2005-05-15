@@ -1,9 +1,9 @@
 /*
  * (C) Copyright 1995-2005 Diomidis Spinellis.
  *
- * Licensing client and server functions
+ * SQL back-end
  *
- * $Id: workdb.h,v 1.1 2005/05/14 13:18:34 dds Exp $
+ * $Id: workdb.h,v 1.2 2005/05/15 10:31:42 dds Exp $
  */
 
 int workdb(const char *);
