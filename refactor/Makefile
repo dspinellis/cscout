@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.70 2005/05/15 10:31:53 dds Exp $
+# $Id: Makefile,v 1.71 2005/05/15 14:03:51 dds Exp $
 #
 
 #
@@ -28,6 +28,10 @@ endif
 
 ifeq ($(OSTYPE),solaris2.9)
 SOLARIS=1
+endif
+
+ifdef PROCESSOR_ARCHITECTURE
+WINDOWS=1
 endif
 
 OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
@@ -79,6 +83,11 @@ else
 CPPFLAGS += -static
 endif
 
+ifdef WINDOWS
+CPPFLAGS += -I.
+endif
+
+
 # Realistic debug flags
 #CPPFLAGS=-pipe -O2 -g -DSPINELLIS_SERVER -DPRODUCTION
 
@@ -106,7 +115,7 @@ $(ARCH)/%.o: %.c
 $(ARCH)/%.o: %.cpp
 	g++ -c $(CPPFLAGS) -o $@ $<
 
-ifdef PROCESSOR_ARCHITECTURE
+ifdef WINDOWS
 # Windows
 all: $(ARCH)/cscout.exe
 SSH=plink
@@ -181,12 +190,23 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.70 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/15 10:31:53 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.71 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/15 14:03:51 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
 	ci -m"New version" -u version.cpp
+
+subversion:
+	attrib -r version.cpp
+	echo '#include <string>' >version.cpp
+	echo 'using namespace std;' >>version.cpp
+	echo '#include "version.h"' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.71 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/15 14:03:51 $$";' >>version.cpp
+	echo "char *Version::ident[] = {" >>version.cpp
+	ident $(SRC) | sed -n -f version.sed >>version.cpp
+	echo "0 };" >>version.cpp
 
 # Test
 cpptest: cpp-test $(CPPTEST)

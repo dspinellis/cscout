@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.119 2005/05/15 10:31:53 dds Exp $
+ * $Id: cscout.cpp,v 1.120 2005/05/15 14:03:51 dds Exp $
  */
 
 #include <map>
@@ -26,7 +26,7 @@
 #include <cerrno>		// errno
 
 #include "swill.h"
-#include "regex.h"
+#include <regex.h>
 #include "getopt.h"
 
 #ifdef unix
@@ -1524,12 +1524,14 @@ load_options()
 			in >> tab_width;
 		else if (val == "sfile_re_string:") {
 			in >> sfile_re_string;
-			int r;
-			if ((r = regcomp(&sfile_re, sfile_re_string.c_str(), REG_EXTENDED))) {
-				char buff[1024];
-				regerror(r, &sfile_re, buff, sizeof(buff));
-				fprintf(stderr, "Filename regular expression error: %s", buff);
-				sfile_re_string.clear();
+			if (sfile_re_string.length()) {
+				int r;
+				if ((r = regcomp(&sfile_re, sfile_re_string.c_str(), REG_EXTENDED))) {
+					char buff[1024];
+					regerror(r, &sfile_re, buff, sizeof(buff));
+					fprintf(stderr, "Filename regular expression error: %s", buff);
+					sfile_re_string.clear();
+				}
 			}
 		}
 		else if (val == "sfile_repl_string:")
