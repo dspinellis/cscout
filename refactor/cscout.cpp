@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.118 2005/05/14 13:43:44 dds Exp $
+ * $Id: cscout.cpp,v 1.119 2005/05/15 10:31:53 dds Exp $
  */
 
 #include <map>
@@ -69,6 +69,7 @@
 #ifdef COMMERCIAL
 #include "des.h"
 #include "workdb.h"
+#include "obfuscate.h"
 #endif
 
 
@@ -91,6 +92,7 @@ static bool report;			// Generate a warning report
 static int portno = 8081;		// Port number (-p n)
 #ifdef COMMERCIAL
 static char *sql_db;			// Create SQL output for a specific db
+static bool obfuscation;		// Obfuscate the processed files
 #endif
 
 static Fileid input_file_id;
@@ -2250,7 +2252,7 @@ usage(char *fname)
 {
 	cerr << "usage: " << fname << " [-cEruv] [-p port] [-m spec] "
 #ifdef COMMERCIAL
-		"[-H host] [-P port] [-s db] "
+		"[-H host] [-P port] [-o|-s db] "
 #endif
 		"file\n"
 		"\t-c\tProcess the file and exit\n"
@@ -2265,6 +2267,7 @@ usage(char *fname)
 		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n"
 		"\t-P port\tHTTP proxy host port (default 80)\n"
 		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
+		"\t-o\tCreate obfuscated versions of the processed files\n"
 #endif
 		;
 	exit(1);
@@ -2288,7 +2291,7 @@ main(int argc, char *argv[])
 	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
 		cscout_des_decode(licensee + i * 8);
 	cscout_des_done();
-#define COMMERCIAL_OPTIONS "s:H:P:"
+#define COMMERCIAL_OPTIONS "os:H:P:"
 #else
 #define COMMERCIAL_OPTIONS ""
 #endif
@@ -2333,8 +2336,13 @@ main(int argc, char *argv[])
 #endif
 			exit(0);
 #ifdef COMMERCIAL
+		case 'o':
+			if (sql_db)
+				usage(argv[0]);
+			obfuscation = true;
+			break;
 		case 's':
-			if (!optarg)
+			if (!optarg || obfuscation)
 				usage(argv[0]);
 			sql_db = strdup(optarg);
 			break;
@@ -2387,6 +2395,8 @@ main(int argc, char *argv[])
 		return 0;
 
 #ifdef COMMERCIAL
+	if (obfuscation)
+		return obfuscate();
 	if (sql_db)
 		return workdb(sql_db);
 #endif

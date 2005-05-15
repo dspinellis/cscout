@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.69 2005/05/14 13:42:21 dds Exp $
+# $Id: Makefile,v 1.70 2005/05/15 10:31:53 dds Exp $
 #
 
 #
@@ -14,12 +14,20 @@ OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
 getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
-logo.o workdb.o
+logo.o workdb.o obfuscate.o
 
 # monitor.o
 
 ifndef ARCH
+ifdef HOSTTYPE
+ARCH=$(HOSTTYPE)
+else
 ARCH=i386
+endif
+endif
+
+ifeq ($(OSTYPE),solaris2.9)
+SOLARIS=1
 endif
 
 OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
@@ -39,7 +47,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
-	workdb.h
+	workdb.h obfuscate.h
 
 ALLSRC=$(SRC) logo.gif
 
@@ -56,14 +64,20 @@ CC=g++
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
 
 # Local development flags
-CPPFLAGS=-pipe -g -Wall
+#CPPFLAGS=-pipe -g -Wall
 #CPPFLAGS=-DNO_LOCK
 #CPPFLAGS=-DOFFICE_SERVER
 #CPPFLAGS+=-DTEST_LICENSING
 CPPFLAGS+=-DSPINELLIS_SERVER
 
 # Production flags
-#CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION -static
+CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION
+
+ifdef SOLARIS
+ADDLIBS += -lsocket -lnsl
+else
+CPPFLAGS += -static
+endif
 
 # Realistic debug flags
 #CPPFLAGS=-pipe -O2 -g -DSPINELLIS_SERVER -DPRODUCTION
@@ -104,16 +118,16 @@ SSH=ssh
 FREEFALL=freefall.freebsd.org
 endif
 
+
 SF=shell.cf.sourceforge.net
 
-#all: obfuscate
 #all: webmap
 #all: color
 #all: engine
 #all: simple_cpp
 
 $(ARCH)/cscout: $(ARCH)/cscout.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
+	$(CC) $(CPPFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill $(ADDLIBS)
 
 # CCmalloc version
 $(ARCH)/cscout-cc: $(ARCH)/cscout.o  $(OBJ)
@@ -133,9 +147,6 @@ $(ARCH)/webmap: $(ARCH)/webmap.o  $(OBJ)
 
 $(ARCH)/color: $(ARCH)/color.o  $(OBJ)
 	$(CC) $(CPPFLAGS) -o $(ARCH)/color  $(OBJ) $(ARCH)/color.o
-
-$(ARCH)/obfuscate: $(ARCH)/obfuscate.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o $(ARCH)/obfuscate  $(OBJ) $(ARCH)/obfuscate.o
 
 # Some important dependencies
 color.o: pltoken.h
@@ -170,8 +181,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.69 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/14 13:42:21 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.70 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/15 10:31:53 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -192,27 +203,19 @@ boottest: simple_cpp
 	$(CC) $(CPPFLAGS) -o simple_cpp  $(OBJ) simple_cpp.o
 
 # Distribution
-rdist-debian:
-	tar cvf - $(SRC) | $(SSH) debian tar -C src/cscout -xvf -
+rdist-gemini:
+	tar cvf - $(SRC) | $(SSH) gemini tar -C src/cscout -xvf -
 
 rdist-icarian:
 	tar cf - $(SRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
 
-rdist-spiti:
-	tar cvf - $(SRC) | $(SSH) spiti tar -C src/cscout -xvf -
-
-rdist-spiti-ssh:
-	tar cvf - $(SRC) | ssh spiti tar -C src/cscout -xvf -
-
 rdist-freefall:
 	$(SSH) $(FREEFALL) "mkdir src/cscout ; chmod 700 src/cscout"
 	tar -cvf - $(SRC) | gzip -c | $(SSH) $(FREEFALL) tar -C src/cscout -xzvf -
-
-rdist-istlab:
-	tar cvf - $(SRC) | $(SSH) istlab tar -C src/cscout -xvf -
+	$(SSH) $(FREEFALL) "(cd src/cscout ; gmake lf parse_tab.h"
 
 rdist-sourceforge:
-	$(SSH) $(SF) "mkdir src/cs src/cs/sun4 ; chmod 700 src/cs"
+	$(SSH) $(SF) "mkdir src/cs src/cs/sparc ; chmod 700 src/cs"
 	tar cf - $(SRC) | gzip -c | $(SSH) $(SF) tar -C src/cs -xzvf -
 
 rdist-tar:
@@ -223,7 +226,7 @@ lf: mkdir
 	perl -pi -e 's/\r//' $(SRC)
 
 mkdir:
-	-mkdir alpha  i386  sparc64  amd64  ia64
+	-mkdir alpha  i386  sparc64  amd64  ia64 sparc
 
 rdist-spiti-server:
 	pscp Makefile des.[ch] license.[ch] spiti:src/cscout-server

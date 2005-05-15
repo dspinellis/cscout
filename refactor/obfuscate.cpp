@@ -3,9 +3,10 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.4 2004/07/23 06:55:38 dds Exp $
+ * $Id: obfuscate.cpp,v 1.5 2005/05/15 10:31:53 dds Exp $
  */
 
+#ifdef COMMERCIAL
 #include <map>
 #include <string>
 #include <deque>
@@ -19,8 +20,10 @@
 #include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror
+#include <cstdlib>		// rand
 
 #include "cpp.h"
+#include "debug.h"
 #include "ytab.h"
 #include "attr.h"
 #include "metrics.h"
@@ -34,11 +37,148 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "eclass.h"
-#include "debug.h"
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
 
+/*
+ * Infrastructure to print everything but comments
+ * Replace multiple spaces with a single space
+ */
+class CProcessor {
+private:
+	static enum e_state {
+		s_normal,
+		s_saw_slash,		// After a / character
+		s_saw_backslash,	// After a \ character in a string
+		s_cpp_comment,		// Inside C++ comment
+		s_block_comment,	// Inside C block comment
+		s_block_star,		// Found a * in a block comment
+		s_string,		// Inside a string
+	} cstate;
+
+	static bool spaced;		// True after a space has been output
+public:
+	static void reset() {spaced = false; cstate = s_normal; }
+	static void output_id(ostream &out, unsigned int id);
+	static void output_id(ostream &out, const string &id);
+	static void process_char(ostream &out, char c);
+	static void randspace(ostream &out) {
+		if (spaced) return;
+		switch (rand() % 2) {
+		case 0: out << ' '; break;
+		case 1: out << '\t'; break;
+		}
+		spaced = true;
+	}
+};
+
+enum CProcessor::e_state CProcessor::cstate;
+bool CProcessor::spaced;
+
+// Output an identifier, given its equivalence class code
+void
+CProcessor::output_id(ostream &out, unsigned int id)
+{
+
+	if (cstate == s_saw_slash) {
+		out << '/';
+		cstate = s_normal;
+	}
+	spaced = false;
+	out << "OI_" << id;
+}
+
+// Output an identifier, given its name
+void
+CProcessor::output_id(ostream &out, const string &id)
+{
+
+	if (cstate == s_saw_slash) {
+		out << '/';
+		cstate = s_normal;
+	}
+	spaced = false;
+	out << id;
+}
+
+// Process a non-identifier character
+void
+CProcessor::process_char(ostream &out, char c)
+{
+	if (DP()) {
+		out << c;
+		return;
+	}
+	switch (cstate) {
+	case s_normal:
+		switch (c) {
+		case '\n':
+			out << '\n';
+			spaced = true;
+		case '\r':
+			break;
+		case ' ': case '\t': case '\f':
+			randspace(out);
+			break;
+		case '/':
+			cstate = s_saw_slash;
+			spaced = false;
+			break;
+		case '"':
+			cstate = s_string;
+			out << '"';
+			spaced = false;
+			break;
+		default:
+			out << c;
+			spaced = false;
+			break;
+		}
+		break;
+	case s_string:
+		if (c == '"')
+			cstate = s_normal;
+		else if (c == '\\')
+			cstate = s_saw_backslash;
+		out << c;
+		break;
+	case s_saw_backslash:
+		cstate = s_string;
+		out << c;
+		break;
+	case s_saw_slash:		// After a / character
+		if (c == '/') {
+			cstate = s_cpp_comment;
+			randspace(out);
+		} else if (c == '*') {
+			cstate = s_block_comment;
+			randspace(out);
+		} else {
+			out << '/' << c;
+			cstate = s_normal;
+		}
+		break;
+	case s_cpp_comment:		// Inside C++ comment
+		if (c == '\n') {
+			cstate = s_normal;
+			out << '\n';
+		}
+		break;
+	case s_block_comment:		// Inside C block comment
+		if (c == '*')
+			cstate = s_block_star;
+		break;
+	case s_block_star:		// Found a * in a block comment
+		if (c == '/')
+			cstate = s_normal;
+		else if (c != '*')
+			cstate = s_block_comment;
+		break;
+	default:
+		assert(0);
+	}
+}
 
 // Add the contents of a file to the Tokens and Strings tables
 // As a side-effect insert corresponding identifiers in the database
@@ -61,7 +201,9 @@ file_obfuscate(Fileid fid)
 		perror(ofname.c_str());
 		exit(1);
 	}
-	cout << "Writing file " << ofname << "\n";
+	cerr << "Writing file " << ofname << "\n";
+	bool yacc_file = (fid.get_path()[fid.get_path().length() - 1] == 'y');
+	CProcessor::reset();
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
@@ -81,30 +223,42 @@ file_obfuscate(Fileid fid)
 		     ec->get_attribute(is_sumember) ||
 		     ec->get_attribute(is_label))) {
 			int len = ec->get_len();
+			string s;
+			s = (char)val;
 			for (int j = 1; j < len; j++)
-				(void)in.get();
-			out << "OI_" << (unsigned)ec;
+				s += (char)in.get();
+			if (yacc_file) {
+				if (s == "error" ||
+				    s == "yyerrok" ||
+				    s == "yyclearin")
+					CProcessor::output_id(out, s);
+				else
+					CProcessor::output_id(out, (unsigned)ec);
+			} else {
+				if ( ec->get_attribute(is_function) &&
+				     ec->get_attribute(is_ordinary) &&
+				     ec->get_attribute(is_lscope) &&
+				     s == "main")
+					CProcessor::output_id(out, s);
+				else
+					CProcessor::output_id(out, (unsigned)ec);
+			}
 		} else {
-			out << (char)val;
+			CProcessor::process_char(out, (char)val);
 		}
 	}
 }
 
-main(int argc, char *argv[])
+int
+obfuscate(void)
 {
 	Pdtoken t;
 
-	Debug::db_read();
-	// Pass 1: process master file loop
-	Fchar::set_input(argv[1]);
-	do
-		t.getnext();
-	while (t.get_code() != EOF);
-
 	// Pass 2: Obfuscate the files
-	vector <Fileid> files = Fileid::sorted_files();
+	vector <Fileid> files = Fileid::files(true);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
 		if ((*i).get_readonly() == false)
 			file_obfuscate(*i);
 	return (0);
 }
+#endif /* COMMERCIAL */
