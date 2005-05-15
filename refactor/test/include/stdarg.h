@@ -1,6 +1,6 @@
 /* 
  * CScout ANSI C generic include file 
- * $Id: stdarg.h,v 1.1 2003/06/16 20:00:57 dds Exp $
+ * $Id: stdarg.h,v 1.2 2005/05/15 10:01:26 dds Exp $
  */
 
 /*-
@@ -53,6 +53,6 @@ typedef char *va_list;
 #define	va_arg(ap, type) \
 	(*(type *)((ap) += __va_size(type), (ap) - __va_size(type)))
 
-#define	va_end(ap)
+#define	va_end(ap) ((void)ap)
 
 #endif /* !_STDARG_H_ */
