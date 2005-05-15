@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.33 2004/08/10 10:08:15 dds Exp $
+ * $Id: fileid.cpp,v 1.34 2005/05/15 07:42:05 dds Exp $
  */
 
 #include <fstream>
@@ -169,7 +169,7 @@ Fileid::Fileid(const string &name)
 		// New filename; add a new fname/id pair in the map table
 		string fpath(get_full_path(name.c_str()));
 		u2i[sid] = counter;
-		i2d.push_back(Filedetails(fpath, is_readonly(sid)));
+		i2d.push_back(Filedetails(fpath, is_readonly(name.c_str())));
 		id = counter++;
 	} else
 		// Filename exists; our id is the one from the map
