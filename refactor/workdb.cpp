@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.14 2005/05/14 12:44:59 dds Exp $
+ * $Id: workdb.cpp,v 1.15 2005/05/17 12:05:54 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -239,55 +239,78 @@ workdb(const char *dbengine)
 	vector <Fileid> files = Fileid::files(true);
 
 	cout <<
-		"CREATE TABLE IDS(EID INTEGER PRIMARY KEY,NAME " << db->varchar() << ","
-		"READONLY " << db->booltype() << ", "
-		"UNDEFMACRO " << db->booltype() << ", "
-		"MACRO " << db->booltype() << ", "
-		"MACROARG " << db->booltype() << ", "
-		"ORDINARY " << db->booltype() << ", "
-		"SUETAG " << db->booltype() << ", "
-		"SUMEMBER " << db->booltype() << ", "
-		"LABEL " << db->booltype() << ", "
-		"TYPEDEF " << db->booltype() << ", "
-		"ENUM " << db->booltype() << ", "
-		"FUN " << db->booltype() << ", "
-		"CSCOPE " << db->booltype() << ", "
-		"LSCOPE " << db->booltype() << ", "
-		"UNUSED " << db->booltype() <<
+		// BEGIN AUTOSCHEMA
+		"CREATE TABLE IDS("			// Details of interdependant identifiers appearing in the workspace
+		"EID INTEGER PRIMARY KEY,"		// Unique identifier key
+		"NAME " << db->varchar() << ","		// Identifier name
+		"READONLY " << db->booltype() << ", "	// True if it appears in at least one read-only file
+		"UNDEFMACRO " << db->booltype() << ", "	// True if it is apparantly an undefined macro
+		"MACRO " << db->booltype() << ", "	// True if it a preprocessor macro
+		"MACROARG " << db->booltype() << ", "	// True if it a preprocessor macro argument
+		"ORDINARY " << db->booltype() << ", "	// True if it is an ordinary identifier (variable or function)
+		"SUETAG " << db->booltype() << ", "	// True if it is a structure, union, or enumeration tag
+		"SUMEMBER " << db->booltype() << ", "	// True if it is a structure or union member
+		"LABEL " << db->booltype() << ", "	// True if it is a label
+		"TYPEDEF " << db->booltype() << ", "	// True if it is a typedef
+		"ENUM " << db->booltype() << ", "	// True if it is an enumeration member
+		"FUN " << db->booltype() << ", "	// True if it is a function name
+		"CSCOPE " << db->booltype() << ", "	// True if its scope is a compilation unit
+		"LSCOPE " << db->booltype() << ", "	// True if it has linkage scope
+		"UNUSED " << db->booltype() <<		// True if it is not used
 		");\n"
 
-		"CREATE TABLE TOKENS(FID INTEGER,FOFFSET INTEGER,EID INTEGER,\n"
-		"PRIMARY KEY(FID, FOFFSET), FOREIGN KEY (EID) REFERENCES IDS);\n"
+		"CREATE TABLE TOKENS("			// Instances of identifier tokens within the source code
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"EID INTEGER,\n"			// Identifier key (references IDS)
+		"PRIMARY KEY(FID, FOFFSET),"
+		"FOREIGN KEY (EID) REFERENCES IDS"
+		");\n"
 
-		"CREATE TABLE REST(FID INTEGER,FOFFSET INTEGER,CODE " << db->varchar() << ","
-		"PRIMARY KEY(FID, FOFFSET));\n"
+		"CREATE TABLE REST("			// Non-identifier source code
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"CODE " << db->varchar() << ","		// The actual code
+		"PRIMARY KEY(FID, FOFFSET)"
+		");\n"
 
-		"CREATE TABLE PROJECTS(PID INTEGER PRIMARY KEY,NAME " << db->varchar() << ");\n"
+		"CREATE TABLE PROJECTS("		// Project details
+		"PID INTEGER PRIMARY KEY,"		// Unique project key
+		"NAME " << db->varchar() <<		// Project name
+		");\n"
 
-		"CREATE TABLE IDPROJ(EID INTEGER ,PID INTEGER,\n"
+		"CREATE TABLE IDPROJ("			// Identifiers appearing in projects
+		"EID INTEGER, "				// Identifier key (references IDS)
+		"PID INTEGER,\n"			// Project key (references PROJECTS)
 		"FOREIGN KEY (EID) REFERENCES IDS,\n"
-		"FOREIGN KEY (PID) REFERENCES PROJECTS);\n"
+		"FOREIGN KEY (PID) REFERENCES PROJECTS"
+		");\n"
 
-		"CREATE TABLE FILES(FID INTEGER PRIMARY KEY,"
-		"NAME " << db->varchar() << ",\n"
-		"RO " << db->booltype() << ",\n"
-		"NCHAR INTEGER,\n"
-		"NLCOMMENT INTEGER,\n"
-		"NBCOMMENT INTEGER,\n"
-		"NLINE INTEGER,\n"
-		"MAXLINELEN INTEGER,\n"
-		"NCCOMMENT INTEGER,\n"
-		"NSPACE INTEGER,\n"
+		"CREATE TABLE FILES("			// File details
+		"FID INTEGER PRIMARY KEY,"		// Unique file key
+		"NAME " << db->varchar() << ",\n"	// File name
+		"RO " << db->booltype() << ",\n"	// True if the file is read-only
+		"NCHAR INTEGER,\n"			// Size in characters
+		"NLCOMMENT INTEGER,\n"			// Number of line comments
+		"NBCOMMENT INTEGER,\n"			// Number of block comments
+		"NLINE INTEGER,\n"			// Number of lines
+		"MAXLINELEN INTEGER,\n"			// Maximum line length
+		"NCCOMMENT INTEGER,\n"			// Number of comment characters
+		"NSPACE INTEGER,\n"			// Number of spaces
+		"NFUNCTION INTEGER,\n"			// Number of functions
+		"NPPDIRECTIVE INTEGER,\n"		// Number of C preprocessor directives
+		"NINCFILE INTEGER,\n"			// Number of included files
+		"NSTATEMENT INTEGER,\n"			// Number of C statements
+		"NSTRING INTEGER"			// Number of strings
+		");\n"
 
-		"NFUNCTION INTEGER,\n"
-		"NPPDIRECTIVE INTEGER,\n"
-		"NINCFILE INTEGER,\n"
-		"NSTATEMENT INTEGER,\n"
-		"NSTRING INTEGER);\n"
-
-		"CREATE TABLE FILEPROJ(FID INTEGER ,PID INTEGER,\n"
+		"CREATE TABLE FILEPROJ("		// Files used in projects
+		"FID INTEGER, "				// File key (references FILES)
+		"PID INTEGER,\n"			// Project key (references PROJECTS)
 		"FOREIGN KEY (FID) REFERENCES FILES,\n"
-		"FOREIGN KEY (PID) REFERENCES PROJECTS);\n"
+		"FOREIGN KEY (PID) REFERENCES PROJECTS"
+		");\n"
+		// END AUTOSCHEMA
 		"";
 
 	// Project names
