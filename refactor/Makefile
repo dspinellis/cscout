@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.71 2005/05/15 14:03:51 dds Exp $
+# $Id: Makefile,v 1.72 2005/05/17 12:06:37 dds Exp $
 #
 
 #
@@ -17,6 +17,10 @@ getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
 logo.o workdb.o obfuscate.o
 
 # monitor.o
+
+# For subversion
+BRANCH=$(shell sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' version.cpp)
+DATE=$(shell date +'%Y/%m/%d %H:%M:%S')
 
 ifndef ARCH
 ifdef HOSTTYPE
@@ -190,8 +194,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.71 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/15 14:03:51 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.72 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/17 12:06:37 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -202,8 +206,8 @@ subversion:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.71 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/15 14:03:51 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.72 $(BRANCH)' $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/17 12:06:37 $(DATE)' $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
