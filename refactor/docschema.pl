@@ -2,20 +2,23 @@
 #
 # Document the database schema
 #
-# $Id: docschema.pl,v 1.1 2005/05/16 11:35:26 dds Exp $
+# $Id: docschema.pl,v 1.2 2005/05/17 12:06:14 dds Exp $
 #
 
 print '<?xml version="1.0" ?>
 <notes>
-<!-- Automatically generated file: $Id: docschema.pl,v 1.1 2005/05/16 11:35:26 dds Exp $ -->
+<!-- Automatically generated file: $Id: docschema.pl,v 1.2 2005/05/17 12:06:14 dds Exp $ -->
 The following sections describe the
 schema of the database created through the SQL backend.
 ';
 while (<>) {
 	if (/BEGIN AUTOSCHEMA/../END AUTOSCHEMA/) {
-		if (/CREATE TABLE (\w+)\(/) {
+		if (/CREATE TABLE (\w+)\(.*\/\/ (.*)/) {
 			print qq{
 <h2>Table $1</h2>
+<p>
+$2.
+</p>
 <table border = "1">
 <tr>
 <th>Field name</th>
