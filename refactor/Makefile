@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.72 2005/05/17 12:06:37 dds Exp $
+# $Id: Makefile,v 1.73 2005/05/18 15:56:42 dds Exp $
 #
 
 #
@@ -83,14 +83,14 @@ CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION
 
 ifdef SOLARIS
 ADDLIBS += -lsocket -lnsl
-else
-CPPFLAGS += -static
+OBJ += dlstubs.o
 endif
+
+CPPFLAGS += -static
 
 ifdef WINDOWS
 CPPFLAGS += -I.
 endif
-
 
 # Realistic debug flags
 #CPPFLAGS=-pipe -O2 -g -DSPINELLIS_SERVER -DPRODUCTION
@@ -194,8 +194,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.72 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/17 12:06:37 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.73 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/18 15:56:42 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -206,8 +206,8 @@ subversion:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.72 $(BRANCH)' $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/17 12:06:37 $(DATE)' $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.73 $(BRANCH)' $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/18 15:56:42 $(DATE)' $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
