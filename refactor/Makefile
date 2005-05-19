@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.74 2005/05/19 10:20:58 dds Exp $
+# $Id: Makefile,v 1.75 2005/05/19 10:25:10 dds Exp $
 #
 
 #
@@ -55,7 +55,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
-	workdb.h obfuscate.h dlstubs.cpp
+	workdb.h obfuscate.h dlstubs.c
 
 ALLSRC=$(SRC) logo.gif
 
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.74 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/19 10:20:58 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.75 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/19 10:25:10 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -210,8 +210,8 @@ subversion:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.74 $(BRANCH)' $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/19 10:20:58 $(DATE)' $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.75 $(BRANCH)' $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/19 10:25:10 $(DATE)' $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
