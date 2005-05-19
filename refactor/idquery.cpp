@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.7 2005/05/15 14:03:51 dds Exp $
+ * $Id: idquery.cpp,v 1.8 2005/05/19 10:07:34 dds Exp $
  */
 
 #include <map>
@@ -92,7 +92,7 @@ IdQuery::IdQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r)
 	// Compile regular expression specs
 	if (!compile_re(of, "Identifier", "ire", ire, match_ire, str_ire))
 		return;
-	if (!compile_re(of, "Filename", "fnre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
+	if (!compile_re(of, "Filename", "fre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
 		return;
 
 	// Store match specifications in a vector
@@ -263,8 +263,13 @@ IdQuery::eval(const IdPropElem &i)
 		IFSet f = i.first->sorted_files();
 		IFSet::iterator j;
 		for (j = f.begin(); j != f.end(); j++)
-			if (regexec(&fre, (*j).get_path().c_str(), 0, NULL, 0) == 0)
+			if (regexec(&fre, (*j).get_path().c_str(), 0, NULL, 0) == 0) {
+				if (DP())
+					cout << "Identifier " << i.second.get_id() <<
+					    " occurs in file " << j->get_path() <<
+					    ", which matches RE " << str_fre << "\n";
 				break;	// Yes is matches
+			}
 		if (j == f.end())
 			return false;	// No match found
 	}
