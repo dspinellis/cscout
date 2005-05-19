@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.73 2005/05/18 15:56:42 dds Exp $
+# $Id: Makefile,v 1.74 2005/05/19 10:20:58 dds Exp $
 #
 
 #
@@ -55,7 +55,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
-	workdb.h obfuscate.h
+	workdb.h obfuscate.h dlstubs.cpp
 
 ALLSRC=$(SRC) logo.gif
 
@@ -123,11 +123,13 @@ ifdef WINDOWS
 # Windows
 all: $(ARCH)/cscout.exe
 SSH=plink
+SCP=pscp
 FREEFALL=freefall
 else
 # Unix
 all: $(ARCH)/cscout
 SSH=ssh
+SCP=scp
 FREEFALL=freefall.freebsd.org
 endif
 
@@ -181,7 +183,9 @@ ytab.h: parse_tab.h
 tokname.cpp: ytab.h tokname.pl
 	perl tokname.pl ytab.h tokname.cpp
 
-ctoken.o: ctoken.cpp ytab.h
+$(ARCH)/ctoken.o: ctoken.cpp ytab.h
+
+$(ARCH)/fchar.o: fchar.cpp parse_tab.h
 
 
 # Create error message documentation
@@ -194,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.73 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/18 15:56:42 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.74 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/19 10:20:58 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -206,8 +210,8 @@ subversion:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.73 $(BRANCH)' $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/18 15:56:42 $(DATE)' $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.74 $(BRANCH)' $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/19 10:20:58 $(DATE)' $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -236,16 +240,16 @@ rdist-icarian:
 rdist-freefall:
 	$(SSH) $(FREEFALL) "mkdir src/cscout ; chmod 700 src/cscout"
 	tar -cvf - $(SRC) | gzip -c | $(SSH) $(FREEFALL) tar -C src/cscout -xzvf -
-	$(SSH) $(FREEFALL) "(cd src/cscout ; gmake lf parse_tab.h"
+	$(SSH) $(FREEFALL) "(cd src/cscout ; gmake lf)"
 
 rdist-sourceforge:
-	$(SSH) $(SF) "mkdir src/cs src/cs/sparc ; chmod 700 src/cs"
+	$(SSH) $(SF) "mkdir src/cs ; chmod 700 src/cs"
 	tar cf - $(SRC) | gzip -c | $(SSH) $(SF) tar -C src/cs -xzvf -
 
 rdist-tar:
 	tar cvf - $(SRC) | gzip -c >cscout.tar.gz
 
-lf: mkdir
+lf:
 	chmod +w $(SRC)
 	perl -pi -e 's/\r//' $(SRC)
 
@@ -276,3 +280,7 @@ Xlogo.cpp: logo.gif
 #	echo ';' >>logo.cpp
 wc:
 	wc -l $(SRC)
+
+# sparc
+sparc: rdist-sourceforge
+	$(SSH) $(SF) "(cd src/cs ; make mkdir lf all ; strip sparc/cscout)"
