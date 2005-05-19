@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.75 2005/05/19 10:25:10 dds Exp $
+# $Id: Makefile,v 1.76 2005/05/19 11:07:20 dds Exp $
 #
 
 #
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.75 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/19 10:25:10 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.76 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/05/19 11:07:20 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -210,8 +210,8 @@ subversion:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.75 $(BRANCH)' $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/19 10:25:10 $(DATE)' $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$R''evision: '$(BRANCH)' $$";' >>version.cpp
+	echo 'char Version::date[] = "$$D''ate: '$(DATE)' $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -283,4 +283,4 @@ wc:
 
 # sparc
 sparc: rdist-sourceforge
-	$(SSH) $(SF) "(cd src/cs ; make mkdir lf all ; strip sparc/cscout)"
+	$(SSH) $(SF) "ssh sparc-solaris2 '(cd src/cs ; make mkdir lf all ; strip sparc/cscout)'"
