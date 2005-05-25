@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.120 2005/05/15 14:03:51 dds Exp $
+ * $Id: cscout.cpp,v 1.121 2005/05/25 05:07:18 dds Exp $
  */
 
 #include <map>
@@ -1887,6 +1887,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%s&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", fname.str().c_str());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%s&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", fname.str().c_str());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%s&includes=1&used=1&writable=1&n=All+Required+Included+Writable+Files\">All writable files that this file must include</a>\n", fname.str().c_str());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%s&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", fname.str().c_str());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%s&n=Files+Including+the+File\">Files including this file</a>\n", fname.str().c_str());
 	fprintf(of, "</ul>\n");
@@ -1946,6 +1947,7 @@ query_include_page(FILE *of, void *p)
 	bool writable = !!swill_getvar("writable");
 	bool direct = !!swill_getvar("direct");
 	bool unused = !!swill_getvar("unused");
+	bool used = !!swill_getvar("used");
 	bool includes = !!swill_getvar("includes");
 	const FileIncMap &m = includes ? f.get_includes() : f.get_includers();
 	html_file_begin(of);
@@ -1955,6 +1957,7 @@ query_include_page(FILE *of, void *p)
 		const IncDetails &id = (*i).second;
 		if ((!writable || !f2.get_readonly()) &&
 		    (!direct || id.is_directly_included()) &&
+		    (!used || id.is_required()) &&
 		    (!unused || !id.is_required())) {
 			html_file(of, f2);
 			if (id.is_directly_included()) {
