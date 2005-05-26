@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.26 2004/08/01 12:51:14 dds Exp $
+ * $Id: fileid.h,v 1.27 2005/05/26 05:28:42 dds Exp $
  */
 
 #ifndef FILEID_
@@ -25,7 +25,6 @@
 using namespace std;
 
 // Details we keep for each included file for a given includer
-// Only updated when Fdep::monitoring_dependencies is set
 class IncDetails {
 private:
 	bool direct;		// True if directly included
