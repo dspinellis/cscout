@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.4 2004/07/29 14:33:53 dds Exp $
+ * $Id: funquery.h,v 1.5 2005/06/03 14:08:50 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -51,16 +51,16 @@ public:
 	// Construct object based on URL parameters
 	FunQuery(FILE *f, bool icase, Attributes::size_type current_project, bool e = true, bool r = true);
 	// Default
-	FunQuery::FunQuery() : Query() {}
+	FunQuery::FunQuery() : Query(), match_fnre(false), match_fdre(false), match_fure(false), match_fre(false) {}
 
 	// Destructor
 	virtual ~FunQuery() {
 		if (match_fnre)
 			regfree(&fnre);
-		if (match_fure)
-			regfree(&fure);
 		if (match_fdre)
 			regfree(&fdre);
+		if (match_fure)
+			regfree(&fure);
 		if (match_fre)
 			regfree(&fre);
 	}
