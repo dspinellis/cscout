@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.121 2005/05/25 05:07:18 dds Exp $
+ * $Id: cscout.cpp,v 1.122 2005/06/03 10:37:44 dds Exp $
  */
 
 #include <map>
@@ -68,6 +68,7 @@
 
 #ifdef COMMERCIAL
 #include "des.h"
+#include "sql.h"
 #include "workdb.h"
 #include "obfuscate.h"
 #endif
@@ -91,8 +92,10 @@ static bool compile_only;		// Process-only (-c)
 static bool report;			// Generate a warning report
 static int portno = 8081;		// Port number (-p n)
 #ifdef COMMERCIAL
-static char *sql_db;			// Create SQL output for a specific db
+static char *db_engine;			// Create SQL output for a specific db_iface
 static bool obfuscation;		// Obfuscate the processed files
+
+static Sql *db_iface;				// An instance of the database interface
 #endif
 
 static Fileid input_file_id;
@@ -2257,7 +2260,7 @@ usage(char *fname)
 {
 	cerr << "usage: " << fname << " [-cEruv] [-p port] [-m spec] "
 #ifdef COMMERCIAL
-		"[-H host] [-P port] [-o|-s db] "
+		"[-H host] [-P port] [-o|-s db_iface] "
 #endif
 		"file\n"
 		"\t-c\tProcess the file and exit\n"
@@ -2271,7 +2274,7 @@ usage(char *fname)
 #ifdef COMMERCIAL
 		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n"
 		"\t-P port\tHTTP proxy host port (default 80)\n"
-		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
+		"\t-s db_iface\tGenerate SQL output for the specified RDBMS\n"
 		"\t-o\tCreate obfuscated versions of the processed files\n"
 #endif
 		;
@@ -2342,14 +2345,14 @@ main(int argc, char *argv[])
 			exit(0);
 #ifdef COMMERCIAL
 		case 'o':
-			if (sql_db)
+			if (db_engine)
 				usage(argv[0]);
 			obfuscation = true;
 			break;
 		case 's':
 			if (!optarg || obfuscation)
 				usage(argv[0]);
-			sql_db = strdup(optarg);
+			db_engine = strdup(optarg);
 			break;
 		case 'H':
 			if (!optarg)
@@ -2386,6 +2389,11 @@ main(int argc, char *argv[])
 	load_options();
 #ifdef COMMERCIAL
 	parse_acl();
+	if (db_engine) {
+		if ((db_iface = Sql::getInstance(db_engine)) == NULL)
+			return 1;
+		workdb_schema(db_iface);
+	}
 #endif
 
 	// Pass 1: process master file loop
@@ -2402,8 +2410,10 @@ main(int argc, char *argv[])
 #ifdef COMMERCIAL
 	if (obfuscation)
 		return obfuscate();
-	if (sql_db)
-		return workdb(sql_db);
+	if (db_engine) {
+		workdb_rest(db_iface);
+		return 0;
+	}
 #endif
 
 	// Pass 2: Create web pages
@@ -2531,8 +2541,10 @@ main(int argc, char *argv[])
 }
 
 
-// Clear equivalence classes that do not
-// satisfy the monitoring criteria
+/*
+ * Clear equivalence classes that do not satisfy the monitoring criteria.
+ * Called after processing each input file, for that file.
+ */
 void
 garbage_collect(Fileid root)
 {
@@ -2600,6 +2612,9 @@ garbage_collect(Fileid root)
 	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
 		if (*i != root && *i != input_file_id)
 			root.includes(*i, /* directly included = */ false, (*i).required());
+#ifdef COMMERCIAL
+	Fdep::dumpSql(db_iface, root);
+#endif
 	Fdep::reset();
 
 	return;

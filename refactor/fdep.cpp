@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.5 2004/07/23 06:55:38 dds Exp $
+ * $Id: fdep.cpp,v 1.6 2005/06/03 10:37:44 dds Exp $
  */
 
 #include <set>
@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <iostream>
 
 #include "cpp.h"
 #include "debug.h"
@@ -18,11 +19,16 @@
 #include "metrics.h"
 #include "fileid.h"
 #include "fdep.h"
+#include "sql.h"
 
-map <Fileid, set <Fileid> > Fdep::definers;	// Files containing definitions needed in a given file
-map <Fileid, set <Fileid> > Fdep::includers;	// Files including a given file
-set <Fileid> Fdep::providers;			// Files providing code and data
-Fileid Fdep::last_provider;			// Cache last value entered
+/*
+ * These are serially set for each processed file, and
+ * then cleared for before processing the next one.
+ */
+Fdep::FSFMap Fdep::definers;	// Files containing definitions needed in a given file
+Fdep::FSFMap Fdep::includers;	// Files including a given file
+set <Fileid> Fdep::providers;	// Files providing code and data
+Fileid Fdep::last_provider;	// Cache last value entered
 
 /*
  * Mark as used:
@@ -56,3 +62,38 @@ Fdep::reset()
 	includers.clear();
 	last_provider = Fileid();	// Clear cache
 }
+
+#ifdef COMMERCIAL
+/*
+ * Dump using the provided SQL interface
+ * the defines, providers and includers for the
+ * compilation unit cu
+ */
+void
+Fdep::dumpSql(Sql *db, Fileid cu)
+{
+	for (FSFMap::const_iterator di = definers.begin(); di != definers.end(); di++) {
+		const set <Fileid> &defs = di->second;
+		for (set <Fileid>::const_iterator i = defs.begin(); i != defs.end(); i++)
+			cout << "INSERT INTO DEFINERS VALUES(" <<
+			Project::get_current_projid() << ',' <<
+			cu.get_id() << ',' <<
+			di->first.get_id() << ',' <<
+			i->get_id() << ");\n";
+	}
+	for (FSFMap::const_iterator ii = includers.begin(); ii != includers.end(); ii++) {
+		const set <Fileid> &incs = ii->second;
+		for (set <Fileid>::const_iterator i = incs.begin(); i != incs.end(); i++)
+			cout << "INSERT INTO INCLUDERS VALUES(" <<
+			Project::get_current_projid() << ',' <<
+			cu.get_id() << ',' <<
+			ii->first.get_id() << ',' <<
+			i->get_id() << ");\n";
+	}
+	for (set <Fileid>::const_iterator i = providers.begin(); i != providers.end(); i++)
+		cout << "INSERT INTO PROVIDERS VALUES(" <<
+		Project::get_current_projid() << ',' <<
+		cu.get_id() << ',' <<
+		i->get_id() << ");\n";
+}
+#endif /* COMMERCIAL */

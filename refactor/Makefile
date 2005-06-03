@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.76 2005/05/19 11:07:20 dds Exp $
+# $Id: Makefile,v 1.77 2005/06/03 10:37:44 dds Exp $
 #
 
 #
@@ -14,7 +14,7 @@ OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
 getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
-logo.o workdb.o obfuscate.o
+logo.o workdb.o obfuscate.o sql.o
 
 # monitor.o
 
@@ -55,7 +55,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
-	workdb.h obfuscate.h dlstubs.c
+	workdb.h obfuscate.h dlstubs.c sql.cpp sql.h
 
 ALLSRC=$(SRC) logo.gif
 
@@ -72,14 +72,14 @@ CC=g++
 #CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
 
 # Local development flags
-#CPPFLAGS=-pipe -g -Wall
+CPPFLAGS=-pipe -g -Wall
 #CPPFLAGS=-DNO_LOCK
 #CPPFLAGS=-DOFFICE_SERVER
 #CPPFLAGS+=-DTEST_LICENSING
 CPPFLAGS+=-DSPINELLIS_SERVER
 
 # Production flags
-CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION
+#CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION
 
 ifdef SOLARIS
 ADDLIBS += -lsocket -lnsl
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.76 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/05/19 11:07:20 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.77 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/06/03 10:37:44 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -232,7 +232,7 @@ boottest: simple_cpp
 
 # Distribution
 rdist-gemini:
-	tar cvf - $(SRC) | $(SSH) gemini tar -C src/cscout -xvf -
+	tar cvf - $(SRC) | gzip -c | $(SSH) gemini tar -C src/cscout -xzvf -
 
 rdist-icarian:
 	tar cf - $(SRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
@@ -245,6 +245,9 @@ rdist-freefall:
 rdist-sourceforge:
 	$(SSH) $(SF) "mkdir src/cs ; chmod 700 src/cs"
 	tar cf - $(SRC) | gzip -c | $(SSH) $(SF) tar -C src/cs -xzvf -
+
+rdist-sense:
+	tar cf - $(SRC) | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
 
 rdist-tar:
 	tar cvf - $(SRC) | gzip -c >cscout.tar.gz
@@ -280,6 +283,9 @@ Xlogo.cpp: logo.gif
 #	echo ';' >>logo.cpp
 wc:
 	wc -l $(SRC)
+
+enc-src:
+	tar cvf - $(ALLSRC) | gzip -c | $(SSH) spiti encrypt-cscout >/dds/pubs/web/home/cscout/cscout-src.tar.gz
 
 # sparc
 sparc: rdist-sourceforge

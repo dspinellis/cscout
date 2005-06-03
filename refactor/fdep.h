@@ -14,18 +14,20 @@
  * #include "metrics.h"
  * #include "fileid.h"
  *
- * $Id: fdep.h,v 1.5 2004/07/23 06:55:38 dds Exp $
+ * $Id: fdep.h,v 1.6 2005/06/03 10:37:44 dds Exp $
  */
 
 #ifndef FDEP_
 #define FDEP_
 
+class Sql;
 
 // A container for file dependencies
 class Fdep {
 private:
-	static map <Fileid, set <Fileid> > definers;	// Files containing definitions needed in a given file
-	static map <Fileid, set <Fileid> > includers;	// Files including a given file
+	typedef map <Fileid, set <Fileid> > FSFMap;	// A map from Fileid to set of Fileid
+	static FSFMap definers;				// Files containing definitions needed in a given file
+	static FSFMap includers;				// Files including a given file
 	static set <Fileid> providers;			// Files providing code and data
 	static Fileid last_provider;			// Cache last value entered
 public:
@@ -59,6 +61,8 @@ public:
 	static void mark_required(Fileid f);
 	// Clear definers and providers starting another round
 	static void reset();
+	// Create SQL dump
+	static void dumpSql(Sql *db, Fileid cu);
 };
 
 

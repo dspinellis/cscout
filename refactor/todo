@@ -1,8 +1,12 @@
-$Id: todo,v 1.62 2005/05/14 13:42:21 dds Exp $
+$Id: todo,v 1.63 2005/06/03 10:37:44 dds Exp $
 
+Display licensee on the web interface
+Providers lsited on the web interface should not have included files
+Separate include file data on a per-project basis
+Make commercial version contact to license server non-obligatory
 Add functions to the SQL output.
 
-Test the proxy host and port specification
+Separate strings and comments from the SQL output
 
 Collect maintainability index and oo metrics (see SSAO04.)
 Pointer analysis

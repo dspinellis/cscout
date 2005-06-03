@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.15 2005/05/17 12:05:54 dds Exp $
+ * $Id: workdb.cpp,v 1.16 2005/06/03 10:37:44 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -41,6 +41,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "sql.h"
 #include "workdb.h"
 
 // Our identifiers to store as a set
@@ -64,67 +65,6 @@ public:
 			return (r < 0);
 	}
 };
-
-class Sql {
-public:
-	virtual const char *booltype() { return "BOOLEAN"; }
-	virtual const char *varchar() { return "CHARACTER VARYING"; }
-	virtual const char *boolval(bool v);
-};
-
-class Mysql: public Sql {
-public:
-	const char *booltype() { return "bool"; }
-	const char *varchar() { return "TEXT"; }
-	const char *boolval(bool v);
-};
-
-class Hsqldb: public Sql {
-public:
-	const char *varchar() { return "VARCHAR"; }
-};
-
-class Postgres: public Sql {
-public:
-};
-
-
-// Return SQL equivalent for the logical value v
-inline const char *
-Sql::boolval(bool v)
-{
-	return v ? "true" : "false";
-}
-
-inline const char *
-Mysql::boolval(bool v)
-{
-	return v ? "1" : "0";
-}
-
-// Return SQL equivalent of character c
-static char *
-sql(char c)
-{
-	static char str[2];
-
-	switch (c) {
-	case '\'': return "''";
-	default:
-		str[0] = c;
-		return str;
-	}
-}
-
-string
-sql(string s)
-{
-	string r;
-
-	for (string::const_iterator i = s.begin(); i != s.end(); i++)
-		r += sql(*i);
-	return r;
-}
 
 // Insert an equivalence classe in the database
 static void
@@ -209,7 +149,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			plainstart = Tokid(fid, in.tellg());
 		} else {
 			fid.metrics().process_char((char)val);
-			plain += sql((char)val);
+			plain += Sql::escape((char)val);
 		}
 	}
 	if (plain.length() > 0)
@@ -218,26 +158,9 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 		",'" << plain << "');\n";
 }
 
-int
-workdb(const char *dbengine)
+void
+workdb_schema(Sql *db)
 {
-	Sql *db;
-
-	if (strcmp(dbengine, "mysql") == 0)
-		db = new Mysql();
-	else if (strcmp(dbengine, "hsqldb") == 0)
-		db = new Hsqldb();
-	else if (strcmp(dbengine, "postgres") == 0)
-		db = new Postgres();
-	else {
-		cerr << "Unknown database engine " << dbengine << "\n";
-		cerr << "Supported database engine types are: mysql postgres hsqldb\n";
-		return 1;
-	}
-
-	// Pass 2: Create the SQL script
-	vector <Fileid> files = Fileid::files(true);
-
 	cout <<
 		// BEGIN AUTOSCHEMA
 		"CREATE TABLE IDS("			// Details of interdependant identifiers appearing in the workspace
@@ -263,8 +186,7 @@ workdb(const char *dbengine)
 		"FID INTEGER,"				// File key (references FILES)
 		"FOFFSET INTEGER,"			// Offset within the file
 		"EID INTEGER,\n"			// Identifier key (references IDS)
-		"PRIMARY KEY(FID, FOFFSET),"
-		"FOREIGN KEY (EID) REFERENCES IDS"
+		"PRIMARY KEY(FID, FOFFSET)"
 		");\n"
 
 		"CREATE TABLE REST("			// Non-identifier source code
@@ -281,9 +203,7 @@ workdb(const char *dbengine)
 
 		"CREATE TABLE IDPROJ("			// Identifiers appearing in projects
 		"EID INTEGER, "				// Identifier key (references IDS)
-		"PID INTEGER,\n"			// Project key (references PROJECTS)
-		"FOREIGN KEY (EID) REFERENCES IDS,\n"
-		"FOREIGN KEY (PID) REFERENCES PROJECTS"
+		"PID INTEGER"			// Project key (references PROJECTS)
 		");\n"
 
 		"CREATE TABLE FILES("			// File details
@@ -306,12 +226,36 @@ workdb(const char *dbengine)
 
 		"CREATE TABLE FILEPROJ("		// Files used in projects
 		"FID INTEGER, "				// File key (references FILES)
-		"PID INTEGER,\n"			// Project key (references PROJECTS)
-		"FOREIGN KEY (FID) REFERENCES FILES,\n"
-		"FOREIGN KEY (PID) REFERENCES PROJECTS"
+		"PID INTEGER"			// Project key (references PROJECTS)
+		");\n"
+
+		"CREATE TABLE DEFINERS("		// Included files defining required elements for a given compilation unit and project
+		"PID INTEGER, "				// Project key (references PROJECTS)
+		"CUID INTEGER, "			// Compilation unit key (references FILES)
+		"BASEFILEID INTEGER, "			// File requiring a definition (references FILES)
+		"DEFINERID INTEGER"			// File providing a definition (references FILES)
+		");\n"
+
+		"CREATE TABLE INCLUDERS("		// Included files including required files for a given compilation unit and project
+		"PID INTEGER, "				// Project key (references PROJECTS)
+		"CUID INTEGER, "			// Compilation unit key (references FILES)
+		"BASEFILEID INTEGER, "			// File included in the compilation (references FILES)
+		"INCLUDERID INTEGER"			// Files that include it (references FILES)
+		");\n"
+
+		"CREATE TABLE PROVIDERS("		// Included files providing code or data for a given compilation unit and project
+		"PID INTEGER, "				// Project key (references PROJECTS)
+		"CUID INTEGER, "			// Compilation unit key (references FILES)
+		"PROVIDERID INTEGER"			// Included file (references FILES)
 		");\n"
 		// END AUTOSCHEMA
 		"";
+}
+
+void
+workdb_rest(Sql *db)
+{
+	vector <Fileid> files = Fileid::files(true);
 
 	// Project names
 	const Project::proj_map_type &m = Project::get_project_map();
@@ -347,8 +291,6 @@ workdb(const char *dbengine)
 				cout << "INSERT INTO FILEPROJ VALUES(" <<
 				(*i).get_id() << ',' << j << ");\n";
 	}
-
-	return (0);
 }
 
 #endif /* COMMERCIAL */

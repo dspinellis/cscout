@@ -3,7 +3,8 @@
  *
  * SQL back-end
  *
- * $Id: workdb.h,v 1.2 2005/05/15 10:31:42 dds Exp $
+ * $Id: workdb.h,v 1.3 2005/06/03 10:37:44 dds Exp $
  */
 
-int workdb(const char *);
+void workdb_schema(Sql *db);
+void workdb_rest(Sql *db);
