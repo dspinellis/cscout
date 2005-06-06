@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.122 2005/06/03 10:37:44 dds Exp $
+ * $Id: cscout.cpp,v 1.123 2005/06/06 14:16:03 dds Exp $
  */
 
 #include <map>
@@ -71,6 +71,7 @@
 #include "sql.h"
 #include "workdb.h"
 #include "obfuscate.h"
+#include "lname.c"
 #endif
 
 
@@ -95,7 +96,7 @@ static int portno = 8081;		// Port number (-p n)
 static char *db_engine;			// Create SQL output for a specific db_iface
 static bool obfuscation;		// Obfuscate the processed files
 
-static Sql *db_iface;				// An instance of the database interface
+static Sql *db_iface;			// An instance of the database interface
 #endif
 
 static Fileid input_file_id;
@@ -581,10 +582,15 @@ html_tail(FILE *of)
 		" - Web: "
 		"<a href=\"http://www.spinellis.gr/cscout\">Home</a>\n"
 		"<a href=\"http://www.spinellis.gr/cscout/doc/index.html\">Manual</a>\n"
-		"<br><hr><font size=-1>CScout %s - %s</font>\n"
-		"</body>"
-		"</html>\n", Version::get_revision().c_str(),
+		"<br><hr><font size=-1>CScout %s - %s",
+		Version::get_revision().c_str(),
 		Version::get_date().c_str());
+#ifdef COMMERCIAL
+	fprintf(of, " - Licensee: %s", licensee);
+#else
+	fprintf(of, " - Unsupported version; can only be used on open-source software.");
+#endif
+	fprintf(of, "</font></body></html>\n");
 }
 
 #ifndef COMMERCIAL
@@ -2260,7 +2266,7 @@ usage(char *fname)
 {
 	cerr << "usage: " << fname << " [-cEruv] [-p port] [-m spec] "
 #ifdef COMMERCIAL
-		"[-H host] [-P port] [-o|-s db_iface] "
+		"[-H host] [-P port] [-o|-s db] "
 #endif
 		"file\n"
 		"\t-c\tProcess the file and exit\n"
@@ -2274,7 +2280,7 @@ usage(char *fname)
 #ifdef COMMERCIAL
 		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n"
 		"\t-P port\tHTTP proxy host port (default 80)\n"
-		"\t-s db_iface\tGenerate SQL output for the specified RDBMS\n"
+		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
 		"\t-o\tCreate obfuscated versions of the processed files\n"
 #endif
 		;
@@ -2292,7 +2298,6 @@ main(int argc, char *argv[])
 
 #ifdef COMMERCIAL
 	// Decode name of licensee
-	#include "lname.c"
 	char lkey[] = LKEY;
 	cscout_des_init(0);
 	cscout_des_set_key(lkey);
@@ -2410,7 +2415,7 @@ main(int argc, char *argv[])
 #ifdef COMMERCIAL
 	if (obfuscation)
 		return obfuscate();
-	if (db_engine) {
+	if (db_iface) {
 		workdb_rest(db_iface);
 		return 0;
 	}
@@ -2613,7 +2618,8 @@ garbage_collect(Fileid root)
 		if (*i != root && *i != input_file_id)
 			root.includes(*i, /* directly included = */ false, (*i).required());
 #ifdef COMMERCIAL
-	Fdep::dumpSql(db_iface, root);
+	if (db_iface)
+		Fdep::dumpSql(db_iface, root);
 #endif
 	Fdep::reset();
 

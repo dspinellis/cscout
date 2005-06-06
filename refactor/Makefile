@@ -1,13 +1,14 @@
 #
-# (C) Copyright 2001 Diomidis Spinellis
+# (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.77 2005/06/03 10:37:44 dds Exp $
+# $Id: Makefile,v 1.78 2005/06/06 14:16:03 dds Exp $
 #
 
-#
-# For the commercial build run make as:
+# By default a production, unsupported build is made.
+# For a commercial build run make as:
 # make LICENSEE="John Smith"
-#
+# For a debug build run make as:
+# make DEBUG=1
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -22,20 +23,16 @@ logo.o workdb.o obfuscate.o sql.o
 BRANCH=$(shell sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' version.cpp)
 DATE=$(shell date +'%Y/%m/%d %H:%M:%S')
 
-ifndef ARCH
-ifdef HOSTTYPE
-ARCH=$(HOSTTYPE)
-else
+# Determine architecture and OS
+ARCH=$(shell uname -p 2>/dev/null || uname -m )
+OS=$(shell uname -s)
+
+# Sanitize processor types
+ifeq ($(ARCH),x86)
 ARCH=i386
 endif
-endif
-
-ifeq ($(OSTYPE),solaris2.9)
-SOLARIS=1
-endif
-
-ifdef PROCESSOR_ARCHITECTURE
-WINDOWS=1
+ifeq ($(ARCH),i686)
+ARCH=i386
 endif
 
 OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
@@ -59,41 +56,37 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 
 ALLSRC=$(SRC) logo.gif
 
-# Stand-alone object files
-STANDOBJ=error.o
-
-# Tcl object files
-TCLOBJ=tclfuns.o
-
 YACC=btyacc
 #YACC=yacc
 CC=g++
-# AUEB development flags
-#CPPFLAGS=-pipe -g -Wall -DTEST_LICENSING -DSPINELLIS_SERVER
 
-# Local development flags
-CPPFLAGS=-pipe -g -Wall
+CPPFLAGS=-pipe -Wall
+CPPFLAGS+=-DSPINELLIS_SERVER
+ifdef DEBUG
+# Debug build
+CPPFLAGS+=-g -DCOMMERCIAL
+dummy := $(shell gcc -o ccode -DCCODE des.c)
+dummy := $(shell ./ccode "(internal use only)")
+else
+CPPFLAGS+=-DPRODUCTION
+endif
+
+# Local development flag options
+#CPPFLAGS+=-DTEST_LICENSING
 #CPPFLAGS=-DNO_LOCK
 #CPPFLAGS=-DOFFICE_SERVER
-#CPPFLAGS+=-DTEST_LICENSING
-CPPFLAGS+=-DSPINELLIS_SERVER
 
-# Production flags
-#CPPFLAGS=-pipe -O2 -DSPINELLIS_SERVER -DPRODUCTION
+# Moving away from static linking
+#CPPFLAGS += -static
 
-ifdef SOLARIS
+ifeq ($(OS),SunOS)
 ADDLIBS += -lsocket -lnsl
-OBJ += dlstubs.o
+#OBJ += dlstubs.o
 endif
 
-CPPFLAGS += -static
-
-ifdef WINDOWS
+ifeq ($(OS),WindowsNT)
 CPPFLAGS += -I.
 endif
-
-# Realistic debug flags
-#CPPFLAGS=-pipe -O2 -g -DSPINELLIS_SERVER -DPRODUCTION
 
 ifdef LICENSEE
 CPPFLAGS += -DCOMMERCIAL=1
@@ -119,7 +112,7 @@ $(ARCH)/%.o: %.c
 $(ARCH)/%.o: %.cpp
 	g++ -c $(CPPFLAGS) -o $@ $<
 
-ifdef WINDOWS
+ifeq ($(OS),WindowsNT)
 # Windows
 all: $(ARCH)/cscout.exe
 SSH=plink
@@ -198,8 +191,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.77 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/06/03 10:37:44 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.78 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/06/06 14:16:03 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -236,6 +229,10 @@ rdist-gemini:
 
 rdist-icarian:
 	tar cf - $(SRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
+
+rdist-macmini:
+	tar cf - $(SRC) | gzip -c | $(SSH) macmini tar -C src/cscout -xzvf -
+
 
 rdist-freefall:
 	$(SSH) $(FREEFALL) "mkdir src/cscout ; chmod 700 src/cscout"
