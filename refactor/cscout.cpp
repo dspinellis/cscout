@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.123 2005/06/06 14:16:03 dds Exp $
+ * $Id: cscout.cpp,v 1.124 2005/06/06 14:42:05 dds Exp $
  */
 
 #include <map>
@@ -2487,12 +2487,12 @@ main(int argc, char *argv[])
 	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str(), file_msum.get_total(em_nchar));
 #endif
 
-	if ((must_exit = (CORRECTION_FACTOR - license_offset != 0))) {
+	must_exit = (CORRECTION_FACTOR - license_offset != 0);
 #ifndef PRODUCTION
-		cout << "**********Unable to obtain correct license*********\n";
-		cout << "license_offset = " << license_offset << "\n";
+	if (must_exit)
+		cout << "**********Unable to obtain correct license*********\n"
+			"license_offset = " << license_offset << "\n";
 #endif
-	}
 
 	if (!compile_only) {
 		swill_handle("src.html", source_page, NULL);

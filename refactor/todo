@@ -1,8 +1,7 @@
-$Id: todo,v 1.64 2005/06/06 14:16:03 dds Exp $
+$Id: todo,v 1.65 2005/06/06 14:42:05 dds Exp $
 
 Regression testing framework
 
-Make commercial version contact to license server non-obligatory
 Add functions to the SQL output.
 
 Separate strings and comments from the SQL output
