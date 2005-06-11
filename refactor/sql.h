@@ -3,7 +3,7 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.h,v 1.1 2005/06/03 10:40:29 dds Exp $
+ * $Id: sql.h,v 1.2 2005/06/11 16:29:43 dds Exp $
  */
 
 
@@ -11,8 +11,8 @@
 class Sql {
 public:
 	static Sql *getInstance(const char *dbengine);
-	static string escape(string s);
-	static char * escape(char c);
+	virtual string escape(string s);
+	virtual char * escape(char c);
 	virtual const char *booltype() { return "BOOLEAN"; }
 	virtual const char *varchar() { return "CHARACTER VARYING"; }
 	virtual const char *boolval(bool v);
@@ -28,6 +28,7 @@ public:
 class Hsqldb: public Sql {
 public:
 	const char *varchar() { return "VARCHAR"; }
+	char * escape(char c);
 };
 
 class Postgres: public Sql {

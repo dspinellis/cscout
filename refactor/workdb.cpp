@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.16 2005/06/03 10:37:44 dds Exp $
+ * $Id: workdb.cpp,v 1.17 2005/06/11 16:29:43 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -149,7 +149,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			plainstart = Tokid(fid, in.tellg());
 		} else {
 			fid.metrics().process_char((char)val);
-			plain += Sql::escape((char)val);
+			plain += db->escape((char)val);
 		}
 	}
 	if (plain.length() > 0)

@@ -3,7 +3,7 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.cpp,v 1.1 2005/06/03 10:40:29 dds Exp $
+ * $Id: sql.cpp,v 1.2 2005/06/11 16:29:43 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -21,6 +21,21 @@ Sql::escape(char c)
 
 	switch (c) {
 	case '\'': return "''";
+	default:
+		str[0] = c;
+		return str;
+	}
+}
+
+char *
+Hsqldb::escape(char c)
+{
+	static char str[2];
+
+	switch (c) {
+	case '\'': return "''";
+	case '\n': return "\\u0000a";
+	case '\r': return "\\u0000d";
 	default:
 		str[0] = c;
 		return str;
