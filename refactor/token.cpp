@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.20 2004/08/07 21:49:01 dds Exp $
+ * $Id: token.cpp,v 1.21 2005/06/12 09:45:25 dds Exp $
  */
 
 #include <iostream>
@@ -199,6 +199,7 @@ Token::equals(const Token &stale) const
 			si++;
 			if (si == stalep.end())
 				return false;
+			sid = si->get_tokid();
 			slen = si->get_len();
 			goto idcont;
 		} else { // flen < slen
@@ -207,6 +208,7 @@ Token::equals(const Token &stale) const
 			fi++;
 			if (fi == freshp.end())
 				return false;
+			fid = fi->get_tokid();
 			flen == fi->get_len();
 			goto idcont;
 		}
