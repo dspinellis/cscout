@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.6 2005/06/12 09:27:34 dds Exp $
+ * $Id: call.cpp,v 1.7 2005/06/12 09:39:07 dds Exp $
  */
 
 #include <map>
@@ -105,7 +105,8 @@ Call::Call(const string &s, const Token &t) :
 		name(s),
 		token(t)
 {
-	cout << "Construct new call for " << s << '\n';
+	if (DP())
+		cout << "Construct new call for " << s << '\n';
 	all.insert(fun_map::value_type(t.get_parts_begin()->get_tokid(), this));
 }
 
