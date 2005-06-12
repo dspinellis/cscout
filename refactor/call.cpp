@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.5 2004/08/07 21:49:01 dds Exp $
+ * $Id: call.cpp,v 1.6 2005/06/12 09:27:34 dds Exp $
  */
 
 #include <map>
@@ -105,6 +105,7 @@ Call::Call(const string &s, const Token &t) :
 		name(s),
 		token(t)
 {
+	cout << "Construct new call for " << s << '\n';
 	all.insert(fun_map::value_type(t.get_parts_begin()->get_tokid(), this));
 }
 
@@ -144,12 +145,15 @@ Call::get_call(const Token &t)
 	pair <const_fmap_iterator_type, const_fmap_iterator_type> maybe(all.equal_range(t.get_parts_begin()->get_tokid()));
 	const_fmap_iterator_type i;
 
-	for (i = maybe.first; i != maybe.second; i++)
+	for (i = maybe.first; i != maybe.second; i++) {
+		if (DP())
+			cout << "Compare " << t << " with " << i->second->get_token() << "\n";
 		if (t.equals(i->second->get_token())) {
 			if (DP())
 				cout << "Get call for " << t << " returns " << &(i->second) << "\n";
 			return i->second;
 		}
+	}
 	return NULL;
 }
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.36 2004/08/07 21:49:01 dds Exp $
+ * $Id: stab.cpp,v 1.37 2005/06/12 09:27:34 dds Exp $
  */
 
 #include <map>
@@ -208,6 +208,8 @@ obj_define(const Token& tok, Type typ)
 	// Locate/create the appropriate FCall object
 	FCall *fc = NULL;
 	if (typ.is_function()) {
+		if (DP())
+			cout << "Looking for function " << tok.get_name() << '\n';
 		tok.set_ec_attribute(is_function);
 		if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
 			// Extern linkage: get it from the lu block which we do not normaly search
@@ -221,8 +223,11 @@ obj_define(const Token& tok, Type typ)
 
 		if (!fc)
 			fc = dynamic_cast<FCall *>(Call::get_call(tok));
-		if (!fc)
+		if (!fc) {
+			if (DP())
+				cout << "Creating new call\n";
 			fc = new FCall(tok, typ, tok.get_name());
+		}
 	}
 
 	static Stab Block::*objptr = &Block::obj;
