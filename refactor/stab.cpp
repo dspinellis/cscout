@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.37 2005/06/12 09:27:34 dds Exp $
+ * $Id: stab.cpp,v 1.38 2005/06/12 09:49:20 dds Exp $
  */
 
 #include <map>
@@ -220,7 +220,7 @@ obj_define(const Token& tok, Type typ)
 			if ((id = obj_lookup(tok.get_name())))
 				fc = id->get_fcall();
 		}
-
+		// Try to match the function against one in another project
 		if (!fc)
 			fc = dynamic_cast<FCall *>(Call::get_call(tok));
 		if (!fc) {
