@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.124 2005/06/06 14:42:05 dds Exp $
+ * $Id: cscout.cpp,v 1.125 2005/06/12 10:47:25 dds Exp $
  */
 
 #include <map>
@@ -1974,10 +1974,10 @@ query_include_page(FILE *of, void *p)
 				const set <int> &lines = id.include_line_numbers();
 				for (set <int>::const_iterator j = lines.begin(); j != lines.end(); j++)
 					fprintf(of, "%d ", *j);
+				if (!id.is_required())
+					fprintf(of, " (not required)");
+				fprintf(of, "</td>");
 			}
-			if (!id.is_required())
-				fprintf(of, " (not required)");
-			fprintf(of, "</td>");
 			html_file_record_end(of);
 		}
 	}
