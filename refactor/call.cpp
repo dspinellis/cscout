@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.8 2005/06/13 18:10:15 dds Exp $
+ * $Id: call.cpp,v 1.9 2005/06/13 23:21:43 dds Exp $
  */
 
 #include <map>
@@ -183,16 +183,21 @@ Call::dumpSql(Sql *db, ostream &of)
 		t.get_fileid().get_id() << ',' <<
 		(unsigned)(t.get_streampos()) << ");\n";
 
-		int len = fun->name.length();
-		int pos, ord;
-		for (ord = pos = 0; pos < len; ord++) {
-			Eclass *ec = t.get_ec();
-			of << "INSERT INTO FUNCTIONID VALUES(" <<
-			(unsigned)fun << ',' <<
-			ord << ',' <<
-			(unsigned)ec << ");\n";
-			pos += ec->get_len();
-			t += ec->get_len();
+		int start = 0;
+		for (dequeTpart::const_iterator j = fun->get_token().get_parts_begin(); j != fun->get_token().get_parts_end(); j++) {
+			Tokid t2 = j->get_tokid();
+			int len = j->get_len() - start;
+			int pos, ord;
+			for (ord = pos = 0; pos < len; ord++) {
+				Eclass *ec = t2.get_ec();
+				of << "INSERT INTO FUNCTIONID VALUES(" <<
+				(unsigned)fun << ',' <<
+				ord << ',' <<
+				(unsigned)ec << ");\n";
+				pos += ec->get_len();
+				t2 += ec->get_len();
+			}
+			start += j->get_len();
 		}
 
 
