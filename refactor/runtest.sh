@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.2 2005/06/13 22:46:12 dds Exp $
+# $Id: runtest.sh,v 1.3 2005/06/13 23:28:09 dds Exp $
 #
 
 
@@ -48,6 +48,8 @@ UPDATE Tokens SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = Tokens.
 
 UPDATE IdProj SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = IdProj.Eid);
 
+UPDATE FunctionId SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = FunctionId.Eid);
+
 DROP TABLE FixedIds;
 \p Fixing FUNCTION IDs
 CREATE TABLE FixedIds(FunId integer primary key, FixedId integer);
@@ -65,7 +67,6 @@ UPDATE FunctionId SET FunctionId=(SELECT FixedId FROM FixedIds WHERE FixedIds.Fu
 UPDATE Fcalls SET
 SourceId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.sourceid),
 DestId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.DestId);
-;
 
 DROP TABLE FixedIds;
 \p Running selections
@@ -79,11 +80,18 @@ SELECT * from FileProj ORDER BY Pid, Fid;
 SELECT * from Definers ORDER BY PID, CUID, BASEFILEID, DEFINERID;
 SELECT * from Includers ORDER BY PID, CUID, BASEFILEID, IncluderID;
 SELECT * from Providers ORDER BY PID, CUID, Providerid;
+SELECT * from Functions ORDER BY ID;
+SELECT * from FunctionId ORDER BY FUNCTIONID, ORDINAL;
+SELECT * from Fcalls ORDER BY SourceID, DESTID;
 \p Done
 '
 ) |
 java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc mem - |
 sed -e '1,/^Running selections/d' >test/nout/$NAME
+if [ "$PRIME" = "1" ]
+then
+	return 0
+fi
 if diff test/out/$NAME test/nout/$NAME
 then
 	echo "Test $NAME passed" 1>&2
@@ -113,6 +121,14 @@ workspace TestWS {
 " |
 perl prjcomp.pl -d /dds/src/research/CScout/example/.cscout >makecs.cs
 }
+
+while test $# -gt 0; do
+        case $1 in
+	-p)	PRIME=1
+		;;
+	esac
+	shift
+done
 
 # Simple files
 FILES=`cd test/c; echo *.c`
