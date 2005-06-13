@@ -3,13 +3,14 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.11 2005/06/13 18:10:15 dds Exp $
+ * $Id: call.h,v 1.12 2005/06/13 18:35:35 dds Exp $
  */
 
 #ifndef CALL_
 #define CALL_
 
 class FCall;
+class Sql;
 
 /*
  * Generic call information of a called/calling entity.

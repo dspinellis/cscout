@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.18 2005/06/13 18:10:15 dds Exp $
+ * $Id: workdb.cpp,v 1.19 2005/06/13 18:35:35 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -23,6 +23,7 @@
 #include <cstdio>		// perror
 
 #include "cpp.h"
+#include "debug.h"
 #include "attr.h"
 #include "ytab.h"
 #include "metrics.h"
@@ -37,7 +38,6 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "eclass.h"
-#include "debug.h"
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
