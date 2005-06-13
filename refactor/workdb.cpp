@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.19 2005/06/13 18:35:35 dds Exp $
+ * $Id: workdb.cpp,v 1.20 2005/06/13 22:40:45 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -261,7 +261,7 @@ workdb_schema(Sql *db, ostream &of)
 		");\n"
 
 		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
-		"FUINCTIONID INTEGER, "			// Function identifier key (references FUNCTIONS)
+		"FUNCTIONID INTEGER, "			// Function identifier key (references FUNCTIONS)
 		"ORDINAL INTEGER, "			// Position of the identifier within the function name (0-based)
 		"EID INTEGER"				// Identifier key (references IDS)
 		");\n"
