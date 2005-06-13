@@ -1,4 +1,8 @@
 #!/bin/sh
+#
+# $Id: runtest.sh,v 1.2 2005/06/13 22:46:12 dds Exp $
+#
+
 
 # runtest name csfile directory
 runtest()
@@ -36,13 +40,32 @@ INSERT INTO FixedIds
 SELECT Eid, Min(Fid + foffset * (select max(Fid) from files)) * 2 + 1
 FROM Tokens GROUP BY Eid;
 
-select  min(eid), max(eid), fixedid from fixedids group by fixedid having count(fixedid) > 1
+/* select  min(eid), max(eid), fixedid from fixedids group by fixedid having count(fixedid) > 1 */
 
 UPDATE Ids SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = Ids.Eid);
 
 UPDATE Tokens SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = Tokens.Eid);
 
 UPDATE IdProj SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = IdProj.Eid);
+
+DROP TABLE FixedIds;
+\p Fixing FUNCTION IDs
+CREATE TABLE FixedIds(FunId integer primary key, FixedId integer);
+
+INSERT INTO FixedIds
+SELECT ID, (Fid + foffset * (select max(Fid) from files)) * 2 + 1
+FROM Functions;
+
+/* select  min(FunId), max(FunId), fixedid from fixedids group by fixedid having count(fixedid) > 1; */
+
+UPDATE Functions SET id=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Functions.id);
+
+UPDATE FunctionId SET FunctionId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = FunctionId.FunctionId);
+
+UPDATE Fcalls SET
+SourceId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.sourceid),
+DestId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.DestId);
+;
 
 DROP TABLE FixedIds;
 \p Running selections
