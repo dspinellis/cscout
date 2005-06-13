@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.17 2005/06/11 16:29:43 dds Exp $
+ * $Id: workdb.cpp,v 1.18 2005/06/13 18:10:15 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -159,7 +159,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 }
 
 void
-workdb_schema(Sql *db)
+workdb_schema(Sql *db, ostream &of)
 {
 	cout <<
 		// BEGIN AUTOSCHEMA
@@ -203,7 +203,7 @@ workdb_schema(Sql *db)
 
 		"CREATE TABLE IDPROJ("			// Identifiers appearing in projects
 		"EID INTEGER, "				// Identifier key (references IDS)
-		"PID INTEGER"			// Project key (references PROJECTS)
+		"PID INTEGER"				// Project key (references PROJECTS)
 		");\n"
 
 		"CREATE TABLE FILES("			// File details
@@ -226,7 +226,7 @@ workdb_schema(Sql *db)
 
 		"CREATE TABLE FILEPROJ("		// Files used in projects
 		"FID INTEGER, "				// File key (references FILES)
-		"PID INTEGER"			// Project key (references PROJECTS)
+		"PID INTEGER"				// Project key (references PROJECTS)
 		");\n"
 
 		"CREATE TABLE DEFINERS("		// Included files defining required elements for a given compilation unit and project
@@ -248,12 +248,34 @@ workdb_schema(Sql *db)
 		"CUID INTEGER, "			// Compilation unit key (references FILES)
 		"PROVIDERID INTEGER"			// Included file (references FILES)
 		");\n"
+
+		"CREATE TABLE FUNCTIONS("		// C functions and function-like macros
+		"ID INTEGER PRIMARY KEY,\n"		// Unique function identifier
+		"NAME " << db->varchar() << ",\n"	// Function name (redundant; see FUNCTIONID)
+		"ISMACRO " << db->booltype() << ",\n"	// True if a function-like macro (otherwise a C function)
+		"DEFINED " << db->booltype() << ",\n"	// True if the function is defined within the workspace
+		"DECLARED " << db->booltype() << ",\n"	// True if the function is declared within the workspace
+		"FILESCOPED " << db->booltype() << ",\n"// True if the function's scope is a single compilation unit (static or macro)
+		"FID INTEGER,\n"			// File key of the function's definition, declaration, or use (references FILES)
+		"FOFFSET INTEGER"			// Offset of definition, declaration, or use within the file
+		");\n"
+
+		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
+		"FUINCTIONID INTEGER, "			// Function identifier key (references FUNCTIONS)
+		"ORDINAL INTEGER, "			// Position of the identifier within the function name (0-based)
+		"EID INTEGER"				// Identifier key (references IDS)
+		");\n"
+
+		"CREATE TABLE FCALLS("			// Function calls
+		"SOURCEID INTEGER, "			// Calling function identifier key (references FUNCTIONS)
+		"DESTID INTEGER"			// Called function identifier key (references FUNCTIONS)
+		");\n"
 		// END AUTOSCHEMA
 		"";
 }
 
 void
-workdb_rest(Sql *db)
+workdb_rest(Sql *db, ostream &of)
 {
 	vector <Fileid> files = Fileid::files(true);
 

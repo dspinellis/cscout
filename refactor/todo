@@ -1,12 +1,12 @@
-$Id: todo,v 1.65 2005/06/06 14:42:05 dds Exp $
+$Id: todo,v 1.66 2005/06/13 18:10:15 dds Exp $
 
-Regression testing framework
-
-Add functions to the SQL output.
-
-Separate strings and comments from the SQL output
+- Separate strings and comments from the SQL output
+(See processor in obfuscate.c)
+- Create an SQL table with FID, FOFFSET, LNUM
 
 Interface to show identifiers shared between two files.
+
+Track global variables in the same way as functions are currently tracked.
 
 Collect maintainability index and oo metrics (see SSAO04.)
 Pointer analysis

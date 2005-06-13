@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.125 2005/06/12 10:47:25 dds Exp $
+ * $Id: cscout.cpp,v 1.126 2005/06/13 18:10:15 dds Exp $
  */
 
 #include <map>
@@ -1539,7 +1539,7 @@ load_options()
 					char buff[1024];
 					regerror(r, &sfile_re, buff, sizeof(buff));
 					fprintf(stderr, "Filename regular expression error: %s", buff);
-					sfile_re_string.clear();
+					sfile_re_string.erase();
 				}
 			}
 		}
@@ -2397,7 +2397,7 @@ main(int argc, char *argv[])
 	if (db_engine) {
 		if ((db_iface = Sql::getInstance(db_engine)) == NULL)
 			return 1;
-		workdb_schema(db_iface);
+		workdb_schema(db_iface, cout);
 	}
 #endif
 
@@ -2416,7 +2416,8 @@ main(int argc, char *argv[])
 	if (obfuscation)
 		return obfuscate();
 	if (db_iface) {
-		workdb_rest(db_iface);
+		workdb_rest(db_iface, cout);
+		Call::dumpSql(db_iface, cout);
 		return 0;
 	}
 #endif

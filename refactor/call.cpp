@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.7 2005/06/12 09:39:07 dds Exp $
+ * $Id: call.cpp,v 1.8 2005/06/13 18:10:15 dds Exp $
  */
 
 #include <map>
@@ -40,6 +40,7 @@
 #include "fcall.h"
 #include "mcall.h"
 #include "eclass.h"
+#include "sql.h"
 
 // Function currently being parsed
 FCall *Call::current_fun = NULL;
@@ -163,3 +164,42 @@ Call::get_calls(Tokid t)
 {
 	return all.equal_range(t);
 }
+
+
+#ifdef COMMERCIAL
+void
+Call::dumpSql(Sql *db, ostream &of)
+{
+	for (const_fmap_iterator_type i = fbegin(); i != fend(); i++) {
+		Call *fun = i->second;
+		Tokid t = fun->get_site();
+		of << "INSERT INTO FUNCTIONS VALUES(" <<
+		(unsigned)fun << ", '" <<
+		fun->name << "', " <<
+		db->boolval(fun->is_macro()) << ',' <<
+		db->boolval(fun->is_defined()) << ',' <<
+		db->boolval(fun->is_declared()) << ',' <<
+		db->boolval(fun->is_file_scoped()) << ',' <<
+		t.get_fileid().get_id() << ',' <<
+		(unsigned)(t.get_streampos()) << ");\n";
+
+		int len = fun->name.length();
+		int pos, ord;
+		for (ord = pos = 0; pos < len; ord++) {
+			Eclass *ec = t.get_ec();
+			of << "INSERT INTO FUNCTIONID VALUES(" <<
+			(unsigned)fun << ',' <<
+			ord << ',' <<
+			(unsigned)ec << ");\n";
+			pos += ec->get_len();
+			t += ec->get_len();
+		}
+
+
+		for (Call::const_fiterator_type dest = fun->call_begin(); dest != fun->call_end(); dest++)
+			of << "INSERT INTO FCALLS VALUES(" <<
+			(unsigned)fun << ',' <<
+			(unsigned)(*dest) << ");\n";
+	}
+}
+#endif /* COMMERCIAL */
