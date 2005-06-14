@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.126 2005/06/13 18:10:15 dds Exp $
+ * $Id: cscout.cpp,v 1.127 2005/06/14 10:14:50 dds Exp $
  */
 
 #include <map>
@@ -272,7 +272,7 @@ html_string(FILE *of, const Call *f)
 static bool
 file_analyze(Fileid fi)
 {
-	ifstream in;
+	fifstream in;
 	bool has_unused = false;
 	const string &fname = fi.get_path();
 	int line_number = 0;
@@ -346,7 +346,7 @@ file_analyze(Fileid fi)
 static void
 file_hypertext(FILE *of, Fileid fi, bool eval_query)
 {
-	ifstream in;
+	fifstream in;
 	const string &fname = fi.get_path();
 	bool at_bol = true;
 	int line_number = 1;
@@ -459,7 +459,7 @@ static int
 file_replace(FILE *of, Fileid fid)
 {
 	string plain;
-	ifstream in;
+	fifstream in;
 	ofstream out;
 
 	in.open(fid.get_path().c_str(), ios::binary);
@@ -2576,7 +2576,7 @@ garbage_collect(Fileid root)
 		}
 
 		const string &fname = fi.get_path();
-		ifstream in;
+		fifstream in;
 
 		in.open(fname.c_str(), ios::binary);
 		if (in.fail()) {

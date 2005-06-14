@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.5 2005/05/15 10:31:53 dds Exp $
+ * $Id: obfuscate.cpp,v 1.6 2005/06/14 10:14:50 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -187,7 +187,7 @@ file_obfuscate(Fileid fid)
 {
 	string plain;
 	Tokid plainstart;
-	ifstream in;
+	fifstream in;
 	ofstream out;
 
 	in.open(fid.get_path().c_str(), ios::binary);

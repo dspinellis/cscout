@@ -3,10 +3,11 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.24 2005/05/14 06:50:57 dds Exp $
+ * $Id: tokid.cpp,v 1.25 2005/06/14 10:14:50 dds Exp $
  */
 
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <string>
 #include <deque>

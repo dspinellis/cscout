@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.20 2005/06/13 22:40:45 dds Exp $
+ * $Id: workdb.cpp,v 1.21 2005/06/14 10:14:50 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -110,7 +110,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 {
 	string plain;
 	Tokid plainstart;
-	ifstream in;
+	fifstream in;
 
 	in.open(fid.get_path().c_str(), ios::binary);
 	if (in.fail()) {

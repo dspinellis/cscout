@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.30 2004/07/30 17:19:03 dds Exp $
+ * $Id: fchar.cpp,v 1.31 2005/06/14 10:14:50 dds Exp $
  */
 
 #include <iostream>
@@ -34,7 +34,7 @@
 #include "ytab.h"
 #include "fdep.h"
 
-ifstream Fchar::in;
+fifstream Fchar::in;
 Fileid Fchar::fi;
 stackFchar_context Fchar::cs;		// Pushed contexts (from push_input())
 stackFchar Fchar::ps;			// Putback Fchars (from putback())
@@ -93,7 +93,8 @@ Fchar::simple_getnext()
 	int c2, c3;
 again:
 	ti = Tokid(fi, in.tellg());
-	// cout << "simple_getnext ti: " << ti << "\n";
+	if (DP())
+		cout << "simple_getnext ti: " << ti << "\n";
 	val = in.get();
 	switch (val) {
 	backslash:

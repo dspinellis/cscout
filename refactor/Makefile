@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.78 2005/06/06 14:16:03 dds Exp $
+# $Id: Makefile,v 1.79 2005/06/14 10:14:50 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -52,7 +52,8 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	prjcomp.pl version.h version.cpp getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
-	workdb.h obfuscate.h dlstubs.c sql.cpp sql.h
+	workdb.h obfuscate.h dlstubs.c sql.cpp sql.h fifstream.h \
+	runtest.sh
 
 ALLSRC=$(SRC) logo.gif
 
@@ -191,8 +192,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.78 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/06/06 14:16:03 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.79 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/06/14 10:14:50 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

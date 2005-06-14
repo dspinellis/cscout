@@ -14,12 +14,15 @@
  * #include "cpp.h"
  * #include "tokid.h"
  * #include "fchar.h"
+ * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.12 2004/07/23 06:55:38 dds Exp $
+ * $Id: fchar.h,v 1.13 2005/06/14 10:14:50 dds Exp $
  */
 
 #ifndef FCHAR_
 #define FCHAR_
+
+#include "fifstream.h"
 
 using namespace std;
 
@@ -38,7 +41,7 @@ typedef stack <Fchar> stackFchar;
 class Fchar {
 private:
 	void Fchar::simple_getnext();	// Trigraphs and slicing
-	static ifstream in;		// Stream we are reading from
+	static fifstream in;		// Stream we are reading from
 	static Fileid fi;		// and its Fileid
 	static int line_number;		// Current line number
 	static bool yacc_file;		// True if input file is yacc, not C
