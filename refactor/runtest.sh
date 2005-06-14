@@ -1,20 +1,48 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.3 2005/06/13 23:28:09 dds Exp $
+# $Id: runtest.sh,v 1.4 2005/06/14 08:22:08 dds Exp $
 #
 
 
+# Start a test (arguments directory, name)
+start_test()
+{
+	echo "
+------------------------------------------
+Test $2 begins
+"
+}
+
+# End a test (arguments directory, name)
+end_test()
+{
+	if [ "$PRIME" = "1" ]
+	then
+		return 0
+	fi
+	if diff test/out/$NAME test/nout/$NAME
+	then
+		echo "
+Test $2 finishes correctly
+------------------------------------------
+"
+	else
+		echo "
+Test $2 failed
+------------------------------------------
+"
+		exit 1
+	fi
+}
+
+# Test the analysis of a C project
 # runtest name csfile directory
-runtest()
+runtest_c()
 {
 	NAME=$1
 	DIR=$2
 	CSFILE=$3
-	echo "
-------------------------------------------
-Test $NAME
-------------------------------------------
-"
+	start_test $DIR $NAME
 (
 echo '\p Loading database'
 (cd $DIR ; /dds/src/research/cscout/refactor/i386/cscout -s hsqldb $CSFILE)
@@ -88,21 +116,11 @@ SELECT * from Fcalls ORDER BY SourceID, DESTID;
 ) |
 java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc mem - |
 sed -e '1,/^Running selections/d' >test/nout/$NAME
-if [ "$PRIME" = "1" ]
-then
-	return 0
-fi
-if diff test/out/$NAME test/nout/$NAME
-then
-	echo "Test $NAME passed" 1>&2
-else
-	echo "Test $NAME failed" 1>&2
-	exit 1
-fi
+	end_test $DIR $NAME
 }
 
-# Create a CScout project file for the given source code file
-makecs()
+# Create a CScout analysis project file for the given source code file
+makecs_c()
 {
 	echo "
 workspace TestWS {
@@ -122,6 +140,35 @@ workspace TestWS {
 perl prjcomp.pl -d /dds/src/research/CScout/example/.cscout >makecs.cs
 }
 
+
+# Test the preprocessing of a C project
+# runtest name csfile directory
+runtest_cpp()
+{
+	NAME=$1
+	DIR=$2
+	CSFILE=$3
+	start_test $DIR $NAME
+(cd $DIR ; /dds/src/research/cscout/refactor/i386/cscout -E $CSFILE 2>&1 ) >test/nout/$NAME
+	end_test $DIR $NAME
+}
+
+# Create a CScout preprocessing project file for the given source code file
+makecs_cpp()
+{
+	echo "
+workspace TestWS {
+	ipath \"/dds/src/research/CScout/include\"
+	directory test/cpp {
+	project Prj1 {
+		file $*
+	}
+}
+" |
+perl prjcomp.pl -E -d /dds/src/research/CScout/example/.cscout >makecs.cs
+}
+
+# Parse command-line arguments
 while test $# -gt 0; do
         case $1 in
 	-p)	PRIME=1
@@ -130,12 +177,21 @@ while test $# -gt 0; do
 	shift
 done
 
-# Simple files
+# Test cases for individual C files
 FILES=`cd test/c; echo *.c`
 for i in $FILES
 do
-	makecs $i
-	runtest $i . makecs.cs
+	makecs_c $i
+	runtest_c $i . makecs.cs
 done
 
+# awk
 runtest awk.c ../example awk.cs
+
+# Test cases for C preprocessor files
+FILES=`cd test/cpp; echo *.c`
+for i in $FILES
+do
+	makecs_cpp $i
+	runtest_cpp $i . makecs.cs
+done
