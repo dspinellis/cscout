@@ -1,8 +1,31 @@
-$Id: todo,v 1.66 2005/06/13 18:10:15 dds Exp $
+$Id: todo,v 1.67 2005/07/06 15:33:25 dds Exp $
 
 - Separate strings and comments from the SQL output
 (See processor in obfuscate.c)
 - Create an SQL table with FID, FOFFSET, LNUM
+
+- ASML functionality to show why a file is included:
+  - In token.cpp change
+Fdep::add_def_ref((*ai).get_tokid().get_fileid(), (*bi).get_tokid().get_fileid());
+  into
+Fdep::add_def_ref((*ai).get_tokid(), (*bi).get_tokid(), (*ai).get_len());
+  - Change add_def_ref into
+	static void add_def_ref(Tokid def, Tokid ref, int len) {
+		if (def.get_fileid() == ref.get_fileid())
+			return;
+		definers[ref.get_fileid()].insert(def.get_fileid());
+		include_trigger[pair(def.get_fileid(), ref.get_fileid())].insert(pair(def, len));
+	}
+  - Update SQL schema amd dump, and reset functions
+		"CREATE TABLE INCLUDE_TRIGGERS("	// Included files defining required elements for a given compilation unit and project
+		"PID INTEGER, "				// Project key (references PROJECTS)
+		"CUID INTEGER, "			// Compilation unit key (references FILES)
+		"BASEFILEID INTEGER, "			// File requiring a definition (references FILES)
+		"DEFINERID INTEGER, "			// File providing a definition (references FILES)
+		"FOFFSET INTEGER, "			// Definition's offset within the providing file
+		"LEN INTEGER"				// Token's length
+		");\n"
+
 
 Interface to show identifiers shared between two files.
 
