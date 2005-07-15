@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.128 2005/07/15 12:48:29 dds Exp $
+ * $Id: cscout.cpp,v 1.129 2005/07/15 17:31:31 dds Exp $
  */
 
 #include <map>
@@ -28,7 +28,7 @@
 #include "swill.h"
 #include "getopt.h"
 
-#ifdef unix
+#if defined(unix) || defined(__MACH__)
 #include <sys/types.h>		// mkdir
 #include <sys/stat.h>		// mkdir
 #include <unistd.h>		// unlink
@@ -1476,7 +1476,7 @@ save_options_page(FILE *fo, void *p)
 	prohibit_remote_access(fo);
 
 	html_head(fo, "save_options", "Options Save");
-	#ifdef unix
+	#if defined(unix) || defined(__MACH__)
 	(void)mkdir(".cscout", 0777);
 	#else
 	(void)mkdir(".cscout");
@@ -1735,7 +1735,7 @@ cgraph_svg_page(FILE *fo, void *p)
 	char svg[256];		// SVG file name
 	char dot[256];		// dot file name
 	char cmd[1024];		// dot command
-	#ifdef unix
+	#if defined(unix) || defined(__MACH__)
 	strcpy(svg, "/tmp");
 	#else
 	char *tmp = getenv("TEMP");

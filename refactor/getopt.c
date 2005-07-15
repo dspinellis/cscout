@@ -18,10 +18,10 @@
  * minor changes by D. Spinellis
  * posted to Usenet net.sources list
  *
- * $Id: getopt.c,v 1.3 2004/07/24 07:26:53 dds Exp $
+ * $Id: getopt.c,v 1.4 2005/07/15 17:35:15 dds Exp $
  */
 
-#ifndef unix
+#if !(defined(unix) || defined(__MACH__))
 #include <stdio.h>
 #include <string.h>
 

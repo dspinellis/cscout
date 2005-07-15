@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.34 2005/05/15 07:42:05 dds Exp $
+ * $Id: fileid.cpp,v 1.35 2005/07/15 17:31:31 dds Exp $
  */
 
 #include <fstream>
@@ -18,7 +18,7 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
-#ifdef unix
+#if defined(unix) || defined(__MACH__)
 #include <unistd.h>		// access(2)
 #else
 #include <io.h>			// access(2)
@@ -99,7 +99,7 @@ get_full_path(const char *name)
 }
 #endif /* WIN32 */
 
-#ifdef unix
+#if defined(unix) || defined(__MACH__)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
