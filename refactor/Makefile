@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.80 2005/07/15 13:41:03 dds Exp $
+# $Id: Makefile,v 1.81 2005/07/15 17:31:16 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -192,8 +192,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.80 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/07/15 13:41:03 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.81 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/07/15 17:31:16 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -238,7 +238,7 @@ rdist-macmini:
 rdist-freefall:
 	$(SSH) $(FREEFALL) "mkdir src/cscout ; chmod 700 src/cscout"
 	tar -cvf - $(SRC) | gzip -c | $(SSH) $(FREEFALL) tar -C src/cscout -xzvf -
-	$(SSH) $(FREEFALL) "(cd src/cscout ; gmake lf)"
+	$(SSH) $(FREEFALL) "(cd src/cscout ; gmake lf; gmake eval.cpp parse.cpp)"
 
 rdist-sourceforge:
 	$(SSH) $(SF) "mkdir src/cs ; chmod 700 src/cs"
