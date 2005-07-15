@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.127 2005/06/14 10:14:50 dds Exp $
+ * $Id: cscout.cpp,v 1.128 2005/07/15 12:48:29 dds Exp $
  */
 
 #include <map>
@@ -26,7 +26,6 @@
 #include <cerrno>		// errno
 
 #include "swill.h"
-#include <regex.h>
 #include "getopt.h"
 
 #ifdef unix
@@ -36,6 +35,8 @@
 #else
 #include <io.h>			// mkdir
 #endif
+
+#include <regex.h>
 
 #include "cpp.h"
 #include "debug.h"
