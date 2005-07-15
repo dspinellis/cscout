@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.79 2005/06/14 10:14:50 dds Exp $
+# $Id: Makefile,v 1.80 2005/07/15 13:41:03 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -19,7 +19,7 @@ logo.o workdb.o obfuscate.o sql.o
 
 # monitor.o
 
-# For subversion
+# For miniversion
 BRANCH=$(shell sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' version.cpp)
 DATE=$(shell date +'%Y/%m/%d %H:%M:%S')
 
@@ -192,14 +192,14 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.79 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/06/14 10:14:50 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.80 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/07/15 13:41:03 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
 	ci -m"New version" -u version.cpp
 
-subversion:
+miniversion:
 	attrib -r version.cpp
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
@@ -246,6 +246,10 @@ rdist-sourceforge:
 
 rdist-sense:
 	tar cf - $(SRC) | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
+
+rdist-titan:
+	tar -cvf - $(SRC) | gzip -c | $(SSH) titan tar -C src/cscout -xzvf -
+	$(SSH) titan "(cd src/cscout ; gmake lf)"
 
 rdist-tar:
 	tar cvf - $(SRC) | gzip -c >cscout.tar.gz
