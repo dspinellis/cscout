@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.5 2005/09/25 07:27:52 dds Exp $
+# $Id: runtest.sh,v 1.6 2005/09/25 11:32:00 dds Exp $
 #
 
 
@@ -20,7 +20,7 @@ end_test()
 	then
 		return 0
 	fi
-	if diff test/out/$NAME test/nout/$NAME
+	if diff -b test/out/$NAME test/nout/$NAME
 	then
 		echo "
 Test $2 finishes correctly
@@ -45,7 +45,7 @@ runtest_c()
 	start_test $DIR $NAME
 (
 echo '\p Loading database'
-(cd $DIR ; /dds/src/research/cscout/refactor/i386/cscout -s hsqldb $CSFILE)
+(cd $DIR ; $CSCOUT -s hsqldb $CSFILE)
 echo '
 \p Fixing EIDs
 CREATE TABLE FixedIds(EID integer primary key, fixedid integer);
@@ -115,7 +115,7 @@ SELECT * from Fcalls ORDER BY SourceID, DESTID;
 \p Done
 '
 ) |
-java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc mem - |
+$HSQLDB mem - |
 sed -e '1,/^Running selections/d' >test/nout/$NAME
 	end_test $DIR $NAME
 }
@@ -125,7 +125,7 @@ makecs_c()
 {
 	echo "
 workspace TestWS {
-	ipath \"/dds/src/research/CScout/include\"
+	ipath \"$IPATH\"
 	directory test/c {
 	project Prj1 {
 		file $*
@@ -138,7 +138,7 @@ workspace TestWS {
 	}
 }
 " |
-perl prjcomp.pl -d /dds/src/research/CScout/example/.cscout >makecs.cs
+perl prjcomp.pl -d $DOTCSCOUT >makecs.cs
 }
 
 
@@ -150,7 +150,7 @@ runtest_cpp()
 	DIR=$2
 	CSFILE=$3
 	start_test $DIR $NAME
-(cd $DIR ; /dds/src/research/cscout/refactor/i386/cscout -E $CSFILE 2>&1 ) >test/nout/$NAME
+(cd $DIR ; $CSCOUT -E $CSFILE 2>&1 ) >test/nout/$NAME
 	end_test $DIR $NAME
 }
 
@@ -159,15 +159,19 @@ makecs_cpp()
 {
 	echo "
 workspace TestWS {
-	ipath \"/dds/src/research/CScout/include\"
+	ipath \"$IPATH\"
 	directory test/cpp {
 	project Prj1 {
 		file $*
 	}
 }
 " |
-perl prjcomp.pl -E -d /dds/src/research/CScout/example/.cscout >makecs.cs
+perl prjcomp.pl -E -d $DOTCSCOUT >makecs.cs
 }
+
+#
+# Main script starts here
+#
 
 # Parse command-line arguments
 while test $# -gt 0; do
@@ -177,6 +181,22 @@ while test $# -gt 0; do
 	esac
 	shift
 done
+
+# Set host-dependent variables
+case `hostname` in
+eagle)
+	CSCOUT=/dds/src/research/cscout/refactor/i386/cscout
+	HSQLDB="java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc"
+	IPATH=/dds/src/research/CScout/include
+	DOTCSCOUT=/dds/src/research/CScout/example/.cscout
+	;;
+sense)
+	CSCOUT=$HOME/src/cscout/sparc/cscout
+	HSQLDB="java -classpath $HOME/lib/hsqldb/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HOME/lib/hsqldb/sqltool.rc"
+	IPATH=$HOME/src/include
+	DOTCSCOUT=$HOME/src/example/.cscout
+	;;
+esac
 
 # Test cases for individual C files
 FILES=`cd test/c; echo *.c`
