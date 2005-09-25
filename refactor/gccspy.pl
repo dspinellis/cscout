@@ -1,199 +1,123 @@
-# Character switches that take arguments
-$opt_arg{'-D'} = 1;
-$opt_arg{'-U'} = 1;
-$opt_arg{'-o'} = 1;
-$opt_arg{'-e'} = 1;
-$opt_arg{'-T'} = 1;
-$opt_arg{'-u'} = 1;
-$opt_arg{'-I'} = 1;
-$opt_arg{'-m'} = 1;
-$opt_arg{'-x'} = 1;
-$opt_arg{'-L'} = 1;
-$opt_arg{'-A'} = 1;
-$opt_arg{'-V'} = 1;
-$opt_arg{'-B'} = 1;
-$opt_arg{'-b'} = 1;
+#/usr/bin/perl
+#
+# Spy on gcc invocations and construct corresponding CScout directives
+#
+# $Id: gccspy.pl,v 1.2 2005/09/25 07:27:44 dds Exp $
+#
+# (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
+#
+# Parsing the switches appears to be a tar pit (see incomplete version 1.1).
+# Documentation is incomplete and inconsistent with the source code.
+# Different gcc versions and installations add and remove options.
+# Therefore it is easier to let gcc do the work
+#
 
-# Word switches that take arguments
-$opt_arg{'-Tdata'} = 1;
-$opt_arg{'-Ttext'} = 1;
-$opt_arg{'-Tbss'} = 1;
-$opt_arg{'-include'} = 1;
-$opt_arg{'-imacros'} = 1;
-$opt_arg{'-aux-info'} = 1;
-$opt_arg{'-idirafter'} = 1;
-$opt_arg{'-iprefix'} = 1;
-$opt_arg{'-iwithprefix'} = 1;
-$opt_arg{'-iwithprefixbefore'} = 1;
-$opt_arg{'-isystem'} = 1;
-$opt_arg{'--param'} = 1;
-$opt_arg{'-specs'} = 1;
-$opt_arg{'-MF'} = 1;
-$opt_arg{'-MT'} = 1;
-$opt_arg{'-MQ'} = 1;
-$opt_arg{'-Xlinker'} = 1;
+use Cwd 'abs_path';
 
-# Switches that don't proceed with linking
-$no_link{'c'} = 1;
-$no_link{'S'} = 1;
+$cmdline = join(' ', @ARGV);
 
+$assemble = ($cmdline =~ m/--asset gcc do the work
+#
 
-# Long to short mapping, should be scanned sequentially
-# arg value:
-#    a: argument required.
-#    o: argument optional.
-#    j: join argument to equivalent, making one word.
-#    *: require other text after NAME as an argument.
+use Cwd 'abs_path';
 
-push(@map, {long => '--all-warnings', short => '-Wall', arg => 0});
-push(@map, {long => '--ansi', short => '-ansi', arg => 0});
-push(@map, {long => '--assemble', short => '-S', arg => 0});
-push(@map, {long => '--assert', short => '-A', arg => 'a'});
-push(@map, {long => '--classpath', short => '-fclasspath=', arg => 'aj'});
-push(@map, {long => '--bootclasspath', short => '-fbootclasspath=', arg => 'aj'});
-push(@map, {long => '--CLASSPATH', short => '-fclasspath=', arg => 'aj'});
-push(@map, {long => '--comments', short => '-C', arg => 0});
-push(@map, {long => '--comments-in-macros', short => '-CC', arg => 0});
-push(@map, {long => '--compile', short => '-c', arg => 0});
-push(@map, {long => '--debug', short => '-g', arg => 'oj'});
-push(@map, {long => '--define-macro', short => '-D', arg => 'aj'});
-push(@map, {long => '--dependencies', short => '-M', arg => 0});
-push(@map, {long => '--dump', short => '-d', arg => 'a'});
-push(@map, {long => '--dumpbase', short => '-dumpbase', arg => 'a'});
-push(@map, {long => '--entry', short => '-e', arg => 0});
-push(@map, {long => '--extra-warnings', short => '-W', arg => 0});
-push(@map, {long => '--for-assembler', short => '-Wa', arg => 'a'});
-push(@map, {long => '--for-linker', short => '-Xlinker', arg => 'a'});
-push(@map, {long => '--force-link', short => '-u', arg => 'a'});
-push(@map, {long => '--imacros', short => '-imacros', arg => 'a'});
-push(@map, {long => '--include', short => '-include', arg => 'a'});
-push(@map, {long => '--include-barrier', short => '-I-', arg => 0});
-push(@map, {long => '--include-directory', short => '-I', arg => 'aj'});
-push(@map, {long => '--include-directory-after', short => '-idirafter', arg => 'a'});
-push(@map, {long => '--include-prefix', short => '-iprefix', arg => 'a'});
-push(@map, {long => '--include-with-prefix', short => '-iwithprefix', arg => 'a'});
-push(@map, {long => '--include-with-prefix-before', short => '-iwithprefixbefore', arg => 'a'});
-push(@map, {long => '--include-with-prefix-after', short => '-iwithprefix', arg => 'a'});
-push(@map, {long => '--language', short => '-x', arg => 'a'});
-push(@map, {long => '--library-directory', short => '-L', arg => 'a'});
-push(@map, {long => '--machine', short => '-m', arg => 'aj'});
-push(@map, {long => '--machine-', short => '-m', arg => '*j'});
-push(@map, {long => '--no-integrated-cpp', short => '-no-integrated-cpp', arg => 0});
-push(@map, {long => '--no-line-commands', short => '-P', arg => 0});
-push(@map, {long => '--no-precompiled-includes', short => '-noprecomp', arg => 0});
-push(@map, {long => '--no-standard-includes', short => '-nostdinc', arg => 0});
-push(@map, {long => '--no-standard-libraries', short => '-nostdlib', arg => 0});
-push(@map, {long => '--no-warnings', short => '-w', arg => 0});
-push(@map, {long => '--optimize', short => '-O', arg => 'oj'});
-push(@map, {long => '--output', short => '-o', arg => 'a'});
-push(@map, {long => '--output-class-directory', short => '-foutput-class-dir=', arg => 'ja'});
-push(@map, {long => '--param', short => '--param', arg => 'a'});
-push(@map, {long => '--pedantic', short => '-pedantic', arg => 0});
-push(@map, {long => '--pedantic-errors', short => '-pedantic-errors', arg => 0});
-push(@map, {long => '--pie', short => '-pie', arg => 0});
-push(@map, {long => '--pipe', short => '-pipe', arg => 0});
-push(@map, {long => '--prefix', short => '-B', arg => 'a'});
-push(@map, {long => '--preprocess', short => '-E', arg => 0});
-push(@map, {long => '--print-search-dirs', short => '-print-search-dirs', arg => 0});
-push(@map, {long => '--print-file-name', short => '-print-file-name=', arg => 'aj'});
-push(@map, {long => '--print-libgcc-file-name', short => '-print-libgcc-file-name', arg => 0});
-push(@map, {long => '--print-missing-file-dependencies', short => '-MG', arg => 0});
-push(@map, {long => '--print-multi-lib', short => '-print-multi-lib', arg => 0});
-push(@map, {long => '--print-multi-directory', short => '-print-multi-directory', arg => 0});
-push(@map, {long => '--print-multi-os-directory', short => '-print-multi-os-directory', arg => 0});
-push(@map, {long => '--print-prog-name', short => '-print-prog-name=', arg => 'aj'});
-push(@map, {long => '--profile', short => '-p', arg => 0});
-push(@map, {long => '--profile-blocks', short => '-a', arg => 0});
-push(@map, {long => '--quiet', short => '-q', arg => 0});
-push(@map, {long => '--resource', short => '-fcompile-resource=', arg => 'aj'});
-push(@map, {long => '--save-temps', short => '-save-temps', arg => 0});
-push(@map, {long => '--shared', short => '-shared', arg => 0});
-push(@map, {long => '--silent', short => '-q', arg => 0});
-push(@map, {long => '--specs', short => '-specs=', arg => 'aj'});
-push(@map, {long => '--static', short => '-static', arg => 0});
-push(@map, {long => '--std', short => '-std=', arg => 'aj'});
-push(@map, {long => '--symbolic', short => '-symbolic', arg => 0});
-push(@map, {long => '--time', short => '-time', arg => 0});
-push(@map, {long => '--trace-includes', short => '-H', arg => 0});
-push(@map, {long => '--traditional', short => '-traditional', arg => 0});
-push(@map, {long => '--traditional-cpp', short => '-traditional-cpp', arg => 0});
-push(@map, {long => '--trigraphs', short => '-trigraphs', arg => 0});
-push(@map, {long => '--undefine-macro', short => '-U', arg => 'aj'});
-push(@map, {long => '--user-dependencies', short => '-MM', arg => 0});
-push(@map, {long => '--verbose', short => '-v', arg => 0});
-push(@map, {long => '--warn-', short => '-W', arg => '*j'});
-push(@map, {long => '--write-dependencies', short => '-MD', arg => 0});
-push(@map, {long => '--write-user-dependencies', short => '-MMD', arg => 0});
-push(@map, {long => '--', short => '-f', arg => '*j'});
+$cmdline = join(' ', @ARGV);
 
-# Translate long options
-for ($i = 0; $i <= $#ARGV; $i++) {
-	$opt = $ARGV[$i];
-	if ($opt =~ m/^\-\-.*/) {
-		# Long option: translate
-		mapcheck:
-		for ($j = 0; $j <= $#map; $j++) {
-			if ($opt =~ m/^$map[$j]{long}/) {
-				undef $optarg;
-				if (length($opt > length($map[$j]{long}) {
-					if ($opt ~= m/\=(.*)$/) {
-						$optarg = $1;
-					} elsif ($map[$j]{arg} =~ m/\*/) {
-						$optarg = substr($opt, length($map[$j]{long}));
-					} else {
-						next mapcheck;
-					}
-				}
-				if ($map[$j]{arg} =~ m/a/) {
-					$optarg = $ARGV[++$i] unless ($optarg);
-				} elsif ($map[$j]{arg} =~ m/\*/) {
-					;
-				} elsif ($map[$j]{arg} !~ m/o/) {
-					undef($optarg);
-				}
-				if ($optarg) {
-					if ($map[$j]{arg} =~ m/j/) {
-						$ARGV2[$ni++] = $map[$j]{short} . $optarg;
-					} else {
-						$ARGV2[$ni++] = $map[$j]{short};
-						$ARGV2[$ni++] = $optarg;
-					}
-				} else {
-					$ARGV2[$ni++] = $map[$j]{short};
-				}
-				last mapcheck;
-			}
-		}
-	} elsif ($opt =~ m/^\-.*/) {
-		# Short option
-		$ARGV2[$ni++] = $opt;
-		$ARGV2[$ni++] = $ARGV[++$i] if ($opt_arg{$opt});
+$assemble = ($cmdline =~ m/--assemble\b/ || $cmdline =~ m/-S\b/);
+
+$compile = ($cmdline =~ m/--compile\b/ || $cmdline =~ m/-c\b/);
+
+# Gather input / output files and remove them from the command line
+for $i = 0; $i <= $#ARGV; $i++) {
+	$arg = $ARGV[$i];
+	if ($arg =~ m/\.c$/i) {
+		push(@cfiles, $arg);
+	} elsif ($arg =~ m/^-o(.+)$/ || $arg =~ m/^--output=(.*)/) {
+		$output = $1;
+	} elsif ($arg eq '-o' || $arg eq '--output') {
+		$output = $ARGV[++$i];
+	} elsif ($arg =~ m/^-L(.+)$/ || $arg =~ m/^--library-directory=(.*)/) {
+		push(@ldirs, $1);
+	} elsif ($arg eq '-L' || $arg eq '--library-directory') {
+		push(@ldirs, $ARGV[++$i]);
+	} elsif ($arg =~ m/^-l(.+)$/ || $arg =~ m/^--library=(.*)/) {
 		push(@libs, $1);
-		# Operands and +e options
-		$ARGV2[$ni++] = $opt;
+	} elsif ($arg eq '-l' || $arg eq '--library') {
 		push(@libs, $ARGV[++$i]);
+	} elsif ($arg =~ m/\.(o|obj)$/i) {
+		push(@ofiles, $arg);
+	} elsif ($arg =~ m/\.a$/i) {
 		push(@afiles, $arg);
 	} else {
-# Handle the following preprocessor options
-#             -C -dD -dM -dN -Dmacro[=defn] -E -H -idirafter dir
-#             -include file -imacros file -iprefix file -iwithprefix dir -M
-#             -MD -MM -MMD -nostdinc -P -Umacro -undef
-	if ($opt eq '-include') {
-		$process .= "#pragma process $opt_arg\n";
-	} elsif ($opt eq '-imacros') {
-		$process .= "#include $opt_arg\n";
-	} elsif ($opt eq '-idirafter') {
-		$idir2 .= "#pragma includepath $opt_arg\n";
-	} elsif ($opt eq '-idirafter') {
-		$idir2 .= "#pragma includepath $opt_arg\n";
-	} elsif ($opt eq '-iprefix') {
-		$iprefix = $opt_arg;
-	} elsif ($opt eq '-iwithprefix') {
-		$idir2 .= "#pragma includepath $prefix/$opt_arg\n";
-	} elsif ($opt eq '-iwithprefixbefore') {
-		$idir2 = "#pragma includepath $prefix/$opt_arg\n" .$idir2;
-		$idir2 .= "#pragma includepath $prefix/$opt_arg\n";
+		push(@ARGV2, $arg);
+	}
 	$preprocess = 1 if ($arg eq '--preprocess' || $arg eq '-E');
+	$assemble = 1 if ($arg eq '--assemble' || $arg eq '-S');
+	$compile = 1 if ($arg eq '--compile' || $arg eq '-c');
+}
+
+# We don't handle assembly files or preprocessing
+exit(0) if ($assemble || $preprocess);
+
+if ($#cfiles >= 0) {
+	push(@ARGV2, $ENV{GCCSPY_TMPDIR} . '/empty.c');
+	$cmdline = $ENV{GCCSPY_REAL_GCC} . ' ' . join(' ', @ARGV2);
+
+	# Gather include path
+	open(IN, "$cmdline -v -c 2>&1|") || die "Unable to run $cmdline: $!\n";
 	while (<IN>) {
-$idir2
-$process
+		chop;
+		if (/\#include \"\.\.\.\" search starts here\:/ .. /End of search list\./) {
+			next if (/\#include \<\.\.\.\> search starts here\:/);
+			push(@incs, qq{#pragma includepath "$_"});
+		}
+	}
+
+	# Gather macro definitions
+	open(IN, "$cmdline -dD -E|") || die "Unable to run $cmdline: $!\n";
+	while (<IN>) {
+		chop;
+		next if (/\s*\#\s*\d/);
+			push(@defs, $_);
+		}
+	}
+}
+
+open(RULES, $rulesfile = ">>$ENV{GCCSPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
+
+# Output compilation rules
+for $cfile (@cfiles) {
+	print RULES "BEGIN COMPILE\n";
+	$cfile = abs_path($cfile);
+	print RULES "INC " . $abs_file($cfile) . "\n";
+	if (!($compile && $output)) {
+		$output= $cfile;
+		$output =~ s/\.c$/.o/i;
+	}
+	print RULES "OUTOBJ " . $abs_file($output) . "\n";
+	print RULES join("\n", @incs);
+	print RULES join("\n", @defs);
+	print RULES "END COMPILE\n";
+}
+
+if (!$compile) {
+	print RULES "BEGIN LINK\n";
+	if ($output) {
+		print RULES "OUTEXE $output\n";
+	} else {
+		print RULES "OUTEXE a.out\n";
+	}
+	for $cfile (@cfiles) {
+		$output= $cfile;
+		$output =~ s/\.c$/.o/i;
+		print RULES "INOBJ " . $abs_file($output) . "\n";
+	}
+	for $ofile (@ofiles) {
+		print RULES "INOBJ " . $abs_file($ofile) . "\n";
+	}
+	for $afile (@afiles) {
+		print RULES "INLIB " . $abs_file($afile) . "\n";
+	}
+	for $libfile (@libfiles) {
+		for $ldir (@ldirs) {
+			if (-r ($try = "$ldir/lib$libfile.a"))
