@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.21 2005/06/12 09:45:25 dds Exp $
+ * $Id: token.cpp,v 1.22 2005/09/25 07:27:52 dds Exp $
  */
 
 #include <iostream>
@@ -145,7 +145,7 @@ Token::unify(const Token &a /* definition */, const Token &b /* reference */)
 	dequeTpart::const_iterator ai, bi;
 	for (ai = ac.begin(), bi = bc.begin(); ai != ac.end(); ai++, bi++) {
 		merge((*ai).get_tokid().get_ec(), (*bi).get_tokid().get_ec());
-		Fdep::add_def_ref((*ai).get_tokid().get_fileid(), (*bi).get_tokid().get_fileid());
+		Fdep::add_def_ref((*ai).get_tokid(), (*bi).get_tokid(), (*ai).get_tokid().get_ec()->get_len());
 	}
 	ASSERT(bi == bc.end());
 }

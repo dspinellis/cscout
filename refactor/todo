@@ -1,4 +1,4 @@
-$Id: todo,v 1.67 2005/07/06 15:33:25 dds Exp $
+$Id: todo,v 1.68 2005/09/25 07:27:52 dds Exp $
 
 - Separate strings and comments from the SQL output
 (See processor in obfuscate.c)
@@ -40,6 +40,9 @@ Milanova A., Rountev A., Ryder B.   Automated Software Engineering 11(1): 7-26, 
 Create a cc-compatible front-end that will accumulate invocation
 intructions in a script, or send them to a cscout server,
 as an alternative to the current configuration approach.
+Need to create front ends to gcc, ld, ar
+/usr/src/gnu/usr.bin/ld/ld.c
+/usr/src/contrib/gcc/gcc.c
 
 See perforce terms:
 http://www.perforce.com/perforce/price.html

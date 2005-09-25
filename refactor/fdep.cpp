@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.6 2005/06/03 10:37:44 dds Exp $
+ * $Id: fdep.cpp,v 1.7 2005/09/25 07:27:52 dds Exp $
  */
 
 #include <set>
@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <deque>
 #include <iostream>
 
 #include "cpp.h"
@@ -18,6 +19,7 @@
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
+#include "tokid.h"
 #include "fdep.h"
 #include "sql.h"
 
@@ -29,6 +31,8 @@ Fdep::FSFMap Fdep::definers;	// Files containing definitions needed in a given f
 Fdep::FSFMap Fdep::includers;	// Files including a given file
 set <Fileid> Fdep::providers;	// Files providing code and data
 Fileid Fdep::last_provider;	// Cache last value entered
+// Symbols for which a given file is included
+map <Fdep::include_trigger_domain, Fdep::include_trigger_value> Fdep::include_triggers;
 
 /*
  * Mark as used:
@@ -60,6 +64,7 @@ Fdep::reset()
 	definers.clear();
 	providers.clear();
 	includers.clear();
+	include_triggers.clear();
 	last_provider = Fileid();	// Clear cache
 }
 
@@ -95,5 +100,13 @@ Fdep::dumpSql(Sql *db, Fileid cu)
 		Project::get_current_projid() << ',' <<
 		cu.get_id() << ',' <<
 		i->get_id() << ");\n";
+	for (ITMap::const_iterator i = include_triggers.begin(); i != include_triggers.end(); i++)
+		cout << "INSERT INTO INCTRIGGERS VALUES(" <<
+		Project::get_current_projid() << ',' <<
+		cu.get_id() << ',' <<
+		i->first.first.get_id() << ',' <<
+		i->first.second.get_id() << ',' <<
+		(unsigned)(i->second.first) << ',' <<
+		i->second.second << ");\n";
 }
 #endif /* COMMERCIAL */

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.4 2005/06/14 08:22:08 dds Exp $
+# $Id: runtest.sh,v 1.5 2005/09/25 07:27:52 dds Exp $
 #
 
 
@@ -108,6 +108,7 @@ SELECT * from FileProj ORDER BY Pid, Fid;
 SELECT * from Definers ORDER BY PID, CUID, BASEFILEID, DEFINERID;
 SELECT * from Includers ORDER BY PID, CUID, BASEFILEID, IncluderID;
 SELECT * from Providers ORDER BY PID, CUID, Providerid;
+SELECT * from IncTriggers ORDER BY PID, CUID, Basefileid, Definerid, FOffset;
 SELECT * from Functions ORDER BY ID;
 SELECT * from FunctionId ORDER BY FUNCTIONID, ORDINAL;
 SELECT * from Fcalls ORDER BY SourceID, DESTID;
@@ -195,3 +196,9 @@ do
 	makecs_cpp $i
 	runtest_cpp $i . makecs.cs
 done
+
+# Finish priming
+if [ "$PRIME" = "1" ]
+then
+	cp test/nout/* test/out
+fi

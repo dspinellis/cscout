@@ -14,7 +14,7 @@
  * #include "metrics.h"
  * #include "fileid.h"
  *
- * $Id: fdep.h,v 1.6 2005/06/03 10:37:44 dds Exp $
+ * $Id: fdep.h,v 1.7 2005/09/25 07:27:52 dds Exp $
  */
 
 #ifndef FDEP_
@@ -27,15 +27,21 @@ class Fdep {
 private:
 	typedef map <Fileid, set <Fileid> > FSFMap;	// A map from Fileid to set of Fileid
 	static FSFMap definers;				// Files containing definitions needed in a given file
-	static FSFMap includers;				// Files including a given file
+	static FSFMap includers;			// Files including a given file
 	static set <Fileid> providers;			// Files providing code and data
 	static Fileid last_provider;			// Cache last value entered
+	typedef pair<Fileid, Fileid> include_trigger_domain;
+	typedef pair<streampos, int> include_trigger_value;
+	typedef map <include_trigger_domain, include_trigger_value> ITMap;
+	static ITMap include_triggers;			// Symbols for which a given file is included
 public:
 	// File def contains a definition needed by file ref
-	static void add_def_ref(Fileid def, Fileid ref) {
-		if (def == ref)
+	static void add_def_ref(Tokid def, Tokid ref, int len) {
+		if (def.get_fileid() == ref.get_fileid())
 			return;
-		definers[ref].insert(def);
+		definers[ref.get_fileid()].insert(def.get_fileid());
+		include_triggers[include_trigger_domain::pair(def.get_fileid(), ref.get_fileid())] =
+			include_trigger_value::pair(def.get_streampos(), len);
 	}
 
 	// File includer includes the file included

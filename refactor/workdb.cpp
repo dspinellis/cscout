@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.21 2005/06/14 10:14:50 dds Exp $
+ * $Id: workdb.cpp,v 1.22 2005/09/25 07:27:52 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -247,6 +247,15 @@ workdb_schema(Sql *db, ostream &of)
 		"PID INTEGER, "				// Project key (references PROJECTS)
 		"CUID INTEGER, "			// Compilation unit key (references FILES)
 		"PROVIDERID INTEGER"			// Included file (references FILES)
+		");\n"
+
+		"CREATE TABLE INCTRIGGERS("		// Included files defining required elements for a given compilation unit and project
+		"PID INTEGER, "				// Project key (references PROJECTS)
+		"CUID INTEGER, "			// Compilation unit key (references FILES)
+		"BASEFILEID INTEGER, "			// File requiring a definition (references FILES)
+		"DEFINERID INTEGER, "			// File providing a definition (references FILES)
+		"FOFFSET INTEGER, "			// Definition's offset within the providing file
+		"LEN INTEGER"				// Token's length
 		");\n"
 
 		"CREATE TABLE FUNCTIONS("		// C functions and function-like macros
