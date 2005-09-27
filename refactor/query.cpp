@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.6 2005/05/15 14:03:51 dds Exp $
+ * $Id: query.cpp,v 1.7 2005/09/27 21:32:57 dds Exp $
  */
 
 #include <map>
@@ -51,6 +51,7 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "compiledre.h"
 #include "query.h"
 
 bool Query::sort_rev;			// Reverse sort of identifier names
@@ -77,18 +78,16 @@ Query::url(const string &s)
 
 // Compile regular expression specs
 bool
-Query::compile_re(FILE *of, const char *name, const char *varname, regex_t &re, bool &match,  string &str, int compflags)
+Query::compile_re(FILE *of, const char *name, const char *varname, CompiledRE &re, bool &match,  string &str, int compflags)
 {
 	char *s;
-	int ret;
 	match = false;
 	if ((s = swill_getvar(varname)) && *s) {
 		match = true;
 		str = s;
-		if ((ret = regcomp(&re, s, REG_EXTENDED | REG_NOSUB | compflags))) {
-			char buff[1024];
-			regerror(ret, &re, buff, sizeof(buff));
-			fprintf(of, "<h2>%s regular expression error</h2>%s", name, buff);
+		re = CompiledRE(s, REG_EXTENDED | REG_NOSUB | compflags);
+		if (!re.isCorrect()) {
+			fprintf(of, "<h2>%s regular expression error</h2>%s", name, re.getError().c_str());
 			valid = return_val = false;
 			lazy = true;
 			return false;

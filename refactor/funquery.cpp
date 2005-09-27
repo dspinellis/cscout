@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.11 2005/05/15 14:03:51 dds Exp $
+ * $Id: funquery.cpp,v 1.12 2005/09/27 21:32:57 dds Exp $
  */
 
 #include <map>
@@ -51,6 +51,7 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "compiledre.h"
 #include "query.h"
 #include "funquery.h"
 
@@ -224,14 +225,14 @@ FunQuery::eval(const Call *c)
 		return false;
 
 	int retval = exclude_fnre ? 0 : REG_NOMATCH;
-	if (match_fnre && regexec(&fnre, c->get_name().c_str(), 0, NULL, 0) == retval)
+	if (match_fnre && fnre.exec(c->get_name()) == retval)
 		return false;
-	if (match_fre && regexec(&fre, c->get_fileid().get_path().c_str(), 0, NULL, 0) != 0)
+	if (match_fre && fre.exec(c->get_fileid().get_path()) != 0)
 			return false;	// No match found
 	Call::const_fiterator_type c2;
 	if (match_fdre) {
 		for (c2 = c->call_begin(); c2 != c->call_end(); c2++)
-			if (regexec(&fdre, (*c2)->get_name().c_str(), 0, NULL, 0) == 0)
+			if (fdre.exec((*c2)->get_name()) == 0)
 				if (exclude_fdre)
 					return false;
 				else
@@ -241,7 +242,7 @@ FunQuery::eval(const Call *c)
 	}
 	if (match_fure) {
 		for (c2 = c->caller_begin(); c2 != c->caller_end(); c2++)
-			if (regexec(&fure, (*c2)->get_name().c_str(), 0, NULL, 0) == 0)
+			if (fure.exec((*c2)->get_name()) == 0)
 				if (exclude_fure)
 					return false;
 				else

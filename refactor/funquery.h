@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.5 2005/06/03 14:08:50 dds Exp $
+ * $Id: funquery.h,v 1.6 2005/09/27 21:32:57 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -17,10 +17,10 @@ private:
 	string str_fure;	// Calling function name RE (up)
 	string str_fre;		// Filename RE
 	// Compiler REs
-	regex_t fnre;		// Function name RE
-	regex_t fdre;		// Called function name RE (down)
-	regex_t fure;		// Calling function name RE (up)
-	regex_t fre;		// Filename RE
+	CompiledRE fnre;	// Function name RE
+	CompiledRE fdre;	// Called function name RE (down)
+	CompiledRE fure;	// Calling function name RE (up)
+	CompiledRE fre;		// Filename RE
 	// Match rules
 	bool match_fnre;	// Function name RE
 	bool match_fdre;	// Called function name RE (down)
@@ -54,16 +54,7 @@ public:
 	FunQuery::FunQuery() : Query(), match_fnre(false), match_fdre(false), match_fure(false), match_fre(false) {}
 
 	// Destructor
-	virtual ~FunQuery() {
-		if (match_fnre)
-			regfree(&fnre);
-		if (match_fdre)
-			regfree(&fdre);
-		if (match_fure)
-			regfree(&fure);
-		if (match_fre)
-			regfree(&fre);
-	}
+	virtual ~FunQuery() {}
 
 	// Perform a query
 	bool eval(const Call *c);

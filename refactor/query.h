@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.4 2004/07/27 15:23:21 dds Exp $
+ * $Id: query.h,v 1.5 2005/09/27 21:32:57 dds Exp $
  */
 
 #ifndef QUERY_
@@ -26,7 +26,7 @@ protected:
 	 * Return true if OK, false on error
 	 * Errors are sent to of
 	 */
-	bool compile_re(FILE *of, const char *name, const char *varname, regex_t &re, bool &match,  string &str, int compflags = 0);
+	bool compile_re(FILE *of, const char *name, const char *varname, CompiledRE &re, bool &match,  string &str, int compflags = 0);
 public:
 	// Comparisson constants used for selections
 	enum e_cmp {

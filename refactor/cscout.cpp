@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.129 2005/07/15 17:31:31 dds Exp $
+ * $Id: cscout.cpp,v 1.130 2005/09/27 21:32:57 dds Exp $
  */
 
 #include <map>
@@ -62,6 +62,7 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "compiledre.h"
 #include "query.h"
 #include "idquery.h"
 #include "funquery.h"
@@ -84,7 +85,7 @@ static bool file_icase;			// File name case-insensitive match
 static int tab_width = 8;		// Tab width for code output
 static char cgraph_type = 'h';		// Call graph type t(text h(tml d(ot s(vg
 static char cgraph_show = 'f';		// Call graph show e(dge n(ame f(ile p(ath
-static regex_t sfile_re;		// Saved files replacement location RE
+static CompiledRE sfile_re;		// Saved files replacement location RE
 static string sfile_re_string;		// Saved files replacement location RE string
 static string sfile_repl_string;	// Saved files replacement string
 
@@ -509,7 +510,7 @@ file_replace(FILE *of, Fileid fid)
 		return 0;
 	if (sfile_re_string.length()) {
 		regmatch_t be;
-		if (regexec(&sfile_re, fid.get_path().c_str(), 1, &be, 0) == REG_NOMATCH ||
+		if (sfile_re.exec(fid.get_path().c_str(), 1, &be, 0) == REG_NOMATCH ||
 		    be.rm_so == -1 || be.rm_eo == -1)
 			fprintf(of, "File %s does not match file replacement RE."
 				"Replacements will be saved in %s.repl.<br>\n",
@@ -799,17 +800,15 @@ xfquery_page(FILE *of,  void *p)
 	match_type = *m;
 
 	// Compile regular expression specs
-	regex_t fre;
+	CompiledRE fre;
 	bool match_fre;
 	char *s;
-	int r;
 	match_fre = false;
 	if ((s = swill_getvar("fre")) && *s) {
 		match_fre = true;
-		if ((r = regcomp(&fre, s, REG_EXTENDED | REG_NOSUB | (file_icase ? REG_ICASE : 0)))) {
-			char buff[1024];
-			regerror(r, &fre, buff, sizeof(buff));
-			fprintf(of, "<h2>Filename regular expression error</h2>%s", buff);
+		fre = CompiledRE(s, REG_EXTENDED | REG_NOSUB | (file_icase ? REG_ICASE : 0));
+		if (!fre.isCorrect()) {
+			fprintf(of, "<h2>Filename regular expression error</h2>%s", fre.getError().c_str());
 			html_tail(of);
 			return;
 		}
@@ -828,7 +827,7 @@ xfquery_page(FILE *of,  void *p)
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (current_project && !(*i).get_attribute(current_project))
 			continue;
-		if (match_fre && regexec(&fre, (*i).get_path().c_str(), 0, NULL, 0) == REG_NOMATCH)
+		if (match_fre && fre.exec((*i).get_path()) == REG_NOMATCH)
 			continue;
 
 		bool add;
@@ -876,8 +875,6 @@ xfquery_page(FILE *of,  void *p)
 	fprintf(of, "\n</ul>\n<p>%d file(s) listed.", match_count);
 	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
-	if (match_fre)
-		regfree(&fre);
 }
 
 
@@ -1454,14 +1451,14 @@ set_options_page(FILE *fo, void *p)
 		tab_width = 8;
 	sfile_re_string = swill_getvar("sfile_re");
 	sfile_repl_string = swill_getvar("sfile_repl_string");
-	int r;
-	if (sfile_re_string.length() && (r = regcomp(&sfile_re, sfile_re_string.c_str(), REG_EXTENDED))) {
-		char buff[1024];
-		html_head(fo, "regerror", "Regular Expression Error");
-		regerror(r, &sfile_re, buff, sizeof(buff));
-		fprintf(fo, "<h2>Filename regular expression error</h2>%s", buff);
-		html_tail(fo);
-		return;
+	if (sfile_re_string.length()) {
+		sfile_re = CompiledRE(sfile_re_string.c_str(), REG_EXTENDED);
+		if (!sfile_re.isCorrect()) {
+			html_head(fo, "regerror", "Regular Expression Error");
+			fprintf(fo, "<h2>Filename regular expression error</h2>%s", sfile_re.getError().c_str());
+			html_tail(fo);
+			return;
+		}
 	}
 	if (string(swill_getvar("set")) == "Apply")
 		options_page(fo, p);
@@ -1535,11 +1532,9 @@ load_options()
 		else if (val == "sfile_re_string:") {
 			in >> sfile_re_string;
 			if (sfile_re_string.length()) {
-				int r;
-				if ((r = regcomp(&sfile_re, sfile_re_string.c_str(), REG_EXTENDED))) {
-					char buff[1024];
-					regerror(r, &sfile_re, buff, sizeof(buff));
-					fprintf(stderr, "Filename regular expression error: %s", buff);
+				sfile_re = CompiledRE(sfile_re_string.c_str(), REG_EXTENDED);
+				if (!sfile_re.isCorrect()) {
+					fprintf(stderr, "Filename regular expression error: %s", sfile_re.getError().c_str());
 					sfile_re_string.erase();
 				}
 			}

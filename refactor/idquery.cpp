@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.8 2005/05/19 10:07:34 dds Exp $
+ * $Id: idquery.cpp,v 1.9 2005/09/27 21:32:57 dds Exp $
  */
 
 #include <map>
@@ -53,6 +53,7 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "compiledre.h"
 #include "query.h"
 #include "idquery.h"
 
@@ -207,7 +208,7 @@ IdQuery::eval(const IdPropElem &i)
 	if (current_project && !i.first->get_attribute(current_project))
 		return false;
 	int retval = exclude_ire ? 0 : REG_NOMATCH;
-	if (match_ire && regexec(&ire, i.second.get_id().c_str(), 0, NULL, 0) == retval)
+	if (match_ire && ire.exec(i.second.get_id()) == retval)
 		return false;
 	bool add;
 	switch (match_type) {
@@ -263,7 +264,7 @@ IdQuery::eval(const IdPropElem &i)
 		IFSet f = i.first->sorted_files();
 		IFSet::iterator j;
 		for (j = f.begin(); j != f.end(); j++)
-			if (regexec(&fre, (*j).get_path().c_str(), 0, NULL, 0) == 0) {
+			if (fre.exec((*j).get_path()) == 0) {
 				if (DP())
 					cout << "Identifier " << i.second.get_id() <<
 					    " occurs in file " << j->get_path() <<

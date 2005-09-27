@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.6 2005/06/03 14:08:50 dds Exp $
+ * $Id: idquery.h,v 1.7 2005/09/27 21:32:57 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -47,7 +47,7 @@ private:
 	char match_type;	// Type of boolean match
 	// Regular expression match specs
 	string str_fre, str_ire;// Original REs
-	regex_t fre, ire;	// Compiled REs
+	CompiledRE fre, ire;	// Compiled REs
 	bool match_fre, match_ire;
 	bool exclude_ire;	// Exclude matched identifiers
 	// Attribute match specs
@@ -68,13 +68,9 @@ public:
 	// Default
 	IdQuery::IdQuery() : Query(), match_fre(false), match_ire(false) {}
 
+
 	// Destructor
-	virtual ~IdQuery() {
-		if (match_ire)
-			regfree(&ire);
-		if (match_fre)
-			regfree(&fre);
-	}
+	virtual ~IdQuery() {}
 
 	// Perform a query
 	bool eval(const IdPropElem &i);
