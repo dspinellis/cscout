@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.83 2005/09/27 21:32:57 dds Exp $
+# $Id: Makefile,v 1.84 2005/09/29 09:19:16 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -15,7 +15,7 @@ OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
 getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
-logo.o workdb.o obfuscate.o sql.o
+logo.o workdb.o obfuscate.o sql.o base64.o
 
 # monitor.o
 
@@ -53,6 +53,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
 	workdb.h obfuscate.h dlstubs.c sql.cpp sql.h fifstream.h compiledre.h \
+	base64.h base64.c \
 	runtest.sh
 
 ALLSRC=$(SRC) logo.gif
@@ -192,8 +193,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.83 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/09/27 21:32:57 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.84 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/09/29 09:19:16 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

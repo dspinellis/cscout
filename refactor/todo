@@ -1,4 +1,4 @@
-$Id: todo,v 1.68 2005/09/25 07:27:52 dds Exp $
+$Id: todo,v 1.69 2005/09/29 09:19:16 dds Exp $
 
 - Separate strings and comments from the SQL output
 (See processor in obfuscate.c)
@@ -26,6 +26,8 @@ Fdep::add_def_ref((*ai).get_tokid(), (*bi).get_tokid(), (*ai).get_len());
 		"LEN INTEGER"				// Token's length
 		");\n"
 
+Upgrade communication to HTTP/1.1?
+See example at http://www.ragestorm.net/tutorial?id=15
 
 Interface to show identifiers shared between two files.
 

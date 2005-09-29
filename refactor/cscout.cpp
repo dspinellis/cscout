@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.130 2005/09/27 21:32:57 dds Exp $
+ * $Id: cscout.cpp,v 1.131 2005/09/29 09:19:16 dds Exp $
  */
 
 #include <map>
@@ -2262,7 +2262,7 @@ usage(char *fname)
 {
 	cerr << "usage: " << fname << " [-cEruv] [-p port] [-m spec] "
 #ifdef COMMERCIAL
-		"[-H host] [-P port] [-o|-s db] "
+		"[-H host] [-P port] [-A user:passwd] [-o|-s db] "
 #endif
 		"file\n"
 		"\t-c\tProcess the file and exit\n"
@@ -2276,6 +2276,7 @@ usage(char *fname)
 #ifdef COMMERCIAL
 		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n"
 		"\t-P port\tHTTP proxy host port (default 80)\n"
+		"\t-A u:p\tHTTP proxy authorization username and password\n"
 		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
 		"\t-o\tCreate obfuscated versions of the processed files\n"
 #endif
@@ -2300,7 +2301,7 @@ main(int argc, char *argv[])
 	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
 		cscout_des_decode(licensee + i * 8);
 	cscout_des_done();
-#define COMMERCIAL_OPTIONS "os:H:P:"
+#define COMMERCIAL_OPTIONS "os:H:P:A:"
 #else
 #define COMMERCIAL_OPTIONS ""
 #endif
@@ -2364,6 +2365,11 @@ main(int argc, char *argv[])
 			if (!optarg)
 				usage(argv[0]);
 			license_set_proxy_port(atoi(optarg));
+			break;
+		case 'A':
+			if (!optarg)
+				usage(argv[0]);
+			license_set_proxy_authorization(optarg);
 			break;
 #endif /* COMMERCIAL */
 		case '?':
