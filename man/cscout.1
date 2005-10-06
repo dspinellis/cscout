@@ -1,4 +1,4 @@
-.TH CSCOUT 1 "8 May 2005"
+.TH CSCOUT 1 "6 October 2005"
 .\"
 .\" (C) Copyright 2003-2005 Diomidis Spinellis.  All rights reserved.
 .\"
@@ -10,7 +10,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.8 2005/05/15 12:47:16 dds Exp $
+.\" $Id: cscout.1,v 1.9 2005/10/06 07:27:44 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
@@ -19,7 +19,10 @@ cscout \- C code analyzer and refactoring browser
 [\fB\-cErv\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
-[[\fB\-o\fP | \fB\-d\fP \fIdb\fP]
+[\fB\-o\fP | \fB\-s\fP \fIdb\fP]
+[\fB\-H\fP \fIproxy host\fP]
+[\fB\-P\fP \fIproxy host port\fP]
+[\fB\-A\fP \fIusername\fP:\fIpassword\fP]
 \fIfile\fR
 .SH DESCRIPTION
 \fICScout\fP is a source code analyzer and refactoring browser for collections
@@ -90,6 +93,10 @@ options.
 Details about its web interface, setup, and configuration can be
 found in the online hypertext documentation and at the project's home page
 http://www.spinellis.gr/cscout.
+Note that the command-line options for the obfuscation functionality,
+the SQL database back-ends,
+and the proxy host specification
+are only available on the commercial, supported version of the program.
 .PP
 .SH OPTIONS
 .IP "\fB\-c\fP"
@@ -177,15 +184,18 @@ The following options are only available on the
 version of \fICScout\fP available through a support license.
 .IP "\fB\-H\fP \fIproxy host\fP"
 Specify a proxy HTTP host for connecting to the program's
-registration and licensing server.
+auditing and licensing server.
 .IP "\fB\-P\fP \fIproxy host port\fP"
 Specify the proxy HTTP host port for connecting to the program's
-registration and licensing server.
+auditing and licensing server.
 The default port is 80.
 .IP "\fB\-s\fP \fIdatabase dialect\fP"
 Dump the workspace contents as an SQL script.
 Specify \fIhelp\fP as the database dialect to obtain a list of
 supported database back-ends.
+.IP "\fB\-A\fP \fIusername\fP:\fIpassword\fP"
+Specify a proxy host authorization username and password
+for connecting to the program's auditing and licensing server.
 .IP "\fB\-o\fP"
 Create obfuscated versions of all the writable files of the workspace.
 .PP
