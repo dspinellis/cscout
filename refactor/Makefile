@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.84 2005/09/29 09:19:16 dds Exp $
+# $Id: Makefile,v 1.85 2005/10/06 06:34:24 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -193,8 +193,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.84 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/09/29 09:19:16 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.85 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2005/10/06 06:34:24 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -211,6 +211,10 @@ miniversion:
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
 
+versioncheck:
+	ident $(SRC) | sed -n -f version.sed | grep '^"' | perl -p -e 's/\r//' >thisversion
+	grep '^"' version.cpp >oldversion
+	diff oldversion thisversion
 # Test
 cpptest: cpp-test $(CPPTEST)
 	for i in $(CPPTEST) ; do echo -n $$i && sh cpp-test $$i && echo ' ok' ; done
