@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.6 2005/09/25 11:32:00 dds Exp $
+# $Id: runtest.sh,v 1.7 2005/10/07 14:26:18 dds Exp $
 #
 
 
@@ -31,12 +31,15 @@ Test $2 finishes correctly
 Test $2 failed
 ------------------------------------------
 "
-		exit 1
+		if [ "$CONTINUE" != "1" ]
+		then
+			exit 1
+		fi
 	fi
 }
 
 # Test the analysis of a C project
-# runtest name csfile directory
+# runtest name directory csfile
 runtest_c()
 {
 	NAME=$1
@@ -178,6 +181,8 @@ while test $# -gt 0; do
         case $1 in
 	-p)	PRIME=1
 		;;
+	-k)	CONTINUE=1
+		;;
 	esac
 	shift
 done
@@ -207,7 +212,7 @@ do
 done
 
 # awk
-runtest awk.c ../example awk.cs
+runtest_c awk.c ../example awk.cs
 
 # Test cases for C preprocessor files
 FILES=`cd test/cpp; echo *.c`
