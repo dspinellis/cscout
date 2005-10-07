@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.131 2005/09/29 09:19:16 dds Exp $
+ * $Id: cscout.cpp,v 1.132 2005/10/07 10:50:15 dds Exp $
  */
 
 #include <map>
@@ -90,14 +90,17 @@ static string sfile_re_string;		// Saved files replacement location RE string
 static string sfile_repl_string;	// Saved files replacement string
 
 // Global command-line options
-static bool preprocess;			// Preprocess-only (-E)
-static bool compile_only;		// Process-only (-c)
-static bool report;			// Generate a warning report
+static enum e_process {
+	pm_unspecified,			// Default (web front-end) must be 0
+	pm_preprocess,			// Preprocess-only (-E)
+	pm_compile,			// Compile-only (-c)
+	pm_report,			// Generate a warning report
+	pm_database,
+	pm_obfuscation
+} process_mode;
 static int portno = 8081;		// Port number (-p n)
 #ifdef COMMERCIAL
 static char *db_engine;			// Create SQL output for a specific db_iface
-static bool obfuscation;		// Obfuscate the processed files
-
 static Sql *db_iface;			// An instance of the database interface
 #endif
 
@@ -2260,28 +2263,32 @@ warning_report()
 static void
 usage(char *fname)
 {
-	cerr << "usage: " << fname << " [-cEruv] [-p port] [-m spec] "
+	cerr << "usage: " << fname <<
 #ifdef COMMERCIAL
-		"[-H host] [-P port] [-A user:passwd] [-o|-s db] "
+		" [-c|-E|-o|-r|-s db|-v] "
+		"[-H host] [-P port] [-A user:passwd] "
+#define CO(x) x
+#else
+		" [-c|-E|-r|-v] "
+#define CO(x)
 #endif
-		"file\n"
+		"[-p port] [-m spec] file\n"
+CO(		"\t-A u:p\tHTTP proxy authorization username and password\n")
 		"\t-c\tProcess the file and exit\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
+CO(		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n")
+		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
+CO(		"\t-o\tCreate obfuscated versions of the processed files\n")
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
+CO(		"\t-P port\tHTTP proxy host port (default 80)\n")
 		"\t-r\tGenerate an identifier and include file warning report\n"
+CO(		"\t-s db\tGenerate SQL output for the specified RDBMS\n")
 		"\t-v\tDisplay version and copyright information and exit\n"
-		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
-#ifdef COMMERCIAL
-		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n"
-		"\t-P port\tHTTP proxy host port (default 80)\n"
-		"\t-A u:p\tHTTP proxy authorization username and password\n"
-		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
-		"\t-o\tCreate obfuscated versions of the processed files\n"
-#endif
 		;
 	exit(1);
+#undef CO
 }
 
 int
@@ -2310,10 +2317,14 @@ main(int argc, char *argv[])
 	while ((c = getopt(argc, argv, "crvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
 		switch (c) {
 		case 'E':
-			preprocess = true;
+			if (process_mode)
+				usage(argv[0]);
+			process_mode = pm_preprocess;
 			break;
 		case 'c':
-			compile_only = true;
+			if (process_mode)
+				usage(argv[0]);
+			process_mode = pm_compile;
 			break;
 		case 'p':
 			if (!optarg)
@@ -2328,7 +2339,9 @@ main(int argc, char *argv[])
 			monitor = IdQuery(optarg);
 			break;
 		case 'r':
-			report = true;
+			if (process_mode)
+				usage(argv[0]);
+			process_mode = pm_report;
 			break;
 		case 'v':
 			cerr << "CScout version " <<
@@ -2347,13 +2360,16 @@ main(int argc, char *argv[])
 			exit(0);
 #ifdef COMMERCIAL
 		case 'o':
-			if (db_engine)
+			if (process_mode)
 				usage(argv[0]);
-			obfuscation = true;
+			process_mode = pm_obfuscation;
 			break;
 		case 's':
-			if (!optarg || obfuscation)
+			if (process_mode)
 				usage(argv[0]);
+			if (!optarg)
+				usage(argv[0]);
+			process_mode = pm_database;
 			db_engine = strdup(optarg);
 			break;
 		case 'H':
@@ -2381,12 +2397,12 @@ main(int argc, char *argv[])
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
 		usage(argv[0]);
 
-	if (preprocess) {
+	if (process_mode == pm_preprocess) {
 		Fchar::set_input(argv[optind]);
 		return simple_cpp();
 	}
 
-	if (!compile_only && !swill_init(portno)) {
+	if (process_mode != pm_compile && !swill_init(portno)) {
 		cerr << "Couldn't initialize our web server on port " << portno << "\n";
 		exit(1);
 	}
@@ -2411,11 +2427,11 @@ main(int argc, char *argv[])
 
 	input_file_id = Fileid(argv[optind]);
 
-	if (compile_only && !report)
+	if (process_mode == pm_compile)
 		return 0;
 
 #ifdef COMMERCIAL
-	if (obfuscation)
+	if (process_mode == pm_obfuscation)
 		return obfuscate();
 	if (db_iface) {
 		workdb_rest(db_iface, cout);
@@ -2427,7 +2443,7 @@ main(int argc, char *argv[])
 	// Pass 2: Create web pages
 	files = Fileid::files(true);
 
-	if (!compile_only) {
+	if (process_mode != pm_compile) {
 		swill_handle("sproject.html", select_project_page, 0);
 		swill_handle("replacements.html", replacements_page, 0);
 		swill_handle("xreplacements.html", xreplacements_page, NULL);
@@ -2497,7 +2513,7 @@ main(int argc, char *argv[])
 			"license_offset = " << license_offset << "\n";
 #endif
 
-	if (!compile_only) {
+	if (process_mode != pm_compile) {
 		swill_handle("src.html", source_page, NULL);
 		swill_handle("qsrc.html", query_source_page, NULL);
 		swill_handle("file.html", file_page, NULL);
@@ -2530,10 +2546,13 @@ main(int argc, char *argv[])
 
 	if (motd)
 		cout << motd << "\n";
-	if (report && !must_exit)
-		warning_report();
-	if (compile_only)
-		return 0;
+	if (process_mode == pm_report) {
+		if (!must_exit)
+			warning_report();
+		return (0);
+	}
+	if (process_mode == pm_compile)
+		return (0);
 	if (DP())
 		cout  << "Tokid EC map size is " << Tokid::map_size() << "\n";
 	// Serve web pages
