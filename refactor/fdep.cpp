@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.7 2005/09/25 07:27:52 dds Exp $
+ * $Id: fdep.cpp,v 1.8 2005/10/07 14:05:25 dds Exp $
  */
 
 #include <set>
@@ -101,12 +101,14 @@ Fdep::dumpSql(Sql *db, Fileid cu)
 		cu.get_id() << ',' <<
 		i->get_id() << ");\n";
 	for (ITMap::const_iterator i = include_triggers.begin(); i != include_triggers.end(); i++)
-		cout << "INSERT INTO INCTRIGGERS VALUES(" <<
-		Project::get_current_projid() << ',' <<
-		cu.get_id() << ',' <<
-		i->first.first.get_id() << ',' <<
-		i->first.second.get_id() << ',' <<
-		(unsigned)(i->second.first) << ',' <<
-		i->second.second << ");\n";
+		for (include_trigger_value::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
+			cout << "INSERT INTO INCTRIGGERS VALUES(" <<
+			Project::get_current_projid() << ',' <<
+			cu.get_id() << ',' <<
+			i->first.first.get_id() << ',' <<
+			i->first.second.get_id() << ',' <<
+			(unsigned)(j->first) << ',' <<
+			j->second << ");\n";
+		}
 }
 #endif /* COMMERCIAL */
