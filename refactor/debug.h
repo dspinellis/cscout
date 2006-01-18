@@ -5,7 +5,7 @@
  * The debugpoint() macro should be used to efficiently disable debugging output
  * A debugpoint on a file's 0 line will enable all debugpoints for that file
  *
- * $Id: debug.h,v 1.7 2004/07/23 06:55:38 dds Exp $
+ * $Id: debug.h,v 1.8 2006/01/18 15:14:09 dds Exp $
  */
 
 #ifndef DEBUG_
@@ -29,7 +29,11 @@ public:
 	inline friend bool operator <(const class Debug a, const class Debug b);
 };
 
+#ifdef NO_DP
+#define DP() 0
+#else
 #define DP() (Debug::is_enabled() && Debug::is_db_set((const string)__FILE__, __LINE__))
+#endif
 
 inline bool
 operator <(const class Debug a, const class Debug b)
