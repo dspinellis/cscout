@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.35 2005/07/15 17:31:31 dds Exp $
+ * $Id: fileid.cpp,v 1.36 2006/01/18 11:49:17 dds Exp $
  */
 
 #include <fstream>
@@ -97,6 +97,14 @@ get_full_path(const char *name)
 {
 	return (get_uniq_fname_string(name));
 }
+
+// Return true if s specifies an absolute file path
+bool
+is_absolute_filename(const string &s)
+{
+	return (s.length() > 0 && (s[0] == '/' || s[0] == '\\')) ||
+	    (s.length() > 3 && s[1] == ':' && (s[2] == '/' || s[2] == '\\'));
+}
 #endif /* WIN32 */
 
 #if defined(unix) || defined(__MACH__)
@@ -139,6 +147,13 @@ get_full_path(const char *name)
 		return (buff);
 	} else
 		return (name);
+}
+
+// Return true if s specifies an absolute file path
+bool
+is_absolute_filename(const string &s)
+{
+	return s.length() > 0 && s[0] == '/';
 }
 #endif /* unix */
 

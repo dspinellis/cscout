@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.97 2005/05/14 07:53:18 dds Exp $
+ * $Id: pdtoken.cpp,v 1.98 2006/01/18 11:49:17 dds Exp $
  */
 
 #include <iostream>
@@ -574,19 +574,28 @@ Pdtoken::process_include(bool next)
 		return;
 	}
 
+	// #include "foo.h"
 	if (f.get_code() == ABSFNAME)
 		if (can_open(f.get_val())) {
 			Fchar::push_input(f.get_val());
 			return;
 		}
-	vectorstring::iterator i;
-	for (i = next ? next_i : include_path.begin(); i != include_path.end(); i++) {
-		string fname = *i + "/" + f.get_val();
-		if (DP()) cout << "Try open " << fname << "\n";
-		if (can_open(fname)) {
-			Fchar::push_input(fname);
-			next_i = ++i;
+	// #include <foo.h>, and failed #include "foo.h"
+	if (is_absolute_filename(f.get_val())) {
+		if (can_open(f.get_val())) {
+			Fchar::push_input(f.get_val());
 			return;
+		}
+	} else {
+		vectorstring::iterator i;
+		for (i = next ? next_i : include_path.begin(); i != include_path.end(); i++) {
+			string fname = *i + "/" + f.get_val();
+			if (DP()) cout << "Try open " << fname << "\n";
+			if (can_open(fname)) {
+				Fchar::push_input(fname);
+				next_i = ++i;
+				return;
+			}
 		}
 	}
 	/*
