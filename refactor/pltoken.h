@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.26 2004/07/23 06:55:38 dds Exp $
+ * $Id: pltoken.h,v 1.27 2006/01/23 17:57:50 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -60,6 +60,8 @@ Pltoken::getnext()
 {
 	int n;
 	C c0, c1;
+	Tokid base, follow;
+	dequeTpart new_tokids;
 
 	parts.clear();
 	c0.getnext();
@@ -314,9 +316,14 @@ Pltoken::getnext()
 		}
 		break;
 	case '.':	/* . and ... */
+		follow = base = c0.get_tokid();
 		c0.getnext();
+		follow++;
 		if (isdigit(c0.get_char())) {
-			val = "." + c0.get_char();
+			update_parts(base, follow, c0);
+			val = string(".") + (char)(c0.get_char());
+			if (DP())
+				cout << "val=[" << val << "]\n";
 			goto pp_number;
 		}
 		if (c0.get_char() != '.') {
@@ -474,10 +481,8 @@ Pltoken::getnext()
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9':
 		val = c0.get_char();
+		follow = base = c0.get_tokid();
 	pp_number:
-		{
-		Tokid base = c0.get_tokid();
-		Tokid follow = base;
 		for (;;) {
 			c0.getnext();
 			follow++;
@@ -499,11 +504,10 @@ Pltoken::getnext()
 			val += c0.get_char();
 		}
 		C::putback(c0);
-		dequeTpart new_tokids = base.constituents(follow - base);
+		new_tokids = base.constituents(follow - base);
 		copy(new_tokids.begin(), new_tokids.end(), back_inserter(parts));
 		code = PP_NUMBER;
 		break;
-		}
 	default:
 		val = (char)(code = c0.get_char());
 	}
