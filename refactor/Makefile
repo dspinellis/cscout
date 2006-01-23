@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.85 2005/10/06 06:34:24 dds Exp $
+# $Id: Makefile,v 1.86 2006/01/23 18:22:50 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -92,6 +92,10 @@ endif
 
 ifdef LICENSEE
 CPPFLAGS += -DCOMMERCIAL=1
+CPPFLAGS += -O3
+ifeq ($(ARCH),sparc)
+CPPFLAGS += -mcpu=v8
+endif
 dummy := $(shell gcc -o ccode -DCCODE des.c)
 dummy := $(shell ./ccode "$(LICENSEE)")
 endif
@@ -193,8 +197,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.85 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2005/10/06 06:34:24 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.86 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/01/23 18:22:50 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
