@@ -3,7 +3,7 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.12 2004/07/31 18:08:38 dds Exp $
+ * $Id: eval.y,v 1.13 2006/01/23 16:37:34 dds Exp $
  *
  */
 
@@ -89,7 +89,7 @@ multiplicative_expression
 					Error::error(E_ERR, "modulo division by zero in #if expression");
 					$$ = $1;
 				} else
-					$$ = $1 / $3;
+					$$ = $1 % $3;
 			}
         ;
 
