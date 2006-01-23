@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.132 2005/10/07 10:50:15 dds Exp $
+ * $Id: cscout.cpp,v 1.133 2006/01/23 16:45:44 dds Exp $
  */
 
 #include <map>
@@ -2348,7 +2348,7 @@ main(int argc, char *argv[])
 			Version::get_revision() << " - " <<
 			Version::get_date() << "\n\n"
 			// 80 column terminal width---------------------------------------------------
-			"(C) Copyright 2003-2005 Diomidis Spinelllis, Athens, Greece.\n\n"
+			"(C) Copyright 2003-2006 Diomidis Spinelllis, Athens, Greece.\n\n"
 #ifdef COMMERCIAL
 			"Commercial version.  All rights reserved.\n"
 			"Licensee: " << licensee << ".\n";
