@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.31 2005/06/14 10:14:50 dds Exp $
+ * $Id: fchar.cpp,v 1.32 2006/02/10 09:48:00 dds Exp $
  */
 
 #include <iostream>
@@ -26,7 +26,7 @@
 #include "tokid.h"
 #include "fchar.h"
 #include "error.h"
-#include "parse_tab.h"
+#include "ytab.h"
 #include "token.h"
 #include "ptoken.h"
 #include "macro.h"
