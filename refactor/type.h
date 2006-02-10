@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.33 2006/02/10 11:07:26 dds Exp $
+ * $Id: type.h,v 1.34 2006/02/10 14:00:45 dds Exp $
  */
 
 #ifndef TYPE_
@@ -78,19 +78,20 @@ protected:
 	virtual Type clone() const;		// Deep copy
 	virtual Id const* member(const string& name) const;	// Structure and union
 	virtual Id const* member(unsigned n) const;	// Structure and union
+	virtual bool is_abstract() const { return false; }	// True for abstract types
+	virtual bool is_array() const { return false; }	// True for arrays
+	virtual bool is_basic() const { return false; }// False for undeclared
+	virtual bool is_function() const { return false; }	// True for functions
+	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
+	virtual bool is_padbit() const { return false; }// True for pad bit field
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
 	virtual bool is_su() const { return false; }// True for struct/union
 	virtual bool is_valid() const { return true; }// False for undeclared
-	virtual bool is_basic() const { return false; }// False for undeclared
-	virtual bool is_padbit() const { return false; }// True for pad bit field
+	virtual bool is_void() const { return false; }// True only for the void basic type
 	virtual bool qualified_const() const { return false; }// True for constructs containing the const attribute
 	virtual bool qualified_restrict() const { return false; }// True for constructs containing the restrict attribute
 	virtual bool qualified_unused() const { return false; }// True for constructs containing the unused attribute
 	virtual bool qualified_volatile() const { return false; }// True for constructs containing the volatile attribute
-	virtual bool is_abstract() const { return false; }	// True for abstract types
-	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
-	virtual bool is_array() const { return false; }	// True for arrays
-	virtual bool is_function() const { return false; }	// True for functions
 	virtual const string& get_name() const;	// True for identifiers
 	virtual const Ctoken& get_token() const;// True for identifiers
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
@@ -165,6 +166,7 @@ public:
 	bool is_valid() const { return type != b_undeclared && type != b_padbit; }
 	bool is_abstract() const { return type == b_abstract; }
 	bool is_basic() const { return true; }// False for undeclared
+	bool is_void() const { return type == b_void; }
 	bool is_padbit() const { return type == b_padbit; }
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
@@ -218,17 +220,18 @@ public:
 	Type type() const		{ return p->type(); }
 	void set_abstract(Type t)	{ return p->set_abstract(t); }
 	void set_storage_class(Type t)	{ return p->set_storage_class(t); }
-	bool is_ptr() const		{ return p->is_ptr(); }
-	bool is_su() const		{ return p->is_su(); }
+	bool is_abstract() const	{ return p->is_abstract(); }
+	bool is_array() const		{ return p->is_array(); }
+	bool is_basic() const		{ return p->is_basic(); }
 	bool is_function() const	{ return p->is_function(); }
+	bool is_incomplete() const	{ return p->is_incomplete(); }
+	bool is_padbit() const		{ return p->is_padbit(); }
+	bool is_ptr() const		{ return p->is_ptr(); }
+	bool is_static() const		{ return p->is_static(); }
+	bool is_su() const		{ return p->is_su(); }
 	bool is_typedef() const		{ return p->is_typedef(); }
 	bool is_valid() const		{ return p->is_valid(); }
-	bool is_basic() const		{ return p->is_basic(); }
-	bool is_padbit() const		{ return p->is_padbit(); }
-	bool is_static() const		{ return p->is_static(); }
-	bool is_abstract() const	{ return p->is_abstract(); }
-	bool is_incomplete() const	{ return p->is_incomplete(); }
-	bool is_array() const		{ return p->is_array(); }
+	bool is_void() const		{ return p->is_void(); }
 	bool qualified_const() const	{ return p->qualified_const(); }
 	bool qualified_restrict() const	{ return p->qualified_restrict(); }
 	bool qualified_unused() const	{ return p->qualified_unused(); }

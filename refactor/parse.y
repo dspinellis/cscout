@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.100 2006/02/10 12:13:50 dds Exp $
+ * $Id: parse.y,v 1.101 2006/02/10 14:00:45 dds Exp $
  *
  */
 
@@ -635,12 +635,15 @@ conditional_expression:
 			{
 				/*
 				 * A number of complicated rules specify the result's type
-				 * See ANSI 3.3.15
+				 * See ANSI 6.3.15
 				 * For our purpose it may be enough to check if one of the
-				 * two is a basic type (and therefore conceivably 0, i.e. NULL)
+				 * two is a basic type or a pointer to a void
+				 * (and therefore conceivably 0, i.e. NULL)
 				 * and the other a pointer, to select the pointer type.
 				 */
-				if ($3.is_basic() && $5.is_ptr())
+				if (DP())
+					cout << $1 << " ? " << $3 << " : " << $5 << '\n';
+				if (($3.is_basic() || ($3.is_ptr() && $3.deref().is_void())) && $5.is_ptr())
 					$$ = $5;
 				else
 					$$ = $3;
