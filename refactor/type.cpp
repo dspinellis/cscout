@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.41 2006/02/10 11:07:26 dds Exp $
+ * $Id: type.cpp,v 1.42 2006/02/10 12:46:44 dds Exp $
  */
 
 #include <iostream>
@@ -764,15 +764,19 @@ Tstorage::set_storage_class(Type t)
 
 	if (sclass != c_unspecified &&
 	    sclass != c_typedef &&
-	    newclass != c_unspecified)
+	    newclass != c_unspecified &&
+	    // new static overrides previous extern 6.2.2-4
+	    !(sclass == c_extern && newclass == c_static))
 		/*
 		 * @error
 		 * Incompatible storage classes were specified in a single
 		 * type declaration
 		 */
 		Error::error(E_ERR, "multiple storage classes in type declaration");
-	// if sclass is already e.g. extern and t is just volatile don't destry sclass
-	if (sclass == c_unspecified || sclass == c_typedef)
+	// if sclass is already e.g. extern and t is just volatile don't destroy sclass
+	// also a subsequent static overrides an previous extern declaration 6.2.2-4
+	if (sclass == c_unspecified || sclass == c_typedef ||
+	    (sclass == c_extern && newclass == c_static))
 		sclass = newclass;
 }
 

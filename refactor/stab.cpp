@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.38 2005/06/12 09:49:20 dds Exp $
+ * $Id: stab.cpp,v 1.39 2006/02/10 12:46:44 dds Exp $
  */
 
 #include <map>
@@ -149,7 +149,7 @@ obj_define(const Token& tok, Type typ)
 	if (sc == c_extern && (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
 		// If the declaration of an identifier contains extern the identifier
 		// has the same linkage as any visible declaration of the identifier
-		// with file scope
+		// with file scope 6.2.2-4
 		enum e_storage_class sc2 = id->get_type().get_storage_class();
 		if (sc2 != sc) {
 			typ.set_storage_class(basic(b_abstract, s_none, sc2));
