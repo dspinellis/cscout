@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.26 2006/02/10 11:07:26 dds Exp $
+ * $Id: ctoken.cpp,v 1.27 2006/02/10 12:13:50 dds Exp $
  */
 
 #include <map>
@@ -134,7 +134,7 @@ make_keymap()
 	m["__typeof__"] = TYPEOF; m["__typeof"] = TYPEOF;
 	m["__label__"] = LABEL; m["__label"] = LABEL;
 	m["__attribute__"] = ATTRIBUTE; m["__attribute"] = ATTRIBUTE;
-	m["restrict"] = RESTRICT;
+	m["restrict"] = RESTRICT; m["inline"] = INLINE;
 	return m;
 }
 

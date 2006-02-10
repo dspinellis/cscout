@@ -5,7 +5,7 @@
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.9 2006/02/10 11:07:26 dds Exp $
+ * $Id: ytoken.h,v 1.10 2006/02/10 12:13:50 dds Exp $
  */
 
 
@@ -20,7 +20,7 @@
 %token CONTINUE        FOR             SIGNED          TVOID
 %token DEFAULT         GOTO            SIZEOF          VOLATILE
 %token DO              IF              STATIC          WHILE
-%token RESTRICT
+%token RESTRICT        INLINE
 
 /* ANSI Grammar suggestions */
 %token IDENTIFIER         STRING_LITERAL

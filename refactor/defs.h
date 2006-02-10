@@ -6,7 +6,7 @@
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  * This file should have read-only permissions
  *
- * $Id: defs.h,v 1.13 2004/07/23 06:55:38 dds Exp $
+ * $Id: defs.h,v 1.14 2006/02/10 12:13:50 dds Exp $
  */
 
 #define __DATE__ ""
@@ -44,6 +44,6 @@
 #define __builtin_stdarg_start
 #define __builtin_va_end
 #define __builtin_va_arg(_ap, _type) (*(_type *)(_ap))
-#define __inline__
-#define __inline
+#define __inline__ inline
+#define __inline inline
 #define __volatile__

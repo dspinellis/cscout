@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.99 2006/02/10 11:07:26 dds Exp $
+ * $Id: parse.y,v 1.100 2006/02/10 12:13:50 dds Exp $
  *
  */
 
@@ -235,6 +235,7 @@ static bool yacc_typing;
 %type <t> type_qualifier_list_opt
 %type <t> declaration_qualifier
 %type <t> type_qualifier
+%type <t> function_specifier
 %type <t> basic_declaration_specifier
 %type <t> basic_type_specifier
 %type <t> type_name
@@ -868,7 +869,8 @@ type_qualifier_list:
 /* One of: static extern typedef register auto const volatile */
 declaration_qualifier:
         storage_class
-        | type_qualifier                  /* const or volatile */
+        | type_qualifier			/* const, volatile, restrict */
+	| function_specifier			/* inline */
         ; /* default rules */
 
 type_qualifier:
@@ -877,6 +879,10 @@ type_qualifier:
         | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, q_restrict); }
 	| attribute	{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
         ;
+
+function_specifier:
+	INLINE		{ $$ = basic(); }
+	;
 
 basic_declaration_specifier:      /* Storage Class+Arithmetic or void */
         declaration_qualifier_list basic_type_name	/* static, int */
