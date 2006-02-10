@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.8 2005/10/07 14:05:25 dds Exp $
+ * $Id: fdep.cpp,v 1.9 2006/02/10 11:59:54 dds Exp $
  */
 
 #include <set>
@@ -13,6 +13,7 @@
 #include <list>
 #include <deque>
 #include <iostream>
+#include <cassert>
 
 #include "cpp.h"
 #include "debug.h"
