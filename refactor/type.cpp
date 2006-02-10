@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.40 2004/07/24 10:44:23 dds Exp $
+ * $Id: type.cpp,v 1.41 2006/02/10 11:07:26 dds Exp $
  */
 
 #include <iostream>
@@ -318,8 +318,9 @@ void
 QType_node::print(ostream &o) const
 {
 	if (qualifiers & q_const) o << "const ";
-	if (qualifiers & q_volatile) o << "volatile ";
+	if (qualifiers & q_restrict) o << "restrict ";
 	if (qualifiers & q_unused) o << "__attribute__(unused) ";
+	if (qualifiers & q_volatile) o << "volatile ";
 }
 
 void

@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.20 2004/07/23 06:55:38 dds Exp $
+ * $Id: type2.h,v 1.21 2006/02/10 11:07:26 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -67,6 +67,7 @@ public:
 	enum e_storage_class get_storage_class() const {return returning.get_storage_class(); }
 	void add_qualifiers(Type t) { returning.add_qualifiers(t); }
 	bool qualified_const() const { return returning.qualified_const(); }
+	bool qualified_restrict() const { return returning.qualified_restrict(); }
 	bool qualified_volatile() const { return returning.qualified_volatile(); }
 	bool qualified_unused() const { return returning.qualified_unused(); }
 	qualifiers_t get_qualifiers() const { return returning.get_qualifiers(); }
@@ -194,6 +195,7 @@ public:
 	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
 	void add_qualifiers(Type t) { of.add_qualifiers(t); }
 	bool qualified_const() const { return of.qualified_const(); }
+	bool qualified_restrict() const { return of.qualified_restrict(); }
 	bool qualified_volatile() const { return of.qualified_volatile(); }
 	bool qualified_unused() const { return of.qualified_unused(); }
 	qualifiers_t get_qualifiers() const { return of.get_qualifiers(); }

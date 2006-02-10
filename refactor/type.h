@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.32 2004/07/25 12:46:11 dds Exp $
+ * $Id: type.h,v 1.33 2006/02/10 11:07:26 dds Exp $
  */
 
 #ifndef TYPE_
@@ -39,6 +39,7 @@ enum e_qualifier {
 	q_const =	0x01,
 	q_volatile = 	0x02,
 	q_unused =	0x04,	// gcc __attribute__((unused))
+	q_restrict = 	0x08,
 };
 
 
@@ -82,9 +83,10 @@ protected:
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_basic() const { return false; }// False for undeclared
 	virtual bool is_padbit() const { return false; }// True for pad bit field
+	virtual bool qualified_const() const { return false; }// True for constructs containing the const attribute
+	virtual bool qualified_restrict() const { return false; }// True for constructs containing the restrict attribute
 	virtual bool qualified_unused() const { return false; }// True for constructs containing the unused attribute
-	virtual bool qualified_const() const { return false; }// True for constructs containing the unused attribute
-	virtual bool qualified_volatile() const { return false; }// True for constructs containing the unused attribute
+	virtual bool qualified_volatile() const { return false; }// True for constructs containing the volatile attribute
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual bool is_array() const { return false; }	// True for arrays
@@ -135,6 +137,7 @@ protected:
 public:
 	QType_node (qualifiers_t q = q_none) : qualifiers(q) {}
 	virtual bool qualified_const() const { return (qualifiers & q_const); }
+	virtual bool qualified_restrict() const { return (qualifiers & q_restrict); }
 	virtual bool qualified_unused() const { return (qualifiers & q_unused); }
 	virtual bool qualified_volatile() const { return (qualifiers & q_volatile); }
 	void set_qualifiers(Type t);
@@ -226,8 +229,9 @@ public:
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
 	bool is_array() const		{ return p->is_array(); }
-	bool qualified_unused() const	{ return p->qualified_unused(); }
 	bool qualified_const() const	{ return p->qualified_const(); }
+	bool qualified_restrict() const	{ return p->qualified_restrict(); }
+	bool qualified_unused() const	{ return p->qualified_unused(); }
 	bool qualified_volatile() const	{ return p->qualified_volatile(); }
 	void add_qualifiers(Type t)	{ return p->add_qualifiers(t); }
 	qualifiers_t get_qualifiers() const { return p->get_qualifiers(); }

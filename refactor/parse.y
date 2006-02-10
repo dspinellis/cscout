@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.98 2006/01/25 09:39:36 dds Exp $
+ * $Id: parse.y,v 1.99 2006/02/10 11:07:26 dds Exp $
  *
  */
 
@@ -874,6 +874,7 @@ declaration_qualifier:
 type_qualifier:
         TCONST		{ $$ = basic(b_abstract, s_none, c_unspecified, q_const); }
         | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, q_volatile); }
+        | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, q_restrict); }
 	| attribute	{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
         ;
 
