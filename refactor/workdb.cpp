@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.22 2005/09/25 07:27:52 dds Exp $
+ * $Id: workdb.cpp,v 1.23 2006/02/22 09:25:24 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -232,8 +232,8 @@ workdb_schema(Sql *db, ostream &of)
 		"CREATE TABLE DEFINERS("		// Included files defining required elements for a given compilation unit and project
 		"PID INTEGER, "				// Project key (references PROJECTS)
 		"CUID INTEGER, "			// Compilation unit key (references FILES)
-		"BASEFILEID INTEGER, "			// File requiring a definition (references FILES)
-		"DEFINERID INTEGER"			// File providing a definition (references FILES)
+		"BASEFILEID INTEGER, "			// File (often .c) requiring (using) a definition (references FILES)
+		"DEFINERID INTEGER"			// File (often .h) providing a definition (references FILES)
 		");\n"
 
 		"CREATE TABLE INCLUDERS("		// Included files including required files for a given compilation unit and project
