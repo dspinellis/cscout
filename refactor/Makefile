@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.87 2006/02/10 12:02:24 dds Exp $
+# $Id: Makefile,v 1.88 2006/03/30 15:55:09 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.87 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/02/10 12:02:24 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.88 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/03/30 15:55:09 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -305,4 +305,4 @@ sparc: rdist-sourceforge
 	$(SSH) $(SF) "ssh sparc-solaris2 '(cd src/cs ; make mkdir lf all ; strip sparc/cscout)'"
 
 clean:
-	rm $(ARCH)/* parse_tab.h parse.cpp ytab.h tokname.cpp eval.cpp
+	rm -f $(ARCH)/* parse_tab.h parse.cpp ytab.h tokname.cpp eval.cpp
