@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.7 2005/10/07 14:26:18 dds Exp $
+# $Id: runtest.sh,v 1.8 2006/03/30 15:55:09 dds Exp $
 #
 
 
@@ -202,6 +202,15 @@ sense)
 	DOTCSCOUT=$HOME/src/example/.cscout
 	;;
 esac
+
+# See that we are running a version of CScout that supports SQL dumps
+:>/tmp/empty
+if ! $CSCOUT -s hsqldb $CSFILE /tmp/empty 2>/dev/null
+then
+	echo 'CScout is not compiled with DEBUG=1 or LICENSEE=...' 1>&2
+	exit 1
+fi
+rm -f /tmp/empty
 
 # Test cases for individual C files
 FILES=`cd test/c; echo *.c`
