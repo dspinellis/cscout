@@ -1,4 +1,4 @@
-$Id: todo,v 1.70 2006/01/18 15:13:46 dds Exp $
+$Id: todo,v 1.71 2006/05/31 10:13:55 dds Exp $
 
 - Separate strings and comments from the SQL output
 (See processor in obfuscate.c)
@@ -27,10 +27,6 @@ Need to create front ends to gcc, ld, ar
 See perforce terms:
 http://www.perforce.com/perforce/price.html
 
-Document:
-File substitution RE
-
-- option to review and undo changes
 - option to color highlighted elements
 - option to color comments
 
