@@ -1,3 +1,10 @@
+#!/usr/bin/perl
+#
+# Run make with gcc, cc, ld, ar replaced with spying versions
+#
+# $Id: csmake.pl,v 1.2 2006/06/01 16:21:36 dds Exp $
+#
+
 $ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/gccspy.$$";
 mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
 
