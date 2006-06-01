@@ -2,7 +2,7 @@
 #
 # Spy on gcc invocations and construct corresponding CScout directives
 #
-# $Id: spy-gcc.pl,v 1.1 2005/07/18 18:31:18 dds Exp $
+# $Id: spy-gcc.pl,v 1.2 2006/06/01 08:06:30 dds Exp $
 #
 # (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
 #
@@ -103,13 +103,13 @@ $origline =~ s/\n/ /g;
 for $cfile (@cfiles) {
 	print RULES "BEGIN COMPILE\n";
 	print RULES "CMDLINE $origline\n";
-	$cfile = abs_path($cfile);
 	print RULES "INSRC " . abs_path($cfile) . "\n";
 	if ($compile && $output) {
 		$coutput = $output;
 	} else {
 		$coutput= $cfile;
 		$coutput =~ s/\.c$/.o/i;
+		$coutput =~ s,.*/,,;
 	}
 	print RULES "OUTOBJ " . abs_path($coutput) . "\n";
 	print RULES join("\n", @incs), "\n";
