@@ -2,7 +2,7 @@
 #
 # Spy on gcc invocations and construct corresponding CScout directives
 #
-# $Id: spy-gcc.pl,v 1.2 2006/06/01 08:06:30 dds Exp $
+# $Id: spy-gcc.pl,v 1.3 2006/06/01 15:38:54 dds Exp $
 #
 # (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
 #
@@ -73,12 +73,14 @@ if ($#cfiles >= 0) {
 	print STDERR "Running $cmdline\n" if ($debug);
 
 	# Gather include path
-	open(IN, "$cmdline -v -c 2>&1|") || die "Unable to run $cmdline: $!\n";
+	open(IN, "$cmdline -v -E 2>&1|") || die "Unable to run $cmdline: $!\n";
+	undef $gather;
 	while (<IN>) {
 		chop;
-		if (/\#include \"\.\.\.\" search starts here\:/ .. /End of search list\./) {
-			next if (/\#include [\<\"]\.\.\.[\>\"] search starts here\:/);
-			next if (/End of search list\./);
+		$gather = 1 if (/\#include \"\.\.\.\" search starts here\:/);
+		next if (/ search starts here\:/);
+		last if (/End of search list\./);
+		if ($gather) {
 			s/^\s*//;
 			push(@incs, '#pragma includepath "' . abs_path($_) . '"');
 			print STDERR "path=[$_]\n" if ($debug > 2);
