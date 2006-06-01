@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.102 2006/06/01 09:59:47 dds Exp $
+ * $Id: parse.y,v 1.103 2006/06/01 10:38:12 dds Exp $
  *
  */
 
@@ -1481,8 +1481,12 @@ selection_statement:
 iteration_statement:
         WHILE '(' comma_expression ')' statement
         | DO statement WHILE '(' comma_expression ')' ';'
-        | FOR '(' declaration_or_expression_opt ';' comma_expression_opt ';'
+        | FOR '(' comma_expression_opt ';' comma_expression_opt ';'
                 comma_expression_opt ')' statement
+        | FOR '(' { Block::enter(); } declaring_list
+	  ';' comma_expression_opt ';'
+                comma_expression_opt ')' statement
+	          { Block::exit(); }
         ;
 
 jump_statement:
@@ -1492,12 +1496,6 @@ jump_statement:
         | BREAK ';'
         | RETURN comma_expression_opt ';'
         ;
-
-declaration_or_expression_opt:
-	declaring_list
-	| comma_expression
-	| /* EMPTY */
-	;
 
 /* Gcc __asm__  syntax */
 assembly_decl:
