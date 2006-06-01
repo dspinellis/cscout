@@ -2,7 +2,7 @@
 #
 # Run make with gcc, cc, ld, ar replaced with spying versions
 #
-# $Id: csmake.pl,v 1.2 2006/06/01 16:21:36 dds Exp $
+# $Id: csmake.pl,v 1.3 2006/06/01 16:22:00 dds Exp $
 #
 
 $ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/gccspy.$$";
@@ -13,6 +13,7 @@ close(OUT);
 $ENV{PATH} = "$ENV{CSCOUT_SPY_TMPDIR}:$ENV{PATH}";
 
 spy('gcc');
+spy('cc');
 spy('ld');
 spy('ar');
 
