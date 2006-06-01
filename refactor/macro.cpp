@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.30 2005/05/10 21:11:10 dds Exp $
+ * $Id: macro.cpp,v 1.31 2006/06/01 22:05:51 dds Exp $
  */
 
 #include <iostream>
@@ -294,6 +294,13 @@ macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu,
 				break;
 			}
 			ti = macro_replace(tokens, ti, tabu, get_more, skip_defined, end, caller);
+			if (DP()) {
+				cout << "Next token: ";
+				if (ti == end)
+					cout << "End\n";
+				else
+					cout << ti->get_val() << '\n';
+			}
 		} else {
 			if ((*ti).get_code() != SPACE)
 				switch (state) {
