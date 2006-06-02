@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.15 2005/05/15 10:31:16 dds Exp $
+ * $Id: filemetrics.cpp,v 1.16 2006/06/02 13:02:57 dds Exp $
  */
 
 #include <iostream>
@@ -118,11 +118,12 @@ Metrics::process_char(char c)
 		count[em_nccomment]++;
 		break;
 	case s_block_star:		// Found a * in a block comment
-		if (c == '/')
+		if (c == '/') {
 			cstate = s_normal;
-		else if (c != '*')
+			count[em_nccomment] -= 2;	// Don't count the trailing */
+		} else if (c != '*')
 			cstate = s_block_comment;
-		count[em_nccomment]--;		// Don't count the trailing */
+		count[em_nccomment]++;
 		break;
 	default:
 		assert(0);
