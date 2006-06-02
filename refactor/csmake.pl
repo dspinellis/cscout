@@ -3,7 +3,7 @@
 # Run make with gcc, cc, ld, ar replaced with spying versions
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.4 2006/06/01 22:04:46 dds Exp $
+# $Id: csmake.pl,v 1.5 2006/06/02 14:57:14 dds Exp $
 #
 
 $ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/gccspy.$$";
@@ -93,12 +93,16 @@ while (<IN>) {
 	}
 }
 
+# Setup the environment to call spyProgName, instead of realProgName
+# realProgName and spyProgName should both be in the path
 sub spy
 {
-	my($prog, $spyprog) = @_;
-	$path = `which $prog`;
-	chop $path;
-	$ENV{'CSCOUT_SPY_REAL_' . uc($prog)} = $path;
-	system("cp $spyprog.pl $ENV{CSCOUT_SPY_TMPDIR}/$prog");
-	chmod(0755, "$ENV{CSCOUT_SPY_TMPDIR}/$prog");
+	my($realProgName, $spyProgName) = @_;
+	$realProgPath = `which $realProgName`;
+	chop $realProgPath;
+	$spyProgPath = `which $spyProgName`;
+	chop $spyProgPath;
+	$ENV{'CSCOUT_SPY_REAL_' . uc($realProgName)} = $realProgPath;
+	system("cp $spyProgPath $ENV{CSCOUT_SPY_TMPDIR}/$realProgName");
+	chmod(0755, "$ENV{CSCOUT_SPY_TMPDIR}/$realProgName");
 }
