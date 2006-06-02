@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.103 2006/06/01 10:38:12 dds Exp $
+ * $Id: parse.y,v 1.104 2006/06/02 08:58:17 dds Exp $
  *
  */
 
@@ -1327,7 +1327,7 @@ initializer_comma:
 initializer_member:
 	initializer
 	| designator '=' initializer
-	/* gcc extension (argh!) */
+	/* gcc extensions (argh!) */
 	| member_name ':' initializer
 		{
 			Id const *id = designator_stack.top().t.member($1.get_name());
@@ -1337,6 +1337,7 @@ initializer_member:
 			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $1.get_name());
 		}
+	| '[' constant_expression ']' initializer
 	;
 
 /* C9X feature */
