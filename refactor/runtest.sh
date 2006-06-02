@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.8 2006/03/30 15:55:09 dds Exp $
+# $Id: runtest.sh,v 1.9 2006/06/02 08:19:43 dds Exp $
 #
 
 
@@ -212,6 +212,14 @@ then
 fi
 rm -f /tmp/empty
 
+# Test cases for C preprocessor files
+FILES=`cd test/cpp; echo *.c`
+for i in $FILES
+do
+	makecs_cpp $i
+	runtest_cpp $i . makecs.cs
+done
+
 # Test cases for individual C files
 FILES=`cd test/c; echo *.c`
 for i in $FILES
@@ -222,14 +230,6 @@ done
 
 # awk
 runtest_c awk.c ../example awk.cs
-
-# Test cases for C preprocessor files
-FILES=`cd test/cpp; echo *.c`
-for i in $FILES
-do
-	makecs_cpp $i
-	runtest_cpp $i . makecs.cs
-done
 
 # Finish priming
 if [ "$PRIME" = "1" ]
