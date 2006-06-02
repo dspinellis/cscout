@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.12 2004/07/25 12:18:01 dds Exp $
+ * $Id: macro.h,v 1.13 2006/06/02 08:22:13 dds Exp $
  */
 
 #ifndef MACRO_
@@ -59,7 +59,7 @@ public:
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Macro &m);
 
-	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator, const Macro *caller = NULL);
+	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring &tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator, const Macro *caller = NULL);
 };
 
 listPtoken::iterator macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined, const Macro *caller = NULL);

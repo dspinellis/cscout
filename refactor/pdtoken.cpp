@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.98 2006/01/18 11:49:17 dds Exp $
+ * $Id: pdtoken.cpp,v 1.99 2006/06/02 08:22:13 dds Exp $
  */
 
 #include <iostream>
@@ -140,8 +140,7 @@ again:
 		}
 		expand.push_front(t);
 		tabu.clear();
-		dummy = expand.begin();
-		macro_replace(expand, expand.begin(), tabu, true, false, dummy);
+		macro_replace_all(expand, expand.end(), tabu, true, false);
 		goto expand_get;
 		// FALLTRHOUGH
 	default:

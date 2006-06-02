@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.31 2006/06/01 22:05:51 dds Exp $
+ * $Id: macro.cpp,v 1.32 2006/06/02 08:22:13 dds Exp $
  */
 
 #include <iostream>
@@ -351,13 +351,13 @@ find_formal_argument(const mapArgval &args, Ptoken t)
  * examined or replaced.
  */
 listPtoken::iterator
-macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator, const Macro *caller)
+macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring &iotabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator, const Macro *caller)
 {
 	mapMacro::const_iterator mi;
 	const string name = (*pos).get_val();
 	if (DP()) {
 		cout << "macro_replace: [" << name << "] tabu: ";
-		for (setstring::const_iterator si = tabu.begin(); si != tabu.end(); si++)
+		for (setstring::const_iterator si = iotabu.begin(); si != iotabu.end(); si++)
 			cout << *si << " ";
 		cout << "\nTokens:";
 		for (listPtoken::const_iterator ti = tokens.begin(); ti != tokens.end(); ti++)
@@ -367,10 +367,11 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 	mi = Pdtoken::macros_find(name);
 	if (!Pdtoken::macro_is_defined(mi) || !(*pos).can_replace())
 		return (++pos);
-	if (tabu.find(name) != tabu.end()) {
+	if (iotabu.find(name) != iotabu.end()) {
 		(*pos).set_nonreplaced();
 		return (++pos);
 	}
+	setstring tabu = iotabu;	// This will be locally modified by macro_replace_all
 	const Macro& m = mi->second;
 	if (m.is_function) {
 		// Peek for a left bracket, if not found this is not a macro
@@ -385,12 +386,16 @@ macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring tabu, bool
 					t.getnext<Fchar>();
 					tokens.push_back(t);
 				} while (t.get_code() != EOF && t.is_space());
-				if (t.get_code() != '(')
+				if (t.get_code() != '(') {
+					iotabu.insert(name);	// Had its chance
 					return (++pos);
+				}
 			} else
 				return (++pos);
-		} else if ((*peek).get_code() != '(')
+		} else if ((*peek).get_code() != '(') {
+			iotabu.insert(name);	// Had its chance
 			return (++pos);
+		}
 	}
 	if (DP()) cout << "replacing for " << name << "\n";
 	Token::unify((*mi).second.name_token, *pos);
