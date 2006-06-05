@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.104 2006/06/02 08:58:17 dds Exp $
+ * $Id: parse.y,v 1.105 2006/06/05 13:59:26 dds Exp $
  *
  */
 
@@ -873,7 +873,6 @@ type_qualifier_list:
 declaration_qualifier:
         storage_class
         | type_qualifier			/* const, volatile, restrict */
-	| function_specifier			/* inline */
         ; /* default rules */
 
 type_qualifier:
@@ -881,6 +880,7 @@ type_qualifier:
         | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, q_volatile); }
         | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, q_restrict); }
 	| attribute	{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
+	| function_specifier			/* inline */
         ;
 
 function_specifier:
