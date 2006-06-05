@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.27 2006/02/10 12:13:50 dds Exp $
+ * $Id: ctoken.cpp,v 1.28 2006/06/05 12:15:01 dds Exp $
  */
 
 #include <map>
@@ -130,11 +130,30 @@ make_keymap()
 	m["default"] = DEFAULT; m["goto"] = GOTO; m["sizeof"] = SIZEOF;
 	m["volatile"] = VOLATILE; m["do"] = DO; m["if"] = IF;
 	m["static"] = STATIC; m["while"] = WHILE;
-	m["__asm__"] = GNUC_ASM; m["_asm"] = MSC_ASM;
-	m["__typeof__"] = TYPEOF; m["__typeof"] = TYPEOF;
-	m["__label__"] = LABEL; m["__label"] = LABEL;
-	m["__attribute__"] = ATTRIBUTE; m["__attribute"] = ATTRIBUTE;
-	m["restrict"] = RESTRICT; m["inline"] = INLINE;
+	/* C99 */
+	m["inline"] = INLINE;
+	m["restrict"] = RESTRICT;
+	/* Microsoft */
+	m["_asm"] = MSC_ASM;
+	/* gcc; from c-parse.in */
+	m["__asm"] = GNUC_ASM;
+	m["__asm__"] = GNUC_ASM;
+	m["__attribute"] = ATTRIBUTE;
+	m["__attribute__"] = ATTRIBUTE;
+	m["__const"] = TCONST;
+	m["__const__"] = TCONST;
+	m["__inline"] = INLINE;
+	m["__inline__"] = INLINE;
+	m["__label"] = LABEL;
+	m["__label__"] = LABEL;
+	m["__restrict"] = RESTRICT;
+	m["__restrict__"] = RESTRICT;
+	m["__signed"] = SIGNED;
+	m["__signed__"] = SIGNED;
+	m["__typeof"] = TYPEOF;
+	m["__typeof__"] = TYPEOF;
+	m["__volatile"] = VOLATILE;
+	m["__volatile__"] = VOLATILE;
 	return m;
 }
 
