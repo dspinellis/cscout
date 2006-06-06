@@ -1,8 +1,13 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.9 2006/06/02 08:19:43 dds Exp $
+# $Id: runtest.sh,v 1.10 2006/06/06 09:41:52 dds Exp $
 #
 
+if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
+then
+	echo "Debug points may cause the tests to fail.  Comment or remove them." 1>&2
+	exit 1
+fi
 
 # Start a test (arguments directory, name)
 start_test()
