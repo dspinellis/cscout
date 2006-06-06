@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.42 2006/02/10 12:46:44 dds Exp $
+ * $Id: type.cpp,v 1.43 2006/06/06 09:41:38 dds Exp $
  */
 
 #include <iostream>
@@ -647,6 +647,23 @@ Type_node::merge(Tbasic *b)
 		cout << "\n";
 	}
 	return basic();
+}
+
+Type
+merge(Type a, Type b)
+{
+	if (DP())
+		cout << "merge a=" << a << "\nb=" << b << "\n";
+	if (a.is_basic())
+		return b.p->merge(a.p->tobasic());
+	else if (b.is_basic())
+		return a.p->merge(b.p->tobasic());
+	else {
+		Error::error(E_INTERNAL, "Attempt to merge two non-basic types");
+		cerr << "Type A: " << a << '\n';
+		cerr << "Type B: " << b << '\n';
+		return Type();
+	}
 }
 
 void

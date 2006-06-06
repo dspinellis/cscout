@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.34 2006/02/10 14:00:45 dds Exp $
+ * $Id: type.h,v 1.35 2006/06/06 09:41:38 dds Exp $
  */
 
 #ifndef TYPE_
@@ -253,7 +253,7 @@ public:
 					{ return p->member(name); }
 	Id const* member(unsigned n) const	// Structure and union
 					{ return p->member(n); }
-	friend Type merge(Type a, Type b) { return a.p->merge(b.p->tobasic()); }
+	friend Type merge(Type a, Type b);
 };
 
 
