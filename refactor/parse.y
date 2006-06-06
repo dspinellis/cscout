@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.105 2006/06/05 13:59:26 dds Exp $
+ * $Id: parse.y,v 1.106 2006/06/06 13:09:07 dds Exp $
  *
  */
 
@@ -941,6 +941,12 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 			$$.set_storage_class($1);
 			$$.add_qualifiers($1);
 		}
+        | declaration_qualifier_list TYPEOF '(' comma_expression ')'
+		{
+			$$ = $4.clone();
+			$$.set_storage_class($1);
+			$$.add_qualifiers($1);
+		}
         | typedef_declaration_specifier declaration_qualifier
 		{
 			$$ = merge($1, $2);
@@ -951,6 +957,11 @@ typedef_type_specifier:              /* typedef types */
         TYPEDEF_NAME
 		{
 			$$ = completed_typedef($1);
+			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
+		}
+	| TYPEOF '(' comma_expression ')'
+		{
+			$$ = $3.clone();
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
 		}
         | type_qualifier_list    TYPEDEF_NAME
@@ -981,8 +992,6 @@ basic_type_name:
         | SIGNED	{ $$ = basic(b_abstract, s_signed); }
         | UNSIGNED	{ $$ = basic(b_abstract, s_unsigned); }
         | TVOID		{ $$ = basic(b_void); }
-        | TYPEOF '(' comma_expression ')'
-			{ $$ = $3; }
         ;
 
 elaborated_type_name:
