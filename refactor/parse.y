@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.106 2006/06/06 13:09:07 dds Exp $
+ * $Id: parse.y,v 1.107 2006/06/06 13:26:33 dds Exp $
  *
  */
 
@@ -233,6 +233,7 @@ static bool yacc_typing;
 %type <t> declaration_qualifier_list
 %type <t> type_qualifier_list
 %type <t> type_qualifier_list_opt
+%type <t> typeof_argument
 %type <t> declaration_qualifier
 %type <t> type_qualifier
 %type <t> function_specifier
@@ -941,7 +942,7 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 			$$.set_storage_class($1);
 			$$.add_qualifiers($1);
 		}
-        | declaration_qualifier_list TYPEOF '(' comma_expression ')'
+        | declaration_qualifier_list TYPEOF '(' typeof_argument ')'
 		{
 			$$ = $4.clone();
 			$$.set_storage_class($1);
@@ -959,7 +960,7 @@ typedef_type_specifier:              /* typedef types */
 			$$ = completed_typedef($1);
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
 		}
-	| TYPEOF '(' comma_expression ')'
+	| TYPEOF '(' typeof_argument ')'
 		{
 			$$ = $3.clone();
 			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
@@ -973,6 +974,10 @@ typedef_type_specifier:              /* typedef types */
         | typedef_type_specifier type_qualifier
 		{ $$ = merge($1, $2); }
         ;
+
+typeof_argument: comma_expression
+		| type_name
+		;
 
 storage_class:
         TYPEDEF		{ $$ = basic(b_abstract, s_none, c_typedef); }
