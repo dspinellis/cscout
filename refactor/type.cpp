@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.43 2006/06/06 09:41:38 dds Exp $
+ * $Id: type.cpp,v 1.44 2006/06/11 20:38:53 dds Exp $
  */
 
 #include <iostream>
@@ -162,15 +162,11 @@ Type_node::deref() const
 	return basic(b_undeclared);
 }
 
-
 Type
-Type_node::type() const
+Type_node::type(Type dflt) const
 {
-	Error::error(E_INTERNAL, "object is not a typedef or identifier");
-	this->print(cerr);
-	return basic(b_undeclared);
+	return (dflt);
 }
-
 
 enum e_storage_class
 Type_node::get_storage_class() const

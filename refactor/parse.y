@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.109 2006/06/06 16:10:17 dds Exp $
+ * $Id: parse.y,v 1.110 2006/06/11 20:38:53 dds Exp $
  *
  */
 
@@ -66,86 +66,94 @@ void parse_error(char *s)
 }
 
 /*
- * A stack needed for handling C9X designators
+ * A stack needed for handling C99 designators
  * The stack's top always contains the type of the
  * element that can be designated.
  */
-typedef struct {
+struct Initializer {
 	int ordinal;		// Structure element ordinal number
 	Type t;			// Initialized element's type
-} Designator;
+	Initializer(Type typ) : ordinal(0), t(typ) {}
+};
 
-static stack <Designator> designator_stack;
+// The current element we expect is at the stack's top
+static stack <Initializer> initializer_stack;
+#define CURRENT_ELEMENT (initializer_stack.top())
 
-// The initial initialized element
-static Type initialized_element;
+// The next element expected in an initializer
+static Type upcoming_element;
 
-// Initialize the designator stack
+/*
+ * Set the type of the next element expected in an initializer
+ * Should be set after a declaration that could be followed by an
+ * initializer, a designator, or after an element is initialized.
+ */
 static void
-designator_init(Type t)
+initializer_expect(Type t)
 {
-	assert(designator_stack.empty());
-	initialized_element = t.type();
+	upcoming_element = t.type();
 	if (DP())
-		cout << "Type is " << t << "\n";
+		cout << "Expecting type " << t << "\n";
 }
 
-// An opening brace within a designator context
+// An opening brace within an initializer context
 static void
-designator_open()
+initializer_open()
 {
-	Designator d;
 
-	if (DP() && !designator_stack.empty())
-		cout << "Top designator " << designator_stack.top().t << " ordinal " << designator_stack.top().ordinal << "\n";
-	d.ordinal = 0;
-	if (designator_stack.empty())
-		d.t = initialized_element;
-	else if (designator_stack.top().t.is_array())
-		d.t = designator_stack.top().t.subscript();
-	else if (designator_stack.top().t.is_su()) {
-		Id const *id = designator_stack.top().t.member(designator_stack.top().ordinal);
+	if (DP() && !initializer_stack.empty())
+		cout << "Top initializer " << CURRENT_ELEMENT.t << " ordinal " << CURRENT_ELEMENT.ordinal << "\n";
+
+	initializer_stack.push(Initializer(upcoming_element));
+	if (DP()) {
+		cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
+		cout << "New initializer " << CURRENT_ELEMENT.t << " ordinal " << CURRENT_ELEMENT.ordinal << "\n";
+	}
+
+	if (CURRENT_ELEMENT.t.is_array())
+		upcoming_element = CURRENT_ELEMENT.t.subscript();
+	else if (CURRENT_ELEMENT.t.is_su()) {
+		Id const *id = CURRENT_ELEMENT.t.member(CURRENT_ELEMENT.ordinal);
 		if (id)
-			d.t = id->get_type();
-		else {
-			/*
-			 * @error
-			 * Attempting to sequantially reference a structure
-			 * or union element past the number of elements
-			 * that have been declared for that object
-			 */
-			Error::error(E_ERR, "Excess element in structure or union");
-			d.t = basic(b_undeclared);
-		}
+			upcoming_element = id->get_type();
+		else
+			// Could be empty
+			upcoming_element = basic(b_undeclared);
 	} else {
 		/*
 		 * @error
 		 * An initializer for a scalar value contained braces
 		 */
 		Error::error(E_ERR, "Braces around scalar initializer");
-		d.t = basic(b_undeclared);
+		upcoming_element = basic(b_undeclared);
 	}
-	if (DP())
-		cout << "New designator " << d.t << " ordinal " << d.ordinal << "\n";
-	designator_stack.push(d);
 }
 
 // An comma within a designator context
 static void
-designator_next()
+initializer_next()
 {
-	if (!designator_stack.empty())
-		designator_stack.top().ordinal++;
+	assert(!initializer_stack.empty());
+	CURRENT_ELEMENT.ordinal++;
+	if (CURRENT_ELEMENT.t.is_su()) {
+		Id const *id = CURRENT_ELEMENT.t.member(CURRENT_ELEMENT.ordinal);
+		if (id)
+			upcoming_element = id->get_type();
+		else
+			// Could be a trailing comma
+			upcoming_element = basic(b_undeclared);
+	}
 }
 
 
 // An closing brace within a designator context
 static void
-designator_close()
+initializer_close()
 {
-	if (!designator_stack.empty())
-		designator_stack.pop();
-	else
+	if (!initializer_stack.empty()) {
+		initializer_expect(CURRENT_ELEMENT.t);	// Default
+		initializer_stack.pop();
+	} else
 		; // The error will be reported as a syntax error
 }
 
@@ -525,9 +533,15 @@ cast_expression:
 			if (DP())
 				cout << "cast to " << $2 << "\n";
 		}
-	/* C99 feature */
-        | '(' type_name ')' braced_initializer
-		{ $$ = $2; }
+	/* Compound literal; C99 feature */
+        | '(' type_name ')' { initializer_expect($2); } braced_initializer
+		{
+			if (DP()) {
+				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
+				cout << "Type of compund literal " << $2 << "\n";
+			}
+			$$ = $2;
+		}
         ;
 
 multiplicative_expression:
@@ -751,7 +765,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			designator_init($2);
+			initializer_expect($2);
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -761,7 +775,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
         | type_qualifier_list identifier_declarator asm_or_attribute_list
 		{
 			$2.declare();
-			designator_init($2);
+			initializer_expect($2);
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -771,7 +785,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
 		{
 			$3.set_abstract($1);
 			$3.declare();
-			designator_init($3);
+			initializer_expect($3);
 			if ($1.qualified_unused() || $3.qualified_unused() || $4.qualified_unused())
 				$3.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -797,7 +811,7 @@ declaring_list:
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			designator_init($2);
+			initializer_expect($2);
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -808,7 +822,7 @@ declaring_list:
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			designator_init($2);
+			initializer_expect($2);
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -818,7 +832,7 @@ declaring_list:
 		{
 			$3.set_abstract($1);
 			$3.declare();
-			designator_init($3);
+			initializer_expect($3);
 			if ($1.qualified_unused() || $3.qualified_unused())
 				$3.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -1301,12 +1315,12 @@ initializer_opt:
 
 initializer_open:
 	'{'
-		{ designator_open(); }
+		{ initializer_open(); }
 	;
 
 initializer_close:
 	'}'
-		{ designator_close(); }
+		{ initializer_close(); }
 	;
 
 braced_initializer:
@@ -1329,16 +1343,16 @@ initializer_list:
 
 initializer_comma:
 	','
-		{ designator_next(); }
+		{ initializer_next(); }
 	;
 
 initializer_member:
 	initializer
-	| designator '=' initializer
+	| designator '=' { initializer_expect($1); } initializer
 	/* gcc extensions (argh!) */
 	| member_name ':' initializer
 		{
-			Id const *id = designator_stack.top().t.member($1.get_name());
+			Id const *id = CURRENT_ELEMENT.t.member($1.get_name());
 			if (id) {
 				assert(id->get_name() == $1.get_name());
 				Token::unify(id->get_token(), $1.get_token());
@@ -1348,18 +1362,18 @@ initializer_member:
 	| '[' constant_expression ']' initializer
 	;
 
-/* C9X feature */
+/* C99 feature */
 designator:
         '[' constant_expression ']'
 		{
-			if (designator_stack.empty())
+			if (initializer_stack.empty())
 				$$ = basic(b_undeclared);
 			else
-				$$ = designator_stack.top().t.subscript();
+				$$ = CURRENT_ELEMENT.t.subscript();
 		}
         | '.' member_name
 		{
-			Id const *id = designator_stack.top().t.member($2.get_name());
+			Id const *id = CURRENT_ELEMENT.t.member($2.get_name());
 			if (id) {
 				$$ = id->get_type();
 				if (DP())

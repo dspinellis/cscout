@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.35 2006/06/06 09:41:38 dds Exp $
+ * $Id: type.h,v 1.36 2006/06/11 20:38:53 dds Exp $
  */
 
 #ifndef TYPE_
@@ -74,7 +74,7 @@ protected:
 	virtual Type subscript() const;		// Arrays and pointers
 	virtual Type deref() const;		// Arrays and pointers
 	virtual Type call() const;		// Function
-	virtual Type type() const;		// Identifier
+	virtual Type type(Type dftl) const;	// Identifier
 	virtual Type clone() const;		// Deep copy
 	virtual Id const* member(const string& name) const;	// Structure and union
 	virtual Id const* member(unsigned n) const;	// Structure and union
@@ -217,7 +217,7 @@ public:
 	Type subscript() const		{ return p->subscript(); }
 	Type deref() const		{ return p->deref(); }
 	Type call() const		{ return p->call(); }
-	Type type() const		{ return p->type(); }
+	Type type() const		{ return p->type(*this); }
 	void set_abstract(Type t)	{ return p->set_abstract(t); }
 	void set_storage_class(Type t)	{ return p->set_storage_class(t); }
 	bool is_abstract() const	{ return p->is_abstract(); }
