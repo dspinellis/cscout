@@ -3,7 +3,7 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.21 2004/07/23 06:55:38 dds Exp $
+ * $Id: webmap.cpp,v 1.22 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -16,7 +16,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror
 
@@ -196,7 +195,7 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.21 2004/07/23 06:55:38 dds Exp $\">\n"
+		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.22 2006/06/11 21:44:18 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"

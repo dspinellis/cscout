@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.99 2006/06/02 08:22:13 dds Exp $
+ * $Id: pdtoken.cpp,v 1.100 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
@@ -23,7 +23,6 @@
 #else
 #include <functional>		// compose1
 #endif
-#include <cassert>
 #include <cstdlib>		// strtol
 
 #include <errno.h>

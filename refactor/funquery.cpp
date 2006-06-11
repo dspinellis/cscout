@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.12 2005/09/27 21:32:57 dds Exp $
+ * $Id: funquery.cpp,v 1.13 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -18,7 +18,6 @@
 #include <set>
 #include <functional>
 #include <algorithm>		// set_difference
-#include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
 #include <cstdlib>		// atoi

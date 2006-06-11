@@ -3,7 +3,7 @@
  *
  * Tcl interface functions
  *
- * $Id: tclfuns.cpp,v 1.8 2004/07/23 06:55:38 dds Exp $
+ * $Id: tclfuns.cpp,v 1.9 2006/06/11 21:44:18 dds Exp $
  */
 
 #include "appinit.h"
@@ -18,7 +18,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <cassert>
 #ifdef unix
 #include <cstdio>		// perror
 #else

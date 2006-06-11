@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.10 2004/08/07 21:49:01 dds Exp $
+ * $Id: fcall.cpp,v 1.11 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -16,7 +16,6 @@
 #include <iostream>
 #include <list>
 #include <set>
-#include <cassert>
 
 #include "cpp.h"
 #include "debug.h"
@@ -56,9 +55,9 @@ FCall::FCall(const Token& tok, Type typ, const string &s) :
 void
 FCall::set_current_fun(const Id *id)
 {
-	assert(id);
+	csassert(id);
 	current_fun = id->get_fcall();
-	assert(current_fun);
+	csassert(current_fun);
 	current_fun->definition = Tokid();
 }
 
@@ -67,9 +66,9 @@ void
 FCall::set_current_fun(const Type &t)
 {
 	Id const *id = obj_lookup(t.get_name());
-	assert(id);
+	csassert(id);
 	current_fun = id->get_fcall();
-	assert(current_fun);
+	csassert(current_fun);
 	current_fun->definition = t.get_token().get_parts_begin()->get_tokid();
 	current_fun->defined = true;
 	if (DP())

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.9 2005/06/13 23:21:43 dds Exp $
+ * $Id: call.cpp,v 1.10 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -16,7 +16,6 @@
 #include <iostream>
 #include <list>
 #include <set>
-#include <cassert>
 
 #include "cpp.h"
 #include "debug.h"

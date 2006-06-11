@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.23 2006/02/22 09:25:24 dds Exp $
+ * $Id: workdb.cpp,v 1.24 2006/06/11 21:44:18 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -18,7 +18,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror
 

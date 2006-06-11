@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.32 2006/06/02 08:22:13 dds Exp $
+ * $Id: macro.cpp,v 1.33 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
@@ -18,7 +18,6 @@
 #include <set>
 #include <algorithm>
 #include <functional>		// ptr_fun
-#include <cassert>
 #include <cstdlib>		// strtol
 #include <cctype>		// isspace
 

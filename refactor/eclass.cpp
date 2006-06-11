@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.28 2005/06/14 10:14:50 dds Exp $
+ * $Id: eclass.cpp,v 1.29 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
@@ -12,7 +12,6 @@
 #include <string>
 #include <set>
 #include <deque>
-#include <cassert>
 #include <vector>
 #include <algorithm>
 #include <list>
@@ -53,7 +52,7 @@ merge(Eclass *a, Eclass *b)
 		return a;
 	if (DP())
 		cout << "merge a=" << a << *a << " b=" << b << *b << "\n";
-	assert(a->len == b->len);
+	csassert(a->len == b->len);
 	// It is more efficient to append the little at the end of the large one
 	if (a->members.size() > b->members.size()) {
 		large = a;
@@ -78,7 +77,7 @@ Eclass::split(int pos)
 	int oldchars = pos + 1;		// Characters to retain in the old EC
 	if (DP())
 		cout << "Split " << this << " pos=" << pos << *this;
-	assert(oldchars < len);
+	csassert(oldchars < len);
 	Eclass *e = new Eclass(len - oldchars);
 	for (setTokid::const_iterator i = members.begin(); i != members.end(); i++)
 		e->add_tokid(*i + oldchars);

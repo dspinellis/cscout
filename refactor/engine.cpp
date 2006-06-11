@@ -3,7 +3,7 @@
  *
  * Processing engine driver program
  *
- * $Id: engine.cpp,v 1.4 2004/07/23 06:55:38 dds Exp $
+ * $Id: engine.cpp,v 1.5 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
@@ -16,7 +16,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <cassert>
 
 #include "cpp.h"
 #include "attr.h"

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.16 2004/07/23 06:55:38 dds Exp $
+ * $Id: attr.cpp,v 1.17 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -16,10 +16,10 @@
 #include <iostream>
 #include <list>
 #include <set>
-#include <cassert>
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.25 2005/06/14 10:14:50 dds Exp $
+ * $Id: tokid.cpp,v 1.26 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
@@ -14,7 +14,6 @@
 #include <set>
 #include <vector>
 #include <stack>
-#include <cassert>
 #include <list>
 
 #include "cpp.h"
@@ -111,12 +110,12 @@ Tokid::constituents(int l)
 		Tpart tp(t, covered);
 		r.push_back(tp);
 		l -= covered;
-		assert(l >= 0);
+		csassert(l >= 0);
 		if (l == 0)
 			return (r);
 		t += covered;
 		e = tm.find(t);
-		// assert(e != Tokid::tm.end());
+		// csassert(e != Tokid::tm.end());
 		// Can only happen if we are deleting ECs with -m
 		if (e == Tokid::tm.end()) {
 			// No EC defined, create a new one covering the rest
@@ -147,12 +146,12 @@ Tokid::set_ec_attribute(enum e_attribute a, int l) const
 		int covered = (e->second)->get_len();
 		(e->second)->set_attribute(a);
 		l -= covered;
-		assert(l >= 0);
+		csassert(l >= 0);
 		if (l == 0)
 			return;
 		t += covered;
 		e = tm.find(t);
-		assert(e != Tokid::tm.end());
+		csassert(e != Tokid::tm.end());
 	}
 }
 

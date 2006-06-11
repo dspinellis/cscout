@@ -3,12 +3,11 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.44 2006/06/11 20:38:53 dds Exp $
+ * $Id: type.cpp,v 1.45 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
 #include <string>
-#include <cassert>
 #include <fstream>
 #include <stack>
 #include <deque>
@@ -104,7 +103,7 @@ Tidentifier::call() const
 	// Undeclared identifiers f when called are declared as int f(...)
 	obj_define(this->get_token(), function_returning(basic(b_int)));
 	Id const *id = obj_lookup(this->get_name());
-	assert(id);
+	csassert(id);
 	FCall::register_call(this->get_token(), id);
 	/*
 	 * @error

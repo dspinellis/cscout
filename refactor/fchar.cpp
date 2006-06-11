@@ -3,14 +3,13 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.32 2006/02/10 09:48:00 dds Exp $
+ * $Id: fchar.cpp,v 1.33 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
-#include <cassert>
 #include <fstream>
 #include <stack>
 #include <set>

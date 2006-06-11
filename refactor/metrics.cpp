@@ -3,14 +3,13 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.16 2006/06/02 13:02:57 dds Exp $
+ * $Id: metrics.cpp,v 1.17 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
-#include <cassert>
 #include <fstream>
 #include <stack>
 #include <set>
@@ -126,7 +125,7 @@ Metrics::process_char(char c)
 		count[em_nccomment]++;
 		break;
 	default:
-		assert(0);
+		csassert(0);
 	}
 }
 

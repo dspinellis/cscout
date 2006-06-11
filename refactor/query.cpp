@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.7 2005/09/27 21:32:57 dds Exp $
+ * $Id: query.cpp,v 1.8 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -19,7 +19,6 @@
 #include <functional>
 #include <algorithm>		// set_difference
 #include <cctype>
-#include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
 #include <cstdlib>		// atoi

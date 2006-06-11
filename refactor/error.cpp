@@ -3,15 +3,15 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.14 2004/07/23 06:55:38 dds Exp $
+ * $Id: error.cpp,v 1.15 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
 #include <string>
-#include <cassert>
 #include <fstream>
 #include <stack>
 #include <deque>
+#include <sstream>		// ostringstream
 #include <map>
 #include <vector>
 #include <list>
@@ -27,6 +27,7 @@
 
 int Error::num_errors;
 int Error::num_warnings;
+bool Error::parsing;
 
 
 void
@@ -56,6 +57,20 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
 	case E_FATAL: exit(1);
 	}
+}
+
+void
+Error::set_parsing(bool v)
+{
+	parsing = v;
+}
+
+void
+Error::assertion_error(const char *fname, int line, const char *condition)
+{
+	ostringstream msg;
+	msg << "assertion error: location: " << fname << ':' << line << " condition \"" << condition << '"';
+	error(E_INTERNAL, msg.str(), parsing);
 }
 
 #ifdef UNIT_TEST

@@ -3,14 +3,13 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.14 2004/07/23 06:55:38 dds Exp $
+ * $Id: tchar.cpp,v 1.15 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <deque>
-#include <cassert>
 #include <fstream>
 #include <list>
 #include <vector>
@@ -18,6 +17,7 @@
 #include <set>
 
 #include "cpp.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"

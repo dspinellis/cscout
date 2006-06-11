@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.133 2006/01/23 16:45:44 dds Exp $
+ * $Id: cscout.cpp,v 1.134 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -19,7 +19,6 @@
 #include <functional>
 #include <algorithm>		// set_difference
 #include <cctype>
-#include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
 #include <cstdlib>		// atoi
@@ -2203,7 +2202,7 @@ warning_report()
 	for (unsigned i = 0; i < sizeof(reports) / sizeof(reports[0]); i++) {
 		IdQuery query(reports[i].query);
 
-		assert(query.is_valid());
+		csassert(query.is_valid());
 		for (IdProp::iterator j = ids.begin(); j != ids.end(); j++) {
 			if (!query.eval(*j))
 				continue;
@@ -2399,6 +2398,7 @@ main(int argc, char *argv[])
 
 	if (process_mode == pm_preprocess) {
 		Fchar::set_input(argv[optind]);
+		Error::set_parsing(true);
 		return simple_cpp();
 	}
 
@@ -2421,9 +2421,11 @@ main(int argc, char *argv[])
 
 	// Pass 1: process master file loop
 	Fchar::set_input(argv[optind]);
+	Error::set_parsing(true);
 	do
 		t.getnext();
 	while (t.get_code() != EOF);
+	Error::set_parsing(false);
 
 	input_file_id = Fileid(argv[optind]);
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.39 2006/02/10 12:46:44 dds Exp $
+ * $Id: stab.cpp,v 1.40 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -16,7 +16,6 @@
 #include <iostream>
 #include <list>
 #include <set>
-#include <cassert>
 
 #include "cpp.h"
 #include "debug.h"

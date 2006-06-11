@@ -1,7 +1,7 @@
 #
 # Create a token name map
 #
-# $Id: tokname.pl,v 1.7 2003/08/21 19:50:05 dds Exp $
+# $Id: tokname.pl,v 1.8 2006/06/11 21:44:18 dds Exp $
 #
 
 open(IN, $ARGV[0]) || die;
@@ -20,11 +20,11 @@ print '
 #include <string>
 #include <deque>
 #include <vector>
-#include <cassert>
 #include <list>
 #include <set>
 
 #include "cpp.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -55,7 +55,7 @@ print q#
 			s = (char)code;
 			return (s);
 		} else {
-			assert(0);
+			csassert(0);
 			return ("");
 		}
 	}

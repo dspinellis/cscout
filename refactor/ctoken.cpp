@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.28 2006/06/05 12:15:01 dds Exp $
+ * $Id: ctoken.cpp,v 1.29 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <map>
@@ -16,7 +16,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <cassert>
 
 #include "cpp.h"
 #include "debug.h"

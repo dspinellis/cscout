@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.110 2006/06/11 20:38:53 dds Exp $
+ * $Id: parse.y,v 1.111 2006/06/11 21:44:18 dds Exp $
  *
  */
 
@@ -26,7 +26,6 @@
 %{
 #include <iostream>
 #include <string>
-#include <cassert>
 #include <fstream>
 #include <stack>
 #include <deque>
@@ -133,7 +132,7 @@ initializer_open()
 static void
 initializer_next()
 {
-	assert(!initializer_stack.empty());
+	csassert(!initializer_stack.empty());
 	CURRENT_ELEMENT.ordinal++;
 	if (CURRENT_ELEMENT.t.is_su()) {
 		Id const *id = CURRENT_ELEMENT.t.member(CURRENT_ELEMENT.ordinal);
@@ -170,7 +169,7 @@ static Type
 completed_typedef(Type t)
 {
 	Id const *id = obj_lookup(t.get_name());
-	assert(id);	// If it's a typedef it can be found
+	csassert(id);	// If it's a typedef it can be found
 	Token::unify(id->get_token(), t.get_token());
 	if (id->get_type().is_incomplete()) {
 		if (DP())
@@ -415,7 +414,7 @@ primary_expression:
 						$$ = id->get_type();
 						if (DP())
 							cout << ". returns " << $$ << "\n";
-						assert(id->get_name() == $1.get_name());
+						csassert(id->get_name() == $1.get_name());
 					} else {
 						/*
 						 * @error
@@ -452,7 +451,7 @@ postfix_expression:
 					$$ = id->get_type();
 					if (DP())
 						cout << ". returns " << $$ << "\n";
-					assert(id->get_name() == $3.get_name());
+					csassert(id->get_name() == $3.get_name());
 					Token::unify(id->get_token(), $3.get_token());
 				} else {
 					/*
@@ -474,7 +473,7 @@ postfix_expression:
 				Id const *id = ($1.deref()).member($3.get_name());
 				if (id) {
 					$$ = id->get_type();
-					assert(id->get_name() == $3.get_name());
+					csassert(id->get_name() == $3.get_name());
 					Token::unify(id->get_token(), $3.get_token());
 				} else {
 					Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
@@ -1354,7 +1353,7 @@ initializer_member:
 		{
 			Id const *id = CURRENT_ELEMENT.t.member($1.get_name());
 			if (id) {
-				assert(id->get_name() == $1.get_name());
+				csassert(id->get_name() == $1.get_name());
 				Token::unify(id->get_token(), $1.get_token());
 			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $1.get_name());
@@ -1378,7 +1377,7 @@ designator:
 				$$ = id->get_type();
 				if (DP())
 					cout << ". returns " << $$ << "\n";
-				assert(id->get_name() == $2.get_name());
+				csassert(id->get_name() == $2.get_name());
 				Token::unify(id->get_token(), $2.get_token());
 			} else {
 				Error::error(E_ERR, "structure or union does not have a member " + $2.get_name());
@@ -1394,7 +1393,7 @@ designator:
 				$$ = id->get_type();
 				if (DP())
 					cout << ". returns " << $$ << "\n";
-				assert(id->get_name() == $3.get_name());
+				csassert(id->get_name() == $3.get_name());
 				Token::unify(id->get_token(), $3.get_token());
 			} else {
 				Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
@@ -2010,7 +2009,7 @@ yacc_tag:
 				if (id) {
 					if (DP())
 						cout << ". returns " << id->get_type() << "\n";
-					assert(id->get_name() == $2.get_name());
+					csassert(id->get_name() == $2.get_name());
 					Token::unify(id->get_token(), $2.get_token());
 				} else {
 					/*

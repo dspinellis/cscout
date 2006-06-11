@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.22 2005/09/25 07:27:52 dds Exp $
+ * $Id: token.cpp,v 1.23 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>
@@ -12,7 +12,6 @@
 #include <deque>
 #include <set>
 #include <vector>
-#include <cassert>
 #include <fstream>
 #include <list>
 

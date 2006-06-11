@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.36 2006/01/18 11:49:17 dds Exp $
+ * $Id: fileid.cpp,v 1.37 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <fstream>
@@ -17,7 +17,6 @@
 #include <set>
 #include <vector>
 #include <algorithm>
-#include <cassert>
 #if defined(unix) || defined(__MACH__)
 #include <unistd.h>		// access(2)
 #else
@@ -320,7 +319,7 @@ Filedetails::process_line(bool processed)
 			cout << "Line number = " << lnum << "\n";
 			cout << "Vector size = " << s << "\n";
 		}
-		assert(0);
+		csassert(0);
 	}
 }
 

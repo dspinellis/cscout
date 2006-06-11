@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.6 2005/06/14 10:14:50 dds Exp $
+ * $Id: obfuscate.cpp,v 1.7 2006/06/11 21:44:18 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -17,7 +17,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <cassert>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror
 #include <cstdlib>		// rand
@@ -176,7 +175,7 @@ CProcessor::process_char(ostream &out, char c)
 			cstate = s_block_comment;
 		break;
 	default:
-		assert(0);
+		csassert(0);
 	}
 }
 
