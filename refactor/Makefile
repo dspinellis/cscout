@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.88 2006/03/30 15:55:09 dds Exp $
+# $Id: Makefile,v 1.89 2006/06/11 19:35:39 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -66,7 +66,7 @@ CPPFLAGS=-pipe -Wall
 CPPFLAGS+=-DSPINELLIS_SERVER
 ifdef DEBUG
 # Debug build
-CPPFLAGS+=-g -DCOMMERCIAL
+CPPFLAGS+=-g -DCOMMERCIAL -DYYDEBUG
 dummy := $(shell gcc -o ccode -DCCODE des.c)
 dummy := $(shell ./ccode "(internal use only)")
 else
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.88 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/03/30 15:55:09 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.89 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/06/11 19:35:39 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -265,6 +265,12 @@ rdist-titan:
 rdist-tar:
 	tar cvf - $(SRC) | gzip -c >cscout.tar.gz
 
+rdist-spy:
+	for i in ar gcc ld make ;\
+	do ;\
+		plink $(HOST) "perl -p -e 's/\r//' >bin/spy-$$i" <spy-$$i.pl ;\
+		plink $(HOST) chmod +x bin/spy-$$i ;\
+	done
 lf:
 	chmod +w $(SRC)
 	perl -pi -e 's/\r//' $(SRC)
