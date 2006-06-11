@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.15 2006/06/11 21:44:18 dds Exp $
+ * $Id: error.cpp,v 1.16 2006/06/11 21:49:44 dds Exp $
  */
 
 #include <iostream>
@@ -18,6 +18,7 @@
 #include <set>
 
 #include "cpp.h"
+#include "debug.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -33,6 +34,9 @@ bool Error::parsing;
 void
 Error::error(enum e_error_level level, string msg, bool showloc)
 {
+	// Show all debugging output up to this point
+	if (Debug::is_enabled())
+		cout << flush;
 	if (showloc)
 		cerr << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
 	switch (level) {
@@ -69,7 +73,7 @@ void
 Error::assertion_error(const char *fname, int line, const char *condition)
 {
 	ostringstream msg;
-	msg << "assertion error: location: " << fname << ':' << line << " condition \"" << condition << '"';
+	msg << "assertion error: location: " << fname << ':' << line << " condition: \"" << condition << '"';
 	error(E_INTERNAL, msg.str(), parsing);
 }
 
