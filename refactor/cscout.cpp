@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.134 2006/06/11 21:44:18 dds Exp $
+ * $Id: cscout.cpp,v 1.135 2006/06/12 20:41:50 dds Exp $
  */
 
 #include <map>
@@ -1280,6 +1280,9 @@ function_page(FILE *fo, void *p)
 
 /*
  * Visit all functions associated with a call/caller relationship with f
+ * Call_path is an HTML string to print next to each function that
+ * leads to a page showing the function's call path.  A single %p
+ * in the string is used as a placeholder to fill the function's address.
  * The methods to obtain the relationship containers are passed through
  * the fbegin and fend method pointers.
  * If recurse is true the also list will contain all correspondingly
@@ -1287,8 +1290,8 @@ function_page(FILE *fo, void *p)
  * If show is true, then a function hyperlink is printed, otherwise
  * only the visited flag is set.
  */
-void
-visit_functions(FILE *fo, Call *f,
+static void
+visit_functions(FILE *fo, const char *call_path, Call *f,
 	Call::const_fiterator_type (Call::*fbegin)() const,
 	Call::const_fiterator_type (Call::*fend)() const,
 	bool recurse, bool show)
@@ -1300,18 +1303,22 @@ visit_functions(FILE *fo, Call *f,
 		if (show && (!(*i)->is_visited() || *i == f)) {
 			fprintf(fo, "<li> ");
 			html(fo, **i);
+			if (recurse && call_path)
+				fprintf(fo, call_path, *i);
 		}
 		if (recurse && !(*i)->is_visited())
-			visit_functions(fo, *i, fbegin, fend, recurse, show);
+			visit_functions(fo, call_path, *i, fbegin, fend, recurse, show);
 	}
 }
 
 
 // List of functions associated with a given one
-void
+static void
 funlist_page(FILE *fo, void *p)
 {
 	Call *f;
+	char buff[256];
+
 	if (!swill_getargs("p(f)", &f)) {
 		fprintf(fo, "Missing value");
 		return;
@@ -1345,18 +1352,67 @@ funlist_page(FILE *fo, void *p)
 		fbegin = &Call::caller_begin;
 		fend = &Call::caller_end;
 		fprintf(fo, "List of %s calling functions\n", calltype);
+		sprintf(buff, " &mdash; <a href=\"fpath.html?from=%%p&to=%p\">call path from function</a>", f);
 		break;
 	case 'd':
 	case 'D':
 		fbegin = &Call::call_begin;
 		fend = &Call::call_end;
 		fprintf(fo, "List of %s called functions\n", calltype);
+		sprintf(buff, " &mdash; <a href=\"fpath.html?from=%p&to=%%p\">call path to function</a>", f);
 		break;
 	}
 	fprintf(fo, "<ul>\n");
 	Call::clear_visit_flags();
-	visit_functions(fo, f, fbegin, fend, recurse, true);
+	visit_functions(fo, buff, f, fbegin, fend, recurse, true);
 	fprintf(fo, "</ul>\n");
+	html_tail(fo);
+}
+
+// Display the call paths between functions from and to
+static bool
+call_path(FILE *fo, Call *from, Call *to)
+{
+	bool ret = false;
+
+	from->set_visited();
+	if (DP())
+		cout << "From path: from: " << from->get_name() << " to " << to->get_name() << '\n';
+	for (Call::const_fiterator_type i = from->call_begin(); i != from->call_end(); i++)
+		if (!(*i)->is_visited() && (*i == to || call_path(fo, *i, to))) {
+			html(fo, *from);
+			fprintf(fo, " &rarr; ");
+			html(fo, **i);
+			fprintf(fo, "<br />\n");
+			ret = true;
+		}
+	if (DP())
+		cout << "Returns " << ret << '\n';
+	return (ret);
+}
+
+// List the call graph from one function to another
+static void
+file_path_page(FILE *fo, void *p)
+{
+	Call *from, *to;
+
+	if (!swill_getargs("p(from)", &from)) {
+		fprintf(fo, "Missing from value");
+		return;
+	}
+	if (!swill_getargs("p(to)", &to)) {
+		fprintf(fo, "Missing to value");
+		return;
+	}
+	html_head(fo, "filepath", "Function Call Path");
+	fprintf(fo, "<h2>Path ");
+	html(fo, *from);
+	fprintf(fo, " &rarr; ");
+	html(fo, *to);
+	fprintf(fo, "</h2>\n");
+	Call::clear_visit_flags();
+	call_path(fo, from, to);
 	html_tail(fo);
 }
 
@@ -1587,10 +1643,10 @@ single_function_graph(FILE *fo)
 	char *ltype = swill_getvar("n");
 	switch (*ltype) {
 	case 'D':
-		visit_functions(NULL, f, &Call::call_begin, &Call::call_end, true, false);
+		visit_functions(NULL, NULL, f, &Call::call_begin, &Call::call_end, true, false);
 		break;
 	case 'U':
-		visit_functions(NULL, f, &Call::caller_begin, &Call::caller_end, true, false);
+		visit_functions(NULL, NULL, f, &Call::caller_begin, &Call::caller_end, true, false);
 		break;
 	default:
 		fprintf(fo, "Illegal value");
@@ -2536,11 +2592,13 @@ main(int argc, char *argv[])
 		swill_handle("fun.html", function_page, NULL);
 		swill_handle("funlist.html", funlist_page, NULL);
 		swill_handle("fmetrics.html", file_metrics_page, NULL);
+		swill_handle("fpath.html", file_path_page, NULL);
 		swill_handle("idmetrics.html", id_metrics_page, NULL);
 		swill_handle("cgraph.html", cgraph_html_page, NULL);
 		swill_handle("cgraph.txt", cgraph_txt_page, NULL);
 		swill_handle("cgraph_dot.txt", cgraph_dot_page, "txt");
 		swill_handle("cgraph.svg", cgraph_svg_page, NULL);
+
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("logo.gif", logo_page, NULL);
 		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
