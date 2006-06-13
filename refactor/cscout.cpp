@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.140 2006/06/13 20:58:54 dds Exp $
+ * $Id: cscout.cpp,v 1.141 2006/06/13 21:53:51 dds Exp $
  */
 
 #include <map>
@@ -1363,14 +1363,14 @@ funlist_page(FILE *fo, void *p)
 		fbegin = &Call::caller_begin;
 		fend = &Call::caller_end;
 		fprintf(fo, "List of %s calling functions\n", calltype);
-		sprintf(buff, " &mdash; <a href=\"fpath.html?from=%%p&to=%p\">call path from function</a>", f);
+		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%%p&to=%p\">call path from function</a>", cgraph_suffix(), f);
 		break;
 	case 'd':
 	case 'D':
 		fbegin = &Call::call_begin;
 		fend = &Call::call_end;
 		fprintf(fo, "List of %s called functions\n", calltype);
-		sprintf(buff, " &mdash; <a href=\"fpath.html?from=%p&to=%%p\">call path to function</a>", f);
+		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%p&to=%%p\">call path to function</a>", cgraph_suffix(), f);
 		break;
 	}
 	fprintf(fo, "<ul>\n");
@@ -1381,8 +1381,10 @@ funlist_page(FILE *fo, void *p)
 }
 
 // Display the call paths between functions from and to
+// This should be called once to generate the nodes and a second time
+// to generate the edges
 static bool
-call_path(FILE *fo, Call *from, Call *to)
+call_path(GraphDisplay *gd, Call *from, Call *to, bool generate_nodes)
 {
 	bool ret = false;
 
@@ -1390,11 +1392,18 @@ call_path(FILE *fo, Call *from, Call *to)
 	if (DP())
 		cout << "From path: from: " << from->get_name() << " to " << to->get_name() << '\n';
 	for (Call::const_fiterator_type i = from->call_begin(); i != from->call_end(); i++)
-		if (!(*i)->is_visited() && (*i == to || call_path(fo, *i, to))) {
-			html(fo, *from);
-			fprintf(fo, " &rarr; ");
-			html(fo, **i);
-			fprintf(fo, "<br />\n");
+		if (!(*i)->is_visited() && (*i == to || call_path(gd, *i, to, generate_nodes))) {
+			if (generate_nodes) {
+				if (!from->is_printed()) {
+					gd->node(from);
+					from->set_printed();
+				}
+				if (!(*i)->is_printed()) {
+					gd->node(*i);
+					(*i)->set_printed();
+				}
+			} else
+				gd->edge(from, *i);
 			ret = true;
 		}
 	if (DP())
@@ -1404,27 +1413,29 @@ call_path(FILE *fo, Call *from, Call *to)
 
 // List the call graph from one function to another
 static void
-file_path_page(FILE *fo, void *p)
+cpath_page(GraphDisplay *gd)
 {
 	Call *from, *to;
 
 	if (!swill_getargs("p(from)", &from)) {
-		fprintf(fo, "Missing from value");
+		fprintf(stderr, "Missing from value");
 		return;
 	}
 	if (!swill_getargs("p(to)", &to)) {
-		fprintf(fo, "Missing to value");
+		fprintf(stderr, "Missing to value");
 		return;
 	}
-	html_head(fo, "filepath", "Function Call Path");
-	fprintf(fo, "<h2>Path ");
-	html(fo, *from);
-	fprintf(fo, " &rarr; ");
-	html(fo, *to);
-	fprintf(fo, "</h2>\n");
+	gd->head("filepath", "Function Call Path");
+	gd->subhead(string("Path ") +
+	    function_label(from, true) +
+	    string(" &rarr; ") +
+	    function_label(to, true));
+	Call::clear_print_flags();
 	Call::clear_visit_flags();
-	call_path(fo, from, to);
-	html_tail(fo);
+	call_path(gd, from, to, true);
+	Call::clear_visit_flags();
+	call_path(gd, from, to, false);
+	gd->tail();
 }
 
 /*
@@ -1676,9 +1687,9 @@ function_label(Call *f, bool hyperlink)
 		result = buff;
 	}
 	if (cgraph_show == 'f')		// Show files
-		result = f->get_site().get_fileid().get_fname() + ":";
+		result += f->get_site().get_fileid().get_fname() + ":";
 	else if (cgraph_show == 'p')	// Show paths
-		result = f->get_site().get_fileid().get_path() + ":";
+		result += f->get_site().get_fileid().get_path() + ":";
 	if (cgraph_show != 'e')		// Empty labels
 		result += f->get_name();
 	if (hyperlink)
@@ -1762,6 +1773,47 @@ cgraph_gif_page(FILE *fo, void *p)
 	cgraph_page(&gd);
 }
 
+// Call path: text
+static void
+cpath_txt_page(FILE *fo, void *p)
+{
+	GDTxt gd(fo);
+	cpath_page(&gd);
+}
+
+// Call path: HTML
+static void
+cpath_html_page(FILE *fo, void *p)
+{
+	GDHtml gd(fo);
+	cpath_page(&gd);
+}
+
+// Call path: SVG via dot
+static void
+cpath_dot_page(FILE *fo, void *p)
+{
+	GDDot gd(fo);
+	cpath_page(&gd);
+}
+
+// Call path: SVG via dot
+static void
+cpath_svg_page(FILE *fo, void *p)
+{
+	prohibit_remote_access(fo);
+	GDSvg gd(fo);
+	cpath_page(&gd);
+}
+
+// Call path: GIF via dot
+static void
+cpath_gif_page(FILE *fo, void *p)
+{
+	prohibit_remote_access(fo);
+	GDGif gd(fo);
+	cpath_page(&gd);
+}
 
 // Display all projects, allowing user to select
 void
@@ -2531,7 +2583,6 @@ main(int argc, char *argv[])
 		swill_handle("fun.html", function_page, NULL);
 		swill_handle("funlist.html", funlist_page, NULL);
 		swill_handle("fmetrics.html", file_metrics_page, NULL);
-		swill_handle("fpath.html", file_path_page, NULL);
 		swill_handle("idmetrics.html", id_metrics_page, NULL);
 
 		swill_handle("cgraph.html", cgraph_html_page, NULL);
@@ -2540,13 +2591,11 @@ main(int argc, char *argv[])
 		swill_handle("cgraph.svg", cgraph_svg_page, NULL);
 		swill_handle("cgraph.gif", cgraph_gif_page, NULL);
 
-#ifdef ndef
 		swill_handle("cpath.html", cpath_html_page, NULL);
 		swill_handle("cpath.txt", cpath_txt_page, NULL);
 		swill_handle("cpath_dot.txt", cpath_dot_page, "txt");
 		swill_handle("cpath.svg", cpath_svg_page, NULL);
 		swill_handle("cpath.gif", cpath_gif_page, NULL);
-#endif
 
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("logo.gif", logo_page, NULL);

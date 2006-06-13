@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.13 2006/06/13 15:35:59 dds Exp $
+ * $Id: call.h,v 1.14 2006/06/13 21:53:51 dds Exp $
  */
 
 #ifndef CALL_
@@ -44,6 +44,7 @@ private:
 	fun_container call;		// Functions this function calls
 	fun_container caller;		// Functions that call this function
 	bool visited;			// For calculating transitive closures
+	bool printed;			// For printing a graph's nodes
 	void add_call(Call *f) { call.insert(f); }
 	void add_caller(Call *f) { caller.insert(f); }
 
@@ -75,6 +76,7 @@ public:
 
 	// Clear the visit flags for all functions
 	static void clear_visit_flags();
+	static void clear_print_flags();
 
 	// Interface for iterating through all functions
 	typedef fun_map::const_iterator const_fmap_iterator_type;
@@ -108,6 +110,8 @@ public:
 
 	void set_visited() { visited = true; }
 	bool is_visited() const { return visited; }
+	void set_printed() { printed = true; }
+	bool is_printed() const { return printed; }
 
 	// Return a token for the given object
 	const Token &get_token() const {return token; }

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.10 2006/06/11 21:44:18 dds Exp $
+ * $Id: call.cpp,v 1.11 2006/06/13 21:53:51 dds Exp $
  */
 
 #include <map>
@@ -138,6 +138,13 @@ Call::clear_visit_flags()
 {
 	for (const_fmap_iterator_type i = all.begin(); i != all.end(); i++)
 		i->second->visited = false;
+}
+
+void
+Call::clear_print_flags()
+{
+	for (const_fmap_iterator_type i = all.begin(); i != all.end(); i++)
+		i->second->printed = false;
 }
 
 Call *
