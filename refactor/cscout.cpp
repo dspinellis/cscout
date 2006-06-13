@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.135 2006/06/12 20:41:50 dds Exp $
+ * $Id: cscout.cpp,v 1.136 2006/06/13 07:34:43 dds Exp $
  */
 
 #include <map>
@@ -1688,7 +1688,7 @@ cgraph_page(FILE *fo, bool html)
 			if (only_visited && !(fun->second->is_visited() && (*call)->is_visited()))
 				continue;
 			fprintf(fo,
-			    html ? "<tr><td align=\"right\">%s%s%s%s</a></td><td>-&gt;</td><td>%s%s%s%s</a></td></tr>\n" : "%s%s%s%s %s%s%s%s\n",
+			    html ? "<tr><td align=\"right\">%s%s%s%s</a></td><td>&rarr;</td><td>%s%s%s%s</a></td></tr>\n" : "%s%s%s%s %s%s%s%s\n",
 			    buff1,
 			    file_name ? fun->second->get_site().get_fileid().get_fname().c_str() :
 			    path_name ? fun->second->get_site().get_fileid().get_path().c_str() : "",
@@ -1909,12 +1909,12 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<h2>Operations</h2>"
 		"<ul>\n"
 		"<li> <a href=\"options.html\">Global options</a>\n"
-		" - <a href=\"save_options.html\">save global options</a>\n"
+		" &mdash; <a href=\"save_options.html\">save global options</a>\n"
 		"<li> <a href=\"replacements.html\">Identifier replacements</a>\n"
 		"<li> <a href=\"sproject.html\">Select active project</a>\n"
 		"<li> <a href=\"save.html\">Save changes and continue</a>\n"
-		"<li> <a href=\"sexit.html\">Exit - saving changes</a>\n"
-		"<li> <a href=\"qexit.html\">Exit - ignore changes</a>\n"
+		"<li> <a href=\"sexit.html\">Exit &mdash; saving changes</a>\n"
+		"<li> <a href=\"qexit.html\">Exit &mdash; ignore changes</a>\n"
 		"</ul>"
 		"</td></tr></table>\n"
 	);
