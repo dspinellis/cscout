@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.137 2006/06/13 08:18:49 dds Exp $
+ * $Id: cscout.cpp,v 1.138 2006/06/13 08:56:18 dds Exp $
  */
 
 #include <map>
@@ -31,8 +31,9 @@
 #include <sys/types.h>		// mkdir
 #include <sys/stat.h>		// mkdir
 #include <unistd.h>		// unlink
-#else
+#elif defined(WIN32)
 #include <io.h>			// mkdir
+#include <fcntl.h>		// O_BINARY
 #endif
 
 #include <regex.h>
@@ -82,7 +83,7 @@ static bool show_true;			// Only show true identifier properties
 static bool show_line_number;		// Annotate source with line numbers
 static bool file_icase;			// File name case-insensitive match
 static int tab_width = 8;		// Tab width for code output
-static char cgraph_type = 'h';		// Call graph type t(text h(tml d(ot s(vg
+static char cgraph_type = 'h';		// Call graph type t(text h(tml d(ot s(vg g(if
 static char cgraph_show = 'f';		// Call graph show e(dge n(ame f(ile p(ath
 static CompiledRE sfile_re;		// Saved files replacement location RE
 static string sfile_re_string;		// Saved files replacement location RE string
@@ -127,6 +128,7 @@ cgraph_suffix()
 	case 'h': return ".html";
 	case 'd': return "_dot.txt";
 	case 's': return ".svg";
+	case 'g': return ".gif";
 	}
 	return "";
 }
@@ -1466,6 +1468,7 @@ Do not show No in identifier properties (option)
 	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"h\" %s>HTML\n", cgraph_type == 'h' ? "checked" : "");
 	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"d\" %s>dot\n", cgraph_type == 'd' ? "checked" : "");
 	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"s\" %s>SVG (via dot)\n", cgraph_type == 's' ? "checked" : "");
+	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"g\" %s>GIF (via dot)\n", cgraph_type == 'g' ? "checked" : "");
 
 	fprintf(fo, "<br>Call graphs should contain:\n");
 	fprintf(fo, "<input type=\"radio\" name=\"cgraph_show\" value=\"e\" %s>only edges\n", cgraph_show == 'e' ? "checked" : "");
@@ -1729,7 +1732,7 @@ cgraph_html_page(FILE *fo, void *p)
 
 // Call graph (dot)
 static void
-cgraph_dot_page(FILE *fo, char *type)
+cgraph_dot_page(FILE *fo, const char *type)
 {
 	prohibit_remote_access(fo);
 
@@ -1776,49 +1779,66 @@ cgraph_dot_page(FILE *fo, char *type)
 	fprintf(fo, "}\n");
 }
 
-// Call graph: SVG via dot
+// Call graph: SVG/GIF via dot
 static void
-cgraph_svg_page(FILE *fo, void *p)
+cgraph_image_page(FILE *fo, const char *format)
 {
 	prohibit_remote_access(fo);
 
-	char svg[256];		// SVG file name
+	char img[256];		// Image file name
 	char dot[256];		// dot file name
 	char cmd[1024];		// dot command
 	#if defined(unix) || defined(__MACH__)
-	strcpy(svg, "/tmp");
+	strcpy(img, "/tmp");
 	#else
 	char *tmp = getenv("TEMP");
-	strcpy(svg, tmp ? tmp : ".");
+	strcpy(img, tmp ? tmp : ".");
 	#endif
-	strcpy(dot, svg);
+	strcpy(dot, img);
 	strcat(dot, "/CSdot-XXXXXX");
-	strcat(svg, "/CSsvg-XXXXXX");
+	strcat(img, "/CSimg-XXXXXX");
 	mktemp(dot);
-	mktemp(svg);
+	mktemp(img);
 	FILE *fdot = fopen(dot, "w");
 	if (fdot == NULL) {
 		html_perror(fo, "Unable to open " + string(dot) + " for writing", true);
 		return;
 	}
-	cgraph_dot_page(fdot, "svg");
+	cgraph_dot_page(fdot, format);
 	fclose(fdot);
-	snprintf(cmd, sizeof(cmd), "dot -Tsvg \"%s\" \"-o%s\"", dot, svg);
+	snprintf(cmd, sizeof(cmd), "dot -T%s \"%s\" \"-o%s\"", format, dot, img);
 	if (system(cmd) != 0) {
 		html_perror(fo, "Unable to execute " + string(cmd) + ". Shell execution", true);
 		return;
 	}
-	FILE *fsvg = fopen(svg, "r");
-	if (fsvg == NULL) {
-		html_perror(fo, "Unable to open " + string(svg) + " for reading", true);
+	FILE *fimg = fopen(img, "rb");
+	if (fimg == NULL) {
+		html_perror(fo, "Unable to open " + string(img) + " for reading", true);
 		return;
 	}
 	int c;
-	while ((c = getc(fsvg)) != EOF)
+	while ((c = getc(fimg)) != EOF)
 		putc(c, fo);
-	fclose(fsvg);
+	fclose(fimg);
 	(void)unlink(dot);
-	(void)unlink(svg);
+	(void)unlink(img);
+}
+
+// Call graph: SVG via dot
+static void
+cgraph_svg_page(FILE *fo, void *p)
+{
+	cgraph_image_page(fo, "svg");
+}
+
+// Call graph: GIF via dot
+static void
+cgraph_gif_page(FILE *fo, void *p)
+{
+	#ifdef WIN32
+	setmode(fileno(fo), O_BINARY);
+	#endif
+	cgraph_image_page(fo, "gif");
 }
 
 // Display all projects, allowing user to select
@@ -2595,6 +2615,7 @@ main(int argc, char *argv[])
 		swill_handle("cgraph.txt", cgraph_txt_page, NULL);
 		swill_handle("cgraph_dot.txt", cgraph_dot_page, "txt");
 		swill_handle("cgraph.svg", cgraph_svg_page, NULL);
+		swill_handle("cgraph.gif", cgraph_gif_page, NULL);
 
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("logo.gif", logo_page, NULL);
