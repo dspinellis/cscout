@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.136 2006/06/13 07:34:43 dds Exp $
+ * $Id: cscout.cpp,v 1.137 2006/06/13 08:18:49 dds Exp $
  */
 
 #include <map>
@@ -1655,6 +1655,21 @@ single_function_graph(FILE *fo)
 	return true;
 }
 
+// Return a function's label, based on the user's preferences
+static string
+function_label(Call *f)
+{
+	string result;
+
+	if (cgraph_show == 'f')		// Show files
+		result = f->get_site().get_fileid().get_fname() + ":";
+	else if (cgraph_show == 'p')	// Show paths
+		result = f->get_site().get_fileid().get_path() + ":";
+	if (cgraph_show != 'e')		// Empty labels
+		result += f->get_name();
+	return (result);
+}
+
 // Call graph: HTML and plain text
 static void
 cgraph_page(FILE *fo, bool html)
@@ -1664,9 +1679,6 @@ cgraph_page(FILE *fo, bool html)
 	char buff1[256], buff2[256];
 
 	buff1[0] = buff2[0] = 0;
-	bool fun_name = (cgraph_show != 'e');
-	bool file_name = (cgraph_show == 'f');
-	bool path_name = (cgraph_show == 'p');
 	bool all = !!swill_getvar("all");
 	bool only_visited = single_function_graph(fo);
 	if (html) {
@@ -1688,18 +1700,9 @@ cgraph_page(FILE *fo, bool html)
 			if (only_visited && !(fun->second->is_visited() && (*call)->is_visited()))
 				continue;
 			fprintf(fo,
-			    html ? "<tr><td align=\"right\">%s%s%s%s</a></td><td>&rarr;</td><td>%s%s%s%s</a></td></tr>\n" : "%s%s%s%s %s%s%s%s\n",
-			    buff1,
-			    file_name ? fun->second->get_site().get_fileid().get_fname().c_str() :
-			    path_name ? fun->second->get_site().get_fileid().get_path().c_str() : "",
-			    (file_name || path_name) ? ":" : "",
-			    fun_name ? fun->second->get_name().c_str(): "",
-
-			    buff2,
-			    file_name ? (*call)->get_site().get_fileid().get_fname().c_str() :
-			    path_name ? (*call)->get_site().get_fileid().get_path().c_str() : "",
-			    (file_name || path_name) ? ":" : "",
-			    fun_name ? (*call)->get_name().c_str(): ""
+			    html ? "<tr><td align=\"right\">%s%s</a></td><td>&rarr;</td><td>%s%s</a></td></tr>\n" : "%s%s %s%s\n",
+			    buff1, function_label(fun->second).c_str(),
+			    buff2, function_label(*call).c_str()
 			);
 		}
 	}
@@ -1730,9 +1733,6 @@ cgraph_dot_page(FILE *fo, char *type)
 {
 	prohibit_remote_access(fo);
 
-	bool fun_name = (cgraph_show != 'e');
-	bool file_name = (cgraph_show == 'f');
-	bool path_name = (cgraph_show == 'p');
 	bool all = !!swill_getvar("all");
 	bool only_visited = single_function_graph(fo);
 	bool svg = (strcmp(type, "svg") == 0);
@@ -1741,7 +1741,7 @@ cgraph_dot_page(FILE *fo, char *type)
 		"digraph G {\n",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str());
-	if (!fun_name)
+	if (cgraph_show == 'e')			// Empty nodes
 		fprintf(fo, "\tnode [height=.001,width=0.000001,shape=box,label=\"\",fontsize=8];\n");
 	// First generate the node labels
 	Call::const_fmap_iterator_type fun;
@@ -1750,12 +1750,9 @@ cgraph_dot_page(FILE *fo, char *type)
 			continue;
 		if (only_visited && !fun->second->is_visited())
 			continue;
-		fprintf(fo, "\t_%p [label=\"%s%s%s\"",
+		fprintf(fo, "\t_%p [label=\"%s\"",
 		    fun->second,
-		    file_name ? fun->second->get_site().get_fileid().get_fname().c_str() :
-		    path_name ? fun->second->get_site().get_fileid().get_path().c_str() : "",
-		    (file_name || path_name) ? ":" : "",
-		    fun_name ? fun->second->get_name().c_str(): ""
+		    function_label(fun->second).c_str()
 		);
 		if (svg)
 			fprintf(fo, ", URL=\"http://localhost:%d/fun.html?f=%p\"", portno, fun->second);
