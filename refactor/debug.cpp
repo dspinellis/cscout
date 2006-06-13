@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: debug.cpp,v 1.3 2004/07/23 06:55:38 dds Exp $
+ * $Id: debug.cpp,v 1.4 2006/06/13 15:32:05 dds Exp $
  */
 
 #include <set>
@@ -36,6 +36,8 @@ Debug::db_read()
 		return;
 	while (!in.eof()) {
 		in >> name >> line;
+		if (name[0] == '#')
+			continue;
 		Debug::db_set(name, line);
 		if (DP()) cout << "Enable DP: " << name << "(" << line << ")\n";
 	}
