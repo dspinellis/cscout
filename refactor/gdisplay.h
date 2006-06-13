@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.3 2006/06/13 21:06:06 dds Exp $
+ * $Id: gdisplay.h,v 1.4 2006/06/13 21:43:33 dds Exp $
  */
 
 
@@ -13,10 +13,11 @@ protected:
 	FILE *fo;
 public:
 	GraphDisplay(FILE *f) : fo(f) {}
-	virtual void head(const char *fname, const char *title) = 0;
-	virtual void node(Call *p) = 0;
+	virtual void head(const char *fname, const char *title) {};
+	virtual void subhead(const string &text) {};
+	virtual void node(Call *p) {};
 	virtual void edge(Call *a, Call *b) = 0;
-	virtual void tail() = 0;
+	virtual void tail() {};
 	virtual ~GraphDisplay() {}
 };
 
@@ -29,7 +30,9 @@ public:
 		fprintf(fo, "<table border=\"0\">\n");
 	}
 
-	virtual void node(Call *p) {}
+	virtual void subhead(const string &text) {
+		fprintf(fo, "<h2>%s</h2>\n", text.c_str());
+	}
 
 	virtual void edge(Call *a, Call *b) {
 		fprintf(fo,
@@ -49,14 +52,11 @@ public:
 class GDTxt: public GraphDisplay {
 public:
 	GDTxt(FILE *f) : GraphDisplay(f) {}
-	virtual void head(const char *fname, const char *title) {}
-	virtual void node(Call *p) {}
 	virtual void edge(Call *a, Call *b) {
 		fprintf(fo, "%s %s\n",
 		    function_label(a, false).c_str(),
 		    function_label(b, false).c_str());
 	}
-	virtual void tail() {}
 	virtual ~GDTxt() {}
 };
 
