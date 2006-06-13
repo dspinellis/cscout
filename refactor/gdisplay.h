@@ -3,10 +3,11 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.1 2006/06/13 20:59:50 dds Exp $
+ * $Id: gdisplay.h,v 1.2 2006/06/13 21:01:55 dds Exp $
  */
 
 
+// Abstract base class, used for drawing
 class GraphDisplay {
 protected:
 	FILE *fo;
@@ -19,6 +20,7 @@ public:
 	virtual ~GraphDisplay() {}
 };
 
+// HTML output
 class GDHtml: public GraphDisplay {
 public:
 	GDHtml(FILE *f) : GraphDisplay(f) {}
@@ -43,6 +45,7 @@ public:
 	virtual ~GDHtml() {}
 };
 
+// Raw text output
 class GDTxt: public GraphDisplay {
 public:
 	GDTxt(FILE *f) : GraphDisplay(f) {}
@@ -57,6 +60,7 @@ public:
 	virtual ~GDTxt() {}
 };
 
+// AT&T GraphViz Dot output
 class GDDot: public GraphDisplay {
 public:
 	GDDot(FILE *f) : GraphDisplay(f) {}
@@ -89,7 +93,6 @@ public:
 };
 
 // Generate a graph of the specified format by calling dot
-// through the file written by the given generator
 class GDDotImage: public GDDot {
 private:
 	char img[256];		// Image file name
@@ -149,6 +152,7 @@ public:
 	virtual ~GDDotImage() {}
 };
 
+// SVG via dot
 class GDSvg: public GDDotImage {
 public:
 	GDSvg(FILE *f) : GDDotImage(f, "svg") {}
@@ -156,6 +160,7 @@ public:
 	virtual ~GDSvg() {}
 };
 
+// GIF via dot
 class GDGif: public GDDotImage {
 public:
 	GDGif(FILE *f) : GDDotImage(f, "gif") {}
