@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.45 2006/06/11 21:44:18 dds Exp $
+ * $Id: type.cpp,v 1.46 2006/06/13 15:36:26 dds Exp $
  */
 
 #include <iostream>
@@ -100,8 +100,13 @@ Type_node::call() const
 Type
 Tidentifier::call() const
 {
-	// Undeclared identifiers f when called are declared as int f(...)
+	// Undeclared identifiers f when called are declared as
+	// extern int f(...) at the file scope level
+	int old_scope = Block::get_scope_level();
+	Block::set_scope_level(Block::cu_block);
 	obj_define(this->get_token(), function_returning(basic(b_int)));
+	Block::set_scope_level(old_scope);
+
 	Id const *id = obj_lookup(this->get_name());
 	csassert(id);
 	FCall::register_call(this->get_token(), id);

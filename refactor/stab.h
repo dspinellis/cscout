@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.19 2004/07/23 06:55:38 dds Exp $
+ * $Id: stab.h,v 1.20 2006/06/13 15:36:26 dds Exp $
  */
 
 #ifndef STAB_
@@ -103,6 +103,7 @@ public:
 	Stab local_label;	// Local labels; gcc extension
 
 	static int get_scope_level() { return current_block; }
+	static void set_scope_level(int level) { current_block = level; }
 	static const int lu_block = 0;	// Linkage unit definitions: 0
 	static const int cu_block = 1;	// Compilation unit definitions: 1
 	static void enter();
