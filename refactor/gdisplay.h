@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.2 2006/06/13 21:01:55 dds Exp $
+ * $Id: gdisplay.h,v 1.3 2006/06/13 21:06:06 dds Exp $
  */
 
 
@@ -129,7 +129,8 @@ public:
 		GDDot::tail();
 		fclose(fo);
 		snprintf(cmd, sizeof(cmd), "dot -T%s \"%s\" \"-o%s\"", format, dot, img);
-		cout << cmd << '\n';
+		if (DP())
+			cout << cmd << '\n';
 		if (system(cmd) != 0) {
 			html_perror(fo, "Unable to execute " + string(cmd) + ". Shell execution", true);
 			return;
