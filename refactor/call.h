@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.12 2005/06/13 18:35:35 dds Exp $
+ * $Id: call.h,v 1.13 2006/06/13 15:35:59 dds Exp $
  */
 
 #ifndef CALL_
@@ -14,14 +14,14 @@ class Sql;
 
 /*
  * Generic call information of a called/calling entity.
- * The calls be to/from macros or functions.
+ * The calls can be to/from macros or functions.
  * We identify four types of calls:
  * 1. Macro calls macro
  *	Function like macro-expansion while expanding a macro
  * 2. Macro calls function
  *	parse.y type.cpp call register_call(id->get_fcall())
  *	Function call with the identifier token being part of a
- *	(function-like) macro boy
+ *	(function-like) macro body
  * 3. Function calls function
  *	parse.y type.cpp call register_call(id->get_fcall())
  *	Function call with the identifier token not part of a
