@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.24 2006/06/11 21:44:18 dds Exp $
+ * $Id: workdb.cpp,v 1.25 2006/06/15 10:53:19 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -102,21 +102,69 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 			(unsigned)e << ',' << j << ");\n";
 }
 
-// Add the contents of a file to the Tokens and Strings tables
+// Chunk the input into tables
+class Chunker {
+private:
+	fifstream &in;		// Stream we are reading from
+	string table;		// Table we are chunking into
+	Sql *db;		// Database interface
+	ostream &of;		// Stream for writing SQL statements
+	Fileid fid;		// File we are chunking
+	streampos startpos;	// Starting position of current chunk
+	string chunk;		// Characters accumulated in the current chunk
+public:
+	Chunker(fifstream &i, Sql *d, ostream &o, Fileid f) : in(i), table("REST"), db(d), of(o), fid(f), startpos(0) {}
+
+	// Flush the currently collected input into the database
+	// Should be called at the point where new input is expected
+	void flush() {
+		if (chunk.length() > 0) {
+			of << "INSERT INTO " << table << " VALUES(" <<
+			fid.get_id() <<
+			"," << (unsigned)startpos <<
+			",'" << chunk << "');\n";
+			chunk.erase();
+		}
+		startpos = in.tellg();
+	}
+
+	// Start collecting input for a (possibly) new table
+	// Should be called at the point where new input is expected
+	// s can be input already collected
+	void start(const char *t, const string &s = string("")) {
+		flush();
+		table = string(t);
+		startpos -= s.length();
+		chunk = db->escape(s);
+	}
+
+	void start(const char *t, char c) {
+		start(t, string(1, c));
+	}
+
+	inline void add(char c) {
+		chunk += db->escape(c);
+	}
+};
+
+// Add the contents of a file to the Tokens, Comments, Strings, and Rest tables
 // As a side-effect insert corresponding identifiers in the database
+// and populate the LineOffset table
 static void
 file_dump(Sql *db, ostream &of, Fileid fid)
 {
-	string plain;
-	Tokid plainstart;
-	fifstream in;
+	streampos bol(0);			// Beginning of line
+	bool at_bol = true;
+	int line_number = 1;
+	enum e_cfile_state cstate = s_normal;	// C file state machine
 
+	fifstream in;
 	in.open(fid.get_path().c_str(), ios::binary);
 	if (in.fail()) {
 		perror(fid.get_path().c_str());
 		exit(1);
 	}
-	plainstart = Tokid(fid, in.tellg());
+	Chunker chunker(in, db, of, fid);
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
@@ -135,27 +183,89 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 				s += (char)in.get();
 			insert_eclass(db, of, ec, s);
 			fid.metrics().process_id(s);
+			chunker.flush();
 			of << "INSERT INTO TOKENS VALUES(" << fid.get_id() <<
 			"," << (unsigned)ti.get_streampos() << "," <<
 			(unsigned)ec << ");\n";
-			if (plain.length() > 0) {
-				of << "INSERT INTO REST VALUES(" <<
-				fid.get_id() <<
-				"," << (unsigned)plainstart.get_streampos() <<
-				",'" << plain << "');\n";
-				plain.erase();
-			}
-			plainstart = Tokid(fid, in.tellg());
 		} else {
-			fid.metrics().process_char((char)val);
-			plain += db->escape((char)val);
+			char c = (char)val;
+			fid.metrics().process_char(c);
+			if (c == '\n') {
+				at_bol = true;
+				bol = in.tellg();
+				line_number++;
+			} else {
+				if (at_bol) {
+					of << "INSERT INTO LINEPOS VALUES(" <<
+					fid.get_id() <<
+					"," << (unsigned)bol <<
+					"," << line_number << ");\n";
+					at_bol = false;
+				}
+			}
+			switch (cstate) {
+			case s_normal:
+				if (c == '/')
+					cstate = s_saw_slash;
+				else if (c == '"') {
+					cstate = s_string;
+					chunker.start("STRINGS", c);
+				} else
+					chunker.add(c);
+				break;
+			case s_string:
+				chunker.add(c);
+				if (c == '"') {
+					cstate = s_normal;
+					chunker.start("REST");
+				} else if (c == '\\')
+					cstate = s_saw_backslash;
+				break;
+			case s_saw_backslash:
+				chunker.add(c);
+				cstate = s_string;
+				break;
+			case s_saw_slash:		// After a / character
+				if (c == '/') {
+					cstate = s_cpp_comment;
+					chunker.start("COMMENTS", "//");
+				} else if (c == '*') {
+					cstate = s_block_comment;
+					chunker.start("COMMENTS", "/*");
+				} else {
+					chunker.add('/');
+					chunker.add(c);
+					cstate = s_normal;
+				}
+				break;
+			case s_cpp_comment:		// Inside C++ comment
+				chunker.add(c);
+				if (c == '\n') {
+					cstate = s_normal;
+					chunker.start("REST");
+				}
+				break;
+			case s_block_comment:		// Inside C block comment
+				chunker.add(c);
+				if (c == '*')
+					cstate = s_block_star;
+				break;
+			case s_block_star:		// Found a * in a block comment
+				chunker.add(c);
+				if (c == '/') {
+					cstate = s_normal;
+					chunker.start("REST");
+				} else if (c != '*')
+					cstate = s_block_comment;
+				break;
+			default:
+				csassert(0);
+			}
 		}
 	}
-	if (plain.length() > 0)
-		of << "INSERT INTO REST VALUES(" << fid.get_id() <<
-		"," << (unsigned)plainstart.get_streampos() <<
-		",'" << plain << "');\n";
+	chunker.flush();
 }
+
 
 void
 workdb_schema(Sql *db, ostream &of)
@@ -188,12 +298,34 @@ workdb_schema(Sql *db, ostream &of)
 		"PRIMARY KEY(FID, FOFFSET)"
 		");\n"
 
-		"CREATE TABLE REST("			// Non-identifier source code
+		"CREATE TABLE COMMENTS("		// Comments in the code
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"COMMENT " << db->varchar() << ","	// The comment, including its delimiters
+		"PRIMARY KEY(FID, FOFFSET)"
+		");\n"
+
+		"CREATE TABLE STRINGS("			// Strings in the code
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"STRING " << db->varchar() << ","	// The string, including its delimiters
+		"PRIMARY KEY(FID, FOFFSET)"
+		");\n"
+
+		"CREATE TABLE REST("			// Remaining, non-identifier source code
 		"FID INTEGER,"				// File key (references FILES)
 		"FOFFSET INTEGER,"			// Offset within the file
 		"CODE " << db->varchar() << ","		// The actual code
 		"PRIMARY KEY(FID, FOFFSET)"
 		");\n"
+
+		"CREATE TABLE LINEPOS("			// Line number offsets within each file
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"LNUM INTEGER,"				// Line number (starts at 1)
+		"PRIMARY KEY(FID, FOFFSET)"
+		");\n"
+
 
 		"CREATE TABLE PROJECTS("		// Project details
 		"PID INTEGER PRIMARY KEY,"		// Unique project key
