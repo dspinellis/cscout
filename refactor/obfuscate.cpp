@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.7 2006/06/11 21:44:18 dds Exp $
+ * $Id: obfuscate.cpp,v 1.8 2006/06/15 06:49:50 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -46,16 +46,7 @@
  */
 class CProcessor {
 private:
-	static enum e_state {
-		s_normal,
-		s_saw_slash,		// After a / character
-		s_saw_backslash,	// After a \ character in a string
-		s_cpp_comment,		// Inside C++ comment
-		s_block_comment,	// Inside C block comment
-		s_block_star,		// Found a * in a block comment
-		s_string,		// Inside a string
-	} cstate;
-
+	static enum e_cfile_state cstate;
 	static bool spaced;		// True after a space has been output
 public:
 	static void reset() {spaced = false; cstate = s_normal; }
@@ -72,7 +63,7 @@ public:
 	}
 };
 
-enum CProcessor::e_state CProcessor::cstate;
+enum e_cfile_state CProcessor::cstate;
 bool CProcessor::spaced;
 
 // Output an identifier, given its equivalence class code
@@ -206,7 +197,7 @@ file_obfuscate(Fileid fid)
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
-		int val, len;
+		int val;
 
 		ti = Tokid(fid, in.tellg());
 		if ((val = in.get()) == EOF)

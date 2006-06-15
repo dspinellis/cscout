@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: filemetrics.h,v 1.12 2004/07/30 17:19:03 dds Exp $
+ * $Id: filemetrics.h,v 1.13 2006/06/15 06:49:50 dds Exp $
  */
 
 #ifndef METRICS_
@@ -43,6 +43,17 @@ enum e_metric {
 	metric_max
 };
 
+// States while processing characters
+enum e_cfile_state {
+	s_normal,
+	s_saw_slash,		// After a / character
+	s_saw_backslash,	// After a \ character in a string
+	s_cpp_comment,		// Inside C++ comment
+	s_block_comment,	// Inside C block comment
+	s_block_star,		// Found a * in a block comment
+	s_string,		// Inside a string
+};
+
 class Metrics {
 private:
 	vector <int> count;	// File metric counts
@@ -50,16 +61,7 @@ private:
 // Helper variables
 	bool processed;		// True after file has been processed
 	int currlinelen;
-	// States while processing characters
-	enum e_state {
-		s_normal,
-		s_saw_slash,		// After a / character
-		s_saw_backslash,	// After a \ character in a string
-		s_cpp_comment,		// Inside C++ comment
-		s_block_comment,	// Inside C block comment
-		s_block_star,		// Found a * in a block comment
-		s_string,		// Inside a string
-	} cstate;
+	enum e_cfile_state cstate;
 	static string metric_names[];
 
 public:
