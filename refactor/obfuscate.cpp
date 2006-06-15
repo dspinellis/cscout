@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.8 2006/06/15 06:49:50 dds Exp $
+ * $Id: obfuscate.cpp,v 1.9 2006/06/15 11:07:30 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -115,6 +115,11 @@ CProcessor::process_char(ostream &out, char c)
 			cstate = s_saw_slash;
 			spaced = false;
 			break;
+		case '\'':
+			cstate = s_char;
+			out << '\'';
+			spaced = false;
+			break;
 		case '"':
 			cstate = s_string;
 			out << '"';
@@ -126,14 +131,25 @@ CProcessor::process_char(ostream &out, char c)
 			break;
 		}
 		break;
+	case s_char:
+		if (c == '\'')
+			cstate = s_normal;
+		else if (c == '\\')
+			cstate = s_saw_chr_backslash;
+		out << c;
+		break;
 	case s_string:
 		if (c == '"')
 			cstate = s_normal;
 		else if (c == '\\')
-			cstate = s_saw_backslash;
+			cstate = s_saw_str_backslash;
 		out << c;
 		break;
-	case s_saw_backslash:
+	case s_saw_chr_backslash:
+		cstate = s_char;
+		out << c;
+		break;
+	case s_saw_str_backslash:
 		cstate = s_string;
 		out << c;
 		break;

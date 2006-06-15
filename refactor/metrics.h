@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.13 2006/06/15 06:49:50 dds Exp $
+ * $Id: metrics.h,v 1.14 2006/06/15 11:07:30 dds Exp $
  */
 
 #ifndef METRICS_
@@ -47,11 +47,13 @@ enum e_metric {
 enum e_cfile_state {
 	s_normal,
 	s_saw_slash,		// After a / character
-	s_saw_backslash,	// After a \ character in a string
+	s_saw_str_backslash,	// After a \ character in a string
+	s_saw_chr_backslash,	// After a \ character in a character
 	s_cpp_comment,		// Inside C++ comment
 	s_block_comment,	// Inside C block comment
 	s_block_star,		// Found a * in a block comment
 	s_string,		// Inside a string
+	s_char,			// Inside a character
 };
 
 class Metrics {

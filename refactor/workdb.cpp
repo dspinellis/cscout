@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.25 2006/06/15 10:53:19 dds Exp $
+ * $Id: workdb.cpp,v 1.26 2006/06/15 11:07:30 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -210,8 +210,18 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 				else if (c == '"') {
 					cstate = s_string;
 					chunker.start("STRINGS", c);
+				} else if (c == '\'') {
+					cstate = s_char;
+					chunker.add(c);
 				} else
 					chunker.add(c);
+				break;
+			case s_char:
+				chunker.add(c);
+				if (c == '\'')
+					cstate = s_normal;
+				else if (c == '\\')
+					cstate = s_saw_chr_backslash;
 				break;
 			case s_string:
 				chunker.add(c);
@@ -219,9 +229,13 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 					cstate = s_normal;
 					chunker.start("REST");
 				} else if (c == '\\')
-					cstate = s_saw_backslash;
+					cstate = s_saw_str_backslash;
 				break;
-			case s_saw_backslash:
+			case s_saw_chr_backslash:
+				chunker.add(c);
+				cstate = s_char;
+				break;
+			case s_saw_str_backslash:
 				chunker.add(c);
 				cstate = s_string;
 				break;

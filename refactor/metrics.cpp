@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.17 2006/06/11 21:44:18 dds Exp $
+ * $Id: metrics.cpp,v 1.18 2006/06/15 11:07:30 dds Exp $
  */
 
 #include <iostream>
@@ -81,18 +81,29 @@ Metrics::process_char(char c)
 			count[em_nspace]++;
 		else if (c == '/')
 			cstate = s_saw_slash;
+		else if (c == '\'')
+			cstate = s_char;
 		else if (c == '"') {
 			cstate = s_string;
 			count[em_nstring]++;
 		}
 		break;
+	case s_char:
+		if (c == '\'')
+			cstate = s_normal;
+		else if (c == '\\')
+			cstate = s_saw_chr_backslash;
+		break;
 	case s_string:
 		if (c == '"')
 			cstate = s_normal;
 		else if (c == '\\')
-			cstate = s_saw_backslash;
+			cstate = s_saw_str_backslash;
 		break;
-	case s_saw_backslash:
+	case s_saw_chr_backslash:
+		cstate = s_char;
+		break;
+	case s_saw_str_backslash:
 		cstate = s_string;
 		break;
 	case s_saw_slash:		// After a / character
