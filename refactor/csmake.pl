@@ -3,7 +3,7 @@
 # Run make with gcc, cc, ld, ar replaced with spying versions
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.5 2006/06/02 14:57:14 dds Exp $
+# $Id: csmake.pl,v 1.6 2006/06/18 19:34:23 dds Exp $
 #
 
 $ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/gccspy.$$";
@@ -18,13 +18,16 @@ spy('cc', 'spy-gcc');
 spy('ld', 'spy-ld');
 spy('ar', 'spy-ar');
 
-system(("make", @ARGV));
-
+if ($ARGV[0] eq '-n') {
+	# Run on an existing rules file
+	open(IN, $ARGV[1]) || die;
+} else {
+	system(("make", @ARGV));
+	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die;
+}
 
 # Read a spy-generated rules file
 # Create a CScout .cs file
-
-open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die;
 open(OUT, ">make.cs") || die;
 while (<IN>) {
 	chop;
@@ -44,8 +47,8 @@ while (<IN>) {
 		if (/^END COMPILE/) {
 			die "No source" unless defined ($src);
 			die "No object" unless defined ($obj);
-			die "Multiple rules for $obj" if defined($rules{$obj});
-			$rules{$obj} = qq{
+			# Allow for multiple rules for the same object
+			$rules{$obj} .= qq{
 #pragma echo "Processing $src\\n"
 #pragma block_enter
 #pragma clear_defines
@@ -69,19 +72,28 @@ while (<IN>) {
 	} elsif ($state eq 'LINK') {
 		if (/^END LINK/) {
 			die "No object" unless defined ($exe);
-			print OUT qq{
+			if ($exe =~ m/\.o$/) {
+				undef $rule;
+				for $o (@obj) {
+					print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
+					print $rule .= $rules{$o};
+				}
+				$rules{$exe} = $rule;
+			} else {
+				print OUT qq{
 #pragma echo "Processing project $exe\\n"
 #pragma project "$exe"
 #pragma block_enter
 };
-			for $o (@obj) {
-				print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
-				print OUT $rules{$o};
-			}
-			print OUT qq{
+				for $o (@obj) {
+					print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
+					print OUT $rules{$o};
+				}
+				print OUT qq{
 #pragma block_exit
 #pragma echo "Done processing project $exe\\n\\n"
 };
+			}
 			undef $state;
 		} elsif (/^CMDLINE/) {
 			;
