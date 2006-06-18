@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.10 2006/06/06 09:41:52 dds Exp $
+# $Id: runtest.sh,v 1.11 2006/06/18 19:16:20 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -128,6 +128,52 @@ sed -e '1,/^Running selections/d' >test/nout/$NAME
 	end_test $DIR $NAME
 }
 
+# Test the correct dumping of a file's contents into the SQL tables
+# runtest name directory csfile
+runtest_chunk()
+{
+	NAME=$1
+	DIR=$2
+	CSFILE=$3
+	start_test $DIR "Chunk $NAME"
+(
+echo '\p Loading database'
+(cd $DIR ; $CSCOUT -s hsqldb $CSFILE)
+echo '
+\p Starting dump
+select s from
+(select name as s, foffset  from ids inner join tokens on
+ids.eid = tokens.eid where fid = 4
+union select code as s, foffset from rest where fid = 4
+union select comment as s, foffset from comments where fid = 4
+union select string as s, foffset from strings where fid = 4
+)
+order by foffset;
+'
+) |
+$HSQLDB mem - |
+sed -e '1,/^Starting dump/d;/^[0-9][0-9]* rows/d' |
+tr -d "\n\r" |
+sed 's/\\u0000d\\u0000a/\
+/g' >test/chunk/$NAME
+if diff -b test/c/$NAME test/chunk/$NAME
+then
+	echo "
+Test chunk $NAME finishes correctly
+------------------------------------------
+"
+else
+	echo "
+Test chunk $NAME failed
+------------------------------------------
+"
+	if [ "$CONTINUE" != "1" ]
+	then
+		exit 1
+	fi
+fi
+}
+
 # Create a CScout analysis project file for the given source code file
 makecs_c()
 {
@@ -216,6 +262,14 @@ then
 	exit 1
 fi
 rm -f /tmp/empty
+
+# Test reconstitution of individual C files (no priming required)
+FILES=`cd test/c; echo *.c`
+for i in $FILES
+do
+	makecs_c $i
+	runtest_chunk $i . makecs.cs
+done
 
 # Test cases for C preprocessor files
 FILES=`cd test/cpp; echo *.c`
