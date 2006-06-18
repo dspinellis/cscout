@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.14 2006/06/11 21:44:18 dds Exp $
+ * $Id: pltoken.cpp,v 1.15 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -19,6 +19,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -27,7 +28,6 @@
 #include "token.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "error.h"
 #include "pltoken.h"
 
 enum e_cpp_context Pltoken::context = cpp_normal;

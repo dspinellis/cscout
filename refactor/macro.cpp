@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.33 2006/06/11 21:44:18 dds Exp $
+ * $Id: macro.cpp,v 1.34 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -23,6 +23,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -31,7 +32,6 @@
 #include "ytab.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "error.h"
 #include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"
@@ -89,7 +89,7 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 {
 	Ptoken t;
 	t = arg_token(tokens, pos, get_more, false);
-	assert (t.get_code() == '(');
+	csassert (t.get_code() == '(');
 	dequePtoken::const_iterator i;
 	for (i = formal_args.begin(); i != formal_args.end(); i++) {
 		listPtoken& v = args[(*i).get_val()];

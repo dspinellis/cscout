@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.18 2006/06/15 11:07:30 dds Exp $
+ * $Id: filemetrics.cpp,v 1.19 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -22,6 +22,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -29,7 +30,6 @@
 #include "tokmap.h"
 #include "eclass.h"
 #include "fchar.h"
-#include "error.h"
 
 // Keep this in sync with the enumeration
 string Metrics::metric_names[] = {

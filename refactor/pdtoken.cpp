@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.100 2006/06/11 21:44:18 dds Exp $
+ * $Id: pdtoken.cpp,v 1.101 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -30,6 +30,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -38,7 +39,6 @@
 #include "ytab.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "error.h"
 #include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"

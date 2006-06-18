@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.111 2006/06/11 21:44:18 dds Exp $
+ * $Id: parse.y,v 1.112 2006/06/18 19:34:46 dds Exp $
  *
  */
 
@@ -38,6 +38,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -45,7 +46,6 @@
 #include "fchar.h"		// get_fileid()
 #include "eclass.h"
 #include "token.h"
-#include "error.h"
 #include "ptoken.h"
 #include "macro.h"
 #include "pdtoken.h"

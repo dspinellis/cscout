@@ -21,7 +21,7 @@
  * user    0m4.409s
  * sys     0m0.041s
  *
- * $Id: fifstream.h,v 1.1 2005/06/14 10:16:49 dds Exp $
+ * $Id: fifstream.h,v 1.2 2006/06/18 19:34:46 dds Exp $
  */
 
 
@@ -43,7 +43,7 @@ public:
 	}
 	void open(const char *s, ios_base::openmode mode = ios_base::out) {
 		// If the file is not binary, this optimization will not work
-		assert(mode & ios::binary);
+		csassert(mode & ios::binary);
 		i.open(s, mode);
 		dirty = true;
 	}

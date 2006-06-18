@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.26 2006/06/11 21:44:18 dds Exp $
+ * $Id: tokid.cpp,v 1.27 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -18,6 +18,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -26,7 +27,6 @@
 #include "ytab.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "error.h"
 #include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"

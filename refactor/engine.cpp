@@ -3,7 +3,7 @@
  *
  * Processing engine driver program
  *
- * $Id: engine.cpp,v 1.5 2006/06/11 21:44:18 dds Exp $
+ * $Id: engine.cpp,v 1.6 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -18,6 +18,7 @@
 #include <set>
 
 #include "cpp.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -26,7 +27,6 @@
 #include "ytab.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "error.h"
 #include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"

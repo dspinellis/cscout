@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.19 2005/05/14 13:42:21 dds Exp $
+ * $Id: tokid.h,v 1.20 2006/06/18 19:34:46 dds Exp $
  */
 
 #ifndef TOKID_
@@ -173,7 +173,7 @@ inline void
 Tokid::erase_ec(Eclass *e) const
 {
 	mapTokidEclass::iterator i = tm.find(*this);
-	assert(i != tm.end());
+	csassert(i != tm.end());
 	tm.erase(i);
 }
 

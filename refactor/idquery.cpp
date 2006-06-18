@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.10 2006/06/11 21:44:18 dds Exp $
+ * $Id: idquery.cpp,v 1.11 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <map>
@@ -30,6 +30,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "ytab.h"
 #include "attr.h"
 #include "metrics.h"
@@ -38,7 +39,6 @@
 #include "token.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "error.h"
 #include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"

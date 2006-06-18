@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.20 2006/06/13 15:36:26 dds Exp $
+ * $Id: stab.h,v 1.21 2006/06/18 19:34:46 dds Exp $
  */
 
 #ifndef STAB_
@@ -191,7 +191,7 @@ local_label_lookup(const string& name)
 inline Id const *
 tag_lookup(int block_level, const string& name)
 {
-	assert(Block::current_block >= block_level);
+	csassert(Block::current_block >= block_level);
 	return Block::scope_block[block_level].tag.lookup(name);
 }
 #endif // STAB_

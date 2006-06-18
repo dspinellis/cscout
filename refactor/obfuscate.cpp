@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.9 2006/06/15 11:07:30 dds Exp $
+ * $Id: obfuscate.cpp,v 1.10 2006/06/18 19:34:46 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -23,6 +23,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "ytab.h"
 #include "attr.h"
 #include "metrics.h"
@@ -31,7 +32,6 @@
 #include "token.h"
 #include "ptoken.h"
 #include "fchar.h"
-#include "error.h"
 #include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"

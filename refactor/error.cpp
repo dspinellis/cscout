@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.16 2006/06/11 21:49:44 dds Exp $
+ * $Id: error.cpp,v 1.17 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -18,13 +18,13 @@
 #include <set>
 
 #include "cpp.h"
+#include "error.h"
 #include "debug.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
-#include "error.h"
 
 int Error::num_errors;
 int Error::num_warnings;

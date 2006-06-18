@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.23 2006/06/11 21:44:18 dds Exp $
+ * $Id: token.cpp,v 1.24 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -16,6 +16,7 @@
 #include <list>
 
 #include "cpp.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
@@ -24,7 +25,6 @@
 #include "token.h"
 #include "ytab.h"
 #include "debug.h"
-#include "error.h"
 #include "fdep.h"
 
 // Display a token part
@@ -146,7 +146,7 @@ Token::unify(const Token &a /* definition */, const Token &b /* reference */)
 		merge((*ai).get_tokid().get_ec(), (*bi).get_tokid().get_ec());
 		Fdep::add_def_ref((*ai).get_tokid(), (*bi).get_tokid(), (*ai).get_tokid().get_ec()->get_len());
 	}
-	ASSERT(bi == bc.end());
+	csassert(bi == bc.end());
 }
 
 ostream&

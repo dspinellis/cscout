@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.46 2006/06/13 15:36:26 dds Exp $
+ * $Id: type.cpp,v 1.47 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>
@@ -20,13 +20,13 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"
-#include "error.h"
 #include "ptoken.h"
 #include "macro.h"
 #include "pdtoken.h"

@@ -3,7 +3,7 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.14 2006/06/11 21:44:18 dds Exp $
+ * $Id: eval.y,v 1.15 2006/06/18 19:34:46 dds Exp $
  *
  */
 
@@ -24,12 +24,12 @@
 #include <set>
 
 #include "cpp.h"
+#include "error.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
-#include "error.h"
 
 #define YYSTYPE long
 
