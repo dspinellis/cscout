@@ -1,7 +1,19 @@
-$Id: todo,v 1.71 2006/05/31 10:13:55 dds Exp $
+$Id: todo,v 1.72 2006/06/18 19:33:41 dds Exp $
 
-- Separate strings and comments from the SQL output
-(See processor in obfuscate.c)
+- Handle the fact that y.tab.h is not in sync with the %token identifiers
+  used in the .y file:
+  #pragma process file.y tabfile.h
+  tabfile.h is #included, and its id is marked.
+  When processing yacc tokens these get macro-expanded with the
+  macros of that file ONLY
+
+- Include spy-* into spy-make; add spy-yacc.
+
+- Best effort identifier substitution for DSL files
+
+- Separate strings, comments, and whitespace from the SQL output
+  (See processor in obfuscate.c)
+
 - Create an SQL table with FID, FOFFSET, LNUM
 
 Upgrade communication to HTTP/1.1?
@@ -14,6 +26,7 @@ Track global variables in the same way as functions are currently tracked.
 Collect maintainability index and oo metrics (see SSAO04.)
 Pointer analysis
 Locate similar / same lines (irrelevant, but useful for refactoring)
+MRR04
 Precise Call Graphs for C Programs with Function Pointers
 Milanova A., Rountev A., Ryder B.   Automated Software Engineering 11(1): 7-26, 2004.
 
