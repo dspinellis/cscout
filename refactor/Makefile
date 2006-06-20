@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.90 2006/06/13 20:58:54 dds Exp $
+# $Id: Makefile,v 1.91 2006/06/20 21:02:13 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.90 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/06/13 20:58:54 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.91 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/06/20 21:02:13 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -266,11 +266,9 @@ rdist-tar:
 	tar cvf - $(SRC) | gzip -c >cscout.tar.gz
 
 rdist-spy:
-	for i in ar gcc ld make ;\
-	do ;\
-		plink $(HOST) "perl -p -e 's/\r//' >bin/spy-$$i" <spy-$$i.pl ;\
-		plink $(HOST) chmod +x bin/spy-$$i ;\
-	done
+	plink $(HOST) "perl -p -e 's/\r//' >bin/spy-make" <spy-make.pl
+	plink $(HOST) chmod +x bin/spy-make
+
 lf:
 	chmod +w $(SRC)
 	perl -pi -e 's/\r//' $(SRC)
