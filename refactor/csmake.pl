@@ -4,7 +4,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.7 2006/06/19 21:47:34 dds Exp $
+# $Id: csmake.pl,v 1.8 2006/06/20 21:01:37 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -66,6 +66,7 @@ while (<IN>) {
 		$state = 'COMPILE';
 		undef @rules;
 		undef $src;
+		undef $process;
 		undef $obj;
 		next;
 	} elsif (/^BEGIN LINK/) {
@@ -89,7 +90,7 @@ while (<IN>) {
 #pragma pushd "$cd"
 #include "$instdir/cscout_defs.h"
 } . join("\n", @rules) . qq{
-#pragma process "$src"
+$process
 #pragma popd
 #pragma echo "Done processing $src\\n"
 #pragma block_exit
@@ -97,6 +98,9 @@ while (<IN>) {
 			undef $state;
 		} elsif (/^INSRC (.*)/) {
 			$src = $1;
+			$process .= qq{#pragma process "$src"\n};
+		} elsif (/^INMACRO (.*)/) {
+			$process .= qq{#include "$1"\n};
 		} elsif (/^OUTOBJ (.*)/) {
 			$obj = $1;
 		} elsif (/^CMDLINE/) {
@@ -154,7 +158,13 @@ sub spy
 	chop $realProgPath;
 	open(IN, $script_name) || die;
 	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die;
-	print OUT "#!/usr/bin/perl\n";
+	print OUT '#!/usr/bin/perl
+#
+# Automatically-generated file
+#
+# Source file is $Id: csmake.pl,v 1.8 2006/06/20 21:01:37 dds Exp $
+#
+';
 	while (<IN>) {
 		print OUT if (/^\#\@BEGIN $spyProgName/../^\#\@END/);
 	}
@@ -181,10 +191,6 @@ sub ancestor
 #@BEGIN spy-ar
 #
 # Spy on ar invocations and construct corresponding CScout directives
-#
-# $Id: csmake.pl,v 1.7 2006/06/19 21:47:34 dds Exp $
-#
-# (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
 #
 
 use Cwd 'abs_path';
@@ -232,10 +238,6 @@ exit system(($ENV{CSCOUT_SPY_REAL_AR}, @ARGV)) / 256;
 #
 # Spy on gcc invocations and construct corresponding CScout directives
 #
-# $Id: csmake.pl,v 1.7 2006/06/19 21:47:34 dds Exp $
-#
-# (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
-#
 # Parsing the switches appears to be a tar pit (see incomplete version 1.1).
 # Documentation is incomplete and inconsistent with the source code.
 # Different gcc versions and installations add and remove options.
@@ -268,6 +270,12 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 		next;
 	} elsif ($arg eq '-l' || $arg eq '--library') {
 		push(@libs, $ARGV[++$i]);
+		next;
+	} elsif ($arg eq '-include' || $arg eq '--include') {
+		push(@incfiles, 'INSRC ' . abs_if_exists($ARGV[++$i]));
+		next;
+	} elsif ($arg eq '-imacros' || $arg eq '--imacros') {
+		push(@incfiles, 'INMACRO ' . abs_if_exists($ARGV[++$i]));
 		next;
 	} elsif ($arg =~ m/\.(o|obj)$/i) {
 		push(@ofiles, $arg);
@@ -335,6 +343,9 @@ $origline =~ s/\n/ /g;
 for $cfile (@cfiles) {
 	print RULES "BEGIN COMPILE\n";
 	print RULES "CMDLINE $origline\n";
+	for $if (@incfiles) {
+		print RULES "$if\n";
+	}
 	print RULES "INSRC " . abs_path($cfile) . "\n";
 	if ($compile && $output) {
 		$coutput = $output;
@@ -383,15 +394,19 @@ if (!$compile && $#cfiles >= 0 || $#ofiles >= 0) {
 print STDERR "Finally run ($ENV{CSCOUT_SPY_REAL_GCC} @ARGV))\n" if ($debug);
 exit system(($ENV{CSCOUT_SPY_REAL_GCC}, @ARGV)) / 256;
 
+# Return the absolute file name of a file, if the file exists in the
+# current directory
+sub abs_if_exists
+{
+	my($fname) = @_;
+	return (-r $fname) ? abs_path($fname) : $fname;
+}
+
 #@END
 
 #@BEGIN spy-ld
 #
 # Spy on ld invocations and construct corresponding CScout directives
-#
-# $Id: csmake.pl,v 1.7 2006/06/19 21:47:34 dds Exp $
-#
-# (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
 #
 
 use Cwd 'abs_path';
@@ -467,10 +482,6 @@ exit system(($ENV{CSCOUT_SPY_REAL_LD}, @ARGV)) / 256;
 #@BEGIN spy-mv
 #
 # Spy on ar invocations and construct corresponding CScout directives
-#
-# $Id: csmake.pl,v 1.7 2006/06/19 21:47:34 dds Exp $
-#
-# (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
 #
 
 use Cwd 'abs_path';
