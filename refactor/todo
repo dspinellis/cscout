@@ -1,4 +1,6 @@
-$Id: todo,v 1.72 2006/06/18 19:33:41 dds Exp $
+$Id: todo,v 1.73 2006/06/22 17:34:32 dds Exp $
+
+- spy-make should support yacc
 
 - Handle the fact that y.tab.h is not in sync with the %token identifiers
   used in the .y file:
