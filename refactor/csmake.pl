@@ -4,7 +4,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.8 2006/06/20 21:01:37 dds Exp $
+# $Id: csmake.pl,v 1.9 2006/06/22 08:08:41 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -154,23 +154,21 @@ exit 0;
 sub spy
 {
 	my($realProgName, $spyProgName) = @_;
-	$realProgPath = `which $realProgName`;
-	chop $realProgPath;
 	open(IN, $script_name) || die;
 	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die;
 	print OUT '#!/usr/bin/perl
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.8 2006/06/20 21:01:37 dds Exp $
+# Source file is $Id: csmake.pl,v 1.9 2006/06/22 08:08:41 dds Exp $
 #
 ';
 	while (<IN>) {
 		print OUT if (/^\#\@BEGIN $spyProgName/../^\#\@END/);
+		print OUT if (/^\#\@BEGIN COMMON/../^\#\@END/);
 	}
 	close IN;
 	close OUT;
-	$ENV{'CSCOUT_SPY_REAL_' . uc($realProgName)} = $realProgPath;
 	chmod(0755, "$ENV{CSCOUT_SPY_TMPDIR}/$realProgName");
 }
 
@@ -195,6 +193,8 @@ sub ancestor
 
 use Cwd 'abs_path';
 
+$real = which($0);
+
 $origline = "ar " . join(' ', @ARGV);
 $origline =~ s/\n/ /g;
 
@@ -202,8 +202,8 @@ $origline =~ s/\n/ /g;
 $op = shift @ARGV2;
 
 if ($op !~ m/[rmq]/) {
-	print STDERR "Just run ($ENV{CSCOUT_SPY_REAL_AR} @ARGV))\n" if ($debug);
-	$exit = system(($ENV{CSCOUT_SPY_REAL_AR}, @ARGV)) / 256;
+	print STDERR "Just run ($real @ARGV))\n" if ($debug);
+	$exit = system(($real, @ARGV)) / 256;
 	print STDERR "Just run done ($exit)\n" if ($debug);
 	exit $exit;
 }
@@ -229,8 +229,8 @@ if ($#afiles >= 0) {
 }
 
 # Finally, execute the real ar
-print STDERR "Finally run ($ENV{CSCOUT_SPY_REAL_AR} @ARGV))\n" if ($debug);
-exit system(($ENV{CSCOUT_SPY_REAL_AR}, @ARGV)) / 256;
+print STDERR "Finally run ($real @ARGV))\n" if ($debug);
+exit system(($real, @ARGV)) / 256;
 
 #@END
 
@@ -245,6 +245,8 @@ exit system(($ENV{CSCOUT_SPY_REAL_AR}, @ARGV)) / 256;
 #
 
 use Cwd 'abs_path';
+
+$real = which($0);
 
 $debug = 0;
 
@@ -299,15 +301,15 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 
 # We don't handle assembly files or preprocessing
 if ($bailout) {
-	print STDERR "Just run ($ENV{CSCOUT_SPY_REAL_GCC} @ARGV))\n" if ($debug);
-	$exit = system(($ENV{CSCOUT_SPY_REAL_GCC}, @ARGV)) / 256;
+	print STDERR "Just run ($real @ARGV))\n" if ($debug);
+	$exit = system(($real, @ARGV)) / 256;
 	print STDERR "Just run done ($exit)\n" if ($debug);
 	exit $exit;
 }
 
 if ($#cfiles >= 0) {
 	push(@ARGV2, $ENV{CSCOUT_SPY_TMPDIR} . '/empty.c');
-	$cmdline = $ENV{CSCOUT_SPY_REAL_GCC} . ' ' . join(' ', @ARGV2);
+	$cmdline = $real . ' ' . join(' ', @ARGV2);
 	print STDERR "Running $cmdline\n" if ($debug);
 
 	# Gather include path
@@ -391,8 +393,8 @@ if (!$compile && $#cfiles >= 0 || $#ofiles >= 0) {
 }
 
 # Finally, execute the real gcc
-print STDERR "Finally run ($ENV{CSCOUT_SPY_REAL_GCC} @ARGV))\n" if ($debug);
-exit system(($ENV{CSCOUT_SPY_REAL_GCC}, @ARGV)) / 256;
+print STDERR "Finally run ($real @ARGV))\n" if ($debug);
+exit system(($real, @ARGV)) / 256;
 
 # Return the absolute file name of a file, if the file exists in the
 # current directory
@@ -410,6 +412,8 @@ sub abs_if_exists
 #
 
 use Cwd 'abs_path';
+
+$real = which($0);
 
 # Gather input / output files and remove them from the command line
 for ($i = 0; $i <= $#ARGV; $i++) {
@@ -474,8 +478,8 @@ if ($#ofiles >= 0 || $#afiles >= 0) {
 }
 
 # Finally, execute the real ld
-print STDERR "Finally run ($ENV{CSCOUT_SPY_REAL_LD} @ARGV))\n" if ($debug);
-exit system(($ENV{CSCOUT_SPY_REAL_LD}, @ARGV)) / 256;
+print STDERR "Finally run ($real @ARGV))\n" if ($debug);
+exit system(($real, @ARGV)) / 256;
 
 #@END
 
@@ -485,6 +489,8 @@ exit system(($ENV{CSCOUT_SPY_REAL_LD}, @ARGV)) / 256;
 #
 
 use Cwd 'abs_path';
+
+$real = which($0);
 
 $origline = "mv " . join(' ', @ARGV);
 $origline =~ s/\n/ /g;
@@ -509,6 +515,26 @@ if ($#ARGV2 == 1) {
 }
 
 # Finally, execute the real mv
-print STDERR "Finally run ($ENV{CSCOUT_SPY_REAL_MV} @ARGV))\n" if ($debug);
-exit system(($ENV{CSCOUT_SPY_REAL_MV}, @ARGV)) / 256;
+print STDERR "Finally run ($real @ARGV))\n" if ($debug);
+exit system(($real, @ARGV)) / 256;
+#@END
+
+#@BEGIN COMMON
+#
+# Code common to all spy programs
+#
+
+# Return the absolute path for prog, excluding our own path
+sub which
+{
+	my ($prog) = @_;
+	$prog =~ s,^.*/,,;
+	my @dirs = split(/:/, $ENV{PATH});
+	for my $d (@dirs) {
+		next if ($d eq $ENV{CSCOUT_SPY_TMPDIR});
+		return "$d/$prog" if (-x "$d/$prog");
+	}
+	die "Unable to locate $prog in PATH $ENV{PATH}\n";
+}
+
 #@END
