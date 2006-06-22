@@ -16,7 +16,7 @@
  * #include "fchar.h"
  * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.13 2005/06/14 10:14:50 dds Exp $
+ * $Id: fchar.h,v 1.14 2006/06/22 17:34:38 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -82,6 +82,8 @@ public:
 	// Return the current line number
 	static int get_line_num() { return line_number; }
 	static string  get_path() { return fi.get_path(); }
+	static string  get_fname() { return fi.get_fname(); }
+	static string  get_dir() { return fi.get_dir(); }
 	// Return the fileid of the file we are processing
 	static Fileid get_fileid() { return fi; }
 	// Return true if the class's source is a file

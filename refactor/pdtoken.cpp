@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.101 2006/06/18 19:34:46 dds Exp $
+ * $Id: pdtoken.cpp,v 1.102 2006/06/22 17:34:38 dds Exp $
  */
 
 #include <iostream>
@@ -572,22 +572,35 @@ Pdtoken::process_include(bool next)
 		return;
 	}
 
-	// #include "foo.h"
-	if (f.get_code() == ABSFNAME)
-		if (can_open(f.get_val())) {
-			Fchar::push_input(f.get_val());
-			return;
-		}
-	// #include <foo.h>, and failed #include "foo.h"
+	// #include <foo.h> and #include "foo.h"
 	if (is_absolute_filename(f.get_val())) {
 		if (can_open(f.get_val())) {
 			Fchar::push_input(f.get_val());
 			return;
 		}
 	} else {
+		/*
+		 * #include "foo.h"
+		 * Where to search is implementation specific.
+		 * - Harbison and Steele recommend in the current dir (p. 45)
+		 * - gcc 3.4.2 searches:
+		 * 1) in the including file's dir
+		 * 2) in the specified include path
+		 * - Microsoft C 11.0.7922 searches:
+		 * 1) in the including file's dir
+		 * 2) in the current directory
+		 * 3) in the specified include path
+		 */
+		if (f.get_code() == ABSFNAME) {
+			string fname(Fchar::get_dir() + "/" + f.get_val());
+			if (can_open(fname)) {
+				Fchar::push_input(fname);
+				return;
+			}
+		}
 		vectorstring::iterator i;
 		for (i = next ? next_i : include_path.begin(); i != include_path.end(); i++) {
-			string fname = *i + "/" + f.get_val();
+			string fname(*i + "/" + f.get_val());
 			if (DP()) cout << "Try open " << fname << "\n";
 			if (can_open(fname)) {
 				Fchar::push_input(fname);

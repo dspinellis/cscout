@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.38 2006/06/18 19:34:46 dds Exp $
+ * $Id: fileid.cpp,v 1.39 2006/06/22 17:34:38 dds Exp $
  */
 
 #include <fstream>
@@ -217,6 +217,16 @@ Fileid::get_fname() const
 		return string(path, slash + 1);
 }
 
+const string
+Fileid::get_dir() const
+{
+	const string &path = i2d[id].get_name();
+	string::size_type slash = path.find_last_of("/\\");
+	if (slash == string::npos)
+		return string(path);
+	else
+		return string(path, 0, slash);
+}
 
 bool
 Fileid::get_readonly() const
