@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.11 2006/06/18 19:16:20 dds Exp $
+# $Id: runtest.sh,v 1.12 2006/06/22 21:02:29 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -214,6 +214,7 @@ makecs_cpp()
 	echo "
 workspace TestWS {
 	ipath \"$IPATH\"
+	ipath \"`pwd`/test/cpp\"
 	directory test/cpp {
 	project Prj1 {
 		file $*
