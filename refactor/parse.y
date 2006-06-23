@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.113 2006/06/22 21:02:04 dds Exp $
+ * $Id: parse.y,v 1.114 2006/06/23 07:20:16 dds Exp $
  *
  */
 
@@ -1551,7 +1551,7 @@ asm_operand_list:
 	| asm_operand_list ',' asm_operand
 	;
 
-asm_operand: string_literal_list '(' comma_expression ')'
+asm_operand: operand_name_opt string_literal_list '(' comma_expression ')'
 	;
 
 asm_clobber_list_opt:
@@ -1562,6 +1562,16 @@ asm_clobber_list_opt:
 asm_clobber_list:
 	STRING_LITERAL
 	| asm_clobber_list ',' STRING_LITERAL
+	;
+
+/*
+ * In GCC version 3.1, it is also possible to specify operands
+ * using symbolic names which can be referenced within the assembler code.
+ * These bear no relationship to the C identifiers.
+ */
+operand_name_opt:
+	/* Empty */
+	| '[' identifier_or_typedef_name ']'
 	;
 
 type_qualifier_list_opt:
