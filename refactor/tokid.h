@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.20 2006/06/18 19:34:46 dds Exp $
+ * $Id: tokid.h,v 1.21 2006/06/23 17:25:50 dds Exp $
  */
 
 #ifndef TOKID_
@@ -160,7 +160,16 @@ Tokid::check_ec() const
 inline void
 Tokid::set_ec(Eclass *ec) const
 {
-	tm[*this] = ec;
+	/*
+	 * tm[*this] = ec;
+	 * Efficiently implement the functionality we need.
+	 * See Meyers Effective STL, Item 24.
+	 */
+	mapTokidEclass::iterator i = tm.lower_bound(*this);
+	if (i != tm.end() && i->first == *this)
+		i->second = ec;
+	else
+		tm.insert(i, mapTokidEclass::value_type(*this, ec));
 }
 
 inline void

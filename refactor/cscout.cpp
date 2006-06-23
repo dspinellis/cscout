@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.142 2006/06/18 19:34:46 dds Exp $
+ * $Id: cscout.cpp,v 1.143 2006/06/23 17:25:50 dds Exp $
  */
 
 #include <map>
@@ -339,7 +339,14 @@ file_analyze(Fileid fi)
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
 				fi.metrics().process_id(s);
-				ids[ec] = Identifier(ec, s);
+				/*
+				 * ids[ec] = Identifier(ec, s);
+				 * Efficiently add s to ids, if needed.
+				 * See Meyers, effective STL, Item 24.
+				 */
+				IdProp::iterator idi = ids.lower_bound(ec);
+				if (idi == ids.end() || idi->first != ec)
+					ids.insert(idi, IdProp::value_type(ec, Identifier(ec, s)));
 				if (ec->is_unused())
 					has_unused = true;
 				continue;
