@@ -5,7 +5,7 @@
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.10 2006/02/10 12:13:50 dds Exp $
+ * $Id: ytoken.h,v 1.11 2006/06/23 07:58:45 dds Exp $
  */
 
 
@@ -58,6 +58,8 @@
 %token GNUC_ASM
 /* __typeof operator */
 %token TYPEOF
+/* __alignof operator */
+%token ALIGNOF
 /* __label__ declaration */
 %token LABEL
 

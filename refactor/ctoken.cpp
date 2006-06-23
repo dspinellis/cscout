@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.30 2006/06/18 19:34:46 dds Exp $
+ * $Id: ctoken.cpp,v 1.31 2006/06/23 07:58:45 dds Exp $
  */
 
 #include <map>
@@ -151,6 +151,8 @@ make_keymap()
 	m["__signed__"] = SIGNED;
 	m["__typeof"] = TYPEOF;
 	m["__typeof__"] = TYPEOF;
+	m["__alignof"] = ALIGNOF;
+	m["__alignof__"] = ALIGNOF;
 	m["__volatile"] = VOLATILE;
 	m["__volatile__"] = VOLATILE;
 	return m;
