@@ -5,7 +5,7 @@
  *
  * Include synopsis:
  *
- * $Id: tokmap.h,v 1.2 2004/07/23 06:55:38 dds Exp $
+ * $Id: tokmap.h,v 1.3 2006/06/23 17:05:08 dds Exp $
  */
 
 #ifndef TOKMAP_
@@ -22,7 +22,6 @@ public:
 	// Return the equivalence class of t
 	friend inline Eclass *get_ec(Tokid t);
 	// Set the equivalence class of t to ec (normally done when adding it to an Eclass)
-	friend inline void set_ec(Tokid t, Eclass *ec);
 	friend ostream& operator<<(ostream& o,const Tokmap& t);
 };
 
@@ -32,12 +31,6 @@ inline Eclass *
 get_ec(Tokid t)
 {
 	return Tokmap::tm[t];
-}
-
-inline void
-set_ec(Tokid t, Eclass *ec)
-{
-	Tokmap::tm[t] = ec;
 }
 
 #endif /* TOKMAP_ */
