@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.114 2006/06/23 07:20:16 dds Exp $
+ * $Id: parse.y,v 1.115 2006/06/23 07:26:45 dds Exp $
  *
  */
 
@@ -705,6 +705,12 @@ constant_expression:
         conditional_expression
         ; /* Default rules */
 
+range_expression:
+	constant_expression
+	/* gcc extension */
+        | constant_expression ELLIPSIS constant_expression
+	;
+
     /* The following was used for clarity */
 comma_expression_opt:
         /* Nothing */
@@ -1364,12 +1370,12 @@ initializer_member:
 			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $1.get_name());
 		}
-	| '[' constant_expression ']' initializer
+	| '[' range_expression ']' initializer
 	;
 
 /* C99 feature */
 designator:
-        '[' constant_expression ']'
+        '[' range_expression ']'
 		{
 			if (initializer_stack.empty())
 				$$ = basic(b_undeclared);
@@ -1390,7 +1396,7 @@ designator:
 				$$ = basic(b_undeclared);
 			}
 		}
-        | designator '[' constant_expression ']'
+        | designator '[' range_expression ']'
 		{ $$ = $1.subscript(); }
         | designator '.' member_name
 		{
@@ -1441,9 +1447,7 @@ any_statement:
 labeled_statement:
         identifier_or_typedef_name ':'
 		{ label_define($1.get_token()); }
-        | CASE constant_expression ':'
-	/* gcc extension */
-        | CASE constant_expression ELLIPSIS constant_expression ':'
+        | CASE range_expression ':'
         | DEFAULT ':'
         ;
 
