@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.115 2006/06/23 07:26:45 dds Exp $
+ * $Id: parse.y,v 1.116 2006/06/23 07:52:38 dds Exp $
  *
  */
 
@@ -439,7 +439,13 @@ primary_expression:
 postfix_expression:
         primary_expression
         | postfix_expression '[' comma_expression ']'
-			{ $$ = $1.subscript(); }
+			{
+				if ($1.is_array() || $1.is_ptr())
+					$$ = $1.subscript();
+				else
+					/* Try the infamous 4[a] alternative */
+					$$ = $3.subscript();
+			}
         | postfix_expression '(' ')'
 			{ $$ = $1.call(); }
         | postfix_expression '(' argument_expression_list ')'
@@ -558,7 +564,7 @@ additive_expression:
         | additive_expression '+' multiplicative_expression
 			{
 				/* Propagate pointer property */
-				if ($3.is_ptr())
+				if ($3.is_ptr() || $3.is_array())
 					$$ = $3;
 				else
 					$$ = $1;
