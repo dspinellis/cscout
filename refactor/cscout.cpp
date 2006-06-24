@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.144 2006/06/24 15:35:19 dds Exp $
+ * $Id: cscout.cpp,v 1.145 2006/06/24 15:45:57 dds Exp $
  */
 
 #include <map>
@@ -302,7 +302,7 @@ file_analyze(Fileid fi)
 	const string &fname = fi.get_path();
 	int line_number = 0;
 
-	cout << "Post-processing " << fname << "\n";
+	cout << "Post-processing " << fname << endl;
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
 		perror(fname.c_str());
@@ -374,7 +374,7 @@ file_analyze(Fileid fi)
 		}
 	}
 	if (DP())
-		cout << "nchar = " << fi.metrics().get_nchar() << '\n';
+		cout << "nchar = " << fi.metrics().get_nchar() << endl;
 	in.close();
 	return has_unused;
 }
@@ -413,7 +413,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 	}
 
 	if (DP())
-		cout << "Write to " << fname << "\n";
+		cout << "Write to " << fname << endl;
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
 		html_perror(of, "Unable to open " + fname + " for reading");
@@ -510,7 +510,7 @@ file_replace(FILE *of, Fileid fid)
 		html_perror(of, "Unable to open " + ofname + " for writing");
 		return 0;
 	}
-	cout << "Processing file " << fid.get_path() << "\n";
+	cout << "Processing file " << fid.get_path() << endl;
 	int replacements = 0;
 	// Go through the file character by character
 	for (;;) {
@@ -584,7 +584,7 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 {
 	swill_title(title.c_str());
 	if (DP())
-		cerr << "Write to " << fname << "\n";
+		cerr << "Write to " << fname << endl;
 	fprintf(of,
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
@@ -1089,7 +1089,7 @@ xiquery_page(FILE *of,  void *p)
 	}
 
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
-	cout << "Evaluating identifier query\n";
+	cout << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (!query.eval(*i))
@@ -1101,7 +1101,7 @@ xiquery_page(FILE *of,  void *p)
 			sorted_files.insert(f.begin(), f.end());
 		}
 	}
-	cout << '\n';
+	cout << endl;
 	if (q_id) {
 		fputs("<h2>Matching Identifiers</h2>\n", of);
 		display_sorted(of, sorted_ids);
@@ -1129,7 +1129,7 @@ xfunquery_page(FILE *of,  void *p)
 		return;
 
 	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
-	cout << "Evaluating function query\n";
+	cout << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 		progress(i, Call::functions());
 		if (!query.eval(i->second))
@@ -1139,7 +1139,7 @@ xfunquery_page(FILE *of,  void *p)
 		if (q_file)
 			sorted_files.insert(i->second->get_fileid());
 	}
-	cout << '\n';
+	cout << endl;
 	if (q_id) {
 		fputs("<h2>Matching Functions</h2>\n", of);
 		display_sorted(of, sorted_funs);
@@ -1185,8 +1185,8 @@ identifier_page(FILE *fo, void *p)
 	fprintf(fo, "<li> Matches %d occurence(s)\n", e->get_size());
 	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
 	if (DP()) {
-		cout << "First project " << attr_end << "\n";
-		cout << "Last project " <<  Attributes::get_num_attributes() - 1 << "\n";
+		cout << "First project " << attr_end << endl;
+		cout << "Last project " <<  Attributes::get_num_attributes() - 1 << endl;
 	}
 	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
@@ -1402,7 +1402,7 @@ call_path(GraphDisplay *gd, Call *from, Call *to, bool generate_nodes)
 
 	from->set_visited();
 	if (DP())
-		cout << "From path: from: " << from->get_name() << " to " << to->get_name() << '\n';
+		cout << "From path: from: " << from->get_name() << " to " << to->get_name() << endl;
 	for (Call::const_fiterator_type i = from->call_begin(); i != from->call_end(); i++)
 		if (!(*i)->is_visited() && (*i == to || call_path(gd, *i, to, generate_nodes))) {
 			if (generate_nodes) {
@@ -1419,7 +1419,7 @@ call_path(GraphDisplay *gd, Call *from, Call *to, bool generate_nodes)
 			ret = true;
 		}
 	if (DP())
-		cout << "Returns " << ret << '\n';
+		cout << "Returns " << ret << endl;
 	return (ret);
 }
 
@@ -1576,16 +1576,16 @@ save_options_page(FILE *fo, void *p)
 		html_perror(fo, "Unable to open .cscout/options for writing");
 		return;
 	}
-	out << "fname_in_context: " << fname_in_context << "\n";
-	out << "sort_rev: " << Query::sort_rev << "\n";
-	out << "show_true: " << show_true << "\n";
-	out << "show_line_number: " << show_line_number << "\n";
-	out << "file_icase: " << file_icase << "\n";
-	out << "cgraph_type: " << cgraph_type << "\n";
-	out << "cgraph_show: " << cgraph_show << "\n";
-	out << "tab_width: " << tab_width << "\n";
-	out << "sfile_re_string: " << sfile_re_string << "\n";
-	out << "sfile_repl_string: " << sfile_repl_string << "\n";
+	out << "fname_in_context: " << fname_in_context << endl;
+	out << "sort_rev: " << Query::sort_rev << endl;
+	out << "show_true: " << show_true << endl;
+	out << "show_line_number: " << show_line_number << endl;
+	out << "file_icase: " << file_icase << endl;
+	out << "cgraph_type: " << cgraph_type << endl;
+	out << "cgraph_show: " << cgraph_show << endl;
+	out << "tab_width: " << tab_width << endl;
+	out << "sfile_re_string: " << sfile_re_string << endl;
+	out << "sfile_repl_string: " << sfile_repl_string << endl;
 	out.close();
 	fprintf(fo, "Options have been saved in the file \".cscout/options\".");
 	fprintf(fo, "They will be loaded when CScout is executed again in this directory.");
@@ -2054,7 +2054,7 @@ replacements_page(FILE *of, void *p)
 {
 	prohibit_remote_access(of);
 	html_head(of, "replacements", "Identifier Replacements");
-	cout << "Creating identifier list\n";
+	cout << "Creating identifier list" << endl;
 	fputs("<p><form action=\"xreplacements.html\" method=\"get\">\n"
 		"<table><tr><th>Identifier</th><th>Replacement</th><th>Active</th></tr>\n"
 	, of);
@@ -2071,7 +2071,7 @@ replacements_page(FILE *of, void *p)
 				&(i->second), i->second.get_active() ? "checked" : "");
 		}
 	}
-	cout << '\n';
+	cout << endl;
 	fputs("</table><p><INPUT TYPE=\"submit\" name=\"repl\" value=\"OK\">\n", of);
 	html_tail(of);
 }
@@ -2082,7 +2082,7 @@ xreplacements_page(FILE *of,  void *p)
 {
 	prohibit_remote_access(of);
 
-	cout << "Creating identifier list\n";
+	cout << "Creating identifier list" << endl;
 
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
@@ -2099,7 +2099,7 @@ xreplacements_page(FILE *of,  void *p)
 			i->second.set_active(!!swill_getvar(varname));
 		}
 	}
-	cout << '\n';
+	cout << endl;
 	index_page(of, p);
 }
 
@@ -2125,7 +2125,7 @@ write_quit_page(FILE *of, void *exit)
 	}
 	// Determine files we need to process
 	IFSet process;
-	cout << "Examing identifiers for replacement\n";
+	cout << "Examing identifiers for replacement" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (i->second.get_replaced() && i->second.get_active()) {
@@ -2134,12 +2134,12 @@ write_quit_page(FILE *of, void *exit)
 			process.insert(ifiles.begin(), ifiles.end());
 		}
 	}
-	cout << '\n';
+	cout << endl;
 	// Now do the replacements
 	int replacements = 0;
-	cout << "Processing files\n";
+	cout << "Processing files" << endl;
 	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++) {
-		cout << "Processing file " << (*i).get_path() << "\n";
+		cout << "Processing file " << (*i).get_path() << endl;
 		replacements += file_replace(of, *i);
 	}
 	fprintf(of, "A total of %d replacements were made in %d files.", replacements, process.size());
@@ -2172,24 +2172,24 @@ parse_acl()
 	string fname;
 
 	if (cscout_file("acl", in, fname)) {
-		cerr << "Parsing ACL from " << fname << "\n";
+		cerr << "Parsing ACL from " << fname << endl;
 		for (;;) {
 			in >> ad;
 			if (in.eof())
 				break;
 			in >> host;
 			if (ad == "A") {
-				cerr << "Allow from IP address " << host << "\n";
+				cerr << "Allow from IP address " << host << endl;
 				swill_allow(host.c_str());
 			} else if (ad == "D") {
-				cerr << "Deny from IP address " << host << "\n";
+				cerr << "Deny from IP address " << host << endl;
 				swill_deny(host.c_str());
 			} else
-				cerr << "Bad ACL specification " << ad << " " << host << "\n";
+				cerr << "Bad ACL specification " << ad << ' ' << host << endl;
 		}
 		in.close();
 	} else {
-		cerr << "No ACL found.  Only localhost access will be allowed.\n";
+		cerr << "No ACL found.  Only localhost access will be allowed." << endl;
 		swill_allow("127.0.0.1");
 	}
 }
@@ -2207,16 +2207,16 @@ simple_cpp()
 		if (t.get_code() == EOF)
 			break;
 		if (t.get_code() == STRING_LITERAL)
-			cout << "\"";
+			cout << '\"';
 		else if (t.get_code() == CHAR_LITERAL)
-			cout << "'";
+			cout << '\'';
 
 		cout << t.get_val();
 
 		if (t.get_code() == STRING_LITERAL)
-			cout << "\"";
+			cout << '\"';
 		else if (t.get_code() == CHAR_LITERAL)
-			cout << "'";
+			cout << '\'';
 	}
 	return(0);
 }
@@ -2269,7 +2269,7 @@ warning_report()
 			const string &id = (*j).second.get_id();
 			cerr << t.get_path() << ':' <<
 				t.get_fileid().line_number(t.get_streampos()) << ": " <<
-				id << ": " << reports[i].message << '\n';
+				id << ": " << reports[i].message << endl;
 		}
 	}
 
@@ -2312,7 +2312,7 @@ warning_report()
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
 					cerr << (*i).get_path() << ':' <<
 						line << ": unused included file " <<
-						(*fi).get_path() << '\n';
+						(*fi).get_path() << endl;
 			}
 	}
 }
@@ -2409,7 +2409,7 @@ main(int argc, char *argv[])
 			"(C) Copyright 2003-2006 Diomidis Spinelllis, Athens, Greece.\n\n"
 #ifdef COMMERCIAL
 			"Commercial version.  All rights reserved.\n"
-			"Licensee: " << licensee << ".\n";
+			"Licensee: " << licensee << '.' << endl;
 #else /* !COMMERCIAL */
 			"Unsupported version.  Can be used and distributed under the terms of the\n"
 			"CScout Public License available in the CScout documentation and online at\n"
@@ -2462,7 +2462,7 @@ main(int argc, char *argv[])
 	}
 
 	if (process_mode != pm_compile && !swill_init(portno)) {
-		cerr << "Couldn't initialize our web server on port " << portno << "\n";
+		cerr << "Couldn't initialize our web server on port " << portno << endl;
 		exit(1);
 	}
 
@@ -2521,7 +2521,7 @@ main(int argc, char *argv[])
 		/* bool has_unused = */ file_analyze(*i);
 
 	// Set xfile and  metrics for each identifier
-	cout << "Processing identifiers\n";
+	cout << "Processing identifiers" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		Eclass *e = (*i).first;
@@ -2530,12 +2530,12 @@ main(int argc, char *argv[])
 		// Update metrics
 		id_msum.add_unique_id(e);
 	}
-	cout << '\n';
+	cout << endl;
 
 	// Update fle metrics
 	file_msum.summarize_files();
 	if (DP())
-		cout << "Size " << file_msum.get_total(em_nchar) << "\n";
+		cout << "Size " << file_msum.get_total(em_nchar) << endl;
 
 #ifdef COMMERCIAL
 	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), file_msum.get_total(em_nchar));
@@ -2571,7 +2571,7 @@ main(int argc, char *argv[])
 #ifndef PRODUCTION
 	if (must_exit)
 		cout << "**********Unable to obtain correct license*********\n"
-			"license_offset = " << license_offset << "\n";
+			"license_offset = " << license_offset << endl;
 #endif
 
 	if (process_mode != pm_compile) {
@@ -2615,7 +2615,7 @@ main(int argc, char *argv[])
 	}
 
 	if (motd)
-		cout << motd << "\n";
+		cout << motd << endl;
 	if (process_mode == pm_report) {
 		if (!must_exit)
 			warning_report();
@@ -2624,15 +2624,15 @@ main(int argc, char *argv[])
 	if (process_mode == pm_compile)
 		return (0);
 	if (DP())
-		cout  << "Tokid EC map size is " << Tokid::map_size() << "\n";
+		cout  << "Tokid EC map size is " << Tokid::map_size() << endl;
 	// Serve web pages
 	if (!must_exit)
-		cout << "We are now ready to serve you at http://localhost:" << portno << "\n";
+		cout << "We are now ready to serve you at http://localhost:" << portno << endl;
 	while (!must_exit)
 		swill_serve();
 
 #ifdef NODE_USE_PROFILE
-	cout << "Type node count = " << Type_node::get_count() << "\n";
+	cout << "Type node count = " << Type_node::get_count() << endl;
 #endif
 	return (0);
 }
@@ -2698,7 +2698,7 @@ garbage_collect(Fileid root)
 		fi.set_gc(true);	// Mark the file as garbage collected
 	}
 	if (DP())
-		cout << "Garbage collected " << count << " out of " << sum << " ECs\n";
+		cout << "Garbage collected " << count << " out of " << sum << " ECs" << endl;
 
 	// Monitor dependencies
 	set <Fileid> required_files;

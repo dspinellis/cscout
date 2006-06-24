@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.17 2006/06/18 19:34:46 dds Exp $
+ * $Id: error.cpp,v 1.18 2006/06/24 15:45:57 dds Exp $
  */
 
 #include <iostream>
@@ -45,7 +45,7 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	case E_INTERNAL: cerr << "internal error: "; break;
 	case E_FATAL: cerr << "fatal error: "; break;
 	}
-	cerr << msg << "\n";
+	cerr << msg << endl;
 	switch (level) {
 	case E_WARN: num_warnings++; break;
 	case E_ERR:
