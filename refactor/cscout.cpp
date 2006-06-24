@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.143 2006/06/23 17:25:50 dds Exp $
+ * $Id: cscout.cpp,v 1.144 2006/06/24 15:35:19 dds Exp $
  */
 
 #include <map>
@@ -316,8 +316,14 @@ file_analyze(Fileid fi)
 		ti = Tokid(fi, in.tellg());
 		if ((val = in.get()) == EOF)
 			break;
-		mapTokidEclass::iterator ei = ti.find_ec();
-		if (ei != ti.end_ec()) {
+		char c = (char)val;
+		mapTokidEclass::iterator ei;
+		enum e_cfile_state cstate = fi.metrics().get_state();
+		if (cstate != s_block_comment &&
+		    cstate != s_string &&
+		    cstate != s_cpp_comment &&
+		    (isalnum(c) || c == '_') &&
+		    (ei = ti.find_ec()) != ti.end_ec()) {
 			Eclass *ec = (*ei).second;
 			// Remove identifiers we are not supposed to monitor
 			if (monitor.is_valid()) {
@@ -333,8 +339,7 @@ file_analyze(Fileid fi)
 				// Update metrics
 				id_msum.add_id(ec);
 				// Add to the map
-				string s;
-				s = (char)val;
+				string s(1, c);
 				int len = ec->get_len();
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
@@ -362,7 +367,7 @@ file_analyze(Fileid fi)
 			}
 		}
 		fi.metrics().process_char((char)val);
-		if ((char)val == '\n') {
+		if (c == '\n') {
 			fi.add_line_end(ti.get_streampos());
 			if (!fi.is_processed(++line_number))
 				fi.metrics().add_unprocessed();

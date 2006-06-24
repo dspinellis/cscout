@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.14 2006/06/15 11:07:30 dds Exp $
+ * $Id: metrics.h,v 1.15 2006/06/24 15:35:19 dds Exp $
  */
 
 #ifndef METRICS_
@@ -92,6 +92,7 @@ public:
 	void done_processing() { processed = true; }
 
 	// Get methods
+	enum e_cfile_state get_state() { return cstate; }
 	// Generic
 	int get_metric(int n) const { return count[n]; }
 
