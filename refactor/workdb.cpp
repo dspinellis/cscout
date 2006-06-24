@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.27 2006/06/18 19:34:46 dds Exp $
+ * $Id: workdb.cpp,v 1.28 2006/06/24 15:11:23 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -13,6 +13,7 @@
 #include <deque>
 #include <vector>
 #include <stack>
+#include <cctype>
 #include <iterator>
 #include <iostream>
 #include <fstream>
@@ -173,8 +174,14 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 		ti = Tokid(fid, in.tellg());
 		if ((val = in.get()) == EOF)
 			break;
+		char c = (char)val;
 		Eclass *ec;
-		if ((ec = ti.check_ec()) && ec->is_identifier()) {
+		if (cstate != s_block_comment &&
+		    cstate != s_string &&
+		    cstate != s_cpp_comment &&
+		    (isalnum(c) || c == '_') &&
+		    (ec = ti.check_ec()) &&
+		    ec->is_identifier()) {
 			id_msum.add_id(ec);
 			string s;
 			s = (char)val;
@@ -188,7 +195,6 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			"," << (unsigned)ti.get_streampos() << "," <<
 			(unsigned)ec << ");\n";
 		} else {
-			char c = (char)val;
 			fid.metrics().process_char(c);
 			if (c == '\n') {
 				at_bol = true;
