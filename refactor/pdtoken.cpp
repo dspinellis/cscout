@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.102 2006/06/22 17:34:38 dds Exp $
+ * $Id: pdtoken.cpp,v 1.103 2006/06/25 13:19:53 dds Exp $
  */
 
 #include <iostream>
@@ -820,8 +820,7 @@ Pdtoken::process_error(enum e_error_level e)
 	string msg;
 	Pltoken t;
 
-	if (skiplevel >= 1)
-		return;
+	// Must consume the tokens whether skipping or not, to avoid processing # as a directive
 	for (;;) {
 		t.getnext<Fchar>();
 		if (t.get_code() == EOF || t.get_code() == '\n')
@@ -829,7 +828,8 @@ Pdtoken::process_error(enum e_error_level e)
 		else
 			msg += t.get_val();
 	}
-	Error::error(e, msg);
+	if (skiplevel == 0)
+		Error::error(e, msg);
 }
 
 void
