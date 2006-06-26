@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.146 2006/06/26 13:05:45 dds Exp $
+ * $Id: cscout.cpp,v 1.147 2006/06/26 14:17:48 dds Exp $
  */
 
 #include <map>
@@ -2278,9 +2278,13 @@ warning_report()
 	Sites include_sites;
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if ((*i).get_readonly() || !(*i).compilation_unit() || *i == input_file_id)
+		if (i->get_readonly() ||		// Don't report on RO files
+		    !i->compilation_unit() ||		// Algorithm only works for CUs
+		    *i == input_file_id ||		// Don't report on main file
+		    i->get_includers().size() > 1)	// For files that are both CUs and included
+							// by others all bets are off
 			continue;
-		const FileIncMap &m = (*i).get_includes();
+		const FileIncMap &m = i->get_includes();
 		// Find the status of our include sites
 		include_sites.clear();
 		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
