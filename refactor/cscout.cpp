@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.145 2006/06/24 15:45:57 dds Exp $
+ * $Id: cscout.cpp,v 1.146 2006/06/26 13:05:45 dds Exp $
  */
 
 #include <map>
@@ -1266,11 +1266,9 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "\n<li> Declared in file <a href=\"file.html?id=%u\">%s</a>",
 			t.get_fileid().get_id(),
 			t.get_fileid().get_path().c_str());
-		ostringstream fname;
-		fname << t.get_fileid().get_id();
 		int lnum = t.get_fileid().line_number(t.get_streampos());
-		fprintf(fo, " <a href=\"src.html?id=%s#%d\">line %d</a><br />(and possibly in other places)\n",
-			fname.str().c_str(), lnum, lnum);
+		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a><br />(and possibly in other places)\n",
+			t.get_fileid().get_id(), lnum, lnum);
 			fprintf(fo, " - <a href=\"qsrc.html?qt=fun&id=%u&match=Y&call=%p&n=Declaration+of+%s\">marked source</a>",
 				t.get_fileid().get_id(),
 				f, f->get_name().c_str());
@@ -1280,11 +1278,9 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<li> Defined in file <a href=\"file.html?id=%u\">%s</a>",
 			t.get_fileid().get_id(),
 			t.get_fileid().get_path().c_str());
-		ostringstream fname;
-		fname << t.get_fileid().get_id();
 		int lnum = t.get_fileid().line_number(t.get_streampos());
-		fprintf(fo, " <a href=\"src.html?id=%s#%d\">line %d</a>\n",
-			fname.str().c_str(), lnum, lnum);
+		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a>\n",
+			t.get_fileid().get_id(), lnum, lnum);
 	} else
 		fprintf(fo, "<li> No definition found\n");
 	// Functions that are Down from us in the call graph
@@ -1927,7 +1923,6 @@ index_page(FILE *of, void *data)
 void
 file_page(FILE *of, void *p)
 {
-	ostringstream fname;
 	int id;
 	if (!swill_getargs("i(id)", &id)) {
 		fprintf(of, "Missing value");
@@ -1935,7 +1930,6 @@ file_page(FILE *of, void *p)
 	}
 	Fileid i(id);
 	const string &pathname = i.get_path();
-	fname << i.get_id();
 	html_head(of, "file", string("File: ") + html(pathname));
 	fprintf(of, "<h2>Metrics</h2><ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
@@ -1945,17 +1939,17 @@ file_page(FILE *of, void *p)
 	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
-	fprintf(of, "</ul>\n</ul><h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%s\">Source code</a>\n", fname.str().c_str());
-	fprintf(of, "<li> <a href=\"src.html?id=%s&marku=1\">Source code with unprocessed regions marked</a>\n", fname.str().c_str());
-	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%s&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", fname.str().c_str(), is_readonly);
-	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%s&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", fname.str().c_str(), is_lscope);
-	fprintf(of, "<li> <a href=\"qsrc.html?qt=fun&id=%s&match=Y&writable=1&ro=1&n=Source+Code+With+Hyperlinks+to+Function+and+Macro+Declarations\">Source code with hyperlinks to function and macro declarations</a>\n", fname.str().c_str());
+	fprintf(of, "</ul>\n</ul><h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%u\">Source code</a>\n", i.get_id());
+	fprintf(of, "<li> <a href=\"src.html?id=%u&marku=1\">Source code with unprocessed regions marked</a>\n", i.get_id());
+	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%u&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", i.get_id(), is_readonly);
+	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%u&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", i.get_id(), is_lscope);
+	fprintf(of, "<li> <a href=\"qsrc.html?qt=fun&id=%u&match=Y&writable=1&ro=1&n=Source+Code+With+Hyperlinks+to+Function+and+Macro+Declarations\">Source code with hyperlinks to function and macro declarations</a>\n", i.get_id());
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
-	fprintf(of, "<li> <a href=\"qinc.html?id=%s&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", fname.str().c_str());
-	fprintf(of, "<li> <a href=\"qinc.html?id=%s&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", fname.str().c_str());
-	fprintf(of, "<li> <a href=\"qinc.html?id=%s&includes=1&used=1&writable=1&n=All+Required+Included+Writable+Files\">All writable files that this file must include</a>\n", fname.str().c_str());
-	fprintf(of, "<li> <a href=\"qinc.html?id=%s&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", fname.str().c_str());
-	fprintf(of, "<li> <a href=\"qinc.html?id=%s&n=Files+Including+the+File\">Files including this file</a>\n", fname.str().c_str());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", i.get_id());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%u&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", i.get_id());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%u&includes=1&used=1&writable=1&n=All+Required+Included+Writable+Files\">All writable files that this file must include</a>\n", i.get_id());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", i.get_id());
+	fprintf(of, "<li> <a href=\"qinc.html?id=%u&n=Files+Including+the+File\">Files including this file</a>\n", i.get_id());
 	fprintf(of, "</ul>\n");
 	html_tail(of);
 }
@@ -2030,7 +2024,7 @@ query_include_page(FILE *of, void *p)
 				fprintf(of, "<td>line ");
 				const set <int> &lines = id.include_line_numbers();
 				for (set <int>::const_iterator j = lines.begin(); j != lines.end(); j++)
-					fprintf(of, "%d ", *j);
+					fprintf(of, " <a href=\"src.html?id=%u#%d\">%d</a> ", (includes ? f : f2).get_id(), *j, *j);
 				if (!id.is_required())
 					fprintf(of, " (not required)");
 				fprintf(of, "</td>");
