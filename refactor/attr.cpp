@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.17 2006/06/11 21:44:18 dds Exp $
+ * $Id: attr.cpp,v 1.18 2006/06/26 10:22:02 dds Exp $
  */
 
 #include <map>
@@ -28,7 +28,8 @@
 // Leave space for a single project-attribute
 vector<bool>::size_type Attributes::size = attr_end;
 
-int Project::projid = attr_end - 1;
+int Project::current_projid = attr_end;
+int Project::next_projid = attr_end;
 // Maps between ids and names
 map<string, int> Project::projids;
 vector<string> Project::projnames(attr_end);
@@ -87,12 +88,12 @@ Project::set_current_project(const string &name)
 	map<string, int>::const_iterator p;
 	if ((p = projids.find(name)) == projids.end()) {
 		// Add new project
-		projid++;
+		current_projid = next_projid++;
 		projnames.push_back(name);
-		projids[name] = projid;
+		projids[name] = current_projid;
 		if (Attributes::get_num_attributes() < projnames.size())
 			Attributes::add_attribute();
 	} else {
-		projid = (*p).second;
+		current_projid = (*p).second;
 	}
 }

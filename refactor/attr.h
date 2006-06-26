@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.15 2004/07/23 06:55:38 dds Exp $
+ * $Id: attr.h,v 1.16 2006/06/26 10:22:02 dds Exp $
  */
 
 #ifndef ATTR_
@@ -80,8 +80,9 @@ public:
 };
 
 class Project {
-	// Current project-id
-	static int projid;
+	// Current and next project-id
+	static int current_projid;
+	static int next_projid;
 	// Maps between ids and names
 	static map<string, int> projids;
 	static vector<string> projnames;
@@ -89,7 +90,7 @@ public:
 	// Set the name of the current project
 	static void set_current_project(const string &name);
 	// The a unique identifier for the current project
-	static int get_current_projid() { return projid; }
+	static int get_current_projid() { return current_projid; }
 	// Map access functions
 	static int get_projid(const string &name) { return projids[name]; }
 	static const string &get_projname(int i) { return projnames[i]; }
