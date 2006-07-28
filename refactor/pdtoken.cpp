@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.103 2006/06/25 13:19:53 dds Exp $
+ * $Id: pdtoken.cpp,v 1.104 2006/07/28 06:55:10 dds Exp $
  */
 
 #include <iostream>
@@ -232,6 +232,7 @@ eval_lex()
  * its value.
  * Algorithm:
  * -. Read tokens.
+ * -. Replace predicates
  * -. Macro-expand sequence (ignoring the defined operator arguments)
  * -. Process defined operator
  * -. Replace all identifiers with 0
