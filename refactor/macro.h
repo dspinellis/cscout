@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.13 2006/06/02 08:22:13 dds Exp $
+ * $Id: macro.h,v 1.14 2006/07/29 07:26:35 dds Exp $
  */
 
 #ifndef MACRO_
@@ -14,16 +14,15 @@ class Macro;
 class MCall;
 
 typedef deque<Ptoken> dequePtoken;
-typedef list<Ptoken> listPtoken;
+typedef list<Ptoken> PtokenSequence;
 typedef set<string> setstring;
-typedef map<string, listPtoken> mapArgval;
+typedef map<string, PtokenSequence> mapArgval;
 typedef stack<bool> stackbool;
 /*
  * We map to MCall * instead of Macro *, because Macro are stored
  * in a container and tend to move around.
  */
 typedef map<Tokid, MCall *> mapMacroBody;
-
 
 // A macro definition
 class Macro {
@@ -59,10 +58,7 @@ public:
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Macro &m);
 
-	friend listPtoken::iterator macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring &tabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator, const Macro *caller = NULL);
+	friend PtokenSequence macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const Macro *caller = NULL);
 };
-
-listPtoken::iterator macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined, const Macro *caller = NULL);
-
 
 #endif // MACRO

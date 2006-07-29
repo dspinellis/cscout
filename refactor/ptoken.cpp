@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ptoken.cpp,v 1.13 2006/06/18 19:34:46 dds Exp $
+ * $Id: ptoken.cpp,v 1.14 2006/07/29 07:26:35 dds Exp $
  */
 
 #include <iostream>
@@ -32,9 +32,9 @@ operator<<(ostream& o,const Ptoken &t)
 	return (o);
 }
 
-ostream& operator<<(ostream& o,const listPtoken &t)
+ostream& operator<<(ostream& o,const PtokenSequence &t)
 {
-	listPtoken::const_iterator i;
+	PtokenSequence::const_iterator i;
 
 	for (i = t.begin(); i != t.end(); i++)
 		o << (*i).get_val();

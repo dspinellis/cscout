@@ -14,25 +14,27 @@
  * #include "tokid.h"
  * #include "token.h"
  *
- * $Id: ptoken.h,v 1.10 2004/07/23 06:55:38 dds Exp $
+ * $Id: ptoken.h,v 1.11 2006/07/29 07:26:35 dds Exp $
  */
 
 #ifndef PTOKEN_
 #define PTOKEN_
 
+typedef set <Token> HideSet;
 
 class Ptoken : public Token {
 private:
-	bool nonreplaced;	// True if replacement skipped during macro
-				// expansions ANSI 3.8.3.4 p. 92
+	HideSet hideset;	// Hide set used for macro expansions
 public:
 	// Construct it based on the token code and the contents
-	Ptoken(int icode, const string& ival) : Token(icode, ival) {nonreplaced = false; };
+	Ptoken(int icode, const string& ival) : Token(icode, ival) {};
 	// Efficient constructor
-	Ptoken() {nonreplaced = false; };
+	Ptoken() {};
 	// Accessor methods
-	inline bool can_replace() const { return !nonreplaced; };
-	inline void set_nonreplaced() { nonreplaced = true; };
+	inline bool hideset_contains(Ptoken t) const { return (hideset.find(t) != hideset.end()); }
+	inline void hideset_insert(Token t) { hideset.insert(t); }
+	inline void hideset_insert(HideSet::const_iterator b, HideSet::const_iterator e) { hideset.insert(b, e); }
+	inline const HideSet& get_hideset() const { return (hideset); }
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Ptoken &t);
 	inline friend bool operator ==(const Ptoken& a, const Ptoken& b);
@@ -40,9 +42,9 @@ public:
 	inline bool is_space() const;
 };
 
-typedef list<Ptoken> listPtoken;
+typedef list<Ptoken> PtokenSequence;
 
-ostream& operator<<(ostream& o,const listPtoken &t);
+ostream& operator<<(ostream& o,const PtokenSequence &t);
 
 bool operator ==(const Ptoken& a, const Ptoken& b)
 {

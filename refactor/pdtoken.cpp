@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.104 2006/07/28 06:55:10 dds Exp $
+ * $Id: pdtoken.cpp,v 1.105 2006/07/29 07:26:35 dds Exp $
  */
 
 #include <iostream>
@@ -52,7 +52,7 @@ using __gnu_cxx::compose1;	// STL extensions
 #endif
 
 bool Pdtoken::at_bol = true;
-listPtoken Pdtoken::expand;
+PtokenSequence Pdtoken::expand;
 mapMacro Pdtoken::macros;		// Defined macros
 stackbool Pdtoken::iftaken;		// Taken #ifs
 vectorstring Pdtoken::include_path;	// Files in include path
@@ -64,8 +64,7 @@ void
 Pdtoken::getnext()
 {
 	Pltoken t;
-	setstring tabu;				// For macro replacement
-	listPtoken::iterator dummy;
+	PtokenSequence::iterator dummy;
 
 expand_get:
 	if (!expand.empty()) {
@@ -138,8 +137,7 @@ again:
 			break;
 		}
 		expand.push_front(t);
-		tabu.clear();
-		macro_replace_all(expand, expand.end(), tabu, true, false);
+		expand = macro_expand(expand, true, false);
 		goto expand_get;
 		// FALLTRHOUGH
 	default:
@@ -172,8 +170,8 @@ Pdtoken::eat_to_eol()
 /*
  * Lexical analyser for #if expressions
  */
-static listPtoken::iterator eval_ptr;
-static listPtoken eval_tokens;
+static PtokenSequence::iterator eval_ptr;
+static PtokenSequence eval_tokens;
 long eval_result;
 
 int
@@ -257,8 +255,7 @@ eval()
 	}
 
 	// Macro replace
-	setstring tabu;
-	macro_replace_all(eval_tokens, eval_tokens.end(), tabu, false, true);
+	eval_tokens = macro_expand(eval_tokens, false, true);
 
 	if (DP()) {
 		cout << "Tokens after macro replace:\n";
@@ -266,7 +263,7 @@ eval()
 	}
 
 	// Process the "defined" operator
-	listPtoken::iterator i, arg, last, i2;
+	PtokenSequence::iterator i, arg, last, i2;
 	for (i = eval_tokens.begin();
 	     (i = i2 = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<string>(),"defined"), mem_fun_ref(&Ptoken::get_val)))) != eval_tokens.end(); ) {
 	     	bool need_bracket = false;
@@ -513,7 +510,7 @@ void
 Pdtoken::process_include(bool next)
 {
 	Pltoken t;
-	listPtoken tokens;
+	PtokenSequence tokens;
 	static vectorstring::iterator next_i;
 
 	if (skiplevel >= 1)
@@ -541,15 +538,14 @@ Pdtoken::process_include(bool next)
 	if (f.get_code() != PATHFNAME && f.get_code() != ABSFNAME) {
 		// Need to macro process
 		// 1. Macro replace
-		setstring tabu;
-		macro_replace_all(tokens, tokens.end(), tabu, false, false);
+		tokens = macro_expand(tokens, false, false);
 		if (DP()) {
 			cout << "Replaced after macro :\n";
 			copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
 		}
 		// 2. Rescan through Tchar
 		Tchar::clear();
-		for (listPtoken::const_iterator i = tokens.begin(); i != tokens.end(); i++)
+		for (PtokenSequence::const_iterator i = tokens.begin(); i != tokens.end(); i++)
 			Tchar::push_input(*i);
 		Tchar::rewind_input();
 		Pltoken::set_context(cpp_include);

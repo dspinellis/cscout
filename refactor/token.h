@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.15 2004/08/07 21:49:01 dds Exp $
+ * $Id: token.h,v 1.16 2006/07/29 07:26:35 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -26,6 +26,9 @@ public:
 	Tokid get_tokid() const { return ti; }
 	int get_len() const { return len; }
 	friend ostream& operator<<(ostream& o, const Tpart &t);
+	inline friend bool operator ==(const class Tpart &a, const class Tpart &b);
+	inline friend bool operator !=(const class Tpart &a, const class Tpart &b);
+	inline friend bool operator <(const class Tpart &a, const class Tpart &b);
 };
 
 typedef deque<Tpart> dequeTpart;
@@ -69,6 +72,10 @@ public:
 	bool contains(Eclass *ec) const;
 	// Return true if its tokids equal those of stale
 	bool Token::equals(const Token &stale) const;
+	// For including them in sets
+	inline friend bool operator ==(const class Token &a, const class Token &b);
+	inline friend bool operator !=(const class Token &a, const class Token &b);
+	inline friend bool operator <(const class Token &a, const class Token &b);
 };
 
 dequeTpart::const_iterator
@@ -81,6 +88,47 @@ dequeTpart::const_iterator
 Token::get_parts_end() const
 {
 	return parts.end();
+}
+inline bool
+operator ==(const class Tpart &a, const class Tpart &b)
+{
+	return (a.ti == b.ti && a.len == b.len);
+}
+
+inline bool
+operator !=(const class Tpart &a, const class Tpart &b)
+{
+	return (!(a == b));
+}
+
+inline bool
+operator <(const class Tpart &a, const class Tpart &b)
+{
+	return ((a.ti == b.ti) ? (a.len < b.len) : (a.ti < b.ti));
+}
+
+inline bool
+operator ==(const class Token &a, const class Token &b)
+{
+	if (a.parts.size() != b.parts.size())
+		return (false);
+	dequeTpart::const_iterator ia, ib;
+	for (ia = a.parts.begin(), ib = b.parts.begin(); ia != a.parts.end(); ia++, ib++)
+		if (*ia != *ib)
+			return (false);
+	return (true);
+}
+
+inline bool
+operator !=(const class Token &a, const class Token &b)
+{
+	return (!(a == b));
+}
+
+inline bool
+operator <(const class Token &a, const class Token &b)
+{
+	return (lexicographical_compare(a.parts.begin(), a.parts.end(), b.parts.begin(), b.parts.end()));
 }
 
 #endif /* TOKEN_ */

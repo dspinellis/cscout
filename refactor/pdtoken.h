@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.28 2004/07/30 17:19:03 dds Exp $
+ * $Id: pdtoken.h,v 1.29 2006/07/29 07:26:35 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -16,9 +16,9 @@ class Pdtoken;
 typedef list<Pdtoken> listPdtoken;
 
 typedef deque<Ptoken> dequePtoken;
-typedef list<Ptoken> listPtoken;
+typedef list<Ptoken> PtokenSequence;
 typedef set<string> setstring;
-typedef map<string, listPtoken> mapArgval;
+typedef map<string, PtokenSequence> mapArgval;
 typedef stack<bool> stackbool;
 typedef vector<string> vectorstring;
 
@@ -31,7 +31,7 @@ class Pdtoken: public Ptoken {
 private:
 	static mapMacro macros;			// Defined macros
 	static mapMacroBody macro_body_tokens;	// Tokens and the macros they belong to
-	static listPtoken expand;		// Expanded input
+	static PtokenSequence expand;		// Expanded input
 
 	static bool at_bol;			// At beginning of line
 	static stackbool iftaken;		// Taken #ifs

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.34 2006/06/18 19:34:46 dds Exp $
+ * $Id: macro.cpp,v 1.35 2006/07/29 07:26:35 dds Exp $
  */
 
 #include <iostream>
@@ -43,56 +43,59 @@
 
 
 /*
- * Return a macro argument token from tokens position pos.
+ * Return a macro argument token from tokens
  * Used by gather_args.
  * If get_more is true when tokens is exhausted read using pltoken::getnext
- * Update pos to the first token not gathered.
+ * Leave in tokens the first token not gathered.
  * If want_space is true return spaces, otherwise discard them
  */
 Ptoken
-arg_token(listPtoken& tokens, listPtoken::iterator& pos, bool get_more, bool want_space)
+arg_token(PtokenSequence& tokens, bool get_more, bool want_space)
 {
 	if (want_space) {
-		if (pos != tokens.end())
-			return (*pos++);
-		if (get_more) {
+		if (!tokens.empty()) {
+			Ptoken r(tokens.front());
+			tokens.pop_front();
+			return (r);
+		} else if (get_more) {
 			Pltoken t;
 			t.getnext<Fchar>();
 			return (t);
-		}
-		return Ptoken(EOF, "");
+		} else
+			return Ptoken(EOF, "");
 	} else {
-		while (pos != tokens.end() && (*pos).is_space())
-			pos++;
-		if (pos != tokens.end())
-			return (*pos++);
-		if (get_more) {
+		while (!tokens.empty() && tokens.front().is_space())
+			tokens.pop_front();
+		if (!tokens.empty()) {
+			Ptoken r(tokens.front());
+			tokens.pop_front();
+			return (r);
+		} else if (get_more) {
 			Pltoken t;
 			do {
 				t.getnext_nospc<Fchar>();
 			} while (t.get_code() != EOF && t.is_space());
 			return (t);
-		}
-		return Ptoken(EOF, "");
+		} else
+			return Ptoken(EOF, "");
 	}
 }
 
 /*
- * Get the macro arguments specified in formal_args, initiallly from pos,
- * then, if get_more is true, from pltoken<fchar>.getnext.
+ * Get the macro arguments specified in formal_args, initiallly by
+ * removing them from tokens, then, if get_more is true, from pltoken<fchar>.getnext.
+ * The opening bracket has already been gathered.
  * Build the map from formal name to argument value args.
- * Update pos to the first token not gathered.
+ * Return in close the closing bracket token (used for its hideset)
  * Return true if ok, false on error.
  */
 static bool
-gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, const dequePtoken& formal_args, mapArgval& args, bool get_more, bool is_vararg)
+gather_args(const string& name, PtokenSequence& tokens, const dequePtoken& formal_args, mapArgval& args, bool get_more, bool is_vararg, Ptoken &close)
 {
 	Ptoken t;
-	t = arg_token(tokens, pos, get_more, false);
-	csassert (t.get_code() == '(');
 	dequePtoken::const_iterator i;
 	for (i = formal_args.begin(); i != formal_args.end(); i++) {
-		listPtoken& v = args[(*i).get_val()];
+		PtokenSequence& v = args[(*i).get_val()];
 		char terminate;
 		if (i + 1 == formal_args.end())
 			terminate = ')';
@@ -103,7 +106,7 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 		int bracket = 0;
 		// Get a single argument
 		for (;;) {
-			t = arg_token(tokens, pos, get_more, true);
+			t = arg_token(tokens, get_more, true);
 			if (bracket == 0 && (
 				(terminate == '.' && (t.get_code() == ',' || t.get_code() == ')')) ||
 				(t.get_code() == terminate)))
@@ -134,9 +137,10 @@ gather_args(const string& name, listPtoken& tokens, listPtoken::iterator& pos, c
 			args[(*i).get_val()];
 			break;
 		}
+		close = t;
 	}
 	if (formal_args.size() == 0) {
-		t = arg_token(tokens, pos, get_more, false);
+		t = arg_token(tokens, get_more, false);
 		if (t.get_code() != ')') {
 			/*
 			 * @error
@@ -175,10 +179,10 @@ escape(const string& s)
  * escaped
  */
 static Ptoken
-stringize(const listPtoken& ts)
+stringize(const PtokenSequence& ts)
 {
 	string res;
-	listPtoken::const_iterator pi;
+	PtokenSequence::const_iterator pi;
 	bool seen_space = true;		// To delete leading spaces
 
 	for (pi = ts.begin(); pi != ts.end(); pi++) {
@@ -244,83 +248,57 @@ macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
 }
 
 /*
- * The range [start, end) is about to be erased.
- * Ensure that valid_iterator will not be invalidated by advancing it to the
- * end.
- */
-static void
-revalidate(listPtoken::iterator& valid_iterator, listPtoken::iterator start, listPtoken::iterator end)
-{
-	for (listPtoken::iterator i = start; i != end; i++)
-		if (i == valid_iterator) {
-			valid_iterator = end;
-			return;
-		}
-}
-
-
-/*
- * Macro replace all tokens in the sequence from tokens.begin() up to the
- * "end" iterator
- * If skip_defined is set macros inside or following the "defined" string,
- * such as "defined X" or "defined(X)" will not be replaced
+ * Remove from tokens and return the elements comprising the arguments to the defined
+ * operator, * such as "defined X" or "defined(X)"
  * This is the rule when processing #if #elif expressions
  */
-listPtoken::iterator
-macro_replace_all(listPtoken& tokens, listPtoken::iterator end, setstring& tabu, bool get_more, bool skip_defined, const Macro *caller)
+static PtokenSequence
+gather_defined_operator(PtokenSequence& tokens)
 {
-	listPtoken::iterator ti;
-	enum {d_scanning, d_defined, d_bracket, d_ignoring} state;
+	PtokenSequence r;
 
-	state = skip_defined ? d_scanning : d_ignoring;
-	if (DP()) cout << "Enter replace_all\n";
-	for (ti = tokens.begin(); ti != end; ) {
-		if ((*ti).get_code() == IDENTIFIER) {
-			switch (state) {
-			case d_scanning:
-				if ((*ti).get_val() == "defined") {
-					state = d_defined;
-					ti++;
-					continue;
-				}
-				break;
-			case d_bracket:
-			case d_defined:
-				state = d_scanning;
-				ti++;
-				continue;
-			case d_ignoring:
-				break;
-			}
-			ti = macro_replace(tokens, ti, tabu, get_more, skip_defined, end, caller);
-			if (DP()) {
-				cout << "Next token: ";
-				if (ti == end)
-					cout << "End\n";
-				else
-					cout << ti->get_val() << '\n';
-			}
-		} else {
-			if ((*ti).get_code() != SPACE)
-				switch (state) {
-				case d_defined:
-					if ((*ti).get_code() == '(')
-						state = d_bracket;
-					else
-						state = d_scanning;
-					break;
-				case d_bracket:
-					state = d_scanning;
-					break;
-				case d_scanning:
-				case d_ignoring:
-					break;
-				}
-			ti++;
-		}
+	// Skip leading space
+	while (tokens.front().get_code() == SPACE) {
+		r.push_back(tokens.front());
+		tokens.pop_front();
 	}
-	if (DP()) cout << "Exit replace_all\n";
-	return end;
+	if (tokens.front().get_code() == IDENTIFIER) {
+		// defined X form
+		r.push_back(tokens.front());
+		tokens.pop_front();
+		return (r);
+	} else if (tokens.front().get_code() == '(') {
+		// defined (X) form
+		r.push_back(tokens.front());
+		tokens.pop_front();
+		// Skip space
+		while (tokens.front().get_code() == SPACE) {
+			r.push_back(tokens.front());
+			tokens.pop_front();
+		}
+		if (tokens.front().get_code() != IDENTIFIER)
+			goto error;
+		// Skip space
+		while (tokens.front().get_code() == SPACE) {
+			r.push_back(tokens.front());
+			tokens.pop_front();
+		}
+		if (tokens.front().get_code() != ')')
+			goto error;
+		r.push_back(tokens.front());
+		tokens.pop_front();
+		return (r);
+	} else
+error:
+		/*
+		 * @error
+		 * The preprocessor operator
+		 * <code>defined<code> was not used as
+		 * <code>defined(<code><em>identifier</em><code>)</code> or
+		 * <code>defined<code> <em>identifier</em>.
+		 */
+		Error::error(E_ERR, "Invalid use of the defined preprocessor operator");
+		return (r);
 }
 
 // Return an arg iterator if token is a formal argument
@@ -334,261 +312,6 @@ find_formal_argument(const mapArgval &args, Ptoken t)
 		return args.end();
 	else
 		return args.find(t.get_val());
-}
-
-/*
- * Check for macro at token position pos and possibly expand it
- * If a macro is expanded, pos is invalidated and replaced with the replacement
- * macro value.
- * Macros that are members of the tabu set are not expanded to avoid
- * infinite recursion.
- * If get_more is true, more data can be retrieved from Pltoken::get_next
- * valid_iterator is an iterator in tokens.  macro_replace will keep this
- * iterator valid, even when it could have been invalidated by removing elements
- * from tokens.
- * Return the first position in tokens sequence that was not
- * examined or replaced.
- */
-listPtoken::iterator
-macro_replace(listPtoken& tokens, listPtoken::iterator pos, setstring &iotabu, bool get_more, bool skip_defined, listPtoken::iterator& valid_iterator, const Macro *caller)
-{
-	mapMacro::const_iterator mi;
-	const string name = (*pos).get_val();
-	if (DP()) {
-		cout << "macro_replace: [" << name << "] tabu: ";
-		for (setstring::const_iterator si = iotabu.begin(); si != iotabu.end(); si++)
-			cout << *si << " ";
-		cout << "\nTokens:";
-		for (listPtoken::const_iterator ti = tokens.begin(); ti != tokens.end(); ti++)
-			cout << (*ti).get_val();
-		cout << "\n";
-	}
-	mi = Pdtoken::macros_find(name);
-	if (!Pdtoken::macro_is_defined(mi) || !(*pos).can_replace())
-		return (++pos);
-	if (iotabu.find(name) != iotabu.end()) {
-		(*pos).set_nonreplaced();
-		return (++pos);
-	}
-	setstring tabu = iotabu;	// This will be locally modified by macro_replace_all
-	const Macro& m = mi->second;
-	if (m.is_function) {
-		// Peek for a left bracket, if not found this is not a macro
-		listPtoken::iterator peek = pos;
-		peek++;
-		while (peek != tokens.end() && (*peek).is_space())
-			peek++;
-		if (peek == tokens.end()) {
-			if (get_more) {
-				Pltoken t;
-				do {
-					t.getnext<Fchar>();
-					tokens.push_back(t);
-				} while (t.get_code() != EOF && t.is_space());
-				if (t.get_code() != '(') {
-					iotabu.insert(name);	// Had its chance
-					return (++pos);
-				}
-			} else
-				return (++pos);
-		} else if ((*peek).get_code() != '(') {
-			iotabu.insert(name);	// Had its chance
-			return (++pos);
-		}
-	}
-	if (DP()) cout << "replacing for " << name << "\n";
-	Token::unify((*mi).second.name_token, *pos);
-	listPtoken::iterator expand_start = pos;
-	expand_start++;
-	tokens.erase(pos);
-	pos = expand_start;
-	if (m.is_function) {
-		mapArgval args;			// Map from formal name to value
-		bool do_stringize;
-
-		if (DP())
-			cout << "Expanding " << m << " inside " << caller << "\n";
-		if (caller && caller->is_function)
-			// Macro to macro call
-			Call::register_call(caller->get_mcall(), m.get_mcall());
-		else
-			// Function to macro call
-			Call::register_call(m.get_mcall());
-		expand_start = pos;
-		if (!gather_args(name, tokens, pos, m.formal_args, args, get_more, m.is_vararg))
-			return (pos);
-		revalidate(valid_iterator, expand_start, pos);
-		tokens.erase(expand_start, pos);
-		dequePtoken::const_iterator i;
-		// Substitute with macro's replacement value
-		for(i = m.value.begin(); i != m.value.end(); i++) {
-			// Is it a stringizing operator ?
-			if ((*i).get_code() == '#') {
-				if (i + 1 == m.value.end()) {
-					/*
-					 * @error
-					 * No argument was supplied to the right
-					 * of the stringizing operator
-					 * <code>#</code>
-					 */
-					Error::error(E_ERR,  "Application of macro \"" + name + "\": operator # at end of macro pattern");
-					return (pos);
-				}
-				do_stringize = true;
-				// Advance to next non-space
-				do {
-					i++;
-				} while ((*i).is_space());
-			} else
-				do_stringize = false;
-
-			mapArgval::const_iterator ai;
-			/*
-			 * Is the next non-space a concatenation operator followed by an empty formal
-			 * argument in a vararg macro?  If so discard this non-formal arg token
-			 * to satisfy the following horrendous gcc extension:
-			 *  "`##' before a
-			 *   rest argument that is empty discards the preceding sequence of
-			 *   non-whitespace characters from the macro definition.  (If another macro
-			 *   argument precedes, none of it is discarded.)"
-			 * The implemented semantics are not the same, but are hopefully close enough
-			 */
-			if (m.is_vararg && i + 1 != m.value.end()) {
-				dequePtoken::const_iterator start;
-				start = i;
-				// Advance to next non-space token
-				do {
-					i++;
-				} while ((*i).is_space());
-				// Is the token a ## operator followed by something?
-				if ((*i).get_code() != CPP_CONCAT || i + 1 == m.value.end())
-					goto condition_failed;
-				// Is the token preceding ## a formal arg?
-				// (Out of order test, because it is slightly more expensive)
-				if ((ai = find_formal_argument(args, *start)) != args.end())
-					goto condition_failed;
-				// Advance to next non-space token
-				do {
-					i++;
-				} while ((*i).is_space());
-				// Is the token following ## a formal arg?
-				if ((ai = find_formal_argument(args, *i)) == args.end())
-					goto condition_failed;
-				// Is the arg empty?
-				if ((*ai).second.size() != 0)
-					goto condition_failed;
-				// All conditions satasfied; discard elements:
-				// <non-formal> <##> <empty-formal>
-				// by leaving i to its current value
-				continue;
-			condition_failed:
-				i = start;
-			}
-
-			// Is it a formal argument?
-			if ((ai = find_formal_argument(args, *i)) != args.end()) {
-				if (macro_replacement_allowed(m.value, i)) {
-					// Allowed, macro replace the parameter
-					// in temporary var arg, and
-					// copy that back to the main
-					listPtoken arg((*ai).second.begin(), (*ai).second.end());
-					if (DP()) cout << "Arg macro:" << arg << "---\n";
-					macro_replace_all(arg, arg.end(), tabu, false, skip_defined, &m);
-					if (DP()) cout << "Arg macro result:" << arg << "---\n";
-					copy(arg.begin(), arg.end(), inserter(tokens, pos));
-				} else if (do_stringize)
-					tokens.insert(pos, stringize((*ai).second));
-				else
-					copy((*ai).second.begin(), (*ai).second.end(), inserter(tokens, pos));
-			} else {
-				// Not a formal argument, plain replacement
-				// Check for misplaced # operator (3.8.3.2)
-				if (do_stringize)
-					/*
-					 * @error
-					 * The stringizing operator
-					 * <code>#</code> was not followed
-					 * by a macro parameter
-					 */
-					Error::error(E_WARN, "Application of macro \"" + name + "\": operator # only valid before macro parameters");
-				tokens.insert(pos, *i);
-			}
-		}
-	} else {
-		// Object-like macro
-		tokens.insert(pos, m.value.begin(), m.value.end());
-	}
-
-	// Check and apply CPP_CONCAT (ANSI 3.8.3.3)
-	listPtoken::iterator ti, next;
-	for (ti = tokens.begin(); ti != tokens.end() && ti != pos; ti = next) {
-		if ((*ti).get_code() == CPP_CONCAT && ti != tokens.begin()) {
-			listPtoken::iterator left = ti;
-			listPtoken::iterator right = pos;
-			listPtoken::iterator i;
-
-			// Find left non-space operand
-			for (i = ti; i != tokens.begin(); ) {
-				i--;
-				if (!(*i).is_space() && (*i).get_code() != CPP_CONCAT) {
-					left = i;
-					break;
-				}
-			}
-			// Find right non-space operand
-			for (i = ti;; ) {
-				i++;
-				if (i == tokens.end() || i == pos)
-					break;
-				if (!(*i).is_space() && (*i).get_code() != CPP_CONCAT) {
-					right = i;
-					break;
-				}
-			}
-			Tchar::clear();
-			// See if non-empty left operand
-			if (left != ti)
-				Tchar::push_input(*left);
-			next = right;
-			// See if non-empty right operand
-			if (right != pos) {
-				Tchar::push_input(*(right));
-				next++;
-			}
-			if (DP()) cout << "concat A:" << *left << "B: " << *right << "\n";
-			Tchar::rewind_input();
-			revalidate(valid_iterator, left, next);
-			tokens.erase(left, next);
-			for (;;) {
-				Pltoken t;
-				t.getnext<Tchar>();
-				if (t.get_code() == EOF)
-					break;
-				if (DP()) cout << "Result: " << t ;
-				tokens.insert(next, t);
-			}
-		} else {
-			next = ti;
-			next++;
-		}
-	}
-	tabu.insert(name);
-	if (DP()) {
-		cout << "Rescan-" << name << " for:\n";
-		for (listPtoken::const_iterator ti = tokens.begin(); ti != tokens.end(); ti++)
-			cout << (*ti).get_val();
-		cout << "\n";
-	}
-	pos = macro_replace_all(tokens, pos, tabu, get_more, skip_defined, &m);
-	if (DP()) {
-		cout << "Rescan ends returing ";
-		if (pos == tokens.end())
-			cout << "EOF";
-		else
-			cout << (*pos);
-		cout << "\n";
-	}
-	return (pos);
 }
 
 static inline bool
@@ -660,4 +383,202 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 			cout << "Mcall is " << mcall << "\n";
 	} else
 		mcall = NULL;	// To void nasty surprises
+}
+
+static PtokenSequence subst(const dequePtoken& is, const mapArgval &args, HideSet hs, PtokenSequence os, bool skip_defined, const Macro *caller);
+static PtokenSequence hsadd(const HideSet& hs, const PtokenSequence& ts);
+static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
+static bool fill_in(PtokenSequence &t, bool get_more);
+
+/*
+ * Expand a token sequence
+ * If skip_defined is true then the defined() keyword is not processed
+ * The caller is used for registering invocations from one macro to another
+ * This is an implementation of Dave Prosser's algorithm, listed in
+ * X3J11/86-196
+ */
+PtokenSequence
+macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const Macro *caller)
+{
+	if (ts.empty())
+		return (ts);
+
+	const Ptoken &head(ts.front());
+
+	// Skip the head token if it is in the hideset
+	if (head.hideset_contains(head)) {
+		PtokenSequence tail(ts);
+		tail.pop_front();
+		PtokenSequence rest(macro_expand(tail, get_more, skip_defined, caller));
+		rest.push_front(head);
+		return (rest);
+	}
+
+	// Skip the arguments of the defined operator, if needed
+	if (skip_defined && head.get_code() == IDENTIFIER && head.get_val() == "defined") {
+		PtokenSequence tail(ts);
+		tail.pop_front();
+		PtokenSequence da(gather_defined_operator(tail));
+		da.push_front(head);
+		PtokenSequence rest(macro_expand(tail, get_more, skip_defined, caller));
+		da.splice(da.end(), rest);
+		return (da);
+	}
+
+	PtokenSequence tail(ts);
+	tail.pop_front();
+
+	const string name = head.get_val();
+	mapMacro::const_iterator mi(Pdtoken::macros_find(name));
+	if (Pdtoken::macro_is_defined(mi)) {
+		const Macro& m = mi->second;
+		if (DP()) cout << "replacing for " << name << " tokens " << tail << endl;
+		Token::unify((*mi).second.name_token, head);
+		if (!m.is_function) {
+			// Object-like macro
+			HideSet hs(head.get_hideset());
+			hs.insert(head);
+			PtokenSequence s(subst(m.value, mapArgval(), hs, PtokenSequence(), skip_defined, caller));
+			s.splice(s.end(), tail);
+			return (macro_expand(s, get_more, skip_defined, &m));
+		} else if (fill_in(tail, get_more) && tail.front().get_code() == '(') {
+			// Application of a function-like macro
+			mapArgval args;			// Map from formal name to value
+
+			if (DP())
+				cout << "Expanding " << m << " inside " << caller << "\n";
+			if (caller && caller->is_function)
+				// Macro to macro call
+				Call::register_call(caller->get_mcall(), m.get_mcall());
+			else
+				// Function to macro call
+				Call::register_call(m.get_mcall());
+			tail.pop_front();
+			Ptoken close;
+			if (!gather_args(name, tail, m.formal_args, args, get_more, m.is_vararg, close))
+				return (PtokenSequence());	// Attempt to bail-out on error
+			HideSet hs;
+			set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
+				close.get_hideset().begin(), close.get_hideset().end(),
+				inserter(hs, hs.begin()));
+			hs.insert(head);
+			PtokenSequence s(subst(m.value, args, hs, PtokenSequence(), skip_defined, caller));
+			s.splice(s.end(), tail);
+			return (macro_expand(s, get_more, skip_defined, &m));
+		}
+	}
+	PtokenSequence r(macro_expand(tail, get_more, skip_defined, caller));
+	r.push_front(head);
+	return (r);
+}
+
+static PtokenSequence
+subst(const dequePtoken& is, const mapArgval &args, HideSet hs, PtokenSequence os, bool skip_defined, const Macro *caller)
+{
+	if (DP())
+		cout << "subst: os=" << os << endl;
+	if (is.empty())
+		return (hsadd(hs, os));
+	Ptoken head(is.front());
+	dequePtoken tail(is);
+	tail.pop_front();
+	mapArgval::const_iterator ai;
+	if (head.get_code() == '#' && !tail.empty() && (ai = find_formal_argument(args, tail.front())) != args.end()) {
+		tail.pop_front();
+		os.push_back(stringize(ai->second));
+		return (subst(tail, args, hs, os, skip_defined, caller));
+	} else if (head.get_code() == CPP_CONCAT && !tail.empty() && (ai = find_formal_argument(args, tail.front())) != args.end()) {
+		tail.pop_front();
+		if (ai->second.size() == 0)	// Only if actuals can be empty
+			return (subst(tail, args, hs, os, skip_defined, caller));
+		else
+			return (subst(tail, args, hs, glue(os, ai->second), skip_defined, caller));
+	} else if (head.get_code() == CPP_CONCAT && !tail.empty()) {
+		PtokenSequence t(tail.begin(), tail.begin());
+		tail.pop_front();
+		return (subst(tail, args, hs, glue(os, t), skip_defined, caller));
+	} else if (!tail.empty() && tail.front().get_code() == CPP_CONCAT && (ai = find_formal_argument(args, head)) != args.end()) {
+		if (ai->second.size() == 0) {	// Only if actuals can be empty
+			tail.pop_front();
+			if (!tail.empty() && (ai = find_formal_argument(args, tail.front())) != args.end()) {
+				tail.pop_front();
+				PtokenSequence actual(ai->second);
+				os.splice(os.end(), actual);
+				return (subst(tail, args, hs, os, skip_defined, caller));
+			} else {
+				return (subst(tail, args, hs, os, skip_defined, caller));
+			}
+		} else {
+			PtokenSequence actual(ai->second);
+			os.splice(os.end(), actual);
+			return (subst(tail, args, hs, os, skip_defined, caller));
+		}
+	} else if ((ai = find_formal_argument(args, head)) != args.end()) {
+		PtokenSequence expanded(macro_expand(ai->second, false, skip_defined, caller));
+		os.splice(os.end(), expanded);
+		return (subst(tail, args, hs, os, skip_defined, caller));
+	}
+	os.push_back(head);
+	return (subst(tail, args, hs, os, skip_defined, caller));
+}
+
+// Return a new token sequence with hs added to the hide set of every element of ts
+static PtokenSequence
+hsadd(const HideSet& hs, const PtokenSequence& ts)
+{
+	PtokenSequence r;
+	for (PtokenSequence::const_iterator i = ts.begin(); i != ts.end(); i++) {
+		Ptoken t(*i);
+		t.hideset_insert(hs.begin(), hs.end());
+		r.push_back(t);
+	}
+	return (r);
+}
+
+// Paste last of left side with first of right side
+static PtokenSequence
+glue(PtokenSequence ls, PtokenSequence rs)
+{
+	if (ls.empty())
+		return (rs);
+	// XXX Might have to deal with spaces here
+	Tchar::clear();
+	Tchar::push_input(ls.back());
+	Tchar::push_input(rs.front());
+	if (DP()) cout << "concat A:" << ls.back() << "B: " << rs.front() << "\n";
+	ls.pop_back();
+	rs.pop_front();
+	Tchar::rewind_input();
+	for (;;) {
+		Pltoken t;
+		t.getnext<Tchar>();
+		if (t.get_code() == EOF)
+			break;
+		if (DP()) cout << "Result: " << t ;
+		ls.push_back(t);
+	}
+	ls.splice(ls.end(), rs);
+	return (ls);
+}
+
+// Try to ensure that ts has at least one non-space token
+// Return true if this is the case
+static bool
+fill_in(PtokenSequence &ts, bool get_more)
+{
+	while (!ts.empty() && ts.front().is_space())
+		ts.pop_front();
+	if (!ts.empty())
+		return (true);
+	if (get_more) {
+		Pltoken t;
+		do {
+			t.getnext_nospc<Fchar>();
+		} while (t.get_code() != EOF && t.is_space());
+		if (t.get_code() != EOF) {
+			ts.push_back(t);
+			return (true);
+		}
+	}
+	return (false);
 }
