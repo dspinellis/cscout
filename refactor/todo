@@ -1,6 +1,15 @@
-$Id: todo,v 1.73 2006/06/22 17:34:32 dds Exp $
+$Id: todo,v 1.74 2006/07/29 07:25:02 dds Exp $
 
-- spy-make should support yacc
+- Unused writable macros seem to appear multiple times.
+
+- Implement Dave Prosser's preprocessing algorithm and test
+  with cpp1.c cpp2.c cpp3.c
+
+- Function typedefs are not functions
+  typedef struct resource_list * bus_get_resource_list_t(device_t _dev, device_t _child);
+
+- Function declarations in multiple files should appear as a single function.
+int VOP_ISLOCKED_AP(struct vop_islocked_args *);
 
 - Handle the fact that y.tab.h is not in sync with the %token identifiers
   used in the .y file:
@@ -8,6 +17,25 @@ $Id: todo,v 1.73 2006/06/22 17:34:32 dds Exp $
   tabfile.h is #included, and its id is marked.
   When processing yacc tokens these get macro-expanded with the
   macros of that file ONLY
+  Test by obfuscating awk
+
+
+- Add support for preprocessor predicates (see predicate.h and the
+  20060625 blog entry.
+
+- Optimize file_hypertext by not calling check_ec for !isalnum or _
+  and in comments.  While at it, mark comments with a different
+  color.
+
+- Report unused include files only if the number a given include site
+  has been processed equals the number of include files that are unused
+  from that site. (maybe this is already the case)
+
+- Include fixincludes.awk and make-spy.pl in the distribution
+
+- Change \n in all DP() to ensure flushed output
+
+- spy-make should support yacc
 
 - Include spy-* into spy-make; add spy-yacc.
 
