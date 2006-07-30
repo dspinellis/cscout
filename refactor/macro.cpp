@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.36 2006/07/30 10:31:45 dds Exp $
+ * $Id: macro.cpp,v 1.37 2006/07/30 12:25:03 dds Exp $
  */
 
 #include <iostream>
@@ -388,7 +388,7 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 static PtokenSequence subst(const dequePtoken& is, const mapArgval &args, HideSet hs, PtokenSequence os, bool skip_defined, const Macro *caller);
 static PtokenSequence hsadd(const HideSet& hs, const PtokenSequence& ts);
 static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
-static bool fill_in(PtokenSequence &t, bool get_more);
+static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
 
 /*
  * Expand a token sequence
@@ -425,6 +425,7 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
 		if (!head.hideset_contains(m.get_name_token())) {
 			if (DP()) cout << "replacing for " << name << " tokens " << tail << endl;
 			Token::unify((*mi).second.name_token, head);
+			PtokenSequence removed_spaces;
 			if (!m.is_function) {
 				// Object-like macro
 				HideSet hs(head.get_hideset());
@@ -432,7 +433,7 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
 				PtokenSequence s(subst(m.value, mapArgval(), hs, PtokenSequence(), skip_defined, caller));
 				s.splice(s.end(), tail);
 				return (macro_expand(s, get_more, skip_defined, &m));
-			} else if (fill_in(tail, get_more) && tail.front().get_code() == '(') {
+			} else if (fill_in(tail, get_more, removed_spaces) && tail.front().get_code() == '(') {
 				// Application of a function-like macro
 				mapArgval args;			// Map from formal name to value
 
@@ -456,6 +457,10 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
 				PtokenSequence s(subst(m.value, args, hs, PtokenSequence(), skip_defined, caller));
 				s.splice(s.end(), tail);
 				return (macro_expand(s, get_more, skip_defined, &m));
+			} else {
+				// Function-like macro name lacking a (
+				if (DP()) cout << "splicing: [" << removed_spaces << ']' << endl;
+				tail.splice(tail.begin(), removed_spaces);
 			}
 		} else {
 			// Skip the head token if it is in the hideset
@@ -557,24 +562,33 @@ glue(PtokenSequence ls, PtokenSequence rs)
 	return (ls);
 }
 
-// Try to ensure that ts has at least one non-space token
-// Return true if this is the case
+/*
+ * Try to ensure that ts has at least one non-space token
+ * Return true if this is the case
+ * Return any discarded space tokens in removed
+ */
 static bool
-fill_in(PtokenSequence &ts, bool get_more)
+fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed)
 {
-	while (!ts.empty() && ts.front().is_space())
+	while (!ts.empty() && ts.front().is_space()) {
+		removed.push_back(ts.front());
 		ts.pop_front();
+	}
 	if (!ts.empty())
 		return (true);
 	if (get_more) {
 		Pltoken t;
-		do {
-			t.getnext_nospc<Fchar>();
-		} while (t.get_code() != EOF && t.is_space());
-		if (t.get_code() != EOF) {
-			ts.push_back(t);
-			return (true);
+		for (;;) {
+			t.getnext<Fchar>();
+			if (t.get_code() == EOF)
+				return (false);
+			else if (t.is_space())
+				removed.push_back(t);
+			else
+				break;
 		}
+		ts.push_back(t);
+		return (true);
 	}
 	return (false);
 }
