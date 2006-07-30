@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.105 2006/07/29 07:26:35 dds Exp $
+ * $Id: pdtoken.cpp,v 1.106 2006/07/30 12:42:28 dds Exp $
  */
 
 #include <iostream>
@@ -1112,6 +1112,16 @@ Pdtoken::get_body_token_macro_mcall(Tokid t)
 		return NULL;
 	else
 		return i->second;
+}
+
+ostream&
+operator<<(ostream& o,const dequePtoken &dp)
+{
+	dequePtoken::const_iterator i;
+
+	for (i = dp.begin(); i != dp.end(); i++)
+		o << *i;
+	return (o);
 }
 
 #ifdef UNIT_TEST

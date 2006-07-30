@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.29 2006/07/29 07:26:35 dds Exp $
+ * $Id: pdtoken.h,v 1.30 2006/07/30 12:42:28 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -87,5 +87,6 @@ public:
 	static bool skipping() { return skiplevel != 0; }
 };
 
+ostream& operator<<(ostream& o,const dequePtoken &dp);
 
 #endif // PDTOKEN
