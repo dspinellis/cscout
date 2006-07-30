@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.40 2006/07/30 14:46:45 dds Exp $
+ * $Id: macro.cpp,v 1.41 2006/07/30 15:13:56 dds Exp $
  */
 
 #include <iostream>
@@ -577,12 +577,17 @@ glue(PtokenSequence ls, PtokenSequence rs)
 		ls.pop_back();
 	while (rs.front().is_space())
 		rs.pop_front();
+	if (ls.empty() && rs.empty())
+		return (ls);
 	Tchar::clear();
-	Tchar::push_input(ls.back());
-	Tchar::push_input(rs.front());
-	if (DP()) cout << "concat A:" << ls.back() << "B: " << rs.front() << "\n";
-	ls.pop_back();
-	rs.pop_front();
+	if (!ls.empty()) {
+		Tchar::push_input(ls.back());
+		ls.pop_back();
+	}
+	if (!rs.empty()) {
+		Tchar::push_input(rs.front());
+		rs.pop_front();
+	}
 	Tchar::rewind_input();
 	for (;;) {
 		Pltoken t;
