@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.38 2006/07/30 13:20:05 dds Exp $
+ * $Id: macro.cpp,v 1.39 2006/07/30 14:38:41 dds Exp $
  */
 
 #include <iostream>
@@ -486,39 +486,61 @@ subst(const dequePtoken& is, const mapArgval &args, HideSet hs, PtokenSequence o
 		return (hsadd(hs, os));
 	Ptoken head(is.front());
 	dequePtoken tail(is);
+	dequePtoken::iterator ti;
 	tail.pop_front();
 	mapArgval::const_iterator ai;
-	if (head.get_code() == '#' && !tail.empty() && (ai = find_formal_argument(args, tail.front())) != args.end()) {
-		tail.pop_front();
-		os.push_back(stringize(ai->second));
-		return (subst(tail, args, hs, os, skip_defined, caller));
-	} else if (head.get_code() == CPP_CONCAT && !tail.empty() && (ai = find_formal_argument(args, tail.front())) != args.end()) {
-		tail.pop_front();
-		if (ai->second.size() == 0)	// Only if actuals can be empty
-			return (subst(tail, args, hs, os, skip_defined, caller));
-		else
-			return (subst(tail, args, hs, glue(os, ai->second), skip_defined, caller));
-	} else if (head.get_code() == CPP_CONCAT && !tail.empty()) {
-		PtokenSequence t(tail.begin(), tail.begin());
-		tail.pop_front();
-		return (subst(tail, args, hs, glue(os, t), skip_defined, caller));
-	} else if (!tail.empty() && tail.front().get_code() == CPP_CONCAT && (ai = find_formal_argument(args, head)) != args.end()) {
-		if (ai->second.size() == 0) {	// Only if actuals can be empty
-			tail.pop_front();
-			if (!tail.empty() && (ai = find_formal_argument(args, tail.front())) != args.end()) {
-				tail.pop_front();
+	switch (head.get_code()) {
+	case '#':
+		for (ti = tail.begin(); ti != tail.end(); ti++)
+			if (!ti->is_space() && (ai = find_formal_argument(args, *ti)) != args.end()) {
+				tail.erase(tail.begin(), ++ti);
+				os.push_back(stringize(ai->second));
+				return (subst(tail, args, hs, os, skip_defined, caller));
+			}
+		break;
+	case CPP_CONCAT:
+		for (ti = tail.begin(); ti != tail.end(); ti++)
+			if (!ti->is_space())
+				if ((ai = find_formal_argument(args, *ti)) != args.end()) {
+					tail.erase(tail.begin(), ++ti);
+					if (ai->second.size() == 0)	// Only if actuals can be empty
+						return (subst(tail, args, hs, os, skip_defined, caller));
+					else
+						return (subst(tail, args, hs, glue(os, ai->second), skip_defined, caller));
+				} else {
+					PtokenSequence t(ti, ti);
+					tail.erase(tail.begin(), ++ti);
+					return (subst(tail, args, hs, glue(os, t), skip_defined, caller));
+				}
+		break;
+	default:
+		if ((ai = find_formal_argument(args, head)) == args.end())
+			break;
+		for (ti = tail.begin(); ti != tail.end(); ti++)
+			if (!ti->is_space())
+				break;
+		if (ti != tail.end() && ti->get_code() == CPP_CONCAT) {
+			// Paste but not expand LHS, RHS
+			if (ai->second.size() == 0) {	// Only if actuals can be empty
+				tail.erase(tail.begin(), ++ti);	// Erase including ##
+				for (ti = tail.begin(); ti != tail.end(); ti++)
+					if (!ti->is_space())
+						if ((ai = find_formal_argument(args, *ti)) != args.end()) {
+							tail.erase(tail.begin(), ++ti);	// Erase the ## RHS
+							PtokenSequence actual(ai->second);
+							os.splice(os.end(), actual);
+							return (subst(tail, args, hs, os, skip_defined, caller));
+						} else
+							break;
+				return (subst(tail, args, hs, os, skip_defined, caller));
+			} else {
+				tail.erase(tail.begin(), ti);	// Erase up to ##
 				PtokenSequence actual(ai->second);
 				os.splice(os.end(), actual);
 				return (subst(tail, args, hs, os, skip_defined, caller));
-			} else {
-				return (subst(tail, args, hs, os, skip_defined, caller));
 			}
-		} else {
-			PtokenSequence actual(ai->second);
-			os.splice(os.end(), actual);
-			return (subst(tail, args, hs, os, skip_defined, caller));
 		}
-	} else if ((ai = find_formal_argument(args, head)) != args.end()) {
+		// Othewise expand head
 		PtokenSequence expanded(macro_expand(ai->second, false, skip_defined, caller));
 		os.splice(os.end(), expanded);
 		return (subst(tail, args, hs, os, skip_defined, caller));
@@ -547,7 +569,10 @@ glue(PtokenSequence ls, PtokenSequence rs)
 {
 	if (ls.empty())
 		return (rs);
-	// XXX Might have to deal with spaces here
+	while (ls.back().is_space())
+		ls.pop_back();
+	while (rs.front().is_space())
+		rs.pop_front();
 	Tchar::clear();
 	Tchar::push_input(ls.back());
 	Tchar::push_input(rs.front());
