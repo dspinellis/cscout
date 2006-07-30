@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.35 2006/07/29 07:26:35 dds Exp $
+ * $Id: macro.cpp,v 1.36 2006/07/30 10:31:45 dds Exp $
  */
 
 #include <iostream>
@@ -405,19 +405,12 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
 
 	const Ptoken &head(ts.front());
 
-	// Skip the head token if it is in the hideset
-	if (head.hideset_contains(head)) {
-		PtokenSequence tail(ts);
-		tail.pop_front();
-		PtokenSequence rest(macro_expand(tail, get_more, skip_defined, caller));
-		rest.push_front(head);
-		return (rest);
-	}
+	if (DP()) cout << "Expanding: " << ts << endl;
+	PtokenSequence tail(ts);
+	tail.pop_front();
 
 	// Skip the arguments of the defined operator, if needed
 	if (skip_defined && head.get_code() == IDENTIFIER && head.get_val() == "defined") {
-		PtokenSequence tail(ts);
-		tail.pop_front();
 		PtokenSequence da(gather_defined_operator(tail));
 		da.push_front(head);
 		PtokenSequence rest(macro_expand(tail, get_more, skip_defined, caller));
@@ -425,46 +418,48 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
 		return (da);
 	}
 
-	PtokenSequence tail(ts);
-	tail.pop_front();
-
 	const string name = head.get_val();
 	mapMacro::const_iterator mi(Pdtoken::macros_find(name));
 	if (Pdtoken::macro_is_defined(mi)) {
 		const Macro& m = mi->second;
-		if (DP()) cout << "replacing for " << name << " tokens " << tail << endl;
-		Token::unify((*mi).second.name_token, head);
-		if (!m.is_function) {
-			// Object-like macro
-			HideSet hs(head.get_hideset());
-			hs.insert(head);
-			PtokenSequence s(subst(m.value, mapArgval(), hs, PtokenSequence(), skip_defined, caller));
-			s.splice(s.end(), tail);
-			return (macro_expand(s, get_more, skip_defined, &m));
-		} else if (fill_in(tail, get_more) && tail.front().get_code() == '(') {
-			// Application of a function-like macro
-			mapArgval args;			// Map from formal name to value
+		if (!head.hideset_contains(m.get_name_token())) {
+			if (DP()) cout << "replacing for " << name << " tokens " << tail << endl;
+			Token::unify((*mi).second.name_token, head);
+			if (!m.is_function) {
+				// Object-like macro
+				HideSet hs(head.get_hideset());
+				hs.insert(m.get_name_token());
+				PtokenSequence s(subst(m.value, mapArgval(), hs, PtokenSequence(), skip_defined, caller));
+				s.splice(s.end(), tail);
+				return (macro_expand(s, get_more, skip_defined, &m));
+			} else if (fill_in(tail, get_more) && tail.front().get_code() == '(') {
+				// Application of a function-like macro
+				mapArgval args;			// Map from formal name to value
 
-			if (DP())
-				cout << "Expanding " << m << " inside " << caller << "\n";
-			if (caller && caller->is_function)
-				// Macro to macro call
-				Call::register_call(caller->get_mcall(), m.get_mcall());
-			else
-				// Function to macro call
-				Call::register_call(m.get_mcall());
-			tail.pop_front();
-			Ptoken close;
-			if (!gather_args(name, tail, m.formal_args, args, get_more, m.is_vararg, close))
-				return (PtokenSequence());	// Attempt to bail-out on error
-			HideSet hs;
-			set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
-				close.get_hideset().begin(), close.get_hideset().end(),
-				inserter(hs, hs.begin()));
-			hs.insert(head);
-			PtokenSequence s(subst(m.value, args, hs, PtokenSequence(), skip_defined, caller));
-			s.splice(s.end(), tail);
-			return (macro_expand(s, get_more, skip_defined, &m));
+				if (DP())
+					cout << "Expanding " << m << " inside " << caller << "\n";
+				if (caller && caller->is_function)
+					// Macro to macro call
+					Call::register_call(caller->get_mcall(), m.get_mcall());
+				else
+					// Function to macro call
+					Call::register_call(m.get_mcall());
+				tail.pop_front();
+				Ptoken close;
+				if (!gather_args(name, tail, m.formal_args, args, get_more, m.is_vararg, close))
+					return (PtokenSequence());	// Attempt to bail-out on error
+				HideSet hs;
+				set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
+					close.get_hideset().begin(), close.get_hideset().end(),
+					inserter(hs, hs.begin()));
+				hs.insert(m.get_name_token());
+				PtokenSequence s(subst(m.value, args, hs, PtokenSequence(), skip_defined, caller));
+				s.splice(s.end(), tail);
+				return (macro_expand(s, get_more, skip_defined, &m));
+			}
+		} else {
+			// Skip the head token if it is in the hideset
+			if (DP()) cout << "Skipping (head is in HS)" << endl;
 		}
 	}
 	PtokenSequence r(macro_expand(tail, get_more, skip_defined, caller));
@@ -532,6 +527,7 @@ hsadd(const HideSet& hs, const PtokenSequence& ts)
 		t.hideset_insert(hs.begin(), hs.end());
 		r.push_back(t);
 	}
+	if (DP()) cout << "hsadd returns: " << r << endl;
 	return (r);
 }
 
