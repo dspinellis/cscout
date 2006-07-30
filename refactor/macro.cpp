@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.44 2006/07/30 16:39:03 dds Exp $
+ * $Id: macro.cpp,v 1.45 2006/07/30 22:17:04 dds Exp $
  */
 
 #include <iostream>
@@ -395,10 +395,10 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
 		const Macro& m = mi->second;
 		if (!head.hideset_contains(m.get_name_token())) {
 			if (DP()) cout << "replacing for " << name << " tokens " << tail << endl;
-			Token::unify((*mi).second.name_token, head);
 			PtokenSequence removed_spaces;
 			if (!m.is_function) {
 				// Object-like macro
+				Token::unify((*mi).second.name_token, head);
 				HideSet hs(head.get_hideset());
 				hs.insert(m.get_name_token());
 				PtokenSequence s(subst(m, m.value, mapArgval(), hs, PtokenSequence(), skip_defined, caller));
@@ -406,6 +406,7 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
 				return (macro_expand(s, get_more, skip_defined, &m));
 			} else if (fill_in(tail, get_more, removed_spaces) && tail.front().get_code() == '(') {
 				// Application of a function-like macro
+				Token::unify((*mi).second.name_token, head);
 				mapArgval args;			// Map from formal name to value
 
 				if (DP())
