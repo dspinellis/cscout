@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.43 2006/07/30 16:09:17 dds Exp $
+ * $Id: macro.cpp,v 1.44 2006/07/30 16:39:03 dds Exp $
  */
 
 #include <iostream>
@@ -479,7 +479,7 @@ subst(const Macro &m, const dequePtoken& is, const mapArgval &args, HideSet hs, 
 					else
 						return (subst(m, tail, args, hs, glue(os, ai->second), skip_defined, caller));
 				} else {
-					PtokenSequence t(ti, ti);
+					PtokenSequence t(ti, ti + 1);
 					tail.erase(tail.begin(), ++ti);
 					return (subst(m, tail, args, hs, glue(os, t), skip_defined, caller));
 				}
@@ -569,10 +569,12 @@ glue(PtokenSequence ls, PtokenSequence rs)
 		return (ls);
 	Tchar::clear();
 	if (!ls.empty()) {
+		if (DP()) cout << "glue LS: " << ls.back() << endl;
 		Tchar::push_input(ls.back());
 		ls.pop_back();
 	}
 	if (!rs.empty()) {
+		if (DP()) cout << "glue RS: " << rs.front() << endl;
 		Tchar::push_input(rs.front());
 		rs.pop_front();
 	}
@@ -582,10 +584,11 @@ glue(PtokenSequence ls, PtokenSequence rs)
 		t.getnext<Tchar>();
 		if (t.get_code() == EOF)
 			break;
-		if (DP()) cout << "Result: " << t ;
+		if (DP()) cout << "glue result: " << t << endl;
 		ls.push_back(t);
 	}
 	ls.splice(ls.end(), rs);
+	if (DP()) cout << "glue returns: " << ls << endl;
 	return (ls);
 }
 
