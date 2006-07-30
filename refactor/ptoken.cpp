@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ptoken.cpp,v 1.14 2006/07/29 07:26:35 dds Exp $
+ * $Id: ptoken.cpp,v 1.15 2006/07/30 10:30:50 dds Exp $
  */
 
 #include <iostream>
@@ -28,7 +28,10 @@ ostream&
 operator<<(ostream& o,const Ptoken &t)
 {
 	o << (Token)t;
-	o << "Value: [" << t.val << "]\n";
+	o << "Value: [" << t.val << "] HS(";
+	for (HideSet::const_iterator i = t.hideset.begin(); i != t.hideset.end(); i++)
+		o << *i;
+	o << ')' << endl;
 	return (o);
 }
 
@@ -37,7 +40,7 @@ ostream& operator<<(ostream& o,const PtokenSequence &t)
 	PtokenSequence::const_iterator i;
 
 	for (i = t.begin(); i != t.end(); i++)
-		o << (*i).get_val();
+		o << *i;
 	return (o);
 }
 
