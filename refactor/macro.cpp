@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.41 2006/07/30 15:13:56 dds Exp $
+ * $Id: macro.cpp,v 1.42 2006/07/30 15:25:57 dds Exp $
  */
 
 #include <iostream>
@@ -49,7 +49,7 @@
  * Leave in tokens the first token not gathered.
  * If want_space is true return spaces, otherwise discard them
  */
-Ptoken
+static Ptoken
 arg_token(PtokenSequence& tokens, bool get_more, bool want_space)
 {
 	if (want_space) {
@@ -212,39 +212,6 @@ stringize(const PtokenSequence& ts)
 	// Remove trailing spaces
 	res.erase((find_if(res.rbegin(), res.rend(), not1(ptr_fun<int, int>(isspace)))).base(), res.end());
 	return (Ptoken(STRING_LITERAL, res));
-}
-
-
-/*
- * Return true if if macro-replacement of *p occuring within v is allowed.
- * According to ANSI 3.8.3.1 p. 91
- * macro replacement is not performed when the argument is preceded by # or ##
- * or followed by ##.
- * These rules do not take into account space tokens.
- */
-bool
-macro_replacement_allowed(const dequePtoken& v, dequePtoken::const_iterator p)
-{
-	dequePtoken::const_iterator i;
-
-	// Check previous first non-white token
-	for (i = p; i != v.begin(); ) {
-		i--;
-		if ((*i).get_code() == '#' || (*i).get_code() == CPP_CONCAT)
-			return (false);
-		if (!(*i).is_space())
-			break;
-	}
-
-	// Check next first non-white token
-	for (i = p + 1; i != v.end(); i++) {
-		if ((*i).get_code() == CPP_CONCAT)
-			return (false);
-		if (!(*i).is_space())
-			break;
-	}
-
-	return (true);
 }
 
 /*
