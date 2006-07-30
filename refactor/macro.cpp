@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.37 2006/07/30 12:25:03 dds Exp $
+ * $Id: macro.cpp,v 1.38 2006/07/30 13:20:05 dds Exp $
  */
 
 #include <iostream>
@@ -472,11 +472,16 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
 	return (r);
 }
 
+/*
+ * Substitute the arguments args appearing in the input sequence
+ * Result is created in the output sequence and finally has the specified
+ * hide set added to it, before getting returned.
+ */
 static PtokenSequence
 subst(const dequePtoken& is, const mapArgval &args, HideSet hs, PtokenSequence os, bool skip_defined, const Macro *caller)
 {
 	if (DP())
-		cout << "subst: os=" << os << endl;
+		cout << "subst: is=" << is << " os=" << os << endl;
 	if (is.empty())
 		return (hsadd(hs, os));
 	Ptoken head(is.front());
