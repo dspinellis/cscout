@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.39 2006/07/30 14:38:41 dds Exp $
+ * $Id: macro.cpp,v 1.40 2006/07/30 14:46:45 dds Exp $
  */
 
 #include <iostream>
@@ -262,12 +262,13 @@ gather_defined_operator(PtokenSequence& tokens)
 		r.push_back(tokens.front());
 		tokens.pop_front();
 	}
-	if (tokens.front().get_code() == IDENTIFIER) {
+	switch (tokens.front().get_code()) {
+	case IDENTIFIER:
 		// defined X form
 		r.push_back(tokens.front());
 		tokens.pop_front();
 		return (r);
-	} else if (tokens.front().get_code() == '(') {
+	case '(':
 		// defined (X) form
 		r.push_back(tokens.front());
 		tokens.pop_front();
@@ -278,6 +279,8 @@ gather_defined_operator(PtokenSequence& tokens)
 		}
 		if (tokens.front().get_code() != IDENTIFIER)
 			goto error;
+		r.push_back(tokens.front());
+		tokens.pop_front();
 		// Skip space
 		while (tokens.front().get_code() == SPACE) {
 			r.push_back(tokens.front());
@@ -288,8 +291,8 @@ gather_defined_operator(PtokenSequence& tokens)
 		r.push_back(tokens.front());
 		tokens.pop_front();
 		return (r);
-	} else
-error:
+	default:
+	error:
 		/*
 		 * @error
 		 * The preprocessor operator
@@ -299,6 +302,7 @@ error:
 		 */
 		Error::error(E_ERR, "Invalid use of the defined preprocessor operator");
 		return (r);
+	}
 }
 
 // Return an arg iterator if token is a formal argument
