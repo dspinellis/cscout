@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.12 2006/06/22 21:02:29 dds Exp $
+# $Id: runtest.sh,v 1.13 2006/07/30 11:50:24 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -224,16 +224,30 @@ workspace TestWS {
 perl prjcomp.pl -E -d $DOTCSCOUT >makecs.cs
 }
 
+# Set the test control variables to the passed value
+set_test()
+{
+	TEST_AWK=$1
+	TEST_RECONST=$1
+	TEST_CPP=$1
+	TEST_C=$1
+}
+
 #
 # Main script starts here
 #
 
 # Parse command-line arguments
+set_test 1
 while test $# -gt 0; do
         case $1 in
 	-p)	PRIME=1
 		;;
 	-k)	CONTINUE=1
+		;;
+	-T*)	set_test 0
+		var=`echo $1 | sed 's/^-//'`
+		eval $var=1
 		;;
 	esac
 	shift
@@ -246,50 +260,72 @@ eagle)
 	HSQLDB="java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc"
 	IPATH=/dds/src/research/CScout/include
 	DOTCSCOUT=/dds/src/research/CScout/example/.cscout
+	NULL=NUL
 	;;
 sense)
 	CSCOUT=$HOME/src/cscout/sparc/cscout
 	HSQLDB="java -classpath $HOME/lib/hsqldb/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HOME/lib/hsqldb/sqltool.rc"
 	IPATH=$HOME/src/include
 	DOTCSCOUT=$HOME/src/example/.cscout
+	NULL=/dev/null
 	;;
 esac
 
 # See that we are running a version of CScout that supports SQL dumps
 :>/tmp/empty
-if ! $CSCOUT -s hsqldb $CSFILE /tmp/empty 2>/dev/null
+if ! $CSCOUT -s hsqldb $CSFILE /tmp/empty 2>$NULL >$NULL
 then
 	echo 'CScout is not compiled with DEBUG=1 or LICENSEE=...' 1>&2
 	exit 1
 fi
 rm -f /tmp/empty
 
-# Test reconstitution of individual C files (no priming required)
-FILES=`cd test/c; echo *.c`
-for i in $FILES
-do
-	makecs_c $i
-	runtest_chunk $i . makecs.cs
-done
+if [ $TEST_RECONST = 1 ]
+then
+	echo 'Running reconstitution tests'
+	echo '----------------------------'
+	# Test reconstitution of individual C files (no priming required)
+	FILES=`cd test/c; echo *.c`
+	for i in $FILES
+	do
+		makecs_c $i
+		runtest_chunk $i . makecs.cs
+	done
+fi
 
-# Test cases for C preprocessor files
-FILES=`cd test/cpp; echo *.c`
-for i in $FILES
-do
-	makecs_cpp $i
-	runtest_cpp $i . makecs.cs
-done
+if [ $TEST_CPP = 1 ]
+then
+	echo 'Running preprocessor tests'
+	echo '--------------------------'
+	# Test cases for C preprocessor files
+	FILES=`cd test/cpp; echo *.c`
+	for i in $FILES
+	do
+		makecs_cpp $i
+		runtest_cpp $i . makecs.cs
+	done
+fi
 
 # Test cases for individual C files
-FILES=`cd test/c; echo *.c`
-for i in $FILES
-do
-	makecs_c $i
-	runtest_c $i . makecs.cs
-done
+if [ $TEST_C = 1 ]
+then
+	echo 'Running C tests'
+	echo '---------------'
+	FILES=`cd test/c; echo *.c`
+	for i in $FILES
+	do
+		makecs_c $i
+		runtest_c $i . makecs.cs
+	done
+fi
 
 # awk
-runtest_c awk.c ../example awk.cs
+if [ $TEST_AWK = 1 ]
+then
+	echo 'Running the awk test'
+	echo '--------------------'
+	runtest_c awk.c ../example awk.cs
+fi
 
 # Finish priming
 if [ "$PRIME" = "1" ]
