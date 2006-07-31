@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.47 2006/07/31 21:43:34 dds Exp $
+ * $Id: macro.cpp,v 1.48 2006/07/31 22:00:00 dds Exp $
  */
 
 #include <iostream>
@@ -371,16 +371,11 @@ static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
 PtokenSequence
 macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *caller)
 {
-	PtokenSequence r;
+	PtokenSequence r;	// Return value
 
-	for (;;) {
-again:
-		if (ts.empty())
-			return (r);
-
+	if (DP()) cout << "Expanding: " << ts << endl;
+	while (!ts.empty()) {
 		const Ptoken head(ts.front());
-
-		if (DP()) cout << "Expanding: " << ts << endl;
 		ts.pop_front();
 
 		// Skip the arguments of the defined operator, if needed
@@ -388,7 +383,7 @@ again:
 			PtokenSequence da(gather_defined_operator(ts));
 			r.push_back(head);
 			r.splice(r.end(), da);
-			goto again;
+			continue;
 		}
 
 		const string name = head.get_val();
@@ -406,7 +401,7 @@ again:
 					PtokenSequence s(subst(m, m.value, mapArgval(), hs, skip_defined, caller));
 					ts.splice(ts.begin(), s);
 					caller = &m;
-					goto again;
+					continue;
 				} else if (fill_in(ts, get_more, removed_spaces) && ts.front().get_code() == '(') {
 					// Application of a function-like macro
 					Token::unify((*mi).second.name_token, head);
@@ -423,7 +418,7 @@ again:
 					ts.pop_front();
 					Ptoken close;
 					if (!gather_args(name, ts, m.formal_args, args, get_more, m.is_vararg, close))
-						goto again;	// Attempt to bail-out on error
+						continue;	// Attempt to bail-out on error
 					HideSet hs;
 					set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
 						close.get_hideset().begin(), close.get_hideset().end(),
@@ -432,7 +427,7 @@ again:
 					PtokenSequence s(subst(m, m.value, args, hs, skip_defined, caller));
 					ts.splice(ts.begin(), s);
 					caller = &m;
-					goto again;
+					continue;
 				} else {
 					// Function-like macro name lacking a (
 					if (DP()) cout << "splicing: [" << removed_spaces << ']' << endl;
@@ -445,6 +440,7 @@ again:
 		}
 		r.push_back(head);
 	}
+	return (r);
 }
 
 /*
