@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.48 2006/07/31 22:00:00 dds Exp $
+ * $Id: macro.cpp,v 1.49 2006/07/31 22:08:52 dds Exp $
  */
 
 #include <iostream>
@@ -388,57 +388,60 @@ macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *c
 
 		const string name = head.get_val();
 		mapMacro::const_iterator mi(Pdtoken::macros_find(name));
-		if (Pdtoken::macro_is_defined(mi)) {
-			const Macro& m = mi->second;
-			if (!head.hideset_contains(m.get_name_token())) {
-				if (DP()) cout << "replacing for " << name << " tokens " << ts << endl;
-				PtokenSequence removed_spaces;
-				if (!m.is_function) {
-					// Object-like macro
-					Token::unify((*mi).second.name_token, head);
-					HideSet hs(head.get_hideset());
-					hs.insert(m.get_name_token());
-					PtokenSequence s(subst(m, m.value, mapArgval(), hs, skip_defined, caller));
-					ts.splice(ts.begin(), s);
-					caller = &m;
-					continue;
-				} else if (fill_in(ts, get_more, removed_spaces) && ts.front().get_code() == '(') {
-					// Application of a function-like macro
-					Token::unify((*mi).second.name_token, head);
-					mapArgval args;			// Map from formal name to value
-
-					if (DP())
-						cout << "Expanding " << m << " inside " << caller << "\n";
-					if (caller && caller->is_function)
-						// Macro to macro call
-						Call::register_call(caller->get_mcall(), m.get_mcall());
-					else
-						// Function to macro call
-						Call::register_call(m.get_mcall());
-					ts.pop_front();
-					Ptoken close;
-					if (!gather_args(name, ts, m.formal_args, args, get_more, m.is_vararg, close))
-						continue;	// Attempt to bail-out on error
-					HideSet hs;
-					set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
-						close.get_hideset().begin(), close.get_hideset().end(),
-						inserter(hs, hs.begin()));
-					hs.insert(m.get_name_token());
-					PtokenSequence s(subst(m, m.value, args, hs, skip_defined, caller));
-					ts.splice(ts.begin(), s);
-					caller = &m;
-					continue;
-				} else {
-					// Function-like macro name lacking a (
-					if (DP()) cout << "splicing: [" << removed_spaces << ']' << endl;
-					ts.splice(ts.begin(), removed_spaces);
-				}
-			} else {
-				// Skip the head token if it is in the hideset
-				if (DP()) cout << "Skipping (head is in HS)" << endl;
-			}
+		if (!Pdtoken::macro_is_defined(mi)) {
+			r.push_back(head);
+			continue;
 		}
-		r.push_back(head);
+
+		const Macro& m = mi->second;
+		if (head.hideset_contains(m.get_name_token())) {
+			// Skip the head token if it is in the hideset
+			if (DP()) cout << "Skipping (head is in HS)" << endl;
+			r.push_back(head);
+			continue;
+		}
+
+		if (DP()) cout << "replacing for " << name << " tokens " << ts << endl;
+		PtokenSequence removed_spaces;
+		if (!m.is_function) {
+			// Object-like macro
+			Token::unify((*mi).second.name_token, head);
+			HideSet hs(head.get_hideset());
+			hs.insert(m.get_name_token());
+			PtokenSequence s(subst(m, m.value, mapArgval(), hs, skip_defined, caller));
+			ts.splice(ts.begin(), s);
+			caller = &m;
+		} else if (fill_in(ts, get_more, removed_spaces) && ts.front().get_code() == '(') {
+			// Application of a function-like macro
+			Token::unify((*mi).second.name_token, head);
+			mapArgval args;			// Map from formal name to value
+
+			if (DP())
+				cout << "Expanding " << m << " inside " << caller << "\n";
+			if (caller && caller->is_function)
+				// Macro to macro call
+				Call::register_call(caller->get_mcall(), m.get_mcall());
+			else
+				// Function to macro call
+				Call::register_call(m.get_mcall());
+			ts.pop_front();
+			Ptoken close;
+			if (!gather_args(name, ts, m.formal_args, args, get_more, m.is_vararg, close))
+				continue;	// Attempt to bail-out on error
+			HideSet hs;
+			set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
+				close.get_hideset().begin(), close.get_hideset().end(),
+				inserter(hs, hs.begin()));
+			hs.insert(m.get_name_token());
+			PtokenSequence s(subst(m, m.value, args, hs, skip_defined, caller));
+			ts.splice(ts.begin(), s);
+			caller = &m;
+		} else {
+			// Function-like macro name lacking a (
+			if (DP()) cout << "splicing: [" << removed_spaces << ']' << endl;
+			ts.splice(ts.begin(), removed_spaces);
+			r.push_back(head);
+		}
 	}
 	return (r);
 }
