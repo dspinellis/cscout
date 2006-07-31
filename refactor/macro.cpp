@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.45 2006/07/30 22:17:04 dds Exp $
+ * $Id: macro.cpp,v 1.46 2006/07/31 11:58:33 dds Exp $
  */
 
 #include <iostream>
@@ -356,7 +356,7 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 		mcall = NULL;	// To void nasty surprises
 }
 
-static PtokenSequence subst(const Macro &m, const dequePtoken& is, const mapArgval &args, HideSet hs, PtokenSequence os, bool skip_defined, const Macro *caller);
+static PtokenSequence subst(const Macro &m, const dequePtoken& is, const mapArgval &args, const HideSet &hs, PtokenSequence os, bool skip_defined, const Macro *caller);
 static PtokenSequence hsadd(const HideSet& hs, const PtokenSequence& ts);
 static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
 static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
@@ -450,7 +450,7 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
  * hide set added to it, before getting returned.
  */
 static PtokenSequence
-subst(const Macro &m, const dequePtoken& is, const mapArgval &args, HideSet hs, PtokenSequence os, bool skip_defined, const Macro *caller)
+subst(const Macro &m, const dequePtoken& is, const mapArgval &args, const HideSet &hs, PtokenSequence os, bool skip_defined, const Macro *caller)
 {
 	if (DP())
 		cout << "subst: is=" << is << " os=" << os << endl;
