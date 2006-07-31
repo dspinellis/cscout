@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.15 2006/07/30 16:09:17 dds Exp $
+ * $Id: macro.h,v 1.16 2006/07/31 21:43:34 dds Exp $
  */
 
 #ifndef MACRO_
@@ -59,7 +59,7 @@ public:
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Macro &m);
 
-	friend PtokenSequence macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const Macro *caller = NULL);
+	friend PtokenSequence macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *caller = NULL);
 };
 
 #endif // MACRO

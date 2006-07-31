@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.46 2006/07/31 11:58:33 dds Exp $
+ * $Id: macro.cpp,v 1.47 2006/07/31 21:43:34 dds Exp $
  */
 
 #include <iostream>
@@ -356,7 +356,7 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 		mcall = NULL;	// To void nasty surprises
 }
 
-static PtokenSequence subst(const Macro &m, const dequePtoken& is, const mapArgval &args, const HideSet &hs, PtokenSequence os, bool skip_defined, const Macro *caller);
+static PtokenSequence subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, const Macro *caller);
 static PtokenSequence hsadd(const HideSet& hs, const PtokenSequence& ts);
 static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
 static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
@@ -369,79 +369,82 @@ static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
  * X3J11/86-196
  */
 PtokenSequence
-macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const Macro *caller)
+macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *caller)
 {
-	if (ts.empty())
-		return (ts);
+	PtokenSequence r;
 
-	const Ptoken &head(ts.front());
+	for (;;) {
+again:
+		if (ts.empty())
+			return (r);
 
-	if (DP()) cout << "Expanding: " << ts << endl;
-	PtokenSequence tail(ts);
-	tail.pop_front();
+		const Ptoken head(ts.front());
 
-	// Skip the arguments of the defined operator, if needed
-	if (skip_defined && head.get_code() == IDENTIFIER && head.get_val() == "defined") {
-		PtokenSequence da(gather_defined_operator(tail));
-		da.push_front(head);
-		PtokenSequence rest(macro_expand(tail, get_more, skip_defined, caller));
-		da.splice(da.end(), rest);
-		return (da);
-	}
+		if (DP()) cout << "Expanding: " << ts << endl;
+		ts.pop_front();
 
-	const string name = head.get_val();
-	mapMacro::const_iterator mi(Pdtoken::macros_find(name));
-	if (Pdtoken::macro_is_defined(mi)) {
-		const Macro& m = mi->second;
-		if (!head.hideset_contains(m.get_name_token())) {
-			if (DP()) cout << "replacing for " << name << " tokens " << tail << endl;
-			PtokenSequence removed_spaces;
-			if (!m.is_function) {
-				// Object-like macro
-				Token::unify((*mi).second.name_token, head);
-				HideSet hs(head.get_hideset());
-				hs.insert(m.get_name_token());
-				PtokenSequence s(subst(m, m.value, mapArgval(), hs, PtokenSequence(), skip_defined, caller));
-				s.splice(s.end(), tail);
-				return (macro_expand(s, get_more, skip_defined, &m));
-			} else if (fill_in(tail, get_more, removed_spaces) && tail.front().get_code() == '(') {
-				// Application of a function-like macro
-				Token::unify((*mi).second.name_token, head);
-				mapArgval args;			// Map from formal name to value
-
-				if (DP())
-					cout << "Expanding " << m << " inside " << caller << "\n";
-				if (caller && caller->is_function)
-					// Macro to macro call
-					Call::register_call(caller->get_mcall(), m.get_mcall());
-				else
-					// Function to macro call
-					Call::register_call(m.get_mcall());
-				tail.pop_front();
-				Ptoken close;
-				if (!gather_args(name, tail, m.formal_args, args, get_more, m.is_vararg, close))
-					return (PtokenSequence());	// Attempt to bail-out on error
-				HideSet hs;
-				set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
-					close.get_hideset().begin(), close.get_hideset().end(),
-					inserter(hs, hs.begin()));
-				hs.insert(m.get_name_token());
-				PtokenSequence s(subst(m, m.value, args, hs, PtokenSequence(), skip_defined, caller));
-				s.splice(s.end(), tail);
-				return (macro_expand(s, get_more, skip_defined, &m));
-			} else {
-				// Function-like macro name lacking a (
-				if (DP()) cout << "splicing: [" << removed_spaces << ']' << endl;
-				tail.splice(tail.begin(), removed_spaces);
-			}
-		} else {
-			// Skip the head token if it is in the hideset
-			if (DP()) cout << "Skipping (head is in HS)" << endl;
+		// Skip the arguments of the defined operator, if needed
+		if (skip_defined && head.get_code() == IDENTIFIER && head.get_val() == "defined") {
+			PtokenSequence da(gather_defined_operator(ts));
+			r.push_back(head);
+			r.splice(r.end(), da);
+			goto again;
 		}
+
+		const string name = head.get_val();
+		mapMacro::const_iterator mi(Pdtoken::macros_find(name));
+		if (Pdtoken::macro_is_defined(mi)) {
+			const Macro& m = mi->second;
+			if (!head.hideset_contains(m.get_name_token())) {
+				if (DP()) cout << "replacing for " << name << " tokens " << ts << endl;
+				PtokenSequence removed_spaces;
+				if (!m.is_function) {
+					// Object-like macro
+					Token::unify((*mi).second.name_token, head);
+					HideSet hs(head.get_hideset());
+					hs.insert(m.get_name_token());
+					PtokenSequence s(subst(m, m.value, mapArgval(), hs, skip_defined, caller));
+					ts.splice(ts.begin(), s);
+					caller = &m;
+					goto again;
+				} else if (fill_in(ts, get_more, removed_spaces) && ts.front().get_code() == '(') {
+					// Application of a function-like macro
+					Token::unify((*mi).second.name_token, head);
+					mapArgval args;			// Map from formal name to value
+
+					if (DP())
+						cout << "Expanding " << m << " inside " << caller << "\n";
+					if (caller && caller->is_function)
+						// Macro to macro call
+						Call::register_call(caller->get_mcall(), m.get_mcall());
+					else
+						// Function to macro call
+						Call::register_call(m.get_mcall());
+					ts.pop_front();
+					Ptoken close;
+					if (!gather_args(name, ts, m.formal_args, args, get_more, m.is_vararg, close))
+						goto again;	// Attempt to bail-out on error
+					HideSet hs;
+					set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
+						close.get_hideset().begin(), close.get_hideset().end(),
+						inserter(hs, hs.begin()));
+					hs.insert(m.get_name_token());
+					PtokenSequence s(subst(m, m.value, args, hs, skip_defined, caller));
+					ts.splice(ts.begin(), s);
+					caller = &m;
+					goto again;
+				} else {
+					// Function-like macro name lacking a (
+					if (DP()) cout << "splicing: [" << removed_spaces << ']' << endl;
+					ts.splice(ts.begin(), removed_spaces);
+				}
+			} else {
+				// Skip the head token if it is in the hideset
+				if (DP()) cout << "Skipping (head is in HS)" << endl;
+			}
+		}
+		r.push_back(head);
 	}
-	PtokenSequence r(macro_expand(tail, get_more, skip_defined, caller));
-	r.push_front(head);
-	return (r);
 }
 
 /*
@@ -450,96 +453,98 @@ macro_expand(const PtokenSequence& ts, bool get_more, bool skip_defined, const M
  * hide set added to it, before getting returned.
  */
 static PtokenSequence
-subst(const Macro &m, const dequePtoken& is, const mapArgval &args, const HideSet &hs, PtokenSequence os, bool skip_defined, const Macro *caller)
+subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, const Macro *caller)
 {
-	if (DP())
-		cout << "subst: is=" << is << " os=" << os << endl;
-	if (is.empty())
-		return (hsadd(hs, os));
-	Ptoken head(is.front());
-	dequePtoken tail(is);
-	dequePtoken::iterator ti, ti2;
-	tail.pop_front();
-	mapArgval::const_iterator ai;
-	switch (head.get_code()) {
-	case '#':
-		for (ti = tail.begin(); ti != tail.end(); ti++)
-			if (!ti->is_space() && (ai = find_formal_argument(args, *ti)) != args.end()) {
-				tail.erase(tail.begin(), ++ti);
-				os.push_back(stringize(ai->second));
-				return (subst(m, tail, args, hs, os, skip_defined, caller));
-			}
-		break;
-	case CPP_CONCAT:
-		for (ti = tail.begin(); ti != tail.end(); ti++)
-			if (!ti->is_space())
-				if ((ai = find_formal_argument(args, *ti)) != args.end()) {
-					tail.erase(tail.begin(), ++ti);
-					if (ai->second.size() == 0)	// Only if actuals can be empty
-						return (subst(m, tail, args, hs, os, skip_defined, caller));
-					else
-						return (subst(m, tail, args, hs, glue(os, ai->second), skip_defined, caller));
-				} else {
-					PtokenSequence t(ti, ti + 1);
-					tail.erase(tail.begin(), ++ti);
-					return (subst(m, tail, args, hs, glue(os, t), skip_defined, caller));
+	PtokenSequence os;
+	for (;;) {
+again:
+		if (DP())
+			cout << "subst: is=" << is << " os=" << os << endl;
+		if (is.empty())
+			return (hsadd(hs, os));
+		const Ptoken head(is.front());
+		is.pop_front();
+		dequePtoken::iterator ti, ti2;
+		mapArgval::const_iterator ai;
+		switch (head.get_code()) {
+		case '#':
+			for (ti = is.begin(); ti != is.end(); ti++)
+				if (!ti->is_space() && (ai = find_formal_argument(args, *ti)) != args.end()) {
+					is.erase(is.begin(), ++ti);
+					os.push_back(stringize(ai->second));
+					goto again;
 				}
-		break;
-	default:
-		for (ti = tail.begin(); ti != tail.end(); ti++)
-			if (!ti->is_space())
-				break;
-		if (ti != tail.end() && ti->get_code() == CPP_CONCAT) {
-			/*
-			 * Implement the following gcc extension:
-			 *  "`##' before a
-			 *   rest argument that is empty discards the preceding sequence of
-			 *   non-whitespace characters from the macro definition.  (If another macro
-			 *   argument precedes, none of it is discarded.)"
-			 * Otherwise, break to process a non-formal argument in the default way
-			 */
-			if ((ai = find_formal_argument(args, head)) == args.end()) {
-				if (m.get_is_vararg())
-					for (ti2 = ti, ti2++; ti2 != tail.end(); ti2++)
-						if (!ti2->is_space())
-							if ((ai = find_formal_argument(args, *ti2)) != args.end() && ai->second.size() == 0) {
-								// All conditions satisfied; discard elements:
-								// <non-formal> <##> <empty-formal>
-								tail.erase(tail.begin(), ++ti2);
-								return (subst(m, tail, args, hs, os, skip_defined, caller));
+			break;
+		case CPP_CONCAT:
+			for (ti = is.begin(); ti != is.end(); ti++)
+				if (!ti->is_space())
+					if ((ai = find_formal_argument(args, *ti)) != args.end()) {
+						is.erase(is.begin(), ++ti);
+						if (ai->second.size() != 0)	// Only if actuals can be empty
+							os = glue(os, ai->second);
+						goto again;
+					} else {
+						PtokenSequence t(ti, ti + 1);
+						is.erase(is.begin(), ++ti);
+						os = glue(os, t);
+						goto again;
+					}
+			break;
+		default:
+			for (ti = is.begin(); ti != is.end(); ti++)
+				if (!ti->is_space())
+					break;
+			if (ti != is.end() && ti->get_code() == CPP_CONCAT) {
+				/*
+				 * Implement the following gcc extension:
+				 *  "`##' before a
+				 *   rest argument that is empty discards the preceding sequence of
+				 *   non-whitespace characters from the macro definition.  (If another macro
+				 *   argument precedes, none of it is discarded.)"
+				 * Otherwise, break to process a non-formal argument in the default way
+				 */
+				if ((ai = find_formal_argument(args, head)) == args.end()) {
+					if (m.get_is_vararg())
+						for (ti2 = ti, ti2++; ti2 != is.end(); ti2++)
+							if (!ti2->is_space())
+								if ((ai = find_formal_argument(args, *ti2)) != args.end() && ai->second.size() == 0) {
+									// All conditions satisfied; discard elements:
+									// <non-formal> <##> <empty-formal>
+									is.erase(is.begin(), ++ti2);
+									goto again;
+								} else
+									break;
+					break;	// Non-formal arguments don't deserve special treatment
+				}
+				// Paste but not expand LHS, RHS
+				if (ai->second.size() == 0) {	// Only if actuals can be empty
+					is.erase(is.begin(), ++ti);	// Erase including ##
+					for (ti = is.begin(); ti != is.end(); ti++)
+						if (!ti->is_space())
+							if ((ai = find_formal_argument(args, *ti)) != args.end()) {
+								is.erase(is.begin(), ++ti);	// Erase the ## RHS
+								PtokenSequence actual(ai->second);
+								os.splice(os.end(), actual);
+								goto again;
 							} else
 								break;
-				break;	// Non-formal arguments don't deserve special treatment
+					goto again;
+				} else {
+					is.erase(is.begin(), ti);	// Erase up to ##
+					PtokenSequence actual(ai->second);
+					os.splice(os.end(), actual);
+					goto again;
+				}
 			}
-			// Paste but not expand LHS, RHS
-			if (ai->second.size() == 0) {	// Only if actuals can be empty
-				tail.erase(tail.begin(), ++ti);	// Erase including ##
-				for (ti = tail.begin(); ti != tail.end(); ti++)
-					if (!ti->is_space())
-						if ((ai = find_formal_argument(args, *ti)) != args.end()) {
-							tail.erase(tail.begin(), ++ti);	// Erase the ## RHS
-							PtokenSequence actual(ai->second);
-							os.splice(os.end(), actual);
-							return (subst(m, tail, args, hs, os, skip_defined, caller));
-						} else
-							break;
-				return (subst(m, tail, args, hs, os, skip_defined, caller));
-			} else {
-				tail.erase(tail.begin(), ti);	// Erase up to ##
-				PtokenSequence actual(ai->second);
-				os.splice(os.end(), actual);
-				return (subst(m, tail, args, hs, os, skip_defined, caller));
-			}
+			if ((ai = find_formal_argument(args, head)) == args.end())
+				break;
+			// Othewise expand head
+			PtokenSequence expanded(macro_expand(ai->second, false, skip_defined, caller));
+			os.splice(os.end(), expanded);
+			goto again;
 		}
-		if ((ai = find_formal_argument(args, head)) == args.end())
-			break;
-		// Othewise expand head
-		PtokenSequence expanded(macro_expand(ai->second, false, skip_defined, caller));
-		os.splice(os.end(), expanded);
-		return (subst(m, tail, args, hs, os, skip_defined, caller));
+		os.push_back(head);
 	}
-	os.push_back(head);
-	return (subst(m, tail, args, hs, os, skip_defined, caller));
 }
 
 // Return a new token sequence with hs added to the hide set of every element of ts
