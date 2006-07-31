@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.39 2006/06/22 17:34:38 dds Exp $
+ * $Id: fileid.cpp,v 1.40 2006/07/31 21:41:23 dds Exp $
  */
 
 #include <fstream>
@@ -317,7 +317,7 @@ Filedetails::process_line(bool processed)
 	int lnum = Fchar::get_line_num() - 1;
 	int s = processed_lines.size();
 	if (DP())
-		cout << "Process line " << lnum << "\n";
+		cout << "Process line " << name << ':' << lnum << "\n";
 	if (s == lnum)
 		// New line processed
 		processed_lines.push_back(processed);
