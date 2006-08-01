@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.52 2006/08/01 09:58:46 dds Exp $
+ * $Id: macro.cpp,v 1.53 2006/08/01 10:05:56 dds Exp $
  */
 
 #include <iostream>
@@ -357,7 +357,7 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 }
 
 static PtokenSequence subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, const Macro *caller);
-static PtokenSequence hsadd(const HideSet& hs, const PtokenSequence& ts);
+static PtokenSequence inline hsadd(const HideSet& hs, const PtokenSequence& ts);
 static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
 static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
 
@@ -467,26 +467,24 @@ find_nonspace(dequePtoken::iterator pos, dequePtoken::iterator end)
 }
 
 /*
- * Substitute the arguments args appearing in the input sequence
- * Result is created in the output sequence and finally has the specified
+ * Substitute the arguments args appearing in the input sequence is
+ * Result is created in the output sequence os and finally has the specified
  * hide set added to it, before getting returned.
  */
 static PtokenSequence
 subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, const Macro *caller)
 {
-	PtokenSequence os;
-	for (;;) {
-again:
+	PtokenSequence os;	// output sequence
+
+	while (!is.empty()) {
 		if (DP())
 			cout << "subst: is=" << is << " os=" << os << endl;
-		if (is.empty())
-			return (hsadd(hs, os));
 		const Ptoken head(is.front());
-		is.pop_front();
+		is.pop_front();		// is is now the tail
 		dequePtoken::iterator ti, ti2;
 		mapArgval::const_iterator ai;
 		switch (head.get_code()) {
-		case '#':
+		case '#':		// Stringizing operator
 			ti = find_nonspace(is.begin(), is.end());
 			if (ti != is.end() && (ai = find_formal_argument(args, *ti)) != args.end()) {
 				is.erase(is.begin(), ++ti);
@@ -557,10 +555,11 @@ again:
 		}
 		os.push_back(head);
 	}
+	return (hsadd(hs, os));
 }
 
 // Return a new token sequence with hs added to the hide set of every element of ts
-static PtokenSequence
+static inline PtokenSequence
 hsadd(const HideSet& hs, const PtokenSequence& ts)
 {
 	PtokenSequence r;
