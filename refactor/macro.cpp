@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.50 2006/08/01 09:27:56 dds Exp $
+ * $Id: macro.cpp,v 1.51 2006/08/01 09:49:42 dds Exp $
  */
 
 #include <iostream>
@@ -454,6 +454,19 @@ macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *c
 }
 
 /*
+ * Return the position of the first non-space token in the range [pos, end)
+ * Return end, if no such token is found
+ */
+static inline dequePtoken::iterator
+find_nonspace(dequePtoken::iterator pos, dequePtoken::iterator end)
+{
+	for (; pos != end; pos++)
+		if (!pos->is_space())
+			return (pos);
+	return (end);
+}
+
+/*
  * Substitute the arguments args appearing in the input sequence
  * Result is created in the output sequence and finally has the specified
  * hide set added to it, before getting returned.
@@ -474,32 +487,30 @@ again:
 		mapArgval::const_iterator ai;
 		switch (head.get_code()) {
 		case '#':
-			for (ti = is.begin(); ti != is.end(); ti++)
-				if (!ti->is_space() && (ai = find_formal_argument(args, *ti)) != args.end()) {
+			ti = find_nonspace(is.begin(), is.end());
+			if (ti != is.end() && (ai = find_formal_argument(args, *ti)) != args.end()) {
+				is.erase(is.begin(), ++ti);
+				os.push_back(stringize(ai->second));
+				goto again;
+			}
+			break;
+		case CPP_CONCAT:
+			ti = find_nonspace(is.begin(), is.end());
+			if (ti != is.end())
+				if ((ai = find_formal_argument(args, *ti)) != args.end()) {
 					is.erase(is.begin(), ++ti);
-					os.push_back(stringize(ai->second));
+					if (ai->second.size() != 0)	// Only if actuals can be empty
+						os = glue(os, ai->second);
+					goto again;
+				} else {
+					PtokenSequence t(ti, ti + 1);
+					is.erase(is.begin(), ++ti);
+					os = glue(os, t);
 					goto again;
 				}
 			break;
-		case CPP_CONCAT:
-			for (ti = is.begin(); ti != is.end(); ti++)
-				if (!ti->is_space())
-					if ((ai = find_formal_argument(args, *ti)) != args.end()) {
-						is.erase(is.begin(), ++ti);
-						if (ai->second.size() != 0)	// Only if actuals can be empty
-							os = glue(os, ai->second);
-						goto again;
-					} else {
-						PtokenSequence t(ti, ti + 1);
-						is.erase(is.begin(), ++ti);
-						os = glue(os, t);
-						goto again;
-					}
-			break;
 		default:
-			for (ti = is.begin(); ti != is.end(); ti++)
-				if (!ti->is_space())
-					break;
+			ti = find_nonspace(is.begin(), is.end());
 			if (ti != is.end() && ti->get_code() == CPP_CONCAT) {
 				/*
 				 * Implement the following gcc extension:
@@ -510,30 +521,27 @@ again:
 				 * Otherwise, break to process a non-formal argument in the default way
 				 */
 				if ((ai = find_formal_argument(args, head)) == args.end()) {
-					if (m.get_is_vararg())
-						for (ti2 = ti, ti2++; ti2 != is.end(); ti2++)
-							if (!ti2->is_space())
-								if ((ai = find_formal_argument(args, *ti2)) != args.end() && ai->second.size() == 0) {
-									// All conditions satisfied; discard elements:
-									// <non-formal> <##> <empty-formal>
-									is.erase(is.begin(), ++ti2);
-									goto again;
-								} else
-									break;
+					if (m.get_is_vararg()) {
+						ti2 = find_nonspace(ti + 1, is.end());
+						if (ti2 != is.end() && (ai = find_formal_argument(args, *ti2)) != args.end() && ai->second.size() == 0) {
+							// All conditions satisfied; discard elements:
+							// <non-formal> <##> <empty-formal>
+							is.erase(is.begin(), ++ti2);
+							goto again;
+						}
+					}
 					break;	// Non-formal arguments don't deserve special treatment
 				}
 				// Paste but not expand LHS, RHS
 				if (ai->second.size() == 0) {	// Only if actuals can be empty
 					is.erase(is.begin(), ++ti);	// Erase including ##
-					for (ti = is.begin(); ti != is.end(); ti++)
-						if (!ti->is_space())
-							if ((ai = find_formal_argument(args, *ti)) != args.end()) {
-								is.erase(is.begin(), ++ti);	// Erase the ## RHS
-								PtokenSequence actual(ai->second);
-								os.splice(os.end(), actual);
-								goto again;
-							} else
-								break;
+					ti = find_nonspace(is.begin(), is.end());
+					if (ti != is.end() && (ai = find_formal_argument(args, *ti)) != args.end()) {
+						is.erase(is.begin(), ++ti);	// Erase the ## RHS
+						PtokenSequence actual(ai->second);
+						os.splice(os.end(), actual);
+						goto again;
+					}
 					goto again;
 				} else {
 					is.erase(is.begin(), ti);	// Erase up to ##
