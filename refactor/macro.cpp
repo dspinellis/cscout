@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.49 2006/07/31 22:08:52 dds Exp $
+ * $Id: macro.cpp,v 1.50 2006/08/01 09:27:56 dds Exp $
  */
 
 #include <iostream>
@@ -378,8 +378,14 @@ macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *c
 		const Ptoken head(ts.front());
 		ts.pop_front();
 
-		// Skip the arguments of the defined operator, if needed
+		if (head.get_code() != IDENTIFIER) {
+			// Only attempt to expand identifiers (not e.g. string literals)
+			r.push_back(head);
+			continue;
+		}
+
 		if (skip_defined && head.get_code() == IDENTIFIER && head.get_val() == "defined") {
+			// Skip the arguments of the defined operator, if needed
 			PtokenSequence da(gather_defined_operator(ts));
 			r.push_back(head);
 			r.splice(r.end(), da);
@@ -389,6 +395,7 @@ macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *c
 		const string name = head.get_val();
 		mapMacro::const_iterator mi(Pdtoken::macros_find(name));
 		if (!Pdtoken::macro_is_defined(mi)) {
+			// Nothing to do if the identifier is not a macro
 			r.push_back(head);
 			continue;
 		}
