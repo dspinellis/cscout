@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.118 2006/08/01 13:26:02 dds Exp $
+ * $Id: parse.y,v 1.119 2006/08/01 13:38:19 dds Exp $
  *
  */
 
@@ -1447,7 +1447,7 @@ any_statement:
  * if (x) foo: y; will  get parsed as if (x) {foo:} y;
  */
 labeled_statement:
-        identifier_or_typedef_name ':'
+        identifier_or_typedef_name ':' attribute_list_opt
 		{ label_define($1.get_token()); }
         | CASE range_expression ':'
         | DEFAULT ':'
