@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.117 2006/06/23 07:58:45 dds Exp $
+ * $Id: parse.y,v 1.118 2006/08/01 13:26:02 dds Exp $
  *
  */
 
@@ -118,14 +118,8 @@ initializer_open()
 		else
 			// Could be empty
 			upcoming_element = basic(b_undeclared);
-	} else {
-		/*
-		 * @error
-		 * An initializer for a scalar value contained braces
-		 */
-		Error::error(E_ERR, "Braces around scalar initializer");
-		upcoming_element = basic(b_undeclared);
-	}
+	} else
+		upcoming_element = CURRENT_ELEMENT.t;
 }
 
 // An comma within a designator context
