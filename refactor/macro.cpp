@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.51 2006/08/01 09:49:42 dds Exp $
+ * $Id: macro.cpp,v 1.52 2006/08/01 09:58:46 dds Exp $
  */
 
 #include <iostream>
@@ -491,23 +491,23 @@ again:
 			if (ti != is.end() && (ai = find_formal_argument(args, *ti)) != args.end()) {
 				is.erase(is.begin(), ++ti);
 				os.push_back(stringize(ai->second));
-				goto again;
+				continue;
 			}
 			break;
 		case CPP_CONCAT:
 			ti = find_nonspace(is.begin(), is.end());
-			if (ti != is.end())
+			if (ti != is.end()) {
 				if ((ai = find_formal_argument(args, *ti)) != args.end()) {
 					is.erase(is.begin(), ++ti);
 					if (ai->second.size() != 0)	// Only if actuals can be empty
 						os = glue(os, ai->second);
-					goto again;
 				} else {
 					PtokenSequence t(ti, ti + 1);
 					is.erase(is.begin(), ++ti);
 					os = glue(os, t);
-					goto again;
 				}
+				continue;
+			}
 			break;
 		default:
 			ti = find_nonspace(is.begin(), is.end());
@@ -527,7 +527,7 @@ again:
 							// All conditions satisfied; discard elements:
 							// <non-formal> <##> <empty-formal>
 							is.erase(is.begin(), ++ti2);
-							goto again;
+							continue;
 						}
 					}
 					break;	// Non-formal arguments don't deserve special treatment
@@ -540,22 +540,20 @@ again:
 						is.erase(is.begin(), ++ti);	// Erase the ## RHS
 						PtokenSequence actual(ai->second);
 						os.splice(os.end(), actual);
-						goto again;
 					}
-					goto again;
 				} else {
 					is.erase(is.begin(), ti);	// Erase up to ##
 					PtokenSequence actual(ai->second);
 					os.splice(os.end(), actual);
-					goto again;
 				}
+				continue;
 			}
 			if ((ai = find_formal_argument(args, head)) == args.end())
 				break;
 			// Othewise expand head
 			PtokenSequence expanded(macro_expand(ai->second, false, skip_defined, caller));
 			os.splice(os.end(), expanded);
-			goto again;
+			continue;
 		}
 		os.push_back(head);
 	}
