@@ -1,9 +1,8 @@
-$Id: todo,v 1.74 2006/07/29 07:25:02 dds Exp $
+$Id: todo,v 1.75 2006/08/02 21:46:41 dds Exp $
+
+- Benchmark performance drop of Prosser's implementation; serialize subst/expand
 
 - Unused writable macros seem to appear multiple times.
-
-- Implement Dave Prosser's preprocessing algorithm and test
-  with cpp1.c cpp2.c cpp3.c
 
 - Function typedefs are not functions
   typedef struct resource_list * bus_get_resource_list_t(device_t _dev, device_t _child);
@@ -33,7 +32,7 @@ int VOP_ISLOCKED_AP(struct vop_islocked_args *);
 
 - Include fixincludes.awk and make-spy.pl in the distribution
 
-- Change \n in all DP() to ensure flushed output
+- Change \n into eol in all DP() to ensure flushed output
 
 - spy-make should support yacc
 
