@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.22 2006/06/11 20:38:53 dds Exp $
+ * $Id: type2.h,v 1.23 2006/08/02 21:46:53 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -26,6 +26,7 @@ public:
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { of.set_storage_class(t); }
+	void clear_storage_class() { of.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
 	Type merge(Tbasic *b);
 };
@@ -43,6 +44,7 @@ public:
 	bool is_ptr() const { return true; }
 	Type call() const { return to.call(); }
 	void set_storage_class(Type t) { to.set_storage_class(t); }
+	void clear_storage_class() { to.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return to.get_storage_class(); }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
@@ -64,6 +66,7 @@ public:
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { returning.set_storage_class(t); }
+	void clear_storage_class() { returning.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return returning.get_storage_class(); }
 	void add_qualifiers(Type t) { returning.add_qualifiers(t); }
 	bool qualified_const() const { return returning.qualified_const(); }
@@ -84,6 +87,7 @@ public:
 	void print(ostream &o) const;
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
+	void clear_storage_class() { sclass.clear_storage_class(); }
 	Type merge(Tbasic *b);
 };
 
@@ -141,6 +145,7 @@ public:
 	void print(ostream &o) const;
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
+	void clear_storage_class() { sclass.clear_storage_class(); }
 	Type merge(Tbasic *b);
 };
 //
@@ -165,6 +170,7 @@ public:
 	const Ctoken& get_token() const { return t; }
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
+	void clear_storage_class() { sclass.clear_storage_class(); }
 	bool is_incomplete() const { return true; }
 	Type merge(Tbasic *b);
 };
@@ -192,6 +198,7 @@ public:
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { of.set_storage_class(t); }
+	void clear_storage_class() { of.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
 	void add_qualifiers(Type t) { of.add_qualifiers(t); }
 	bool qualified_const() const { return of.qualified_const(); }

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.47 2006/06/18 19:34:46 dds Exp $
+ * $Id: type.cpp,v 1.48 2006/08/02 21:46:53 dds Exp $
  */
 
 #include <iostream>
@@ -779,6 +779,11 @@ Tstorage::set_storage_class(Type t)
 {
 	enum e_storage_class newclass = t.get_storage_class();
 
+	if (DP()) {
+		cout << "Set_storage_class of ";
+		this->print(cout);
+		cout << "\nto " << t << endl;
+	}
 	if (sclass != c_unspecified &&
 	    sclass != c_typedef &&
 	    newclass != c_unspecified &&
@@ -803,6 +808,21 @@ Type_node::set_storage_class(Type t)
 	Error::error(E_INTERNAL, "object can not set storage class");
 	this->print(cerr);
 }
+
+void
+Tstorage::clear_storage_class()
+{
+	sclass = c_unspecified;
+}
+
+void
+Type_node::clear_storage_class()
+{
+	Error::error(E_INTERNAL, "object can not clear storage class");
+	this->print(cerr);
+}
+
+
 
 void
 Type_node::add_qualifiers(Type t)

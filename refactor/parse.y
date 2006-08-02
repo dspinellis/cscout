@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.119 2006/08/01 13:38:19 dds Exp $
+ * $Id: parse.y,v 1.120 2006/08/02 21:46:53 dds Exp $
  *
  */
 
@@ -953,6 +953,7 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
         | declaration_qualifier_list TYPEOF '(' typeof_argument ')'
 		{
 			$$ = $4.clone();
+			$$.clear_storage_class();
 			$$.set_storage_class($1);
 			$$.add_qualifiers($1);
 		}
@@ -966,23 +967,23 @@ typedef_type_specifier:              /* typedef types */
         TYPEDEF_NAME
 		{
 			$$ = completed_typedef($1);
-			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
+			$$.clear_storage_class();
 		}
         | type_qualifier_list    TYPEDEF_NAME
 		{
 			$$ = completed_typedef($2);
-			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
+			$$.clear_storage_class();
 			$$.add_qualifiers($1);
 		}
 	| TYPEOF '(' typeof_argument ')'
 		{
 			$$ = $3.clone();
-			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
+			$$.clear_storage_class();
 		}
 	| type_qualifier_list TYPEOF '(' typeof_argument ')'
 		{
 			$$ = $4.clone();
-			$$.set_storage_class(basic(b_abstract, s_none, c_unspecified));
+			$$.clear_storage_class();
 			$$.add_qualifiers($1);
 		}
         | typedef_type_specifier type_qualifier

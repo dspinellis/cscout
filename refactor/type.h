@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.36 2006/06/11 20:38:53 dds Exp $
+ * $Id: type.h,v 1.37 2006/08/02 21:46:53 dds Exp $
  */
 
 #ifndef TYPE_
@@ -96,6 +96,7 @@ protected:
 	virtual const Ctoken& get_token() const;// True for identifiers
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
 	virtual void set_storage_class(Type t);	// Set typedef's underlying storage class to t
+	virtual void clear_storage_class();	// Clear underlying storage class
 	virtual enum e_storage_class get_storage_class() const;// Return the declaration's storage class
 	virtual int get_qualifiers() const;// Return the declaration's qualifiers
 	virtual void add_qualifiers(Type t);		// Set our qualifiers to t
@@ -126,6 +127,7 @@ public:
 	Tstorage() : sclass(c_unspecified) {}
 	enum e_storage_class get_storage_class() const {return sclass; }
 	void set_storage_class(Type t);
+	void clear_storage_class();
 	void print(ostream &o) const;
 };
 
@@ -173,6 +175,7 @@ public:
 	Tbasic *tobasic() { return this; }
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
 	inline void set_storage_class(Type t);
+	inline void clear_storage_class();
 	void set_abstract(Type t);		//For padbits
 };
 
@@ -220,6 +223,7 @@ public:
 	Type type() const		{ return p->type(*this); }
 	void set_abstract(Type t)	{ return p->set_abstract(t); }
 	void set_storage_class(Type t)	{ return p->set_storage_class(t); }
+	void clear_storage_class()	{ return p->clear_storage_class(); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_array() const		{ return p->is_array(); }
 	bool is_basic() const		{ return p->is_basic(); }
@@ -259,6 +263,7 @@ public:
 
 inline void QType_node::add_qualifiers(Type t) {qualifiers |= t.get_qualifiers(); }
 inline void Tbasic::set_storage_class(Type t) { sclass.set_storage_class(t); }
+inline void Tbasic::clear_storage_class() { sclass.clear_storage_class(); }
 
 /*
  * We can not use a union since its members have constructors and desctructors.
