@@ -4,7 +4,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.9 2006/06/22 08:08:41 dds Exp $
+# $Id: csmake.pl,v 1.10 2006/08/02 08:31:35 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -160,7 +160,7 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.9 2006/06/22 08:08:41 dds Exp $
+# Source file is $Id: csmake.pl,v 1.10 2006/08/02 08:31:35 dds Exp $
 #
 ';
 	while (<IN>) {
@@ -311,6 +311,9 @@ if ($#cfiles >= 0) {
 	push(@ARGV2, $ENV{CSCOUT_SPY_TMPDIR} . '/empty.c');
 	$cmdline = $real . ' ' . join(' ', @ARGV2);
 	print STDERR "Running $cmdline\n" if ($debug);
+
+	# Escape shell metacharacters
+	$cmdline =~ s/([][*\\"';|<>])/\\$1/g;
 
 	# Gather include path
 	open(IN, "$cmdline -v -E 2>&1|") || die "Unable to run $cmdline: $!\n";
