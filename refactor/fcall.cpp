@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.12 2006/06/18 19:34:46 dds Exp $
+ * $Id: fcall.cpp,v 1.13 2006/08/03 10:37:09 dds Exp $
  */
 
 #include <map>
@@ -68,6 +68,16 @@ FCall::set_current_fun(const Type &t)
 	Id const *id = obj_lookup(t.get_name());
 	csassert(id);
 	current_fun = id->get_fcall();
+	if (!current_fun) {
+		/*
+		 * @error
+		 * A non-function type specifier was followed by a block.
+		 * Use a function type specifier or add an equals sign before
+		 * the block to indicate that the block is an initializer.
+		 */
+		Error::error(E_ERR, "syntax error: block is not preceded by a function specifier");
+		return;
+	}
 	csassert(current_fun);
 	current_fun->definition = t.get_token().get_parts_begin()->get_tokid();
 	current_fun->defined = true;
