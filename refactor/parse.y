@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.120 2006/08/02 21:46:53 dds Exp $
+ * $Id: parse.y,v 1.121 2006/08/03 11:35:19 dds Exp $
  *
  */
 
@@ -1364,6 +1364,7 @@ initializer_member:
 	initializer
 	| designator '=' { initializer_expect($1); } initializer
 	/* gcc extensions (argh!) */
+	| designator { initializer_expect($1); } initializer
 	| member_name ':' initializer
 		{
 			Id const *id = CURRENT_ELEMENT.t.member($1.get_name());
@@ -1373,7 +1374,6 @@ initializer_member:
 			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $1.get_name());
 		}
-	| '[' range_expression ']' initializer
 	;
 
 /* C99 feature */
