@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.23 2006/08/02 21:46:53 dds Exp $
+ * $Id: type2.h,v 1.24 2006/08/04 11:50:06 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -188,6 +188,7 @@ public:
 	virtual ~Tidentifier() {}
 	Type clone() const { return Type(new Tidentifier(t, of.clone())); }
 	const Ctoken& get_token() const { return t; }
+	bool is_identifier() const { return (true); }
 	const string& get_name() const { return t.get_name(); }
 	Type type(Type dflt) const { return of; }
 	Id const* member(const string& s) const

@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.37 2006/08/02 21:46:53 dds Exp $
+ * $Id: type.h,v 1.38 2006/08/04 11:50:06 dds Exp $
  */
 
 #ifndef TYPE_
@@ -82,6 +82,7 @@ protected:
 	virtual bool is_array() const { return false; }	// True for arrays
 	virtual bool is_basic() const { return false; }// False for undeclared
 	virtual bool is_function() const { return false; }	// True for functions
+	virtual bool is_identifier() const { return false; }// True only for identifiers
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual bool is_padbit() const { return false; }// True for pad bit field
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
@@ -228,6 +229,7 @@ public:
 	bool is_array() const		{ return p->is_array(); }
 	bool is_basic() const		{ return p->is_basic(); }
 	bool is_function() const	{ return p->is_function(); }
+	bool is_identifier() const	{ return p->is_identifier(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
 	bool is_padbit() const		{ return p->is_padbit(); }
 	bool is_ptr() const		{ return p->is_ptr(); }
