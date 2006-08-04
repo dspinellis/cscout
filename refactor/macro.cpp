@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.53 2006/08/01 10:05:56 dds Exp $
+ * $Id: macro.cpp,v 1.54 2006/08/04 09:37:57 dds Exp $
  */
 
 #include <iostream>
@@ -109,7 +109,7 @@ gather_args(const string& name, PtokenSequence& tokens, const dequePtoken& forma
 			t = arg_token(tokens, get_more, true);
 			if (bracket == 0 && (
 				(terminate == '.' && (t.get_code() == ',' || t.get_code() == ')')) ||
-				(t.get_code() == terminate)))
+				(terminate != '.' && t.get_code() == terminate)))
 					break;
 			switch (t.get_code()) {
 			case '(':
