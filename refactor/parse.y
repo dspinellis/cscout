@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.122 2006/08/04 12:13:27 dds Exp $
+ * $Id: parse.y,v 1.123 2006/08/04 19:47:52 dds Exp $
  *
  */
 
@@ -177,6 +177,9 @@ completed_typedef(Type t)
 	return id->get_type().clone();
 }
 
+
+/* Store types of nested functions */
+static stack<Type> nested_function_types;
 
 #define YYSTYPE_CONSTRUCTOR
 
@@ -1436,6 +1439,7 @@ any_statement:
         | iteration_statement { $$ = basic(b_void); } [YYVALID;]
         | jump_statement { $$ = basic(b_void); } [YYVALID;]
         | assembly_statement { $$ = basic(b_void); } { $$ = basic(b_void); } [YYVALID;]
+        | typed_function_definition { $$ = basic(b_void); } { $$ = basic(b_void); } [YYVALID;]
         ;
 
 /*
@@ -1606,16 +1610,18 @@ external_definition:
         ;
 
 function_definition:
+	typed_function_definition
+	| untyped_function_definition
+	;
+
+/*
+ * A function definition with a type prefix.
+ * Can be used for nested functions, without a conflict between
+ * foo(a, b); and foo(a, b) {}
+ */
+typed_function_definition:
 	/* foo(int a, int b) @ { } (and many illegal constructs) */
-                                     identifier_declarator asm_or_attribute_list
-		{
-			$1.declare();
-			if ($1.qualified_unused() || $2.qualified_unused())
-				$1.get_token().set_ec_attribute(is_declared_unused);
-			FCall::set_current_fun($1);
-		}
-					function_body
-        | declaration_specifier      identifier_declarator asm_or_attribute_list
+        declaration_specifier      identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
@@ -1652,12 +1658,6 @@ function_definition:
 					function_body
 
 	/* foo(a, b) @ { } */
-        |                            old_function_declarator
-		{
-			$1.declare();
-			FCall::set_current_fun($1);
-		}
-					function_body
         | declaration_specifier      old_function_declarator
 		{
 			$2.set_abstract($1);
@@ -1687,14 +1687,6 @@ function_definition:
 					function_body
 
 	/* foo(a, b) @ int a; int b; @ { } */
-        |                            old_function_declarator
-		{ Block::param_use(); } declaration_list
-		{
-			Block::param_use_end();
-			$1.declare();
-			FCall::set_current_fun($1);
-		}
-					function_body
         | declaration_specifier      old_function_declarator
 		{ Block::param_use(); } declaration_list
 		{
@@ -1728,6 +1720,34 @@ function_definition:
 			Block::param_use_end();
 			$2.declare();
 			FCall::set_current_fun($2);
+		}
+					function_body
+         ;
+
+untyped_function_definition:
+	/* foo(int a, int b) @ { } (and many illegal constructs) */
+                                     identifier_declarator asm_or_attribute_list
+		{
+			$1.declare();
+			if ($1.qualified_unused() || $2.qualified_unused())
+				$1.get_token().set_ec_attribute(is_declared_unused);
+			FCall::set_current_fun($1);
+		}
+					function_body
+	/* foo(a, b) @ { } */
+        |                            old_function_declarator
+		{
+			$1.declare();
+			FCall::set_current_fun($1);
+		}
+					function_body
+	/* foo(a, b) @ int a; int b; @ { } */
+        |                            old_function_declarator
+		{ Block::param_use(); } declaration_list
+		{
+			Block::param_use_end();
+			$1.declare();
+			FCall::set_current_fun($1);
 		}
 					function_body
          ;
@@ -1980,6 +2000,7 @@ yacc_body:
 		} yacc_rules
 		{
 			parse_yacc_defs = false;
+			FCall::unset_current_fun();
 		} yacc_tail
 	;
 

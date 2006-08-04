@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.13 2006/08/03 10:37:09 dds Exp $
+ * $Id: fcall.cpp,v 1.14 2006/08/04 19:47:52 dds Exp $
  */
 
 #include <map>
@@ -39,6 +39,8 @@
 #include "fcall.h"
 #include "eclass.h"
 
+// Nested function definitions
+stack <FCall *> FCall::nesting;
 
 // Constructor
 FCall::FCall(const Token& tok, Type typ, const string &s) :
@@ -59,6 +61,7 @@ FCall::set_current_fun(const Id *id)
 	current_fun = id->get_fcall();
 	csassert(current_fun);
 	current_fun->definition = Tokid();
+	nesting.push(current_fun);
 }
 
 // Set the function currently being parsed
@@ -83,4 +86,15 @@ FCall::set_current_fun(const Type &t)
 	current_fun->defined = true;
 	if (DP())
 		cout << "Current function " << id->get_name() << "\n";
+	nesting.push(current_fun);
+}
+
+void
+FCall::unset_current_fun()
+{
+	nesting.pop();
+	if (nesting.empty())
+		current_fun = NULL;
+	else
+		current_fun = nesting.top();
 }
