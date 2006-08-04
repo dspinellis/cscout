@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.106 2006/07/30 12:42:28 dds Exp $
+ * $Id: pdtoken.cpp,v 1.107 2006/08/04 13:16:24 dds Exp $
  */
 
 #include <iostream>
@@ -23,7 +23,7 @@
 #else
 #include <functional>		// compose1
 #endif
-#include <cstdlib>		// strtol
+#include <cstdlib>		// strtoul
 
 #include <errno.h>
 #include <unistd.h>		// chdir
@@ -190,7 +190,7 @@ again:
 		goto again;
 	case PP_NUMBER:
 		num = t.get_val().c_str();
-		eval_lval = strtol(num, &endptr, 0);
+		eval_lval = strtoul(num, &endptr, 0);
 		if (DP())
 			cout << "yylval = " << eval_lval << "\n";
 		if (*endptr == 0 || *endptr == 'l' || *endptr =='L' ||
