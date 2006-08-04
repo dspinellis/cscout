@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.121 2006/08/03 11:35:19 dds Exp $
+ * $Id: parse.y,v 1.122 2006/08/04 12:13:27 dds Exp $
  *
  */
 
@@ -1527,6 +1527,8 @@ iteration_statement:
 jump_statement:
         GOTO identifier_or_typedef_name ';'
 		{ label_use($2.get_token()); }
+	/* gcc extension */
+        | GOTO '*' comma_expression ';'
         | CONTINUE ';'
         | BREAK ';'
         | RETURN comma_expression_opt ';'
