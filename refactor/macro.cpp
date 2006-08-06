@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.55 2006/08/04 13:03:49 dds Exp $
+ * $Id: macro.cpp,v 1.56 2006/08/06 09:30:48 dds Exp $
  */
 
 #include <iostream>
@@ -577,9 +577,9 @@ glue(PtokenSequence ls, PtokenSequence rs)
 {
 	if (ls.empty())
 		return (rs);
-	while (ls.back().is_space())
+	while (!ls.empty() && ls.back().is_space())
 		ls.pop_back();
-	while (rs.front().is_space())
+	while (!rs.empty() && rs.front().is_space())
 		rs.pop_front();
 	if (ls.empty() && rs.empty())
 		return (ls);
