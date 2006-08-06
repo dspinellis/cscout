@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.148 2006/08/06 08:45:47 dds Exp $
+ * $Id: cscout.cpp,v 1.149 2006/08/06 10:00:05 dds Exp $
  */
 
 #include <map>
@@ -2452,6 +2452,8 @@ main(int argc, char *argv[])
 	// We require exactly one argument
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
 		usage(argv[0]);
+
+	Project::set_current_project("unspecified");
 
 	if (process_mode == pm_preprocess) {
 		Fchar::set_input(argv[optind]);
