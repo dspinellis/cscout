@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.92 2006/06/22 07:32:16 dds Exp $
+# $Id: Makefile,v 1.93 2006/08/06 10:00:19 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -66,7 +66,10 @@ CPPFLAGS=-pipe -Wall
 CPPFLAGS+=-DSPINELLIS_SERVER
 ifdef DEBUG
 # Debug build
-CPPFLAGS+=-g -DCOMMERCIAL -DYYDEBUG
+# To get yacc debugging info set YYDEBUG environment variable to 1
+# To get stack traces for STL problems use gdb and break _Error_formatter::_M_at
+CPPFLAGS+=-g -DCOMMERCIAL -DYYDEBUG -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+# -D_GLIBCXX_CONCEPT_CHECKS
 dummy := $(shell gcc -o ccode -DCCODE des.c)
 dummy := $(shell ./ccode "(internal use only)")
 else
@@ -198,8 +201,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.92 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/06/22 07:32:16 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.93 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/08/06 10:00:19 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
