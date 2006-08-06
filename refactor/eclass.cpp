@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.30 2006/06/18 19:34:46 dds Exp $
+ * $Id: eclass.cpp,v 1.31 2006/08/06 08:45:47 dds Exp $
  */
 
 #include <iostream>
@@ -120,7 +120,7 @@ Eclass::add_tokid(Tokid t)
 }
 
 // Return a sorted vector of all files used
-set <Fileid, fname_order>
+IFSet
 Eclass::sorted_files()
 {
 	set <Fileid, fname_order> r;

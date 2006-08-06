@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.147 2006/06/26 14:17:48 dds Exp $
+ * $Id: cscout.cpp,v 1.148 2006/08/06 08:45:47 dds Exp $
  */
 
 #include <map>
@@ -886,7 +886,7 @@ xfquery_page(FILE *of,  void *p)
 	if (sort_order != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::name(sort_order).c_str());
 	html_file_set_begin(of);
-	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+	for (set <Fileid, specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
 			continue;
