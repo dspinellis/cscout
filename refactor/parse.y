@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.123 2006/08/04 19:47:52 dds Exp $
+ * $Id: parse.y,v 1.124 2006/08/06 09:56:45 dds Exp $
  *
  */
 
@@ -2091,7 +2091,8 @@ yacc_name_list_declaration:
 				yacc_type[$3.get_name()] = (*i).second;
 			else
 				yacc_type[$3.get_name()] = $1;
-			obj_define($3.get_token(), basic(b_int, s_none, c_static));
+			if ($3.get_token().get_code() == IDENTIFIER)
+				obj_define($3.get_token(), basic(b_int, s_none, c_static));
 			$$ = $1;
 		}
 	;
