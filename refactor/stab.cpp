@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.41 2006/06/18 19:34:46 dds Exp $
+ * $Id: stab.cpp,v 1.42 2006/08/07 18:31:06 dds Exp $
  */
 
 #include <map>
@@ -206,7 +206,7 @@ obj_define(const Token& tok, Type typ)
 	}
 	// Locate/create the appropriate FCall object
 	FCall *fc = NULL;
-	if (typ.is_function()) {
+	if (typ.is_function() && !typ.is_typedef()) {
 		if (DP())
 			cout << "Looking for function " << tok.get_name() << '\n';
 		tok.set_ec_attribute(is_function);
