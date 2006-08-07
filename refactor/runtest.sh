@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.13 2006/07/30 11:50:24 dds Exp $
+# $Id: runtest.sh,v 1.14 2006/08/07 18:30:47 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -39,6 +39,8 @@ Test $2 failed
 		if [ "$CONTINUE" != "1" ]
 		then
 			exit 1
+		else
+			FAILED="$FAILED $2"
 		fi
 	fi
 }
@@ -170,6 +172,8 @@ Test chunk $NAME failed
 	if [ "$CONTINUE" != "1" ]
 	then
 		exit 1
+	else
+		FAILED="$FAILED $2"
 	fi
 fi
 }
@@ -331,4 +335,9 @@ fi
 if [ "$PRIME" = "1" ]
 then
 	cp test/nout/* test/out
+fi
+
+if [ ! -z "$FAILED" ]
+then
+	echo "The following test(s) failed: $FAILED"
 fi
