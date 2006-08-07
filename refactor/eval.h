@@ -5,7 +5,7 @@
  * between the lexical analyzer and the preprocessor expression
  * evaluation parser.
  *
- * $Id: eval.h,v 1.1 2006/08/07 11:36:22 dds Exp $
+ * $Id: eval.h,v 1.2 2006/08/07 18:33:47 dds Exp $
  *
  */
 
@@ -19,4 +19,5 @@ struct s_ppval {
 	enum e_su su;			// Signed or unsigned
 };
 
-
+extern struct s_ppval eval_lval;
+extern int eval_parse();

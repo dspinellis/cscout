@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.108 2006/08/07 11:36:44 dds Exp $
+ * $Id: pdtoken.cpp,v 1.109 2006/08/07 18:33:47 dds Exp $
  */
 
 #include <iostream>
@@ -178,7 +178,6 @@ long eval_result;
 int
 eval_lex_real()
 {
-	extern struct s_ppval eval_lval;
 	const char *num;
 	char *endptr;
 	Ptoken t;
@@ -254,7 +253,6 @@ eval_lex()
 static int
 eval()
 {
-	extern int eval_parse();
 	Pltoken t;
 
 	// Read eval_tokens
