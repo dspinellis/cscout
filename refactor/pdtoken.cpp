@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.107 2006/08/04 13:16:24 dds Exp $
+ * $Id: pdtoken.cpp,v 1.108 2006/08/07 11:36:44 dds Exp $
  */
 
 #include <iostream>
@@ -44,6 +44,7 @@
 #include "pdtoken.h"
 #include "tchar.h"
 #include "ctoken.h"
+#include "eval.h"
 #include "type.h"		// stab.h
 #include "stab.h"		// Block::enter()
 
@@ -177,7 +178,7 @@ long eval_result;
 int
 eval_lex_real()
 {
-	extern long eval_lval;
+	extern struct s_ppval eval_lval;
 	const char *num;
 	char *endptr;
 	Ptoken t;
@@ -190,22 +191,36 @@ again:
 		goto again;
 	case PP_NUMBER:
 		num = t.get_val().c_str();
-		eval_lval = strtoul(num, &endptr, 0);
-		if (DP())
-			cout << "yylval = " << eval_lval << "\n";
+		eval_lval.v.u = strtoul(num, &endptr, 0);
 		if (*endptr == 0 || *endptr == 'l' || *endptr =='L' ||
-		    *endptr == 'u' || *endptr == 'U')
+		    *endptr == 'u' || *endptr == 'U') {
+		    	eval_lval.su = e_signed;
+			for (; *endptr; endptr++)
+				if (*endptr == 'u' || *endptr == 'U')
+					eval_lval.su = e_unsigned;
+			if (DP()) {
+				if (eval_lval.su == e_signed)
+					cout << "yylval = (signed)" << eval_lval.v.s << endl;
+				else
+					cout << "yylval = (unsigned)" << eval_lval.v.u << endl;
+			}
 			return (INT_CONST);
-		else
+		} else
 			return (FLOAT_CONST);	// Should be flagged as error
 	case CHAR_LITERAL:
 		{
 		const string& s = t.get_val();
 		string::const_iterator si;
 
-		//cout << "char:[" << s << "]\n";
+		if (DP()) cout << "char:[" << s << "]\n";
 		si = s.begin();
-		eval_lval = unescape_char(s, si);
+		eval_lval.v.s = unescape_char(s, si);
+// Behave as the hosting environment
+#if '\xff' < 0
+		eval_lval.su = e_signed;
+#else
+		eval_lval.su = e_unsigned;
+#endif
 		if (si != s.end())
 			Error::error(E_ERR, "Illegal characters in character escape sequence");
 		return (INT_CONST);

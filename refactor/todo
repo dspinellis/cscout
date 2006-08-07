@@ -1,6 +1,4 @@
-$Id: todo,v 1.75 2006/08/02 21:46:41 dds Exp $
-
-- Benchmark performance drop of Prosser's implementation; serialize subst/expand
+$Id: todo,v 1.76 2006/08/07 11:36:44 dds Exp $
 
 - Unused writable macros seem to appear multiple times.
 
@@ -17,7 +15,6 @@ int VOP_ISLOCKED_AP(struct vop_islocked_args *);
   When processing yacc tokens these get macro-expanded with the
   macros of that file ONLY
   Test by obfuscating awk
-
 
 - Add support for preprocessor predicates (see predicate.h and the
   20060625 blog entry.
