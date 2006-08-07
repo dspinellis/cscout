@@ -3,7 +3,7 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.15 2006/06/18 19:34:46 dds Exp $
+ * $Id: eval.y,v 1.16 2006/08/07 09:16:41 dds Exp $
  *
  */
 
@@ -31,7 +31,13 @@
 #include "tokid.h"
 #include "fchar.h"
 
-#define YYSTYPE long
+/*
+ * From C99 6.3.1.8 Usual arithmetic conversions:
+ * Otherwise, both operands are converted to the unsigned integer type
+ * corresponding to the type of the operand with signed integer type.
+ */
+
+#define YYSTYPE unsigned long
 
 void eval_error(char *) {}
 extern int eval_lex();
