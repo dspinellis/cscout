@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.14 2006/08/07 18:30:47 dds Exp $
+# $Id: runtest.sh,v 1.15 2006/08/31 20:57:59 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -156,8 +156,7 @@ order by foffset;
 $HSQLDB mem - |
 sed -e '1,/^Starting dump/d;/^[0-9][0-9]* rows/d' |
 tr -d "\n\r" |
-sed 's/\\u0000d\\u0000a/\
-/g' >test/chunk/$NAME
+perl -pe 's/\\u0000d\\u0000a/\n/g' >test/chunk/$NAME
 if diff -b test/c/$NAME test/chunk/$NAME
 then
 	echo "
