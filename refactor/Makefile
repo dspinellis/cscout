@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.94 2006/08/07 11:36:44 dds Exp $
+# $Id: Makefile,v 1.95 2006/09/18 08:51:44 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -201,8 +201,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.94 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/08/07 11:36:44 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.95 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/18 08:51:44 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -259,7 +259,7 @@ rdist-sourceforge:
 
 rdist-sense:
 	tar cf - $(SRC) | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
-	$(SSH) sense "(cd src/cscout ; /opt/csw/bin/gmake lf)"
+	$(SSH) sense "(cd src/cscout ; /usr/sfw/bin/gmake lf)"
 
 rdist-titan:
 	tar -cvf - $(SRC) | gzip -c | $(SSH) titan tar -C src/cscout -xzvf -
