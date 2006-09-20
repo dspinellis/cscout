@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.40 2006/07/31 21:41:23 dds Exp $
+ * $Id: fileid.cpp,v 1.41 2006/09/20 17:47:35 dds Exp $
  */
 
 #include <fstream>
@@ -31,10 +31,12 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
+#include "md5.h"
 
 int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
 FI_id_to_details Fileid::i2d;	// From id to file details
+FI_hash_to_id Fileid::h2i;	// From (hopefully) unique file hash to id
 Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
 list <string> Fileid::ro_prefix;	// Read-only prefix
 
@@ -175,19 +177,28 @@ Fileid::is_readonly(string fname)
 
 Fileid::Fileid(const string &name)
 {
-	// String identifier
+	// String identifier of the file
 	string sid(get_uniq_fname_string(name.c_str()));
-	FI_uname_to_id::const_iterator i;
+	FI_uname_to_id::const_iterator uni;
+	FI_hash_to_id::const_iterator hi;
 
-	if ((i = u2i.find(sid)) == u2i.end()) {
-		// New filename; add a new fname/id pair in the map table
-		string fpath(get_full_path(name.c_str()));
-		u2i[sid] = counter;
-		i2d.push_back(Filedetails(fpath, is_readonly(name.c_str())));
-		id = counter++;
-	} else
+	if ((uni = u2i.find(sid)) != u2i.end()) {
 		// Filename exists; our id is the one from the map
-		id = (*i).second;
+		id = uni->second;
+	} else {
+		string fpath(get_full_path(name.c_str()));
+		unsigned char *h = MD5File(name.c_str());
+		vector<unsigned char> hash(h, h + 16);
+		if ((hi = h2i.find(hash)) != h2i.end()) {
+			// An exact duplicate file exists; make it known
+			u2i[sid] = id = hi->second;
+			i2d[id].add_copy(fpath);
+		} else {
+			// New filename; add a new fname/id pair in the map tables
+			h2i[hash] = u2i[sid] = id = counter++;
+			i2d.push_back(Filedetails(fpath, is_readonly(name.c_str())));
+		}
+	}
 }
 
 // User for initialization and testing; not for real files

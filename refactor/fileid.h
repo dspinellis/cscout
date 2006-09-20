@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.29 2006/06/22 17:34:38 dds Exp $
+ * $Id: fileid.h,v 1.30 2006/09/20 17:47:35 dds Exp $
  */
 
 #ifndef FILEID_
@@ -58,6 +58,7 @@ typedef map <Fileid, IncDetails> FileIncMap;
 class Filedetails {
 private:
 	string name;	// File name (complete path)
+	list <string> copies;		// Exact copies of the file
 	bool m_garbage_collected;	// When postprocessing files to garbage collect ECs
 	bool m_required;		// When postprocessing files actually required (containing definitions)
 	bool m_compilation_unit;	// This file is a compilation unit (set by gc)
@@ -76,6 +77,8 @@ public:
 	class Metrics m;
 	Filedetails(string n, bool r);
 	Filedetails();
+	void add_copy(const string &s) { copies.push_back(s); }
+	const list <string> &get_copies() const { return copies; }
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
@@ -102,6 +105,7 @@ public:
 
 typedef map <string, int> FI_uname_to_id;
 typedef vector <Filedetails> FI_id_to_details;
+typedef map <vector<unsigned char>, int> FI_hash_to_id;
 
 /*
  * A unique file identifier
@@ -115,6 +119,7 @@ private:
 
 	static int counter;		// To generate ids
 	static FI_uname_to_id u2i;	// From unique name to id
+	static FI_hash_to_id h2i;	// From (hopefully) unique file hash to id
 	static FI_id_to_details i2d;	// From id to file details
 
 	// Construct a new Fileid given a name and id value
