@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.149 2006/08/06 10:00:05 dds Exp $
+ * $Id: cscout.cpp,v 1.150 2006/09/20 18:09:26 dds Exp $
  */
 
 #include <map>
@@ -1939,7 +1939,17 @@ file_page(FILE *of, void *p)
 	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
-	fprintf(of, "</ul>\n</ul><h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%u\">Source code</a>\n", i.get_id());
+	fprintf(of, "</ul>\n");
+	const list <string> &copies(i.get_copies());
+	fprintf(of, "<li>Other exact copies:%s\n", copies.size() ? "<ul>\n" : " (none)");
+	for (list <string>::const_iterator j = copies.begin(); j != copies.end(); j++) {
+		fprintf(of, "<li>");
+		html_string(of, *j);
+	}
+	if (copies.size())
+		fprintf(of, "</ul>\n");
+
+	fprintf(of, "</ul>\n<h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%u\">Source code</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"src.html?id=%u&marku=1\">Source code with unprocessed regions marked</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%u&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", i.get_id(), is_readonly);
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%u&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", i.get_id(), is_lscope);

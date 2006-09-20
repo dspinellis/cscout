@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.30 2006/09/20 17:47:35 dds Exp $
+ * $Id: fileid.h,v 1.31 2006/09/20 18:09:26 dds Exp $
  */
 
 #ifndef FILEID_
@@ -78,13 +78,13 @@ public:
 	Filedetails(string n, bool r);
 	Filedetails();
 	void add_copy(const string &s) { copies.push_back(s); }
-	const list <string> &get_copies() const { return copies; }
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
 	bool garbage_collected() const { return m_garbage_collected; }
 	void set_gc(bool r) { m_garbage_collected = r; }
 	bool required() const { return m_required; }
+	const list <string> &get_copies() const { return copies; }
 	void set_required(bool r) { m_required = r; }
 	bool compilation_unit() const { return m_compilation_unit; }
 	void set_compilation_unit(bool r) { m_compilation_unit = r; }
@@ -155,6 +155,7 @@ public:
 	Metrics &metrics() { return i2d[id].m; }
 	// Return a reference to the Metrics class
 	const Metrics &const_metrics() const { return i2d[id].m; }
+	const list <string> &get_copies() const { return i2d[id].get_copies(); }
 	// Get /set attributes
 	void set_attribute(int v) { i2d[id].attr.set_attribute(v); }
 	bool get_attribute(int v) { return i2d[id].attr.get_attribute(v); }
