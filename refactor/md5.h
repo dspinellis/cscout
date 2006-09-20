@@ -1,4 +1,11 @@
 /*
+ * Calculate MD5 hashes.
+ *
+ * $Id: md5.h,v 1.2 2006/09/20 08:03:48 dds Exp $
+ */
+
+#ifndef __MD5_INCLUDE__
+/*
  ***********************************************************************
  ** md5.h -- header file for implementation of MD5                    **
  ** RSA Data Security, Inc. MD5 Message-Digest Algorithm              **
@@ -37,7 +44,10 @@
  ***********************************************************************
  */
 
-#ifndef __MD5_INCLUDE__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* typedef a 32-bit type */
 typedef unsigned int UINT4;
@@ -53,6 +63,11 @@ typedef struct {
 void MD5Init ();
 void MD5Update ();
 void MD5Final ();
+unsigned char * MD5File(const char *fname);
+
+#ifdef __cplusplus
+}
+#endif
 
 #define __MD5_INCLUDE__
 #endif /* __MD5_INCLUDE__ */

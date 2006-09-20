@@ -1,3 +1,8 @@
+/*
+ * Calculate MD5 hashes.
+ *
+ * $Id: md5.c,v 1.2 2006/09/20 08:03:48 dds Exp $
+ */
 
 
 /*
@@ -303,13 +308,16 @@ UINT4 *in;
  ******************************** (cut) ********************************
  */
 
-#ifdef TEST
-/* Calculate the MD-5 of a file (dds) */
 #include <stdio.h>
 
-main(int argc, char *argv[])
+/*
+ * Calculate the MD-5 of a file (dds)
+ * Return a pointer to 16 bytes comprising the result
+ */
+unsigned char *
+MD5File(const char *fname)
 {
-	MD5_CTX md;
+	static MD5_CTX md;
 	char buff[4096];
 	FILE *f;
 	int n;
@@ -317,12 +325,29 @@ main(int argc, char *argv[])
 
 	memset(&md, 0, sizeof(md));
 	MD5Init(&md);
-	f = fopen(argv[1], "rb");
+	if ((f = fopen(fname, "rb")) == NULL) {
+		perror(fname);
+		exit(1);
+	}
 	while ((n = fread(buff, 1, sizeof(buff),f)) > 0)
 		MD5Update(&md, buff, n);
 	MD5Final(&md);
-	for (i = 0; i < 16; i++)
-		printf("%02x", md.digest[i]);
-	putchar('\n');
+	return (md.digest);
+}
+
+#ifdef TEST
+int
+main(int argc, char *argv[])
+{
+	int i, j;
+
+	for (i = 1; i < argc; i++) {
+		unsigned char *p = MD5File(argv[i]);
+		printf("MD5 (%s) = ", argv[i]);
+		for (j = 0; j < 16; j++)
+			printf("%02x", p[j]);
+		putchar('\n');
+	}
+	return (0);
 }
 #endif /* TEST */
