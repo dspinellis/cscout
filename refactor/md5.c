@@ -1,7 +1,7 @@
 /*
  * Calculate MD5 hashes.
  *
- * $Id: md5.c,v 1.2 2006/09/20 08:03:48 dds Exp $
+ * $Id: md5.c,v 1.3 2006/09/20 08:05:51 dds Exp $
  */
 
 
@@ -309,6 +309,8 @@ UINT4 *in;
  */
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 /*
  * Calculate the MD-5 of a file (dds)
@@ -321,7 +323,6 @@ MD5File(const char *fname)
 	char buff[4096];
 	FILE *f;
 	int n;
-	int i;
 
 	memset(&md, 0, sizeof(md));
 	MD5Init(&md);
