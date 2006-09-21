@@ -1,7 +1,7 @@
 /*
  * Calculate MD5 hashes.
  *
- * $Id: md5.c,v 1.3 2006/09/20 08:05:51 dds Exp $
+ * $Id: md5.c,v 1.4 2006/09/21 15:39:20 dds Exp $
  */
 
 
@@ -332,6 +332,7 @@ MD5File(const char *fname)
 	}
 	while ((n = fread(buff, 1, sizeof(buff),f)) > 0)
 		MD5Update(&md, buff, n);
+	fclose(f);
 	MD5Final(&md);
 	return (md.digest);
 }
