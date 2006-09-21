@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.109 2006/08/07 18:33:47 dds Exp $
+ * $Id: pdtoken.cpp,v 1.110 2006/09/21 12:36:41 dds Exp $
  */
 
 #include <iostream>
@@ -45,6 +45,7 @@
 #include "tchar.h"
 #include "ctoken.h"
 #include "eval.h"
+#include "os.h"
 #include "type.h"		// stab.h
 #include "stab.h"		// Block::enter()
 

@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.32 2006/09/21 12:25:09 dds Exp $
+ * $Id: fileid.h,v 1.33 2006/09/21 12:35:12 dds Exp $
  */
 
 #ifndef FILEID_
@@ -226,5 +226,4 @@ struct fname_order : public binary_function <const Fileid &, const Fileid &, boo
 
 typedef set <Fileid, fname_order> IFSet;
 
-bool is_absolute_filename(const string &s);
 #endif /* FILEID_ */
