@@ -3,11 +3,12 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: os.cpp,v 1.1 2006/09/21 15:45:25 dds Exp $
+ * $Id: os.cpp,v 1.2 2006/09/21 15:51:54 dds Exp $
  */
 
 #include <string>
 #include <set>
+#include <iostream>
 
 #include "cpp.h"
 #include "debug.h"
@@ -78,7 +79,7 @@ is_absolute_filename(const string &s)
 #if defined(unix) || defined(__MACH__)
 #include <sys/types.h>
 #include <sys/stat.h>
-static char *
+#include <stdio.h>
 #include <unistd.h>
 
 char *
@@ -99,7 +100,7 @@ get_uniq_fname_string(const char *name)
 	sprintf(buff, "%ld:%ld", (long)sb.st_dev, (long)sb.st_ino);
 	if (DP())
 		cout << "uniq fname " << name << " = " << buff << "\n";
-static const char *
+	return (buff);
 }
 
 const char *
