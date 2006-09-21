@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: os.cpp,v 1.2 2006/09/21 15:51:54 dds Exp $
+ * $Id: os.cpp,v 1.3 2006/09/21 16:43:11 dds Exp $
  */
 
 #include <string>
@@ -24,9 +24,6 @@ werror(LONG err)
 	LPVOID lpMsgBuf;
 
 	FormatMessage(
-	    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	    FORMAT_MESSAGE_FROM_SYSTEM |
-	    FORMAT_MESSAGssage(
 	    FORMAT_MESSAGE_ALLOCATE_BUFFER |
 	    FORMAT_MESSAGE_FROM_SYSTEM |
 	    FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -120,4 +117,9 @@ get_full_path(const char *name)
 
 // Return true if s specifies an absolute file path
 bool
-is_
+is_absolute_filename(const string &s)
+{
+	return s.length() > 0 && s[0] == '/';
+}
+#endif /* unix */
+
