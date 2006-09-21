@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.96 2006/09/20 17:47:35 dds Exp $
+# $Id: Makefile,v 1.97 2006/09/21 08:25:30 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -36,6 +36,8 @@ ARCH=i386
 endif
 
 OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
+
+.SUFFIXES:.java .dot .ps .gif .pic .eps .png .svg
 
 # Do not add version.cpp here
 SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
@@ -201,8 +203,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.96 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/20 17:47:35 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.97 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/21 08:25:30 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -313,3 +315,18 @@ sparc: rdist-sourceforge
 
 clean:
 	rm -f $(ARCH)/* parse_tab.h parse.cpp ytab.h tokname.cpp eval.cpp
+
+.java.dot:
+	javadoc -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet gr.spinellis.umlgraph.doclet.UmlGraph -private $<
+	mv graph.dot $@
+
+.dot.gif:
+	dot -Tgif -o$@ $<
+
+classdiag.java: $(SRC)
+	grep -h ":.*public" *.h | \
+	grep -v binary_func | \
+	sed 's/class //;s/://;s/public //;s/{//;s/  */ /g' | \
+	awk '{print "class " $$1 " extends " $$2 " {}"}' >$@
+
+classdiag.gif: classdiag.java
