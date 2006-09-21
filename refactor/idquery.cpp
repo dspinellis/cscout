@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.11 2006/06/18 19:34:46 dds Exp $
+ * $Id: idquery.cpp,v 1.12 2006/09/21 13:56:03 dds Exp $
  */
 
 #include <map>
@@ -209,7 +209,7 @@ IdQuery::eval(const IdPropElem &i)
 	int retval = exclude_ire ? 0 : REG_NOMATCH;
 	if (match_ire && ire.exec(i.second.get_id()) == retval)
 		return false;
-	bool add;
+	bool add = false;
 	switch (match_type) {
 	case 'Y':	// anY match
 		add = false;

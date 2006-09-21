@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.14 2006/06/18 19:34:46 dds Exp $
+ * $Id: funquery.cpp,v 1.15 2006/09/21 13:56:03 dds Exp $
  */
 
 #include <map>
@@ -174,7 +174,7 @@ FunQuery::eval(const Call *c)
 	if (current_project && !ec->get_attribute(current_project))
 		return false;
 
-	bool add;
+	bool add = false;
 	switch (match_type) {
 	case 'Y':	// anY match
 		add = false;
