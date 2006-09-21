@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.12 2006/06/18 19:34:46 dds Exp $
+ * $Id: call.cpp,v 1.13 2006/09/21 13:19:47 dds Exp $
  */
 
 #include <map>
@@ -180,7 +180,7 @@ Call::dumpSql(Sql *db, ostream &of)
 		Call *fun = i->second;
 		Tokid t = fun->get_site();
 		of << "INSERT INTO FUNCTIONS VALUES(" <<
-		(unsigned)fun << ", '" <<
+		ptr_offset(fun) << ", '" <<
 		fun->name << "', " <<
 		db->boolval(fun->is_macro()) << ',' <<
 		db->boolval(fun->is_defined()) << ',' <<
@@ -197,9 +197,9 @@ Call::dumpSql(Sql *db, ostream &of)
 			for (ord = pos = 0; pos < len; ord++) {
 				Eclass *ec = t2.get_ec();
 				of << "INSERT INTO FUNCTIONID VALUES(" <<
-				(unsigned)fun << ',' <<
+				ptr_offset(fun) << ',' <<
 				ord << ',' <<
-				(unsigned)ec << ");\n";
+				ptr_offset(ec) << ");\n";
 				pos += ec->get_len();
 				t2 += ec->get_len();
 			}
@@ -209,8 +209,8 @@ Call::dumpSql(Sql *db, ostream &of)
 
 		for (Call::const_fiterator_type dest = fun->call_begin(); dest != fun->call_end(); dest++)
 			of << "INSERT INTO FCALLS VALUES(" <<
-			(unsigned)fun << ',' <<
-			(unsigned)(*dest) << ");\n";
+			ptr_offset(fun) << ',' <<
+			ptr_offset(*dest) << ");\n";
 	}
 }
 #endif /* COMMERCIAL */

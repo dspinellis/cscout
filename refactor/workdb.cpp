@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.28 2006/06/24 15:11:23 dds Exp $
+ * $Id: workdb.cpp,v 1.29 2006/09/21 13:19:47 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -53,14 +53,14 @@ public:
 	Identifier(Eclass *e, const string &s) : ec(e), id(s) {}
 	string get_id() const { return id; }
 	Eclass *get_ec() const { return ec; }
-	// To create nicely ordered sets
+	// To create sets
 	inline bool operator ==(const Identifier b) const {
 		return (this->ec == b.ec) && (this->id == b.id);
 	}
 	inline bool operator <(const Identifier b) const {
 		int r = this->id.compare(b.id);
 		if (r == 0)
-			return ((unsigned)this->ec < (unsigned)b.ec);
+			return (this->ec < b.ec);
 		else
 			return (r < 0);
 	}
@@ -79,7 +79,7 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 	id_msum.add_unique_id(e);
 
 	of << "INSERT INTO IDS VALUES(" <<
-	(unsigned)e << ",'" <<
+	ptr_offset(e) << ",'" <<
 	name << "'," <<
 	db->boolval(e->get_attribute(is_readonly)) << ',' <<
 	db->boolval(e->get_attribute(is_undefined_macro)) << ',' <<
@@ -100,7 +100,7 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 	for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
 			of << "INSERT INTO IDPROJ VALUES(" <<
-			(unsigned)e << ',' << j << ");\n";
+			ptr_offset(e) << ',' << j << ");\n";
 }
 
 // Chunk the input into tables
@@ -193,7 +193,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			chunker.flush();
 			of << "INSERT INTO TOKENS VALUES(" << fid.get_id() <<
 			"," << (unsigned)ti.get_streampos() << "," <<
-			(unsigned)ec << ");\n";
+			ptr_offset(ec) << ");\n";
 		} else {
 			fid.metrics().process_char(c);
 			if (c == '\n') {

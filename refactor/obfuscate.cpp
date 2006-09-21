@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.10 2006/06/18 19:34:46 dds Exp $
+ * $Id: obfuscate.cpp,v 1.11 2006/09/21 13:19:47 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -50,7 +50,7 @@ private:
 	static bool spaced;		// True after a space has been output
 public:
 	static void reset() {spaced = false; cstate = s_normal; }
-	static void output_id(ostream &out, unsigned int id);
+	static void output_id(ostream &out, ptrdiff_t id);
 	static void output_id(ostream &out, const string &id);
 	static void process_char(ostream &out, char c);
 	static void randspace(ostream &out) {
@@ -68,7 +68,7 @@ bool CProcessor::spaced;
 
 // Output an identifier, given its equivalence class code
 void
-CProcessor::output_id(ostream &out, unsigned int id)
+CProcessor::output_id(ostream &out, ptrdiff_t id)
 {
 
 	if (cstate == s_saw_slash) {
@@ -239,7 +239,7 @@ file_obfuscate(Fileid fid)
 				    s == "yyclearin")
 					CProcessor::output_id(out, s);
 				else
-					CProcessor::output_id(out, (unsigned)ec);
+					CProcessor::output_id(out, ptr_offset(ec));
 			} else {
 				if ( ec->get_attribute(is_function) &&
 				     ec->get_attribute(is_ordinary) &&
@@ -247,7 +247,7 @@ file_obfuscate(Fileid fid)
 				     s == "main")
 					CProcessor::output_id(out, s);
 				else
-					CProcessor::output_id(out, (unsigned)ec);
+					CProcessor::output_id(out, ptr_offset(ec));
 			}
 		} else {
 			CProcessor::process_char(out, (char)val);
