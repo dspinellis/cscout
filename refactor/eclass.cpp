@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.31 2006/08/06 08:45:47 dds Exp $
+ * $Id: eclass.cpp,v 1.32 2006/09/21 12:25:09 dds Exp $
  */
 
 #include <iostream>
@@ -130,6 +130,21 @@ Eclass::sorted_files()
 	for (i = members.begin(), j = 0; i != members.end(); i++)
 		r.insert(((*i).get_fileid()));
 	return (r);
+}
+
+// Return true if this equivalence class is unintentionally unused
+bool
+Eclass::is_unused()
+{
+	if (attr.get_attribute(is_declared_unused))
+		return (false);		// Programmer knows it
+	if (members.size() == 1)
+		return (true);
+	// More complex case: see if all the members come from unified identical files
+	Tokid amember(*members.begin());
+	if (amember.get_fileid().get_identical_files().size() == members.size())
+		return (true);
+	return (false);
 }
 
 #ifdef UNIT_TEST

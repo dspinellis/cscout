@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.31 2006/09/20 18:09:26 dds Exp $
+ * $Id: fileid.h,v 1.32 2006/09/21 12:25:09 dds Exp $
  */
 
 #ifndef FILEID_
@@ -53,12 +53,12 @@ class Fileid;
 class Fchar;
 
 typedef map <Fileid, IncDetails> FileIncMap;
+typedef vector<unsigned char> FileHash;
 
 // Details we keep for each file
 class Filedetails {
 private:
 	string name;	// File name (complete path)
-	list <string> copies;		// Exact copies of the file
 	bool m_garbage_collected;	// When postprocessing files to garbage collect ECs
 	bool m_required;		// When postprocessing files actually required (containing definitions)
 	bool m_compilation_unit;	// This file is a compilation unit (set by gc)
@@ -69,22 +69,22 @@ private:
 	vector <bool> processed_lines;;
 	FileIncMap includes;	// Files we include
 	FileIncMap includers;	// Files that include us
+	FileHash hash;			// MD5 hash for the file's contents
 
 	// Update the specified map
 	void include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line);
 public:
-	Attributes attr;
+	Attributes attr;				// The projects this file participates in
 	class Metrics m;
-	Filedetails(string n, bool r);
+	Filedetails(string n, bool r, const FileHash &h);
 	Filedetails();
-	void add_copy(const string &s) { copies.push_back(s); }
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
+	const FileHash & get_filehash() const { return hash; }
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
 	bool garbage_collected() const { return m_garbage_collected; }
 	void set_gc(bool r) { m_garbage_collected = r; }
 	bool required() const { return m_required; }
-	const list <string> &get_copies() const { return copies; }
 	void set_required(bool r) { m_required = r; }
 	bool compilation_unit() const { return m_compilation_unit; }
 	void set_compilation_unit(bool r) { m_compilation_unit = r; }
@@ -105,11 +105,11 @@ public:
 
 typedef map <string, int> FI_uname_to_id;
 typedef vector <Filedetails> FI_id_to_details;
-typedef map <vector<unsigned char>, int> FI_hash_to_id;
+typedef map <FileHash, set<Fileid> > FI_hash_to_ids;
 
 /*
  * A unique file identifier
- * Keep the data members of this class spartan
+ * Keep the instance members of this class spartan
  * We create billions of such objects
  * Add details in the Filedetails class
  */
@@ -119,7 +119,7 @@ private:
 
 	static int counter;		// To generate ids
 	static FI_uname_to_id u2i;	// From unique name to id
-	static FI_hash_to_id h2i;	// From (hopefully) unique file hash to id
+	static FI_hash_to_ids identical_files;// Files that are exact duplicates
 	static FI_id_to_details i2d;	// From id to file details
 
 	// Construct a new Fileid given a name and id value
@@ -151,11 +151,12 @@ public:
 	static void clear();
 	// Set the prefix for read-only files
 	static void add_ro_prefix(string prefix) { ro_prefix.push_back(prefix); }
+	// Unify identifiers of files that are exact copies
+	static void unify_identical_files(void);
 	// Return a reference to the Metrics class
 	Metrics &metrics() { return i2d[id].m; }
 	// Return a reference to the Metrics class
 	const Metrics &const_metrics() const { return i2d[id].m; }
-	const list <string> &get_copies() const { return i2d[id].get_copies(); }
 	// Get /set attributes
 	void set_attribute(int v) { i2d[id].attr.set_attribute(v); }
 	bool get_attribute(int v) { return i2d[id].attr.get_attribute(v); }
@@ -172,6 +173,8 @@ public:
 	void process_line(bool processed) {i2d[id].process_line(processed); }
 	// Return true if a line is processed
 	bool is_processed(int line) const { return i2d[id].is_processed(line); };
+	// Return the set of files that are the same as this (including this)
+	const set <Fileid> & get_identical_files() const { return identical_files[i2d[id].get_filehash()]; }
 
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered

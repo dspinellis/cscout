@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.150 2006/09/20 18:09:26 dds Exp $
+ * $Id: cscout.cpp,v 1.151 2006/09/21 12:25:09 dds Exp $
  */
 
 #include <map>
@@ -1940,11 +1940,13 @@ file_page(FILE *of, void *p)
 		if (i.get_attribute(j))
 			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 	fprintf(of, "</ul>\n");
-	const list <string> &copies(i.get_copies());
-	fprintf(of, "<li>Other exact copies:%s\n", copies.size() ? "<ul>\n" : " (none)");
-	for (list <string>::const_iterator j = copies.begin(); j != copies.end(); j++) {
-		fprintf(of, "<li>");
-		html_string(of, *j);
+	const set <Fileid> &copies(i.get_identical_files());
+	fprintf(of, "<li>Other exact copies:%s\n", copies.size() > 1 ? "<ul>\n" : " (none)");
+	for (set <Fileid>::const_iterator j = copies.begin(); j != copies.end(); j++) {
+		if (*j != i) {
+			fprintf(of, "<li>");
+			html_string(of, j->get_path());
+		}
 	}
 	if (copies.size())
 		fprintf(of, "</ul>\n");
@@ -2500,6 +2502,8 @@ main(int argc, char *argv[])
 
 	if (process_mode == pm_compile)
 		return 0;
+
+	Fileid::unify_identical_files();
 
 #ifdef COMMERCIAL
 	if (process_mode == pm_obfuscation)

@@ -1,12 +1,26 @@
-$Id: todo,v 1.76 2006/08/07 11:36:44 dds Exp $
+$Id: todo,v 1.77 2006/09/21 12:25:09 dds Exp $
 
-- Unused writable macros seem to appear multiple times.
+- Handle files that are copies of each other, with an MD5 hash and len
+  (Check with titan dup.cs)
+  - Document
+  - Ensure that unused identifiers also appear on copied files (count > 1)
+  - Add database table
+  - Allow files to be queried on this
 
-- Function typedefs are not functions
-  typedef struct resource_list * bus_get_resource_list_t(device_t _dev, device_t _child);
+- In file_process skip over the characters of non-identifier ECs
+
+- Remove x86_64 warnings
+
+- Use read-only checkboxes for presenting Identifier attributes
+
+- Make project membership listing an option
 
 - Function declarations in multiple files should appear as a single function.
 int VOP_ISLOCKED_AP(struct vop_islocked_args *);
+
+- Optimize file_hypertext by not calling check_ec for !isalnum or _
+  and in comments.  While at it, mark comments with a different
+  color.
 
 - Handle the fact that y.tab.h is not in sync with the %token identifiers
   used in the .y file:
@@ -18,10 +32,6 @@ int VOP_ISLOCKED_AP(struct vop_islocked_args *);
 
 - Add support for preprocessor predicates (see predicate.h and the
   20060625 blog entry.
-
-- Optimize file_hypertext by not calling check_ec for !isalnum or _
-  and in comments.  While at it, mark comments with a different
-  color.
 
 - Report unused include files only if the number a given include site
   has been processed equals the number of include files that are unused
@@ -52,6 +62,10 @@ Track global variables in the same way as functions are currently tracked.
 Collect maintainability index and oo metrics (see SSAO04.)
 Pointer analysis
 Locate similar / same lines (irrelevant, but useful for refactoring)
+See http://en.wikipedia.org/wiki/Karp-Rabin
+
+Calculate Cyclomatic complexity and LOC for each function / macro
+
 MRR04
 Precise Call Graphs for C Programs with Function Pointers
 Milanova A., Rountev A., Ryder B.   Automated Software Engineering 11(1): 7-26, 2004.
@@ -91,6 +105,13 @@ Refactorings
 	- Inline macro
 	- Add nth function argument (with default value)
 	- Remove nth function argument
+	- Change order of function arguments
+	- Globally replace identifier in code/strings/comments (select where)
+	- Add / replace first block comment
+
+Tag functions appearing on the RHS of expressions (these are likely to
+  get called via pointers and thus can't safely have their arguments
+  refactored).
 
 Add support for type specifiers:
 	_Bool

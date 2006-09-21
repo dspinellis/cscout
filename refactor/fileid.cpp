@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.41 2006/09/20 17:47:35 dds Exp $
+ * $Id: fileid.cpp,v 1.42 2006/09/21 12:25:09 dds Exp $
  */
 
 #include <fstream>
@@ -31,12 +31,16 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
+#include "token.h"
+#include "ytab.h"
+#include "ptoken.h"
+#include "pltoken.h"
 #include "md5.h"
 
 int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
 FI_id_to_details Fileid::i2d;	// From id to file details
-FI_hash_to_id Fileid::h2i;	// From (hopefully) unique file hash to id
+FI_hash_to_ids Fileid::identical_files;// Files that are exact duplicates
 Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
 list <string> Fileid::ro_prefix;	// Read-only prefix
 
@@ -50,6 +54,14 @@ Fileid::clear()
 }
 
 #ifdef WIN32
+// Clear ytab.h name clashes to include windows.h
+#undef FLOAT
+#undef INT
+#undef CHAR
+#undef SHORT
+#undef LONG
+#undef CONST
+#undef DOUBLE
 #include <windows.h>
 
 // Return a Windows error code as a string
@@ -180,24 +192,20 @@ Fileid::Fileid(const string &name)
 	// String identifier of the file
 	string sid(get_uniq_fname_string(name.c_str()));
 	FI_uname_to_id::const_iterator uni;
-	FI_hash_to_id::const_iterator hi;
 
 	if ((uni = u2i.find(sid)) != u2i.end()) {
 		// Filename exists; our id is the one from the map
 		id = uni->second;
 	} else {
+		// New filename; add a new fname/id pair in the map tables
 		string fpath(get_full_path(name.c_str()));
 		unsigned char *h = MD5File(name.c_str());
-		vector<unsigned char> hash(h, h + 16);
-		if ((hi = h2i.find(hash)) != h2i.end()) {
-			// An exact duplicate file exists; make it known
-			u2i[sid] = id = hi->second;
-			i2d[id].add_copy(fpath);
-		} else {
-			// New filename; add a new fname/id pair in the map tables
-			h2i[hash] = u2i[sid] = id = counter++;
-			i2d.push_back(Filedetails(fpath, is_readonly(name.c_str())));
-		}
+		FileHash hash(h, h + 16);
+
+		u2i[sid] = id = counter++;
+		i2d.push_back(Filedetails(fpath, is_readonly(name.c_str()), hash));
+
+		identical_files[hash].insert(*this);
 	}
 }
 
@@ -206,7 +214,7 @@ Fileid::Fileid(const string &name, int i)
 {
 	u2i[name] = i;
 	i2d.resize(i + 1);
-	i2d[i] = Filedetails(name, true);
+	i2d[i] = Filedetails(name, true, FileHash());
 	id = i;
 	counter = i + 1;
 }
@@ -251,9 +259,10 @@ Fileid::set_readonly(bool r)
 	i2d[id].set_readonly(r);
 }
 
-Filedetails::Filedetails(string n, bool r) :
+Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 	name(n),
-	m_compilation_unit(false)
+	m_compilation_unit(false),
+	hash(h)
 {
 	set_readonly(r);
 }
@@ -342,6 +351,60 @@ Filedetails::process_line(bool processed)
 		}
 		csassert(0);
 	}
+}
+
+
+// Read identifier tokens from file fname into tkov
+static void
+read_file(const string &fname, vector <Pltoken> &tokv)
+{
+	Fchar::set_input(fname);
+	Pltoken t;
+
+	for (;;) {
+		t.getnext<Fchar>();
+		switch (t.get_code()) {
+		case IDENTIFIER:
+			tokv.push_back(t);
+			break;
+		case EOF:
+			return;
+		}
+	}
+}
+
+/*
+ * Unify all identifiers in the files of fs
+ * The corresponding files should be exact duplicates
+ */
+static void
+unify_file_identifiers(const set<Fileid> &fs)
+{
+	csassert(fs.size() > 1);
+	Fileid fi = *(fs.begin());
+	fifstream in;
+	vector <Pltoken> ft0, ftn;	// The tokens to unify
+
+	read_file(fi.get_path(), ft0);
+
+	set <Fileid>::const_iterator fsi = fs.begin();
+	for (fsi++; fsi != fs.end(); fsi++) {
+		cout << "Merging identifiers of " << fi.get_path() << " and " << fsi->get_path() << endl;
+		read_file(fsi->get_path(), ftn);
+		csassert(ft0.size() == ftn.size());
+		vector <Pltoken>::iterator ti0, tin;
+		for (ti0 = ft0.begin(), tin = ftn.begin(); ti0 != ft0.end(); ti0++, tin++)
+			Token::unify(*ti0, *tin);
+		ftn.clear();
+	}
+}
+
+void
+Fileid::unify_identical_files(void)
+{
+	for (FI_hash_to_ids::const_iterator i = identical_files.begin(); i != identical_files.end(); i++)
+		if (i->second.size() > 1)
+			unify_file_identifiers(i->second);
 }
 
 #ifdef UNIT_TEST
