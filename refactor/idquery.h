@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.7 2005/09/27 21:32:57 dds Exp $
+ * $Id: idquery.h,v 1.8 2006/09/22 06:27:53 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -19,7 +19,14 @@ class Identifier {
 	bool active;		// True if the replacement is active
 public:
 	Identifier(Eclass *e, const string &s) : id(s), replaced(false), active(true) {
-		xfile = e->sorted_files().size() > 1;
+		/*
+		 * Normally, e crosses a file boundary if the EFn, the # of files it appears in > 1
+		 * If we take into account the possibility of identical files EFi we must also
+		 * ensure that EFn != EFi
+		 * For this second condition it is enough to check the identical files of one element
+		 */
+		Tokid amember(*(e->get_members().begin()));
+		xfile = e->sorted_files().size() > amember.get_fileid().get_identical_files().size();
 	}
 	Identifier() {}
 	string get_id() const { return id; }
