@@ -3,12 +3,11 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.9 2006/06/18 19:34:46 dds Exp $
+ * $Id: query.cpp,v 1.10 2006/09/22 09:44:25 dds Exp $
  */
 
 #include <map>
 #include <string>
-#include <deque>
 #include <vector>
 #include <stack>
 #include <iterator>
@@ -16,8 +15,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <functional>
-#include <algorithm>		// set_difference
 #include <cctype>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
@@ -31,25 +28,6 @@
 #include "error.h"
 #include "ytab.h"
 #include "attr.h"
-#include "metrics.h"
-#include "fileid.h"
-#include "tokid.h"
-#include "token.h"
-#include "ptoken.h"
-#include "fchar.h"
-#include "pltoken.h"
-#include "macro.h"
-#include "pdtoken.h"
-#include "eclass.h"
-#include "ctoken.h"
-#include "type.h"
-#include "stab.h"
-#include "license.h"
-#include "fdep.h"
-#include "version.h"
-#include "call.h"
-#include "fcall.h"
-#include "mcall.h"
 #include "compiledre.h"
 #include "query.h"
 
