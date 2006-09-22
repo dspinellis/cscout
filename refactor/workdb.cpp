@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.29 2006/09/21 13:19:47 dds Exp $
+ * $Id: workdb.cpp,v 1.30 2006/09/22 13:25:26 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -430,6 +430,12 @@ workdb_schema(Sql *db, ostream &of)
 		"SOURCEID INTEGER, "			// Calling function identifier key (references FUNCTIONS)
 		"DESTID INTEGER"			// Called function identifier key (references FUNCTIONS)
 		");\n"
+
+		"CREATE TABLE FILECOPIES("		// Files occuring in more than one copy
+		"GROUPID INTEGER, "			// Unique file group identifier
+		"FID INTEGER"				// Key of file belonging to a group of identical files (references FILES)
+		");\n"
+
 		// END AUTOSCHEMA
 		"";
 }
@@ -445,6 +451,8 @@ workdb_rest(Sql *db, ostream &of)
 	for (pm = m.begin(); pm != m.end(); pm++)
 		cout << "INSERT INTO PROJECTS VALUES(" <<
 		(*pm).second << ",'" << (*pm).first << "');\n";
+
+	int groupnum = 0;
 
 	// Details for each file
 	// As a side effect populate the EC identifier member
@@ -472,6 +480,15 @@ workdb_rest(Sql *db, ostream &of)
 			if ((*i).get_attribute(j))
 				cout << "INSERT INTO FILEPROJ VALUES(" <<
 				(*i).get_id() << ',' << j << ");\n";
+
+		// Copies of the file
+		const set <Fileid> &copies(i->get_identical_files());
+		if (copies.size() > 1 && copies.begin()->get_id() == i->get_id()) {
+			for (set <Fileid>::const_iterator j = copies.begin(); j != copies.end(); j++)
+				cout << "INSERT INTO FILECOPIES VALUES(" <<
+					 groupnum << ',' << j->get_id() << ");\n";
+			groupnum++;
+		}
 	}
 }
 
