@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.56 2006/08/06 09:30:48 dds Exp $
+ * $Id: macro.cpp,v 1.57 2006/09/22 20:46:26 dds Exp $
  */
 
 #include <iostream>
@@ -346,6 +346,7 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 	is_defined(id)
 {
 	if (isfun) {
+		Token uname(name.unique());	// Take care of identical files
 		mcall = dynamic_cast<MCall *>(Call::get_call(name));
 		if (!mcall)
 			mcall = new MCall(name, name.get_name());

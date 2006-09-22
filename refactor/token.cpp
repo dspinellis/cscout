@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.24 2006/06/18 19:34:46 dds Exp $
+ * $Id: token.cpp,v 1.25 2006/09/22 20:46:26 dds Exp $
  */
 
 #include <iostream>
@@ -49,6 +49,17 @@ operator<<(ostream& o,const Token &t)
 	cout << "Token code:" << t.name() << "(" << t.code << "):[" << t.val << "]\n";
 	cout << "Parts:" << t.parts << "\n";
 	return o;
+}
+
+Token
+Token::unique() const
+{
+	Token r(code);
+	r.val = val;
+	dequeTpart::const_iterator i;
+	for (i = parts.begin(); i != parts.end(); i++)
+		r.parts.push_back(Tpart(i->get_tokid().unique(), i->get_len()));
+	return (r);
 }
 
 dequeTpart

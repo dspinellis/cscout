@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.27 2006/06/18 19:34:46 dds Exp $
+ * $Id: tokid.cpp,v 1.28 2006/09/22 20:46:26 dds Exp $
  */
 
 #include <iostream>
@@ -109,6 +109,8 @@ Tokid::constituents(int l)
 		}
 		Tpart tp(t, covered);
 		r.push_back(tp);
+		if (DP())
+			cout << "l = " << l << "covered = " << covered << endl;
 		l -= covered;
 		csassert(l >= 0);
 		if (l == 0)
@@ -168,6 +170,15 @@ operator<<(ostream& o,const dequeTokid& dt)
 	return (o);
 }
 
+Tokid
+Tokid::unique() const
+{
+	if (DP()) {
+		cout << "unique input:  " << *this << endl;
+		cout << "unique output: " << Tokid(*(fi.get_identical_files().begin()), offs) << endl;
+	}
+	return Tokid(*(fi.get_identical_files().begin()), offs);
+}
 #ifdef UNIT_TEST
 // cl -GX -DWIN32 -c eclass.cpp fileid.cpp
 // cl -GX -DWIN32 -DUNIT_TEST tokid.cpp eclass.obj fileid.obj kernel32.lib

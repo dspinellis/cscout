@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.42 2006/08/07 18:31:06 dds Exp $
+ * $Id: stab.cpp,v 1.43 2006/09/22 20:46:26 dds Exp $
  */
 
 #include <map>
@@ -220,12 +220,14 @@ obj_define(const Token& tok, Type typ)
 				fc = id->get_fcall();
 		}
 		// Try to match the function against one in another project
-		if (!fc)
-			fc = dynamic_cast<FCall *>(Call::get_call(tok));
 		if (!fc) {
-			if (DP())
-				cout << "Creating new call\n";
-			fc = new FCall(tok, typ, tok.get_name());
+			Token utok(tok.unique());	// To handle identical files
+			fc = dynamic_cast<FCall *>(Call::get_call(utok));
+			if (!fc) {
+				if (DP())
+					cout << "Creating new call\n";
+				fc = new FCall(utok, typ, tok.get_name());
+			}
 		}
 	}
 

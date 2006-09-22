@@ -1,18 +1,8 @@
-$Id: todo,v 1.81 2006/09/22 13:25:26 dds Exp $
-
-- Document pager
-
-- Handle files that are copies of each other, with an MD5 hash and len
-  - Document (File page, query, identifier behavior)
+$Id: todo,v 1.82 2006/09/22 20:46:26 dds Exp $
 
 - In file_process skip over the characters of non-identifier ECs
 
-- Use read-only checkboxes for presenting Identifier attributes
-
 - Make project membership listing an option
-
-- Function declarations in multiple files should appear as a single function.
-int VOP_ISLOCKED_AP(struct vop_islocked_args *);
 
 - Optimize file_hypertext by not calling check_ec for !isalnum or _
   and in comments.  While at it, mark comments with a different

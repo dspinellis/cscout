@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.14 2006/08/04 19:47:52 dds Exp $
+ * $Id: fcall.cpp,v 1.15 2006/09/22 20:46:26 dds Exp $
  */
 
 #include <map>
@@ -82,7 +82,7 @@ FCall::set_current_fun(const Type &t)
 		return;
 	}
 	csassert(current_fun);
-	current_fun->definition = t.get_token().get_parts_begin()->get_tokid();
+	current_fun->definition = t.get_token().get_parts_begin()->get_tokid().unique();
 	current_fun->defined = true;
 	if (DP())
 		cout << "Current function " << id->get_name() << "\n";

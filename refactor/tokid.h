@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.21 2006/06/23 17:25:50 dds Exp $
+ * $Id: tokid.h,v 1.22 2006/09/22 20:46:26 dds Exp $
  */
 
 #ifndef TOKID_
@@ -43,6 +43,9 @@ public:
 	Tokid(Fileid i, streampos l) : fi(i), offs((cs_offset_t)l) {};
 	// Construct it uninitialised to be filled-in later
 	Tokid() {}
+	// Return a tokid that uniquely represents all same tokids coming from identical files
+	// (The first element of the identical files set is invariant)
+	Tokid unique() const;
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Tokid t);
 	inline friend bool operator ==(const class Tokid a, const class Tokid b);

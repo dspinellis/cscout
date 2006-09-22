@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.16 2006/07/29 07:26:35 dds Exp $
+ * $Id: token.h,v 1.17 2006/09/22 20:46:26 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -60,7 +60,9 @@ public:
 	// Return the token's symbolic name based on its code
 	string name() const;
 	// Return the constituent Tokids; they may be more than the parts
-	dequeTpart Token::constituents() const;
+	dequeTpart constituents() const;
+	// Return a token that uniquely represents all same tokens coming from identical files
+	Token unique() const;
 	// Send it on ostream
 	friend ostream& operator<<(ostream& o,const Token &t);
 	// Iterators for accessing the token parts

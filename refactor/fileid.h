@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.33 2006/09/21 12:35:12 dds Exp $
+ * $Id: fileid.h,v 1.34 2006/09/22 20:46:26 dds Exp $
  */
 
 #ifndef FILEID_
@@ -105,6 +105,12 @@ public:
 
 typedef map <string, int> FI_uname_to_id;
 typedef vector <Filedetails> FI_id_to_details;
+/*
+ * This is used for keeping identical files
+ * The value type must be ordered by the integer Fileid
+ * in order to keep *values.begin() invariant.
+ * This property is used by tokid unique for returning unique tokids
+ */
 typedef map <FileHash, set<Fileid> > FI_hash_to_ids;
 
 /*
