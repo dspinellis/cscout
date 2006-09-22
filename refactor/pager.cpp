@@ -3,7 +3,7 @@
  *
  * A pager for HTML output
  *
- * $Id: pager.cpp,v 1.1 2006/09/22 09:20:41 dds Exp $
+ * $Id: pager.cpp,v 1.2 2006/09/22 10:21:43 dds Exp $
  */
 
 #include <string>
@@ -68,7 +68,7 @@ Pager::end()
 				fprintf(of, "%d ", i + 1);
 			else
 				fprintf(of, "<a href=\"%s&skip=%d\">%d</a> ", url.c_str(), i * pagesize, i + 1);
-		if (thispage + 1 < npages)
+		if (skip != -1 && thispage + 1 < npages)
 			fprintf(of, "<a href=\"%s&skip=%d\">next</a> ", url.c_str(), skip + pagesize);
 		fprintf(of, "<a href=\"%s&skip=-1\">all</a><br />", url.c_str());
 	}
