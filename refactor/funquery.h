@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.6 2005/09/27 21:32:57 dds Exp $
+ * $Id: funquery.h,v 1.7 2006/09/22 09:21:49 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -58,8 +58,10 @@ public:
 
 	// Perform a query
 	bool eval(const Call *c);
-	// Transform the query back into a URL
-	virtual string url() const;
+	// Return the URL for re-executing this query
+	string base_url() const;
+	// Return the query's parameters as a URL
+	string param_url() const;
 };
 
 /*

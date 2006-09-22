@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.5 2005/09/27 21:32:57 dds Exp $
+ * $Id: query.h,v 1.6 2006/09/22 09:21:49 dds Exp $
  */
 
 #ifndef QUERY_
@@ -47,8 +47,10 @@ public:
 	// Accessor functions
 	bool is_valid() { return valid; }
 	bool need_eval() { return !lazy; }
-	// Transform the query back into a URL
-	virtual string url() const = 0;
+	// Return the URL for listing a file based on this query
+	virtual string param_url() const = 0;
+	// Return the URL for re-executing this query
+	virtual string base_url() const = 0;
 	static bool sort_rev;			// Reverse sort of identifier names
 };
 

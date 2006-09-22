@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.151 2006/09/21 12:25:09 dds Exp $
+ * $Id: cscout.cpp,v 1.152 2006/09/22 09:21:49 dds Exp $
  */
 
 #include <map>
@@ -67,6 +67,7 @@
 #include "idquery.h"
 #include "funquery.h"
 #include "logo.h"
+#include "pager.h"
 
 
 #ifdef COMMERCIAL
@@ -98,6 +99,7 @@ static char cgraph_show = 'f';		// Call graph show e(dge n(ame f(ile p(ath
 static CompiledRE sfile_re;		// Saved files replacement location RE
 static string sfile_re_string;		// Saved files replacement location RE string
 static string sfile_repl_string;	// Saved files replacement string
+static int entries_per_page = 200;	// Number of elements to show in a page
 
 // Global command-line options
 static enum e_process {
@@ -904,29 +906,32 @@ xfquery_page(FILE *of,  void *p)
 
 
 /*
- * Display the sorted identifiers, taking into account the reverse sort property
+ * Display the sorted identifiers or functions, taking into account the reverse sort property
  * for properly aligning the output.
  */
 template <typename container>
 static void
-display_sorted(FILE *of, const container &sorted_ids)
+display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 {
 	if (Query::sort_rev)
 		fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
 	else
 		fputs("<p>\n", of);
 
+	Pager pager(of, entries_per_page, query.base_url() + "&qi=1");
 	typename container::const_iterator i;
 	for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
-		html(of, **i);
-		fputs("<br>\n", of);
+		if (pager.show_next()) {
+			html(of, **i);
+			fputs("<br>\n", of);
+		}
 	}
 
 	if (Query::sort_rev)
 		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
 	else
 		fputs("</p>\n", of);
-	fprintf(of, "<p>%d element(s) listed.</p>", sorted_ids.size());
+	pager.end();
 }
 
 // Identifier query page
@@ -1049,25 +1054,26 @@ funquery_page(FILE *of,  void *p)
 void
 display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 {
-	const string query_url(query.url());
+	const string query_url(query.param_url());
 
 	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
 	html_file_set_begin(of);
-	int file_count = 0;
+	Pager pager(of, entries_per_page, query.base_url() + "&qf=1");
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
 			continue;
-		html_file(of, *i);
-		file_count++;
-		fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
-			f.get_id(),
-			query_url.c_str());
-		html_file_record_end(of);
+		if (pager.show_next()) {
+			html_file(of, *i);
+			fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
+				f.get_id(),
+				query_url.c_str());
+			html_file_record_end(of);
+		}
 	}
 	html_file_end(of);
-	fprintf(of, "<p>%d file(s) listed.", file_count);
+	pager.end();
 }
 
 // Process an identifier query
@@ -1104,11 +1110,10 @@ xiquery_page(FILE *of,  void *p)
 	cout << endl;
 	if (q_id) {
 		fputs("<h2>Matching Identifiers</h2>\n", of);
-		display_sorted(of, sorted_ids);
+		display_sorted(of, query, sorted_ids);
 	}
 	if (q_file)
 		display_files(of, query, sorted_files);
-	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
 }
 
@@ -1142,11 +1147,10 @@ xfunquery_page(FILE *of,  void *p)
 	cout << endl;
 	if (q_id) {
 		fputs("<h2>Matching Functions</h2>\n", of);
-		display_sorted(of, sorted_funs);
+		display_sorted(of, query, sorted_funs);
 	}
 	if (q_file)
 		display_files(of, query, sorted_files);
-	fputs("<p>You can bookmark this page to save the respective query<p>", of);
 	html_tail(of);
 }
 
@@ -1487,6 +1491,7 @@ options_page(FILE *fo, void *p)
 	fprintf(fo, "<input type=\"checkbox\" name=\"show_line_number\" value=\"1\" %s>Show line numbers in source listings<br>\n", (show_line_number ? "checked" : ""));
 	fprintf(fo, "<input type=\"checkbox\" name=\"file_icase\" value=\"1\" %s>Case-insensitive file name regular expression match<br>\n", (file_icase ? "checked" : ""));
 	fprintf(fo, "<p>Code listing tab width <input type=\"text\" name=\"tab_width\" size=3 maxlength=3 value=\"%d\"><br>\n", tab_width);
+	fprintf(fo, "<p>Number of entries on a page <input type=\"text\" name=\"entries_per_page\" size=3 maxlength=3 value=\"%d\"><br>\n", entries_per_page);
 /*
 Do not show No in identifier properties (option)
 
@@ -1538,6 +1543,8 @@ set_options_page(FILE *fo, void *p)
 		cgraph_show = *m;
 	if (!swill_getargs("I(tab_width)", &tab_width) || tab_width <= 0)
 		tab_width = 8;
+	if (!swill_getargs("I(entries_per_page)", &entries_per_page) || entries_per_page <= 0)
+		entries_per_page = 200;
 	sfile_re_string = swill_getvar("sfile_re");
 	sfile_repl_string = swill_getvar("sfile_repl_string");
 	if (sfile_re_string.length()) {
@@ -1582,6 +1589,7 @@ save_options_page(FILE *fo, void *p)
 	out << "tab_width: " << tab_width << endl;
 	out << "sfile_re_string: " << sfile_re_string << endl;
 	out << "sfile_repl_string: " << sfile_repl_string << endl;
+	out << "entries_per_page: " << entries_per_page << endl;
 	out.close();
 	fprintf(fo, "Options have been saved in the file \".cscout/options\".");
 	fprintf(fo, "They will be loaded when CScout is executed again in this directory.");
@@ -1618,6 +1626,8 @@ load_options()
 			in >> cgraph_show;
 		else if (val == "tab_width:")
 			in >> tab_width;
+		else if (val == "entries_per_page:")
+			in >> entries_per_page;
 		else if (val == "sfile_re_string:") {
 			in >> sfile_re_string;
 			if (sfile_re_string.length()) {

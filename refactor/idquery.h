@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.8 2006/09/22 06:27:53 dds Exp $
+ * $Id: idquery.h,v 1.9 2006/09/22 09:21:49 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -81,8 +81,10 @@ public:
 
 	// Perform a query
 	bool eval(const IdPropElem &i);
-	// Transform the query back into a URL
-	virtual string url() const;
+	// Return the URL for re-executing this query
+	string base_url() const;
+	// Return the query's parameters as a URL
+	string param_url() const;
 	static void usage();	// Report string constructor usage information
 };
 

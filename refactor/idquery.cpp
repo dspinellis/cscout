@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.12 2006/09/21 13:56:03 dds Exp $
+ * $Id: idquery.cpp,v 1.13 2006/09/22 09:21:49 dds Exp $
  */
 
 #include <map>
@@ -157,9 +157,17 @@ IdQuery::IdQuery(const string &s) :
 		match[i] = (s.find(":" + Attributes::shortname(i)) != string::npos);
 }
 
+// Return the URL for re-executing this query
+string
+IdQuery::base_url() const
+{
+	return string("xiquery.html?") + param_url();
+}
+
+
 // Return the query's parameters as a URL
 string
-IdQuery::url() const
+IdQuery::param_url() const
 {
 	string r("qt=id&match=");
 	r += Query::url(string(1, match_type));

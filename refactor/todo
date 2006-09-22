@@ -1,15 +1,15 @@
-$Id: todo,v 1.77 2006/09/21 12:25:09 dds Exp $
+$Id: todo,v 1.78 2006/09/22 09:21:49 dds Exp $
+
+- Document pager
+
+- Add pager for file queries
 
 - Handle files that are copies of each other, with an MD5 hash and len
-  (Check with titan dup.cs)
   - Document
-  - Ensure that unused identifiers also appear on copied files (count > 1)
   - Add database table
   - Allow files to be queried on this
 
 - In file_process skip over the characters of non-identifier ECs
-
-- Remove x86_64 warnings
 
 - Use read-only checkboxes for presenting Identifier attributes
 
