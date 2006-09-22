@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.154 2006/09/22 11:17:58 dds Exp $
+ * $Id: cscout.cpp,v 1.155 2006/09/22 12:18:38 dds Exp $
  */
 
 #include <map>
@@ -804,7 +804,7 @@ bool specified_order::reverse;
 static void
 xfquery_page(FILE *of,  void *p)
 {
-	// The query's RUL, needed by the parser
+	// The query's URL, needed by the parser
 	ostringstream url;
 	url << "xfquery.html?";
 
@@ -826,7 +826,7 @@ xfquery_page(FILE *of,  void *p)
 	bool reverse = !!swill_getvar("reverse");
 	if (reverse) url << "reverse=1&";
 	specified_order::set_order(sort_order, reverse);
-	set <Fileid, specified_order> sorted_files;
+	multiset <Fileid, specified_order> sorted_files;
 
 	html_head(of, "xfquery", (qname && *qname) ? qname : "File Query Results");
 
@@ -910,7 +910,7 @@ xfquery_page(FILE *of,  void *p)
 		fprintf(of, "<th>%s</th>\n", Metrics::name(sort_order).c_str());
 	Pager pager(of, entries_per_page, url.str());
 	html_file_set_begin(of);
-	for (set <Fileid, specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+	for (multiset <Fileid, specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
 			continue;
