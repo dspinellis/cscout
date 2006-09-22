@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.152 2006/09/22 09:21:49 dds Exp $
+ * $Id: cscout.cpp,v 1.153 2006/09/22 10:20:38 dds Exp $
  */
 
 #include <map>
@@ -803,28 +803,39 @@ bool specified_order::reverse;
 static void
 xfquery_page(FILE *of,  void *p)
 {
-	char match_type;
-	vector <int> op(metric_max);
-	vector <int> n(metric_max);
-	bool writable = !!swill_getvar("writable");
-	bool ro = !!swill_getvar("ro");
-	char *qname = swill_getvar("n");
-	int sort_order;
+	// The query's RUL, needed by the parser
+	ostringstream url;
+	url << "xfquery.html?";
 
-	if (!swill_getargs("i(order)", &sort_order))
+	bool writable = !!swill_getvar("writable");
+	if (writable) url << "writable=1&";
+
+	bool ro = !!swill_getvar("ro");
+	if (ro) url << "ro=1&";
+
+	char *qname = swill_getvar("n");
+	if (qname) url << "n=" << Query::url(qname) << '&';
+
+	int sort_order;
+	if (swill_getargs("i(order)", &sort_order))
+		url << "order=" << sort_order << '&';
+	else
 		sort_order = -1;
 
-	specified_order::set_order(sort_order, !!swill_getvar("reverse"));
+	bool reverse = !!swill_getvar("reverse");
+	if (reverse) url << "reverse=1&";
+	specified_order::set_order(sort_order, reverse);
 	set <Fileid, specified_order> sorted_files;
 
 	html_head(of, "xfquery", (qname && *qname) ? qname : "File Query Results");
 
-	char *m;
+	char match_type, *m;
 	if (!(m = swill_getvar("match"))) {
 		fprintf(of, "Missing value: match");
 		return;
 	}
 	match_type = *m;
+	// We add it to the URL at the end
 
 	// Compile regular expression specs
 	CompiledRE fre;
@@ -839,9 +850,12 @@ xfquery_page(FILE *of,  void *p)
 			html_tail(of);
 			return;
 		}
+		url << "fre=" << Query::url(s) << '&';
 	}
 
 	// Store metric specifications in a vector
+	vector <int> op(metric_max);
+	vector <int> n(metric_max);
 	for (int i = 0; i < metric_max; i++) {
 		ostringstream argspec;
 
@@ -849,7 +863,14 @@ xfquery_page(FILE *of,  void *p)
 		argspec << "i(n" << i << ")";
 		op[i] = n[i] = 0;
 		(void)swill_getargs(argspec.str().c_str(), &(op[i]), &(n[i]));
+		if (op[i]) {
+			url << 'c' << i << '=' << op[i] << '&';
+			url << 'n' << i << '=' << n[i] << '&';
+		}
 	}
+
+	// Match, added at the end, because it is mandatory, and we can add it without a trailing &
+	url << "match=" << match_type;
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (current_project && !(*i).get_attribute(current_project))
@@ -883,24 +904,24 @@ xfquery_page(FILE *of,  void *p)
 		if (add)
 			sorted_files.insert(*i);
 	}
-	int match_count = 0;
 	html_file_begin(of);
 	if (sort_order != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::name(sort_order).c_str());
+	Pager pager(of, entries_per_page, url.str());
 	html_file_set_begin(of);
 	for (set <Fileid, specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
 			continue;
-		html_file(of, *i);
-		if (sort_order != -1)
-			fprintf(of, "<td align=\"right\">%d</td>", i->const_metrics().get_metric(sort_order));
-		html_file_record_end(of);
-		match_count++;
+		if (pager.show_next()) {
+			html_file(of, *i);
+			if (sort_order != -1)
+				fprintf(of, "<td align=\"right\">%d</td>", i->const_metrics().get_metric(sort_order));
+			html_file_record_end(of);
+		}
 	}
 	html_file_end(of);
-	fprintf(of, "\n</ul>\n<p>%d file(s) listed.", match_count);
-	fputs("<p>You can bookmark this page to save the respective query<p>", of);
+	pager.end();
 	html_tail(of);
 }
 

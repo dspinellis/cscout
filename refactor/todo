@@ -1,8 +1,6 @@
-$Id: todo,v 1.78 2006/09/22 09:21:49 dds Exp $
+$Id: todo,v 1.79 2006/09/22 10:20:38 dds Exp $
 
 - Document pager
-
-- Add pager for file queries
 
 - Handle files that are copies of each other, with an MD5 hash and len
   - Document
