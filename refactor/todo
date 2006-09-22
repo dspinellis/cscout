@@ -1,11 +1,10 @@
-$Id: todo,v 1.79 2006/09/22 10:20:38 dds Exp $
+$Id: todo,v 1.80 2006/09/22 11:17:58 dds Exp $
 
 - Document pager
 
 - Handle files that are copies of each other, with an MD5 hash and len
-  - Document
+  - Document (File page, query, identifier behavior)
   - Add database table
-  - Allow files to be queried on this
 
 - In file_process skip over the characters of non-identifier ECs
 

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.153 2006/09/22 10:20:38 dds Exp $
+ * $Id: cscout.cpp,v 1.154 2006/09/22 11:17:58 dds Exp $
  */
 
 #include <map>
@@ -375,6 +375,7 @@ file_analyze(Fileid fi)
 				fi.metrics().add_unprocessed();
 		}
 	}
+	fi.metrics().set_ncopies(fi.get_identical_files().size());
 	if (DP())
 		cout << "nchar = " << fi.metrics().get_nchar() << endl;
 	in.close();
