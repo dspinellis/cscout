@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.99 2006/09/22 09:21:49 dds Exp $
+# $Id: Makefile,v 1.100 2006/09/23 09:22:56 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -204,8 +204,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.99 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/22 09:21:49 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.100 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/23 09:22:56 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -299,7 +299,7 @@ Xlogo.cpp: logo.gif
 	echo '#include <stdio.h>' >logo.cpp
 	echo '#include "logo.h"' >>logo.cpp
 	echo 'const char Logo::logo_bytes[] = {' >>logo.cpp
-	od -vb logo.gif | sed 's/^.......//;s/^ /0/;s/ /,0/g;s/$$/,/;s/^,$$//' >>logo.cpp
+	od -vb logo.png | tr -d "\r" | sed 's/^.......//;s/^ /0/;s/ /,0/g;s/$$/,/;s/^,$$//' >>logo.cpp
 	echo '};' >>logo.cpp
 	echo -n 'int Logo::len = sizeof(Logo::logo_bytes);' >>logo.cpp
 #	wc -c logo.gif >>logo.cpp

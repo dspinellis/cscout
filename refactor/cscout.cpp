@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.155 2006/09/22 12:18:38 dds Exp $
+ * $Id: cscout.cpp,v 1.156 2006/09/23 09:22:56 dds Exp $
  */
 
 #include <map>
@@ -1886,7 +1886,7 @@ set_project_page(FILE *fo, void *p)
 void
 index_page(FILE *of, void *data)
 {
-	html_head(of, "index", "CScout Main Page", "<img src=\"logo.gif\">Scout Main Page");
+	html_head(of, "index", "CScout Main Page", "<img src=\"logo.png\">Scout Main Page");
 	fprintf(of,
 		"<table><tr><td valign=\"top\">\n"
 		"<h2>Files</h2>\n"
@@ -2656,7 +2656,7 @@ main(int argc, char *argv[])
 		swill_handle("cpath.gif", cpath_gif_page, NULL);
 
 		swill_handle("setproj.html", set_project_page, NULL);
-		swill_handle("logo.gif", logo_page, NULL);
+		swill_handle("logo.png", logo_page, NULL);
 		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
 	}
 
