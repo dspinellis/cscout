@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.156 2006/09/23 09:22:56 dds Exp $
+ * $Id: cscout.cpp,v 1.157 2006/09/24 20:58:46 dds Exp $
  */
 
 #include <map>
@@ -63,6 +63,7 @@
 #include "fcall.h"
 #include "mcall.h"
 #include "compiledre.h"
+#include "option.h"
 #include "query.h"
 #include "idquery.h"
 #include "funquery.h"
@@ -87,19 +88,6 @@
 #else
 #define prohibit_remote_access(file) do { if (!local_access(file)) return; } while (0)
 #endif
-
-// Global Web options
-static bool fname_in_context;		// Remove common file prefix
-static bool show_true;			// Only show true identifier properties
-static bool show_line_number;		// Annotate source with line numbers
-static bool file_icase;			// File name case-insensitive match
-static int tab_width = 8;		// Tab width for code output
-static char cgraph_type = 'h';		// Call graph type t(text h(tml d(ot s(vg g(if
-static char cgraph_show = 'f';		// Call graph show e(dge n(ame f(ile p(ath
-static CompiledRE sfile_re;		// Saved files replacement location RE
-static string sfile_re_string;		// Saved files replacement location RE string
-static string sfile_repl_string;	// Saved files replacement string
-static int entries_per_page = 200;	// Number of elements to show in a page
 
 // Global command-line options
 static enum e_process {
@@ -130,6 +118,7 @@ static void html_perror(FILE *of, const string &user_msg, bool svg = false);
 // Set to true when the user has specified the application to exit
 static bool must_exit = false;
 
+static CompiledRE sfile_re;			// Saved files replacement location RE
 
 // Identifiers to monitor (-m parameter)
 static IdQuery monitor;
@@ -144,7 +133,7 @@ void index_page(FILE *of, void *data);
 static char *
 cgraph_suffix()
 {
-	switch (cgraph_type) {
+	switch (Option::cgraph_type->get()) {
 	case 't': return ".txt";
 	case 'h': return ".html";
 	case 'd': return "_dot.txt";
@@ -188,16 +177,16 @@ html(char c)
 	case '>': column++; return "&gt;";
 	case ' ': column++; return "&nbsp;";
 	case '\t':
-		if ((int)(spaces.size()) != tab_width) {
-			spaces.resize(tab_width);
-			for (int i = 0; i < tab_width; i++) {
+		if ((int)(spaces.size()) != Option::tab_width->get()) {
+			spaces.resize(Option::tab_width->get());
+			for (int i = 0; i < Option::tab_width->get(); i++) {
 				string t;
-				for (int j = 0; j < tab_width - i; j++)
+				for (int j = 0; j < Option::tab_width->get() - i; j++)
 					t += "&nbsp;";
 				spaces[i] = t;
 			}
 		}
-		return spaces[column % tab_width].c_str();
+		return spaces[column % Option::tab_width->get()].c_str();
 	case '\n':
 		column = 0;
 		return "<br>\n";
@@ -405,10 +394,10 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 	char *qtype = swill_getvar("qt");
 	have_funq = have_idq = false;
 	if (!qtype || strcmp(qtype, "id") == 0) {
-		idq = IdQuery(of, file_icase, current_project, eval_query);
+		idq = IdQuery(of, Option::file_icase->get(), current_project, eval_query);
 		have_idq = true;
 	} else if (strcmp(qtype, "fun") == 0) {
-		funq = FunQuery(of, file_icase, current_project, eval_query);
+		funq = FunQuery(of, Option::file_icase->get(), current_project, eval_query);
 		have_funq = true;
 	} else {
 		fprintf(stderr, "Unknown query type (try adding &qt=id to the URL).\n");
@@ -436,7 +425,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			fprintf(of,"<a name=\"%d\"></a>", line_number);
 			if (mark_unprocessed && !fi.is_processed(line_number))
 				fprintf(of, "<span class=\"unused\">");
-			if (show_line_number) {
+			if (Option::show_line_number->get()) {
 				char buff[50];
 				snprintf(buff, sizeof(buff), "%5d ", line_number);
 				// Do not go via HTML string to keep tabs ok
@@ -546,7 +535,7 @@ file_replace(FILE *of, Fileid fid)
 	// Should actually be an assertion
 	if (!replacements)
 		return 0;
-	if (sfile_re_string.length()) {
+	if (Option::sfile_re_string->get().length()) {
 		regmatch_t be;
 		if (sfile_re.exec(fid.get_path().c_str(), 1, &be, 0) == REG_NOMATCH ||
 		    be.rm_so == -1 || be.rm_eo == -1)
@@ -555,7 +544,7 @@ file_replace(FILE *of, Fileid fid)
 				ofname.c_str(), ofname.c_str());
 		else {
 			string newname(fid.get_path().c_str());
-			newname.replace(be.rm_so, be.rm_eo - be.rm_so, sfile_repl_string);
+			newname.replace(be.rm_so, be.rm_eo - be.rm_so, Option::sfile_repl_string->get());
 			string cmd("cscout_checkout " + newname);
 			system(cmd.c_str());
 			(void)unlink(newname.c_str());
@@ -664,7 +653,7 @@ local_access(FILE *fo)
 static void
 html_file_begin(FILE *of)
 {
-	if (fname_in_context)
+	if (Option::fname_in_context->get())
 		fprintf(of, "<table><tr><th>Directory</th><th>File</th>");
 	else
 		fprintf(of, "<table><tr><th></th><th></th>");
@@ -695,7 +684,7 @@ html_file_end(FILE *of)
 static void
 html_file(FILE *of, Fileid fi)
 {
-	if (!fname_in_context) {
+	if (!Option::fname_in_context->get()) {
 		fprintf(of, "\n<tr><td></td><td><a href=\"file.html?id=%u\">%s</a></td>",
 			fi.get_id(),
 			fi.get_path().c_str());
@@ -845,7 +834,7 @@ xfquery_page(FILE *of,  void *p)
 	match_fre = false;
 	if ((s = swill_getvar("fre")) && *s) {
 		match_fre = true;
-		fre = CompiledRE(s, REG_EXTENDED | REG_NOSUB | (file_icase ? REG_ICASE : 0));
+		fre = CompiledRE(s, REG_EXTENDED | REG_NOSUB | (Option::file_icase->get() ? REG_ICASE : 0));
 		if (!fre.isCorrect()) {
 			fprintf(of, "<h2>Filename regular expression error</h2>%s", fre.getError().c_str());
 			html_tail(of);
@@ -908,7 +897,7 @@ xfquery_page(FILE *of,  void *p)
 	html_file_begin(of);
 	if (sort_order != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::name(sort_order).c_str());
-	Pager pager(of, entries_per_page, url.str());
+	Pager pager(of, Option::entries_per_page->get(), url.str());
 	html_file_set_begin(of);
 	for (multiset <Fileid, specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
@@ -935,12 +924,12 @@ template <typename container>
 static void
 display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 {
-	if (Query::sort_rev)
+	if (Option::sort_rev->get())
 		fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
 	else
 		fputs("<p>\n", of);
 
-	Pager pager(of, entries_per_page, query.base_url() + "&qi=1");
+	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1");
 	typename container::const_iterator i;
 	for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
 		if (pager.show_next()) {
@@ -949,7 +938,7 @@ display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 		}
 	}
 
-	if (Query::sort_rev)
+	if (Option::sort_rev->get())
 		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
 	else
 		fputs("</p>\n", of);
@@ -1081,7 +1070,7 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
 	html_file_set_begin(of);
-	Pager pager(of, entries_per_page, query.base_url() + "&qf=1");
+	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qf=1");
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
@@ -1109,7 +1098,7 @@ xiquery_page(FILE *of,  void *p)
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
-	IdQuery query(of, file_icase, current_project);
+	IdQuery query(of, Option::file_icase->get(), current_project);
 
 	if (!query.is_valid()) {
 		html_tail(of);
@@ -1150,7 +1139,7 @@ xfunquery_page(FILE *of,  void *p)
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
-	FunQuery query(of, file_icase, current_project);
+	FunQuery query(of, Option::file_icase->get(), current_project);
 
 	if (!query.is_valid())
 		return;
@@ -1180,7 +1169,7 @@ xfunquery_page(FILE *of,  void *p)
 static void
 show_id_prop(FILE *fo, const string &name, bool val)
 {
-	if (!show_true || val)
+	if (!Option::show_true->get() || val)
 		fprintf(fo, ("<li>" + name + ": %s\n").c_str(), val ? "Yes" : "No");
 }
 
@@ -1507,35 +1496,7 @@ options_page(FILE *fo, void *p)
 {
 	html_head(fo, "options", "Global Options");
 	fprintf(fo, "<FORM ACTION=\"soptions.html\" METHOD=\"GET\">\n");
-	fprintf(fo, "<input type=\"checkbox\" name=\"fname_in_context\" value=\"1\" %s>Show file lists with file name in context<br>\n", (fname_in_context ? "checked" : ""));
-	fprintf(fo, "<input type=\"checkbox\" name=\"sort_rev\" value=\"1\" %s>Sort identifiers starting from their last character<br>\n", (Query::sort_rev ? "checked" : ""));
-	fprintf(fo, "<input type=\"checkbox\" name=\"show_true\" value=\"1\" %s>Show only true identifier classes (brief view)<br>\n", (show_true ? "checked" : ""));
-	fprintf(fo, "<input type=\"checkbox\" name=\"show_line_number\" value=\"1\" %s>Show line numbers in source listings<br>\n", (show_line_number ? "checked" : ""));
-	fprintf(fo, "<input type=\"checkbox\" name=\"file_icase\" value=\"1\" %s>Case-insensitive file name regular expression match<br>\n", (file_icase ? "checked" : ""));
-	fprintf(fo, "<p>Code listing tab width <input type=\"text\" name=\"tab_width\" size=3 maxlength=3 value=\"%d\"><br>\n", tab_width);
-	fprintf(fo, "<p>Number of entries on a page <input type=\"text\" name=\"entries_per_page\" size=3 maxlength=3 value=\"%d\"><br>\n", entries_per_page);
-/*
-Do not show No in identifier properties (option)
-
-*/
-	fprintf(fo, "<p>Call graph links should lead to pages of:\n");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"t\" %s>plain text\n", cgraph_type == 't' ? "checked" : "");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"h\" %s>HTML\n", cgraph_type == 'h' ? "checked" : "");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"d\" %s>dot\n", cgraph_type == 'd' ? "checked" : "");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"s\" %s>SVG (via dot)\n", cgraph_type == 's' ? "checked" : "");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_type\" value=\"g\" %s>GIF (via dot)\n", cgraph_type == 'g' ? "checked" : "");
-
-	fprintf(fo, "<br>Call graphs should contain:\n");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_show\" value=\"e\" %s>only edges\n", cgraph_show == 'e' ? "checked" : "");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_show\" value=\"n\" %s>function names\n", cgraph_show == 'n' ? "checked" : "");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_show\" value=\"f\" %s>file and function names\n", cgraph_show == 'f' ? "checked" : "");
-	fprintf(fo, "<input type=\"radio\" name=\"cgraph_show\" value=\"p\" %s>path and function names\n", cgraph_show == 'p' ? "checked" : "");
-
-	fprintf(fo, "<p>When saving modified files replace RE "
-		"<input type=\"text\" name=\"sfile_re\" size=20 maxlength=80 value=\"%s\">"
-		" with <input type=\"text\" name=\"sfile_repl_string\" size=20 maxlength=80 value=\"%s\">",
-		sfile_re_string.c_str(), sfile_repl_string.c_str());
-
+	Option::display_all(fo);
 	fprintf(fo, "<p><p><INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"OK\">\n");
 	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Cancel\">\n");
 	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Apply\">\n");
@@ -1553,24 +1514,9 @@ set_options_page(FILE *fo, void *p)
 		index_page(fo, p);
 		return;
 	}
-	fname_in_context = !!swill_getvar("fname_in_context");
-	Query::sort_rev = !!swill_getvar("sort_rev");
-	show_true = !!swill_getvar("show_true");
-	show_line_number = !!swill_getvar("show_line_number");
-	file_icase = !!swill_getvar("file_icase");
-	char *m;
-	if ((m = swill_getvar("cgraph_type")))
-		cgraph_type = *m;
-	if ((m = swill_getvar("cgraph_show")))
-		cgraph_show = *m;
-	if (!swill_getargs("I(tab_width)", &tab_width) || tab_width <= 0)
-		tab_width = 8;
-	if (!swill_getargs("I(entries_per_page)", &entries_per_page) || entries_per_page <= 0)
-		entries_per_page = 200;
-	sfile_re_string = swill_getvar("sfile_re");
-	sfile_repl_string = swill_getvar("sfile_repl_string");
-	if (sfile_re_string.length()) {
-		sfile_re = CompiledRE(sfile_re_string.c_str(), REG_EXTENDED);
+	Option::set_all();
+	if (Option::sfile_re_string->get().length()) {
+		sfile_re = CompiledRE(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
 		if (!sfile_re.isCorrect()) {
 			html_head(fo, "regerror", "Regular Expression Error");
 			fprintf(fo, "<h2>Filename regular expression error</h2>%s", sfile_re.getError().c_str());
@@ -1601,17 +1547,7 @@ save_options_page(FILE *fo, void *p)
 		html_perror(fo, "Unable to open .cscout/options for writing");
 		return;
 	}
-	out << "fname_in_context: " << fname_in_context << endl;
-	out << "sort_rev: " << Query::sort_rev << endl;
-	out << "show_true: " << show_true << endl;
-	out << "show_line_number: " << show_line_number << endl;
-	out << "file_icase: " << file_icase << endl;
-	out << "cgraph_type: " << cgraph_type << endl;
-	out << "cgraph_show: " << cgraph_show << endl;
-	out << "tab_width: " << tab_width << endl;
-	out << "sfile_re_string: " << sfile_re_string << endl;
-	out << "sfile_repl_string: " << sfile_repl_string << endl;
-	out << "entries_per_page: " << entries_per_page << endl;
+	Option::save_all(out);
 	out.close();
 	fprintf(fo, "Options have been saved in the file \".cscout/options\".");
 	fprintf(fo, "They will be loaded when CScout is executed again in this directory.");
@@ -1620,7 +1556,7 @@ save_options_page(FILE *fo, void *p)
 
 // Load the CScout options.
 static void
-load_options()
+options_load()
 {
 	ifstream in;
 	string fname;
@@ -1629,43 +1565,13 @@ load_options()
 		fprintf(stderr, "No options file found; will use default options.\n");
 		return;
 	}
-	while (!in.eof()) {
-		string val;
-		in >> val;
-		if (val == "fname_in_context:")
-			in >> fname_in_context;
-		else if (val == "sort_rev:")
-			in >> Query::sort_rev;
-		else if (val == "show_true:")
-			in >> show_true;
-		else if (val == "show_line_number:")
-			in >> show_line_number;
-		else if (val == "file_icase:")
-			in >> file_icase;
-		else if (val == "cgraph_type:")
-			in >> cgraph_type;
-		else if (val == "cgraph_show:")
-			in >> cgraph_show;
-		else if (val == "tab_width:")
-			in >> tab_width;
-		else if (val == "entries_per_page:")
-			in >> entries_per_page;
-		else if (val == "sfile_re_string:") {
-			in >> sfile_re_string;
-			if (sfile_re_string.length()) {
-				sfile_re = CompiledRE(sfile_re_string.c_str(), REG_EXTENDED);
-				if (!sfile_re.isCorrect()) {
-					fprintf(stderr, "Filename regular expression error: %s", sfile_re.getError().c_str());
-					sfile_re_string.erase();
-				}
-			}
+	Option::load_all(in);
+	if (Option::sfile_re_string->get().length()) {
+		sfile_re = CompiledRE(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
+		if (!sfile_re.isCorrect()) {
+			fprintf(stderr, "Filename regular expression error: %s", sfile_re.getError().c_str());
+			Option::sfile_re_string->erase();
 		}
-		else if (val == "sfile_repl_string:")
-			in >> sfile_repl_string;
-		else if (val.empty())
-			;
-		else
-			fprintf(stderr, "Skipping unknown option %s\n", val.c_str());
 	}
 	in.close();
 	fprintf(stderr, "Options loaded from %s\n", fname.c_str());
@@ -1726,11 +1632,11 @@ function_label(Call *f, bool hyperlink)
 		snprintf(buff, sizeof(buff), "<a href=\"fun.html?f=%p\">", f);
 		result = buff;
 	}
-	if (cgraph_show == 'f')		// Show files
+	if (Option::cgraph_show->get() == 'f')		// Show files
 		result += f->get_site().get_fileid().get_fname() + ":";
-	else if (cgraph_show == 'p')	// Show paths
+	else if (Option::cgraph_show->get() == 'p')	// Show paths
 		result += f->get_site().get_fileid().get_path() + ":";
-	if (cgraph_show != 'e')		// Empty labels
+	if (Option::cgraph_show->get() != 'e')		// Empty labels
 		result += f->get_name();
 	if (hyperlink)
 		result += "</a>";
@@ -2150,7 +2056,7 @@ write_quit_page(FILE *of, void *exit)
 	if (exit)
 		html_head(of, "quit", "CScout exiting");
 	else {
-		if (sfile_re_string.length() == 0) {
+		if (Option::sfile_re_string->get().length() == 0) {
 			html_head(of, "save", "Not Allowed");
 			fputs("This in-place save and continue operation is not allowed, "
 			"because it may corrupt CScout's idea of the source code.  "
@@ -2512,7 +2418,8 @@ main(int argc, char *argv[])
 
 	license_init();
 
-	load_options();
+	Option::initialize();
+	options_load();
 #ifdef COMMERCIAL
 	parse_acl();
 	if (db_engine) {

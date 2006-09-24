@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.16 2006/09/22 09:21:49 dds Exp $
+ * $Id: funquery.cpp,v 1.17 2006/09/24 20:58:46 dds Exp $
  */
 
 #include <map>
@@ -51,6 +51,7 @@
 #include "fcall.h"
 #include "mcall.h"
 #include "compiledre.h"
+#include "option.h"
 #include "query.h"
 #include "funquery.h"
 

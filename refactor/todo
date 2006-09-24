@@ -1,12 +1,24 @@
-$Id: todo,v 1.82 2006/09/22 20:46:26 dds Exp $
-
-- In file_process skip over the characters of non-identifier ECs
+$Id: todo,v 1.83 2006/09/24 20:58:46 dds Exp $
 
 - Make project membership listing an option
+
+- Make listing of identical files an option
+
+- Add option heading to group them into categories
 
 - Optimize file_hypertext by not calling check_ec for !isalnum or _
   and in comments.  While at it, mark comments with a different
   color.
+- option to color highlighted elements
+- option to color comments, put keywords in bold, comments in italics
+
+- Document new option look
+
+- In file_process skip over the characters of non-identifier ECs
+
+- Ability to edit queries
+
+Regression tests
 
 - Handle the fact that y.tab.h is not in sync with the %token identifiers
   used in the .y file:
@@ -32,11 +44,6 @@ $Id: todo,v 1.82 2006/09/22 20:46:26 dds Exp $
 - Include spy-* into spy-make; add spy-yacc.
 
 - Best effort identifier substitution for DSL files
-
-- Separate strings, comments, and whitespace from the SQL output
-  (See processor in obfuscate.c)
-
-- Create an SQL table with FID, FOFFSET, LNUM
 
 Upgrade communication to HTTP/1.1?
 See example at http://www.ragestorm.net/tutorial?id=15
@@ -66,11 +73,6 @@ Need to create front ends to gcc, ld, ar
 See perforce terms:
 http://www.perforce.com/perforce/price.html
 
-- option to color highlighted elements
-- option to color comments
-
-
-Regression tests
 Eliminate the dybamic cast by storing Call* pointers
 Remove virtual method qualifiers from leaf classes
 

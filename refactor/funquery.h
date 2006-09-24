@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.7 2006/09/22 09:21:49 dds Exp $
+ * $Id: funquery.h,v 1.8 2006/09/24 20:58:46 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -71,7 +71,7 @@ public:
 struct fcmp : public binary_function <const Call *, const Call *, bool> {
 	bool operator()(const Call *i1, const Call *i2) const
 	{
-		if (Query::sort_rev) {
+		if (Option::sort_rev->get()) {
 			const string &s1 = i1->get_name();
 			const string &s2 = i2->get_name();
 			string::const_reverse_iterator j1, j2;

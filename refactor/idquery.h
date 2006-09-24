@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.9 2006/09/22 09:21:49 dds Exp $
+ * $Id: idquery.h,v 1.10 2006/09/24 20:58:46 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -95,7 +95,7 @@ public:
 struct idcmp : public binary_function <const IdProp::value_type *, const IdProp::value_type *, bool> {
 	bool operator()(const IdProp::value_type *i1, const IdProp::value_type *i2) const
 	{
-		if (Query::sort_rev) {
+		if (Option::sort_rev->get()) {
 			const string &s1 = (*i1).second.get_id();
 			const string &s2 = (*i2).second.get_id();
 			string::const_reverse_iterator j1, j2;

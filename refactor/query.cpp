@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.10 2006/09/22 09:44:25 dds Exp $
+ * $Id: query.cpp,v 1.11 2006/09/24 20:58:46 dds Exp $
  */
 
 #include <map>
@@ -30,8 +30,6 @@
 #include "attr.h"
 #include "compiledre.h"
 #include "query.h"
-
-bool Query::sort_rev;			// Reverse sort of identifier names
 
 // URL-encode the given string
 string

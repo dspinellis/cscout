@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.4 2006/06/13 21:43:33 dds Exp $
+ * $Id: gdisplay.h,v 1.5 2006/09/24 20:58:46 dds Exp $
  */
 
 
@@ -70,7 +70,7 @@ public:
 			"digraph G {\n",
 			Version::get_revision().c_str(),
 			Version::get_date().c_str());
-		if (cgraph_show == 'e')			// Empty nodes
+		if (Option::cgraph_show->get() == 'e')			// Empty nodes
 			fprintf(fo, "\tnode [height=.001,width=0.000001,shape=box,label=\"\",fontsize=8];\n");
 	}
 
