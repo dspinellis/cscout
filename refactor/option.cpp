@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.1 2006/09/24 22:08:34 dds Exp $
+ * $Id: option.cpp,v 1.2 2006/09/25 14:31:41 dds Exp $
  */
 
 #include <string>
@@ -31,6 +31,8 @@ BoolOption *Option::show_true;			// Only show true identifier properties
 BoolOption *Option::show_line_number;		// Annotate source with line numbers
 BoolOption *Option::file_icase;			// File name case-insensitive match
 BoolOption *Option::sort_rev;			// Reverse sorting of query results
+BoolOption *Option::show_projects;		// Show associated projects
+BoolOption *Option::show_identical_files;	// Show a list of identical files
 IntegerOption *Option::tab_width;		// Tab width for code output
 SelectionOption *Option::cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 SelectionOption *Option::cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
@@ -135,14 +137,24 @@ Option::display_all(FILE *f)
 void
 Option::initialize()
 {
+	Option::add(new TitleOption("File and Identifier Pages"));
+	Option::add(show_true = new BoolOption("show_true", "Show only true identifier classes (brief view)"));
+	Option::add(show_projects = new BoolOption("show_projects", "Show associated projects", true));
+	Option::add(show_identical_files = new BoolOption("show_identical_files", "Show a list of identical files", true));
+
+	Option::add(new TitleOption("Source Listings"));
+	Option::add(show_line_number = new BoolOption("show_line_number", "Show line numbers"));
+	Option::add(tab_width = new IntegerOption("tab_width", "Tab width", 8));
+
+	Option::add(new TitleOption("Queries"));
+	Option::add(file_icase = new BoolOption("file_icase", "Case-insensitive file name regular expression match"));
+
+	Option::add(new TitleOption("Query Result Lists"));
+	Option::add(entries_per_page = new IntegerOption("entries_per_page", "Number of entries on a page", 50));
 	Option::add(fname_in_context = new BoolOption("fname_in_context", "Show file lists with file name in context"));
 	Option::add(sort_rev = new BoolOption("sort_rev", "Sort identifiers starting from their last character"));
-	Option::add(show_true = new BoolOption("show_true", "Show only true identifier classes (brief view)"));
-	Option::add(show_line_number = new BoolOption("show_line_number", "Show line numbers in source listings"));
-	Option::add(file_icase = new BoolOption("file_icase", "Case-insensitive file name regular expression match"));
-	Option::add(tab_width = new IntegerOption("tab_width", "Code listing tab width", 8));
-	Option::add(entries_per_page = new IntegerOption("entries_per_page", "Number of entries on a page", 50));
 
+	Option::add(new TitleOption("Call Graphs"));
 	Option::add(cgraph_type = new SelectionOption("cgraph_type", "Call graph links should lead to pages of:", 'h',
 		"t:plain text",
 		"h:HTML",
@@ -150,14 +162,14 @@ Option::initialize()
 		"s:SVG (via dot)",
 		"g:GIF (via dot)",
 		NULL));
-
-	Option::add(cgraph_show = new SelectionOption("cgraph_show", "Call graphs should contain", 'f',
+	Option::add(cgraph_show = new SelectionOption("cgraph_show", "Call graphs should contain:", 'f',
 		"e:only edges",
 		"n:function names",
 		"f:file and function names",
 		"p:path and function names",
 		NULL));
 
+	Option::add(new TitleOption("Saved Files"));
 	Option::add(sfile_re_string = new TextOption("sfile_re_string", "When saving modified files replace RE"));
 	Option::add(sfile_repl_string = new TextOption("sfile_repl_string", "... with the string"));
 }

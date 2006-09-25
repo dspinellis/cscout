@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.1 2006/09/24 22:08:34 dds Exp $
+ * $Id: option.h,v 1.2 2006/09/25 14:31:41 dds Exp $
  */
 
 class BoolOption;
@@ -48,6 +48,8 @@ public:
 	static BoolOption *show_line_number;		// Annotate source with line numbers
 	static BoolOption *file_icase;			// File name case-insensitive match
 	static BoolOption *sort_rev;			// Reverse sorting of query results
+	static BoolOption *show_projects;		// Show associated projects
+	static BoolOption *show_identical_files;	// Show a list of identical files
 	static IntegerOption *tab_width;		// Tab width for code output
 	static SelectionOption *cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 	static SelectionOption *cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
@@ -186,3 +188,25 @@ public:
 	}
 };
 
+
+// A title separator for the options
+// Not a real option
+class TitleOption : public Option {
+private:
+public:
+	// Constructor
+	TitleOption(const char *un) : Option("", un) {}
+	// Save to a file - noop
+	void save(ofstream &ofs) const {}
+	// Load from a file - noop
+	void load(ifstream &ifs) {}
+	// Set from a submitted page - noop
+	void set() {}
+	// Display on a web page
+	void display(FILE *f) {
+		fprintf(f,
+			"<tr><td class='opthead'>%s</td></tr>\n",
+			user_name
+		);
+	}
+};

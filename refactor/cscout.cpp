@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.157 2006/09/24 20:58:46 dds Exp $
+ * $Id: cscout.cpp,v 1.158 2006/09/25 14:31:41 dds Exp $
  */
 
 #include <map>
@@ -586,6 +586,8 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 		"<style type=\"text/css\" >"
 		"<!--"
 		"  .unused  { color: red }"
+		".opthead { font-weight:bold; font-size:large; text-align:left; padding-top:.8em;}"
+
 		"-->"
 		"</style>"
 		"</head>"
@@ -1198,15 +1200,17 @@ identifier_page(FILE *fo, void *p)
 	show_id_prop(fo, "Crosses file boundary", id.get_xfile());
 	show_id_prop(fo, "Unused", e->is_unused());
 	fprintf(fo, "<li> Matches %d occurence(s)\n", e->get_size());
-	fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
-	if (DP()) {
-		cout << "First project " << attr_end << endl;
-		cout << "Last project " <<  Attributes::get_num_attributes() - 1 << endl;
+	if (Option::show_projects->get()) {
+		fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
+		if (DP()) {
+			cout << "First project " << attr_end << endl;
+			cout << "Last project " <<  Attributes::get_num_attributes() - 1 << endl;
+		}
+		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
+			if (e->get_attribute(j))
+				fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
+		fprintf(fo, "</ul>\n");
 	}
-	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
-		if (e->get_attribute(j))
-			fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
-	fprintf(fo, "</ul>\n");
 	if (e->get_attribute(is_function) || e->get_attribute(is_macro)) {
 		bool found = false;
 		// Loop through all declared functions
@@ -1873,21 +1877,25 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
 	for (int j = 0; j < metric_max; j++)
 		fprintf(of, "\n<li> %s: %d", Metrics::name(j).c_str(), i.metrics().get_metric(j));
-	fprintf(of, "\n<li> Used in project(s): \n<ul>");
-	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
-		if (i.get_attribute(j))
-			fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
-	fprintf(of, "</ul>\n");
-	const set <Fileid> &copies(i.get_identical_files());
-	fprintf(of, "<li>Other exact copies:%s\n", copies.size() > 1 ? "<ul>\n" : " (none)");
-	for (set <Fileid>::const_iterator j = copies.begin(); j != copies.end(); j++) {
-		if (*j != i) {
-			fprintf(of, "<li>");
-			html_string(of, j->get_path());
-		}
-	}
-	if (copies.size())
+	if (Option::show_projects->get()) {
+		fprintf(of, "\n<li> Used in project(s): \n<ul>");
+		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
+			if (i.get_attribute(j))
+				fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 		fprintf(of, "</ul>\n");
+	}
+	if (Option::show_identical_files->get()) {
+		const set <Fileid> &copies(i.get_identical_files());
+		fprintf(of, "<li>Other exact copies:%s\n", copies.size() > 1 ? "<ul>\n" : " (none)");
+		for (set <Fileid>::const_iterator j = copies.begin(); j != copies.end(); j++) {
+			if (*j != i) {
+				fprintf(of, "<li>");
+				html_string(of, j->get_path());
+			}
+		}
+		if (copies.size())
+			fprintf(of, "</ul>\n");
+	}
 
 	fprintf(of, "</ul>\n<h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%u\">Source code</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"src.html?id=%u&marku=1\">Source code with unprocessed regions marked</a>\n", i.get_id());
