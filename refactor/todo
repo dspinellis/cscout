@@ -1,4 +1,4 @@
-$Id: todo,v 1.84 2006/09/25 14:31:41 dds Exp $
+$Id: todo,v 1.85 2006/09/25 19:37:19 dds Exp $
 
 - Optimize file_hypertext by not calling check_ec for !isalnum or _
   and in comments.  While at it, mark comments with a different
@@ -6,13 +6,9 @@ $Id: todo,v 1.84 2006/09/25 14:31:41 dds Exp $
 - option to color highlighted elements
 - option to color comments, put keywords in bold, comments in italics
 
-- Document new options and option look
-
 - In file_process skip over the characters of non-identifier ECs
 
 - Ability to edit queries
-
-Regression tests
 
 - Handle the fact that y.tab.h is not in sync with the %token identifiers
   used in the .y file:
