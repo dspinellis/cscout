@@ -4,7 +4,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.12 2006/09/28 13:50:00 dds Exp $
+# $Id: csmake.pl,v 1.13 2006/09/28 15:32:19 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -75,6 +75,11 @@ while (<IN>) {
 		undef $exe;
 		undef @obj;
 		next;
+	} elsif (/^BEGIN AR/) {
+		$state = 'AR';
+		undef $lib;
+		undef @obj;
+		next;
 	}
 	if ($state eq 'COMPILE') {
 		if (/^END COMPILE/) {
@@ -112,7 +117,8 @@ $process
 	} elsif ($state eq 'LINK') {
 		if (/^END LINK/) {
 			die "No object" unless defined ($exe);
-			if ($exe =~ m/\.o$/) {
+			if ($exe =~ m/\.[oa]$/) {
+				# Output is a library or combined object file; just remember the rules
 				undef $rule;
 				for $o (@obj) {
 					$o = ancestor($o);
@@ -121,6 +127,7 @@ $process
 				}
 				$rules{$exe} = $rule;
 			} else {
+				# Output is a real executable; start a project
 				print OUT qq{
 #pragma echo "Processing project $exe\\n"
 #pragma project "$exe"
@@ -139,9 +146,28 @@ $process
 			undef $state;
 		} elsif (/^CMDLINE/) {
 			;
-		} elsif (/OUTEXE (.*)/) {
+		} elsif (/^OUTEXE (.*)/) {
 			$exe = $1;
-		} elsif (/INOBJ (.*)/) {
+		} elsif (/^INOBJ (.*)/ || /^INLIB (.*)/) {
+			push(@obj, $1);
+		}
+	} elsif ($state eq 'AR') {
+		if (/^END AR/) {
+			die "No library" unless defined ($lib);
+			# Output is a library; just remember the rules
+			undef $rule;
+			for $o (@obj) {
+				$o = ancestor($o);
+				print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
+				$rule .= $rules{$o};
+			}
+			$rules{$lib} = $rule;
+			undef $state;
+		} elsif (/^CMDLINE/) {
+			;
+		} elsif (/^OUTAR (.*)/) {
+			$lib = $1;
+		} elsif (/^INOBJ (.*)/) {
 			push(@obj, $1);
 		}
 	}
@@ -168,7 +194,7 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.12 2006/09/28 13:50:00 dds Exp $
+# Source file is $Id: csmake.pl,v 1.13 2006/09/28 15:32:19 dds Exp $
 #
 
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
@@ -232,7 +258,7 @@ $archive = shift @ARGV2;
 if ($#ofiles >= 0) {
 	print RULES "BEGIN AR\n";
 	print RULES "CMDLINE $origline\n";
-	print RULES "OUTAR $archive\n";
+	print RULES 'OUTAR ', abs_path($archive), "\n";
 	for $ofile (@ofiles) {
 		print RULES "INOBJ " . abs_path($ofile) . "\n";
 	}
