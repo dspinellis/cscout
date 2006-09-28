@@ -4,33 +4,13 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.10 2006/08/02 08:31:35 dds Exp $
+# $Id: csmake.pl,v 1.11 2006/09/28 13:17:06 dds Exp $
 #
 
 use Cwd 'abs_path';
 
 # Used for reading the source of the other spy programs
 $script_name =$0;
-
-if ($ARGV[0] eq '-n') {
-	# Run on an existing rules file
-	open(IN, $ARGV[1]) || die;
-} else {
-	$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/gccspy.$$";
-	mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
-
-	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die;
-	close(OUT);
-	$ENV{PATH} = "$ENV{CSCOUT_SPY_TMPDIR}:$ENV{PATH}";
-
-	spy('gcc', 'spy-gcc');
-	spy('cc', 'spy-gcc');
-	spy('ld', 'spy-ld');
-	spy('ar', 'spy-ar');
-	spy('mv', 'spy-mv');
-	system(("make", @ARGV));
-	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die;
-}
 
 # Find and set the installation directory
 if (-d '.cscout') {
@@ -52,6 +32,27 @@ if (!-r ($f = "$instdir/cscout_defs.h")) {
 }
 $instdir = abs_path($instdir);
 
+if ($ARGV[0] eq '-n') {
+	# Run on an existing rules file
+	open(IN, $ARGV[1]) || die;
+} else {
+	$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
+	mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
+
+	push(@toclean, 'empty.c');
+	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die;
+	close(OUT);
+	$ENV{PATH} = "$ENV{CSCOUT_SPY_TMPDIR}:$ENV{PATH}";
+
+	spy('gcc', 'spy-gcc');
+	spy('cc', 'spy-gcc');
+	spy('ld', 'spy-ld');
+	spy('ar', 'spy-ar');
+	spy('mv', 'spy-mv');
+	system(("make", @ARGV));
+	push(@toclean, 'rules');
+	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die;
+}
 
 # Read a spy-generated rules file
 # Create a CScout .cs file
@@ -146,6 +147,12 @@ $process
 	}
 }
 
+# Clean temporary files
+for $fname (@toclean) {
+	unlink("$ENV{CSCOUT_SPY_TMPDIR}/$fname");
+}
+rmdir($ENV{CSCOUT_SPY_TMPDIR});
+
 exit 0;
 
 # Setup the environment to call spyProgName, instead of realProgName
@@ -155,12 +162,13 @@ sub spy
 {
 	my($realProgName, $spyProgName) = @_;
 	open(IN, $script_name) || die;
+	push(@toclean, $realProgName);
 	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die;
 	print OUT '#!/usr/bin/perl
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.10 2006/08/02 08:31:35 dds Exp $
+# Source file is $Id: csmake.pl,v 1.11 2006/09/28 13:17:06 dds Exp $
 #
 ';
 	while (<IN>) {
