@@ -4,7 +4,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.11 2006/09/28 13:17:06 dds Exp $
+# $Id: csmake.pl,v 1.12 2006/09/28 13:50:00 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -168,8 +168,11 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.11 2006/09/28 13:17:06 dds Exp $
+# Source file is $Id: csmake.pl,v 1.12 2006/09/28 13:50:00 dds Exp $
 #
+
+open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
+
 ';
 	while (<IN>) {
 		print OUT if (/^\#\@BEGIN $spyProgName/../^\#\@END/);
@@ -226,7 +229,7 @@ $archive = shift @ARGV2;
 
 @ofiles = @ARGV2;
 
-if ($#afiles >= 0) {
+if ($#ofiles >= 0) {
 	print RULES "BEGIN AR\n";
 	print RULES "CMDLINE $origline\n";
 	print RULES "OUTAR $archive\n";
@@ -347,8 +350,6 @@ if ($#cfiles >= 0) {
 	}
 }
 
-open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
-
 $origline = "gcc " . join(' ', @ARGV);
 $origline =~ s/\n/ /g;
 
@@ -457,8 +458,6 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	}
 }
 
-open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
-
 $origline = "ld " . join(' ', @ARGV);
 $origline =~ s/\n/ /g;
 
@@ -512,8 +511,6 @@ $origline =~ s/\n/ /g;
 while ($ARGV2[0] =~ m/^-/) {
 	shift @ARGV2;
 }
-
-open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
 
 print RULES "RENAMELINE $origline\n";
 if ($#ARGV2 == 1) {
