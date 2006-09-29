@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.109 2006/09/29 15:02:00 dds Exp $
+# $Id: Makefile,v 1.110 2006/09/29 19:56:52 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -68,7 +68,7 @@ SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	runtest.sh \
 	csmake.pl cswc.pl
 
-ALLSRC=$(SRC) logo.gif version.cpp
+ALLSRC=$(SRC) logo.png version.cpp
 
 YACC=btyacc
 #YACC=yacc
@@ -203,8 +203,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.109 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/29 15:02:00 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.110 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/29 19:56:52 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -283,7 +283,7 @@ spiti-server:
 	cc -o /usr/local/www/cgi-bin/ccheck -DSERVER des.c license.c
 
 # Used for regenerating the logo
-Xlogo.cpp: logo.gif
+Xlogo.cpp: logo.png
 	echo '#include <stdio.h>' >logo.cpp
 	echo '#include "logo.h"' >>logo.cpp
 	echo 'const char Logo::logo_bytes[] = {' >>logo.cpp
