@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.104 2006/09/29 10:04:57 dds Exp $
+# $Id: Makefile,v 1.105 2006/09/29 11:18:20 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -36,10 +36,11 @@ ifeq ($(ARCH),i686)
 ARCH=i386
 endif
 
+# Build Mach-O fat binaries
 ifeq ($(OS),Darwin)
 ARCH=macho
-CPPFLAGS=-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
-LDFLAGS=-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
+CPPFLAGS+=-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+LDFLAGS+=-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
 endif
 
 OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
@@ -71,7 +72,8 @@ ALLSRC=$(SRC) logo.gif
 
 YACC=btyacc
 #YACC=yacc
-CC=g++
+CC?=gcc
+CXX?=g++
 
 CPPFLAGS+=-pipe -Wall
 CPPFLAGS+=-DSPINELLIS_SERVER
@@ -97,8 +99,8 @@ endif
 
 # Local development flag options
 #CPPFLAGS+=-DTEST_LICENSING
-#CPPFLAGS=-DNO_LOCK
-#CPPFLAGS=-DOFFICE_SERVER
+#CPPFLAGS+=-DNO_LOCK
+#CPPFLAGS+=-DOFFICE_SERVER
 
 # Moving away from static linking
 #CPPFLAGS += -static
@@ -134,10 +136,10 @@ test/nostrings.c test/concat-arg.c
 
 # Pattern rules for C and C++ files
 $(ARCH)/%.o: %.c
-	gcc -c $(CPPFLAGS) -o $@ $<
+	$(CC) -c $(CPPFLAGS) -o $@ $<
 
 $(ARCH)/%.o: %.cpp
-	g++ -c $(CPPFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 ifeq ($(OS),WindowsNT)
 # Windows
@@ -163,14 +165,14 @@ SF=shell.cf.sourceforge.net
 #all: simple_cpp
 
 $(ARCH)/cscout: $(ARCH)/cscout.o  $(OBJ)
-	$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill $(ADDLIBS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill $(ADDLIBS)
 
 # CCmalloc version
 $(ARCH)/cscout-cc: $(ARCH)/cscout.o  $(OBJ)
-	ccmalloc $(CC) $(CPPFLAGS) -o $(ARCH)/cscout-cc  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
+	ccmalloc $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout-cc  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
 
 $(ARCH)/cscout.exe: $(ARCH)/cscout.o  $(OBJ)
-	$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32 -lregex
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32 -lregex
 
 ccheck: license.c license.h des.c des.h
 	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
@@ -179,10 +181,10 @@ ccheck-install: ccheck
 	cp ccheck /home/dds/web/istlab-cgi-bin
 
 $(ARCH)/webmap: $(ARCH)/webmap.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o $(ARCH)/webmap  $(OBJ) $(ARCH)/webmap.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/webmap  $(OBJ) $(ARCH)/webmap.o
 
 $(ARCH)/color: $(ARCH)/color.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o $(ARCH)/color  $(OBJ) $(ARCH)/color.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/color  $(OBJ) $(ARCH)/color.o
 
 # Some important dependencies
 color.o: pltoken.h
@@ -220,8 +222,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.104 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/29 10:04:57 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.105 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/29 11:18:20 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -347,3 +349,15 @@ classdiag.java: $(SRC)
 	awk '{print "class " $$1 " extends " $$2 " {}"}' >$@
 
 classdiag.gif: classdiag.java
+
+# Cross building FreeBSD binaries on icarian
+AMD64BIN=/home/dds/src/fbsd-head/obj/amd64/amd64/usr/home/dds/src/fbsd-head/src/tmp/usr/bin
+SPARC64BIN=/home/dds/src/fbsd-head/obj/sparc64/sparc64/usr/home/dds/src/fbsd-head/src/tmp/usr/bin
+I386BIN=/home/dds/src/fbsd-head/obj/i386/i386/usr/home/dds/src/fbsd-head/src/tmp/usr/bin
+
+crossbuild:
+	rm -rf amd64 sparc64 i386
+	mkdir amd64 sparc64 i386
+	gmake ARCH=amd64 CXX=$(AMD64BIN)/g++ CC=$(AMD64BIN)/gcc
+	gmake ARCH=sparc64 CXX=$(SPARC64BIN)/g++ CC=$(SPARC64BIN)/gcc
+	gmake ARCH=i386 CXX=$(I386BIN)/g++ CC=$(I386BIN)/gcc
