@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.2 2006/09/25 14:31:41 dds Exp $
+ * $Id: option.cpp,v 1.3 2006/09/29 18:20:56 dds Exp $
  */
 
 #include <string>
@@ -23,6 +23,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "error.h"
 #include "option.h"
 
 
