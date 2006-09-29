@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.158 2006/09/25 14:31:41 dds Exp $
+ * $Id: cscout.cpp,v 1.159 2006/09/29 07:13:04 dds Exp $
  */
 
 #include <map>
@@ -872,6 +872,7 @@ xfquery_page(FILE *of,  void *p)
 
 		bool add;
 		switch (match_type) {
+		default:
 		case 'Y':	// anY match
 			add = false;
 			for (int j = 0; j < metric_max; j++)
@@ -1385,6 +1386,7 @@ funlist_page(FILE *fo, void *p)
 	Call::const_fiterator_type (Call::*fbegin)() const;
 	Call::const_fiterator_type (Call::*fend)() const;
 	switch (*ltype) {
+	default:
 	case 'u':
 	case 'U':
 		fbegin = &Call::caller_begin;
