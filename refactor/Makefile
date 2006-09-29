@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.102 2006/09/29 07:22:52 dds Exp $
+# $Id: Makefile,v 1.103 2006/09/29 08:52:50 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -84,6 +84,14 @@ dummy := $(shell gcc -o ccode -DCCODE des.c)
 dummy := $(shell ./ccode "(internal use only)")
 else
 CPPFLAGS+=-DPRODUCTION -O3
+endif
+
+# Test coverage analysis
+# Buld with make DEBUG=1 TCOV=1
+# Test with sh runtest.sh
+# Then run gcov token.cpp -o i386
+ifdef TCOV
+CPPFLAGS+=-ftest-coverage -fprofile-arcs
 endif
 
 # Local development flag options
@@ -211,8 +219,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.102 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/29 07:22:52 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.103 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/29 08:52:50 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
