@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.108 2006/09/29 14:18:02 dds Exp $
+# $Id: Makefile,v 1.109 2006/09/29 15:02:00 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -203,8 +203,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.108 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/29 14:18:02 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.109 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/29 15:02:00 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -323,7 +323,7 @@ classdiag.gif: classdiag.java
 # Cross building FreeBSD binaries on icarian
 AMD64BIN=/home/dds/src/fbsd-head/obj/amd64/amd64/usr/home/dds/src/fbsd-head/src/tmp/usr/bin
 SPARC64BIN=/home/dds/src/fbsd-head/obj/sparc64/sparc64/usr/home/dds/src/fbsd-head/src/tmp/usr/bin
-I386BIN=/home/dds/src/fbsd-head/obj/i386/i386/usr/home/dds/src/fbsd-head/src/tmp/usr/bin
+I386BIN=/home/dds/src/fbsd-head/obj/i386/usr/home/dds/src/fbsd-head/src/tmp/usr/bin
 
 crossbuild:
 	rm -rf amd64 sparc64 i386
