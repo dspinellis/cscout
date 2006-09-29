@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.2 2006/09/25 14:31:41 dds Exp $
+ * $Id: option.h,v 1.3 2006/09/29 18:15:16 dds Exp $
  */
 
 class BoolOption;
@@ -96,7 +96,7 @@ private:
 	struct SelectionElement {
 		char c;
 		const char *name;
-		SelectionElement(const char *s) : c(*s), name(s + 2) { assert(strlen(s) > 2 && s[1] == ':'); }
+		SelectionElement(const char *s) : c(*s), name(s + 2) { csassert(strlen(s) > 2 && s[1] == ':'); }
 	} ;
 	vector <SelectionElement> options;
 public:
