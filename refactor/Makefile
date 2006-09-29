@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.101 2006/09/24 20:58:46 dds Exp $
+# $Id: Makefile,v 1.102 2006/09/29 07:22:52 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -36,6 +36,12 @@ ifeq ($(ARCH),i686)
 ARCH=i386
 endif
 
+ifeq ($(OS),Darwin)
+ARCH=macho
+CPPFLAGS=-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+LDFLAGS=-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
+endif
+
 OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
 
 .SUFFIXES:.java .dot .ps .gif .pic .eps .png .svg
@@ -66,7 +72,7 @@ YACC=btyacc
 #YACC=yacc
 CC=g++
 
-CPPFLAGS=-pipe -Wall
+CPPFLAGS+=-pipe -Wall
 CPPFLAGS+=-DSPINELLIS_SERVER
 ifdef DEBUG
 # Debug build
@@ -77,7 +83,7 @@ CPPFLAGS+=-g -DCOMMERCIAL -DYYDEBUG -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 dummy := $(shell gcc -o ccode -DCCODE des.c)
 dummy := $(shell ./ccode "(internal use only)")
 else
-CPPFLAGS+=-DPRODUCTION
+CPPFLAGS+=-DPRODUCTION -O3
 endif
 
 # Local development flag options
@@ -99,7 +105,6 @@ endif
 
 ifdef LICENSEE
 CPPFLAGS += -DCOMMERCIAL=1
-CPPFLAGS += -O3
 ifeq ($(ARCH),sparc)
 CPPFLAGS += -mcpu=v8
 endif
@@ -140,6 +145,7 @@ FREEFALL=freefall.freebsd.org
 endif
 
 
+
 SF=shell.cf.sourceforge.net
 
 #all: webmap
@@ -148,14 +154,14 @@ SF=shell.cf.sourceforge.net
 #all: simple_cpp
 
 $(ARCH)/cscout: $(ARCH)/cscout.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill $(ADDLIBS)
+	$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill $(ADDLIBS)
 
 # CCmalloc version
 $(ARCH)/cscout-cc: $(ARCH)/cscout.o  $(OBJ)
 	ccmalloc $(CC) $(CPPFLAGS) -o $(ARCH)/cscout-cc  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
 
 $(ARCH)/cscout.exe: $(ARCH)/cscout.o  $(OBJ)
-	$(CC) $(CPPFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32 -lregex
+	$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32 -lregex
 
 ccheck: license.c license.h des.c des.h
 	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
@@ -205,8 +211,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.101 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/24 20:58:46 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.102 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/29 07:22:52 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
