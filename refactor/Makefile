@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.107 2006/09/29 11:24:46 dds Exp $
+# $Id: Makefile,v 1.108 2006/09/29 14:18:02 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -59,7 +59,7 @@ SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	tclfuns.cpp token.cpp token.h tokid.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
 	type2.h wdefs.h wincs.h workdb.cpp ytab.h ytoken.h \
-	version.h version.cpp getopt.c getopt.h fdep.cpp \
+	version.h getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
 	workdb.h obfuscate.h dlstubs.c sql.cpp sql.h fifstream.h compiledre.h \
@@ -68,7 +68,7 @@ SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	runtest.sh \
 	csmake.pl cswc.pl
 
-ALLSRC=$(SRC) logo.gif
+ALLSRC=$(SRC) logo.gif version.cpp
 
 YACC=btyacc
 #YACC=yacc
@@ -203,8 +203,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.107 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/29 11:24:46 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.108 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/29 14:18:02 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -231,41 +231,41 @@ test:
 
 # Distribution
 rdist-gemini:
-	tar cvf - $(SRC) | gzip -c | $(SSH) gemini tar -C src/cscout -xzvf -
+	tar cvf - $(ALLSRC) | gzip -c | $(SSH) gemini tar -C src/cscout -xzvf -
 
 rdist-icarian:
-	tar cf - $(SRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
+	tar cf - $(ALLSRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
 
 rdist-macmini:
-	tar cf - $(SRC) | gzip -c | $(SSH) macmini tar -C src/cscout -xzvf -
+	tar cf - $(ALLSRC) | gzip -c | $(SSH) macmini tar -C src/cscout -xzvf -
 
 rdist-freefall:
 	$(SSH) $(FREEFALL) "mkdir src/cscout ; chmod 700 src/cscout"
-	tar -cvf - $(SRC) | gzip -c | $(SSH) $(FREEFALL) tar -C src/cscout -xzvf -
+	tar -cvf - $(ALLSRC) | gzip -c | $(SSH) $(FREEFALL) tar -C src/cscout -xzvf -
 	$(SSH) $(FREEFALL) "(cd src/cscout ; gmake lf; gmake eval.cpp parse.cpp)"
 
 rdist-sourceforge:
 	$(SSH) $(SF) "mkdir src/cs ; chmod 700 src/cs"
-	tar cf - $(SRC) | gzip -c | $(SSH) $(SF) tar -C src/cs -xzvf -
+	tar cf - $(ALLSRC) | gzip -c | $(SSH) $(SF) tar -C src/cs -xzvf -
 
 rdist-sense:
-	tar cf - $(SRC) | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
+	tar cf - $(ALLSRC) | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
 	$(SSH) sense "(cd src/cscout ; /usr/sfw/bin/gmake lf)"
 
 rdist-titan:
-	tar -cvf - $(SRC) | gzip -c | $(SSH) titan tar -C src/cscout -xzvf -
+	tar -cvf - $(ALLSRC) | gzip -c | $(SSH) titan tar -C src/cscout -xzvf -
 	$(SSH) titan "(cd src/cscout ; gmake lf)"
 
 rdist-tar:
-	tar cvf - $(SRC) | gzip -c >cscout.tar.gz
+	tar cvf - $(ALLSRC) | gzip -c >cscout.tar.gz
 
 rdist-spy:
 	plink $(HOST) "perl -p -e 's/\r//' >bin/spy-make" <spy-make.pl \; \
 		chmod +x bin/spy-make
 
 lf:
-	chmod +w $(SRC)
-	perl -pi -e 's/\r//' $(SRC)
+	chmod +w $(ALLSRC)
+	perl -pi -e 's/\r//' $(ALLSRC)
 
 mkdir:
 	-mkdir alpha  i386  sparc64  amd64  ia64 sparc
@@ -312,7 +312,7 @@ clean:
 .dot.gif:
 	dot -Tgif -o$@ $<
 
-classdiag.java: $(SRC)
+classdiag.java: $(ALLSRC)
 	grep -h ":.*public" *.h | \
 	grep -v binary_func | \
 	sed 's/class //;s/://;s/public //;s/{//;s/  */ /g' | \
