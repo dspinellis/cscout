@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.105 2006/09/29 11:18:20 dds Exp $
+# $Id: Makefile,v 1.106 2006/09/29 11:21:58 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -125,15 +125,6 @@ endif
 
 CPPFLAGS+=$(EXTRA_CPPFLAGS)
 
-CPPTEST=test/trigtest.c test/color.c test/stringize.c test/simpledef.c \
-test/noexpand.c test/expand.c  test/mreplace.c test/noreplace.c \
-test/nested.c test/mkfun.c test/ansi-p92.c \
-test/twostring.c test/parthomo.c test/ansi-p93-l5.c \
-test/stresc.c  test/ansi-p93-l34.c test/if.c test/if2.c test/if3.c \
-test/empty.c test/def.c test/conddef.c test/concat-empty.c \
-test/concat.c test/macro_rescan.c test/vararg.c test/shorten.c \
-test/nostrings.c test/concat-arg.c
-
 # Pattern rules for C and C++ files
 $(ARCH)/%.o: %.c
 	$(CC) -c $(CPPFLAGS) -o $@ $<
@@ -222,8 +213,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.105 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/29 11:18:20 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.106 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/29 11:21:58 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -244,19 +235,9 @@ versioncheck:
 	ident $(SRC) | sed -n -f version.sed | grep '^"' | perl -p -e 's/\r//' >thisversion
 	grep '^"' version.cpp >oldversion
 	diff oldversion thisversion
-# Test
-cpptest: cpp-test $(CPPTEST)
-	for i in $(CPPTEST) ; do echo -n $$i && sh cpp-test $$i && echo ' ok' ; done
 
-hellotest: simple_cpp test/hello.c
-	simple_cpp test/hello.c >hello.i
-	g++ hello.i
-	a.out
-
-boottest: simple_cpp
-	simple_cpp simple_cpp.cpp >simple_cpp.i
-	g++ -c simple_cpp.i
-	$(CC) $(CPPFLAGS) -o simple_cpp  $(OBJ) simple_cpp.o
+test:
+	sh runtest.sh
 
 # Distribution
 rdist-gemini:
@@ -267,7 +248,6 @@ rdist-icarian:
 
 rdist-macmini:
 	tar cf - $(SRC) | gzip -c | $(SSH) macmini tar -C src/cscout -xzvf -
-
 
 rdist-freefall:
 	$(SSH) $(FREEFALL) "mkdir src/cscout ; chmod 700 src/cscout"
