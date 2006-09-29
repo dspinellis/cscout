@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.106 2006/09/29 11:21:58 dds Exp $
+# $Id: Makefile,v 1.107 2006/09/29 11:24:46 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -48,9 +48,9 @@ OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
 .SUFFIXES:.java .dot .ps .gif .pic .eps .png .svg
 
 # Do not add version.cpp here
-SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
+SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	ctoken.h debug.cpp debug.h defs.h des.c des.h eclass.cpp \
-	eclass.h engine.cpp error.cpp error.h eval.y fchar.cpp \
+	eclass.h error.cpp error.h eval.y fchar.cpp \
 	fchar.h fileid.cpp fileid.h id.h incs.h license.c license.h \
 	macro.cpp macro.h metrics.cpp metrics.h mscdefs.h \
 	mscincs.h obfuscate.cpp parse.y pdtoken.cpp \
@@ -58,7 +58,7 @@ SRC=Makefile attr.cpp attr.h color.cpp cpp.h cscout.cpp ctoken.cpp \
 	simple_cpp.cpp stab.cpp stab.h swill.h tchar.cpp tchar.h \
 	tclfuns.cpp token.cpp token.h tokid.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
-	type2.h wdefs.h webmap.cpp wincs.h workdb.cpp ytab.h ytoken.h \
+	type2.h wdefs.h wincs.h workdb.cpp ytab.h ytoken.h \
 	version.h version.cpp getopt.c getopt.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
@@ -150,9 +150,6 @@ endif
 
 SF=shell.cf.sourceforge.net
 
-#all: webmap
-#all: color
-#all: engine
 #all: simple_cpp
 
 $(ARCH)/cscout: $(ARCH)/cscout.o  $(OBJ)
@@ -171,14 +168,7 @@ ccheck: license.c license.h des.c des.h
 ccheck-install: ccheck
 	cp ccheck /home/dds/web/istlab-cgi-bin
 
-$(ARCH)/webmap: $(ARCH)/webmap.o  $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/webmap  $(OBJ) $(ARCH)/webmap.o
-
-$(ARCH)/color: $(ARCH)/color.o  $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/color  $(OBJ) $(ARCH)/color.o
-
 # Some important dependencies
-color.o: pltoken.h
 error.o: pltoken.h
 pdtoken.o: pltoken.h
 simple_cpp.o: pltoken.h
@@ -213,8 +203,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.106 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/29 11:21:58 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.107 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2006/09/29 11:24:46 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
