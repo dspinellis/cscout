@@ -1,10 +1,21 @@
 #!/usr/bin/perl
 #
+# (C) Copyright 2006 Diomidis Spinellis
+#
+# This software is distributed under the terms of the CScout Public License
+# The license is available as part of the software documentation, both
+# in the distribution package and online http://www.spinellis.gr/cscout
+#
+# THE SOFTWARE AND ITS DOCUMENTATION ARE PROVIDED ``AS IS'' AND WITHOUT
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION,
+# THE IMPLIED WARRANTIES OF DESIGN, MERCHANTIBILITY, OR FITNESS FOR A
+# PARTICULAR PURPOSE.
+#
 # Run make with gcc, cc, ld, ar, mv replaced with spying versions
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.13 2006/09/28 15:32:19 dds Exp $
+# $Id: csmake.pl,v 1.14 2006/09/30 20:03:22 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -194,7 +205,7 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.13 2006/09/28 15:32:19 dds Exp $
+# Source file is $Id: csmake.pl,v 1.14 2006/09/30 20:03:22 dds Exp $
 #
 
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";

@@ -1,8 +1,19 @@
 #!/usr/bin/perl
 #
+# (C) Copyright 2003-2006 Diomidis Spinellis
+#
+# This software is distributed under the terms of the CScout Public License
+# The license is available as part of the software documentation, both
+# in the distribution package and online http://www.spinellis.gr/cscout
+#
+# THE SOFTWARE AND ITS DOCUMENTATION ARE PROVIDED ``AS IS'' AND WITHOUT
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION,
+# THE IMPLIED WARRANTIES OF DESIGN, MERCHANTIBILITY, OR FITNESS FOR A
+# PARTICULAR PURPOSE.
+#
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.13 2003/10/13 07:46:16 dds Exp $
+# $Id: cswc.pl,v 1.14 2006/09/30 20:03:22 dds Exp $
 #
 
 # Syntax:
@@ -42,12 +53,12 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.13 $';
+	my $rel = '$Revision: 1.14 $';
 	$rel =~ s/\//;
 	$rel =~ s/\$//;
 	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
 	# 80 column terminal width----------------------------------------------------
-	"(C) Copyright 2003 Diomidis Spinelllis.\n\n" .
+	"(C) Copyright 2003-2006 Diomidis Spinelllis.\n\n" .
 	"Unsupported version.  Can be used and distributed under the terms of the\n" .
 	"CScout Public License available in the CScout documentation and online at\n" .
 	"http://www.spinellis.gr/cscout/doc/license.html\n";
