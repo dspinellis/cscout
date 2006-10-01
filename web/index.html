@@ -1,4 +1,8 @@
-<!doctype html public "-//IETF//DTD HTML//EN">
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <!--
 
 WARNING WARNING WARNING WARNING WARNING WARNING
@@ -10,14 +14,14 @@ WARNING WARNING WARNING WARNING WARNING WARNING
 
 Front matter {{{1
 -->
-<html>
 <head>
 <title>CScout</title>
-<META NAME="AUTHOR" CONTENT="Diomidis Spinellis">
+<meta name="AUTHOR" content="Diomidis Spinellis" />
+<meta http-equiv="Content-type" content="text/html; charset=us-ascii" />
 </head>
 <body>
-<h1 align=right><tt><font color="#ff0000">cscout dds</font></tt></h1>
-<img src="logo.png" ALT="CScout logo" /><br />
+<h1 align='right'><tt><font color="#ff0000">cscout dds</font></tt></h1>
+<img src="logo.png" alt="CScout logo" /><br />
 <h2>CScout</h2> <!--- {{{1 -->
 <em>CScout</em> is a source code analyzer and refactoring browser for
 collections of C programs.
@@ -32,55 +36,71 @@ other source code analyzers.
 The analysis CScout performs takes into account the identifier scopes
 introduced by the C preprocessor and the C language proper scopes and
 namespaces.
-CScout has already been applied on projects ranging from
+After the source code analysis <em>CScout</em> can
+<ul>
+<li>perform accurate cross project identifier renames,</li>
+<li>process sophisticated queries on identifiers, files, and functions,</li>
+<li>locate unused or wrongly-scoped identifiers,</li>
+<li>identify header files that don't need to be included, and</li>
+<li>create call graphs spanning both C functions and function-like macros.</li>
+</ul>
+<em>CScout</em> has already been applied on projects ranging from
 tens of thousands of lines,
-like the apache web server (using 36MB of memory,
-taking 6 minutes on a 500MHz Celeron processor),
-to above a million lines of code,
-like the FreeBSD kernel
-(using 813MB of memory,
-taking 3 hours 42 minutes on a 900MHz Itanium 2 processor).
-<br>
+like the <a href="http://httpd.apache.org/">Apache web server</a>, to millions of
+lines, like the <a href="http://www.linux.org">Linux</a> and <a href="http://www.freebsd.org">FreeBSD</a> kernels.
+With <em>CScout</em> you can make your hardware really work for its money.
+For example, processing the 2.6.11 Linux kernel (4.2 million lines of code)
+requires 4052MB of RAM and 4.7 hours of processing on a
+dual-CPU 2.2MHz AMD Opteron computer.
+After the processing <em>CScout</em> holds details on 1.1 million identifiers and 89 thousand
+functions and function-like macros.
+<br />
 <a href="doc/intro.html">Read more ...</a>,
-<a href="doc/walk.html">walkthrough</a> 
+<a href="doc/walk.html">walkthrough</a>
 (<em>CScout</em> documentation.)
-<p>
+<p />
 See also:
-Diomidis Spinellis.
-<A HREF="../pubs/jrnl/2003-TSE-Refactor/html/Spi03r.html">Global analysis and transformations in preprocessed languages</a>.
-<CITE>IEEE Transactions on Software Engineering</CITE>,
-29(11):1019-1030, November 2003.
+<ul>
+<li>Diomidis Spinellis.
+<a href="../pubs/jrnl/2003-TSE-Refactor/html/Spi03r.html">Global analysis and transformations in preprocessed languages</a>.
+<cite>IEEE Transactions on Software Engineering</cite>,
+29(11):1019&ndash;1030, November 2003</li>
+<li><a href="http://www.spinellis.gr/codequality">Code Quality: The Open Source Perspective</a> (Addison Wesley, 2006)</li>
+<li><a href="http://www.spinellis.gr/codereading">Code Reading: The Open Source Perspective</a> (Addison Wesley, 2003)</li>
+</ul>
 
-<p>
-The <a href="doc/license.html">license</a> 
+<p />
+The <a href="doc/license.html">license</a>
 of the free unsupported <em>CScout</em> version allows you
 to freely use <em>CScout</em> on open source software code.
 A different <em>CScout</em> version is available under a
 support contract for use on proprietary software.
-<p>
-<em>CScout</em> runs and has been tested under 
+<p />
+<em>CScout</em> runs and has been tested under
 <a href="http://www.linux.org">Linux</a>,
 <a href="http://www.microsoft.com">Microsoft Windows</a>,
-<a href="http://www.sun.com/software/solaris/">Solaris</a>, and
-<a href="http://www.freebsd.org">FreeBSD</a>,
-under several different processor architectures.
+<a href="http://www.apple.com/macosx">Apple Mac OS X</a>,
+<a href="http://www.freebsd.org">FreeBSD</a>, and
+<a href="http://www.sun.com/software/solaris/">Sun Solaris</a>,
+under several processor architectures.
 To run it download the binary bundle that matches your execution platform and
 the architecture-neutral bundle.
 Each binary bundle contains:
 <ul>
-<li> the <em>CScout</em> engine (statically linked)
-<li> the <em>CScout</em> workspace compiler (Perl source code)
+<li> <em>cscout</em>, the <em>CScout</em> engine </li>
+<li> <em>cswc</em>, the workspace compiler (Perl source code) </li>
+<li> <em>csmake</em>, the build monitor (Perl source code) </li>
 </ul>
 The architecture-neutral bundle contains:
 <ul>
-<li> compiler-specific configuration files (C source code; gcc and Microsoft C have been tested)
-<li> ANSI C generic header files
-<li> read-to-run example (the ``one true <em>awk</em>'' source code)
-<li> documentation (HTML)
+<li> compiler-specific configuration files (C source code; gcc and Microsoft C have been tested)</li>
+<li> ANSI C generic header files</li>
+<li> read-to-run example (the ``one true <em>awk</em>'' source code)</li>
+<li> documentation (HTML)</li>
 </ul>
 
 <h2>Download CScout</h2> <!--- {{{1 -->
-All files are compressed tar files and are distributed
+All files are compressed tar or zip files and are distributed
 under the terms of
 the <a href="doc/license.html">CScout Public License</a>.
 You will need to download both the
@@ -91,73 +111,36 @@ FreeBSD users would probably prefer to directly install the corresponding
 port (ports/devel/cscout).
 For really large collections (&gt; 1MLOC) you need a 64 bit processor
 and the corresponding application file (<em>CScout</em> has been
-tested on Sun's SPARC-64, Compaq's Alpha, Intel's IA-64, and AMD-64).
-
+tested on the SPARC-64 and AMD-64 architectures).
+<p />
 Unpack both files in the same location.
-<table>
-<tr><th>Stable version 1.16</td><th>Current branch VERSION</th></tr>
-<tr><td>
 <ul>
-<li> <a href="cscout-1.16-neutral.tar.gz">Architecture-neutral files (tar.gz)</a>
-<li> <a href="cscout-1.16-neutral.zip">Architecture-neutral files (zip)</a>
-<li><a href="cscout-1.16-linux-i386.tar.gz">Linux i386 (tar.gz)</a>
-<li><a href="cscout-1.16-win32-i386.zip">Microsoft Windows i386 (zip)</a>
-<li><a href="cscout-1.16-win32-i386.tar.gz">Microsoft Windows i386 (tar.gz)</a>
-<li><a href="cscout-1.16-freebsd-i386.tar.gz">FreeBSD i386 (tar.gz)</a>
-<li><a href="cscout-1.16-freebsd-sparc64.tar.gz">FreeBSD SPARC-64 (tar.gz)</a>
-<li><a href="cscout-1.16-freebsd-ia64.tar.gz">FreeBSD IA-64 (tar.gz)</a>
-<li><a href="cscout-1.16-freebsd-amd64.tar.gz">FreeBSD AMD-64 (tar.gz)</a>
-<li><a href="cscout-1.16-freebsd-amd64.tar.gz">FreeBSD Alpha (tar.gz)</a>
+<li><a href="cscout-VERSION-neutral.tar.gz">Architecture-neutral files (tar.gz)</a></li>
+<li><a href="cscout-VERSION-neutral.zip">Architecture-neutral files (zip)</a></li>
+<li><a href="cscout-VERSION-linux-i386.tar.gz">Linux i386 (tar.gz)</a></li>
+<li><a href="cscout-VERSION-linux-x86_64.tar.gz">Linux x86_64 (tar.gz)</a></li>
+<li><a href="cscout-VERSION-win32-i386.tar.gz">Microsoft Windows i386 (tar.gz)</a></li>
+<li><a href="cscout-VERSION-win32-i386.zip">Microsoft Windows i386 (zip)</a></li>
+<li><a href="cscout-VERSION-darwin-macho.tar.gz">Apple Mac OS X (PowerPC and i386; tar.gz)</a></li>
+<li><a href="cscout-VERSION-fbsd-amd64.tar.gz">FreeBSD AMD-64 (tar.gz)</a></li>
+<li><a href="cscout-VERSION-fbsd-i386.tar.gz">FreeBSD i386 (tar.gz)</a></li>
+<li><a href="cscout-VERSION-fbsd-sparc64.tar.gz">FreeBSD SPARC64 (tar.gz)</a></li>
+<li><a href="cscout-VERSION-solaris-sparc.tar.gz">Solaris SPARC (tar.gz)</a></li>
 </ul>
-</td>
-<td>
-<ul>
-<li> <a href="cscout-VERSION-neutral.tar.gz">Architecture-neutral files (tar.gz)</a>
-<li> <a href="cscout-VERSION-neutral.zip">Architecture-neutral files (zip)</a>
-<li><a href="cscout-VERSION-linux-i386.tar.gz">Linux i386 (tar.gz)</a>
-<li><a href="cscout-VERSION-linux-x86_64.tar.gz">Linux x86_64 (tar.gz)</a>
-<li><a href="cscout-VERSION-win32-i386.zip">Microsoft Windows i386 (zip)</a>
-<li><a href="cscout-VERSION-win32-i386.tar.gz">Microsoft Windows i386 (tar.gz)</a>
-<li><a href="cscout-VERSION-freebsd-i386.tar.gz">FreeBSD i386 (tar.gz)</a>
-<li><a href="cscout-VERSION-freebsd-sparc64.tar.gz">FreeBSD SPARC-64 (tar.gz)</a>
-<li><a href="cscout-VERSION-freebsd-ia64.tar.gz">FreeBSD IA-64 (tar.gz)</a>
-<li><a href="cscout-VERSION-freebsd-amd64.tar.gz">FreeBSD AMD-64 (tar.gz)</a>
-<li><a href="cscout-VERSION-freebsd-alpha.tar.gz">FreeBSD ALPHA (tar.gz)</a>
-<li><a href="cscout-VERSION-solaris-sparc.tar.gz">Solaris SPARC (tar.gz)</a>
-<li><a href="cscout-VERSION-darwin-powerpc.tar.gz">Darwin (Mac OS X) Power PC (tar.gz)</a>
-</ul>
-</td>
-</tr>
-</table>
 
 <h2>Documentation</h2> <!--- {{{1 -->
 The <em>CScout</em> documentation is available through a table of contents,
 suitable for on-line browsing, and as a single page, suitable for printing.
-
-<table>
-<tr><th>Stable version 1.16</td><th>Current branch VERSION</th></tr>
-<tr><td>
-<ul>
-<li> <a href="doc-1.16/index.html">Table of contents</a></li>
-<li> <a href="doc-1.16/indexw.html">Single page</a></li>
-</ul>
-</td>
-<td>
 <ul>
 <li> <a href="doc/index.html">Table of contents</a></li>
 <li> <a href="doc/indexw.html">Single page</a></li>
 </ul>
-</td>
-</tr>
-</table>
 
 <h2>Change History</h2> <!--- {{{1 -->
-The current development <em>CScout</em> branch is VERSION.
+The current <em>CScout</em> cersion is VERSION.
 The <em>CScout</em> documentation contains the complete
 <a href="doc/change.html">change history</a>.
-Note that change history entries referring to development branch
-may not always be available in the released files.
-<p>
+<p />
 <a href="../">Diomidis Spinellis home page</a>
 <hr />
 <a href="http://validator.w3.org/check/referer"><img align="left" hspace="4" src="valid-xhtml10.png" border="0" alt="Valid XHTML 1.0!" height="31" width="88" /></a>
@@ -174,7 +157,7 @@ Unless otherwise expressly stated, all original material on this page created by
 	</Work>
 	<License rdf:about="http://creativecommons.org/licenses/by-nc-nd/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/><permits rdf:resource="http://web.resource.org/cc/Distribution"/><requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/><prohibits rdf:resource="http://web.resource.org/cc/CommercialUse"/></License></rdf:RDF> -->
 <br />
-Last modified: $Date: 2006/09/30 20:45:54 $
+Last modified: $Date: 2006/10/01 18:50:26 $
 </font>
 </body>
 </html>
