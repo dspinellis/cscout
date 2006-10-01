@@ -1,13 +1,13 @@
 #!/bin/sh
 #
 # Release a CScout version
-# a -n flag will skip the copy step
+# a -c flag will include a remote copy step
 #
-# $Id: release.sh,v 1.1 2006/09/29 21:04:50 dds Exp $
+# $Id: release.sh,v 1.2 2006/10/01 18:55:39 dds Exp $
 #
 
 DESTDIR='c:/dds/pubs/web/home/cscout'
-DESTDIR='c:/tmp/cscout-try'
+#DESTDIR='c:/tmp/cscout-try'
 VERSION=`sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' refactor/version.cpp`
 DISTDIR=cscout-$VERSION
 
@@ -27,7 +27,7 @@ copyfile()
 	pscp $INFILE bin/$DIST/$DISTDIR/bin/cscout || die "copy $INFILE to bin/$DIST/$DISTDIR/bin/cscout"
 }
 
-if [ "$1" != "-n" ]
+if [ "$1" == "-c" ]
 then
 	# Copy remote files
 	rm -rf bin
@@ -58,14 +58,17 @@ tar -cf - -C /dds/pubs/web/home/cscout doc --exclude=RCS \
 	-C /dds/src/research/cscout README example etc include man |
 tar -xf - -C $DISTDIR  || die "Creating the neutral directory"
 
-# Create the neutral tar file
-tar -cvf - $DISTDIR |
-gzip -c >${DESTDIR}/cscout-${VERSION}-neutral.tar.gz || die 'tar neutral'
-
 # Create the neutral zip file
 NEUTRAL_ZIP=${DESTDIR}/cscout-${VERSION}-neutral.zip
 rm -f ${NEUTRAL_ZIP}
 zip -r ${NEUTRAL_ZIP} $DISTDIR || die "zip $DISTDIR into $NEUTRAL_ZIP"
+
+# Create the neutral tar file
+# Remove (in-place) carriage returns
+perl dirlf.pl $DISTDIR
+# tar it
+tar -cvf - $DISTDIR |
+gzip -c >${DESTDIR}/cscout-${VERSION}-neutral.tar.gz || die 'tar neutral'
 
 # Remove carriage returns from the specified file
 tolf()
@@ -113,3 +116,5 @@ tobatch refactor/csmake.pl bin/win32-i386/$DISTDIR/bin/csmake.bat
 
 (cd bin/win32-i386 ; zip -r ${BIN_ZIP} $DISTDIR || die "zip $DISTDIR into $BIN_ZIP")
 
+# Create the HTML index file
+sed -e "s/VERSION/${VERSION}/" doc/index.html >${DESTDIR}/index.html
