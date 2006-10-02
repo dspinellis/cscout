@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.5 2006/09/24 20:58:46 dds Exp $
+ * $Id: gdisplay.h,v 1.6 2006/10/02 07:01:17 dds Exp $
  */
 
 
@@ -115,8 +115,8 @@ public:
 		strcpy(dot, img);
 		strcat(dot, "/CSdot-XXXXXX");
 		strcat(img, "/CSimg-XXXXXX");
-		mktemp(dot);
-		mktemp(img);
+		mkstemp(dot);
+		mkstemp(img);
 		fo = fopen(dot, "w");
 		if (fo == NULL) {
 			html_perror(fo, "Unable to open " + string(dot) + " for writing", true);
