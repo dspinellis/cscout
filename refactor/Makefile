@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.111 2006/09/30 19:21:44 dds Exp $
+# $Id: Makefile,v 1.112 2007/04/28 19:28:07 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -25,7 +25,7 @@ BRANCH=$(shell sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' version.cpp)
 DATE=$(shell date +'%Y/%m/%d %H:%M:%S')
 
 # Determine architecture and OS
-ARCH=$(shell uname -p 2>/dev/null || uname -m )
+ARCH=$(shell ( [ `uname -p` != unknown ] && uname -p 2>/dev/null ) || uname -m )
 OS=$(shell uname -s)
 
 # Sanitize processor types
@@ -203,8 +203,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.111 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2006/09/30 19:21:44 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.112 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2007/04/28 19:28:07 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
