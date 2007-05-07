@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.114 2007/05/07 14:01:23 dds Exp $
+# $Id: Makefile,v 1.115 2007/05/07 15:29:38 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -72,7 +72,7 @@ ALLSRC=$(SRC) logo.png version.cpp
 
 YACC=btyacc
 #YACC=yacc
-CC?=gcc
+CC=gcc
 CXX?=g++
 
 CPPFLAGS+=-pipe -Wall
@@ -203,8 +203,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.114 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2007/05/07 14:01:23 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.115 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2007/05/07 15:29:38 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
