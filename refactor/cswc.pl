@@ -13,7 +13,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.14 2006/09/30 20:03:22 dds Exp $
+# $Id: cswc.pl,v 1.15 2007/05/07 14:24:08 dds Exp $
 #
 
 # Syntax:
@@ -53,7 +53,7 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.14 $';
+	my $rel = '$Revision: 1.15 $';
 	$rel =~ s/\//;
 	$rel =~ s/\$//;
 	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
@@ -77,7 +77,7 @@ if (defined($opt_d) && -d $opt_d) {
 } elsif (defined($ENV{HOME}) && -d $ENV{HOME} . '/.cscout') {
 	$instdir = $ENV{HOME} . '/.cscout';
 } else {
-	print STDERR "Unable to identify a cscout installation directory\n";
+	print STDERR "Unable to identify a CScout installation directory\n";
 	print STDERR 'Create ./.cscout, or $HOME/.cscout, use -d, or set the $CSCOUT_HOME variable' . "\n";
 	exit(1);
 }
