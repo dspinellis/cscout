@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.16 2007/05/07 14:37:26 dds Exp $
+# $Id: runtest.sh,v 1.17 2007/05/07 15:30:01 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -25,7 +25,7 @@ end_test()
 	then
 		return 0
 	fi
-	if diff -b test/out/$NAME test/nout/$NAME
+	if diff -ib test/out/$NAME test/nout/$NAME
 	then
 		echo "
 Test $2 finishes correctly
@@ -217,7 +217,7 @@ makecs_cpp()
 	echo "
 workspace TestWS {
 	ipath \"$IPATH\"
-	ipath \"`pwd`/test/cpp\"
+	ipath \"$CPPTESTS\"
 	directory test/cpp {
 	project Prj1 {
 		file $*
@@ -265,22 +265,23 @@ hawk)
 	HSQLDB="java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc"
 	IPATH=/dds/src/research/CScout/include
 	DOTCSCOUT=/dds/src/research/CScout/example/.cscout
+	CPPTESTS=/dds/src/research/CScout/refactor/test/cpp
 	;;
 sense|medusa)
 	CSCOUT=$HOME/src/cscout/sparc/cscout
 	HSQLDB="java -classpath $HOME/lib/hsqldb/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HOME/lib/hsqldb/sqltool.rc"
 	IPATH=$HOME/src/include
+	CPPTESTS=$HOME/src/cscout/test/cpp
 	DOTCSCOUT=$HOME/src/example/.cscout
 	;;
 esac
 
 # See that we are running a version of CScout that supports SQL dumps
 :>$TMP/empty
-if ! $CSCOUT -s hsqldb $CSFILE $TMP/empty 2>$NULL >$NULL
-then
+$CSCOUT -s hsqldb $CSFILE $TMP/empty 2>$NULL >$NULL || {
 	echo 'CScout is not compiled with DEBUG=1 or LICENSEE=...' 1>&2
 	exit 1
-fi
+}
 rm -f $TMP/empty
 
 if [ $TEST_RECONST = 1 ]
@@ -336,7 +337,6 @@ then
 	cp test/nout/* test/out
 fi
 
-if [ ! -z "$FAILED" ]
-then
+[ -z "$FAILED" ] || {
 	echo "The following test(s) failed: $FAILED"
-fi
+}
