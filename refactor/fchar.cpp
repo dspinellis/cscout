@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.34 2006/06/18 19:34:46 dds Exp $
+ * $Id: fchar.cpp,v 1.35 2007/05/07 15:29:19 dds Exp $
  */
 
 #include <iostream>
@@ -165,7 +165,7 @@ Fchar::getnext()
 			 * The processing of the first following preprocessor
 			 * command is unspecified.
 			 */
-			Error::error(E_ERR, "Included file does not end with a newline.");
+			Error::error(E_WARN, "Included file does not end with a newline.");
 		if (val != EOF)
 			oval = val;
 		if (val == EOF) {
