@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.15 2006/08/31 20:57:59 dds Exp $
+# $Id: runtest.sh,v 1.16 2007/05/07 14:37:26 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -36,7 +36,7 @@ Test $2 finishes correctly
 Test $2 failed
 ------------------------------------------
 "
-		if [ "$CONTINUE" != "1" ]
+		if [ x"$CONTINUE" != x"1" ]
 		then
 			exit 1
 		else
@@ -168,7 +168,7 @@ else
 Test chunk $NAME failed
 ------------------------------------------
 "
-	if [ "$CONTINUE" != "1" ]
+	if [ x"$CONTINUE" != x"1" ]
 	then
 		exit 1
 	else
@@ -195,7 +195,7 @@ workspace TestWS {
 	}
 }
 " |
-perl prjcomp.pl -d $DOTCSCOUT >makecs.cs
+perl cswc.pl -d $DOTCSCOUT >makecs.cs
 }
 
 
@@ -224,7 +224,7 @@ workspace TestWS {
 	}
 }
 " |
-perl prjcomp.pl -E -d $DOTCSCOUT >makecs.cs
+perl cswc.pl -E -d $DOTCSCOUT >makecs.cs
 }
 
 # Set the test control variables to the passed value
@@ -257,31 +257,31 @@ while test $# -gt 0; do
 done
 
 # Set host-dependent variables
+NULL=/dev/null
+TMP=/tmp
 case `hostname` in
-eagle)
-	CSCOUT=/dds/src/research/cscout/refactor/i386/cscout
+hawk)
+	CSCOUT=/cygdrive/c/dds/src/research/cscout/refactor/i386/cscout
 	HSQLDB="java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc"
 	IPATH=/dds/src/research/CScout/include
 	DOTCSCOUT=/dds/src/research/CScout/example/.cscout
-	NULL=NUL
 	;;
-sense)
+sense|medusa)
 	CSCOUT=$HOME/src/cscout/sparc/cscout
 	HSQLDB="java -classpath $HOME/lib/hsqldb/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HOME/lib/hsqldb/sqltool.rc"
 	IPATH=$HOME/src/include
 	DOTCSCOUT=$HOME/src/example/.cscout
-	NULL=/dev/null
 	;;
 esac
 
 # See that we are running a version of CScout that supports SQL dumps
-:>/tmp/empty
-if ! $CSCOUT -s hsqldb $CSFILE /tmp/empty 2>$NULL >$NULL
+:>$TMP/empty
+if ! $CSCOUT -s hsqldb $CSFILE $TMP/empty 2>$NULL >$NULL
 then
 	echo 'CScout is not compiled with DEBUG=1 or LICENSEE=...' 1>&2
 	exit 1
 fi
-rm -f /tmp/empty
+rm -f $TMP/empty
 
 if [ $TEST_RECONST = 1 ]
 then
