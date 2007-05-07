@@ -1,5 +1,14 @@
-$Id: todo,v 1.85 2006/09/25 19:37:19 dds Exp $
+$Id: todo,v 1.86 2007/05/07 15:32:33 dds Exp $
 
+- Provide embedded SQL interface through SQLite.
+  See http://www.sqlite.org/cvstrac/wiki?p=VirtualTableMethods
+
+- Add HTTP logging and a timeout on expensive queries.
+
+- Don't report identifiers in function prototypes as unused
+  (r mark them as a new attribute function arguments).
+
+- Include MD5 checksums in the download section
 - Optimize file_hypertext by not calling check_ec for !isalnum or _
   and in comments.  While at it, mark comments with a different
   color.
@@ -29,9 +38,7 @@ $Id: todo,v 1.85 2006/09/25 19:37:19 dds Exp $
 
 - Change \n into eol in all DP() to ensure flushed output
 
-- spy-make should support yacc
-
-- Include spy-* into spy-make; add spy-yacc.
+- csmake should support yacc
 
 - Best effort identifier substitution for DSL files
 
