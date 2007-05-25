@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.124 2006/08/06 09:56:45 dds Exp $
+ * $Id: parse.y,v 1.125 2007/05/25 13:52:50 dds Exp $
  *
  */
 
@@ -1341,13 +1341,13 @@ initializer_close:
 	;
 
 braced_initializer:
-        | initializer_open initializer_close
+        initializer_open initializer_close
         | initializer_open initializer_list initializer_close
         | initializer_open initializer_list initializer_comma initializer_close
         ;
 
 initializer:
-        | initializer_open initializer_close
+        initializer_open initializer_close
         | initializer_open initializer_list initializer_close
         | initializer_open initializer_list initializer_comma initializer_close
         | assignment_expression
