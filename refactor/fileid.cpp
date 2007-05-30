@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.43 2006/09/21 12:35:12 dds Exp $
+ * $Id: fileid.cpp,v 1.44 2007/05/30 08:28:28 dds Exp $
  */
 
 #include <fstream>
@@ -272,7 +272,8 @@ unify_file_identifiers(const set<Fileid> &fs)
 
 	set <Fileid>::const_iterator fsi = fs.begin();
 	for (fsi++; fsi != fs.end(); fsi++) {
-		cout << "Merging identifiers of " << fi.get_path() << " and " << fsi->get_path() << endl;
+		if (DP())
+			cout << "Merging identifiers of " << fi.get_path() << " and " << fsi->get_path() << endl;
 		read_file(fsi->get_path(), ftn);
 		csassert(ft0.size() == ftn.size());
 		vector <Pltoken>::iterator ti0, tin;
