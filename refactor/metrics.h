@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.16 2006/09/22 11:17:58 dds Exp $
+ * $Id: metrics.h,v 1.17 2007/06/27 06:20:26 dds Exp $
  */
 
 #ifndef METRICS_
@@ -124,6 +124,8 @@ public:
 	int get_nstatement() const { return count[em_nstatement]; }
 	// Number of character strings
 	int get_nstring() const { return count[em_nstring]; }
+	// Number of unprocessed lined
+	int get_uline() const { return count[em_uline]; }
 };
 
 class Eclass;
@@ -195,7 +197,7 @@ public:
 
 // This can be kept per project and globally
 class IdMetricsSummary {
-	IdMetricsSet rw[2];			// For read-only and writable cases
+	IdMetricsSet rw[2];			// For writable (0) and read-only (1) cases
 public:
 	// Called for every identifier occurence
 	void add_id(Eclass *ec);
@@ -212,6 +214,8 @@ public:
 	void summarize_files();
 	friend ostream& operator<<(ostream& o,const FileMetricsSummary &ms);
 	int get_total(int i) { return rw[0].get_total(i) + rw[1].get_total(i); }
+	int get_readonly(int i) { return rw[1].get_total(i); }
+	int get_writable(int i) { return rw[0].get_total(i); }
 };
 
 // Global metrics

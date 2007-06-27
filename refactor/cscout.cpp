@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.160 2007/05/07 15:33:00 dds Exp $
+ * $Id: cscout.cpp,v 1.161 2007/06/27 06:20:26 dds Exp $
  */
 
 #include <map>
@@ -2577,8 +2577,16 @@ main(int argc, char *argv[])
 		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
 	}
 
+
+	if (file_msum.get_writable(em_uline)) {
+		ostringstream msg;
+		msg << file_msum.get_writable(em_uline) << " conditionally compiled writable line(s) not processed";
+		Error::error(E_WARN, msg.str(), false);
+	}
+
 	if (motd)
 		cout << motd << endl;
+
 	if (process_mode == pm_report) {
 		if (!must_exit)
 			warning_report();

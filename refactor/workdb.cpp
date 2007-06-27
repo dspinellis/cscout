@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.30 2006/09/22 13:25:26 dds Exp $
+ * $Id: workdb.cpp,v 1.31 2007/06/27 06:20:26 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -372,7 +372,8 @@ workdb_schema(Sql *db, ostream &of)
 		"NPPDIRECTIVE INTEGER,\n"		// Number of C preprocessor directives
 		"NINCFILE INTEGER,\n"			// Number of included files
 		"NSTATEMENT INTEGER,\n"			// Number of C statements
-		"NSTRING INTEGER"			// Number of strings
+		"NSTRING INTEGER,\n"			// Number of strings
+		"NULINE INTEGER"			// Number of unprocessed lines
 		");\n"
 
 		"CREATE TABLE FILEPROJ("		// Files used in projects
@@ -473,7 +474,8 @@ workdb_rest(Sql *db, ostream &of)
 		(*i).metrics().get_nppdirective() << ',' <<
 		(*i).metrics().get_nincfile() << ',' <<
 		(*i).metrics().get_nstatement() << ',' <<
-		(*i).metrics().get_nstring() <<
+		(*i).metrics().get_nstring() << ',' <<
+		(*i).metrics().get_uline() <<
 		");\n";
 		// The projects this file belongs to
 		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
