@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.22 2006/09/22 20:46:26 dds Exp $
+ * $Id: tokid.h,v 1.23 2007/06/27 07:43:52 dds Exp $
  */
 
 #ifndef TOKID_
@@ -73,7 +73,7 @@ public:
 	inline void erase_ec(mapTokidEclass::iterator i) const;
 	inline void erase_ec(Eclass *e) const;
 	// Returns the Tokids participating in all ECs for a token of length l
-	dequeTpart Tokid::constituents(int l);
+	dequeTpart constituents(int l);
 	// Set the Tokid's equivalence class attribute
 	void set_ec_attribute(enum e_attribute a, int len) const;
 	// Clear the map of tokid equivalence classes

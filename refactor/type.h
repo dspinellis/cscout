@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.38 2006/08/04 11:50:06 dds Exp $
+ * $Id: type.h,v 1.39 2007/06/27 07:43:52 dds Exp $
  */
 
 #ifndef TYPE_
@@ -192,8 +192,8 @@ public:
 	Type(Type_node *n) : p(n) {}
 	Type() { p = new Tbasic(b_undeclared); }
 	// Creation functions
-	friend Type basic(enum e_btype t = b_abstract, enum e_sign s = s_none,
-			  enum e_storage_class sc = c_unspecified, qualifiers_t = q_none);
+	friend Type basic(enum e_btype t, enum e_sign s,
+			  enum e_storage_class sc, qualifiers_t);
 	friend Type array_of(Type t);
 	friend Type pointer_to(Type t);
 	friend Type function_returning(Type t);
@@ -261,6 +261,14 @@ public:
 					{ return p->member(n); }
 	friend Type merge(Type a, Type b);
 };
+
+Type identifier(const Ctoken& c);
+Type basic(enum e_btype t = b_abstract, enum e_sign s = s_none,
+  enum e_storage_class sc = c_unspecified, qualifiers_t = q_none);
+Type enum_tag();
+Type struct_union();
+Type incomplete(const Ctoken& c, int l);
+Type label();
 
 
 inline void QType_node::add_qualifiers(Type t) {qualifiers |= t.get_qualifiers(); }

@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.10 2006/09/24 20:58:46 dds Exp $
+ * $Id: idquery.h,v 1.11 2007/06/27 07:43:52 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -71,9 +71,9 @@ public:
 	// Construct object based on URL parameters
 	IdQuery(FILE *f, bool icase, Attributes::size_type current_project, bool e = true, bool r = true);
 	// Construct object based on a string specification
-	IdQuery::IdQuery(const string &s);
+	IdQuery(const string &s);
 	// Default
-	IdQuery::IdQuery() : Query(), match_fre(false), match_ire(false) {}
+	IdQuery() : Query(), match_fre(false), match_ire(false) {}
 
 
 	// Destructor

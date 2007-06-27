@@ -16,7 +16,7 @@
  * #include "fchar.h"
  * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.14 2006/06/22 17:34:38 dds Exp $
+ * $Id: fchar.h,v 1.15 2007/06/27 07:43:52 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -40,7 +40,7 @@ typedef stack <Fchar> stackFchar;
 
 class Fchar {
 private:
-	void Fchar::simple_getnext();	// Trigraphs and slicing
+	void simple_getnext();	// Trigraphs and slicing
 	static fifstream in;		// Stream we are reading from
 	static Fileid fi;		// and its Fileid
 	static int line_number;		// Current line number

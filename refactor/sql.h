@@ -3,13 +3,14 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.h,v 1.2 2005/06/11 16:29:43 dds Exp $
+ * $Id: sql.h,v 1.3 2007/06/27 07:43:52 dds Exp $
  */
 
 
 #ifdef COMMERCIAL
 class Sql {
 public:
+	virtual ~Sql() {}
 	static Sql *getInstance(const char *dbengine);
 	virtual string escape(string s);
 	virtual char * escape(char c);

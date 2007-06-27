@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.21 2006/06/18 19:34:46 dds Exp $
+ * $Id: stab.h,v 1.22 2007/06/27 07:43:52 dds Exp $
  */
 
 #ifndef STAB_
@@ -86,6 +86,11 @@ public:
 	friend void label_use(const Token& tok);
 };
 
+void label_define(const Token& tok);
+void label_use(const Token& tok);
+
+void label_define(const Token& tok);
+void label_use(const Token& tok);
 
 class Block {
 private:
@@ -165,6 +170,11 @@ public:
 	inline friend Id const * tag_lookup(int block_level, const string& name);
 };
 
+void obj_define(const Token& tok, Type t);
+void tag_define(const Token& tok, const Type& t);
+void local_label_define(const Token& tok);
+
+Id const * obj_lookup(const string& name);
 
 inline Id const *
 obj_lookup(const string& name)

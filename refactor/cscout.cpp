@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.161 2007/06/27 06:20:26 dds Exp $
+ * $Id: cscout.cpp,v 1.162 2007/06/27 07:43:52 dds Exp $
  */
 
 #include <map>
@@ -2096,7 +2096,7 @@ write_quit_page(FILE *of, void *exit)
 		cout << "Processing file " << (*i).get_path() << endl;
 		replacements += file_replace(of, *i);
 	}
-	fprintf(of, "A total of %d replacements were made in %d files.", replacements, process.size());
+	fprintf(of, "A total of %d replacements were made in %zd files.", replacements, process.size());
 	if (exit) {
 		fprintf(of, "<p>Bye...</body></html>");
 		must_exit = true;

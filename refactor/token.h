@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.17 2006/09/22 20:46:26 dds Exp $
+ * $Id: token.h,v 1.18 2007/06/27 07:43:52 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -73,7 +73,7 @@ public:
 	// Return true if the token contains in its parts the given EC
 	bool contains(Eclass *ec) const;
 	// Return true if its tokids equal those of stale
-	bool Token::equals(const Token &stale) const;
+	bool equals(const Token &stale) const;
 	// For including them in sets
 	inline friend bool operator ==(const class Token &a, const class Token &b);
 	inline friend bool operator !=(const class Token &a, const class Token &b);
