@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.115 2007/05/07 15:29:38 dds Exp $
+# $Id: Makefile,v 1.116 2007/07/16 08:27:43 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -178,6 +178,7 @@ eval.cpp: eval.y
 	mv -f eval_tab.c eval.cpp
 
 parse.cpp parse_tab.h: parse.y ytoken.h
+	echo Expect 3 shift/reduce conflicts
 	$(YACC) -d -b parse -p parse_ parse.y
 	mv -f parse_tab.c parse.cpp
 
@@ -203,8 +204,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.115 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2007/05/07 15:29:38 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.116 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2007/07/16 08:27:43 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

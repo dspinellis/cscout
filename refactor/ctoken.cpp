@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.31 2006/06/23 07:58:45 dds Exp $
+ * $Id: ctoken.cpp,v 1.32 2007/07/16 08:27:43 dds Exp $
  */
 
 #include <map>
@@ -134,6 +134,10 @@ make_keymap()
 	m["restrict"] = RESTRICT;
 	/* Microsoft */
 	m["_asm"] = MSC_ASM;
+	m["__try"] = TRY;
+	m["__except"] = EXCEPT;
+	m["__finally"] = FINALLY;
+	m["__leave"] = LEAVE;
 	/* gcc; from c-parse.in */
 	m["__asm"] = GNUC_ASM;
 	m["__asm__"] = GNUC_ASM;

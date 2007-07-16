@@ -5,7 +5,7 @@
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.11 2006/06/23 07:58:45 dds Exp $
+ * $Id: ytoken.h,v 1.12 2007/07/16 08:27:43 dds Exp $
  */
 
 
@@ -70,6 +70,9 @@
 
 /* MSC _asm directive */
 %token MSC_ASM
+
+/* Microsoft __try __except __finally extensions */
+%token TRY        FINALLY	EXCEPT		LEAVE
 
 /* Yacc tokens */
 %token YMARK	YLCURL	YRCURL			/* %%	%{	%}	*/

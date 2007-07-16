@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.125 2007/05/25 13:52:50 dds Exp $
+ * $Id: parse.y,v 1.126 2007/07/16 08:27:43 dds Exp $
  *
  */
 
@@ -542,7 +542,7 @@ cast_expression:
 		{
 			if (DP()) {
 				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
-				cout << "Type of compund literal " << $2 << "\n";
+				cout << "Type of compound literal " << $2 << "\n";
 			}
 			$$ = $2;
 		}
@@ -1438,6 +1438,7 @@ any_statement:
         | selection_statement { $$ = basic(b_void); } [YYVALID;]
         | iteration_statement { $$ = basic(b_void); } [YYVALID;]
         | jump_statement { $$ = basic(b_void); } [YYVALID;]
+        | try_statement { $$ = basic(b_void); } [YYVALID;]
         | assembly_statement { $$ = basic(b_void); } { $$ = basic(b_void); } [YYVALID;]
         | typed_function_definition { $$ = basic(b_void); } { $$ = basic(b_void); } [YYVALID;]
         ;
@@ -1536,7 +1537,16 @@ jump_statement:
         | CONTINUE ';'
         | BREAK ';'
         | RETURN comma_expression_opt ';'
+	/* Microsoft extension */
+        | LEAVE ';'
         ;
+
+/* Microsoft __try __except __finally extensions */
+try_statement:
+	TRY compound_statement
+		EXCEPT '(' comma_expression ')' compound_statement
+	| TRY compound_statement FINALLY compound_statement
+	;
 
 /* Gcc __asm__  syntax */
 assembly_decl:
