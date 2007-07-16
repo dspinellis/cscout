@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.117 2007/07/16 11:41:31 dds Exp $
+# $Id: Makefile,v 1.118 2007/07/16 12:35:48 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -166,7 +166,7 @@ ccheck: license.c license.h des.c des.h
 	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
 
 ccheck-install: ccheck
-	cp ccheck /home/dds/web/istlab-cgi-bin
+	cp ccheck /home/dds/web/spinellis-cgi-bin/
 
 # Some important dependencies
 error.o: pltoken.h
@@ -204,8 +204,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.117 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2007/07/16 11:41:31 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.118 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2007/07/16 12:35:48 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
