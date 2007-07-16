@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.126 2007/07/16 08:27:43 dds Exp $
+ * $Id: parse.y,v 1.127 2007/07/16 08:41:06 dds Exp $
  *
  */
 
@@ -1210,7 +1210,8 @@ enum_name:
         ;
 
 enumerator_list:
-        identifier_or_typedef_name enumerator_value_opt
+	/* EMPTY (Microsoft extension) */
+        | identifier_or_typedef_name enumerator_value_opt
 			{ obj_define($1.get_token(), basic(b_int, s_none, c_enum)); }
         | enumerator_list ',' identifier_or_typedef_name enumerator_value_opt
 			{ obj_define($3.get_token(), basic(b_int, s_none, c_enum)); }
