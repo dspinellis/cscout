@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.118 2007/07/16 12:35:48 dds Exp $
+# $Id: Makefile,v 1.119 2007/07/16 16:58:58 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -98,6 +98,9 @@ CPPFLAGS+=-ftest-coverage -fprofile-arcs
 endif
 
 # Local development flag options
+# Displays information on licensing protocol
+#CPPFLAGS+=-DDEBUG_LICENSING
+# Will always call the licensing server
 #CPPFLAGS+=-DTEST_LICENSING
 #CPPFLAGS+=-DNO_LOCK
 #CPPFLAGS+=-DOFFICE_SERVER
@@ -178,7 +181,7 @@ eval.cpp: eval.y
 	mv -f eval_tab.c eval.cpp
 
 parse.cpp parse_tab.h: parse.y ytoken.h
-	echo Expect 3 shift/reduce conflicts
+	@echo Expect 3 shift/reduce conflicts
 	$(YACC) -d -b parse -p parse_ parse.y
 	mv -f parse_tab.c parse.cpp
 
@@ -204,8 +207,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.118 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2007/07/16 12:35:48 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.119 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2007/07/16 16:58:58 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
