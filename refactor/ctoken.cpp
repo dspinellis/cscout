@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.32 2007/07/16 08:27:43 dds Exp $
+ * $Id: ctoken.cpp,v 1.33 2007/07/16 10:11:16 dds Exp $
  */
 
 #include <map>
@@ -289,7 +289,9 @@ again:
 				// Keyword
 				switch ((*ik).second) {
 				case MSC_ASM:
+					Pltoken::set_semicolon_line_comments(true);
 					t = eat_block('{', '}');
+					Pltoken::set_semicolon_line_comments(false);
 					goto again;
 				case ATTRIBUTE:
 					if (attribute_contains_unused())

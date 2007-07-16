@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.27 2006/01/23 17:57:50 dds Exp $
+ * $Id: pltoken.h,v 1.28 2007/07/16 10:11:16 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -18,11 +18,14 @@ enum e_cpp_context {cpp_normal, cpp_include, cpp_define};
 class Pltoken: public Ptoken {
 private:
 	static enum e_cpp_context context;
+	// Allow line comments starting with a semicolon (inside Microsoft asm)
+	static bool semicolon_line_comments;
 	template <class C> void update_parts(Tokid& base, Tokid& follow, const C& c0);
 public:
 	template <class C> void getnext();
 	template <class C> void getnext_nospc();
 	static void set_context(enum e_cpp_context con) { context = con; };
+	static void set_semicolon_line_comments(bool v) { semicolon_line_comments = v; }
 };
 
 /*
@@ -74,10 +77,16 @@ Pltoken::getnext()
 		context = cpp_normal;
 		// FALLTRHOUGH
 	case '[': case ']': case '(': case ')':
-	case '~': case '?': case ':': case ',': case ';':
+	case '~': case '?': case ':': case ',':
 	case '{': case '}':
 	case EOF:
 		val = (char)(code = c0.get_char());
+		break;
+	case ';':
+		if (semicolon_line_comments)
+			goto line_comment;
+		else
+			val = (char)(code = c0.get_char());
 		break;
 	/*
 	 * Double character C tokens with more than 2 different outcomes
@@ -296,6 +305,7 @@ Pltoken::getnext()
 			// Do not delete comments from expanded macros
 			if (!C::is_file_source())
 				goto no_comment;
+		line_comment:
 			do {
 				c0.getnext();
 			} while (c0.get_char() != '\n' && c0.get_char() != EOF);
