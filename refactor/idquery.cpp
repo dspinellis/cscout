@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.14 2006/09/24 20:58:46 dds Exp $
+ * $Id: idquery.cpp,v 1.15 2007/07/20 16:03:47 dds Exp $
  */
 
 #include <map>
@@ -134,7 +134,8 @@ IdQuery::IdQuery(const string &s) :
 	match_ire(false),
 	match(attr_end),
 	xfile(false),
-	ec(NULL)
+	ec(NULL),
+	current_project(0)
 {
 	// Type of boolean match
 	if (s.length() == 0)
