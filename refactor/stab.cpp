@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.43 2006/09/22 20:46:26 dds Exp $
+ * $Id: stab.cpp,v 1.44 2007/08/08 14:48:40 dds Exp $
  */
 
 #include <map>
@@ -175,6 +175,8 @@ obj_define(const Token& tok, Type typ)
 					Error::error(E_ERR, "conflicting declarations for identifier " + id->get_name());
 				Token::unify(id->get_token(), tok);
 			}
+			if (!typ.is_function())
+				Fchar::get_fileid().metrics().add_fvar();
 			break;
 		case c_typedef:
 			tok.set_ec_attribute(is_cscope);
@@ -185,6 +187,8 @@ obj_define(const Token& tok, Type typ)
 			tok.set_ec_attribute(is_enum);
 			break;
 		default:
+			if (!typ.is_function())
+				Fchar::get_fileid().metrics().add_pvar();
 			tok.set_ec_attribute(is_lscope);
 			break;
 		}

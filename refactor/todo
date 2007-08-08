@@ -1,4 +1,4 @@
-$Id: todo,v 1.87 2007/08/08 14:39:48 dds Exp $
+$Id: todo,v 1.88 2007/08/08 14:48:40 dds Exp $
 
 - Provide embedded SQL interface through SQLite.
   See http://www.sqlite.org/cvstrac/wiki?p=VirtualTableMethods
@@ -76,12 +76,6 @@ Per function/macro:
 		Where C_{ip} is an internal complexity metric, like cyclomatic complexity
 	In functions create a heuristic to guess whether the token is native
 	or expanded (same fileid and offset >= function's start)
-
-Per file
-	Number of defined file scope variables
-	Number of defined project scope variables
-	Number of defined structures / unions / enumerations
-	Number of defined structure / union / enumeration elements
 
 
 System complexity metrics

@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: filemetrics.h,v 1.17 2007/06/27 06:20:26 dds Exp $
+ * $Id: filemetrics.h,v 1.18 2007/08/08 14:45:34 dds Exp $
  */
 
 #ifndef METRICS_
@@ -37,8 +37,18 @@ enum e_metric {
 	em_ncopies,		// Number of copies of the file
 
 // During processing (once based on processed)
-	em_nfunction,		// Defined functions (function_brace_begin)
+	em_npfunction,		// Defined project-scope functions
+	em_nffunction,		// Defined file-scope (static) functions
+	em_npvar,		// Defined project-scope variables
+	em_nfvar,		// Defined file-scope (static) variables
+	em_naggregate,		// Number of complete structure / union declarations
+	em_namember,		// Number of declared aggregate members
+	em_nenum,		// Number of complete enumeration declarations
+	em_nemember,		// Number of declared enumeration elements
 	em_nppdirective,	// Number of cpp directives
+	em_nppcond,		// Number of processed cpp conditionals (ifdef, if, elif)
+	em_nppfmacro,		// Number of defined cpp function-like macros
+	em_nppomacro,		// Number of defined cpp object-like macros
 	em_nincfile,		// Number of directly included files
 	em_nstatement,		// Number of statements
 	metric_max
@@ -87,12 +97,29 @@ public:
 	// Called to set the number of other identical files
 	void set_ncopies(int n) { count[em_ncopies] = n; }
 
-
 	// Manipulate the processing-based metrics
 	void add_ppdirective() { if (!processed) count[em_nppdirective]++; }
+	void add_ppcond() { if (!processed) count[em_nppcond]++; }
+	void add_ppfmacro() { if (!processed) count[em_nppfmacro]++; }
+	void add_ppomacro() { if (!processed) count[em_nppomacro]++; }
 	void add_incfile() { if (!processed) count[em_nincfile]++; }
+
 	void add_statement() { if (!processed) count[em_nstatement]++; }
-	void add_function() { if (!processed) count[em_nfunction]++; }
+	// Increment the number of functions for the file being processed
+	void add_function(bool is_file_scoped) {
+		if (processed)
+			return;
+		if (is_file_scoped)
+			count[em_nffunction]++;
+		else
+			count[em_npfunction]++;
+	}
+	void add_aggregate() { if (!processed) count[em_naggregate]++; }
+	void add_amember() { if (!processed) count[em_namember]++; }
+	void add_enum() { if (!processed) count[em_nenum]++; }
+	void add_emember() { if (!processed) count[em_nemember]++; }
+	void add_pvar() { if (!processed) count[em_npvar]++; }
+	void add_fvar() { if (!processed) count[em_nfvar]++; }
 	void done_processing() { processed = true; }
 
 	// Get methods
@@ -114,10 +141,30 @@ public:
 	int get_nccomment() const { return count[em_nccomment]; }
 	// Space characters
 	int get_nspace() const { return count[em_nspace]; }
-	// Defined functions (function_brace_begin)
-	int get_nfunction() const { return count[em_nfunction]; }
+	// Defined project-scope functions
+	int get_npfunction() const { return count[em_npfunction]; }
+	// Defined file-scope (static) functions
+	int get_nffunction() const { return count[em_nffunction]; }
+	// Defined project-scope variables
+	int get_npvar() const { return count[em_npvar]; }
+	// Defined file-scope (static) variables
+	int get_nfvar() const { return count[em_nfvar]; }
+	// Number of complete aggregate (struct/union) declarations
+	int get_naggregate() const { return count[em_naggregate]; }
+	// Number of declared aggregate (struct/union) members
+	int get_namember() const { return count[em_namember]; }
+	// Number of complete enumeration declarations
+	int get_nenum() const { return count[em_nenum]; }
+	// Number of declared enumeration elements
+	int get_nemember() const { return count[em_nemember]; }
 	// Number of cpp directives
 	int get_nppdirective() const { return count[em_nppdirective]; }
+	// Number of processed cpp conditionals (ifdef, if, elif)
+	int get_nppcond() const { return count[em_nppcond]; }
+	// Number of defined cpp function-like macros
+	int get_nppfmacro() const { return count[em_nppfmacro]; }
+	// Number of defined cpp object-like macros
+	int get_nppomacro() const { return count[em_nppomacro]; }
 	// Number of directly included files
 	int get_nincfile() const { return count[em_nincfile]; }
 	// Number of statements

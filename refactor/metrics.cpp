@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.20 2006/09/22 11:17:58 dds Exp $
+ * $Id: metrics.cpp,v 1.21 2007/08/08 14:48:40 dds Exp $
  */
 
 #include <iostream>
@@ -44,8 +44,18 @@ string Metrics::metric_names[] = {
 	"Number of unprocessed lines",
 	"Number of copies of the file",
 
-	"Number of defined functions",
+	"Number of defined project-scope functions",
+	"Number of defined file-scope functions",
+	"Number of defined project-scope variables",
+	"Number of defined file-scope variables",
+	"Number of complete structure or union declarations",
+	"Number of declared structure or union members",
+	"Number of complete enumeration declarations",
+	"Number of declared enumeration elements",
 	"Number of preprocessor directives",
+	"Number of processed preprocessor conditionals (ifdef, if, elif)",
+	"Number of defined preprocessor function-like macros",
+	"Number of defined preprocessor object-like macros",
 	"Number of directly included files",
 	"Number of C statements",
 };

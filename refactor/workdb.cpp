@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.31 2007/06/27 06:20:26 dds Exp $
+ * $Id: workdb.cpp,v 1.32 2007/08/08 14:45:34 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -368,8 +368,18 @@ workdb_schema(Sql *db, ostream &of)
 		"MAXLINELEN INTEGER,\n"			// Maximum line length
 		"NCCOMMENT INTEGER,\n"			// Number of comment characters
 		"NSPACE INTEGER,\n"			// Number of spaces
-		"NFUNCTION INTEGER,\n"			// Number of functions
+		"NPFUNCTION INTEGER,\n"			// Number of defined project-scope functions
+		"NFFUNCTION INTEGER,\n"			// Number of defined file-scope (static) functions
+		"NPVAR INTEGER,\n"			// Number of defined project-scope variables
+		"NFVAR INTEGER,\n"			// Number of defined file-scope (static) variables
+		"NAGGREGATE INTEGER,\n"			// Number of declared aggregate (struct/union) members
+		"NAMEMBER INTEGER,\n"			// Number of declared aggregate (struct/union) members
+		"NENUM INTEGER,\n"			// Number of complete enumeration declarations
+		"NEMEMBER INTEGER,\n"			// Number of declared enumeration elements
 		"NPPDIRECTIVE INTEGER,\n"		// Number of C preprocessor directives
+		"NPPCOND INTEGER,\n"			// Number of processed C preprocessor conditionals (ifdef, if, elif)
+		"NPPFMACRO INTEGER,\n"			// Number of defined C preprocessor function-like macros
+		"NPPOMACRO INTEGER,\n"			// Number of defined C preprocessor object-like macros
 		"NINCFILE INTEGER,\n"			// Number of included files
 		"NSTATEMENT INTEGER,\n"			// Number of C statements
 		"NSTRING INTEGER,\n"			// Number of strings
@@ -470,8 +480,18 @@ workdb_rest(Sql *db, ostream &of)
 		(*i).metrics().get_maxlinelen() << ',' <<
 		(*i).metrics().get_nccomment() << ',' <<
 		(*i).metrics().get_nspace() << ',' <<
-		(*i).metrics().get_nfunction() << ',' <<
+		(*i).metrics().get_npfunction() << ',' <<
+		(*i).metrics().get_nffunction() << ',' <<
+		(*i).metrics().get_npvar() << ',' <<
+		(*i).metrics().get_nfvar() << ',' <<
+		(*i).metrics().get_naggregate() << ',' <<
+		(*i).metrics().get_namember() << ',' <<
+		(*i).metrics().get_nenum() << ',' <<
+		(*i).metrics().get_nemember() << ',' <<
 		(*i).metrics().get_nppdirective() << ',' <<
+		(*i).metrics().get_nppcond() << ',' <<
+		(*i).metrics().get_nppfmacro() << ',' <<
+		(*i).metrics().get_nppomacro() << ',' <<
 		(*i).metrics().get_nincfile() << ',' <<
 		(*i).metrics().get_nstatement() << ',' <<
 		(*i).metrics().get_nstring() << ',' <<

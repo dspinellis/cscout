@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.128 2007/08/08 10:39:06 dds Exp $
+ * $Id: parse.y,v 1.129 2007/08/08 14:48:40 dds Exp $
  *
  */
 
@@ -1024,13 +1024,18 @@ elaborated_type_name:
 
 aggregate_name:
         aggregate_key '{'  member_declaration_list '}'
-		{ $$ = $3; }
+		{
+			Fchar::get_fileid().metrics().add_aggregate();
+			$$ = $3;
+
+		}
         | aggregate_key identifier_or_typedef_name '{'  member_declaration_list '}'
 		{
 			Id const *id = tag_lookup($2.get_name());
 			if (id)
 				Token::unify(id->get_token(), $2.get_token());
 			tag_define($2.get_token(), $4);
+			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = $4;
 		}
         | aggregate_key identifier_or_typedef_name
@@ -1052,10 +1057,14 @@ aggregate_name:
 			Id const *id = tag_lookup($2.get_name());
 			if (id)
 				Token::unify(id->get_token(), $2.get_token());
+			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = struct_union();
 		}
         | aggregate_key '{'  /* EMPTY member_declaration_list */ '}'
-		{ $$ = struct_union(); }
+		{
+			Fchar::get_fileid().metrics().add_aggregate();
+			$$ = struct_union();
+		}
         ;
 
 aggregate_key:
@@ -1167,7 +1176,10 @@ member_declarator:
 	/* *a[3] */
 	/* a : 5 */
         declarator bit_field_size_opt
-		{ $$ = $1; }
+		{
+			Fchar::get_fileid().metrics().add_amember();
+			$$ = $1;
+		}
         | bit_field_size
 		/* Padding bit field */
 		{ $$ = basic(b_padbit); }
@@ -1176,7 +1188,10 @@ member_declarator:
 member_identifier_declarator:
 	/* a[3]; also typedef names */
         identifier_declarator asm_or_attribute_list bit_field_size_opt
-		{ $$ = $1; }
+		{
+			Fchar::get_fileid().metrics().add_amember();
+			$$ = $1;
+		}
         | bit_field_size
 		/* Padding bit field */
 		{ $$ = basic(b_padbit); }
@@ -1193,9 +1208,15 @@ bit_field_size:
 
 enum_name:
         ENUM attribute_list_opt '{' enumerator_list comma_opt '}'
-		{ $$ = enum_tag(); }
+		{
+			Fchar::get_fileid().metrics().add_enum();
+			$$ = enum_tag();
+		}
         | ENUM attribute_list_opt identifier_or_typedef_name '{' enumerator_list comma_opt '}'
-		{ tag_define($3.get_token(), $$ = enum_tag()); }
+		{
+			Fchar::get_fileid().metrics().add_enum();
+			tag_define($3.get_token(), $$ = enum_tag());
+		}
         | ENUM attribute_list_opt identifier_or_typedef_name
 		{
 			Id const *id = tag_lookup($3.get_name());
@@ -1212,9 +1233,15 @@ enum_name:
 enumerator_list:
 	/* EMPTY (Microsoft extension) */
         | identifier_or_typedef_name enumerator_value_opt
-			{ obj_define($1.get_token(), basic(b_int, s_none, c_enum)); }
+			{
+				obj_define($1.get_token(), basic(b_int, s_none, c_enum));
+				Fchar::get_fileid().metrics().add_emember();
+			}
         | enumerator_list ',' identifier_or_typedef_name enumerator_value_opt
-			{ obj_define($3.get_token(), basic(b_int, s_none, c_enum)); }
+			{
+				obj_define($3.get_token(), basic(b_int, s_none, c_enum));
+				Fchar::get_fileid().metrics().add_emember();
+			}
         ;
 
 enumerator_value_opt:
