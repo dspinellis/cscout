@@ -1,7 +1,9 @@
-$Id: todo,v 1.86 2007/05/07 15:32:33 dds Exp $
+$Id: todo,v 1.87 2007/08/08 14:39:48 dds Exp $
 
 - Provide embedded SQL interface through SQLite.
   See http://www.sqlite.org/cvstrac/wiki?p=VirtualTableMethods
+
+- Eclipse integration
 
 - Add HTTP logging and a timeout on expensive queries.
 
@@ -50,6 +52,41 @@ Interface to show identifiers shared between two files.
 Track global variables in the same way as functions are currently tracked.
 
 Collect maintainability index and oo metrics (see SSAO04.)
+Per function/macro:
+	Extend (start, end offset / line)
+	Fan in (rename called directly)
+	Fan out (rename calls directly)
+	Number of syntactic contruct (operator, if/else/switch/do/return) and number of unique SO
+		For C functions are grammar rules
+		For function-like macros look at the tokens after macro definition
+	Lines of code
+	# of statements
+	# of comments
+	# parameters
+	Cyclomatic complexity (if, do, while, switch) + 1
+		Add option for counting #case or #switch
+		Add options for counting &&, ||, ? operators
+		(This means keeping them in separate fields)
+	Halstead complexity
+		Maybe not, but count total/distinct operators and operands
+	Henry and Kafura structure complexity
+		C_p = (fan-in * fan-out)^2
+	Henry and Selig information flow metric
+		HC_p = C_{ip} * (fan-in * fan-out)^2
+		Where C_{ip} is an internal complexity metric, like cyclomatic complexity
+	In functions create a heuristic to guess whether the token is native
+	or expanded (same fileid and offset >= function's start)
+
+Per file
+	Number of defined file scope variables
+	Number of defined project scope variables
+	Number of defined structures / unions / enumerations
+	Number of defined structure / union / enumeration elements
+
+
+System complexity metrics
+Provide an expression-oriented function metric query interface
+
 Pointer analysis
 Locate similar / same lines (irrelevant, but useful for refactoring)
 See http://en.wikipedia.org/wiki/Karp-Rabin
@@ -107,6 +144,8 @@ function specifier:
 type qualifier:
 	restrict
 
+Find duplicated code
+	(See CloSpan and CP-Miner)
 
 Borland configuration file
 Solaris compilation
