@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.127 2007/07/16 08:41:06 dds Exp $
+ * $Id: parse.y,v 1.128 2007/08/08 10:39:06 dds Exp $
  *
  */
 
@@ -1463,7 +1463,6 @@ labeled_statement:
 function_brace_begin: '{'
 		{
 			Block::param_enter();
-			Fchar::get_fileid().metrics().add_function();
 		}
 	;
 

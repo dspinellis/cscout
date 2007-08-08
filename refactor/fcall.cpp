@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.16 2007/08/08 10:01:30 dds Exp $
+ * $Id: fcall.cpp,v 1.17 2007/08/08 10:39:06 dds Exp $
  */
 
 #include <map>
@@ -87,6 +87,7 @@ FCall::set_current_fun(const Type &t)
 	if (DP())
 		cout << "Current function " << id->get_name() << "\n";
 	nesting.push(current_fun);
+	Fchar::get_fileid().metrics().add_function();
 }
 
 void
