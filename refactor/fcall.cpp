@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.15 2006/09/22 20:46:26 dds Exp $
+ * $Id: fcall.cpp,v 1.16 2007/08/08 10:01:30 dds Exp $
  */
 
 #include <map>
@@ -51,7 +51,7 @@ FCall::FCall(const Token& tok, Type typ, const string &s) :
 }
 
 /*
- * Set the funciton currently being parsed
+ * Set the function currently being parsed
  * This is used for defining yytab, which is not explicitly defined
  */
 void

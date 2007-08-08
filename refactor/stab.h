@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.22 2007/06/27 07:43:52 dds Exp $
+ * $Id: stab.h,v 1.23 2007/08/08 10:01:30 dds Exp $
  */
 
 #ifndef STAB_
@@ -30,7 +30,7 @@ class Type;
 
 class FCall;
 
-// An C identifier as stored in the symbol table
+// A C identifier as stored in the symbol table
 class Id {
 private:
 	Token token;			// Any token representing the identifier
