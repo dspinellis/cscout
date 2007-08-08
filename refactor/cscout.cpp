@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.162 2007/06/27 07:43:52 dds Exp $
+ * $Id: cscout.cpp,v 1.163 2007/08/08 15:03:50 dds Exp $
  */
 
 #include <map>
@@ -2580,7 +2580,11 @@ main(int argc, char *argv[])
 
 	if (file_msum.get_writable(em_uline)) {
 		ostringstream msg;
-		msg << file_msum.get_writable(em_uline) << " conditionally compiled writable line(s) not processed";
+		msg << file_msum.get_writable(em_uline) <<
+		    " conditionally compiled writable lines" << endl <<
+		    "(out of a total of " <<
+		    file_msum.get_writable(em_nline) <<
+		    " writable lines) were not processed";
 		Error::error(E_WARN, msg.str(), false);
 	}
 
