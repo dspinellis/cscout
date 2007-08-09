@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.9 2007/06/27 07:43:52 dds Exp $
+ * $Id: funquery.h,v 1.10 2007/08/09 13:18:34 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -16,7 +16,7 @@ private:
 	string str_fdre;	// Called function name RE (down)
 	string str_fure;	// Calling function name RE (up)
 	string str_fre;		// Filename RE
-	// Compiler REs
+	// Compiled REs
 	CompiledRE fnre;	// Function name RE
 	CompiledRE fdre;	// Called function name RE (down)
 	CompiledRE fure;	// Calling function name RE (up)

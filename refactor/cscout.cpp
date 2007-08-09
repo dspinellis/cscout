@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.164 2007/08/09 10:35:50 dds Exp $
+ * $Id: cscout.cpp,v 1.165 2007/08/09 13:18:34 dds Exp $
  */
 
 #include <map>
@@ -1131,7 +1131,7 @@ xiquery_page(FILE *of,  void *p)
 	html_tail(of);
 }
 
-// Process a funcion query
+// Process a function query
 static void
 xfunquery_page(FILE *of,  void *p)
 {
