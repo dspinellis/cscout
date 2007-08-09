@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.21 2007/08/08 14:48:40 dds Exp $
+ * $Id: filemetrics.cpp,v 1.22 2007/08/09 10:35:50 dds Exp $
  */
 
 #include <iostream>
@@ -169,7 +169,7 @@ void
 FileCount::add(Fileid &fi, BinaryFunction f)
 {
 	nfile++;
-	for (int i = 0; i < metric_max; i++)
+	for (int i = 0; i < FileMetrics::metric_max; i++)
 		count[i] = f(fi.metrics().get_metric(i), count[i]);
 }
 
@@ -269,7 +269,7 @@ operator<<(ostream& o, const FileMetricsSet &mi)
 		"<th>" "Min" "</th>"
 		"<th>" "Max" "</th>"
 		"<th>" "Avg" "</th></tr>\n";
-	for (int i = 0; i < metric_max; i++)
+	for (int i = 0; i < FileMetrics::metric_max; i++)
 		o << "<tr><td>" << Metrics::name(i) << "</td>"
 			"<td>" << m.total.get_metric(i) << "</td>"
 			"<td>" << m.min.get_metric(i) << "</td>"

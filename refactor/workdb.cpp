@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.32 2007/08/08 14:45:34 dds Exp $
+ * $Id: workdb.cpp,v 1.33 2007/08/09 10:35:50 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -473,29 +473,29 @@ workdb_rest(Sql *db, ostream &of)
 		(*i).get_id() << ",'" <<
 		(*i).get_path() << "'," <<
 		db->boolval((*i).get_readonly()) << ',' <<
-		(*i).metrics().get_nchar() << ',' <<
-		(*i).metrics().get_nlcomment() << ',' <<
-		(*i).metrics().get_nbcomment() << ',' <<
-		(*i).metrics().get_nline() << ',' <<
-		(*i).metrics().get_maxlinelen() << ',' <<
-		(*i).metrics().get_nccomment() << ',' <<
-		(*i).metrics().get_nspace() << ',' <<
-		(*i).metrics().get_npfunction() << ',' <<
-		(*i).metrics().get_nffunction() << ',' <<
-		(*i).metrics().get_npvar() << ',' <<
-		(*i).metrics().get_nfvar() << ',' <<
-		(*i).metrics().get_naggregate() << ',' <<
-		(*i).metrics().get_namember() << ',' <<
-		(*i).metrics().get_nenum() << ',' <<
-		(*i).metrics().get_nemember() << ',' <<
-		(*i).metrics().get_nppdirective() << ',' <<
-		(*i).metrics().get_nppcond() << ',' <<
-		(*i).metrics().get_nppfmacro() << ',' <<
-		(*i).metrics().get_nppomacro() << ',' <<
-		(*i).metrics().get_nincfile() << ',' <<
-		(*i).metrics().get_nstatement() << ',' <<
-		(*i).metrics().get_nstring() << ',' <<
-		(*i).metrics().get_uline() <<
+		(*i).metrics().get_metric(FileMetrics::em_nchar) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nlcomment) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nbcomment) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nline) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_maxlinelen) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nccomment) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nspace) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_npfunction) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nffunction) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_npvar) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nfvar) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_naggregate) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_namember) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nenum) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nemember) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nppdirective) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nppcond) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nppfmacro) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nppomacro) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nincfile) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nstatement) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_nstring) << ',' <<
+		(*i).metrics().get_metric(FileMetrics::em_uline) <<
 		");\n";
 		// The projects this file belongs to
 		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)

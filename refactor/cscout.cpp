@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.163 2007/08/08 15:03:50 dds Exp $
+ * $Id: cscout.cpp,v 1.164 2007/08/09 10:35:50 dds Exp $
  */
 
 #include <map>
@@ -366,7 +366,7 @@ file_analyze(Fileid fi)
 	}
 	fi.metrics().set_ncopies(fi.get_identical_files().size());
 	if (DP())
-		cout << "nchar = " << fi.metrics().get_nchar() << endl;
+		cout << "nchar = " << fi.metrics().get_metric(Metrics::em_nchar) << endl;
 	in.close();
 	return has_unused;
 }
@@ -727,7 +727,7 @@ fquery_page(FILE *of,  void *p)
 	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only<br>\n"
 	"<table>"
 	"<tr><th>Sort-by</th><th>Metric</th><th>Compare</th><th>Value</th></tr>\n", of);
-	for (int i = 0; i < metric_max; i++) {
+	for (int i = 0; i < FileMetrics::metric_max; i++) {
 		fprintf(of, "<tr><td><input type=\"radio\" name=\"order\" value=\"%d\"> </td>\n", i);
 		fprintf(of, "<td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
 			Metrics::name(i).c_str(), i);
@@ -846,9 +846,9 @@ xfquery_page(FILE *of,  void *p)
 	}
 
 	// Store metric specifications in a vector
-	vector <int> op(metric_max);
-	vector <int> n(metric_max);
-	for (int i = 0; i < metric_max; i++) {
+	vector <int> op(FileMetrics::metric_max);
+	vector <int> n(FileMetrics::metric_max);
+	for (int i = 0; i < FileMetrics::metric_max; i++) {
 		ostringstream argspec;
 
 		argspec << "|i(c" << i << ")";
@@ -875,7 +875,7 @@ xfquery_page(FILE *of,  void *p)
 		default:
 		case 'Y':	// anY match
 			add = false;
-			for (int j = 0; j < metric_max; j++)
+			for (int j = 0; j < FileMetrics::metric_max; j++)
 				if (op[j] && Query::apply(op[j], (*i).metrics().get_metric(j), n[j])) {
 					add = true;
 					break;
@@ -885,7 +885,7 @@ xfquery_page(FILE *of,  void *p)
 			break;
 		case 'L':	// alL match
 			add = true;
-			for (int j = 0; j < metric_max; j++)
+			for (int j = 0; j < FileMetrics::metric_max; j++)
 				if (op[j] && !Query::apply(op[j], (*i).metrics().get_metric(j), n[j])) {
 					add = false;
 					break;
@@ -1809,10 +1809,10 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n");
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+Project-scoped+Writable+Identifiers\">Files containing unused project-scoped writable identifiers</a>\n", is_lscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+File-scoped+Writable+Identifiers\">Files containing unused file-scoped writable identifiers</a>\n", is_cscope);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statments&qf=1\">Writable .c files without any statements</a>\n", em_nstatement, Query::ec_eq, em_nstatement);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines&qf=x\">Writable files containing unprocessed lines</a>\n", em_uline, em_uline, Query::ec_gt, em_uline);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", em_nstring, Query::ec_gt, em_nstring);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", em_nincfile, Query::ec_gt, em_nincfile);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statments&qf=1\">Writable .c files without any statements</a>\n", Metrics::em_nstatement, Query::ec_eq, Metrics::em_nstatement);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines&qf=x\">Writable files containing unprocessed lines</a>\n", Metrics::em_uline, Metrics::em_uline, Query::ec_gt, Metrics::em_uline);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", Metrics::em_nstring, Query::ec_gt, Metrics::em_nstring);
+		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", FileMetrics::em_nincfile, Query::ec_gt, FileMetrics::em_nincfile);
 		fprintf(of, "<li> <a href=\"fquery.html\">Specify new file query</a>\n"
 		"</ul>\n");
 
@@ -1877,7 +1877,7 @@ file_page(FILE *of, void *p)
 	html_head(of, "file", string("File: ") + html(pathname));
 	fprintf(of, "<h2>Metrics</h2><ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
-	for (int j = 0; j < metric_max; j++)
+	for (int j = 0; j < FileMetrics::metric_max; j++)
 		fprintf(of, "\n<li> %s: %d", Metrics::name(j).c_str(), i.metrics().get_metric(j));
 	if (Option::show_projects->get()) {
 		fprintf(of, "\n<li> Used in project(s): \n<ul>");
@@ -2498,10 +2498,10 @@ main(int argc, char *argv[])
 	// Update fle metrics
 	file_msum.summarize_files();
 	if (DP())
-		cout << "Size " << file_msum.get_total(em_nchar) << endl;
+		cout << "Size " << file_msum.get_total(Metrics::em_nchar) << endl;
 
 #ifdef COMMERCIAL
-	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), file_msum.get_total(em_nchar));
+	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), file_msum.get_total(Metrics::em_nchar));
 #else
 	/*
 	 * Send the metrics
@@ -2527,7 +2527,7 @@ main(int argc, char *argv[])
 			break;
 	}
 	mstring << "\n";
-	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str(), file_msum.get_total(em_nchar));
+	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str(), file_msum.get_total(Metrics::em_nchar));
 #endif
 
 	must_exit = (CORRECTION_FACTOR - license_offset != 0);
@@ -2578,12 +2578,12 @@ main(int argc, char *argv[])
 	}
 
 
-	if (file_msum.get_writable(em_uline)) {
+	if (file_msum.get_writable(Metrics::em_uline)) {
 		ostringstream msg;
-		msg << file_msum.get_writable(em_uline) <<
+		msg << file_msum.get_writable(Metrics::em_uline) <<
 		    " conditionally compiled writable lines" << endl <<
 		    "(out of a total of " <<
-		    file_msum.get_writable(em_nline) <<
+		    file_msum.get_writable(Metrics::em_nline) <<
 		    " writable lines) were not processed";
 		Error::error(E_WARN, msg.str(), false);
 	}

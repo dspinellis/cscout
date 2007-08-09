@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.34 2006/09/22 20:46:26 dds Exp $
+ * $Id: fileid.h,v 1.35 2007/08/09 10:35:50 dds Exp $
  */
 
 #ifndef FILEID_
@@ -75,7 +75,7 @@ private:
 	void include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line);
 public:
 	Attributes attr;				// The projects this file participates in
-	class Metrics m;
+	class FileMetrics m;
 	Filedetails(string n, bool r, const FileHash &h);
 	Filedetails();
 	const string& get_name() const { return name; }
@@ -160,9 +160,9 @@ public:
 	// Unify identifiers of files that are exact copies
 	static void unify_identical_files(void);
 	// Return a reference to the Metrics class
-	Metrics &metrics() { return i2d[id].m; }
+	FileMetrics &metrics() { return i2d[id].m; }
 	// Return a reference to the Metrics class
-	const Metrics &const_metrics() const { return i2d[id].m; }
+	const FileMetrics &const_metrics() const { return i2d[id].m; }
 	// Get /set attributes
 	void set_attribute(int v) { i2d[id].attr.set_attribute(v); }
 	bool get_attribute(int v) { return i2d[id].attr.get_attribute(v); }
