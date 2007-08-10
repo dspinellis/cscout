@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.36 2007/08/10 15:29:23 dds Exp $
+ * $Id: fchar.cpp,v 1.37 2007/08/10 17:37:31 dds Exp $
  */
 
 #include <iostream>
@@ -62,13 +62,10 @@ Fchar::set_input(const string& s)
 void
 Fchar::push_input(const string& s)
 {
-	struct FcharContext fc;
 	Fileid includer = fi;
 	int include_lnum = line_number - 1;
 
-	fc.ti = Tokid(fi, in.tellg());
-	fc.line_number = line_number;
-	cs.push(fc);
+	cs.push(get_context());
 	set_input(s);
 	Fdep::add_include(includer, fi, include_lnum);
 	/*
@@ -183,10 +180,10 @@ Fchar::getnext()
 				cout << "getnext returns EOF\n";
 			return;
 		}
-		FcharContext fc = cs.top();
-		set_input(fc.ti.get_path());
-		in.seekg(fc.ti.get_streampos());
-		line_number = fc.line_number;
+		FcharContext fc(cs.top());
+		set_input(fc.get_tokid().get_path());
+		in.seekg(fc.get_tokid().get_streampos());
+		line_number = fc.get_line_number();
 		cs.pop();
 	}
 }

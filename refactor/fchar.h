@@ -16,7 +16,7 @@
  * #include "fchar.h"
  * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.16 2007/08/10 15:29:23 dds Exp $
+ * $Id: fchar.h,v 1.17 2007/08/10 17:37:31 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -26,9 +26,21 @@
 
 using namespace std;
 
-struct FcharContext {
+/*
+ * A file position
+ * This is used for
+ * - pushing/restoring include file handling
+ * - identifying begin/end locations of functions and macros
+ */
+class FcharContext {
+private:
 	int line_number;
 	Tokid ti;
+public:
+	FcharContext(int l, Tokid t) :
+		line_number(l), ti(t) {}
+	int get_line_number() const { return line_number; }
+	Tokid get_tokid() const { return ti; }
 };
 
 typedef stack <FcharContext> StackFcharContext;
@@ -67,6 +79,11 @@ public:
 	 */
 	static void lock_stack() { stack_lock_size = cs.size(); }
 	static void unlock_stack() { stack_lock_size = 0; }
+
+	// Return the current file position
+	static FcharContext get_context() {
+		return FcharContext(line_number, Tokid(fi, in.tellg()));
+	}
 
 	// Construct an unititialized one
 	Fchar() {};
