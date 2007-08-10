@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.33 2007/08/09 10:35:50 dds Exp $
+ * $Id: workdb.cpp,v 1.34 2007/08/10 10:15:05 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -360,31 +360,12 @@ workdb_schema(Sql *db, ostream &of)
 		"CREATE TABLE FILES("			// File details
 		"FID INTEGER PRIMARY KEY,"		// Unique file key
 		"NAME " << db->varchar() << ",\n"	// File name
-		"RO " << db->booltype() << ",\n"	// True if the file is read-only
-		"NCHAR INTEGER,\n"			// Size in characters
-		"NLCOMMENT INTEGER,\n"			// Number of line comments
-		"NBCOMMENT INTEGER,\n"			// Number of block comments
-		"NLINE INTEGER,\n"			// Number of lines
-		"MAXLINELEN INTEGER,\n"			// Maximum line length
-		"NCCOMMENT INTEGER,\n"			// Number of comment characters
-		"NSPACE INTEGER,\n"			// Number of spaces
-		"NPFUNCTION INTEGER,\n"			// Number of defined project-scope functions
-		"NFFUNCTION INTEGER,\n"			// Number of defined file-scope (static) functions
-		"NPVAR INTEGER,\n"			// Number of defined project-scope variables
-		"NFVAR INTEGER,\n"			// Number of defined file-scope (static) variables
-		"NAGGREGATE INTEGER,\n"			// Number of declared aggregate (struct/union) members
-		"NAMEMBER INTEGER,\n"			// Number of declared aggregate (struct/union) members
-		"NENUM INTEGER,\n"			// Number of complete enumeration declarations
-		"NEMEMBER INTEGER,\n"			// Number of declared enumeration elements
-		"NPPDIRECTIVE INTEGER,\n"		// Number of C preprocessor directives
-		"NPPCOND INTEGER,\n"			// Number of processed C preprocessor conditionals (ifdef, if, elif)
-		"NPPFMACRO INTEGER,\n"			// Number of defined C preprocessor function-like macros
-		"NPPOMACRO INTEGER,\n"			// Number of defined C preprocessor object-like macros
-		"NINCFILE INTEGER,\n"			// Number of included files
-		"NSTATEMENT INTEGER,\n"			// Number of C statements
-		"NSTRING INTEGER,\n"			// Number of strings
-		"NULINE INTEGER"			// Number of unprocessed lines
-		");\n"
+		"RO " << db->booltype();		// True if the file is read-only
+		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
+		// AUTOSCHEMA INCLUDE metrics.cpp FileMetrics
+		for (int i = 0; i < FileMetrics::metric_max; i++)
+			cout << ",\n" << FileMetrics::get_dbfield(i) << " INTEGER";
+		cout << ");\n"
 
 		"CREATE TABLE FILEPROJ("		// Files used in projects
 		"FID INTEGER, "				// File key (references FILES)
@@ -472,31 +453,10 @@ workdb_rest(Sql *db, ostream &of)
 		cout << "INSERT INTO FILES VALUES(" <<
 		(*i).get_id() << ",'" <<
 		(*i).get_path() << "'," <<
-		db->boolval((*i).get_readonly()) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nchar) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nlcomment) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nbcomment) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nline) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_maxlinelen) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nccomment) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nspace) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_npfunction) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nffunction) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_npvar) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nfvar) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_naggregate) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_namember) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nenum) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nemember) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nppdirective) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nppcond) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nppfmacro) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nppomacro) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nincfile) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nstatement) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_nstring) << ',' <<
-		(*i).metrics().get_metric(FileMetrics::em_uline) <<
-		");\n";
+		db->boolval((*i).get_readonly());
+		for (int j = 0; j < FileMetrics::metric_max; j++)
+			cout << ',' << i->metrics().get_metric(j);
+		cout << ");\n";
 		// The projects this file belongs to
 		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
 			if ((*i).get_attribute(j))

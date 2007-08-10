@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.165 2007/08/09 13:18:34 dds Exp $
+ * $Id: cscout.cpp,v 1.166 2007/08/10 10:15:05 dds Exp $
  */
 
 #include <map>
@@ -65,8 +65,10 @@
 #include "compiledre.h"
 #include "option.h"
 #include "query.h"
+#include "mquery.h"
 #include "idquery.h"
 #include "funquery.h"
+#include "filequery.h"
 #include "logo.h"
 #include "pager.h"
 
@@ -719,29 +721,14 @@ html_file(FILE *of, string fname)
 
 // File query page
 static void
-fquery_page(FILE *of,  void *p)
+filequery_page(FILE *of,  void *p)
 {
-	html_head(of, "fquery", "File Query");
-	fputs("<FORM ACTION=\"xfquery.html\" METHOD=\"GET\">\n"
+	html_head(of, "filequery", "File Query");
+	fputs("<FORM ACTION=\"xfilequery.html\" METHOD=\"GET\">\n"
 	"<input type=\"checkbox\" name=\"writable\" value=\"1\">Writable<br>\n"
-	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only<br>\n"
-	"<table>"
-	"<tr><th>Sort-by</th><th>Metric</th><th>Compare</th><th>Value</th></tr>\n", of);
-	for (int i = 0; i < FileMetrics::metric_max; i++) {
-		fprintf(of, "<tr><td><input type=\"radio\" name=\"order\" value=\"%d\"> </td>\n", i);
-		fprintf(of, "<td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
-			Metrics::name(i).c_str(), i);
-		Query::equality_selection(of);
-		fprintf(of, "</td><td><INPUT TYPE=\"text\" NAME=\"n%d\" SIZE=5 MAXLENGTH=10></td></tr>\n", i);
-	}
-	fprintf(of, "<tr>"
-		"<td><input type=\"radio\" name=\"order\" value=\"-1\" CHECKED></td>\n"
-		"<td>File name</td>"
-		"<td></td><td></td></tr>"
-	);
-	fputs(
-	"</table>\n"
-	"<p>"
+	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only<br>\n", of);
+	MQuery<FileMetrics, Fileid &>::metrics_query_form(of);
+	fputs("<p>"
 	"<input type=\"checkbox\" name=\"reverse\" value=\"0\">Reverse sort order\n"
 	"<p>"
 	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any of the above\n"
@@ -762,154 +749,38 @@ struct ignore : public binary_function <int, int, bool> {
 	inline bool operator()(int a, int b) const { return true; }
 };
 
-// Container comparison functor
-class specified_order : public binary_function <const Fileid &, const Fileid &, bool> {
-private:
-	/*
-	 * Can only be an instance variable (per C++ PL 17.1.4.5)
-	 * only when the corresponding constructor is passed a
-	 * compile-time constant.
-	 * This hack works around the limitation.
-	 */
-	static int order;
-	static bool reverse;
-public:
-	// Should be called exactly once before instantiating the set
-	static void set_order(int o, bool r) { order = o; reverse = r; }
-	bool operator()(const Fileid &a, const Fileid &b) const {
-		bool val;
-		if (order == -1)
-			// Order by name
-			val = (a.get_path() < b.get_path());
-		else
-			val = (a.const_metrics().get_metric(order) < b.const_metrics().get_metric(order));
-		return reverse ? !val : val;
-	}
-};
-
-int specified_order::order;
-bool specified_order::reverse;
-
 
 // Process a file query
 static void
-xfquery_page(FILE *of,  void *p)
+xfilequery_page(FILE *of,  void *p)
 {
-	// The query's URL, needed by the parser
-	ostringstream url;
-	url << "xfquery.html?";
-
-	bool writable = !!swill_getvar("writable");
-	if (writable) url << "writable=1&";
-
-	bool ro = !!swill_getvar("ro");
-	if (ro) url << "ro=1&";
-
 	char *qname = swill_getvar("n");
-	if (qname) url << "n=" << Query::url(qname) << '&';
+	FileQuery query(of, Option::file_icase->get(), current_project);
 
-	int sort_order;
-	if (swill_getargs("i(order)", &sort_order))
-		url << "order=" << sort_order << '&';
-	else
-		sort_order = -1;
-
-	bool reverse = !!swill_getvar("reverse");
-	if (reverse) url << "reverse=1&";
-	specified_order::set_order(sort_order, reverse);
-	multiset <Fileid, specified_order> sorted_files;
-
-	html_head(of, "xfquery", (qname && *qname) ? qname : "File Query Results");
-
-	char match_type, *m;
-	if (!(m = swill_getvar("match"))) {
-		fprintf(of, "Missing value: match");
+	if (!query.is_valid())
 		return;
-	}
-	match_type = *m;
-	// We add it to the URL at the end
 
-	// Compile regular expression specs
-	CompiledRE fre;
-	bool match_fre;
-	char *s;
-	match_fre = false;
-	if ((s = swill_getvar("fre")) && *s) {
-		match_fre = true;
-		fre = CompiledRE(s, REG_EXTENDED | REG_NOSUB | (Option::file_icase->get() ? REG_ICASE : 0));
-		if (!fre.isCorrect()) {
-			fprintf(of, "<h2>Filename regular expression error</h2>%s", fre.getError().c_str());
-			html_tail(of);
-			return;
-		}
-		url << "fre=" << Query::url(s) << '&';
-	}
+	multiset <Fileid, FileQuery::specified_order> sorted_files;
 
-	// Store metric specifications in a vector
-	vector <int> op(FileMetrics::metric_max);
-	vector <int> n(FileMetrics::metric_max);
-	for (int i = 0; i < FileMetrics::metric_max; i++) {
-		ostringstream argspec;
-
-		argspec << "|i(c" << i << ")";
-		argspec << "i(n" << i << ")";
-		op[i] = n[i] = 0;
-		(void)swill_getargs(argspec.str().c_str(), &(op[i]), &(n[i]));
-		if (op[i]) {
-			url << 'c' << i << '=' << op[i] << '&';
-			url << 'n' << i << '=' << n[i] << '&';
-		}
-	}
-
-	// Match, added at the end, because it is mandatory, and we can add it without a trailing &
-	url << "match=" << match_type;
+	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if (current_project && !(*i).get_attribute(current_project))
-			continue;
-		if (match_fre && fre.exec((*i).get_path()) == REG_NOMATCH)
-			continue;
-
-		bool add;
-		switch (match_type) {
-		default:
-		case 'Y':	// anY match
-			add = false;
-			for (int j = 0; j < FileMetrics::metric_max; j++)
-				if (op[j] && Query::apply(op[j], (*i).metrics().get_metric(j), n[j])) {
-					add = true;
-					break;
-				}
-			add = (add || (ro && (*i).get_readonly()));
-			add = (add || (writable && !(*i).get_readonly()));
-			break;
-		case 'L':	// alL match
-			add = true;
-			for (int j = 0; j < FileMetrics::metric_max; j++)
-				if (op[j] && !Query::apply(op[j], (*i).metrics().get_metric(j), n[j])) {
-					add = false;
-					break;
-				}
-			add = (add && (!ro || (*i).get_readonly()));
-			add = (add && (!writable || !(*i).get_readonly()));
-			break;
-		}
-		if (add)
+		if (query.eval(*i))
 			sorted_files.insert(*i);
 	}
 	html_file_begin(of);
-	if (sort_order != -1)
-		fprintf(of, "<th>%s</th>\n", Metrics::name(sort_order).c_str());
-	Pager pager(of, Option::entries_per_page->get(), url.str());
+	if (query.get_sort_order() != -1)
+		fprintf(of, "<th>%s</th>\n", FileMetrics::get_name(query.get_sort_order()).c_str());
+	Pager pager(of, Option::entries_per_page->get(), query.base_url());
 	html_file_set_begin(of);
-	for (multiset <Fileid, specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
 			continue;
 		if (pager.show_next()) {
 			html_file(of, *i);
-			if (sort_order != -1)
-				fprintf(of, "<td align=\"right\">%d</td>", i->const_metrics().get_metric(sort_order));
+			if (query.get_sort_order() != -1)
+				fprintf(of, "<td align=\"right\">%d</td>", i->const_metrics().get_metric(query.get_sort_order()));
 			html_file_record_end(of);
 		}
 	}
@@ -1804,16 +1675,16 @@ index_page(FILE *of, void *data)
 		"<h2>Files</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"fmetrics.html\">File Metrics</a>\n"
-		"<li> <a href=\"xfquery.html?ro=1&writable=1&match=Y&n=All+Files&qf=1\">All files</a>\n"
-		"<li> <a href=\"xfquery.html?ro=1&match=Y&n=Read-only+Files&qf=1\">Read-only files</a>\n"
-		"<li> <a href=\"xfquery.html?writable=1&match=Y&n=Writable+Files&qf=1\">Writable files</a>\n");
+		"<li> <a href=\"xfilequery.html?ro=1&writable=1&match=Y&n=All+Files\">All files</a>\n"
+		"<li> <a href=\"xfilequery.html?ro=1&match=Y&n=Read-only+Files\">Read-only files</a>\n"
+		"<li> <a href=\"xfilequery.html?writable=1&match=Y&n=Writable+Files\">Writable files</a>\n");
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+Project-scoped+Writable+Identifiers\">Files containing unused project-scoped writable identifiers</a>\n", is_lscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+File-scoped+Writable+Identifiers\">Files containing unused file-scoped writable identifiers</a>\n", is_cscope);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statments&qf=1\">Writable .c files without any statements</a>\n", Metrics::em_nstatement, Query::ec_eq, Metrics::em_nstatement);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines&qf=x\">Writable files containing unprocessed lines</a>\n", Metrics::em_uline, Metrics::em_uline, Query::ec_gt, Metrics::em_uline);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&qf=1&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", Metrics::em_nstring, Query::ec_gt, Metrics::em_nstring);
-		fprintf(of, "<li> <a href=\"xfquery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives&qf=1\">Writable .h files with #include directives</a>\n", FileMetrics::em_nincfile, Query::ec_gt, FileMetrics::em_nincfile);
-		fprintf(of, "<li> <a href=\"fquery.html\">Specify new file query</a>\n"
+		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statements\">Writable .c files without any statements</a>\n", Metrics::em_nstatement, Query::ec_eq, Metrics::em_nstatement);
+		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines\">Writable files containing unprocessed lines</a>\n", Metrics::em_nuline, Metrics::em_nuline, Query::ec_gt, Metrics::em_nuline);
+		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", Metrics::em_nstring, Query::ec_gt, Metrics::em_nstring);
+		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives\">Writable .h files with #include directives</a>\n", FileMetrics::em_nincfile, Query::ec_gt, FileMetrics::em_nincfile);
+		fprintf(of, "<li> <a href=\"filequery.html\">Specify new file query</a>\n"
 		"</ul>\n");
 
 	fprintf(of, "<h2>Functions and Macros</h2>\n"
@@ -1878,7 +1749,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<h2>Metrics</h2><ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "\n<li> %s: %d", Metrics::name(j).c_str(), i.metrics().get_metric(j));
+		fprintf(of, "\n<li> %s: %d", FileMetrics::get_name(j).c_str(), i.metrics().get_metric(j));
 	if (Option::show_projects->get()) {
 		fprintf(of, "\n<li> Used in project(s): \n<ul>");
 		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
@@ -2546,8 +2417,8 @@ main(int argc, char *argv[])
 		swill_handle("iquery.html", iquery_page, NULL);
 		swill_handle("xiquery.html", xiquery_page, NULL);
 		// File query and execution
-		swill_handle("fquery.html", fquery_page, NULL);
-		swill_handle("xfquery.html", xfquery_page, NULL);
+		swill_handle("filequery.html", filequery_page, NULL);
+		swill_handle("xfilequery.html", xfilequery_page, NULL);
 		swill_handle("qinc.html", query_include_page, NULL);
 
 		// Function query and execution
@@ -2578,9 +2449,9 @@ main(int argc, char *argv[])
 	}
 
 
-	if (file_msum.get_writable(Metrics::em_uline)) {
+	if (file_msum.get_writable(Metrics::em_nuline)) {
 		ostringstream msg;
-		msg << file_msum.get_writable(Metrics::em_uline) <<
+		msg << file_msum.get_writable(Metrics::em_nuline) <<
 		    " conditionally compiled writable lines" << endl <<
 		    "(out of a total of " <<
 		    file_msum.get_writable(Metrics::em_nline) <<

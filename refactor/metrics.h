@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.19 2007/08/09 10:35:50 dds Exp $
+ * $Id: metrics.h,v 1.20 2007/08/10 10:15:05 dds Exp $
  */
 
 #ifndef METRICS_
@@ -35,16 +35,28 @@ enum e_cfile_state {
 	s_char,			// Inside a character
 };
 
+// Details for each metric
+struct MetricDetails {
+	int id;		// Metric identifier
+	string dbfield;	// Database field name
+	string name;	// User-visible name
+};
+
+// Metrics for regions of code (files and functions)
 class Metrics {
 private:
 	int currlinelen;
 	enum e_cfile_state cstate;
-	static string metric_names[];
+	static MetricDetails metric_details[];
 
 protected:
 	vector <int> count;	// Metric counts
 
-// Helper variables
+	// Return the name, database field given the enumeration member
+	static const string &get_name(int n);
+	static const string &get_dbfield(int n);
+
+	// Helper variables
 	bool processed;		// True after an element has been processed
 public:
 	Metrics() :
@@ -52,9 +64,6 @@ public:
 		cstate(s_normal),
 		processed(false)
 	{}
-
-	// Return the name given the enumeration member
-	static const string &name(int n) { return metric_names[n]; }
 
 	// Matrics we collect
 	enum e_metric {
@@ -67,7 +76,7 @@ public:
 		em_nline,		// Number of lines
 		em_maxlinelen,		// Maximum number of characters in a line
 		em_nstring,		// Number of character strings
-		em_uline,		// Number of unprocessed lines
+		em_nuline,		// Number of unprocessed lines
 
 	// During processing (once based on processed)
 		em_nppdirective,	// Number of cpp directives
@@ -83,7 +92,7 @@ public:
 	// Called for every identifier
 	void process_id(const string &s);
 	// Called when encountering unprocessed lines
-	void add_unprocessed() { count[em_uline]++; }
+	void add_unprocessed() { count[em_nuline]++; }
 
 	// Manipulate the processing-based metrics
 	void add_ppdirective() { if (!processed) count[em_nppdirective]++; }
@@ -103,14 +112,14 @@ public:
 
 class FileMetrics : public Metrics {
 private:
-
-	static string metric_names[];
+	static MetricDetails metric_details[];
 
 public:
 	FileMetrics() { count.resize(metric_max, 0); }
 
-	// Return the name given the enumeration member
-	static const string &name(int n) { return metric_names[n]; }
+	// Return the name, database field given the enumeration member
+	static const string &get_name(int n);
+	static const string &get_dbfield(int n);
 
 	// Matrics we collect
 	enum e_metric {

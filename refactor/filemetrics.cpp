@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.22 2007/08/09 10:35:50 dds Exp $
+ * $Id: filemetrics.cpp,v 1.23 2007/08/10 10:15:05 dds Exp $
  */
 
 #include <iostream>
@@ -31,34 +31,90 @@
 #include "eclass.h"
 #include "fchar.h"
 
-// Keep this in sync with the enumeration
-string Metrics::metric_names[] = {
-	"Number of characters",
-	"Comment characters",
-	"Space characters",
-	"Number of line comments",
-	"Number of block comments",
-	"Number of lines",
-	"Length of longest line",
-	"Number of C strings",
-	"Number of unprocessed lines",
-	"Number of copies of the file",
+MetricDetails Metrics::metric_details[] = {
+// BEGIN AUTOSCHEMA Metrics
+	{ em_nchar,		"NCHAR",		"Number of characters"},
+	{ em_nccomment,		"NCCOMMENT",		"Number of comment characters"},
+	{ em_nspace,		"NSPACE",		"Number of space characters"},
+	{ em_nlcomment,		"NLCOMMENT",		"Number of line comments"},
+	{ em_nbcomment,		"NBCOMMENT",		"Number of block comments"},
+	{ em_nline,		"NLINE",		"Number of lines"},
+	{ em_maxlinelen,	"MAXLINELEN",		"Maximum number of characters in a line"},
+	{ em_nstring,		"NSTRING",		"Number of character strings"},
+	{ em_nuline,		"NULINE",		"Number of unprocessed lines"},
 
-	"Number of defined project-scope functions",
-	"Number of defined file-scope functions",
-	"Number of defined project-scope variables",
-	"Number of defined file-scope variables",
-	"Number of complete structure or union declarations",
-	"Number of declared structure or union members",
-	"Number of complete enumeration declarations",
-	"Number of declared enumeration elements",
-	"Number of preprocessor directives",
-	"Number of processed preprocessor conditionals (ifdef, if, elif)",
-	"Number of defined preprocessor function-like macros",
-	"Number of defined preprocessor object-like macros",
-	"Number of directly included files",
-	"Number of C statements",
+	{ em_nppdirective,	"NPPDIRECTIVE",		"Number of cpp directives"},
+	{ em_nppcond,		"NPPCOND",		"Number of processed cpp conditionals (ifdef, if, elif)"},
+	{ em_nppfmacro,		"NPPFMACRO",		"Number of defined cpp function-like macros"},
+	{ em_nppomacro,		"NPPOMACRO",		"Number of defined cpp object-like macros"},
+	{ em_nstatement,	"NSTATEMENT",		"Number of statements"},
+// END AUTOSCHEMA Metrics
 };
+
+MetricDetails FileMetrics::metric_details[] = {
+// BEGIN AUTOSCHEMA FileMetrics
+	{ em_ncopies,		"NCOPIES",		"Number of copies of the file"},
+	{ em_npfunction,	"NPFUNCTION",		"Defined project-scope functions"},
+	{ em_nffunction,	"NFFUNCTION",		"Defined file-scope (static) functions"},
+	{ em_npvar,		"NPVAR",		"Defined project-scope variables"},
+	{ em_nfvar,		"NFVAR",		"Defined file-scope (static) variables"},
+	{ em_naggregate,	"NAGGREGATE",		"Number of complete aggregate (struct/union) declarations"},
+	{ em_namember,		"NAMEMBER",		"Number of declared aggregate (struct/union) members"},
+	{ em_nenum,		"NENUM",		"Number of complete enumeration declarations"},
+	{ em_nemember,		"NEMEMBER",		"Number of declared enumeration elements"},
+	{ em_nincfile,		"NINCFILE",		"Number of directly included files"},
+// END AUTOSCHEMA FileMetrics
+};
+
+static const string unknown("UNKNOWN");
+
+const string &
+Metrics::get_name(int n)
+{
+	csassert(n < metric_max);
+	for (int i = 0 ; i < metric_max; i++)
+		if (metric_details[i].id == n)
+			return (metric_details[i].name);
+	csassert(0);
+	return (unknown);
+}
+
+const string &
+Metrics::get_dbfield(int n)
+{
+	csassert(n < metric_max);
+	for (int i = 0 ; i < metric_max; i++)
+		if (metric_details[i].id == n)
+			return (metric_details[i].dbfield);
+	csassert(0);
+	return (unknown);
+}
+
+const string &
+FileMetrics::get_name(int n)
+{
+	if (n < Metrics::metric_max)
+		return Metrics::get_name(n);
+	csassert(n < metric_max);
+	for (int i = 0 ; i < metric_max; i++)
+		if (metric_details[i].id == n)
+			return (metric_details[i].name);
+	csassert(0);
+	return (unknown);
+}
+
+const string &
+FileMetrics::get_dbfield(int n)
+{
+	if (n < Metrics::metric_max)
+		return Metrics::get_dbfield(n);
+	csassert(n < metric_max);
+	for (int i = 0 ; i < metric_max; i++)
+		if (metric_details[i].id == n)
+			return (metric_details[i].dbfield);
+	csassert(0);
+	return (unknown);
+}
 
 // Global metrics
 IdMetricsSummary id_msum;
@@ -270,7 +326,7 @@ operator<<(ostream& o, const FileMetricsSet &mi)
 		"<th>" "Max" "</th>"
 		"<th>" "Avg" "</th></tr>\n";
 	for (int i = 0; i < FileMetrics::metric_max; i++)
-		o << "<tr><td>" << Metrics::name(i) << "</td>"
+		o << "<tr><td>" << FileMetrics::get_name(i) << "</td>"
 			"<td>" << m.total.get_metric(i) << "</td>"
 			"<td>" << m.min.get_metric(i) << "</td>"
 			"<td>" << m.max.get_metric(i) << "</td>"

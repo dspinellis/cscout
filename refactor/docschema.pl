@@ -2,12 +2,23 @@
 #
 # Document the database schema
 #
-# $Id: docschema.pl,v 1.2 2005/05/17 12:06:14 dds Exp $
+# $Id: docschema.pl,v 1.3 2007/08/10 10:15:05 dds Exp $
 #
+
+sub
+printline
+{
+	print "
+<tr><td>$name</td><td>$type</td><td>$description</td></tr>
+";
+}
+
+$dir = $ARGV[0];
+$dir =~ s,\/[^/]+$,/,;
 
 print '<?xml version="1.0" ?>
 <notes>
-<!-- Automatically generated file: $Id: docschema.pl,v 1.2 2005/05/17 12:06:14 dds Exp $ -->
+<!-- Automatically generated file: $Id: docschema.pl,v 1.3 2007/08/10 10:15:05 dds Exp $ -->
 The following sections describe the
 schema of the database created through the SQL backend.
 ';
@@ -32,9 +43,21 @@ $2.
 			$type = 'INTEGER' if (/INTEGER/);
 			$type = 'BOOLEAN' if (/booltype/);
 			$type = 'CHARACTER VARYING' if (/varchar/);
-			print "
-<tr><td>$name</td><td>$type</td><td>$description</td></tr>
-";
+			printline();
+		} elsif (/AUTOSCHEMA INCLUDE ([^ ]+) (\w+)/) {
+			$file = "$dir/$1";
+			$part = $2;
+			$type = 'INTEGER';
+			open(IN, $file) || die "Unable to open $file: $!\n";
+			while (<IN>) {
+				if (/BEGIN AUTOSCHEMA $part$/ .. /END AUTOSCHEMA $part$/) {
+					if (/\{\s*\w+\,\s*\"(\w+)\"\,\s*\"([^"]+)\"/) {
+						$name = $1;
+						$description = $2;
+						printline();
+					}
+				}
+			}
 		} elsif (/\"\)\;\\n\"/) {
 			print "</table>\n";
 		}
