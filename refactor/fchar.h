@@ -16,7 +16,7 @@
  * #include "fchar.h"
  * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.17 2007/08/10 17:37:31 dds Exp $
+ * $Id: fchar.h,v 1.18 2007/08/10 18:54:03 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -37,10 +37,14 @@ private:
 	int line_number;
 	Tokid ti;
 public:
+	FcharContext() : line_number(-1) {}
 	FcharContext(int l, Tokid t) :
 		line_number(l), ti(t) {}
+	// Accessor methods
 	int get_line_number() const { return line_number; }
 	Tokid get_tokid() const { return ti; }
+	// Return true if correctly initialized
+	bool is_valid() const { return line_number != -1; }
 };
 
 typedef stack <FcharContext> StackFcharContext;

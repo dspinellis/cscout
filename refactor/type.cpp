@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.48 2006/08/02 21:46:53 dds Exp $
+ * $Id: type.cpp,v 1.49 2007/08/10 18:53:27 dds Exp $
  */
 
 #include <iostream>
@@ -35,6 +35,7 @@
 #include "stab.h"
 #include "type2.h"
 #include "debug.h"
+#include "fchar.h"
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"

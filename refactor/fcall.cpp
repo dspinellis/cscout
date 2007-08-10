@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.18 2007/08/08 14:45:34 dds Exp $
+ * $Id: fcall.cpp,v 1.19 2007/08/10 18:53:27 dds Exp $
  */
 
 #include <map>
@@ -60,6 +60,7 @@ FCall::set_current_fun(const Id *id)
 	csassert(id);
 	current_fun = id->get_fcall();
 	csassert(current_fun);
+	current_fun->mark_begin();
 	current_fun->definition = Tokid();
 	nesting.push(current_fun);
 }
@@ -82,6 +83,7 @@ FCall::set_current_fun(const Type &t)
 		return;
 	}
 	csassert(current_fun);
+	current_fun->mark_begin();
 	current_fun->definition = t.get_token().get_parts_begin()->get_tokid().unique();
 	current_fun->defined = true;
 	if (DP())
@@ -94,6 +96,8 @@ FCall::set_current_fun(const Type &t)
 void
 FCall::unset_current_fun()
 {
+	csassert(current_fun);
+	current_fun->mark_end();
 	nesting.pop();
 	if (nesting.empty())
 		current_fun = NULL;

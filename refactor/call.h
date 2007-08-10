@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.14 2006/06/13 21:53:51 dds Exp $
+ * $Id: call.h,v 1.15 2007/08/10 18:53:27 dds Exp $
  */
 
 #ifndef CALL_
@@ -45,6 +45,8 @@ private:
 	fun_container caller;		// Functions that call this function
 	bool visited;			// For calculating transitive closures
 	bool printed;			// For printing a graph's nodes
+	FcharContext begin, end;	// Span of definition
+
 	void add_call(Call *f) { call.insert(f); }
 	void add_caller(Call *f) { caller.insert(f); }
 
@@ -112,6 +114,16 @@ public:
 	bool is_visited() const { return visited; }
 	void set_printed() { printed = true; }
 	bool is_printed() const { return printed; }
+
+	// Mark the function's span
+	void mark_begin() { begin = Fchar::get_context(); }
+	void mark_end() { end = Fchar::get_context(); }
+	//
+	// Return true if the span represents a file region
+	bool is_span_valid() const {
+		return begin.get_tokid().get_fileid() == end.get_tokid().get_fileid() &&
+			begin.get_tokid().get_streampos() < end.get_tokid().get_streampos();
+	}
 
 	// Return a token for the given object
 	const Token &get_token() const {return token; }

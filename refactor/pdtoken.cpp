@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.111 2007/08/08 14:48:40 dds Exp $
+ * $Id: pdtoken.cpp,v 1.112 2007/08/10 18:53:27 dds Exp $
  */
 
 #include <iostream>
@@ -45,6 +45,10 @@
 #include "tchar.h"
 #include "ctoken.h"
 #include "eval.h"
+#include "type.h"
+#include "stab.h"
+#include "call.h"
+#include "mcall.h"
 #include "os.h"
 #include "type.h"		// stab.h
 #include "stab.h"		// Block::enter()
@@ -692,6 +696,7 @@ Pdtoken::process_define()
 					m.form_args_push_back(t);
 					t.getnext_nospc<Fchar>();
 					if (t.get_code() == ')') {
+						m.get_mcall()->mark_begin();
 						t.getnext<Fchar>();
 						break;
 					}
@@ -715,6 +720,7 @@ Pdtoken::process_define()
 						eat_to_eol();
 						return;
 					}
+					m.get_mcall()->mark_begin();
 					t.getnext<Fchar>();
 					break;
 				}
@@ -732,8 +738,11 @@ Pdtoken::process_define()
 				}
 				t.getnext_nospc<Fchar>();
 			}
-		} else
+		} else {
+			// Function-like macro without formal args
+			m.get_mcall()->mark_begin();
 			t.getnext<Fchar>();
+		}
 	} else
 		Fchar::get_fileid().metrics().add_ppomacro();
 	if (DP()) cout << "Body starts with " << t;
@@ -754,6 +763,8 @@ Pdtoken::process_define()
 			Token::unify((*i).second, t);
 		t.getnext<Fchar>();
 	}
+	if (is_function)
+		m.get_mcall()->mark_end();
 	m.value_rtrim();
 
 	// Check that the new macro is undefined or not different from an older definition
