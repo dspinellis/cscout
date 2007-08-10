@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.35 2007/05/07 15:29:19 dds Exp $
+ * $Id: fchar.cpp,v 1.36 2007/08/10 15:29:23 dds Exp $
  */
 
 #include <iostream>
@@ -35,7 +35,7 @@
 
 fifstream Fchar::in;
 Fileid Fchar::fi;
-stackFchar_context Fchar::cs;		// Pushed contexts (from push_input())
+StackFcharContext Fchar::cs;		// Pushed contexts (from push_input())
 stackFchar Fchar::ps;			// Putback Fchars (from putback())
 int Fchar::line_number;			// Current line number
 bool Fchar::yacc_file;			// True input comes from .y
@@ -62,7 +62,7 @@ Fchar::set_input(const string& s)
 void
 Fchar::push_input(const string& s)
 {
-	struct fchar_context fc;
+	struct FcharContext fc;
 	Fileid includer = fi;
 	int include_lnum = line_number - 1;
 
@@ -183,7 +183,7 @@ Fchar::getnext()
 				cout << "getnext returns EOF\n";
 			return;
 		}
-		fchar_context fc = cs.top();
+		FcharContext fc = cs.top();
 		set_input(fc.ti.get_path());
 		in.seekg(fc.ti.get_streampos());
 		line_number = fc.line_number;

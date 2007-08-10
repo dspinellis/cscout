@@ -16,7 +16,7 @@
  * #include "fchar.h"
  * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.15 2007/06/27 07:43:52 dds Exp $
+ * $Id: fchar.h,v 1.16 2007/08/10 15:29:23 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -26,12 +26,12 @@
 
 using namespace std;
 
-struct fchar_context {
+struct FcharContext {
 	int line_number;
 	Tokid ti;
 };
 
-typedef stack <fchar_context> stackFchar_context;
+typedef stack <FcharContext> StackFcharContext;
 
 class Fchar;
 
@@ -45,7 +45,7 @@ private:
 	static Fileid fi;		// and its Fileid
 	static int line_number;		// Current line number
 	static bool yacc_file;		// True if input file is yacc, not C
-	static stackFchar_context cs;	// Pushed contexts (from push_input())
+	static StackFcharContext cs;	// Pushed contexts (from push_input())
 	static stackFchar ps;		// Putback stack
 	static stackFchar::size_type stack_lock_size;	// So many elements can not be removed
 					// from the push_input stack
