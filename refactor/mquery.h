@@ -4,7 +4,7 @@
  * Encapsulates a (user interface) metrics query part
  * Can be used to evaluate elements referenced through E against M metrics
  *
- * $Id: mquery.h,v 1.1 2007/08/10 10:15:05 dds Exp $
+ * $Id: mquery.h,v 1.2 2007/08/11 12:47:24 dds Exp $
  */
 
 #ifndef MQUERY_
@@ -101,7 +101,7 @@ public:
 		for (int i = 0; i < M::metric_max; i++) {
 			fprintf(of, "<tr><td><input type=\"radio\" name=\"order\" value=\"%d\"> </td>\n", i);
 			fprintf(of, "<td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
-				M::get_name(i).c_str(), i);
+				get_name<M>(i).c_str(), i);
 			Query::equality_selection(of);
 			fprintf(of, "</td><td><INPUT TYPE=\"text\" NAME=\"n%d\" SIZE=5 MAXLENGTH=10></td></tr>\n", i);
 		}

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.166 2007/08/10 10:15:05 dds Exp $
+ * $Id: cscout.cpp,v 1.167 2007/08/11 12:47:24 dds Exp $
  */
 
 #include <map>
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <list>
 #include <set>
+#include <utility>
 #include <functional>
 #include <algorithm>		// set_difference
 #include <cctype>
@@ -286,14 +287,21 @@ html_string(FILE *of, const Call *f)
 }
 
 // Add identifiers of the file fi into ids
+// Collect metrics for the file and its functions
 // Return true if the file contains unused identifiers
 static bool
 file_analyze(Fileid fi)
 {
+	using namespace std::rel_ops;
+
 	fifstream in;
 	bool has_unused = false;
 	const string &fname = fi.get_path();
 	int line_number = 0;
+
+	FCallSet &fc = fi.get_functions();	// File's functions
+	FCallSet::iterator fci = fc.begin();	// Iterator through them
+	Call *cfun = NULL;			// Current function
 
 	cout << "Post-processing " << fname << endl;
 	in.open(fname.c_str(), ios::binary);
@@ -309,6 +317,15 @@ file_analyze(Fileid fi)
 		ti = Tokid(fi, in.tellg());
 		if ((val = in.get()) == EOF)
 			break;
+
+		// Update current_function
+		if (cfun && ti > cfun->get_end().get_tokid())
+			cfun = NULL;
+		if (!cfun && fci != fc.end() && ti >= (*fci)->get_begin().get_tokid()) {
+			cfun = *fci;
+			fci++;
+		}
+
 		char c = (char)val;
 		mapTokidEclass::iterator ei;
 		enum e_cfile_state cstate = fi.metrics().get_state();
@@ -337,6 +354,8 @@ file_analyze(Fileid fi)
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
 				fi.metrics().process_id(s);
+				if (cfun)
+					cfun->metrics().process_id(s);
 				/*
 				 * ids[ec] = Identifier(ec, s);
 				 * Efficiently add s to ids, if needed.
@@ -360,6 +379,8 @@ file_analyze(Fileid fi)
 			}
 		}
 		fi.metrics().process_char((char)val);
+		if (cfun)
+			cfun->metrics().process_char((char)val);
 		if (c == '\n') {
 			fi.add_line_end(ti.get_streampos());
 			if (!fi.is_processed(++line_number))
@@ -770,7 +791,7 @@ xfilequery_page(FILE *of,  void *p)
 	}
 	html_file_begin(of);
 	if (query.get_sort_order() != -1)
-		fprintf(of, "<th>%s</th>\n", FileMetrics::get_name(query.get_sort_order()).c_str());
+		fprintf(of, "<th>%s</th>\n", get_name<FileMetrics>(query.get_sort_order()).c_str());
 	Pager pager(of, Option::entries_per_page->get(), query.base_url());
 	html_file_set_begin(of);
 	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
@@ -1149,6 +1170,11 @@ function_page(FILE *fo, void *p)
 		return;
 	}
 	html_head(fo, "fun", string("Function: ") + html(f->get_name()) + " (" + f->entity_type_name() + ')');
+	fprintf(fo, "<h2>Metrics</h2><ul>\n");
+	for (int j = 0; j < FunctionMetrics::metric_max; j++)
+		fprintf(fo, "\n<li> %s: %d", get_name<FunctionMetrics>(j).c_str(), f->metrics().get_metric(j));
+	fprintf(fo, "</ul>\n");
+	fprintf(fo, "<h2>Details</h2>\n");
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> Associated identifier(s): ");
 	html_string(fo, f);
@@ -1680,7 +1706,7 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"xfilequery.html?writable=1&match=Y&n=Writable+Files\">Writable files</a>\n");
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+Project-scoped+Writable+Identifiers\">Files containing unused project-scoped writable identifiers</a>\n", is_lscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+File-scoped+Writable+Identifiers\">Files containing unused file-scoped writable identifiers</a>\n", is_cscope);
-		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statements\">Writable .c files without any statements</a>\n", Metrics::em_nstatement, Query::ec_eq, Metrics::em_nstatement);
+		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statements\">Writable .c files without any statements</a>\n", FileMetrics::em_nstatement, Query::ec_eq, FileMetrics::em_nstatement);
 		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines\">Writable files containing unprocessed lines</a>\n", Metrics::em_nuline, Metrics::em_nuline, Query::ec_gt, Metrics::em_nuline);
 		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", Metrics::em_nstring, Query::ec_gt, Metrics::em_nstring);
 		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives\">Writable .h files with #include directives</a>\n", FileMetrics::em_nincfile, Query::ec_gt, FileMetrics::em_nincfile);
@@ -1749,7 +1775,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<h2>Metrics</h2><ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "\n<li> %s: %d", FileMetrics::get_name(j).c_str(), i.metrics().get_metric(j));
+		fprintf(of, "\n<li> %s: %d", get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
 	if (Option::show_projects->get()) {
 		fprintf(of, "\n<li> Used in project(s): \n<ul>");
 		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)

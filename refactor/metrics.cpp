@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.23 2007/08/10 10:15:05 dds Exp $
+ * $Id: metrics.cpp,v 1.24 2007/08/11 12:47:24 dds Exp $
  */
 
 #include <iostream>
@@ -47,12 +47,12 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_nppcond,		"NPPCOND",		"Number of processed cpp conditionals (ifdef, if, elif)"},
 	{ em_nppfmacro,		"NPPFMACRO",		"Number of defined cpp function-like macros"},
 	{ em_nppomacro,		"NPPOMACRO",		"Number of defined cpp object-like macros"},
-	{ em_nstatement,	"NSTATEMENT",		"Number of statements"},
 // END AUTOSCHEMA Metrics
 };
 
 MetricDetails FileMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FileMetrics
+	{ em_nstatement,	"NSTATEMENT",		"Number of statements"},
 	{ em_ncopies,		"NCOPIES",		"Number of copies of the file"},
 	{ em_npfunction,	"NPFUNCTION",		"Defined project-scope functions"},
 	{ em_nffunction,	"NFFUNCTION",		"Defined file-scope (static) functions"},
@@ -66,55 +66,10 @@ MetricDetails FileMetrics::metric_details[] = {
 // END AUTOSCHEMA FileMetrics
 };
 
-static const string unknown("UNKNOWN");
-
-const string &
-Metrics::get_name(int n)
-{
-	csassert(n < metric_max);
-	for (int i = 0 ; i < metric_max; i++)
-		if (metric_details[i].id == n)
-			return (metric_details[i].name);
-	csassert(0);
-	return (unknown);
-}
-
-const string &
-Metrics::get_dbfield(int n)
-{
-	csassert(n < metric_max);
-	for (int i = 0 ; i < metric_max; i++)
-		if (metric_details[i].id == n)
-			return (metric_details[i].dbfield);
-	csassert(0);
-	return (unknown);
-}
-
-const string &
-FileMetrics::get_name(int n)
-{
-	if (n < Metrics::metric_max)
-		return Metrics::get_name(n);
-	csassert(n < metric_max);
-	for (int i = 0 ; i < metric_max; i++)
-		if (metric_details[i].id == n)
-			return (metric_details[i].name);
-	csassert(0);
-	return (unknown);
-}
-
-const string &
-FileMetrics::get_dbfield(int n)
-{
-	if (n < Metrics::metric_max)
-		return Metrics::get_dbfield(n);
-	csassert(n < metric_max);
-	for (int i = 0 ; i < metric_max; i++)
-		if (metric_details[i].id == n)
-			return (metric_details[i].dbfield);
-	csassert(0);
-	return (unknown);
-}
+MetricDetails FunctionMetrics::metric_details[] = {
+// BEGIN AUTOSCHEMA FunctionMetrics
+// END AUTOSCHEMA FunctionMetrics
+};
 
 // Global metrics
 IdMetricsSummary id_msum;
@@ -326,7 +281,7 @@ operator<<(ostream& o, const FileMetricsSet &mi)
 		"<th>" "Max" "</th>"
 		"<th>" "Avg" "</th></tr>\n";
 	for (int i = 0; i < FileMetrics::metric_max; i++)
-		o << "<tr><td>" << FileMetrics::get_name(i) << "</td>"
+		o << "<tr><td>" << get_name<FileMetrics>(i) << "</td>"
 			"<td>" << m.total.get_metric(i) << "</td>"
 			"<td>" << m.min.get_metric(i) << "</td>"
 			"<td>" << m.max.get_metric(i) << "</td>"

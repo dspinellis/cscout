@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.44 2007/05/30 08:28:28 dds Exp $
+ * $Id: fileid.cpp,v 1.45 2007/08/11 12:47:24 dds Exp $
  */
 
 #include <fstream>
@@ -35,6 +35,7 @@
 #include "ytab.h"
 #include "ptoken.h"
 #include "pltoken.h"
+#include "call.h"
 #include "md5.h"
 #include "os.h"
 
@@ -289,6 +290,12 @@ Fileid::unify_identical_files(void)
 	for (FI_hash_to_ids::const_iterator i = identical_files.begin(); i != identical_files.end(); i++)
 		if (i->second.size() > 1)
 			unify_file_identifiers(i->second);
+}
+
+bool 
+function_file_order::operator()(const Call *a, const Call *b) const
+{
+	return a->get_begin().get_tokid() < b->get_begin().get_tokid();
 }
 
 #ifdef UNIT_TEST

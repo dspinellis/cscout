@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.20 2007/08/10 10:15:05 dds Exp $
+ * $Id: metrics.h,v 1.21 2007/08/11 12:47:24 dds Exp $
  */
 
 #ifndef METRICS_
@@ -52,10 +52,6 @@ private:
 protected:
 	vector <int> count;	// Metric counts
 
-	// Return the name, database field given the enumeration member
-	static const string &get_name(int n);
-	static const string &get_dbfield(int n);
-
 	// Helper variables
 	bool processed;		// True after an element has been processed
 public:
@@ -83,7 +79,6 @@ public:
 		em_nppcond,		// Number of processed cpp conditionals (ifdef, if, elif)
 		em_nppfmacro,		// Number of defined cpp function-like macros
 		em_nppomacro,		// Number of defined cpp object-like macros
-		em_nstatement,		// Number of statements
 		metric_max
 	};
 
@@ -100,14 +95,16 @@ public:
 	void add_ppfmacro() { if (!processed) count[em_nppfmacro]++; }
 	void add_ppomacro() { if (!processed) count[em_nppomacro]++; }
 
-	void add_statement() { if (!processed) count[em_nstatement]++; }
 	void done_processing() { processed = true; }
+	bool is_processed() const { return processed; }
 
 	// Get methods
 	enum e_cfile_state get_state() { return cstate; }
 	// Generic
 	int get_metric(int n) const { return count[n]; }
+	void set_metric(int n, int val) { count[n] = val; }
 
+	template <class M> friend const struct MetricDetails &get_detail(int n);
 };
 
 class FileMetrics : public Metrics {
@@ -117,16 +114,13 @@ private:
 public:
 	FileMetrics() { count.resize(metric_max, 0); }
 
-	// Return the name, database field given the enumeration member
-	static const string &get_name(int n);
-	static const string &get_dbfield(int n);
-
 	// Matrics we collect
 	enum e_metric {
 	// During post-processing
 		em_ncopies =		// Number of copies of the file
 			Metrics::metric_max,
 	// During processing (once based on processed)
+		em_nstatement,		// Number of statements
 		em_npfunction,		// Defined project-scope functions
 		em_nffunction,		// Defined file-scope (static) functions
 		em_npvar,		// Defined project-scope variables
@@ -143,6 +137,7 @@ public:
 	void set_ncopies(int n) { count[em_ncopies] = n; }
 
 	// Manipulate the processing-based metrics
+	void add_statement() { if (!processed) count[em_nstatement]++; }
 	void add_incfile() { if (!processed) count[em_nincfile]++; }
 
 	// Increment the number of functions for the file being processed
@@ -161,9 +156,73 @@ public:
 	void add_pvar() { if (!processed) count[em_npvar]++; }
 	void add_fvar() { if (!processed) count[em_nfvar]++; }
 
-	// Generic get method
-	int get_metric(int n) const { return count[n]; }
+	template <class M> friend const struct MetricDetails &get_detail(int n);
 };
+
+class FunctionMetrics : public Metrics {
+private:
+	static MetricDetails metric_details[];
+
+public:
+	FunctionMetrics() { count.resize(metric_max, 0); }
+
+	// Matrics we collect
+	enum e_metric {
+#ifdef ndef
+	// During post-processing
+		em_nstatement =		// Number of statements
+			Metrics::metric_max,
+		em_nif,			// Number of if keywords
+		em_nelse,		// Number of else keywords
+		em_nwhile,		// Number of while keywords
+		em_ndo,			// Number of do keywords
+		em_nswitch,		// Number of switch keywords
+		em_ncase,		// Number of switch keywords
+	// During processing (once based on processed)
+		em_param,		// Number of parameters
+#endif
+		metric_max = Metrics::metric_max // XXX
+	};
+
+	template <class M> friend const struct MetricDetails &get_detail(int n);
+};
+
+// Return a reference to the details of the specified metric
+template <class M>
+static const struct MetricDetails &
+get_detail(int n)
+{
+	static const MetricDetails unknown = {0, "UNKNOWN", "UNKNOWN"};
+
+	csassert(n < M::metric_max);
+	for (int i = 0 ; i < M::metric_max; i++)
+		if (M::metric_details[i].id == n)
+			return (M::metric_details[i]);
+	csassert(0);
+	return (unknown);
+}
+
+// Return the database field name of the specified metric
+template <class M>
+const string &
+get_dbfield(int n)
+{
+	if (n < Metrics::metric_max)
+		return get_detail<Metrics>(n).dbfield;
+	else
+		return get_detail<M>(n).dbfield;
+}
+
+// Return the metric name of the specified metric
+template <class M>
+const string &
+get_name(int n)
+{
+	if (n < Metrics::metric_max)
+		return get_detail<Metrics>(n).name;
+	else
+		return get_detail<M>(n).name;
+}
 
 class Eclass;
 class FileMetricsSet;

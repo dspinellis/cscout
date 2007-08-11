@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.35 2007/08/09 10:35:50 dds Exp $
+ * $Id: fileid.h,v 1.36 2007/08/11 12:47:24 dds Exp $
  */
 
 #ifndef FILEID_
@@ -51,9 +51,16 @@ public:
 
 class Fileid;
 class Fchar;
+class Call;
+
+// Used to order Call sets by their function location in a file
+struct function_file_order : public binary_function <const Call *, const Call *, bool> {
+      bool operator()(const Call *a, const Call *b) const;
+};
 
 typedef map <Fileid, IncDetails> FileIncMap;
 typedef vector<unsigned char> FileHash;
+typedef set <Call *, function_file_order> FCallSet;
 
 // Details we keep for each file
 class Filedetails {
@@ -74,8 +81,9 @@ private:
 	// Update the specified map
 	void include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line);
 public:
-	Attributes attr;				// The projects this file participates in
-	class FileMetrics m;
+	Attributes attr;		// The projects this file participates in
+	FileMetrics m;			// File's metrics
+	FCallSet df;			// Functions defined in this file
 	Filedetails(string n, bool r, const FileHash &h);
 	Filedetails();
 	const string& get_name() const { return name; }
@@ -163,6 +171,9 @@ public:
 	FileMetrics &metrics() { return i2d[id].m; }
 	// Return a reference to the Metrics class
 	const FileMetrics &const_metrics() const { return i2d[id].m; }
+	// Return the set of the file's functions
+	FCallSet &get_functions() const { return i2d[id].df; }
+	void add_function(Call *f) { i2d[id].df.insert(f); }
 	// Get /set attributes
 	void set_attribute(int v) { i2d[id].attr.set_attribute(v); }
 	bool get_attribute(int v) { return i2d[id].attr.get_attribute(v); }

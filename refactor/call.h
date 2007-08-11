@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.15 2007/08/10 18:53:27 dds Exp $
+ * $Id: call.h,v 1.16 2007/08/11 12:47:24 dds Exp $
  */
 
 #ifndef CALL_
@@ -11,6 +11,7 @@
 
 class FCall;
 class Sql;
+class Id;
 
 /*
  * Generic call information of a called/calling entity.
@@ -46,6 +47,7 @@ private:
 	bool visited;			// For calculating transitive closures
 	bool printed;			// For printing a graph's nodes
 	FcharContext begin, end;	// Span of definition
+	FunctionMetrics m;		// Metrics for this function
 
 	void add_call(Call *f) { call.insert(f); }
 	void add_caller(Call *f) { caller.insert(f); }
@@ -116,14 +118,17 @@ public:
 	bool is_printed() const { return printed; }
 
 	// Mark the function's span
-	void mark_begin() { begin = Fchar::get_context(); }
-	void mark_end() { end = Fchar::get_context(); }
-	//
+	void mark_begin();
+	FcharContext get_begin() const { return begin; }
+	// Mark the function's span and add it to the corresponding file
+	void mark_end();
+	FcharContext get_end() const { return end; }
 	// Return true if the span represents a file region
-	bool is_span_valid() const {
-		return begin.get_tokid().get_fileid() == end.get_tokid().get_fileid() &&
-			begin.get_tokid().get_streampos() < end.get_tokid().get_streampos();
-	}
+	bool is_span_valid() const;
+	// Return a reference to the Metrics class
+	FunctionMetrics &metrics() { return m; }
+	// Return a reference to the Metrics class
+	const FunctionMetrics &const_metrics() const { return m; }
 
 	// Return a token for the given object
 	const Token &get_token() const {return token; }

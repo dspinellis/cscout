@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.34 2007/08/10 10:15:05 dds Exp $
+ * $Id: workdb.cpp,v 1.35 2007/08/11 12:47:24 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -364,7 +364,7 @@ workdb_schema(Sql *db, ostream &of)
 		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
 		// AUTOSCHEMA INCLUDE metrics.cpp FileMetrics
 		for (int i = 0; i < FileMetrics::metric_max; i++)
-			cout << ",\n" << FileMetrics::get_dbfield(i) << " INTEGER";
+			cout << ",\n" << get_dbfield<FileMetrics>(i) << " INTEGER";
 		cout << ");\n"
 
 		"CREATE TABLE FILEPROJ("		// Files used in projects

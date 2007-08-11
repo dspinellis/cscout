@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.13 2006/09/21 13:19:47 dds Exp $
+ * $Id: call.cpp,v 1.14 2007/08/11 12:47:24 dds Exp $
  */
 
 #include <map>
@@ -171,6 +171,34 @@ Call::get_calls(Tokid t)
 	return all.equal_range(t);
 }
 
+// Mark the function's span
+void
+Call::mark_begin()
+{
+	if (!begin.is_valid())
+		begin = Fchar::get_context();
+}
+
+// Mark the function's span and add it to the corresponding file
+void
+Call::mark_end()
+{
+	csassert(begin.is_valid());
+	if (end.is_valid())
+		return;
+	end = Fchar::get_context();
+	if (is_span_valid())
+		end.get_tokid().get_fileid().add_function(this);
+}
+
+// Return true if the span represents a file region
+bool
+Call::is_span_valid() const
+{
+	return begin.is_valid() && end.is_valid() &&
+	    begin.get_tokid().get_fileid() == end.get_tokid().get_fileid() &&
+	    begin.get_tokid().get_streampos() < end.get_tokid().get_streampos();
+}
 
 #ifdef COMMERCIAL
 void
