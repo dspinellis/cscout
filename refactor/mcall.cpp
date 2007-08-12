@@ -1,9 +1,9 @@
 /*
- * (C) Copyright 2003 Diomidis Spinellis.
+ * (C) Copyright 2007 Diomidis Spinellis.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: mcall.cpp,v 1.1 2007/08/12 07:22:01 dds Exp $
+ * $Id: mcall.cpp,v 1.2 2007/08/12 07:24:06 dds Exp $
  */
 
 #include <map>
@@ -48,7 +48,7 @@ MCall::set_current_fun(Macro &m)
 	nesting.push(current_fun);
 }
 
-const string & 
+const string &
 MCall::entity_type_name() const
 {
 	static string s("function-like macro");
