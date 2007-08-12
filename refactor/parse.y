@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.129 2007/08/08 14:48:40 dds Exp $
+ * $Id: parse.y,v 1.130 2007/08/12 06:15:10 dds Exp $
  *
  */
 
@@ -176,10 +176,6 @@ completed_typedef(Type t)
 		cout << "The typedef type is " << id->get_type().clone() << "\n";
 	return id->get_type().clone();
 }
-
-
-/* Store types of nested functions */
-static stack<Type> nested_function_types;
 
 #define YYSTYPE_CONSTRUCTOR
 
