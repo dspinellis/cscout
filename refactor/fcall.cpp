@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.19 2007/08/10 18:53:27 dds Exp $
+ * $Id: fcall.cpp,v 1.20 2007/08/12 07:22:01 dds Exp $
  */
 
 #include <map>
@@ -39,9 +39,6 @@
 #include "fcall.h"
 #include "eclass.h"
 
-// Nested function definitions
-stack <FCall *> FCall::nesting;
-
 // Constructor
 FCall::FCall(const Token& tok, Type typ, const string &s) :
 		Call(s, tok),
@@ -58,21 +55,23 @@ void
 FCall::set_current_fun(const Id *id)
 {
 	csassert(id);
-	current_fun = id->get_fcall();
+	FCall *cfun;			// FCall rather than simply Call
+	current_fun = cfun = id->get_fcall();
 	csassert(current_fun);
 	current_fun->mark_begin();
-	current_fun->definition = Tokid();
+	cfun->definition = Tokid();
 	nesting.push(current_fun);
 }
 
-// Set the function currently being parsed
+// Set the (C) function currently being parsed
 void
 FCall::set_current_fun(const Type &t)
 {
 	Id const *id = obj_lookup(t.get_name());
 	csassert(id);
-	current_fun = id->get_fcall();
-	if (!current_fun) {
+	FCall *cfun;			// FCall rather than simply Call
+	current_fun = cfun = id->get_fcall();
+	if (!cfun) {
 		/*
 		 * @error
 		 * A non-function type specifier was followed by a block.
@@ -82,25 +81,14 @@ FCall::set_current_fun(const Type &t)
 		Error::error(E_ERR, "syntax error: block is not preceded by a function specifier");
 		return;
 	}
-	csassert(current_fun);
-	current_fun->mark_begin();
-	current_fun->definition = t.get_token().get_parts_begin()->get_tokid().unique();
-	current_fun->defined = true;
+	csassert(cfun);
+	cfun->mark_begin();
+	cfun->definition = t.get_token().get_parts_begin()->get_tokid().unique();
+	cfun->defined = true;
 	if (DP())
 		cout << "Current function " << id->get_name() << "\n";
-	nesting.push(current_fun);
+	nesting.push(cfun);
 	if (nesting.size() == 1)
 		Fchar::get_fileid().metrics().add_function(t.is_static());
 }
 
-void
-FCall::unset_current_fun()
-{
-	csassert(current_fun);
-	current_fun->mark_end();
-	nesting.pop();
-	if (nesting.empty())
-		current_fun = NULL;
-	else
-		current_fun = nesting.top();
-}

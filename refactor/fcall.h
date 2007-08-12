@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.13 2006/08/04 19:47:52 dds Exp $
+ * $Id: fcall.h,v 1.14 2007/08/12 07:22:01 dds Exp $
  */
 
 #ifndef FCALL_
@@ -20,11 +20,8 @@ private:
 	Tokid definition;		// Function's definition
 	Type type;			// Function's type
 	bool defined;			// True if the function has been defined
-	static stack<FCall *> nesting;	// Nested function definitions
 public:
-	// Called when outside a function body scope
-	static void unset_current_fun();
-	// Set the function currently being parsed
+	// Set the C function currently being parsed
 	static void set_current_fun(const Type &t);
 	static void set_current_fun(const Id *id);
 

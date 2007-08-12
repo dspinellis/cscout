@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.16 2007/08/11 12:47:24 dds Exp $
+ * $Id: call.h,v 1.17 2007/08/12 07:22:01 dds Exp $
  */
 
 #ifndef CALL_
@@ -53,8 +53,9 @@ private:
 	void add_caller(Call *f) { caller.insert(f); }
 
 protected:
-	static fun_map all;	// Set of all functions
-	static FCall *current_fun;	// Function currently being parsed
+	static fun_map all;		// Set of all functions
+	static Call *current_fun;	// Function currently being parsed
+	static stack<Call *> nesting;	// Nested function definitions
 
 	/*
 	 * A token (almost) uniquely identifying the call entity.
@@ -66,6 +67,8 @@ protected:
 	Token token;
 
 public:
+	// Called when outside a function / macro body scope
+	static void unset_current_fun();
 	// The current function makes a call to id
 	static void register_call(const Id *id);
 	// The current function makes a call to f

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.112 2007/08/10 18:53:27 dds Exp $
+ * $Id: pdtoken.cpp,v 1.113 2007/08/12 07:22:01 dds Exp $
  */
 
 #include <iostream>
@@ -696,7 +696,7 @@ Pdtoken::process_define()
 					m.form_args_push_back(t);
 					t.getnext_nospc<Fchar>();
 					if (t.get_code() == ')') {
-						m.get_mcall()->mark_begin();
+						MCall::set_current_fun(m);
 						t.getnext<Fchar>();
 						break;
 					}
@@ -720,7 +720,7 @@ Pdtoken::process_define()
 						eat_to_eol();
 						return;
 					}
-					m.get_mcall()->mark_begin();
+					MCall::set_current_fun(m);
 					t.getnext<Fchar>();
 					break;
 				}
@@ -740,7 +740,7 @@ Pdtoken::process_define()
 			}
 		} else {
 			// Function-like macro without formal args
-			m.get_mcall()->mark_begin();
+			MCall::set_current_fun(m);
 			t.getnext<Fchar>();
 		}
 	} else
@@ -764,7 +764,7 @@ Pdtoken::process_define()
 		t.getnext<Fchar>();
 	}
 	if (is_function)
-		m.get_mcall()->mark_end();
+		Call::unset_current_fun();
 	m.value_rtrim();
 
 	// Check that the new macro is undefined or not different from an older definition

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.14 2007/08/11 12:47:24 dds Exp $
+ * $Id: call.cpp,v 1.15 2007/08/12 07:22:01 dds Exp $
  */
 
 #include <map>
@@ -42,7 +42,10 @@
 #include "sql.h"
 
 // Function currently being parsed
-FCall *Call::current_fun = NULL;
+Call *Call::current_fun = NULL;
+//
+// Nested function definitions
+stack <Call *> Call::nesting;
 
 // Set of all functions
 Call::fun_map Call::all;
@@ -198,6 +201,18 @@ Call::is_span_valid() const
 	return begin.is_valid() && end.is_valid() &&
 	    begin.get_tokid().get_fileid() == end.get_tokid().get_fileid() &&
 	    begin.get_tokid().get_streampos() < end.get_tokid().get_streampos();
+}
+
+void
+Call::unset_current_fun()
+{
+	csassert(current_fun);
+	current_fun->mark_end();
+	nesting.pop();
+	if (nesting.empty())
+		current_fun = NULL;
+	else
+		current_fun = nesting.top();
 }
 
 #ifdef COMMERCIAL

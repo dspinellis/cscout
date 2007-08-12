@@ -3,7 +3,7 @@
  *
  * Function call graph information. Macros.
  *
- * $Id: mcall.h,v 1.6 2004/08/07 21:49:01 dds Exp $
+ * $Id: mcall.h,v 1.7 2007/08/12 07:22:01 dds Exp $
  */
 
 #ifndef MCALL_
@@ -13,6 +13,8 @@
 class MCall : public Call {
 private:
 public:
+	// Set the macro currently being processed
+	static void set_current_fun(Macro &m);
 
 	virtual bool is_defined() const { return true; }
 	virtual bool is_declared() const { return false; }
@@ -20,10 +22,7 @@ public:
 	virtual Tokid get_definition() const { return get_tokid(); }
 	virtual bool is_cfun() const { return false; }
 	virtual bool is_macro() const { return true; }
-	virtual const string & entity_type_name() const {
-		static string s("function-like macro");
-		return (s);
-	}
+	virtual const string & entity_type_name() const;
 
 	MCall(const Token& tok, const string &s) :
 		Call(s, tok)

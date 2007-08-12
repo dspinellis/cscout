@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.130 2007/08/12 06:15:10 dds Exp $
+ * $Id: parse.y,v 1.131 2007/08/12 07:22:01 dds Exp $
  *
  */
 
@@ -1506,9 +1506,9 @@ compound_statement:
 
 function_body:
         function_brace_begin brace_end
-		{ FCall::unset_current_fun(); }
+		{ Call::unset_current_fun(); }
         | function_brace_begin statement_list brace_end
-		{ FCall::unset_current_fun(); }
+		{ Call::unset_current_fun(); }
         ;
 
 declaration_list:
@@ -2033,7 +2033,7 @@ yacc_body:
 		} yacc_rules
 		{
 			parse_yacc_defs = false;
-			FCall::unset_current_fun();
+			Call::unset_current_fun();
 		} yacc_tail
 	;
 
