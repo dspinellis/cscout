@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.33 2007/07/16 10:11:16 dds Exp $
+ * $Id: ctoken.cpp,v 1.34 2007/08/12 16:01:44 dds Exp $
  */
 
 #include <map>
@@ -271,7 +271,7 @@ again:
 			return (0);
 		case ABSFNAME:
 		case PATHFNAME:
-			Error::error(E_INTERNAL, "preprocessor filename, past perprocessor");
+			Error::error(E_INTERNAL, "preprocessor filename, past preprocessor");
 			continue;
 		case PP_NUMBER:
 			/* We need the value in the $x yacc variables */
