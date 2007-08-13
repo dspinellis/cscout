@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.168 2007/08/13 15:56:44 dds Exp $
+ * $Id: cscout.cpp,v 1.169 2007/08/13 18:13:41 dds Exp $
  */
 
 #include <map>
@@ -801,7 +801,7 @@ xfilequery_page(FILE *of,  void *p)
 		if (pager.show_next()) {
 			html_file(of, *i);
 			if (query.get_sort_order() != -1)
-				fprintf(of, "<td align=\"right\">%d</td>", i->const_metrics().get_metric(query.get_sort_order()));
+				fprintf(of, "<td align=\"right\">%g</td>", i->const_metrics().get_metric(query.get_sort_order()));
 			html_file_record_end(of);
 		}
 	}
@@ -1211,7 +1211,7 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<h2>Metrics</h2><ul>\n");
 		for (int j = 0; j < FunctionMetrics::metric_max; j++)
 			if (!Metrics::is_internal<FunctionMetrics>(j))
-				fprintf(fo, "\n<li> %s: %d", Metrics::get_name<FunctionMetrics>(j).c_str(), f->metrics().get_metric(j));
+				fprintf(fo, "\n<li> %s: %g", Metrics::get_name<FunctionMetrics>(j).c_str(), f->metrics().get_metric(j));
 		fprintf(fo, "</ul>\n");
 	}
 	html_tail(fo);
@@ -1778,7 +1778,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<h2>Metrics</h2><ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "\n<li> %s: %d", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
+		fprintf(of, "\n<li> %s: %g", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
 	if (Option::show_projects->get()) {
 		fprintf(of, "\n<li> Used in project(s): \n<ul>");
 		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
