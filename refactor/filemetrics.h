@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: filemetrics.h,v 1.22 2007/08/13 15:09:49 dds Exp $
+ * $Id: filemetrics.h,v 1.23 2007/08/13 15:56:44 dds Exp $
  */
 
 #ifndef FILEMETRICS_
@@ -73,7 +73,7 @@ public:
 	int get_int_metric(int n) const { return count[n]; }
 	virtual ~FileMetrics() {}
 
-	template <class M> friend const struct MetricDetails &get_detail(int n);
+	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
 };
 
 // Counting file details

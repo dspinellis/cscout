@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.25 2007/08/13 15:09:49 dds Exp $
+ * $Id: filemetrics.cpp,v 1.26 2007/08/13 15:56:44 dds Exp $
  */
 
 #include <iostream>
@@ -95,7 +95,7 @@ operator<<(ostream& o, const FileMetricsSet &mi)
 		"<th>" "Max" "</th>"
 		"<th>" "Avg" "</th></tr>\n";
 	for (int i = 0; i < FileMetrics::metric_max; i++)
-		o << "<tr><td>" << get_name<FileMetrics>(i) << "</td>"
+		o << "<tr><td>" << Metrics::get_name<FileMetrics>(i) << "</td>"
 			"<td>" << m.total.get_metric(i) << "</td>"
 			"<td>" << m.min.get_metric(i) << "</td>"
 			"<td>" << m.max.get_metric(i) << "</td>"

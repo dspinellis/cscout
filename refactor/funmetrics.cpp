@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.1 2007/08/13 15:09:49 dds Exp $
+ * $Id: funmetrics.cpp,v 1.2 2007/08/13 15:56:44 dds Exp $
  */
 
 #include <iostream>
@@ -43,6 +43,7 @@ MetricDetails FunctionMetrics::metric_details[] = {
 	{ em_nsemi,		"NSEMI",		"Number of statements or declarations"},
 	{ em_nop,		"NOP",			"Number of operators"},
 	{ em_nuop,		"NUOP",			"Number of unique operators"},
+	{ em_ncc2op,		"INTERNAL",		"Number of operators contributing to cc2: &&, ||, ?:"},
 	// Keywords counted during identifier processing
 	{ em_nif,		"NIF",			"Number of if statements", 	"if"},
 	{ em_nelse,		"NELSE",		"Number of else clauses",	"else"},
@@ -62,6 +63,7 @@ MetricDetails FunctionMetrics::metric_details[] = {
 	{ em_nmid,		"NMID",			"Number of macro identifiers"},
 	{ em_nid,		"NID",			"Total number of object and object-like identifiers"},
 	{ em_nuid,		"NUID",			"Number of unique object and object-like identifiers"},
+	{ em_nlabid,		"INTERNAL",		"Number of label identifiers"},
 	// During processing (once based on processed)
 	{ em_nparam,		"NPARAM",		"Number of parameters"},
 	// Metrics dynamically derived

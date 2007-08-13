@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.167 2007/08/11 12:47:24 dds Exp $
+ * $Id: cscout.cpp,v 1.168 2007/08/13 15:56:44 dds Exp $
  */
 
 #include <map>
@@ -791,7 +791,7 @@ xfilequery_page(FILE *of,  void *p)
 	}
 	html_file_begin(of);
 	if (query.get_sort_order() != -1)
-		fprintf(of, "<th>%s</th>\n", get_name<FileMetrics>(query.get_sort_order()).c_str());
+		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
 	Pager pager(of, Option::entries_per_page->get(), query.base_url());
 	html_file_set_begin(of);
 	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
@@ -1170,10 +1170,6 @@ function_page(FILE *fo, void *p)
 		return;
 	}
 	html_head(fo, "fun", string("Function: ") + html(f->get_name()) + " (" + f->entity_type_name() + ')');
-	fprintf(fo, "<h2>Metrics</h2><ul>\n");
-	for (int j = 0; j < FunctionMetrics::metric_max; j++)
-		fprintf(fo, "\n<li> %s: %d", get_name<FunctionMetrics>(j).c_str(), f->metrics().get_metric(j));
-	fprintf(fo, "</ul>\n");
 	fprintf(fo, "<h2>Details</h2>\n");
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> Associated identifier(s): ");
@@ -1211,6 +1207,13 @@ function_page(FILE *fo, void *p)
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", cgraph_suffix(), f);
 	fprintf(fo, "</ul>\n");
+	if (f->is_defined()) {
+		fprintf(fo, "<h2>Metrics</h2><ul>\n");
+		for (int j = 0; j < FunctionMetrics::metric_max; j++)
+			if (!Metrics::is_internal<FunctionMetrics>(j))
+				fprintf(fo, "\n<li> %s: %d", Metrics::get_name<FunctionMetrics>(j).c_str(), f->metrics().get_metric(j));
+		fprintf(fo, "</ul>\n");
+	}
 	html_tail(fo);
 }
 
@@ -1775,7 +1778,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<h2>Metrics</h2><ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "\n<li> %s: %d", get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
+		fprintf(of, "\n<li> %s: %d", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
 	if (Option::show_projects->get()) {
 		fprintf(of, "\n<li> Used in project(s): \n<ul>");
 		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)

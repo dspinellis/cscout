@@ -12,7 +12,7 @@
  * During postprocessing call:
  * process_char() or process_id() while going through each file
  *
- * $Id: funmetrics.h,v 1.1 2007/08/13 15:09:49 dds Exp $
+ * $Id: funmetrics.h,v 1.2 2007/08/13 15:56:44 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -86,7 +86,7 @@ public:
 	virtual double get_metric(int i) const;
 	virtual ~FunctionMetrics() {}
 
-	template <class M> friend const struct MetricDetails &get_detail(int n);
+	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
 };
 
 #endif /* FUNMETRICS_ */

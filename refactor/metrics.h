@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.22 2007/08/13 15:09:49 dds Exp $
+ * $Id: metrics.h,v 1.23 2007/08/13 15:56:44 dds Exp $
  */
 
 #ifndef METRICS_
@@ -105,45 +105,19 @@ public:
 	double get_metric(int n) const { return count[n]; }
 	void set_metric(int n, int val) { count[n] = val; }
 
-	template <class M> friend const struct MetricDetails &get_detail(int n);
+	// Return true if the specified metric shall not appear in the UI/RDBMS
+	template <class M>
+	static bool is_internal(int n) { return get_dbfield<M>(n) == "INTERNAL"; }
+
+	// Return a reference to the details of the specified metric
+	template <class M> static const struct MetricDetails & get_detail(int n);
+
+	// Return the database field name of the specified metric
+	template <class M> static const string & get_dbfield(int n);
+
+	// Return the metric name of the specified metric
+	template <class M> static const string & get_name(int n);
 };
-
-// Return a reference to the details of the specified metric
-template <class M>
-static const struct MetricDetails &
-get_detail(int n)
-{
-	static const MetricDetails unknown = {0, "UNKNOWN", "UNKNOWN"};
-
-	csassert(n < M::metric_max);
-	for (int i = 0 ; i < M::metric_max; i++)
-		if (M::metric_details[i].id == n)
-			return (M::metric_details[i]);
-	csassert(0);
-	return (unknown);
-}
-
-// Return the database field name of the specified metric
-template <class M>
-const string &
-get_dbfield(int n)
-{
-	if (n < Metrics::metric_max)
-		return get_detail<Metrics>(n).dbfield;
-	else
-		return get_detail<M>(n).dbfield;
-}
-
-// Return the metric name of the specified metric
-template <class M>
-const string &
-get_name(int n)
-{
-	if (n < Metrics::metric_max)
-		return get_detail<Metrics>(n).name;
-	else
-		return get_detail<M>(n).name;
-}
 
 class Eclass;
 class FileMetricsSet;
@@ -235,5 +209,42 @@ struct get_min : public binary_function<int, int, int>
 
 // Return the average of a sum v over n values as a string
 string avg(int v, int n);
+
+// Return a reference to the details of the specified metric
+template <class M>
+const struct MetricDetails &
+Metrics::get_detail(int n)
+{
+	static const MetricDetails unknown = {0, "UNKNOWN", "UNKNOWN"};
+
+	csassert(n < M::metric_max);
+	for (int i = 0 ; i < M::metric_max; i++)
+		if (M::metric_details[i].id == n)
+			return (M::metric_details[i]);
+	csassert(0);
+	return (unknown);
+}
+
+// Return the database field name of the specified metric
+template <class M>
+const string &
+Metrics::get_dbfield(int n)
+{
+	if (n < Metrics::metric_max)
+		return get_detail<Metrics>(n).dbfield;
+	else
+		return get_detail<M>(n).dbfield;
+}
+
+// Return the metric name of the specified metric
+template <class M>
+const string &
+Metrics::get_name(int n)
+{
+	if (n < Metrics::metric_max)
+		return get_detail<Metrics>(n).name;
+	else
+		return get_detail<M>(n).name;
+}
 
 #endif /* METRICS_ */

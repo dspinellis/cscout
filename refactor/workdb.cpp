@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.36 2007/08/13 15:09:49 dds Exp $
+ * $Id: workdb.cpp,v 1.37 2007/08/13 15:56:44 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -366,7 +366,8 @@ workdb_schema(Sql *db, ostream &of)
 		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
 		// AUTOSCHEMA INCLUDE filemetrics.cpp FileMetrics
 		for (int i = 0; i < FileMetrics::metric_max; i++)
-			cout << ",\n" << get_dbfield<FileMetrics>(i) << " INTEGER";
+			if (!Metrics::is_internal<FileMetrics>(i))
+				cout << ",\n" << Metrics::get_dbfield<FileMetrics>(i) << " INTEGER";
 		cout << ");\n"
 
 		"CREATE TABLE FILEPROJ("		// Files used in projects
@@ -411,12 +412,17 @@ workdb_schema(Sql *db, ostream &of)
 		"DECLARED " << db->booltype() << ",\n"	// True if the function is declared within the workspace
 		"FILESCOPED " << db->booltype() << ",\n"// True if the function's scope is a single compilation unit (static or macro)
 		"FID INTEGER,\n"			// File key of the function's definition, declaration, or use (references FILES)
-		"FOFFSET INTEGER,\n";			// Offset of definition, declaration, or use within the file
+		"FOFFSET INTEGER\n"			// Offset of definition, declaration, or use within the file
+		");\n"
+
+		"CREATE TABLE FUNCTIONMETRICS("		// Metrics of defined functions and macros
+		"ID INTEGER PRIMARY KEY";		// Unique function identifier
 		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
 		// AUTOSCHEMA INCLUDE funmetrics.cpp FunctionMetrics
 		for (int i = 0; i < FunctionMetrics::metric_max; i++)
-			cout << ",\n" << get_dbfield<FunctionMetrics>(i) <<
-			    (i >= FunctionMetrics::em_real_start ? " REAL" : " INTEGER");
+			if (!Metrics::is_internal<FunctionMetrics>(i))
+				cout << ",\n" << Metrics::get_dbfield<FunctionMetrics>(i) <<
+				    (i >= FunctionMetrics::em_real_start ? " REAL" : " INTEGER");
 		cout << ");\n"
 
 		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
@@ -462,7 +468,8 @@ workdb_rest(Sql *db, ostream &of)
 		(*i).get_path() << "'," <<
 		db->boolval((*i).get_readonly());
 		for (int j = 0; j < FileMetrics::metric_max; j++)
-			cout << ',' << i->metrics().get_metric(j);
+			if (!Metrics::is_internal<FileMetrics>(j))
+				cout << ',' << i->metrics().get_metric(j);
 		cout << ");\n";
 		// The projects this file belongs to
 		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
