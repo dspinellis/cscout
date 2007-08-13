@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.121 2007/08/12 07:22:53 dds Exp $
+# $Id: Makefile,v 1.122 2007/08/13 15:09:49 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -16,7 +16,7 @@ ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
 getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
 logo.o workdb.o obfuscate.o sql.o base64.o md5.o os.o pager.o \
-option.o filequery.o mcall.o
+option.o filequery.o mcall.o filemetrics.o funmetrics.o
 
 # monitor.o
 
@@ -64,8 +64,8 @@ SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
 	workdb.h obfuscate.h dlstubs.c sql.cpp sql.h fifstream.h compiledre.h \
 	base64.h base64.c gdisplay.h eval.h md5.h md5.c os.cpp os.h \
-	filequery.cpp filequery.h mquery.h mcall.cpp \
-	pager.h pager.cpp option.cpp option.h \
+	filequery.cpp filequery.h mquery.h mcall.cpp  filemetrics.h funmetrics.h \
+	pager.h pager.cpp option.cpp option.h  filemetrics.cpp funmetrics.cpp \
 	runtest.sh \
 	csmake.pl cswc.pl
 
@@ -208,8 +208,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.121 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2007/08/12 07:22:53 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.122 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2007/08/13 15:09:49 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

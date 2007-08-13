@@ -2,7 +2,7 @@
 #
 # Document the database schema
 #
-# $Id: docschema.pl,v 1.3 2007/08/10 10:15:05 dds Exp $
+# $Id: docschema.pl,v 1.4 2007/08/13 15:09:49 dds Exp $
 #
 
 sub
@@ -18,7 +18,7 @@ $dir =~ s,\/[^/]+$,/,;
 
 print '<?xml version="1.0" ?>
 <notes>
-<!-- Automatically generated file: $Id: docschema.pl,v 1.3 2007/08/10 10:15:05 dds Exp $ -->
+<!-- Automatically generated file: $Id: docschema.pl,v 1.4 2007/08/13 15:09:49 dds Exp $ -->
 The following sections describe the
 schema of the database created through the SQL backend.
 ';
@@ -47,13 +47,13 @@ $2.
 		} elsif (/AUTOSCHEMA INCLUDE ([^ ]+) (\w+)/) {
 			$file = "$dir/$1";
 			$part = $2;
-			$type = 'INTEGER';
 			open(IN, $file) || die "Unable to open $file: $!\n";
 			while (<IN>) {
 				if (/BEGIN AUTOSCHEMA $part$/ .. /END AUTOSCHEMA $part$/) {
 					if (/\{\s*\w+\,\s*\"(\w+)\"\,\s*\"([^"]+)\"/) {
 						$name = $1;
 						$description = $2;
+						$type = (/\/\/ REAL$/ ? 'REAL' : 'INTEGER');
 						printline();
 					}
 				}

@@ -3,11 +3,13 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.17 2007/08/12 07:22:01 dds Exp $
+ * $Id: call.h,v 1.18 2007/08/13 15:09:49 dds Exp $
  */
 
 #ifndef CALL_
 #define CALL_
+
+#include "funmetrics.h"
 
 class FCall;
 class Sql;

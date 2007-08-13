@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.35 2007/08/11 12:47:24 dds Exp $
+ * $Id: workdb.cpp,v 1.36 2007/08/13 15:09:49 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -28,6 +28,8 @@
 #include "attr.h"
 #include "ytab.h"
 #include "metrics.h"
+#include "funmetrics.h"
+#include "filemetrics.h"
 #include "attr.h"
 #include "fileid.h"
 #include "tokid.h"
@@ -362,7 +364,7 @@ workdb_schema(Sql *db, ostream &of)
 		"NAME " << db->varchar() << ",\n"	// File name
 		"RO " << db->booltype();		// True if the file is read-only
 		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
-		// AUTOSCHEMA INCLUDE metrics.cpp FileMetrics
+		// AUTOSCHEMA INCLUDE filemetrics.cpp FileMetrics
 		for (int i = 0; i < FileMetrics::metric_max; i++)
 			cout << ",\n" << get_dbfield<FileMetrics>(i) << " INTEGER";
 		cout << ");\n"
@@ -409,8 +411,13 @@ workdb_schema(Sql *db, ostream &of)
 		"DECLARED " << db->booltype() << ",\n"	// True if the function is declared within the workspace
 		"FILESCOPED " << db->booltype() << ",\n"// True if the function's scope is a single compilation unit (static or macro)
 		"FID INTEGER,\n"			// File key of the function's definition, declaration, or use (references FILES)
-		"FOFFSET INTEGER"			// Offset of definition, declaration, or use within the file
-		");\n"
+		"FOFFSET INTEGER,\n";			// Offset of definition, declaration, or use within the file
+		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
+		// AUTOSCHEMA INCLUDE funmetrics.cpp FunctionMetrics
+		for (int i = 0; i < FunctionMetrics::metric_max; i++)
+			cout << ",\n" << get_dbfield<FunctionMetrics>(i) <<
+			    (i >= FunctionMetrics::em_real_start ? " REAL" : " INTEGER");
+		cout << ");\n"
 
 		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
 		"FUNCTIONID INTEGER, "			// Function identifier key (references FUNCTIONS)

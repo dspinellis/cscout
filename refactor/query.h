@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.7 2006/09/24 20:58:46 dds Exp $
+ * $Id: query.h,v 1.8 2007/08/13 15:09:49 dds Exp $
  */
 
 #ifndef QUERY_
@@ -39,7 +39,7 @@ public:
 	// Display an equality selection box
 	static void equality_selection(FILE *of);
 	// Return the result of applying operator op on a, b
-	static inline bool apply(int op, int a, int b);
+	static inline bool apply(int op, double a, double b);
 	// URL-encode the given string
 	static string url(const string &s);
 
@@ -61,7 +61,7 @@ public:
  * since because the polymorphic binary_function does not define the appropriate () operators.
  */
 inline bool
-Query::apply(int op, int a, int b)
+Query::apply(int op, double a, double b)
 {
 	if (DP()) {
 		cout << a;

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.15 2007/08/12 07:22:01 dds Exp $
+ * $Id: call.cpp,v 1.16 2007/08/13 15:09:49 dds Exp $
  */
 
 #include <map>
@@ -106,6 +106,7 @@ Call::register_call(Call *from, Call *to)
 // ctor; never call it if the call for t already exists
 Call::Call(const string &s, const Token &t) :
 		name(s),
+		m(this),
 		token(t)
 {
 	if (DP())

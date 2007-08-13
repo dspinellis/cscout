@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.21 2007/08/11 12:47:24 dds Exp $
+ * $Id: metrics.h,v 1.22 2007/08/13 15:09:49 dds Exp $
  */
 
 #ifndef METRICS_
@@ -40,6 +40,7 @@ struct MetricDetails {
 	int id;		// Metric identifier
 	string dbfield;	// Database field name
 	string name;	// User-visible name
+	string keyword;	// Associated C keyword
 };
 
 // Metrics for regions of code (files and functions)
@@ -61,7 +62,7 @@ public:
 		processed(false)
 	{}
 
-	// Matrics we collect
+	// Metrics we collect
 	enum e_metric {
 	// During post-processing
 		em_nchar,		// Number of characters
@@ -101,88 +102,8 @@ public:
 	// Get methods
 	enum e_cfile_state get_state() { return cstate; }
 	// Generic
-	int get_metric(int n) const { return count[n]; }
+	double get_metric(int n) const { return count[n]; }
 	void set_metric(int n, int val) { count[n] = val; }
-
-	template <class M> friend const struct MetricDetails &get_detail(int n);
-};
-
-class FileMetrics : public Metrics {
-private:
-	static MetricDetails metric_details[];
-
-public:
-	FileMetrics() { count.resize(metric_max, 0); }
-
-	// Matrics we collect
-	enum e_metric {
-	// During post-processing
-		em_ncopies =		// Number of copies of the file
-			Metrics::metric_max,
-	// During processing (once based on processed)
-		em_nstatement,		// Number of statements
-		em_npfunction,		// Defined project-scope functions
-		em_nffunction,		// Defined file-scope (static) functions
-		em_npvar,		// Defined project-scope variables
-		em_nfvar,		// Defined file-scope (static) variables
-		em_naggregate,		// Number of complete structure / union declarations
-		em_namember,		// Number of declared aggregate members
-		em_nenum,		// Number of complete enumeration declarations
-		em_nemember,		// Number of declared enumeration elements
-		em_nincfile,		// Number of directly included files
-		metric_max
-	};
-
-	// Called to set the number of other identical files
-	void set_ncopies(int n) { count[em_ncopies] = n; }
-
-	// Manipulate the processing-based metrics
-	void add_statement() { if (!processed) count[em_nstatement]++; }
-	void add_incfile() { if (!processed) count[em_nincfile]++; }
-
-	// Increment the number of functions for the file being processed
-	void add_function(bool is_file_scoped) {
-		if (processed)
-			return;
-		if (is_file_scoped)
-			count[em_nffunction]++;
-		else
-			count[em_npfunction]++;
-	}
-	void add_aggregate() { if (!processed) count[em_naggregate]++; }
-	void add_amember() { if (!processed) count[em_namember]++; }
-	void add_enum() { if (!processed) count[em_nenum]++; }
-	void add_emember() { if (!processed) count[em_nemember]++; }
-	void add_pvar() { if (!processed) count[em_npvar]++; }
-	void add_fvar() { if (!processed) count[em_nfvar]++; }
-
-	template <class M> friend const struct MetricDetails &get_detail(int n);
-};
-
-class FunctionMetrics : public Metrics {
-private:
-	static MetricDetails metric_details[];
-
-public:
-	FunctionMetrics() { count.resize(metric_max, 0); }
-
-	// Matrics we collect
-	enum e_metric {
-#ifdef ndef
-	// During post-processing
-		em_nstatement =		// Number of statements
-			Metrics::metric_max,
-		em_nif,			// Number of if keywords
-		em_nelse,		// Number of else keywords
-		em_nwhile,		// Number of while keywords
-		em_ndo,			// Number of do keywords
-		em_nswitch,		// Number of switch keywords
-		em_ncase,		// Number of switch keywords
-	// During processing (once based on processed)
-		em_param,		// Number of parameters
-#endif
-		metric_max = Metrics::metric_max // XXX
-	};
 
 	template <class M> friend const struct MetricDetails &get_detail(int n);
 };
@@ -249,23 +170,6 @@ public:
 class Fileid;
 class IdMetricsSet;
 
-// Counting file details
-class FileCount {
-private:
-	// Totals for all files
-	int nfile;		// Number of unique files
-	vector <int> count;	// File metric counts
-public:
-	FileCount(int v = 0) :
-		nfile(0),
-		count(FileMetrics::metric_max, v)
-	{}
-	int get_metric(int i) { return count[i]; }
-	// Add the details of file fi
-	template <class BinaryFunction>
-	void add(Fileid &fi, BinaryFunction f);
-	friend ostream& operator<<(ostream& o, const FileMetricsSet &m);
-};
 
 // One such set is kept for readable and writable identifiers
 class IdMetricsSet {
@@ -279,18 +183,6 @@ public:
 	friend ostream& operator<<(ostream& o, const IdMetricsSet &m);
 };
 
-// One such set is kept for readable and writable files
-class FileMetricsSet {
-	friend class FileMetricsSummary;
-	FileCount total;// File details, total
-	FileCount min;	// File details, min across files
-	FileCount max;	// File details, max across files
-public:
-	FileMetricsSet();
-	friend ostream& operator<<(ostream& o, const FileMetricsSet &m);
-	int get_total(int i) { return total.get_metric(i); }
-};
-
 // This can be kept per project and globally
 class IdMetricsSummary {
 	IdMetricsSet rw[2];			// For writable (0) and read-only (1) cases
@@ -302,20 +194,46 @@ public:
 	friend ostream& operator<<(ostream& o,const IdMetricsSummary &ms);
 };
 
-// This can be kept per project and globally
-class FileMetricsSummary {
-	FileMetricsSet rw[2];			// For read-only and writable cases
-public:
-	// Create file-based summary
-	void summarize_files();
-	friend ostream& operator<<(ostream& o,const FileMetricsSummary &ms);
-	int get_total(int i) { return rw[0].get_total(i) + rw[1].get_total(i); }
-	int get_readonly(int i) { return rw[1].get_total(i); }
-	int get_writable(int i) { return rw[0].get_total(i); }
-};
-
 // Global metrics
 extern IdMetricsSummary id_msum;
-extern FileMetricsSummary file_msum;
+
+struct add_one : public unary_function<int, int>
+{
+      int operator()(int x) { return x + 1; }
+};
+
+struct add_n : public unary_function<int, int>
+{
+      int n;
+      add_n(int add) { n = add; }
+      int operator()(int x) { return x + n; }
+};
+
+struct set_max : public unary_function<int, int>
+{
+      int n;
+      set_max(int newval) { n = newval; }
+      int operator()(int x) { return x > n ? x : n; }
+};
+
+struct set_min : public unary_function<int, int>
+{
+      int n;
+      set_min(int newval) { n = newval; }
+      int operator()(int x) { return (x < n && x > 0) ? x : n; }
+};
+
+struct get_max : public binary_function<int, int, int>
+{
+      int operator()(int x, int y) { return (x < y) ? y : x; }
+};
+
+struct get_min : public binary_function<int, int, int>
+{
+      int operator()(int x, int y) { return (x > y) ? y : x; }
+};
+
+// Return the average of a sum v over n values as a string
+string avg(int v, int n);
 
 #endif /* METRICS_ */
