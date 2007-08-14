@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.25 2007/08/13 15:09:49 dds Exp $
+ * $Id: metrics.cpp,v 1.26 2007/08/14 13:45:00 dds Exp $
  */
 
 #include <iostream>
@@ -46,10 +46,10 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_nstring,		"NSTRING",		"Number of character strings"},
 	{ em_nuline,		"NULINE",		"Number of unprocessed lines"},
 
-	{ em_nppdirective,	"NPPDIRECTIVE",		"Number of cpp directives"},
-	{ em_nppcond,		"NPPCOND",		"Number of processed cpp conditionals (ifdef, if, elif)"},
-	{ em_nppfmacro,		"NPPFMACRO",		"Number of defined cpp function-like macros"},
-	{ em_nppomacro,		"NPPOMACRO",		"Number of defined cpp object-like macros"},
+	{ em_nppdirective,	"NPPDIRECTIVE",		"Number of C preprocessor directives"},
+	{ em_nppcond,		"NPPCOND",		"Number of processed C preprocessor conditionals (ifdef, if, elif)"},
+	{ em_nppfmacro,		"NPPFMACRO",		"Number of defined C preprocessor function-like macros"},
+	{ em_nppomacro,		"NPPOMACRO",		"Number of defined C preprocessor object-like macros"},
 // END AUTOSCHEMA Metrics
 };
 
