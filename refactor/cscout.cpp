@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.169 2007/08/13 18:13:41 dds Exp $
+ * $Id: cscout.cpp,v 1.170 2007/08/14 21:59:39 dds Exp $
  */
 
 #include <map>
@@ -897,8 +897,9 @@ funquery_page(FILE *of,  void *p)
 	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only declaration<br>\n"
 	"<input type=\"checkbox\" name=\"pscope\" value=\"1\">Project scope<br>\n"
 	"<input type=\"checkbox\" name=\"fscope\" value=\"1\">File scope<br>\n"
-	"<input type=\"checkbox\" name=\"defined\" value=\"1\">Defined<br>\n"
-	"<p>\n"
+	"<input type=\"checkbox\" name=\"defined\" value=\"1\">Defined<br>\n", of);
+	MQuery<FunctionMetrics, Call &>::metrics_query_form(of);
+	fputs("<p>\n"
 	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any marked\n"
 	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
 	"<input type=\"radio\" name=\"match\" value=\"L\">Match all marked\n"

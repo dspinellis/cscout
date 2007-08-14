@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.10 2007/08/09 13:18:34 dds Exp $
+ * $Id: funquery.h,v 1.11 2007/08/14 21:59:39 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -47,6 +47,8 @@ private:
 
 	string name;		// Query name
 	Attributes::size_type current_project;	// Restrict evaluation to this project
+	// The query part for the metrics
+	MQuery<FunctionMetrics, Call &> mquery;
 public:
 	// Construct object based on URL parameters
 	FunQuery(FILE *f, bool icase, Attributes::size_type current_project, bool e = true, bool r = true);
@@ -57,35 +59,41 @@ public:
 	virtual ~FunQuery() {}
 
 	// Perform a query
-	bool eval(const Call *c);
+	bool eval(Call *c);
 	// Return the URL for re-executing this query
 	string base_url() const;
 	// Return the query's parameters as a URL
 	string param_url() const;
+	//
+	// Container comparison functor
+	class specified_order : public binary_function <const Call &, const Call &, bool> {
+	private:
+		/*
+		 * Can only be an instance variable (per C++ PL 17.1.4.5)
+		 * only when the corresponding constructor is passed a
+		 * compile-time constant.
+		 * This hack works around the limitation.
+		 */
+		static int order;
+		static bool reverse;
+	public:
+		// Should be called exactly once before instantiating the set
+		static void set_order(int o, bool r) { order = o; reverse = r; }
+		bool operator()(const Call *a, const Call *b) const {
+			bool val;
+			if (order == -1)
+				// Order by name
+				if (Option::sort_rev->get())
+					val = Query::string_rev_compare(a->get_name(), b->get_name());
+				else
+					val = (a->get_name() < b->get_name());
+			else
+				val = (a->const_metrics().get_metric(order) < b->const_metrics().get_metric(order));
+			return reverse ? !val : val;
+		}
+	};
 };
 
-/*
- * Function object to compare Call pointers
- * Will compare from end to start if sort_rev is set
- */
-struct fcmp : public binary_function <const Call *, const Call *, bool> {
-	bool operator()(const Call *i1, const Call *i2) const
-	{
-		if (Option::sort_rev->get()) {
-			const string &s1 = i1->get_name();
-			const string &s2 = i2->get_name();
-			string::const_reverse_iterator j1, j2;
-
-			for (j1 = s1.rbegin(), j2 = s2.rbegin();
-			     j1 != s1.rend() && j2 != s2.rend(); j1++, j2++)
-				if (*j1 != *j2)
-					return *j1 < *j2;
-			return j1 == s1.rend() && j2 != s2.rend();
-		} else
-			return i1->get_name().compare(i2->get_name()) < 0;
-	}
-};
-
-typedef multiset <const Call *, fcmp> Sfuns;
+typedef multiset <const Call *, FunQuery::specified_order> Sfuns;
 
 #endif // FUNQUERY_

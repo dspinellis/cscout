@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.17 2006/09/24 20:58:46 dds Exp $
+ * $Id: funquery.cpp,v 1.18 2007/08/14 21:59:39 dds Exp $
  */
 
 #include <map>
@@ -53,7 +53,11 @@
 #include "compiledre.h"
 #include "option.h"
 #include "query.h"
+#include "mquery.h"
 #include "funquery.h"
+
+int FunQuery::specified_order::order;
+bool FunQuery::specified_order::reverse;
 
 // Construct an object based on URL parameters
 FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :
@@ -84,6 +88,7 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 		return;
 	}
 	match_type = *m;
+	mquery.set_match_type(match_type);
 
 	cfun = !!swill_getvar("cfun");
 	macro = !!swill_getvar("macro");
@@ -105,6 +110,7 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	    !compile_re(of, "Called function name", "fdre", fdre, match_fdre, str_fdre) ||
 	    !compile_re(of, "Filename", "fre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
 	    	return;
+	specified_order::set_order(mquery.get_sort_order(), mquery.get_reverse());
 }
 
 // Return the URL for re-executing this query
@@ -120,6 +126,7 @@ FunQuery::param_url() const
 {
 	string r("qt=fun&match=");
 	r += Query::url(string(1, match_type));
+	r += mquery.param_url();
 	if (call) {
 		char buff[256];
 
@@ -170,7 +177,7 @@ FunQuery::param_url() const
 // Evaluate the object's identifier query against i
 // return true if it matches
 bool
-FunQuery::eval(const Call *c)
+FunQuery::eval(Call *c)
 {
 	if (lazy)
 		return return_val;
@@ -182,10 +189,9 @@ FunQuery::eval(const Call *c)
 	if (current_project && !ec->get_attribute(current_project))
 		return false;
 
-	bool add = false;
+	bool add = mquery.eval(*c);
 	switch (match_type) {
 	case 'Y':	// anY match
-		add = false;
 		add = (add || (cfun && c->is_cfun()));
 		add = (add || (macro && c->is_macro()));
 		add = (add || (writable && !ec->get_attribute(is_readonly)));
@@ -195,7 +201,6 @@ FunQuery::eval(const Call *c)
 		add = (add || (defined && c->is_defined()));
 		break;
 	case 'L':	// alL match
-		add = true;
 		add = (add && (!cfun || c->is_cfun()));
 		add = (add && (!macro || c->is_macro()));
 		add = (add && (!writable || !ec->get_attribute(is_readonly)));
@@ -205,7 +210,6 @@ FunQuery::eval(const Call *c)
 		add = (add && (!defined || c->is_defined()));
 		break;
 	case 'E':	// excludE match
-		add = true;
 		add = (add && (!cfun || !c->is_cfun()));
 		add = (add && (!macro || !c->is_macro()));
 		add = (add && (!writable || ec->get_attribute(is_readonly)));
@@ -215,7 +219,6 @@ FunQuery::eval(const Call *c)
 		add = (add && (!defined || !c->is_defined()));
 		break;
 	case 'T':	// exactT match
-		add = true;
 		add = (add && (cfun == c->is_cfun()));
 		add = (add && (macro == c->is_macro()));
 		add = (add && (writable == !ec->get_attribute(is_readonly)));

@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.8 2007/08/13 15:09:49 dds Exp $
+ * $Id: query.h,v 1.9 2007/08/14 21:59:39 dds Exp $
  */
 
 #ifndef QUERY_
@@ -51,6 +51,16 @@ public:
 	virtual string param_url() const = 0;
 	// Return the URL for re-executing this query
 	virtual string base_url() const = 0;
+	// Compare two strings from end to start
+	static bool string_rev_compare(const string &s1, const string &s2) {
+		string::const_reverse_iterator j1, j2;
+
+		for (j1 = s1.rbegin(), j2 = s2.rbegin();
+		     j1 != s1.rend() && j2 != s2.rend(); j1++, j2++)
+			if (*j1 != *j2)
+				return *j1 < *j2;
+		return j1 == s1.rend() && j2 != s2.rend();
+	}
 };
 
 /*
