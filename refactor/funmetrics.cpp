@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.5 2007/08/14 13:43:59 dds Exp $
+ * $Id: funmetrics.cpp,v 1.6 2007/08/14 13:58:58 dds Exp $
  */
 
 #include <iostream>
@@ -93,17 +93,18 @@ FunctionMetrics::get_metric(int n) const
 		return count[n];
 	// A few are calculated dynamically
 	case em_nlabel:	// Number of goto labels
-		return (em_nlabid - em_ngoto);
+		return (get_metric(em_nlabid) - get_metric(em_ngoto));
 	case em_fanin:	// Fan-in (number of calling functions)
 		return call->get_num_caller();
 	case em_fanout:	// Fan-out (number of called functions)
 		return call->get_num_call();
 	case em_ccycl1:	// Cyclomatic complexity (control statements)
-		return (em_nif + em_nswitch + em_nfor + em_nwhile + em_ndo + 1);
+		return (get_metric(em_nif) + get_metric(em_nswitch) +
+		    get_metric(em_nfor) + get_metric(em_nwhile) + get_metric(em_ndo) + 1);
 	case em_ccycl2:	// Extended cyclomatic complexity (including branching operators)
-		return get_metric(em_ccycl1) + em_ncc2op;
+		return get_metric(em_ccycl1) + get_metric(em_ncc2op);
 	case em_ccycl3:	// Cyclomatic complexity (including switch branches)
-		return get_metric(em_ccycl2) - em_nswitch + em_ncase;
+		return get_metric(em_ccycl2) - get_metric(em_nswitch) + get_metric(em_ncase);
 	case em_cstruc:	// Structure complexity (Henry and Kafura)
 #define sqr(x) ((x) * (x))
 		return sqr((double)get_metric(em_fanin) * (double)get_metric(em_fanout));
