@@ -12,7 +12,7 @@
  * During postprocessing call:
  * process_char() or process_id() while going through each file
  *
- * $Id: funmetrics.h,v 1.3 2007/08/14 08:58:23 dds Exp $
+ * $Id: funmetrics.h,v 1.4 2007/08/14 12:38:06 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -51,6 +51,8 @@ public:
 			Metrics::metric_max,
 		em_nop,		// Number of operators
 		em_nuop,	// Number of unique operators
+		em_nnconst,	// Number of numeric constants
+		em_nclit,	// Number of character literals
 		em_ncc2op,	// (INT) Number of operators contributing to cc2: &&, ||, ?:
 		// Keywords counted during identifier processing
 		em_nif,		// Number of if statements

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.3 2007/08/14 08:58:23 dds Exp $
+ * $Id: funmetrics.cpp,v 1.4 2007/08/14 12:38:06 dds Exp $
  */
 
 #include <iostream>
@@ -45,6 +45,8 @@ MetricDetails FunctionMetrics::metric_details[] = {
 	{ em_nsemi,		"NSEMI",		"Number of statements or declarations"},
 	{ em_nop,		"NOP",			"Number of operators"},
 	{ em_nuop,		"NUOP",			"Number of unique operators"},
+	{ em_nnconst,		"NNCONST"		"Number of numeric constants"},
+	{ em_nclit,		"NCLIT"			"Number of character literals"},
 	{ em_ncc2op,		"INTERNAL",		"Number of operators contributing to cc2: &&, ||, ?:"},
 	// Keywords counted during identifier processing
 	{ em_nif,		"NIF",			"Number of if statements", 	"if"},
@@ -109,8 +111,15 @@ FunctionMetrics::get_metric(int n) const
 		return get_metric(em_cstruc) * get_metric(em_ccycl1);
 	case em_chal:	// Halstead complexity
 #define log2(x) (log(x) / log(2.))
-		return (get_metric(em_nop) + get_metric(em_nid)) *
-			log2(get_metric(em_nuop) + get_metric(em_nuid));
+		// We consider numeric constants and character literals to be unique operands
+		return (get_metric(em_nop) +
+			get_metric(em_nid) +
+			get_metric(em_nnconst) +
+			get_metric(em_nclit)) *
+		    log2(get_metric(em_nuop) +
+		        get_metric(em_nuid) +
+			get_metric(em_nnconst) +
+			get_metric(em_nclit));
 	}
 }
 
