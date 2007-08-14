@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.2 2007/08/13 15:56:44 dds Exp $
+ * $Id: funmetrics.cpp,v 1.3 2007/08/14 08:58:23 dds Exp $
  */
 
 #include <iostream>
@@ -35,7 +35,9 @@
 #include "fchar.h"
 #include "token.h"
 #include "call.h"
+#include "ytab.h"
 
+vector<bool> &FunctionMetrics::is_operator_map = make_is_operator();
 
 MetricDetails FunctionMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FunctionMetrics
@@ -110,4 +112,60 @@ FunctionMetrics::get_metric(int n) const
 		return (get_metric(em_nop) + get_metric(em_nid)) *
 			log2(get_metric(em_nuop) + get_metric(em_nuid));
 	}
+}
+
+// Add operator op to int-indexed map v
+inline void
+FunctionMetrics::add_operator(vector<bool> &v, unsigned op)
+{
+	if (op >= v.size())
+		v.resize(op + 1, false);
+	v[op] = true;
+}
+
+// Create an integer-indexed map indicating which tokens represent operators
+vector<bool> &
+FunctionMetrics::make_is_operator()
+{
+	static vector<bool> isop;	// Tokens that are operators
+
+	add_operator(isop, '!');
+	add_operator(isop, '%');
+	add_operator(isop, '&');
+	add_operator(isop, '*');
+	add_operator(isop, '+');
+	add_operator(isop, ',');
+	add_operator(isop, '-');
+	add_operator(isop, '.');
+	add_operator(isop, '/');
+	add_operator(isop, '<');
+	add_operator(isop, '=');
+	add_operator(isop, '>');
+	add_operator(isop, '?');
+	add_operator(isop, '^');
+	add_operator(isop, '|');
+	add_operator(isop, '~');
+	add_operator(isop, ADD_ASSIGN);
+	add_operator(isop, AND_ASSIGN);
+	add_operator(isop, AND_OP);
+	add_operator(isop, CPP_CONCAT);
+	add_operator(isop, DEC_OP);
+	add_operator(isop, DIV_ASSIGN);
+	add_operator(isop, EQ_OP);
+	add_operator(isop, GE_OP);
+	add_operator(isop, INC_OP);
+	add_operator(isop, LEFT_ASSIGN);
+	add_operator(isop, LEFT_OP);
+	add_operator(isop, LE_OP);
+	add_operator(isop, MOD_ASSIGN);
+	add_operator(isop, MUL_ASSIGN);
+	add_operator(isop, NE_OP);
+	add_operator(isop, OR_ASSIGN);
+	add_operator(isop, OR_OP);
+	add_operator(isop, PTR_OP);
+	add_operator(isop, RIGHT_ASSIGN);
+	add_operator(isop, RIGHT_OP);
+	add_operator(isop, SUB_ASSIGN);
+	add_operator(isop, XOR_ASSIGN);
+	return (isop);
 }

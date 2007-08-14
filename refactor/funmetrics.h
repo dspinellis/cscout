@@ -12,19 +12,29 @@
  * During postprocessing call:
  * process_char() or process_id() while going through each file
  *
- * $Id: funmetrics.h,v 1.2 2007/08/13 15:56:44 dds Exp $
+ * $Id: funmetrics.h,v 1.3 2007/08/14 08:58:23 dds Exp $
  */
 
 #ifndef FUNMETRICS_
 #define FUNMETRICS_
 
-
 class Call;
 
 class FunctionMetrics : public Metrics {
 private:
-	static MetricDetails metric_details[];
-	Call *call;			// Associated function
+	static MetricDetails metric_details[];	// Descriptions of the metrics we store
+
+	// Return true if token op is an operator
+	static bool is_operator(int op) { return is_operator_map[op]; }
+	// Int-indexed map of tokens that are operators
+	static vector<bool> &is_operator_map;
+	// Add an operator to the map
+	static inline void add_operator(vector<bool> &v, unsigned op);
+	// Initialize map
+	static vector<bool> &make_is_operator();
+
+	set <int> operators;			// Operators used in the function
+	Call *call;				// Associated function
 
 public:
 	FunctionMetrics(Call *c) : call(c) { count.resize(stored_metric_max, 0); }
