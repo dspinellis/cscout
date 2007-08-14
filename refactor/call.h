@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.19 2007/08/14 13:43:59 dds Exp $
+ * $Id: call.h,v 1.20 2007/08/14 16:02:59 dds Exp $
  */
 
 #ifndef CALL_
@@ -163,9 +163,9 @@ public:
 	}
 
 	// Process a token destined for preprocessing
-	static inline void process_token(int code) {
+	static inline void process_token(const Pltoken &t) {
 		if (current_fun && !current_fun->m.is_processed())
-			current_fun->m.process_token(code);
+			current_fun->m.process_token(t);
 	}
 
 	// ctor; never call it if the call for t already exists

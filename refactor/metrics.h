@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.23 2007/08/13 15:56:44 dds Exp $
+ * $Id: metrics.h,v 1.24 2007/08/14 16:02:59 dds Exp $
  */
 
 #ifndef METRICS_
@@ -37,10 +37,9 @@ enum e_cfile_state {
 
 // Details for each metric
 struct MetricDetails {
-	int id;		// Metric identifier
-	string dbfield;	// Database field name
-	string name;	// User-visible name
-	string keyword;	// Associated C keyword
+	int id;			// Metric identifier
+	string dbfield;		// Database field name
+	string name;		// User-visible name
 };
 
 // Metrics for regions of code (files and functions)

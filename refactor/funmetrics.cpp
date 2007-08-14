@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.6 2007/08/14 13:58:58 dds Exp $
+ * $Id: funmetrics.cpp,v 1.7 2007/08/14 16:02:59 dds Exp $
  */
 
 #include <iostream>
@@ -36,31 +36,36 @@
 #include "token.h"
 #include "call.h"
 #include "ytab.h"
+#include "tokid.h"
+#include "token.h"
+#include "ptoken.h"
+#include "pltoken.h"
 
 vector<bool> &FunctionMetrics::is_operator_map = make_is_operator();
+FunctionMetrics::KeywordMap &FunctionMetrics::keyword_map = make_keyword_map();
 
 MetricDetails FunctionMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FunctionMetrics
-	// Elements counted before the preprocessor token tap
+	// Elements counted at the token tap before the preprocessor
 	{ em_nsemi,		"NSEMI",		"Number of statements or declarations"},
 	{ em_nop,		"NOP",			"Number of operators"},
 	{ em_nuop,		"NUOP",			"Number of unique operators"},
 	{ em_nnconst,		"NNCONST",		"Number of numeric constants"},
 	{ em_nclit,		"NCLIT",		"Number of character literals"},
 	{ em_ncc2op,		"INTERNAL",		"Number of operators contributing to cc2: &&, ||, ?:"},
-	// Keywords counted during identifier processing
-	{ em_nif,		"NIF",			"Number of if statements", 	"if"},
-	{ em_nelse,		"NELSE",		"Number of else clauses",	"else"},
-	{ em_nswitch,		"NSWITCH",		"Number of switch statements",	"switch"},
-	{ em_ncase,		"NCASE",		"Number of case labels",	"case"},
-	{ em_ndefault,		"NDEFAULT",		"Number of default labels",	"default"},
-	{ em_nbreak,		"NBREAK",		"Number of break statements",	"break"},
-	{ em_nfor,		"NFOR",			"Number of for statements",	"for"},
-	{ em_nwhile,		"NWHILE",		"Number of while statements",	"while"},
-	{ em_ndo,		"NDO",			"Number of do statements",	"do"},
-	{ em_ncontinue,		"NCONTINUE",		"Number of continue statements","continue"},
-	{ em_ngoto,		"NGOTO",		"Number of goto statements",	"goto"},
-	{ em_nreturn,		"NRETURN",		"Number of return statements",	"break"},
+	// Keywords counted at the token tap before the preprocessor
+	{ em_nif,		"NIF",			"Number of if statements"},
+	{ em_nelse,		"NELSE",		"Number of else clauses"},
+	{ em_nswitch,		"NSWITCH",		"Number of switch statements"},
+	{ em_ncase,		"NCASE",		"Number of case labels"},
+	{ em_ndefault,		"NDEFAULT",		"Number of default labels"},
+	{ em_nbreak,		"NBREAK",		"Number of break statements"},
+	{ em_nfor,		"NFOR",			"Number of for statements"},
+	{ em_nwhile,		"NWHILE",		"Number of while statements"},
+	{ em_ndo,		"NDO",			"Number of do statements"},
+	{ em_ncontinue,		"NCONTINUE",		"Number of continue statements"},
+	{ em_ngoto,		"NGOTO",		"Number of goto statements"},
+	{ em_nreturn,		"NRETURN",		"Number of return statements"},
 	// Identifiers categorized during identifier processing
 	{ em_npid,		"NPID",			"Number of project-scope identifiers"},
 	{ em_nfid,		"NFID",			"Number of file-scope (static) identifiers"},
@@ -190,4 +195,60 @@ FunctionMetrics::summarize_operators()
 		return;
 	count[em_nuop] = operators.size();
 	operators.clear();
+}
+
+// Initialize map
+FunctionMetrics::KeywordMap &
+FunctionMetrics::make_keyword_map()
+{
+	static KeywordMap km;
+
+	km.insert(KeywordMap::value_type("if", em_nif));
+	km.insert(KeywordMap::value_type("else", em_nelse));
+	km.insert(KeywordMap::value_type("switch", em_nswitch));
+	km.insert(KeywordMap::value_type("case", em_ncase));
+	km.insert(KeywordMap::value_type("default", em_ndefault));
+	km.insert(KeywordMap::value_type("break", em_nbreak));
+	km.insert(KeywordMap::value_type("for", em_nfor));
+	km.insert(KeywordMap::value_type("while", em_nwhile));
+	km.insert(KeywordMap::value_type("do", em_ndo));
+	km.insert(KeywordMap::value_type("continue", em_ncontinue));
+	km.insert(KeywordMap::value_type("goto", em_ngoto));
+	km.insert(KeywordMap::value_type("break", em_nreturn));
+
+	return (km);
+}
+
+// Process a single token read from a file
+void
+FunctionMetrics::process_token(const Pltoken &t)
+{
+	csassert(!processed);
+	int code = t.get_code();
+	int em;
+	switch (code) {
+	case IDENTIFIER:
+		em = keyword_metric(t.get_val());
+		if (em != -1)
+			count[em]++;
+		break;
+	case ';':
+		count[em_nsemi]++;
+		break;
+	case PP_NUMBER:
+		count[em_nnconst]++;
+		break;
+	case CHAR_LITERAL:
+		count[em_nclit]++;
+		break;
+	case AND_OP:
+	case OR_OP:
+	case '?':
+		count[em_ncc2op]++;
+		break;
+	}
+	if (is_operator(code)) {
+		count[em_nop]++;
+		operators.insert(code);
+	}
 }

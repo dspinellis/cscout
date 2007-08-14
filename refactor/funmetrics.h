@@ -14,7 +14,7 @@
  * During postprocessing call:
  * process_char() or process_id() while going through each file
  *
- * $Id: funmetrics.h,v 1.5 2007/08/14 13:43:59 dds Exp $
+ * $Id: funmetrics.h,v 1.6 2007/08/14 16:02:59 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -23,19 +23,32 @@
 #include "ytab.h"
 
 class Call;
+class Pltoken;
 
 class FunctionMetrics : public Metrics {
 private:
 	static MetricDetails metric_details[];	// Descriptions of the metrics we store
 
-	// Return true if token op is an operator
-	static inline bool is_operator(unsigned op) { return op < is_operator_map.size() && is_operator_map[op]; }
 	// Int-indexed map of tokens that are operators
 	static vector<bool> &is_operator_map;
+	// Return true if token op is an operator
+	static inline bool is_operator(unsigned op) { return op < is_operator_map.size() && is_operator_map[op]; }
 	// Add an operator to the map
 	static inline void add_operator(vector<bool> &v, unsigned op);
 	// Initialize map
 	static vector<bool> &make_is_operator();
+
+	// String-indexed enum metric map of keywords we collect
+	typedef map<string, int> KeywordMap;
+	static KeywordMap &keyword_map;
+	// If a string represents a keyword we collect,
+	// return its metric enum value otherwise return -1
+	static inline int keyword_metric(const string &s) {
+		KeywordMap::iterator i = keyword_map.find(s);
+		return (i == keyword_map.end() ? -1 : i->second);
+	}
+	// Initialize map
+	static KeywordMap &make_keyword_map();
 
 	set <int> operators;			// Operators used in the function
 	Call *call;				// Associated function
@@ -103,38 +116,11 @@ public:
 	virtual ~FunctionMetrics() {}
 
 	// Process a single token read from a file
-	inline void process_token(int code);
+	void process_token(const Pltoken &t);
 	// Summarize the operators collected by process_token
 	void summarize_operators();
 
 	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
 };
-
-// Process a single token read from a file
-inline void
-FunctionMetrics::process_token(int code)
-{
-	csassert(!processed);
-	switch (code) {
-	case ';':
-		count[em_nsemi]++;
-		break;
-	case PP_NUMBER:
-		count[em_nnconst]++;
-		break;
-	case CHAR_LITERAL:
-		count[em_nclit]++;
-		break;
-	case AND_OP:
-	case OR_OP:
-	case '?':
-		count[em_ncc2op]++;
-		break;
-	}
-	if (is_operator(code)) {
-		count[em_nop]++;
-		operators.insert(code);
-	}
-}
 
 #endif /* FUNMETRICS_ */
