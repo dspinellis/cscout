@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.4 2007/08/14 12:38:06 dds Exp $
+ * $Id: funmetrics.cpp,v 1.5 2007/08/14 13:43:59 dds Exp $
  */
 
 #include <iostream>
@@ -45,8 +45,8 @@ MetricDetails FunctionMetrics::metric_details[] = {
 	{ em_nsemi,		"NSEMI",		"Number of statements or declarations"},
 	{ em_nop,		"NOP",			"Number of operators"},
 	{ em_nuop,		"NUOP",			"Number of unique operators"},
-	{ em_nnconst,		"NNCONST"		"Number of numeric constants"},
-	{ em_nclit,		"NCLIT"			"Number of character literals"},
+	{ em_nnconst,		"NNCONST",		"Number of numeric constants"},
+	{ em_nclit,		"NCLIT",		"Number of character literals"},
 	{ em_ncc2op,		"INTERNAL",		"Number of operators contributing to cc2: &&, ||, ?:"},
 	// Keywords counted during identifier processing
 	{ em_nif,		"NIF",			"Number of if statements", 	"if"},
@@ -143,7 +143,9 @@ FunctionMetrics::make_is_operator()
 	add_operator(isop, '&');
 	add_operator(isop, '*');
 	add_operator(isop, '+');
-	add_operator(isop, ',');
+	// Comma is so overloaded as a token,
+	// that it doesn't make sense to count it as an operator
+	// add_operator(isop, ',');
 	add_operator(isop, '-');
 	add_operator(isop, '.');
 	add_operator(isop, '/');
@@ -177,4 +179,14 @@ FunctionMetrics::make_is_operator()
 	add_operator(isop, SUB_ASSIGN);
 	add_operator(isop, XOR_ASSIGN);
 	return (isop);
+}
+
+// Summarize the operators collected by process_token
+void
+FunctionMetrics::summarize_operators()
+{
+	if (processed)
+		return;
+	count[em_nuop] = operators.size();
+	operators.clear();
 }

@@ -9,14 +9,18 @@
  * This design also ensures that the character-based metrics processing
  * overhead will be incured exactly once for each file.
  *
+ * Before preprocessing call:
+ * process_token(int code) for every token recognized
  * During postprocessing call:
  * process_char() or process_id() while going through each file
  *
- * $Id: funmetrics.h,v 1.4 2007/08/14 12:38:06 dds Exp $
+ * $Id: funmetrics.h,v 1.5 2007/08/14 13:43:59 dds Exp $
  */
 
 #ifndef FUNMETRICS_
 #define FUNMETRICS_
+
+#include "ytab.h"
 
 class Call;
 
@@ -25,7 +29,7 @@ private:
 	static MetricDetails metric_details[];	// Descriptions of the metrics we store
 
 	// Return true if token op is an operator
-	static bool is_operator(int op) { return is_operator_map[op]; }
+	static inline bool is_operator(unsigned op) { return op < is_operator_map.size() && is_operator_map[op]; }
 	// Int-indexed map of tokens that are operators
 	static vector<bool> &is_operator_map;
 	// Add an operator to the map
@@ -98,7 +102,39 @@ public:
 	virtual double get_metric(int i) const;
 	virtual ~FunctionMetrics() {}
 
+	// Process a single token read from a file
+	inline void process_token(int code);
+	// Summarize the operators collected by process_token
+	void summarize_operators();
+
 	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
 };
+
+// Process a single token read from a file
+inline void
+FunctionMetrics::process_token(int code)
+{
+	csassert(!processed);
+	switch (code) {
+	case ';':
+		count[em_nsemi]++;
+		break;
+	case PP_NUMBER:
+		count[em_nnconst]++;
+		break;
+	case CHAR_LITERAL:
+		count[em_nclit]++;
+		break;
+	case AND_OP:
+	case OR_OP:
+	case '?':
+		count[em_ncc2op]++;
+		break;
+	}
+	if (is_operator(code)) {
+		count[em_nop]++;
+		operators.insert(code);
+	}
+}
 
 #endif /* FUNMETRICS_ */

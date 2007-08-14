@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.18 2007/08/13 15:09:49 dds Exp $
+ * $Id: call.h,v 1.19 2007/08/14 13:43:59 dds Exp $
  */
 
 #ifndef CALL_
@@ -160,6 +160,12 @@ public:
 			return get_definition();
 		else
 			return get_tokid();
+	}
+
+	// Process a token destined for preprocessing
+	static inline void process_token(int code) {
+		if (current_fun && !current_fun->m.is_processed())
+			current_fun->m.process_token(code);
 	}
 
 	// ctor; never call it if the call for t already exists

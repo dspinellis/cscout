@@ -4,11 +4,13 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.28 2007/07/16 10:11:16 dds Exp $
+ * $Id: pltoken.h,v 1.29 2007/08/14 13:43:59 dds Exp $
  */
 
 #ifndef PLTOKEN_
 #define PLTOKEN_
+
+#include "call.h"
 
 class Fchar;
 
@@ -521,6 +523,7 @@ Pltoken::getnext()
 	default:
 		val = (char)(code = c0.get_char());
 	}
+	Call::process_token(code);
 	if (DP()) cout << "getnext returns: " << *this << "\n";
 }
 
