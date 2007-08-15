@@ -15,12 +15,13 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.24 2007/08/14 16:02:59 dds Exp $
+ * $Id: metrics.h,v 1.25 2007/08/15 16:35:27 dds Exp $
  */
 
 #ifndef METRICS_
 #define METRICS_
 
+class Eclass;
 
 // States while processing characters
 enum e_cfile_state {
@@ -85,7 +86,7 @@ public:
 	// Called for all file characters appart from identifiers
 	void process_char(char c);
 	// Called for every identifier
-	void process_id(const string &s);
+	void process_id(const string &s, Eclass *ec);
 	// Called when encountering unprocessed lines
 	void add_unprocessed() { count[em_nuline]++; }
 

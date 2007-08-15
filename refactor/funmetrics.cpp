@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.10 2007/08/15 15:50:28 dds Exp $
+ * $Id: funmetrics.cpp,v 1.11 2007/08/15 16:35:27 dds Exp $
  */
 
 #include <iostream>
@@ -118,14 +118,18 @@ FunMetrics::get_metric(int n) const
 	case em_chal:	// Halstead complexity
 #define log2(x) (log(x) / log(2.))
 		// We consider numeric constants and character literals to be unique operands
-		return (get_metric(em_nop) +
-			get_metric(em_nid) +
-			get_metric(em_nnconst) +
-			get_metric(em_nclit)) *
-		    log2(get_metric(em_nuop) +
+		double logarg = get_metric(em_nuop) +
 		        get_metric(em_nuid) +
 			get_metric(em_nnconst) +
-			get_metric(em_nclit));
+			get_metric(em_nclit);
+		if (logarg == 0)
+			return 0;
+		else
+			return (get_metric(em_nop) +
+				get_metric(em_nid) +
+				get_metric(em_nnconst) +
+				get_metric(em_nclit)) *
+			    log2(logarg);
 	}
 }
 
@@ -197,6 +201,14 @@ FunMetrics::summarize_operators()
 	operators.clear();
 }
 
+// Summarize the identifiers collected by process_id
+void
+FunMetrics::summarize_identifiers()
+{
+	count[em_nuid] = identifiers.size();
+	identifiers.clear();
+}
+
 // Initialize map
 FunMetrics::KeywordMap &
 FunMetrics::make_keyword_map()
@@ -259,4 +271,20 @@ FunMetrics::process_token(const Pltoken &t)
 		count[em_nop]++;
 		operators.insert(code);
 	}
+}
+
+// Called for every identifier
+void
+FunMetrics::process_id(const string &s, Eclass *ec)
+{
+	Metrics::process_id(s, ec);
+	if (!ec)
+		return;
+	count[em_npid] += ec->get_attribute(is_lscope);
+	count[em_nfid] += ec->get_attribute(is_cscope);
+	count[em_nmid] += ec->get_attribute(is_macro);
+	count[em_nid] += ec->get_attribute(is_ordinary);
+	count[em_nlabid] += ec->get_attribute(is_label);
+	if (ec->get_attribute(is_ordinary) || ec->get_attribute(is_macro))
+		identifiers.insert(ec);
 }

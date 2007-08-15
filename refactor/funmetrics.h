@@ -13,8 +13,9 @@
  * process_token(int code) for every token recognized
  * During postprocessing call:
  * process_char() or process_id() while going through each file
+ * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.7 2007/08/15 09:16:38 dds Exp $
+ * $Id: funmetrics.h,v 1.8 2007/08/15 16:35:27 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -24,6 +25,7 @@
 
 class Call;
 class Pltoken;
+class Eclass;
 
 class FunMetrics : public Metrics {
 private:
@@ -51,6 +53,7 @@ private:
 	static KeywordMap &make_keyword_map();
 
 	set <int> operators;			// Operators used in the function
+	set <Eclass *> identifiers;		// Identifiers used in the function
 	Call *call;				// Associated function
 
 public:
@@ -117,8 +120,12 @@ public:
 
 	// Process a single token read from a file
 	void process_token(const Pltoken &t);
+	// Called for every identifier (override Metrics method)
+	void process_id(const string &s, Eclass *ec);
 	// Summarize the operators collected by process_token
 	void summarize_operators();
+	// Summarize the identifiers collected by process_id
+	void summarize_identifiers();
 
 	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
 };

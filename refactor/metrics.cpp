@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.26 2007/08/14 13:45:00 dds Exp $
+ * $Id: metrics.cpp,v 1.27 2007/08/15 16:35:27 dds Exp $
  */
 
 #include <iostream>
@@ -58,7 +58,7 @@ IdMetricsSummary id_msum;
 
 // Called for every identifier
 void
-Metrics::process_id(const string &s)
+Metrics::process_id(const string &s, Eclass *ec)
 {
 	count[em_nchar] += s.length();
 	currlinelen += s.length();

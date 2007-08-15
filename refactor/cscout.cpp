@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.174 2007/08/15 15:44:10 dds Exp $
+ * $Id: cscout.cpp,v 1.175 2007/08/15 16:35:27 dds Exp $
  */
 
 #include <map>
@@ -320,13 +320,15 @@ file_analyze(Fileid fi)
 			break;
 
 		// Update current_function
-		if (cfun && ti > cfun->get_end().get_tokid())
+		if (cfun && ti > cfun->get_end().get_tokid()) {
+			cfun->metrics().summarize_identifiers();
 			if (fun_nesting.empty())
 				cfun = NULL;
 			else {
 				cfun = fun_nesting.top();
 				fun_nesting.pop();
 			}
+		}
 		if (fci != fc.end() && ti >= (*fci)->get_begin().get_tokid()) {
 			if (cfun)
 				fun_nesting.push(cfun);
@@ -361,9 +363,9 @@ file_analyze(Fileid fi)
 				int len = ec->get_len();
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
-				fi.metrics().process_id(s);
+				fi.metrics().process_id(s, ec);
 				if (cfun)
-					cfun->metrics().process_id(s);
+					cfun->metrics().process_id(s, ec);
 				/*
 				 * ids[ec] = Identifier(ec, s);
 				 * Efficiently add s to ids, if needed.
@@ -395,6 +397,8 @@ file_analyze(Fileid fi)
 				fi.metrics().add_unprocessed();
 		}
 	}
+	if (cfun)
+		cfun->metrics().summarize_identifiers();
 	fi.metrics().set_ncopies(fi.get_identical_files().size());
 	if (DP())
 		cout << "nchar = " << fi.metrics().get_metric(Metrics::em_nchar) << endl;

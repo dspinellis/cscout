@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.38 2007/08/15 09:16:38 dds Exp $
+ * $Id: workdb.cpp,v 1.39 2007/08/15 16:35:27 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -191,7 +191,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
 			insert_eclass(db, of, ec, s);
-			fid.metrics().process_id(s);
+			fid.metrics().process_id(s, ec);
 			chunker.flush();
 			of << "INSERT INTO TOKENS VALUES(" << fid.get_id() <<
 			"," << (unsigned)ti.get_streampos() << "," <<
