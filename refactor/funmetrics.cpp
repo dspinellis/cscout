@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.9 2007/08/15 09:16:38 dds Exp $
+ * $Id: funmetrics.cpp,v 1.10 2007/08/15 15:50:28 dds Exp $
  */
 
 #include <iostream>
@@ -231,6 +231,14 @@ FunMetrics::process_token(const Pltoken &t)
 		em = keyword_metric(t.get_val());
 		if (em != -1)
 			count[em]++;
+		switch (em) {
+		case em_ndo:	// Don't count the "while" associated with a "do"
+			count[em_nwhile]--;
+			break;
+		case em_nfor:	// Don't count the semicolons in for statements
+			count[em_nsemi] -= 2;
+			break;
+		}
 		break;
 	case ';':
 		count[em_nsemi]++;
