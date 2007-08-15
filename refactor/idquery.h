@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.11 2007/06/27 07:43:52 dds Exp $
+ * $Id: idquery.h,v 1.12 2007/08/15 09:42:15 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -95,18 +95,7 @@ public:
 struct idcmp : public binary_function <const IdProp::value_type *, const IdProp::value_type *, bool> {
 	bool operator()(const IdProp::value_type *i1, const IdProp::value_type *i2) const
 	{
-		if (Option::sort_rev->get()) {
-			const string &s1 = (*i1).second.get_id();
-			const string &s2 = (*i2).second.get_id();
-			string::const_reverse_iterator j1, j2;
-
-			for (j1 = s1.rbegin(), j2 = s2.rbegin();
-			     j1 != s1.rend() && j2 != s2.rend(); j1++, j2++)
-				if (*j1 != *j2)
-					return *j1 < *j2;
-			return j1 == s1.rend() && j2 != s2.rend();
-		} else
-			return (*i1).second.get_id().compare((*i2).second.get_id()) < 0;
+		return Query::string_bi_compare(i1->second.get_id(), i2->second.get_id());
 	}
 };
 

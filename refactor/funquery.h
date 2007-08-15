@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.12 2007/08/15 09:16:38 dds Exp $
+ * $Id: funquery.h,v 1.13 2007/08/15 09:42:15 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -83,10 +83,7 @@ public:
 			bool val;
 			if (order == -1)
 				// Order by name
-				if (Option::sort_rev->get())
-					val = Query::string_rev_compare(a->get_name(), b->get_name());
-				else
-					val = (a->get_name() < b->get_name());
+				val = Query::string_bi_compare(a->get_name(), b->get_name());
 			else
 				val = (a->const_metrics().get_metric(order) < b->const_metrics().get_metric(order));
 			return reverse ? !val : val;
