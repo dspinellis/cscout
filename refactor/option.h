@@ -3,8 +3,11 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.3 2006/09/29 18:15:16 dds Exp $
+ * $Id: option.h,v 1.4 2007/08/15 09:38:22 dds Exp $
  */
+
+#ifndef OPTION_
+#define OPTION_
 
 class BoolOption;
 class IntegerOption;
@@ -210,3 +213,5 @@ public:
 		);
 	}
 };
+
+#endif /* OPTION_ */
