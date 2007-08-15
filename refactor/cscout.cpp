@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.171 2007/08/15 05:50:57 dds Exp $
+ * $Id: cscout.cpp,v 1.172 2007/08/15 09:16:38 dds Exp $
  */
 
 #include <map>
@@ -896,7 +896,7 @@ funquery_page(FILE *of,  void *p)
 	"<input type=\"checkbox\" name=\"pscope\" value=\"1\">Project scope<br>\n"
 	"<input type=\"checkbox\" name=\"fscope\" value=\"1\">File scope<br>\n"
 	"<input type=\"checkbox\" name=\"defined\" value=\"1\">Defined<br>\n", of);
-	MQuery<FunctionMetrics, Call &>::metrics_query_form(of);
+	MQuery<FunMetrics, Call &>::metrics_query_form(of);
 	fputs("<p>"
 	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any marked\n"
 	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
@@ -1208,9 +1208,9 @@ function_page(FILE *fo, void *p)
 	fprintf(fo, "</ul>\n");
 	if (f->is_defined()) {
 		fprintf(fo, "<h2>Metrics</h2><ul>\n");
-		for (int j = 0; j < FunctionMetrics::metric_max; j++)
-			if (!Metrics::is_internal<FunctionMetrics>(j))
-				fprintf(fo, "\n<li> %s: %g", Metrics::get_name<FunctionMetrics>(j).c_str(), f->metrics().get_metric(j));
+		for (int j = 0; j < FunMetrics::metric_max; j++)
+			if (!Metrics::is_internal<FunMetrics>(j))
+				fprintf(fo, "\n<li> %s: %g", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
 		fprintf(fo, "</ul>\n");
 	}
 	html_tail(fo);

@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.11 2007/08/14 21:59:39 dds Exp $
+ * $Id: funquery.h,v 1.12 2007/08/15 09:16:38 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -48,7 +48,7 @@ private:
 	string name;		// Query name
 	Attributes::size_type current_project;	// Restrict evaluation to this project
 	// The query part for the metrics
-	MQuery<FunctionMetrics, Call &> mquery;
+	MQuery<FunMetrics, Call &> mquery;
 public:
 	// Construct object based on URL parameters
 	FunQuery(FILE *f, bool icase, Attributes::size_type current_project, bool e = true, bool r = true);

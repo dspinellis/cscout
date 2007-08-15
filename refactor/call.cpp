@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.18 2007/08/14 13:43:59 dds Exp $
+ * $Id: call.cpp,v 1.19 2007/08/15 09:16:21 dds Exp $
  */
 
 #include <map>
@@ -237,8 +237,8 @@ Call::dumpSql(Sql *db, ostream &of)
 
 		if (fun->is_defined()) {
 			of << "INSERT INTO FUNCTIONMETRICS VALUES(" << ptr_offset(fun);
-			for (int j = 0; j < FunctionMetrics::metric_max; j++)
-				if (!Metrics::is_internal<FunctionMetrics>(j))
+			for (int j = 0; j < FunMetrics::metric_max; j++)
+				if (!Metrics::is_internal<FunMetrics>(j))
 					cout << ',' << fun->metrics().get_metric(j);
 			of << ");\n";
 		}

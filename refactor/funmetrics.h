@@ -14,7 +14,7 @@
  * During postprocessing call:
  * process_char() or process_id() while going through each file
  *
- * $Id: funmetrics.h,v 1.6 2007/08/14 16:02:59 dds Exp $
+ * $Id: funmetrics.h,v 1.7 2007/08/15 09:16:38 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -25,7 +25,7 @@
 class Call;
 class Pltoken;
 
-class FunctionMetrics : public Metrics {
+class FunMetrics : public Metrics {
 private:
 	static MetricDetails metric_details[];	// Descriptions of the metrics we store
 
@@ -54,7 +54,7 @@ private:
 	Call *call;				// Associated function
 
 public:
-	FunctionMetrics(Call *c) : call(c) { count.resize(stored_metric_max, 0); }
+	FunMetrics(Call *c) : call(c) { count.resize(stored_metric_max, 0); }
 
 	/*
 	 * Metrics we collect or calculate
@@ -113,7 +113,7 @@ public:
 
 	// Return metric i (by lookup or calculation)
 	virtual double get_metric(int i) const;
-	virtual ~FunctionMetrics() {}
+	virtual ~FunMetrics() {}
 
 	// Process a single token read from a file
 	void process_token(const Pltoken &t);

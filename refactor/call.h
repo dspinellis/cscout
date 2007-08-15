@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.20 2007/08/14 16:02:59 dds Exp $
+ * $Id: call.h,v 1.21 2007/08/15 09:16:38 dds Exp $
  */
 
 #ifndef CALL_
@@ -49,7 +49,7 @@ private:
 	bool visited;			// For calculating transitive closures
 	bool printed;			// For printing a graph's nodes
 	FcharContext begin, end;	// Span of definition
-	FunctionMetrics m;		// Metrics for this function
+	FunMetrics m;		// Metrics for this function
 
 	void add_call(Call *f) { call.insert(f); }
 	void add_caller(Call *f) { caller.insert(f); }
@@ -131,9 +131,9 @@ public:
 	// Return true if the span represents a file region
 	bool is_span_valid() const;
 	// Return a reference to the Metrics class
-	FunctionMetrics &metrics() { return m; }
+	FunMetrics &metrics() { return m; }
 	// Return a reference to the Metrics class
-	const FunctionMetrics &const_metrics() const { return m; }
+	const FunMetrics &const_metrics() const { return m; }
 
 	// Return a token for the given object
 	const Token &get_token() const {return token; }

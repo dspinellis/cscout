@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.8 2007/08/15 05:52:17 dds Exp $
+ * $Id: funmetrics.cpp,v 1.9 2007/08/15 09:16:38 dds Exp $
  */
 
 #include <iostream>
@@ -41,11 +41,11 @@
 #include "ptoken.h"
 #include "pltoken.h"
 
-vector<bool> &FunctionMetrics::is_operator_map = make_is_operator();
-FunctionMetrics::KeywordMap &FunctionMetrics::keyword_map = make_keyword_map();
+vector<bool> &FunMetrics::is_operator_map = make_is_operator();
+FunMetrics::KeywordMap &FunMetrics::keyword_map = make_keyword_map();
 
-MetricDetails FunctionMetrics::metric_details[] = {
-// BEGIN AUTOSCHEMA FunctionMetrics
+MetricDetails FunMetrics::metric_details[] = {
+// BEGIN AUTOSCHEMA FunMetrics
 	// Elements counted at the token tap before the preprocessor
 	{ em_nsemi,		"NSEMI",		"Number of statements or declarations"},
 	{ em_nop,		"NOP",			"Number of operators"},
@@ -86,11 +86,11 @@ MetricDetails FunctionMetrics::metric_details[] = {
 	{ em_cstruc,		"CSCRUC",		"Structure complexity (Henry and Kafura)"},	// REAL
 	{ em_chal,		"CHAL",			"Halstead complexity"},				// REAL
 	{ em_iflow,		"IFLOW",		"Information flow metric (Henry and Selig)"},	// REAL
-// END AUTOSCHEMA FunctionMetrics
+// END AUTOSCHEMA FunMetrics
 };
 
 double
-FunctionMetrics::get_metric(int n) const
+FunMetrics::get_metric(int n) const
 {
 	switch (n) {
 	// Most metrics are simply looked up
@@ -131,7 +131,7 @@ FunctionMetrics::get_metric(int n) const
 
 // Add operator op to int-indexed map v
 inline void
-FunctionMetrics::add_operator(vector<bool> &v, unsigned op)
+FunMetrics::add_operator(vector<bool> &v, unsigned op)
 {
 	if (op >= v.size())
 		v.resize(op + 1, false);
@@ -140,7 +140,7 @@ FunctionMetrics::add_operator(vector<bool> &v, unsigned op)
 
 // Create an integer-indexed map indicating which tokens represent operators
 vector<bool> &
-FunctionMetrics::make_is_operator()
+FunMetrics::make_is_operator()
 {
 	static vector<bool> isop;	// Tokens that are operators
 
@@ -189,7 +189,7 @@ FunctionMetrics::make_is_operator()
 
 // Summarize the operators collected by process_token
 void
-FunctionMetrics::summarize_operators()
+FunMetrics::summarize_operators()
 {
 	if (processed)
 		return;
@@ -198,8 +198,8 @@ FunctionMetrics::summarize_operators()
 }
 
 // Initialize map
-FunctionMetrics::KeywordMap &
-FunctionMetrics::make_keyword_map()
+FunMetrics::KeywordMap &
+FunMetrics::make_keyword_map()
 {
 	static KeywordMap km;
 
@@ -221,7 +221,7 @@ FunctionMetrics::make_keyword_map()
 
 // Process a single token read from a file
 void
-FunctionMetrics::process_token(const Pltoken &t)
+FunMetrics::process_token(const Pltoken &t)
 {
 	csassert(!processed);
 	int code = t.get_code();

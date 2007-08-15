@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.37 2007/08/13 15:56:44 dds Exp $
+ * $Id: workdb.cpp,v 1.38 2007/08/15 09:16:38 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -418,11 +418,11 @@ workdb_schema(Sql *db, ostream &of)
 		"CREATE TABLE FUNCTIONMETRICS("		// Metrics of defined functions and macros
 		"ID INTEGER PRIMARY KEY";		// Unique function identifier
 		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
-		// AUTOSCHEMA INCLUDE funmetrics.cpp FunctionMetrics
-		for (int i = 0; i < FunctionMetrics::metric_max; i++)
-			if (!Metrics::is_internal<FunctionMetrics>(i))
-				cout << ",\n" << Metrics::get_dbfield<FunctionMetrics>(i) <<
-				    (i >= FunctionMetrics::em_real_start ? " REAL" : " INTEGER");
+		// AUTOSCHEMA INCLUDE funmetrics.cpp FunMetrics
+		for (int i = 0; i < FunMetrics::metric_max; i++)
+			if (!Metrics::is_internal<FunMetrics>(i))
+				cout << ",\n" << Metrics::get_dbfield<FunMetrics>(i) <<
+				    (i >= FunMetrics::em_real_start ? " REAL" : " INTEGER");
 		cout << ");\n"
 
 		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
