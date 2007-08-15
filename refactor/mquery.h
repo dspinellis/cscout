@@ -4,7 +4,7 @@
  * Encapsulates a (user interface) metrics query part
  * Can be used to evaluate elements referenced through E against M metrics
  *
- * $Id: mquery.h,v 1.3 2007/08/13 15:56:44 dds Exp $
+ * $Id: mquery.h,v 1.4 2007/08/15 05:50:57 dds Exp $
  */
 
 #ifndef MQUERY_
@@ -107,9 +107,11 @@ public:
 		}
 		fputs(	"<tr>"
 			"<td><input type=\"radio\" name=\"order\" value=\"-1\" CHECKED></td>\n"
-			"<td>File name</td>"
+			"<td>Entity name</td>"
 			"<td></td><td></td></tr>"
-			"</table>\n", of);
+			"</table>\n"
+			"<p>"
+			"<input type=\"checkbox\" name=\"reverse\" value=\"0\">Reverse sort order\n", of);
 	}
 };
 

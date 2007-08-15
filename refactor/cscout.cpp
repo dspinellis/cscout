@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.170 2007/08/14 21:59:39 dds Exp $
+ * $Id: cscout.cpp,v 1.171 2007/08/15 05:50:57 dds Exp $
  */
 
 #include <map>
@@ -750,8 +750,6 @@ filequery_page(FILE *of,  void *p)
 	"<input type=\"checkbox\" name=\"ro\" value=\"1\">Read-only<br>\n", of);
 	MQuery<FileMetrics, Fileid &>::metrics_query_form(of);
 	fputs("<p>"
-	"<input type=\"checkbox\" name=\"reverse\" value=\"0\">Reverse sort order\n"
-	"<p>"
 	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any of the above\n"
 	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
 	"<input type=\"radio\" name=\"match\" value=\"L\">Match all of the above\n"
@@ -899,7 +897,7 @@ funquery_page(FILE *of,  void *p)
 	"<input type=\"checkbox\" name=\"fscope\" value=\"1\">File scope<br>\n"
 	"<input type=\"checkbox\" name=\"defined\" value=\"1\">Defined<br>\n", of);
 	MQuery<FunctionMetrics, Call &>::metrics_query_form(of);
-	fputs("<p>\n"
+	fputs("<p>"
 	"<input type=\"radio\" name=\"match\" value=\"Y\" CHECKED>Match any marked\n"
 	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
 	"<input type=\"radio\" name=\"match\" value=\"L\">Match all marked\n"
