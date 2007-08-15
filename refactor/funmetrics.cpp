@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.7 2007/08/14 16:02:59 dds Exp $
+ * $Id: funmetrics.cpp,v 1.8 2007/08/15 05:52:17 dds Exp $
  */
 
 #include <iostream>
@@ -214,7 +214,7 @@ FunctionMetrics::make_keyword_map()
 	km.insert(KeywordMap::value_type("do", em_ndo));
 	km.insert(KeywordMap::value_type("continue", em_ncontinue));
 	km.insert(KeywordMap::value_type("goto", em_ngoto));
-	km.insert(KeywordMap::value_type("break", em_nreturn));
+	km.insert(KeywordMap::value_type("return", em_nreturn));
 
 	return (km);
 }
