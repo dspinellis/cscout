@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.19 2007/08/15 09:16:21 dds Exp $
+ * $Id: call.cpp,v 1.20 2007/08/15 09:23:43 dds Exp $
  */
 
 #include <map>
@@ -194,6 +194,7 @@ Call::mark_end()
 	if (is_span_valid())
 		end.get_tokid().get_fileid().add_function(this);
 	m.summarize_operators();
+	m.done_processing();
 }
 
 // Return true if the span represents a file region
