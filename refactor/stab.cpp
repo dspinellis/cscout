@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.44 2007/08/08 14:48:40 dds Exp $
+ * $Id: stab.cpp,v 1.45 2007/08/15 19:56:23 dds Exp $
  */
 
 #include <map>
@@ -233,6 +233,7 @@ obj_define(const Token& tok, Type typ)
 				fc = new FCall(utok, typ, tok.get_name());
 			}
 		}
+		fc->metrics().set_metric(FunMetrics::em_nparam, typ.get_nparam());
 	}
 
 	static Stab Block::*objptr = &Block::obj;

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.49 2007/08/10 18:53:27 dds Exp $
+ * $Id: type.cpp,v 1.50 2007/08/15 19:56:23 dds Exp $
  */
 
 #include <iostream>
@@ -105,7 +105,7 @@ Tidentifier::call() const
 	// extern int f(...) at the file scope level
 	int old_scope = Block::get_scope_level();
 	Block::set_scope_level(Block::cu_block);
-	obj_define(this->get_token(), function_returning(basic(b_int)));
+	obj_define(this->get_token(), function_returning(basic(b_int), -1));
 	Block::set_scope_level(old_scope);
 
 	Id const *id = obj_lookup(this->get_name());
@@ -207,6 +207,23 @@ Type_node::member(unsigned n) const
 	return NULL;
 }
 
+int
+Type_node::get_nparam() const
+{
+	Error::error(E_ERR, "not a function or a parameter type list");
+	if (DP())
+		this->print(cerr);
+	return 0;
+}
+
+void
+Type_node::add_param()
+{
+	Error::error(E_ERR, "not a parameter type list");
+	if (DP())
+		this->print(cerr);
+}
+
 const Id *
 Tincomplete::member(const string& s) const
 {
@@ -248,9 +265,9 @@ pointer_to(Type t)
 }
 
 Type
-function_returning(Type t)
+function_returning(Type t, int n)
 {
-	return Type(new Tfunction(t));
+	return Type(new Tfunction(t, n));
 }
 
 Type
@@ -293,6 +310,12 @@ Type
 label()
 {
 	return Type(new Tlabel());
+}
+
+Type
+plist(int n)
+{
+	return Type(new Tplist(n));
 }
 
 void
@@ -374,6 +397,12 @@ void
 Tlabel::print(ostream &o) const
 {
 	o << "label ";
+}
+
+void
+Tplist::print(ostream &o) const
+{
+	o << "parameter list ";
 }
 
 void

@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.24 2006/08/04 11:50:06 dds Exp $
+ * $Id: type2.h,v 1.25 2007/08/15 19:56:23 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -48,6 +48,7 @@ public:
 	enum e_storage_class get_storage_class() const {return to.get_storage_class(); }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
+	int get_nparam() const { return to.get_nparam(); }
 	Type merge(Tbasic *b);
 };
 
@@ -55,10 +56,11 @@ public:
 class Tfunction: public Type_node {
 private:
 	Type returning;
+	int nparam;		// Number of parameters
 public:
-	Tfunction(Type t) : returning(t) {}
+	Tfunction(Type t, int n) : returning(t), nparam(n) {}
 	virtual ~Tfunction() {}
-	Type clone() const { return Type(new Tfunction(returning.clone())); }
+	Type clone() const { return Type(new Tfunction(returning.clone(), nparam)); }
 	Type call() const { return returning; }
 	// Common extension: dereferencing a function yields a function
 	Type deref() const { return clone(); }
@@ -74,6 +76,7 @@ public:
 	bool qualified_volatile() const { return returning.qualified_volatile(); }
 	bool qualified_unused() const { return returning.qualified_unused(); }
 	qualifiers_t get_qualifiers() const { return returning.get_qualifiers(); }
+	int get_nparam() const { return nparam; }
 };
 
 // Enumeration
@@ -216,5 +219,15 @@ public:
 	void print(ostream &o) const;
 };
 
+// Parameter list
+class Tplist: public Type_node {
+private:
+	int nparam;
+public:
+	Tplist(int n) : nparam(n) {}
+	int get_nparam() const { return nparam; }
+	void add_param() { nparam++; }
+	void print(ostream &o) const;
+};
 
 #endif // TYPE2_

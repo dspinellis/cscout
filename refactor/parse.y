@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.131 2007/08/12 07:22:01 dds Exp $
+ * $Id: parse.y,v 1.132 2007/08/15 19:56:23 dds Exp $
  *
  */
 
@@ -293,6 +293,10 @@ static bool yacc_typing;
 %type <t> compound_statement
 %type <t> expression_statement
 %type <t> comma_expression_opt
+%type <t> identifier_list
+%type <t> parameter_type_list
+%type <t> parameter_list
+%type <t> parameter_declaration
 
 /* Needed for yacc */
 %type <t> INT_CONST
@@ -1253,12 +1257,16 @@ comma_opt:
 
 parameter_type_list:
         parameter_list
+		{ $$ = $1; }
         | parameter_list ',' ELLIPSIS
+		{ $$ = $1; }
         ;
 
 parameter_list:
         parameter_declaration
+			{ $$ = plist($1.is_void() ? 0 : 1); }
         | parameter_list ',' parameter_declaration
+			{ $1.add_param(); $$ = $1; }
         ;
 
 parameter_declaration:
@@ -1266,6 +1274,7 @@ parameter_declaration:
         declaration_specifier
 	/* int [] */
         | declaration_specifier abstract_declarator
+		{ $2.set_abstract($1); $$ = $2; }
 	/* int i[2] */
         | declaration_specifier identifier_declarator asm_or_attribute_list
 		{
@@ -1273,6 +1282,7 @@ parameter_declaration:
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			$$ = merge($1, $2);
 		}
 	/* int FILE */
         | declaration_specifier parameter_typedef_declarator
@@ -1281,11 +1291,13 @@ parameter_declaration:
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			$$ = $2;
 		}
 	/* volatile */
         | declaration_qualifier_list
 	/* volatile int */
         | declaration_qualifier_list abstract_declarator
+		{ $2.set_abstract($1); $$ = $2; }
 	/* volatile int a */
         | declaration_qualifier_list identifier_declarator asm_or_attribute_list
 		{
@@ -1293,16 +1305,20 @@ parameter_declaration:
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			$2.set_abstract($1);
+			$$ = $2;
 		}
 	/* int */
         | type_specifier
         | type_specifier abstract_declarator
+		{ $2.set_abstract($1); $$ = $2; }
         | type_specifier identifier_declarator asm_or_attribute_list
 		{
 			$2.set_abstract($1);
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			$$ = $2;
 		}
         | type_specifier parameter_typedef_declarator
 		{
@@ -1310,14 +1326,18 @@ parameter_declaration:
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			$$ = $2;
 		}
         | type_qualifier_list
         | type_qualifier_list abstract_declarator
+		{ $$ = merge($1, $2); }
         | type_qualifier_list identifier_declarator asm_or_attribute_list
 		{
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
+			$2.set_abstract($1);
+			$$ = $2;
 		}
         ;
 
@@ -1329,9 +1349,15 @@ parameter_declaration:
  * by default as int, but then a full declaration can follow. */
 identifier_list:
         IDENTIFIER
-			{ obj_define($1.get_token(), basic(b_int)); }
+			{
+				obj_define($1.get_token(), basic(b_int));
+				$$ = plist(1);
+			}
         | identifier_list ',' IDENTIFIER
-			{ obj_define($3.get_token(), basic(b_int)); }
+			{
+				obj_define($3.get_token(), basic(b_int));
+				$1.add_param();
+			}
         ;
 
 identifier_or_typedef_name:
@@ -1948,7 +1974,7 @@ old_function_declarator:
 
 postfix_old_function_declarator:
         paren_identifier_declarator '(' { Block::enter(); } identifier_list { Block::param_exit(); } ')'
-		{ $1.set_abstract(function_returning(basic())); $$ = $1; }
+		{ $1.set_abstract(function_returning(basic(), $3.get_nparam())); $$ = $1; }
         | '(' old_function_declarator ')'
 		{ $$ = $2; }
         | '(' old_function_declarator ')' postfixing_abstract_declarator
@@ -1964,9 +1990,9 @@ abstract_declarator:
 postfixing_abstract_declarator:
         array_abstract_declarator
         | '(' ')'
-		{ $$ = function_returning(basic()); }
+		{ $$ = function_returning(basic(), 0); }
         | '(' { Block::enter(); } parameter_type_list { Block::param_exit(); } ')'
-		{ $$ = function_returning(basic()); }
+		{ $$ = function_returning(basic(), $3.get_nparam()); }
         ;
 
 array_abstract_declarator:
@@ -2026,7 +2052,7 @@ yacc_body:
 			// Set current function to yyparse()
 			Id const *id = obj_lookup("yyparse");
 			if (!id) {
-				obj_define(Token(IDENTIFIER, "yyparse"), function_returning(basic()));
+				obj_define(Token(IDENTIFIER, "yyparse"), function_returning(basic(), 0));
 				id = obj_lookup("yyparse");
 			}
 			FCall::set_current_fun(id);

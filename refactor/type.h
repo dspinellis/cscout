@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.39 2007/06/27 07:43:52 dds Exp $
+ * $Id: type.h,v 1.40 2007/08/15 19:56:23 dds Exp $
  */
 
 #ifndef TYPE_
@@ -100,6 +100,8 @@ protected:
 	virtual void clear_storage_class();	// Clear underlying storage class
 	virtual enum e_storage_class get_storage_class() const;// Return the declaration's storage class
 	virtual int get_qualifiers() const;// Return the declaration's qualifiers
+	virtual int get_nparam() const;	// Return the number of parameters
+	virtual void add_param();	// Add another parameter to the list
 	virtual void add_qualifiers(Type t);		// Set our qualifiers to t
 	virtual void add_member(const Token &tok, const Type &typ);
 	virtual Type get_default_specifier() const;
@@ -196,13 +198,14 @@ public:
 			  enum e_storage_class sc, qualifiers_t);
 	friend Type array_of(Type t);
 	friend Type pointer_to(Type t);
-	friend Type function_returning(Type t);
+	friend Type function_returning(Type t, int n);
 	friend Type implict_function();
 	friend Type enum_tag();
 	friend Type struct_union(const Token &tok, const Type &typ, const Type &spec);
 	friend Type struct_union(const Type &spec);
 	friend Type struct_union();
 	friend Type label();
+	friend Type plist(int n);
 	friend Type identifier(const Ctoken& c);
 	friend Type incomplete(const Ctoken& c, int l);
 	// To print
@@ -225,6 +228,8 @@ public:
 	void set_abstract(Type t)	{ return p->set_abstract(t); }
 	void set_storage_class(Type t)	{ return p->set_storage_class(t); }
 	void clear_storage_class()	{ return p->clear_storage_class(); }
+	void add_param()		{ p->add_param(); }
+	int get_nparam() const		{ return p->get_nparam(); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_array() const		{ return p->is_array(); }
 	bool is_basic() const		{ return p->is_basic(); }
@@ -269,6 +274,7 @@ Type enum_tag();
 Type struct_union();
 Type incomplete(const Ctoken& c, int l);
 Type label();
+Type plist(int n);
 
 
 inline void QType_node::add_qualifiers(Type t) {qualifiers |= t.get_qualifiers(); }
