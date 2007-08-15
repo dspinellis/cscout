@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.13 2007/08/15 09:42:15 dds Exp $
+ * $Id: funquery.h,v 1.14 2007/08/15 13:11:28 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -89,6 +89,7 @@ public:
 			return reverse ? !val : val;
 		}
 	};
+	int get_sort_order() const { return mquery.get_sort_order(); }
 };
 
 typedef multiset <const Call *, FunQuery::specified_order> Sfuns;

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.172 2007/08/15 09:16:38 dds Exp $
+ * $Id: cscout.cpp,v 1.173 2007/08/15 13:11:28 dds Exp $
  */
 
 #include <map>
@@ -838,6 +838,33 @@ display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 	pager.end();
 }
 
+/*
+ * Display the sorted functions with their metrics,
+ * taking into account the reverse sort property
+ * for properly aligning the output.
+ */
+static void
+display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &sorted_ids)
+{
+	fprintf(of, "<table><tr>"
+	    "<th width='50%%' align='left'>Name</th>"
+	    "<th width='50%%' align='right'>%s</th>\n",
+	    Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
+
+	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1");
+	for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
+		if (pager.show_next()) {
+			fputs("<tr><td witdh='50%%'>", of);
+			html(of, **i);
+			fprintf(of, "</td><td witdh='50%' align='right'>%g</td></tr>\n",
+			    (*i)->const_metrics().get_metric(query.get_sort_order()));
+		}
+	}
+	fputs("</table>\n", of);
+	pager.end();
+}
+
+
 // Identifier query page
 static void
 iquery_page(FILE *of,  void *p)
@@ -1052,7 +1079,10 @@ xfunquery_page(FILE *of,  void *p)
 	cout << endl;
 	if (q_id) {
 		fputs("<h2>Matching Functions</h2>\n", of);
-		display_sorted(of, query, sorted_funs);
+		if (query.get_sort_order() != -1)
+			display_sorted_function_metrics(of, query, sorted_funs);
+		else
+			display_sorted(of, query, sorted_funs);
 	}
 	if (q_file)
 		display_files(of, query, sorted_files);
