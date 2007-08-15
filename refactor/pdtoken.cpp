@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.113 2007/08/12 07:22:01 dds Exp $
+ * $Id: pdtoken.cpp,v 1.114 2007/08/15 17:46:11 dds Exp $
  */
 
 #include <iostream>
@@ -743,6 +743,7 @@ Pdtoken::process_define()
 			MCall::set_current_fun(m);
 			t.getnext<Fchar>();
 		}
+		MCall::set_num_args(m.get_num_args());
 	} else
 		Fchar::get_fileid().metrics().add_ppomacro();
 	if (DP()) cout << "Body starts with " << t;

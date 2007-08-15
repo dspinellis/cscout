@@ -3,7 +3,7 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.17 2007/06/27 07:43:52 dds Exp $
+ * $Id: macro.h,v 1.18 2007/08/15 17:46:11 dds Exp $
  */
 
 #ifndef MACRO_
@@ -43,6 +43,8 @@ public:
 	void set_is_vararg(bool v) { is_vararg = v; };
 	bool get_is_defined() const { return is_defined; };
 	bool get_is_vararg() const { return is_vararg; };
+	// Return the number of formal arguments
+	int get_num_args() const { return formal_args.size(); }
 	void form_args_push_back(Ptoken& t) { formal_args.push_back(t); };
 	void value_push_back(Ptoken& t) { value.push_back(t); };
 	MCall *get_mcall() const { return mcall; }

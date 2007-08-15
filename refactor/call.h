@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.21 2007/08/15 09:16:38 dds Exp $
+ * $Id: call.h,v 1.22 2007/08/15 17:46:11 dds Exp $
  */
 
 #ifndef CALL_
@@ -160,6 +160,12 @@ public:
 			return get_definition();
 		else
 			return get_tokid();
+	}
+
+	// Set number of arguments
+	static inline void set_num_args(int n) {
+		if (current_fun && !current_fun->m.is_processed())
+			current_fun->m.set_metric(FunMetrics::em_nparam, n);
 	}
 
 	// Process a token destined for preprocessing
