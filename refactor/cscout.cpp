@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.173 2007/08/15 13:11:28 dds Exp $
+ * $Id: cscout.cpp,v 1.174 2007/08/15 15:44:10 dds Exp $
  */
 
 #include <map>
@@ -302,6 +302,7 @@ file_analyze(Fileid fi)
 	FCallSet &fc = fi.get_functions();	// File's functions
 	FCallSet::iterator fci = fc.begin();	// Iterator through them
 	Call *cfun = NULL;			// Current function
+	stack <Call *> fun_nesting;
 
 	cout << "Post-processing " << fname << endl;
 	in.open(fname.c_str(), ios::binary);
@@ -320,8 +321,15 @@ file_analyze(Fileid fi)
 
 		// Update current_function
 		if (cfun && ti > cfun->get_end().get_tokid())
-			cfun = NULL;
-		if (!cfun && fci != fc.end() && ti >= (*fci)->get_begin().get_tokid()) {
+			if (fun_nesting.empty())
+				cfun = NULL;
+			else {
+				cfun = fun_nesting.top();
+				fun_nesting.pop();
+			}
+		if (fci != fc.end() && ti >= (*fci)->get_begin().get_tokid()) {
+			if (cfun)
+				fun_nesting.push(cfun);
 			cfun = *fci;
 			fci++;
 		}
