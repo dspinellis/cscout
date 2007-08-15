@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.122 2007/08/13 15:09:49 dds Exp $
+# $Id: Makefile,v 1.123 2007/08/15 19:22:01 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -172,11 +172,6 @@ ccheck: license.c license.h des.c des.h
 ccheck-install: ccheck
 	cp ccheck /home/dds/web/spinellis-cgi-bin/
 
-# Some important dependencies
-error.o: pltoken.h
-pdtoken.o: pltoken.h
-simple_cpp.o: pltoken.h
-
 eval.cpp: eval.y
 	$(YACC) -b eval -p eval_ eval.y
 	mv -f eval_tab.c eval.cpp
@@ -192,12 +187,6 @@ ytab.h: parse_tab.h
 tokname.cpp: ytab.h tokname.pl
 	perl tokname.pl ytab.h tokname.cpp
 
-$(ARCH)/cscout.o: ytab.h
-$(ARCH)/ctoken.o: ctoken.cpp ytab.h
-
-$(ARCH)/fchar.o: fchar.cpp parse_tab.h
-
-
 # Create error message documentation
 mkerr:
 	perl mkerr.pl >../doc/error.xml
@@ -208,8 +197,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.122 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2007/08/13 15:09:49 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.123 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2007/08/15 19:22:01 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
