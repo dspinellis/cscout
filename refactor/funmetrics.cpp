@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.12 2007/08/17 11:17:46 dds Exp $
+ * $Id: funmetrics.cpp,v 1.13 2007/08/17 13:02:25 dds Exp $
  */
 
 #include <iostream>
@@ -47,7 +47,7 @@ FunMetrics::KeywordMap &FunMetrics::keyword_map = make_keyword_map();
 MetricDetails FunMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FunMetrics
 	// Elements counted at the token tap before the preprocessor
-	{ em_nsemi,		"NSEMI",		"Number of statements or declarations"},
+	{ em_nstmt,		"NSTMT",		"Number of statements or declarations"},
 	{ em_nop,		"NOP",			"Number of operators"},
 	{ em_nuop,		"NUOP",			"Number of unique operators"},
 	{ em_nnconst,		"NNCONST",		"Number of numeric constants"},
@@ -253,16 +253,30 @@ FunMetrics::process_token(const Pltoken &t)
 		if (em != -1)
 			count[em]++;
 		switch (em) {
-		case em_ndo:	// Don't count the "while" associated with a "do"
+		case em_nwhile:
+		case em_nswitch:
+		case em_nif:
+			/*
+			 * while (x) y; and the rest are two statements
+			 * We count one through the ";", we must count the
+			 * other through the keyword.
+			 */
+			count[em_nstmt]++;
+			break;
+		case em_ndo:
+			count[em_nstmt]++;
+			// Don't count the "while" associated with a "do"
 			count[em_nwhile]--;
 			break;
-		case em_nfor:	// Don't count the semicolons in for statements
-			count[em_nsemi] -= 2;
+		case em_nfor:
+			count[em_nstmt]++;
+			// Don't count the semicolons in for statements
+			count[em_nstmt] -= 2;
 			break;
 		}
 		break;
 	case ';':
-		count[em_nsemi]++;
+		count[em_nstmt]++;
 		break;
 	case PP_NUMBER:
 		count[em_nnconst]++;

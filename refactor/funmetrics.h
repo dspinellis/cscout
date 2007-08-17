@@ -15,7 +15,7 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.9 2007/08/17 11:17:46 dds Exp $
+ * $Id: funmetrics.h,v 1.10 2007/08/17 13:02:25 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -70,7 +70,7 @@ public:
 	 */
 	enum e_metric {
 		// Elements counted before the preprocessor token tap
-		em_nsemi =	// Number of statements or declarations
+		em_nstmt =	// Number of statements or declarations
 			Metrics::metric_max,
 		em_nop,		// Number of operators
 		em_nuop,	// Number of unique operators
