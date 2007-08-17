@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.11 2007/08/15 16:35:27 dds Exp $
+ * $Id: funmetrics.cpp,v 1.12 2007/08/17 11:17:46 dds Exp $
  */
 
 #include <iostream>
@@ -71,6 +71,9 @@ MetricDetails FunMetrics::metric_details[] = {
 	{ em_nfid,		"NFID",			"Number of file-scope (static) identifiers"},
 	{ em_nmid,		"NMID",			"Number of macro identifiers"},
 	{ em_nid,		"NID",			"Total number of object and object-like identifiers"},
+	{ em_nupid,		"NUPID",		"Number of unique project-scope identifiers"},
+	{ em_nufid,		"NUFID",		"Number of unique file-scope (static) identifiers"},
+	{ em_numid,		"NUMID",		"Number of unique macro identifiers"},
 	{ em_nuid,		"NUID",			"Number of unique object and object-like identifiers"},
 	{ em_nlabid,		"INTERNAL",		"Number of label identifiers"},
 	// During processing (once based on processed)
@@ -205,8 +208,14 @@ FunMetrics::summarize_operators()
 void
 FunMetrics::summarize_identifiers()
 {
-	count[em_nuid] = identifiers.size();
-	identifiers.clear();
+	count[em_nupid] = pids.size();
+	pids.clear();
+	count[em_nufid] = fids.size();
+	fids.clear();
+	count[em_numid] = mids.size();
+	mids.clear();
+	count[em_nuid] = ids.size();
+	ids.clear();
 }
 
 // Initialize map
@@ -280,11 +289,20 @@ FunMetrics::process_id(const string &s, Eclass *ec)
 	Metrics::process_id(s, ec);
 	if (!ec)
 		return;
-	count[em_npid] += ec->get_attribute(is_lscope);
-	count[em_nfid] += ec->get_attribute(is_cscope);
-	count[em_nmid] += ec->get_attribute(is_macro);
+	if (ec->get_attribute(is_lscope)) {
+		count[em_npid]++;
+		pids.insert(ec);
+	}
+	if (ec->get_attribute(is_cscope)) {
+		count[em_nfid]++;
+		fids.insert(ec);
+	}
+	if (ec->get_attribute(is_macro)) {
+		count[em_nmid]++;
+		mids.insert(ec);
+	}
 	count[em_nid] += ec->get_attribute(is_ordinary);
 	count[em_nlabid] += ec->get_attribute(is_label);
 	if (ec->get_attribute(is_ordinary) || ec->get_attribute(is_macro))
-		identifiers.insert(ec);
+		ids.insert(ec);
 }

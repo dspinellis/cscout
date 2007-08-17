@@ -15,7 +15,7 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.8 2007/08/15 16:35:27 dds Exp $
+ * $Id: funmetrics.h,v 1.9 2007/08/17 11:17:46 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -53,7 +53,10 @@ private:
 	static KeywordMap &make_keyword_map();
 
 	set <int> operators;			// Operators used in the function
-	set <Eclass *> identifiers;		// Identifiers used in the function
+	set <Eclass *> pids;			// Project-scope dentifiers used in the function
+	set <Eclass *> fids;			// File-scope identifiers used in the function
+	set <Eclass *> mids;			// Macro identifiers used in the function
+	set <Eclass *> ids;			// Identifiers used in the function
 	Call *call;				// Associated function
 
 public:
@@ -88,10 +91,15 @@ public:
 		em_ngoto,	// Number of goto statements
 		em_nreturn,	// Number of return statements
 		// Identifiers categorized during identifier processing
+		// The following four lines must match the next four
 		em_npid,	// Number of project-scope identifiers
 		em_nfid,	// Number of file-scope (static) identifiers
 		em_nmid,	// Number of macro identifiers
 		em_nid,		// Total number of object and object-like identifiers
+		// The following four lines must match the previous four
+		em_nupid,	// Number of project-scope identifiers
+		em_nufid,	// Number of file-scope (static) identifiers
+		em_numid,	// Number of macro identifiers
 		em_nuid,	// Number of unique object and object-like identifiers
 		em_nlabid,	// (INT) Number of label identifiers
 		// During processing (once based on processed)
