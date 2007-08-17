@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.22 2007/08/15 17:46:11 dds Exp $
+ * $Id: call.h,v 1.23 2007/08/17 07:51:52 dds Exp $
  */
 
 #ifndef CALL_
@@ -173,6 +173,13 @@ public:
 		if (current_fun && !current_fun->m.is_processed())
 			current_fun->m.process_token(t);
 	}
+
+	// Call the specified metrics function for the current function
+	static inline void call_metrics(void (Metrics::*fun)()) {
+		if (current_fun)
+			(current_fun->m.*fun)();
+	}
+
 
 	// ctor; never call it if the call for t already exists
 	Call(const string &s, const Token &t);

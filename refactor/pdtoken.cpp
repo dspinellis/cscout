@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.114 2007/08/15 17:46:11 dds Exp $
+ * $Id: pdtoken.cpp,v 1.115 2007/08/17 07:51:52 dds Exp $
  */
 
 #include <iostream>
@@ -385,7 +385,7 @@ Pdtoken::process_if()
 	if (skiplevel)
 		skiplevel++;
 	else {
-		Fchar::get_fileid().metrics().add_ppcond();
+		Metrics::call_metrics(&Metrics::add_ppcond);
 		bool eval_res = eval();
 		iftaken.push(eval_res);
 		skiplevel = eval_res ? 0 : 1;
@@ -410,7 +410,7 @@ Pdtoken::process_ifdef(bool isndef)
 	else {
 		Pltoken t;
 
-		Fchar::get_fileid().metrics().add_ppcond();
+		Metrics::call_metrics(&Metrics::add_ppcond);
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != IDENTIFIER)
 			/*
@@ -452,7 +452,7 @@ Pdtoken::process_elif()
 	}
 	if (skiplevel > 1)
 		return;
-	Fchar::get_fileid().metrics().add_ppcond();
+	Metrics::call_metrics(&Metrics::add_ppcond);
 	if (iftaken.top())
 		skiplevel = 1;
 	else {
@@ -666,7 +666,7 @@ Pdtoken::process_define()
 	Macro m(nametok, true, is_function);
 	if (is_function) {
 		// Function-like macro
-		Fchar::get_fileid().metrics().add_ppfmacro();
+		Metrics::call_metrics(&Metrics::add_ppfmacro);
 		m.set_is_vararg(false);
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != ')') {
@@ -745,7 +745,7 @@ Pdtoken::process_define()
 		}
 		MCall::set_num_args(m.get_num_args());
 	} else
-		Fchar::get_fileid().metrics().add_ppomacro();
+		Metrics::call_metrics(&Metrics::add_ppomacro);
 	if (DP()) cout << "Body starts with " << t;
 	// Continue gathering macro body
 	for (bool lead = true; t.get_code() != '\n';) {
@@ -1072,7 +1072,7 @@ Pdtoken::process_directive()
 {
 	Pltoken t;
 
-	Fchar::get_fileid().metrics().add_ppdirective();
+	Metrics::call_metrics(&Metrics::add_ppdirective);
 	t.getnext_nospc<Fchar>();
 	if (t.get_code() == '\n')		// Empty directive
 		return;

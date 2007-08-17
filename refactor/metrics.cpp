@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.27 2007/08/15 16:35:27 dds Exp $
+ * $Id: metrics.cpp,v 1.28 2007/08/17 07:51:52 dds Exp $
  */
 
 #include <iostream>
@@ -217,4 +217,13 @@ avg(int v, int n)
 	ostringstream r;
 	r << v / n;
 	return r.str();
+}
+
+
+// Call the specified metrics function for the current file and function
+void
+Metrics::call_metrics(void (Metrics::*fun)())
+{
+	(Fchar::get_fileid().metrics().*fun)();
+	Call::call_metrics(fun);
 }

@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.25 2007/08/15 16:35:27 dds Exp $
+ * $Id: metrics.h,v 1.26 2007/08/17 07:51:52 dds Exp $
  */
 
 #ifndef METRICS_
@@ -104,6 +104,9 @@ public:
 	// Generic
 	double get_metric(int n) const { return count[n]; }
 	void set_metric(int n, int val) { count[n] = val; }
+
+	// Call the specified metrics function for the current file and function
+	static void call_metrics(void (Metrics::*fun)());
 
 	// Return true if the specified metric shall not appear in the UI/RDBMS
 	template <class M>
