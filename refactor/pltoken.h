@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.30 2007/08/14 16:02:59 dds Exp $
+ * $Id: pltoken.h,v 1.31 2007/08/18 15:08:47 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -524,6 +524,9 @@ Pltoken::getnext()
 		val = (char)(code = c0.get_char());
 	}
 	Call::process_token(*this);
+	// For metric counting filter out whitespace
+	if (code != SPACE && code != '\n')
+		Metrics::call_metrics(&Metrics::add_pptoken);
 	if (DP()) cout << "getnext returns: " << *this << "\n";
 }
 

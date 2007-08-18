@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.28 2007/08/17 07:51:52 dds Exp $
+ * $Id: metrics.cpp,v 1.29 2007/08/18 15:08:26 dds Exp $
  */
 
 #include <iostream>
@@ -46,6 +46,8 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_nstring,		"NSTRING",		"Number of character strings"},
 	{ em_nuline,		"NULINE",		"Number of unprocessed lines"},
 
+	{ em_npptoken,		"NPPTOKEN",		"Number of preprocessed tokens"},
+	{ em_nctoken,		"NCTOKEN",		"Number of compiled tokens"},
 	{ em_nppdirective,	"NPPDIRECTIVE",		"Number of C preprocessor directives"},
 	{ em_nppcond,		"NPPCOND",		"Number of processed C preprocessor conditionals (ifdef, if, elif)"},
 	{ em_nppfmacro,		"NPPFMACRO",		"Number of defined C preprocessor function-like macros"},

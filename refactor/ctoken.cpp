@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.34 2007/08/12 16:01:44 dds Exp $
+ * $Id: ctoken.cpp,v 1.35 2007/08/18 15:08:26 dds Exp $
  */
 
 #include <map>
@@ -259,6 +259,7 @@ parse_lex_real()
 	extern YYSTYPE parse_lval;
 	extern bool parse_yacc_defs;
 
+	Metrics::call_metrics(&Metrics::add_ctoken);
 	for (;;) {
 		Pdtoken t;
 		t.getnext();

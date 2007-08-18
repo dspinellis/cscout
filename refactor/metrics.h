@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.26 2007/08/17 07:51:52 dds Exp $
+ * $Id: metrics.h,v 1.27 2007/08/18 15:08:26 dds Exp $
  */
 
 #ifndef METRICS_
@@ -80,6 +80,8 @@ public:
 		em_nppcond,		// Number of processed cpp conditionals (ifdef, if, elif)
 		em_nppfmacro,		// Number of defined cpp function-like macros
 		em_nppomacro,		// Number of defined cpp object-like macros
+		em_npptoken,		// Number of preprocessed tokens
+		em_nctoken,		// Number of compiled tokens
 		metric_max
 	};
 
@@ -95,6 +97,8 @@ public:
 	void add_ppcond() { if (!processed) count[em_nppcond]++; }
 	void add_ppfmacro() { if (!processed) count[em_nppfmacro]++; }
 	void add_ppomacro() { if (!processed) count[em_nppomacro]++; }
+	void add_pptoken() { if (!processed) count[em_npptoken]++; }
+	void add_ctoken() { if (!processed) count[em_nctoken]++; }
 
 	void done_processing() { processed = true; }
 	bool is_processed() const { return processed; }
