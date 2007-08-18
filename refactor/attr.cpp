@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.18 2006/06/26 10:22:02 dds Exp $
+ * $Id: attr.cpp,v 1.19 2007/08/18 13:23:39 dds Exp $
  */
 
 #include <map>
@@ -37,6 +37,7 @@ vector<string> Project::projnames(attr_end);
 // Keep this in sync with the enumeration
 string Attributes::attribute_names[] = {
 	"__attribute(__unused__)",
+	"Identifier token from a macro",
 
 	// User-visible attributes start here
 	"Read-only",
@@ -61,6 +62,7 @@ string Attributes::attribute_names[] = {
 // Keep this in sync with the enumeration
 string Attributes::attribute_short_names[] = {
 	"__attribute(__unused__)",
+	"idmtoken",
 
 	// User-visible attributes start here
 	"ro",

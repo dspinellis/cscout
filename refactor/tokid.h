@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.23 2007/06/27 07:43:52 dds Exp $
+ * $Id: tokid.h,v 1.24 2007/08/18 13:23:39 dds Exp $
  */
 
 #ifndef TOKID_
@@ -76,6 +76,8 @@ public:
 	dequeTpart constituents(int l);
 	// Set the Tokid's equivalence class attribute
 	void set_ec_attribute(enum e_attribute a, int len) const;
+	// Return true if one of the tokid's ECs has the specified attribute
+	bool has_ec_attribute(enum e_attribute a, int l) const;
 	// Clear the map of tokid equivalence classes
 	static void clear();
 	// Print the contents of the class map

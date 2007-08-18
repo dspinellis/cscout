@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.11 2006/09/21 13:19:47 dds Exp $
+ * $Id: obfuscate.cpp,v 1.12 2007/08/18 13:23:39 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -223,7 +223,7 @@ file_obfuscate(Fileid fid)
 		if ((ec = ti.check_ec()) &&
 		    (ec->get_attribute(is_readonly) == false) &&
 		    (ec->get_attribute(is_macro) ||
-		     ec->get_attribute(is_macroarg) ||
+		     ec->get_attribute(is_macro_arg) ||
 		     ec->get_attribute(is_ordinary) ||
 		     ec->get_attribute(is_suetag) ||
 		     ec->get_attribute(is_sumember) ||

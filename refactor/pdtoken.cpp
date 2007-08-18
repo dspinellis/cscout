@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.115 2007/08/17 07:51:52 dds Exp $
+ * $Id: pdtoken.cpp,v 1.116 2007/08/18 13:23:39 dds Exp $
  */
 
 #include <iostream>
@@ -691,7 +691,7 @@ Pdtoken::process_define()
 					return;
 				}
 				if (t.get_code() == IDENTIFIER) {
-					t.set_ec_attribute(is_macroarg);
+					t.set_ec_attribute(is_macro_arg);
 					args[t.get_val()] = t;
 					m.form_args_push_back(t);
 					t.getnext_nospc<Fchar>();
@@ -760,8 +760,11 @@ Pdtoken::process_define()
 		lead = false;
 		m.value_push_back(t);
 		mapToken::const_iterator i;
-		if (t.get_code() == IDENTIFIER && (i = args.find(t.get_val())) != args.end())
-			Token::unify((*i).second, t);
+		if (t.get_code() == IDENTIFIER) {
+			t.set_ec_attribute(is_macro_token);
+			if ((i = args.find(t.get_val())) != args.end())
+				Token::unify((*i).second, t);
+		}
 		t.getnext<Fchar>();
 	}
 	if (is_function)

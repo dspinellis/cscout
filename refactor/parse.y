@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.132 2007/08/15 19:56:23 dds Exp $
+ * $Id: parse.y,v 1.133 2007/08/18 13:23:39 dds Exp $
  *
  */
 
@@ -297,6 +297,13 @@ static bool yacc_typing;
 %type <t> parameter_type_list
 %type <t> parameter_list
 %type <t> parameter_declaration
+
+/* Needed to avoid increasing nesting for expanded macros */
+%type <t> IF
+%type <t> SWITCH
+%type <t> WHILE
+%type <t> DO
+%type <t> FOR
 
 /* Needed for yacc */
 %type <t> INT_CONST
@@ -1561,20 +1568,36 @@ expression_statement:
 		{ $$ = $1; }
         ;
 
+nested_statement:
+	{ Call::increase_nesting(); } statement { Call::decrease_nesting(); }
+	;
+
+if_keyword: IF
+		{ Call::check_macro_nesting($1.get_token()); }
+	;
+
+for_keyword: FOR
+		{ Call::check_macro_nesting($1.get_token()); }
+	;
+
 selection_statement:
-          IF '(' comma_expression ')' statement
-        | IF '(' comma_expression ')' statement ELSE statement
-        | SWITCH '(' comma_expression ')' statement
+          if_keyword '(' comma_expression ')' nested_statement
+        | if_keyword '(' comma_expression ')' nested_statement ELSE statement
+		/*
+		 * To avoid inflated nesting metrics from if else ... sequences
+		 * the else body does not measure nesting level.
+		 */
+        | SWITCH { Call::check_macro_nesting($1.get_token()); } '(' comma_expression ')' nested_statement
         ;
 
 iteration_statement:
-        WHILE '(' comma_expression ')' statement
-        | DO statement WHILE '(' comma_expression ')' ';'
-        | FOR '(' comma_expression_opt ';' comma_expression_opt ';'
-                comma_expression_opt ')' statement
-        | FOR '(' { Block::enter(); } declaring_list
+        WHILE { Call::check_macro_nesting($1.get_token()); } '(' comma_expression ')' nested_statement
+        | DO { Call::check_macro_nesting($1.get_token()); } nested_statement WHILE '(' comma_expression ')' ';'
+        | for_keyword '(' comma_expression_opt ';' comma_expression_opt ';'
+                comma_expression_opt ')' nested_statement
+        | for_keyword '(' { Block::enter(); } declaring_list
 	  ';' comma_expression_opt ';'
-                comma_expression_opt ')' statement
+                comma_expression_opt ')' nested_statement
 	          { Block::exit(); }
         ;
 

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.13 2007/08/17 13:02:25 dds Exp $
+ * $Id: funmetrics.cpp,v 1.14 2007/08/18 13:23:39 dds Exp $
  */
 
 #include <iostream>
@@ -78,6 +78,7 @@ MetricDetails FunMetrics::metric_details[] = {
 	{ em_nlabid,		"INTERNAL",		"Number of label identifiers"},
 	// During processing (once based on processed)
 	{ em_nparam,		"NPARAM",		"Number of parameters"},
+	{ em_maxnest,		"MAXNEST",		"Maximum level of statement nesting"},
 	// Metrics dynamically derived
 	{ em_nlabel,		"NLABEL",		"Number of goto labels"},
 	{ em_fanin,		"FANIN",		"Fan-in (number of calling functions)"},

@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.23 2007/08/17 07:51:52 dds Exp $
+ * $Id: call.h,v 1.24 2007/08/18 13:23:39 dds Exp $
  */
 
 #ifndef CALL_
@@ -14,6 +14,7 @@
 class FCall;
 class Sql;
 class Id;
+class Ctoken;
 
 /*
  * Generic call information of a called/calling entity.
@@ -49,7 +50,9 @@ private:
 	bool visited;			// For calculating transitive closures
 	bool printed;			// For printing a graph's nodes
 	FcharContext begin, end;	// Span of definition
-	FunMetrics m;		// Metrics for this function
+	FunMetrics m;			// Metrics for this function
+	int curr_stmt_nesting;		// Current level of nesting
+	static int macro_nesting;	// Level of nesting through macro tokens
 
 	void add_call(Call *f) { call.insert(f); }
 	void add_caller(Call *f) { caller.insert(f); }
@@ -180,6 +183,26 @@ public:
 			(current_fun->m.*fun)();
 	}
 
+	// The following three methods must always be called as a group
+	// See if we have started nesting through macro-expanded tokens
+	static void check_macro_nesting(const Ctoken &t);
+
+	// Increase the current function's level of nesting
+	static inline void increase_nesting() {
+		if (current_fun && !current_fun->m.is_processed() &&
+		    !macro_nesting)
+			current_fun->m.update_nesting(++(current_fun->curr_stmt_nesting));
+	}
+
+	// Decrease the current function's level of nesting
+	static inline void decrease_nesting() {
+		if (!current_fun || current_fun->m.is_processed())
+			return;
+		if (macro_nesting)
+			macro_nesting--;
+		else
+			current_fun->curr_stmt_nesting--;
+	}
 
 	// ctor; never call it if the call for t already exists
 	Call(const string &s, const Token &t);

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tokid.cpp,v 1.28 2006/09/22 20:46:26 dds Exp $
+ * $Id: tokid.cpp,v 1.29 2007/08/18 13:23:39 dds Exp $
  */
 
 #include <iostream>
@@ -151,6 +151,32 @@ Tokid::set_ec_attribute(enum e_attribute a, int l) const
 		csassert(l >= 0);
 		if (l == 0)
 			return;
+		t += covered;
+		e = tm.find(t);
+		csassert(e != Tokid::tm.end());
+	}
+}
+
+// Return true if one of the tokid's ECs has the specified attribute
+bool
+Tokid::has_ec_attribute(enum e_attribute a, int l) const
+{
+	Tokid t = *this;
+	dequeTpart r;
+	mapTokidEclass::const_iterator e = tm.find(t);
+
+	if (e == Tokid::tm.end())
+		// No EC defined, create a new one
+		return false;
+	// Check the ECs covering our tokid t
+	for (;;) {
+		int covered = (e->second)->get_len();
+		if ((e->second)->get_attribute(a))
+			return true;
+		l -= covered;
+		csassert(l >= 0);
+		if (l == 0)
+			return false;
 		t += covered;
 		e = tm.find(t);
 		csassert(e != Tokid::tm.end());

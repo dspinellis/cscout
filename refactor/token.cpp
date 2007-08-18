@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.26 2006/09/29 08:38:33 dds Exp $
+ * $Id: token.cpp,v 1.27 2007/08/18 13:23:39 dds Exp $
  */
 
 #include <iostream>
@@ -80,7 +80,17 @@ Token::set_ec_attribute(enum e_attribute a) const
 {
 	dequeTpart::const_iterator i;
 	for (i = parts.begin(); i != parts.end(); i++)
-		(*i).get_tokid().set_ec_attribute(a, (*i).get_len());
+		i->get_tokid().set_ec_attribute(a, i->get_len());
+}
+
+bool
+Token::has_ec_attribute(enum e_attribute a) const
+{
+	dequeTpart::const_iterator i;
+	for (i = parts.begin(); i != parts.end(); i++)
+		if (i->get_tokid().has_ec_attribute(a, i->get_len()))
+			return true;
+	return false;
 }
 
 bool

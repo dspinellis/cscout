@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.20 2007/08/15 09:23:43 dds Exp $
+ * $Id: call.cpp,v 1.21 2007/08/18 13:23:39 dds Exp $
  */
 
 #include <map>
@@ -49,6 +49,9 @@ stack <Call *> Call::nesting;
 
 // Set of all functions
 Call::fun_map Call::all;
+
+// Nested statements created from macro expansion
+int Call::macro_nesting;
 
 // The current function makes a call to f
 void
@@ -107,6 +110,7 @@ Call::register_call(Call *from, Call *to)
 Call::Call(const string &s, const Token &t) :
 		name(s),
 		m(this),
+		curr_stmt_nesting(0),
 		token(t)
 {
 	if (DP())
@@ -216,6 +220,15 @@ Call::unset_current_fun()
 		current_fun = NULL;
 	else
 		current_fun = nesting.top();
+}
+
+// See if we have started nesting through macro-expanded tokens
+void
+Call::check_macro_nesting(const Ctoken &t)
+{
+	if (current_fun && !current_fun->m.is_processed() &&
+	    t.has_ec_attribute(is_macro_token))
+		macro_nesting++;
 }
 
 #ifdef COMMERCIAL

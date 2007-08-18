@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.39 2007/08/15 16:35:27 dds Exp $
+ * $Id: workdb.cpp,v 1.40 2007/08/18 13:23:39 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -86,7 +86,7 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 	db->boolval(e->get_attribute(is_readonly)) << ',' <<
 	db->boolval(e->get_attribute(is_undefined_macro)) << ',' <<
 	db->boolval(e->get_attribute(is_macro)) << ',' <<
-	db->boolval(e->get_attribute(is_macroarg)) << ',' <<
+	db->boolval(e->get_attribute(is_macro_arg)) << ',' <<
 	db->boolval(e->get_attribute(is_ordinary)) << ',' <<
 	db->boolval(e->get_attribute(is_suetag)) << ',' <<
 	db->boolval(e->get_attribute(is_sumember)) << ',' <<

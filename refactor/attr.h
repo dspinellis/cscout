@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.16 2006/06/26 10:22:02 dds Exp $
+ * $Id: attr.h,v 1.17 2007/08/18 13:23:39 dds Exp $
  */
 
 #ifndef ATTR_
@@ -12,7 +12,9 @@
 // Attributes that can be set for an EC
 // Keep in sync with attribute_names[] and short_names[]
 enum e_attribute {
-	is_declared_unused,
+	is_declared_unused,	// Declared with __unused__ attribute
+	is_macro_token,		// Identifier stored in a macro
+
 	is_readonly,		// Read-only; true if any member
 				// comes from an ro file
 	// The four C namespaces
@@ -21,9 +23,9 @@ enum e_attribute {
 	is_label,		// Goto label
 	is_ordinary,		// Ordinary identifier
 
-	is_macro,		// Macro
+	is_macro,		// Name of an object or function-like macro
 	is_undefined_macro,	// Macro (heuristic: ifdef, defined)
-	is_macroarg,		// Macro argument
+	is_macro_arg,		// Macro argument
 	// The following are valid if is_ordinary is true:
 	is_cscope,		// Compilation-unit (file) scoped
 				// identifier  (static)
@@ -67,7 +69,7 @@ public:
 			attr[is_sumember] ||
 			attr[is_suetag] ||
 			attr[is_macro] ||
-			attr[is_macroarg] ||
+			attr[is_macro_arg] ||
 			attr[is_undefined_macro] ||
 			attr[is_label];
 	}

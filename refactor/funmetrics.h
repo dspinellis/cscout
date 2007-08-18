@@ -15,7 +15,7 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.10 2007/08/17 13:02:25 dds Exp $
+ * $Id: funmetrics.h,v 1.11 2007/08/18 13:23:39 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -104,6 +104,7 @@ public:
 		em_nlabid,	// (INT) Number of label identifiers
 		// During processing (once based on processed)
 		em_nparam,	// Number of parameters
+		em_maxnest,	// Maximum level of statement nesting
 		// Stored metrics stop here
 		stored_metric_max,
 		// The following metrics are dynamically derived
@@ -134,6 +135,8 @@ public:
 	void summarize_operators();
 	// Summarize the identifiers collected by process_id
 	void summarize_identifiers();
+	// Update the level of nesting
+	void update_nesting(int nesting) { if (nesting > count[em_maxnest]) count[em_maxnest] = nesting; }
 
 	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
 };
