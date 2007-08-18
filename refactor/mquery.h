@@ -4,7 +4,7 @@
  * Encapsulates a (user interface) metrics query part
  * Can be used to evaluate elements referenced through E against M metrics
  *
- * $Id: mquery.h,v 1.4 2007/08/15 05:50:57 dds Exp $
+ * $Id: mquery.h,v 1.5 2007/08/18 14:24:16 dds Exp $
  */
 
 #ifndef MQUERY_
@@ -99,6 +99,8 @@ public:
 		fputs("<table>"
 		"<tr><th>Sort-by</th><th>Metric</th><th>Compare</th><th>Value</th></tr>\n", of);
 		for (int i = 0; i < M::metric_max; i++) {
+			if (Metrics::is_internal<M>(i))
+				continue;
 			fprintf(of, "<tr><td><input type=\"radio\" name=\"order\" value=\"%d\"> </td>\n", i);
 			fprintf(of, "<td>%s</td><td><select name=\"c%d\" value=\"1\">\n",
 				Metrics::get_name<M>(i).c_str(), i);
