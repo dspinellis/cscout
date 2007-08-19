@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.177 2007/08/19 13:49:32 dds Exp $
+ * $Id: cscout.cpp,v 1.178 2007/08/19 14:00:51 dds Exp $
  */
 
 #include <map>
@@ -2483,7 +2483,7 @@ main(int argc, char *argv[])
 			break;
 	}
 	mstring << "\n";
-	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str(), file_msum.get_total(Metrics::em_nchar));
+	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str(), (int)(file_msum.get_total(Metrics::em_nchar)));
 #endif
 
 	must_exit = (CORRECTION_FACTOR - license_offset != 0);
