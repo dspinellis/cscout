@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.28 2007/08/19 13:35:45 dds Exp $
+ * $Id: filemetrics.cpp,v 1.29 2007/08/19 13:49:32 dds Exp $
  */
 
 #include <iostream>
@@ -36,10 +36,10 @@ MetricDetails FileMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FileMetrics
 	{ em_nstatement,	"NSTATEMENT",		"Number of statements"},
 	{ em_ncopies,		"NCOPIES",		"Number of copies of the file"},
-	{ em_npfunction,	"NPFUNCTION",		"Defined project-scope functions"},
-	{ em_nffunction,	"NFFUNCTION",		"Defined file-scope (static) functions"},
-	{ em_npvar,		"NPVAR",		"Defined project-scope variables"},
-	{ em_nfvar,		"NFVAR",		"Defined file-scope (static) variables"},
+	{ em_npfunction,	"NPFUNCTION",		"Number of defined project-scope functions"},
+	{ em_nffunction,	"NFFUNCTION",		"Number of defined file-scope (static) functions"},
+	{ em_npvar,		"NPVAR",		"Number of defined project-scope variables"},
+	{ em_nfvar,		"NFVAR",		"Number of defined file-scope (static) variables"},
 	{ em_naggregate,	"NAGGREGATE",		"Number of complete aggregate (struct/union) declarations"},
 	{ em_namember,		"NAMEMBER",		"Number of declared aggregate (struct/union) members"},
 	{ em_nenum,		"NENUM",		"Number of complete enumeration declarations"},

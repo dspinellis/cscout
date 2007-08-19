@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.176 2007/08/19 13:35:45 dds Exp $
+ * $Id: cscout.cpp,v 1.177 2007/08/19 13:49:32 dds Exp $
  */
 
 #include <map>
@@ -1249,11 +1249,11 @@ function_page(FILE *fo, void *p)
 	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", cgraph_suffix(), f);
 	fprintf(fo, "</ul>\n");
 	if (f->is_defined()) {
-		fprintf(fo, "<h2>Metrics</h2><ul>\n");
+		fprintf(fo, "<h2>Metrics</h2>\n<table border='1'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 		for (int j = 0; j < FunMetrics::metric_max; j++)
 			if (!Metrics::is_internal<FunMetrics>(j))
-				fprintf(fo, "\n<li> %s: %g", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
-		fprintf(fo, "</ul>\n");
+				fprintf(fo, "<tr><td>%s</td><td>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
+		fprintf(fo, "</table>\n");
 	}
 	html_tail(fo);
 }
@@ -1828,10 +1828,8 @@ file_page(FILE *of, void *p)
 	Fileid i(id);
 	const string &pathname = i.get_path();
 	html_head(of, "file", string("File: ") + html(pathname));
-	fprintf(of, "<h2>Metrics</h2><ul>\n");
+	fprintf(of, "<h2>Details</h2><ul>\n");
 	fprintf(of, "<li> Read-only: %s", i.get_readonly() ? "Yes" : "No");
-	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "\n<li> %s: %g", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
 	if (Option::show_projects->get()) {
 		fprintf(of, "\n<li> Used in project(s): \n<ul>");
 		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
@@ -1864,6 +1862,10 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&n=Files+Including+the+File\">Files including this file</a>\n", i.get_id());
 	fprintf(of, "</ul>\n");
+	fprintf(of, "<h2>Metrics</h2>\n<table border='1'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
+	for (int j = 0; j < FileMetrics::metric_max; j++)
+		fprintf(of, "<tr><td>%s</td><td>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
+	fprintf(of, "</table>\n");
 	html_tail(of);
 }
 
