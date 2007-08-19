@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: filemetrics.h,v 1.23 2007/08/13 15:56:44 dds Exp $
+ * $Id: filemetrics.h,v 1.24 2007/08/19 12:36:20 dds Exp $
  */
 
 #ifndef FILEMETRICS_
@@ -76,38 +76,9 @@ public:
 	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
 };
 
-// Counting file details
-class FileCount {
-private:
-	// Totals for all files
-	int nfile;		// Number of unique files
-	vector <int> count;	// File metric counts
-public:
-	FileCount(int v = 0) :
-		nfile(0),
-		count(FileMetrics::metric_max, v)
-	{}
-	int get_metric(int i)  const { return count[i]; }
-	// Add the details of file fi
-	template <class BinaryFunction>
-	void add(Fileid &fi, BinaryFunction f);
-	friend ostream& operator<<(ostream& o, const FileMetricsSet &m);
-};
-// One such set is kept for readable and writable files
-class FileMetricsSet {
-	friend class FileMetricsSummary;
-	FileCount total;// File details, total
-	FileCount min;	// File details, min across files
-	FileCount max;	// File details, max across files
-public:
-	FileMetricsSet();
-	friend ostream& operator<<(ostream& o, const FileMetricsSet &m);
-	int get_total(int i) { return total.get_metric(i); }
-};
-
 // This can be kept per project and globally
 class FileMetricsSummary {
-	FileMetricsSet rw[2];			// For read-only and writable cases
+	MetricsRange<FileMetrics, Fileid> rw[2];			// For read-only and writable cases
 public:
 	// Create file-based summary
 	void summarize_files();
@@ -118,4 +89,5 @@ public:
 };
 
 extern FileMetricsSummary file_msum;
+
 #endif /* FILEMETRICS_ */

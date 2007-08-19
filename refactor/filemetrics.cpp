@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.26 2007/08/13 15:56:44 dds Exp $
+ * $Id: filemetrics.cpp,v 1.27 2007/08/19 12:36:20 dds Exp $
  */
 
 #include <iostream>
@@ -50,16 +50,6 @@ MetricDetails FileMetrics::metric_details[] = {
 
 // Global metrics
 FileMetricsSummary file_msum;
-// Update file-based summary
-template <class BinaryFunction>
-void
-FileCount::add(Fileid &fi, BinaryFunction f)
-{
-	nfile++;
-	for (int i = 0; i < FileMetrics::metric_max; i++)
-		count[i] = f(fi.metrics().get_int_metric(i), count[i]);
-}
-
 
 // Create file-based summary
 void
@@ -71,37 +61,6 @@ FileMetricsSummary::summarize_files()
 		rw[(*i).get_attribute(is_readonly)].min.add((*i), get_min());
 		rw[(*i).get_attribute(is_readonly)].max.add((*i), get_max());
 	}
-}
-
-FileMetricsSet::FileMetricsSet() :
-	min(INT_MAX)
-// When my Linux upgrades from gcc 2.96
-//	min(numeric_limits<int>::max())
-{
-}
-
-ostream&
-operator<<(ostream& o, const FileMetricsSet &mi)
-{
-	FileMetricsSet &m = (FileMetricsSet &)mi;
-
-	o << "Number of files: " << m.total.nfile << "<p>\n";
-	if (m.total.nfile == 0)
-		return o;
-	o << "<table border=1>"
-		"<tr><th>" "File metric" "</th>"
-		"<th>" "Total" "</th>"
-		"<th>" "Min" "</th>"
-		"<th>" "Max" "</th>"
-		"<th>" "Avg" "</th></tr>\n";
-	for (int i = 0; i < FileMetrics::metric_max; i++)
-		o << "<tr><td>" << Metrics::get_name<FileMetrics>(i) << "</td>"
-			"<td>" << m.total.get_metric(i) << "</td>"
-			"<td>" << m.min.get_metric(i) << "</td>"
-			"<td>" << m.max.get_metric(i) << "</td>"
-			"<td>" << avg(m.total.get_metric(i), m.total.nfile) << "</td></tr>\n";
-	o << "</table>\n";
-	return o;
 }
 
 ostream&

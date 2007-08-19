@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.27 2007/08/18 15:08:26 dds Exp $
+ * $Id: metrics.h,v 1.28 2007/08/19 12:36:20 dds Exp $
  */
 
 #ifndef METRICS_
@@ -252,6 +252,75 @@ Metrics::get_name(int n)
 		return get_detail<Metrics>(n).name;
 	else
 		return get_detail<M>(n).name;
+}
+
+template <class M, class E> class MetricsRange;
+
+// Counting metric details
+template <class M, class E>
+class MetricsCount {
+private:
+	// Totals for all files
+	int nelement;		// Number of unique files
+	vector <int> count;	// File metric counts
+public:
+	MetricsCount(int v = 0) :
+		nelement(0),
+		count(M::metric_max, v)
+	{}
+	int get_metric(int i)  const { return count[i]; }
+	// Add the details of file fi
+	template <class BinaryFunction>
+	// Update metrics summary
+	void add(E &fi, BinaryFunction f) {
+		nelement++;
+		for (int i = 0; i < M::metric_max; i++)
+			count[i] = f(fi.metrics().get_int_metric(i), count[i]);
+	}
+	int get_nelement() const { return nelement; }
+	template <class MM, class EE>
+	friend ostream& operator<<(ostream& o, const MetricsRange<M, E> &m);
+};
+
+
+// Tally the range and sum of the metrics
+template <class M, class E>
+class MetricsRange {
+public:
+	MetricsCount<M, E> total;	// Metric details, total
+	MetricsCount<M, E> min;	// Metric details, min across files
+	MetricsCount<M, E> max;	// Metric details, max across files
+	MetricsRange() :
+		min(INT_MAX)
+		// When my Linux upgrades from gcc 2.96
+		//	min(numeric_limits<int>::max())
+	{}
+	template <class MM, class EE>
+	friend ostream& operator<<(ostream& o, const MetricsRange &m);
+	int get_total(int i) { return total.get_metric(i); }
+};
+
+template <class M, class E>
+ostream&
+operator<<(ostream& o, const MetricsRange<M, E> &m)
+{
+	o << "Number of elements: " << m.total.get_nelement() << "<p>\n";
+	if (m.total.get_nelement() == 0)
+		return o;
+	o << "<table border=1>"
+		"<tr><th>" "Metric" "</th>"
+		"<th>" "Total" "</th>"
+		"<th>" "Min" "</th>"
+		"<th>" "Max" "</th>"
+		"<th>" "Avg" "</th></tr>\n";
+	for (int i = 0; i < M::metric_max; i++)
+		o << "<tr><td>" << Metrics::get_name<M>(i) << "</td>"
+			"<td>" << m.total.get_metric(i) << "</td>"
+			"<td>" << m.min.get_metric(i) << "</td>"
+			"<td>" << m.max.get_metric(i) << "</td>"
+			"<td>" << avg(m.total.get_metric(i), m.total.get_nelement()) << "</td></tr>\n";
+	o << "</table>\n";
+	return o;
 }
 
 #endif /* METRICS_ */
