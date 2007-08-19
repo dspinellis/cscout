@@ -2,12 +2,13 @@
 #
 # Document the database schema
 #
-# $Id: docschema.pl,v 1.5 2007/08/19 10:00:47 dds Exp $
+# $Id: docschema.pl,v 1.6 2007/08/19 14:45:21 dds Exp $
 #
 
 sub
 printline
 {
+	return if ($name eq 'INTERNAL');
 	$description =~ s/references (\w+)/references <a href="#$1">$1<\/a>/;
 	print "
 <tr><td>$name</td><td>$type</td><td>$description</td></tr>
@@ -19,7 +20,7 @@ $dir =~ s,\/[^/]+$,/,;
 
 print '<?xml version="1.0" ?>
 <notes>
-<!-- Automatically generated file: $Id: docschema.pl,v 1.5 2007/08/19 10:00:47 dds Exp $ -->
+<!-- Automatically generated file: $Id: docschema.pl,v 1.6 2007/08/19 14:45:21 dds Exp $ -->
 The following sections describe the
 schema of the database created through the SQL backend.
 ';
