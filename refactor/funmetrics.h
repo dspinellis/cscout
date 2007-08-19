@@ -15,7 +15,7 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.11 2007/08/18 13:23:39 dds Exp $
+ * $Id: funmetrics.h,v 1.12 2007/08/19 09:07:54 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -103,6 +103,7 @@ public:
 		em_nuid,	// Number of unique object and object-like identifiers
 		em_nlabid,	// (INT) Number of label identifiers
 		// During processing (once based on processed)
+		em_ngnsoc,	// Number of global namespace occupants at function's top
 		em_nparam,	// Number of parameters
 		em_maxnest,	// Maximum level of statement nesting
 		// Stored metrics stop here

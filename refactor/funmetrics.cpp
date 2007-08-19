@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.14 2007/08/18 13:23:39 dds Exp $
+ * $Id: funmetrics.cpp,v 1.15 2007/08/19 09:07:54 dds Exp $
  */
 
 #include <iostream>
@@ -77,6 +77,7 @@ MetricDetails FunMetrics::metric_details[] = {
 	{ em_nuid,		"NUID",			"Number of unique object and object-like identifiers"},
 	{ em_nlabid,		"INTERNAL",		"Number of label identifiers"},
 	// During processing (once based on processed)
+	{ em_ngnsoc,		"NGNSOC",		"Number of global namespace occupants at function's top"},
 	{ em_nparam,		"NPARAM",		"Number of parameters"},
 	{ em_maxnest,		"MAXNEST",		"Maximum level of statement nesting"},
 	// Metrics dynamically derived
@@ -86,7 +87,7 @@ MetricDetails FunMetrics::metric_details[] = {
 	{ em_ccycl1,		"CCYCL1",		"Cyclomatic complexity (control statements)"},
 	{ em_ccycl2,		"CCYCL2",		"Extended cyclomatic complexity (includes branching operators)"},
 	{ em_ccycl3,		"CCYCL3",		"Maximum cyclomatic complexity (includes branching operators and all switch branches)"},
-	// Metrics after this point are hardcoded to be stored in the database as REAL
+	// Dynamically derived metrics after this point are hardcoded to be stored in the database as REAL
 	{ em_cstruc,		"CSCRUC",		"Structure complexity (Henry and Kafura)"},	// REAL
 	{ em_chal,		"CHAL",			"Halstead complexity"},				// REAL
 	{ em_iflow,		"IFLOW",		"Information flow metric (Henry and Selig)"},	// REAL

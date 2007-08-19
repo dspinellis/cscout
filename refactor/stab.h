@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.23 2007/08/08 10:01:30 dds Exp $
+ * $Id: stab.h,v 1.24 2007/08/19 09:07:54 dds Exp $
  */
 
 #ifndef STAB_
@@ -57,6 +57,7 @@ public:
 	Id const* lookup(const string& s) const;
 	void define(const Token& tok, const Type& typ, FCall *fc = NULL);
 	void clear() { m.clear(); }
+	int size() { return m.size(); }
 	Stab_element::const_iterator begin() const { return m.begin(); }
 	Stab_element::const_iterator end() const { return m.end(); }
 	static const string& get_name(const Stab_element::const_iterator x)
@@ -114,6 +115,12 @@ public:
 	static void enter();
 	static void exit();
 	static void clear();		// Clear all block-related information
+
+	// Return the number of namespace occupants of the cu and lu blocks
+	static int global_namespace_occupants_size() {
+		return scope_block[Block::lu_block].obj.size() +
+		    scope_block[Block::cu_block].obj.size();
+	}
 
 	/*
 	 * Special block for handling function parameters.

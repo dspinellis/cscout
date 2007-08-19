@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.30 2006/07/30 12:42:28 dds Exp $
+ * $Id: pdtoken.h,v 1.31 2007/08/19 09:07:54 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -63,6 +63,11 @@ public:
 	static void macros_clear() {
 		macros.clear();
 		macro_body_tokens.clear();
+	}
+
+	// Return the number of defined macros
+	static mapMacro::size_type macros_size() {
+		return macros.size();
 	}
 
 	// Find a macro given its name
