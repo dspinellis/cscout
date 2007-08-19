@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.17 2007/05/07 15:30:01 dds Exp $
+# $Id: runtest.sh,v 1.18 2007/08/19 09:47:06 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -102,6 +102,8 @@ UPDATE Functions SET id=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fun
 
 UPDATE FunctionId SET FunctionId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = FunctionId.FunctionId);
 
+UPDATE FunctionMetrics SET FunctionId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = FunctionMetrics.FunctionId);
+
 UPDATE Fcalls SET
 SourceId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.sourceid),
 DestId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.DestId);
@@ -120,6 +122,7 @@ SELECT * from Includers ORDER BY PID, CUID, BASEFILEID, IncluderID;
 SELECT * from Providers ORDER BY PID, CUID, Providerid;
 SELECT * from IncTriggers ORDER BY PID, CUID, Basefileid, Definerid, FOffset;
 SELECT * from Functions ORDER BY ID;
+SELECT * from FunctionMetrics ORDER BY FUNCTIONID;
 SELECT * from FunctionId ORDER BY FUNCTIONID, ORDINAL;
 SELECT * from Fcalls ORDER BY SourceID, DESTID;
 \p Done
@@ -248,6 +251,7 @@ while test $# -gt 0; do
 		;;
 	-k)	CONTINUE=1
 		;;
+	# One of the values defined in set_test
 	-T*)	set_test 0
 		var=`echo $1 | sed 's/^-//'`
 		eval $var=1
