@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.42 2007/08/19 09:43:26 dds Exp $
+ * $Id: workdb.cpp,v 1.43 2007/08/19 09:56:08 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -417,19 +417,20 @@ workdb_schema(Sql *db, ostream &of)
 		");\n"
 
 		"CREATE TABLE FUNCTIONMETRICS("		// Metrics of defined functions and macros
-		"FUNCTIONID INTEGER";			// Function identifier key (references FUNCTIONS)
+		"FUNCTIONID INTEGER,\n";		// Function identifier key (references FUNCTIONS)
 		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
 		// AUTOSCHEMA INCLUDE funmetrics.cpp FunMetrics
 		for (int i = 0; i < FunMetrics::metric_max; i++)
 			if (!Metrics::is_internal<FunMetrics>(i))
-				cout << ",\n" << Metrics::get_dbfield<FunMetrics>(i) <<
-				    (i >= FunMetrics::em_real_start ? " REAL" : " INTEGER");
+				cout << Metrics::get_dbfield<FunMetrics>(i) <<
+				    (i >= FunMetrics::em_real_start ? " REAL" : " INTEGER") <<
+				    ",\n";
 		cout <<
-		",FIDBEGIN INTEGER\n"			// File key of the function's definition begin (references FILES)
-		",FOFFSETBEGIN INTEGER\n"		// Offset of definition begin within the file
-		",FIDEND INTEGER\n"			// File key of the function's definition end (references FILES)
-		",FOFFSETEND INTEGER\n";		// Offset of definition end within the file
-		cout << ");\n"
+		"FIDBEGIN INTEGER,\n"			// File key of the function's definition begin (references FILES)
+		"FOFFSETBEGIN INTEGER,\n"		// Offset of definition begin within the file
+		"FIDEND INTEGER,\n"			// File key of the function's definition end (references FILES)
+		"FOFFSETEND INTEGER\n"			// Offset of definition end within the file
+		");\n"
 
 		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
 		"FUNCTIONID INTEGER, "			// Function identifier key (references FUNCTIONS)
