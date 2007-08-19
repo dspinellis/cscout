@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.29 2007/08/18 15:08:26 dds Exp $
+ * $Id: metrics.cpp,v 1.30 2007/08/19 13:35:45 dds Exp $
  */
 
 #include <iostream>
@@ -212,15 +212,14 @@ operator<<(ostream& o, const IdMetricsSummary &ms)
 }
 
 string
-avg(int v, int n)
+avg(double v, double n)
 {
-	if (!n)
+	if (n == 0.)
 		return "-";
 	ostringstream r;
 	r << v / n;
 	return r.str();
 }
-
 
 // Call the specified metrics function for the current file and function
 void

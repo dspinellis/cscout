@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.28 2007/08/19 12:36:20 dds Exp $
+ * $Id: metrics.h,v 1.29 2007/08/19 13:35:45 dds Exp $
  */
 
 #ifndef METRICS_
@@ -133,14 +133,14 @@ class IdMetricsSet;
 // A class for keeping taly of various identifier type counts
 class IdCount {
 private:
-	int total;
-	vector <int> count;		// Counts per identifier attribute
+	double total;
+	vector <double> count;		// Counts per identifier attribute
 public:
 	IdCount() :
 		total(0),
 		count(attr_end, 0)
 	{}
-	int get_count(int i) { return count[i]; }
+	double get_count(int i) { return count[i]; }
 	// Adjust class members according to the attributes of EC
 	// using function object f
 	template <class UnaryFunction>
@@ -178,44 +178,44 @@ public:
 // Global metrics
 extern IdMetricsSummary id_msum;
 
-struct add_one : public unary_function<int, int>
+struct add_one : public unary_function<double, double>
 {
-      int operator()(int x) { return x + 1; }
+      double operator()(double x) { return x + 1; }
 };
 
-struct add_n : public unary_function<int, int>
+struct add_n : public unary_function<double, double>
 {
-      int n;
-      add_n(int add) { n = add; }
-      int operator()(int x) { return x + n; }
+      double n;
+      add_n(double add) { n = add; }
+      double operator()(double x) { return x + n; }
 };
 
-struct set_max : public unary_function<int, int>
+struct set_max : public unary_function<double, double>
 {
-      int n;
-      set_max(int newval) { n = newval; }
-      int operator()(int x) { return x > n ? x : n; }
+      double n;
+      set_max(double newval) { n = newval; }
+      double operator()(double x) { return x > n ? x : n; }
 };
 
-struct set_min : public unary_function<int, int>
+struct set_min : public unary_function<double, double>
 {
-      int n;
-      set_min(int newval) { n = newval; }
-      int operator()(int x) { return (x < n && x > 0) ? x : n; }
+      double n;
+      set_min(double newval) { n = newval; }
+      double operator()(double x) { return (x < n && x > 0) ? x : n; }
 };
 
-struct get_max : public binary_function<int, int, int>
+struct get_max : public binary_function<double, double, double>
 {
-      int operator()(int x, int y) { return (x < y) ? y : x; }
+      double operator()(double x, double y) { return (x < y) ? y : x; }
 };
 
-struct get_min : public binary_function<int, int, int>
+struct get_min : public binary_function<double, double, double>
 {
-      int operator()(int x, int y) { return (x > y) ? y : x; }
+      double operator()(double x, double y) { return (x > y) ? y : x; }
 };
 
 // Return the average of a sum v over n values as a string
-string avg(int v, int n);
+string avg(double v, double n);
 
 // Return a reference to the details of the specified metric
 template <class M>
@@ -262,20 +262,20 @@ class MetricsCount {
 private:
 	// Totals for all files
 	int nelement;		// Number of unique files
-	vector <int> count;	// File metric counts
+	vector <double> count;	// File metric counts
 public:
-	MetricsCount(int v = 0) :
+	MetricsCount(double v = 0) :
 		nelement(0),
 		count(M::metric_max, v)
 	{}
-	int get_metric(int i)  const { return count[i]; }
+	double get_metric(int i)  const { return count[i]; }
 	// Add the details of file fi
 	template <class BinaryFunction>
 	// Update metrics summary
 	void add(E &fi, BinaryFunction f) {
 		nelement++;
 		for (int i = 0; i < M::metric_max; i++)
-			count[i] = f(fi.metrics().get_int_metric(i), count[i]);
+			count[i] = f(fi.metrics().get_metric(i), count[i]);
 	}
 	int get_nelement() const { return nelement; }
 	template <class MM, class EE>
@@ -291,13 +291,13 @@ public:
 	MetricsCount<M, E> min;	// Metric details, min across files
 	MetricsCount<M, E> max;	// Metric details, max across files
 	MetricsRange() :
-		min(INT_MAX)
+		//min(INT_MAX)
 		// When my Linux upgrades from gcc 2.96
-		//	min(numeric_limits<int>::max())
+		min(numeric_limits<double>::max())
 	{}
 	template <class MM, class EE>
 	friend ostream& operator<<(ostream& o, const MetricsRange &m);
-	int get_total(int i) { return total.get_metric(i); }
+	double get_total(int i) { return total.get_metric(i); }
 };
 
 template <class M, class E>
@@ -314,11 +314,12 @@ operator<<(ostream& o, const MetricsRange<M, E> &m)
 		"<th>" "Max" "</th>"
 		"<th>" "Avg" "</th></tr>\n";
 	for (int i = 0; i < M::metric_max; i++)
-		o << "<tr><td>" << Metrics::get_name<M>(i) << "</td>"
-			"<td>" << m.total.get_metric(i) << "</td>"
-			"<td>" << m.min.get_metric(i) << "</td>"
-			"<td>" << m.max.get_metric(i) << "</td>"
-			"<td>" << avg(m.total.get_metric(i), m.total.get_nelement()) << "</td></tr>\n";
+		if (!Metrics::is_internal<M>(i))
+			o << "<tr><td>" << Metrics::get_name<M>(i) << "</td>"
+			    "<td>" << m.total.get_metric(i) << "</td>"
+			    "<td>" << m.min.get_metric(i) << "</td>"
+			    "<td>" << m.max.get_metric(i) << "</td>"
+			    "<td>" << avg(m.total.get_metric(i), m.total.get_nelement()) << "</td></tr>\n";
 	o << "</table>\n";
 	return o;
 }

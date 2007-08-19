@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.175 2007/08/15 16:35:27 dds Exp $
+ * $Id: cscout.cpp,v 1.176 2007/08/19 13:35:45 dds Exp $
  */
 
 #include <map>
@@ -1527,9 +1527,19 @@ options_load()
 void
 file_metrics_page(FILE *fo, void *p)
 {
-	html_head(fo, "fmetrics", "File Metrics");
+	html_head(fo, "filemetrics", "File Metrics");
 	ostringstream mstring;
 	mstring << file_msum;
+	fputs(mstring.str().c_str(), fo);
+	html_tail(fo);
+}
+
+void
+function_metrics_page(FILE *fo, void *p)
+{
+	html_head(fo, "funmetrics", "Function Metrics");
+	ostringstream mstring;
+	mstring << fun_msum;
 	fputs(mstring.str().c_str(), fo);
 	html_tail(fo);
 }
@@ -1744,7 +1754,7 @@ index_page(FILE *of, void *data)
 		"<table><tr><td valign=\"top\">\n"
 		"<h2>Files</h2>\n"
 		"<ul>\n"
-		"<li> <a href=\"fmetrics.html\">File Metrics</a>\n"
+		"<li> <a href=\"filemetrics.html\">File metrics</a>\n"
 		"<li> <a href=\"xfilequery.html?ro=1&writable=1&match=Y&n=All+Files\">All files</a>\n"
 		"<li> <a href=\"xfilequery.html?ro=1&match=Y&n=Read-only+Files\">Read-only files</a>\n"
 		"<li> <a href=\"xfilequery.html?writable=1&match=Y&n=Writable+Files\">Writable files</a>\n");
@@ -1757,12 +1767,14 @@ index_page(FILE *of, void *data)
 		fprintf(of, "<li> <a href=\"filequery.html\">Specify new file query</a>\n"
 		"</ul>\n");
 
-	fprintf(of, "<h2>Functions and Macros</h2>\n"
-		"<ul>\n");
-	fprintf(of, "<li> <a href=\"cgraph%s?all=1\">Function and macro call graph</a>", cgraph_suffix());
+	fputs("<h2>Functions and Macros</h2>\n"
+		"<ul>\n"
+		"<li> <a href=\"funmetrics.html\">Function metrics</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All functions</a>\n",
+		of);
 	fprintf(of, "<li> <a href=\"cgraph%s\">Non-static function call graph</a>", cgraph_suffix());
-	fprintf(of, "<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All Functions</a>\n"
-		"<li> <a href=\"xfunquery.html?writable=1&pscope=1&match=L&ncallerop=0&ncallers=&n=Project-scoped+Writable+Functions&qi=x\">Project-scoped writable functions</a>\n"
+	fprintf(of, "<li> <a href=\"cgraph%s?all=1\">Function and macro call graph</a>", cgraph_suffix());
+	fprintf(of, "<li> <a href=\"xfunquery.html?writable=1&pscope=1&match=L&ncallerop=0&ncallers=&n=Project-scoped+Writable+Functions&qi=x\">Project-scoped writable functions</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&fscope=1&match=L&ncallerop=0&ncallers=&n=File-scoped+Writable+Functions&qi=x\">File-scoped writable functions</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=0&n=Writable+Functions+that+Are+Not+Directly+Called&qi=x\">Writable functions that are not directly called</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=1&n=Writable+Functions+that+Are++Called+Exactly+Once&qi=x\">Writable functions that are called exactly once</a>\n"
@@ -1774,7 +1786,7 @@ index_page(FILE *of, void *data)
 
 	fprintf(of, "<h2>Identifiers</h2>\n"
 		"<ul>\n"
-		"<li> <a href=\"idmetrics.html\">Identifier Metrics</a>\n"
+		"<li> <a href=\"idmetrics.html\">Identifier metrics</a>\n"
 		);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&match=Y&qi=1&n=All+Identifiers\">All identifiers</a>\n", is_readonly);
 	fprintf(of, "<li> <a href=\"xiquery.html?a%d=1&match=Y&qi=1&n=Read-only+Identifiers\">Read-only identifiers</a>\n", is_readonly);
@@ -2436,13 +2448,14 @@ main(int argc, char *argv[])
 	}
 	cout << endl;
 
-	// Update fle metrics
+	// Update file and function metrics
 	file_msum.summarize_files();
+	fun_msum.summarize_functions();
 	if (DP())
 		cout << "Size " << file_msum.get_total(Metrics::em_nchar) << endl;
 
 #ifdef COMMERCIAL
-	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), file_msum.get_total(Metrics::em_nchar));
+	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), (int)(file_msum.get_total(Metrics::em_nchar)));
 #else
 	/*
 	 * Send the metrics
@@ -2498,7 +2511,8 @@ main(int argc, char *argv[])
 		swill_handle("id.html", identifier_page, NULL);
 		swill_handle("fun.html", function_page, NULL);
 		swill_handle("funlist.html", funlist_page, NULL);
-		swill_handle("fmetrics.html", file_metrics_page, NULL);
+		swill_handle("funmetrics.html", function_metrics_page, NULL);
+		swill_handle("filemetrics.html", file_metrics_page, NULL);
 		swill_handle("idmetrics.html", id_metrics_page, NULL);
 
 		swill_handle("cgraph.html", cgraph_html_page, NULL);

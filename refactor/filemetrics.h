@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: filemetrics.h,v 1.24 2007/08/19 12:36:20 dds Exp $
+ * $Id: filemetrics.h,v 1.25 2007/08/19 13:35:45 dds Exp $
  */
 
 #ifndef FILEMETRICS_
@@ -83,9 +83,9 @@ public:
 	// Create file-based summary
 	void summarize_files();
 	friend ostream& operator<<(ostream& o,const FileMetricsSummary &ms);
-	int get_total(int i) { return rw[0].get_total(i) + rw[1].get_total(i); }
-	int get_readonly(int i) { return rw[1].get_total(i); }
-	int get_writable(int i) { return rw[0].get_total(i); }
+	double get_total(int i) { return rw[0].get_total(i) + rw[1].get_total(i); }
+	double get_readonly(int i) { return rw[1].get_total(i); }
+	double get_writable(int i) { return rw[0].get_total(i); }
 };
 
 extern FileMetricsSummary file_msum;

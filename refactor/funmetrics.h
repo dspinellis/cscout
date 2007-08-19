@@ -15,7 +15,7 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.12 2007/08/19 09:07:54 dds Exp $
+ * $Id: funmetrics.h,v 1.13 2007/08/19 13:35:45 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -141,5 +141,16 @@ public:
 
 	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
 };
+
+// This can be kept per project and globally
+class FunMetricsSummary {
+	MetricsRange<FunMetrics, Call> val;			// For read-only and writable cases
+public:
+	// Create function summary
+	void summarize_functions();
+	friend ostream& operator<<(ostream& o,const FunMetricsSummary &ms);
+};
+
+extern FunMetricsSummary fun_msum;
 
 #endif /* FUNMETRICS_ */

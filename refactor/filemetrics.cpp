@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.27 2007/08/19 12:36:20 dds Exp $
+ * $Id: filemetrics.cpp,v 1.28 2007/08/19 13:35:45 dds Exp $
  */
 
 #include <iostream>
@@ -57,7 +57,7 @@ FileMetricsSummary::summarize_files()
 {
 	vector <Fileid> files = Fileid::files(false);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		rw[(*i).get_attribute(is_readonly)].total.add((*i), plus<int>());
+		rw[(*i).get_attribute(is_readonly)].total.add((*i), plus<double>());
 		rw[(*i).get_attribute(is_readonly)].min.add((*i), get_min());
 		rw[(*i).get_attribute(is_readonly)].max.add((*i), get_max());
 	}

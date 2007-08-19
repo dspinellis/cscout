@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.15 2007/08/19 09:07:54 dds Exp $
+ * $Id: funmetrics.cpp,v 1.16 2007/08/19 13:35:45 dds Exp $
  */
 
 #include <iostream>
@@ -321,4 +321,27 @@ FunMetrics::process_id(const string &s, Eclass *ec)
 	count[em_nlabid] += ec->get_attribute(is_label);
 	if (ec->get_attribute(is_ordinary) || ec->get_attribute(is_macro))
 		ids.insert(ec);
+}
+
+// Global metrics
+FunMetricsSummary fun_msum;
+
+// Create function summary
+void
+FunMetricsSummary::summarize_functions()
+{
+	Call::const_fmap_iterator_type i;
+	for (i = Call::fbegin(); i != Call::fend(); i++)
+		if (i->second->is_defined()) {
+			val.total.add(*(i->second), plus<double>());
+			val.min.add(*(i->second), get_min());
+			val.max.add(*(i->second), get_max());
+		}
+}
+
+ostream&
+operator<<(ostream& o, const FunMetricsSummary &ms)
+{
+	o << ms.val;
+	return o;
 }
