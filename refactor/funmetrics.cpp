@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.16 2007/08/19 13:35:45 dds Exp $
+ * $Id: funmetrics.cpp,v 1.17 2007/08/19 21:18:30 dds Exp $
  */
 
 #include <iostream>
@@ -317,10 +317,11 @@ FunMetrics::process_id(const string &s, Eclass *ec)
 		count[em_nmid]++;
 		mids.insert(ec);
 	}
-	count[em_nid] += ec->get_attribute(is_ordinary);
 	count[em_nlabid] += ec->get_attribute(is_label);
-	if (ec->get_attribute(is_ordinary) || ec->get_attribute(is_macro))
+	if (ec->get_attribute(is_ordinary) || ec->get_attribute(is_macro)) {
+		count[em_nid]++;
 		ids.insert(ec);
+	}
 }
 
 // Global metrics
