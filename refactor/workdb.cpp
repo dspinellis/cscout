@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.40 2007/08/18 13:23:39 dds Exp $
+ * $Id: workdb.cpp,v 1.41 2007/08/19 09:29:10 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -412,7 +412,8 @@ workdb_schema(Sql *db, ostream &of)
 		"DECLARED " << db->booltype() << ",\n"	// True if the function is declared within the workspace
 		"FILESCOPED " << db->booltype() << ",\n"// True if the function's scope is a single compilation unit (static or macro)
 		"FID INTEGER,\n"			// File key of the function's definition, declaration, or use (references FILES)
-		"FOFFSET INTEGER\n"			// Offset of definition, declaration, or use within the file
+		"FOFFSET INTEGER,\n"			// Offset of definition, declaration, or use within the file
+		"FANIN INTEGER\n"			// Fan-in (number of callers)
 		");\n"
 
 		"CREATE TABLE FUNCTIONMETRICS("		// Metrics of defined functions and macros
@@ -423,6 +424,11 @@ workdb_schema(Sql *db, ostream &of)
 			if (!Metrics::is_internal<FunMetrics>(i))
 				cout << ",\n" << Metrics::get_dbfield<FunMetrics>(i) <<
 				    (i >= FunMetrics::em_real_start ? " REAL" : " INTEGER");
+		cout <<
+		",FIDBEGIN INTEGER\n"			// File key of the function's definition begin (references FILES)
+		",FOFFSETBEGIN INTEGER\n"		// Offset of definition begin within the file
+		",FIDEND INTEGER\n"			// File key of the function's definition end (references FILES)
+		",FOFFSETEND INTEGER\n";		// Offset of definition end within the file
 		cout << ");\n"
 
 		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name

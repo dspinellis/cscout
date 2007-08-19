@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.21 2007/08/18 13:23:39 dds Exp $
+ * $Id: call.cpp,v 1.22 2007/08/19 09:29:10 dds Exp $
  */
 
 #include <map>
@@ -246,7 +246,8 @@ Call::dumpSql(Sql *db, ostream &of)
 		db->boolval(fun->is_declared()) << ',' <<
 		db->boolval(fun->is_file_scoped()) << ',' <<
 		t.get_fileid().get_id() << ',' <<
-		(unsigned)(t.get_streampos());
+		(unsigned)(t.get_streampos()) << ',' <<
+		fun->get_num_caller();
 		of << ");\n";
 
 		if (fun->is_defined()) {
@@ -254,6 +255,10 @@ Call::dumpSql(Sql *db, ostream &of)
 			for (int j = 0; j < FunMetrics::metric_max; j++)
 				if (!Metrics::is_internal<FunMetrics>(j))
 					cout << ',' << fun->metrics().get_metric(j);
+			of << ',' << fun->get_begin().get_tokid().get_fileid().get_id() <<
+			',' << (unsigned)(fun->get_begin().get_tokid().get_streampos()) <<
+			',' << fun->get_end().get_tokid().get_fileid().get_id() <<
+			',' << (unsigned)(fun->get_end().get_tokid().get_streampos());
 			of << ");\n";
 		}
 
