@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.17 2007/08/19 21:18:30 dds Exp $
+ * $Id: funmetrics.cpp,v 1.18 2007/08/21 15:09:20 dds Exp $
  */
 
 #include <iostream>
@@ -88,7 +88,7 @@ MetricDetails FunMetrics::metric_details[] = {
 	{ em_ccycl2,		"CCYCL2",		"Extended cyclomatic complexity (includes branching operators)"},
 	{ em_ccycl3,		"CCYCL3",		"Maximum cyclomatic complexity (includes branching operators and all switch branches)"},
 	// Dynamically derived metrics after this point are hardcoded to be stored in the database as REAL
-	{ em_cstruc,		"CSCRUC",		"Structure complexity (Henry and Kafura)"},	// REAL
+	{ em_cstruc,		"CSTRUC",		"Structure complexity (Henry and Kafura)"},	// REAL
 	{ em_chal,		"CHAL",			"Halstead complexity"},				// REAL
 	{ em_iflow,		"IFLOW",		"Information flow metric (Henry and Selig)"},	// REAL
 // END AUTOSCHEMA FunMetrics
