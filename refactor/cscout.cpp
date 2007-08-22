@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.178 2007/08/19 14:00:51 dds Exp $
+ * $Id: cscout.cpp,v 1.179 2007/08/22 06:42:22 dds Exp $
  */
 
 #include <map>
@@ -157,7 +157,7 @@ progress(typename container::const_iterator i, const container &c)
 		count = 0;
 	int percent = ++count * 100 / c.size();
 	if (percent != opercent) {
-		cout << '\r' << percent << '%' << flush;
+		cerr << '\r' << percent << '%' << flush;
 		opercent = percent;
 	}
 }
@@ -304,7 +304,7 @@ file_analyze(Fileid fi)
 	Call *cfun = NULL;			// Current function
 	stack <Call *> fun_nesting;
 
-	cout << "Post-processing " << fname << endl;
+	cerr << "Post-processing " << fname << endl;
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
 		perror(fname.c_str());
@@ -537,7 +537,7 @@ file_replace(FILE *of, Fileid fid)
 		html_perror(of, "Unable to open " + ofname + " for writing");
 		return 0;
 	}
-	cout << "Processing file " << fid.get_path() << endl;
+	cerr << "Processing file " << fid.get_path() << endl;
 	int replacements = 0;
 	// Go through the file character by character
 	for (;;) {
@@ -1039,7 +1039,7 @@ xiquery_page(FILE *of,  void *p)
 	}
 
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
-	cout << "Evaluating identifier query" << endl;
+	cerr << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (!query.eval(*i))
@@ -1051,7 +1051,7 @@ xiquery_page(FILE *of,  void *p)
 			sorted_files.insert(f.begin(), f.end());
 		}
 	}
-	cout << endl;
+	cerr << endl;
 	if (q_id) {
 		fputs("<h2>Matching Identifiers</h2>\n", of);
 		display_sorted(of, query, sorted_ids);
@@ -1078,7 +1078,7 @@ xfunquery_page(FILE *of,  void *p)
 		return;
 
 	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
-	cout << "Evaluating function query" << endl;
+	cerr << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 		progress(i, Call::functions());
 		if (!query.eval(i->second))
@@ -1088,7 +1088,7 @@ xfunquery_page(FILE *of,  void *p)
 		if (q_file)
 			sorted_files.insert(i->second->get_fileid());
 	}
-	cout << endl;
+	cerr << endl;
 	if (q_id) {
 		fputs("<h2>Matching Functions</h2>\n", of);
 		if (query.get_sort_order() != -1)
@@ -1963,7 +1963,7 @@ replacements_page(FILE *of, void *p)
 {
 	prohibit_remote_access(of);
 	html_head(of, "replacements", "Identifier Replacements");
-	cout << "Creating identifier list" << endl;
+	cerr << "Creating identifier list" << endl;
 	fputs("<p><form action=\"xreplacements.html\" method=\"get\">\n"
 		"<table><tr><th>Identifier</th><th>Replacement</th><th>Active</th></tr>\n"
 	, of);
@@ -1980,7 +1980,7 @@ replacements_page(FILE *of, void *p)
 				&(i->second), i->second.get_active() ? "checked" : "");
 		}
 	}
-	cout << endl;
+	cerr << endl;
 	fputs("</table><p><INPUT TYPE=\"submit\" name=\"repl\" value=\"OK\">\n", of);
 	html_tail(of);
 }
@@ -1991,7 +1991,7 @@ xreplacements_page(FILE *of,  void *p)
 {
 	prohibit_remote_access(of);
 
-	cout << "Creating identifier list" << endl;
+	cerr << "Creating identifier list" << endl;
 
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
@@ -2008,7 +2008,7 @@ xreplacements_page(FILE *of,  void *p)
 			i->second.set_active(!!swill_getvar(varname));
 		}
 	}
-	cout << endl;
+	cerr << endl;
 	index_page(of, p);
 }
 
@@ -2034,7 +2034,7 @@ write_quit_page(FILE *of, void *exit)
 	}
 	// Determine files we need to process
 	IFSet process;
-	cout << "Examing identifiers for replacement" << endl;
+	cerr << "Examing identifiers for replacement" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (i->second.get_replaced() && i->second.get_active()) {
@@ -2043,12 +2043,12 @@ write_quit_page(FILE *of, void *exit)
 			process.insert(ifiles.begin(), ifiles.end());
 		}
 	}
-	cout << endl;
+	cerr << endl;
 	// Now do the replacements
 	int replacements = 0;
-	cout << "Processing files" << endl;
+	cerr << "Processing files" << endl;
 	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++) {
-		cout << "Processing file " << (*i).get_path() << endl;
+		cerr << "Processing file " << (*i).get_path() << endl;
 		replacements += file_replace(of, *i);
 	}
 	fprintf(of, "A total of %d replacements were made in %zd files.", replacements, process.size());
@@ -2412,11 +2412,6 @@ main(int argc, char *argv[])
 #ifdef COMMERCIAL
 	if (process_mode == pm_obfuscation)
 		return obfuscate();
-	if (db_iface) {
-		workdb_rest(db_iface, cout);
-		Call::dumpSql(db_iface, cout);
-		return 0;
-	}
 #endif
 
 	// Pass 2: Create web pages
@@ -2438,8 +2433,12 @@ main(int argc, char *argv[])
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
 		/* bool has_unused = */ file_analyze(*i);
 
+	// Update file and function metrics
+	file_msum.summarize_files();
+	fun_msum.summarize_functions();
+
 	// Set xfile and  metrics for each identifier
-	cout << "Processing identifiers" << endl;
+	cerr << "Processing identifiers" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		Eclass *e = (*i).first;
@@ -2448,16 +2447,18 @@ main(int argc, char *argv[])
 		// Update metrics
 		id_msum.add_unique_id(e);
 	}
-	cout << endl;
+	cerr << endl;
 
-	// Update file and function metrics
-	file_msum.summarize_files();
-	fun_msum.summarize_functions();
 	if (DP())
 		cout << "Size " << file_msum.get_total(Metrics::em_nchar) << endl;
 
 #ifdef COMMERCIAL
 	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), (int)(file_msum.get_total(Metrics::em_nchar)));
+	if (db_iface) {
+		workdb_rest(db_iface, cout);
+		Call::dumpSql(db_iface, cout);
+		return 0;
+	}
 #else
 	/*
 	 * Send the metrics
@@ -2489,7 +2490,7 @@ main(int argc, char *argv[])
 	must_exit = (CORRECTION_FACTOR - license_offset != 0);
 #ifndef PRODUCTION
 	if (must_exit)
-		cout << "**********Unable to obtain correct license*********\n"
+		cerr << "**********Unable to obtain correct license*********\n"
 			"license_offset = " << license_offset << endl;
 #endif
 
@@ -2546,7 +2547,7 @@ main(int argc, char *argv[])
 	}
 
 	if (motd)
-		cout << motd << endl;
+		cerr << motd << endl;
 
 	if (process_mode == pm_report) {
 		if (!must_exit)
@@ -2559,7 +2560,7 @@ main(int argc, char *argv[])
 		cout  << "Tokid EC map size is " << Tokid::map_size() << endl;
 	// Serve web pages
 	if (!must_exit)
-		cout << "We are now ready to serve you at http://localhost:" << portno << endl;
+		cerr << "CScout is now ready to serve you at http://localhost:" << portno << endl;
 	while (!must_exit)
 		swill_serve();
 
