@@ -3,15 +3,20 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.h,v 1.3 2007/06/27 07:43:52 dds Exp $
+ * $Id: sql.h,v 1.4 2007/08/23 07:54:08 dds Exp $
  */
 
 
 #ifdef COMMERCIAL
 class Sql {
+	// Instance of current engine
+	static Sql *instance;
 public:
 	virtual ~Sql() {}
-	static Sql *getInstance(const char *dbengine);
+	// Set the database to the specified engine
+	// Return true if OK
+	static bool setEngine(const char *dbengine);
+	static Sql *getInterface() { return instance; }
 	virtual string escape(string s);
 	virtual char * escape(char c);
 	virtual const char *booltype() { return "BOOLEAN"; }

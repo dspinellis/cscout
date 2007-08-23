@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.43 2007/08/19 09:56:08 dds Exp $
+ * $Id: workdb.cpp,v 1.44 2007/08/23 07:54:08 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -313,52 +313,6 @@ workdb_schema(Sql *db, ostream &of)
 		"UNUSED " << db->booltype() <<		// True if it is not used
 		");\n"
 
-		"CREATE TABLE TOKENS("			// Instances of identifier tokens within the source code
-		"FID INTEGER,"				// File key (references FILES)
-		"FOFFSET INTEGER,"			// Offset within the file
-		"EID INTEGER,\n"			// Identifier key (references IDS)
-		"PRIMARY KEY(FID, FOFFSET)"
-		");\n"
-
-		"CREATE TABLE COMMENTS("		// Comments in the code
-		"FID INTEGER,"				// File key (references FILES)
-		"FOFFSET INTEGER,"			// Offset within the file
-		"COMMENT " << db->varchar() << ","	// The comment, including its delimiters
-		"PRIMARY KEY(FID, FOFFSET)"
-		");\n"
-
-		"CREATE TABLE STRINGS("			// Strings in the code
-		"FID INTEGER,"				// File key (references FILES)
-		"FOFFSET INTEGER,"			// Offset within the file
-		"STRING " << db->varchar() << ","	// The string, including its delimiters
-		"PRIMARY KEY(FID, FOFFSET)"
-		");\n"
-
-		"CREATE TABLE REST("			// Remaining, non-identifier source code
-		"FID INTEGER,"				// File key (references FILES)
-		"FOFFSET INTEGER,"			// Offset within the file
-		"CODE " << db->varchar() << ","		// The actual code
-		"PRIMARY KEY(FID, FOFFSET)"
-		");\n"
-
-		"CREATE TABLE LINEPOS("			// Line number offsets within each file
-		"FID INTEGER,"				// File key (references FILES)
-		"FOFFSET INTEGER,"			// Offset within the file
-		"LNUM INTEGER,"				// Line number (starts at 1)
-		"PRIMARY KEY(FID, FOFFSET)"
-		");\n"
-
-
-		"CREATE TABLE PROJECTS("		// Project details
-		"PID INTEGER PRIMARY KEY,"		// Unique project key
-		"NAME " << db->varchar() <<		// Project name
-		");\n"
-
-		"CREATE TABLE IDPROJ("			// Identifiers appearing in projects
-		"EID INTEGER, "				// Identifier key (references IDS)
-		"PID INTEGER"				// Project key (references PROJECTS)
-		");\n"
-
 		"CREATE TABLE FILES("			// File details
 		"FID INTEGER PRIMARY KEY,"		// Unique file key
 		"NAME " << db->varchar() << ",\n"	// File name
@@ -370,16 +324,84 @@ workdb_schema(Sql *db, ostream &of)
 				cout << ",\n" << Metrics::get_dbfield<FileMetrics>(i) << " INTEGER";
 		cout << ");\n"
 
-		"CREATE TABLE FILEPROJ("		// Files used in projects
-		"FID INTEGER, "				// File key (references FILES)
-		"PID INTEGER"				// Project key (references PROJECTS)
+		"CREATE TABLE TOKENS("			// Instances of identifier tokens within the source code
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"EID INTEGER,\n"			// Identifier key (references IDS)
+		"PRIMARY KEY(FID, FOFFSET),"
+		"FOREIGN KEY(FID) REFERENCES FILES(FID),"
+		"FOREIGN KEY(EID) REFERENCES IDS(EID)"
 		");\n"
 
+		"CREATE TABLE COMMENTS("		// Comments in the code
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"COMMENT " << db->varchar() << ","	// The comment, including its delimiters
+		"PRIMARY KEY(FID, FOFFSET),"
+		"FOREIGN KEY(FID) REFERENCES FILES(FID)"
+		");\n"
+
+		"CREATE TABLE STRINGS("			// Strings in the code
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"STRING " << db->varchar() << ","	// The string, including its delimiters
+		"PRIMARY KEY(FID, FOFFSET),"
+		"FOREIGN KEY(FID) REFERENCES FILES(FID)"
+		");\n"
+
+		"CREATE TABLE REST("			// Remaining, non-identifier source code
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"CODE " << db->varchar() << ","		// The actual code
+		"PRIMARY KEY(FID, FOFFSET),"
+		"FOREIGN KEY(FID) REFERENCES FILES(FID)"
+		");\n"
+
+		"CREATE TABLE LINEPOS("			// Line number offsets within each file
+		"FID INTEGER,"				// File key (references FILES)
+		"FOFFSET INTEGER,"			// Offset within the file
+		"LNUM INTEGER,"				// Line number (starts at 1)
+		"PRIMARY KEY(FID, FOFFSET),"
+		"FOREIGN KEY(FID) REFERENCES FILES(FID)"
+		");\n"
+
+
+		"CREATE TABLE PROJECTS("		// Project details
+		"PID INTEGER PRIMARY KEY,"		// Unique project key
+		"NAME " << db->varchar() <<		// Project name
+		");\n"
+
+		"CREATE TABLE IDPROJ("			// Identifiers appearing in projects
+		"EID INTEGER,"				// Identifier key (references IDS)
+		"PID INTEGER,"				// Project key (references PROJECTS)
+		"FOREIGN KEY(EID) REFERENCES IDS(EID),"
+		"FOREIGN KEY(PID) REFERENCES PROJECTS(PID)"
+		");\n"
+
+		"CREATE TABLE FILEPROJ("		// Files used in projects
+		"FID INTEGER, "				// File key (references FILES)
+		"PID INTEGER,"				// Project key (references PROJECTS)
+		"FOREIGN KEY(FID) REFERENCES FILES(FID),"
+		"FOREIGN KEY(PID) REFERENCES PROJECTS(PID)"
+		");\n"
+
+		/*
+		 * Foreign keys for the following four tables are not specified, because it is difficult
+		 * to satisfy integrit constraints: files (esp. their metrics, esp. ncopies) can't
+		 * be written until the end of processing, while to conserve space, these table are
+		 * written after each file is processed.
+		 * Alternatively, we can wrap inserts to these tables into
+		 * SET REFERENTIAL_INTEGRITY { TRUE | FALSE } calls.
+		 */
 		"CREATE TABLE DEFINERS("		// Included files defining required elements for a given compilation unit and project
 		"PID INTEGER, "				// Project key (references PROJECTS)
 		"CUID INTEGER, "			// Compilation unit key (references FILES)
 		"BASEFILEID INTEGER, "			// File (often .c) requiring (using) a definition (references FILES)
 		"DEFINERID INTEGER"			// File (often .h) providing a definition (references FILES)
+		//"FOREIGN KEY(PID) REFERENCES PROJECTS(PID), "
+		//"FOREIGN KEY(CUID) REFERENCES FILES(FID), "
+		//"FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID), "
+		//"FOREIGN KEY(DEFINERID) REFERENCES FILES(FID)"
 		");\n"
 
 		"CREATE TABLE INCLUDERS("		// Included files including required files for a given compilation unit and project
@@ -387,12 +409,19 @@ workdb_schema(Sql *db, ostream &of)
 		"CUID INTEGER, "			// Compilation unit key (references FILES)
 		"BASEFILEID INTEGER, "			// File included in the compilation (references FILES)
 		"INCLUDERID INTEGER"			// Files that include it (references FILES)
+		//"FOREIGN KEY(PID) REFERENCES PROJECTS(PID), "
+		//"FOREIGN KEY(CUID) REFERENCES FILES(FID), "
+		//"FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID), "
+		//"FOREIGN KEY(INCLUDERID) REFERENCES FILES(FID)"
 		");\n"
 
 		"CREATE TABLE PROVIDERS("		// Included files providing code or data for a given compilation unit and project
 		"PID INTEGER, "				// Project key (references PROJECTS)
 		"CUID INTEGER, "			// Compilation unit key (references FILES)
 		"PROVIDERID INTEGER"			// Included file (references FILES)
+		//"FOREIGN KEY(PID) REFERENCES PROJECTS(PID), "
+		//"FOREIGN KEY(CUID) REFERENCES FILES(FID), "
+		//"FOREIGN KEY(PROVIDERID) REFERENCES FILES(FID)"
 		");\n"
 
 		"CREATE TABLE INCTRIGGERS("		// Included files defining required elements for a given compilation unit and project
@@ -402,6 +431,10 @@ workdb_schema(Sql *db, ostream &of)
 		"DEFINERID INTEGER, "			// File providing a definition (references FILES)
 		"FOFFSET INTEGER, "			// Definition's offset within the providing file
 		"LEN INTEGER"				// Token's length
+		//"FOREIGN KEY(PID) REFERENCES PROJECTS(PID), "
+		//"FOREIGN KEY(CUID) REFERENCES FILES(FID), "
+		//"FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID), "
+		//"FOREIGN KEY(DEFINERID) REFERENCES FILES(FID)"
 		");\n"
 
 		"CREATE TABLE FUNCTIONS("		// C functions and function-like macros
@@ -413,11 +446,12 @@ workdb_schema(Sql *db, ostream &of)
 		"FILESCOPED " << db->booltype() << ",\n"// True if the function's scope is a single compilation unit (static or macro)
 		"FID INTEGER,\n"			// File key of the function's definition, declaration, or use (references FILES)
 		"FOFFSET INTEGER,\n"			// Offset of definition, declaration, or use within the file
-		"FANIN INTEGER\n"			// Fan-in (number of callers)
+		"FANIN INTEGER,\n"			// Fan-in (number of callers)
+		"FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 		");\n"
 
 		"CREATE TABLE FUNCTIONMETRICS("		// Metrics of defined functions and macros
-		"FUNCTIONID INTEGER,\n";		// Function identifier key (references FUNCTIONS)
+		"FUNCTIONID INTEGER PRIMARY KEY,\n";	// Function identifier key (references FUNCTIONS)
 		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
 		// AUTOSCHEMA INCLUDE funmetrics.cpp FunMetrics
 		for (int i = 0; i < FunMetrics::metric_max; i++)
@@ -429,23 +463,30 @@ workdb_schema(Sql *db, ostream &of)
 		"FIDBEGIN INTEGER,\n"			// File key of the function's definition begin (references FILES)
 		"FOFFSETBEGIN INTEGER,\n"		// Offset of definition begin within the file
 		"FIDEND INTEGER,\n"			// File key of the function's definition end (references FILES)
-		"FOFFSETEND INTEGER\n"			// Offset of definition end within the file
+		"FOFFSETEND INTEGER,\n"			// Offset of definition end within the file
+		"FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)"
 		");\n"
 
 		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
 		"FUNCTIONID INTEGER, "			// Function identifier key (references FUNCTIONS)
 		"ORDINAL INTEGER, "			// Position of the identifier within the function name (0-based)
-		"EID INTEGER"				// Identifier key (references IDS)
+		"EID INTEGER, "				// Identifier key (references IDS)
+		"PRIMARY KEY(FUNCTIONID, ORDINAL), "
+		"FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID), "
+		"FOREIGN KEY(EID) REFERENCES IDS(EID)"
 		");\n"
 
 		"CREATE TABLE FCALLS("			// Function calls
 		"SOURCEID INTEGER, "			// Calling function identifier key (references FUNCTIONS)
-		"DESTID INTEGER"			// Called function identifier key (references FUNCTIONS)
+		"DESTID INTEGER, "			// Called function identifier key (references FUNCTIONS)
+		"FOREIGN KEY(SOURCEID) REFERENCES FUNCTIONS(ID), "
+		"FOREIGN KEY(DESTID) REFERENCES FUNCTIONS(ID)"
 		");\n"
 
 		"CREATE TABLE FILECOPIES("		// Files occuring in more than one copy
-		"GROUPID INTEGER, "			// Unique file group identifier
-		"FID INTEGER"				// Key of file belonging to a group of identical files (references FILES)
+		"GROUPID INTEGER PRIMARY KEY, "		// Unique file group identifier
+		"FID INTEGER, "				// Key of file belonging to a group of identical files (references FILES)
+		"FOREIGN KEY(FID) REFERENCES FILES(FID)"
 		");\n"
 
 		// END AUTOSCHEMA
@@ -455,8 +496,6 @@ workdb_schema(Sql *db, ostream &of)
 void
 workdb_rest(Sql *db, ostream &of)
 {
-	vector <Fileid> files = Fileid::files(true);
-
 	// Project names
 	const Project::proj_map_type &m = Project::get_project_map();
 	Project::proj_map_type::const_iterator pm;
@@ -464,12 +503,13 @@ workdb_rest(Sql *db, ostream &of)
 		cout << "INSERT INTO PROJECTS VALUES(" <<
 		(*pm).second << ",'" << (*pm).first << "');\n";
 
+	vector <Fileid> files = Fileid::files(true);
+
 	int groupnum = 0;
 
-	// Details for each file
+	// Details and contents of each file
 	// As a side effect populate the EC identifier member
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		file_dump(db, cout, (*i));
 		cout << "INSERT INTO FILES VALUES(" <<
 		(*i).get_id() << ",'" <<
 		(*i).get_path() << "'," <<
@@ -478,6 +518,8 @@ workdb_rest(Sql *db, ostream &of)
 			if (!Metrics::is_internal<FileMetrics>(j))
 				cout << ',' << i->metrics().get_metric(j);
 		cout << ");\n";
+		// This invalidates the file's metrics
+		file_dump(db, cout, (*i));
 		// The projects this file belongs to
 		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
 			if ((*i).get_attribute(j))

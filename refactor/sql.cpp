@@ -3,7 +3,7 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.cpp,v 1.2 2005/06/11 16:29:43 dds Exp $
+ * $Id: sql.cpp,v 1.3 2007/08/23 07:54:08 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -12,6 +12,9 @@
 
 #include "cpp.h"
 #include "sql.h"
+
+// An instance of the database interface
+Sql *Sql::instance;
 
 // Return SQL equivalent of character c
 char *
@@ -52,20 +55,21 @@ Sql::escape(string s)
 	return r;
 }
 
-Sql *
-Sql::getInstance(const char *dbengine)
+bool
+Sql::setEngine(const char *dbengine)
 {
 	if (strcmp(dbengine, "mysql") == 0)
-		return new Mysql();
+		instance = new Mysql();
 	else if (strcmp(dbengine, "hsqldb") == 0)
-		return new Hsqldb();
+		instance = new Hsqldb();
 	else if (strcmp(dbengine, "postgres") == 0)
-		return new Postgres();
+		instance = new Postgres();
 	else {
 		cerr << "Unknown database engine " << dbengine << "\n";
 		cerr << "Supported database engine types are: mysql postgres hsqldb\n";
-		return NULL;
+		return false;
 	}
+	return true;
 }
 
 #endif /* COMMERCIAL */

@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.22 2007/08/19 09:29:10 dds Exp $
+ * $Id: call.cpp,v 1.23 2007/08/23 07:54:08 dds Exp $
  */
 
 #include <map>
@@ -235,6 +235,7 @@ Call::check_macro_nesting(const Ctoken &t)
 void
 Call::dumpSql(Sql *db, ostream &of)
 {
+	// First define all functions
 	for (const_fmap_iterator_type i = fbegin(); i != fend(); i++) {
 		Call *fun = i->second;
 		Tokid t = fun->get_site();
@@ -278,12 +279,15 @@ Call::dumpSql(Sql *db, ostream &of)
 			}
 			start += j->get_len();
 		}
+	}
 
-
+	// Then their calls to satisfy integrity constraints
+	for (const_fmap_iterator_type i = fbegin(); i != fend(); i++) {
+		Call *fun = i->second;
 		for (Call::const_fiterator_type dest = fun->call_begin(); dest != fun->call_end(); dest++)
 			of << "INSERT INTO FCALLS VALUES(" <<
-			ptr_offset(fun) << ',' <<
-			ptr_offset(*dest) << ");\n";
+			    ptr_offset(fun) << ',' <<
+			    ptr_offset(*dest) << ");\n";
 	}
 }
 #endif /* COMMERCIAL */

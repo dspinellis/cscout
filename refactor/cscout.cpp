@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.179 2007/08/22 06:42:22 dds Exp $
+ * $Id: cscout.cpp,v 1.180 2007/08/23 07:54:08 dds Exp $
  */
 
 #include <map>
@@ -104,7 +104,6 @@ static enum e_process {
 static int portno = 8081;		// Port number (-p n)
 #ifdef COMMERCIAL
 static char *db_engine;			// Create SQL output for a specific db_iface
-static Sql *db_iface;			// An instance of the database interface
 #endif
 
 static Fileid input_file_id;
@@ -2368,8 +2367,6 @@ main(int argc, char *argv[])
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
 		usage(argv[0]);
 
-	Project::set_current_project("unspecified");
-
 	if (process_mode == pm_preprocess) {
 		Fchar::set_input(argv[optind]);
 		Error::set_parsing(true);
@@ -2388,11 +2385,13 @@ main(int argc, char *argv[])
 #ifdef COMMERCIAL
 	parse_acl();
 	if (db_engine) {
-		if ((db_iface = Sql::getInstance(db_engine)) == NULL)
+		if (!Sql::setEngine(db_engine))
 			return 1;
-		workdb_schema(db_iface, cout);
+		workdb_schema(Sql::getInterface(), cout);
 	}
 #endif
+
+	Project::set_current_project("unspecified");
 
 	// Pass 1: process master file loop
 	Fchar::set_input(argv[optind]);
@@ -2454,9 +2453,9 @@ main(int argc, char *argv[])
 
 #ifdef COMMERCIAL
 	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), (int)(file_msum.get_total(Metrics::em_nchar)));
-	if (db_iface) {
-		workdb_rest(db_iface, cout);
-		Call::dumpSql(db_iface, cout);
+	if (Sql::getInterface()) {
+		workdb_rest(Sql::getInterface(), cout);
+		Call::dumpSql(Sql::getInterface(), cout);
 		return 0;
 	}
 #else
@@ -2643,8 +2642,8 @@ garbage_collect(Fileid root)
 		if (*i != root && *i != input_file_id)
 			root.includes(*i, /* directly included = */ false, (*i).required());
 #ifdef COMMERCIAL
-	if (db_iface)
-		Fdep::dumpSql(db_iface, root);
+	if (Sql::getInterface())
+		Fdep::dumpSql(Sql::getInterface(), root);
 #endif
 	Fdep::reset();
 
