@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.180 2007/08/23 07:54:08 dds Exp $
+ * $Id: cscout.cpp,v 1.181 2007/08/24 15:14:39 dds Exp $
  */
 
 #include <map>
@@ -865,9 +865,9 @@ display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &so
 	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1");
 	for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
 		if (pager.show_next()) {
-			fputs("<tr><td witdh='50%%'>", of);
+			fputs("<tr><td witdh='50%'>", of);
 			html(of, **i);
-			fprintf(of, "</td><td witdh='50%' align='right'>%g</td></tr>\n",
+			fprintf(of, "</td><td witdh='50%%' align='right'>%g</td></tr>\n",
 			    (*i)->const_metrics().get_metric(query.get_sort_order()));
 		}
 	}
