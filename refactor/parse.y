@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.135 2007/08/25 17:48:38 dds Exp $
+ * $Id: parse.y,v 1.136 2007/08/25 20:08:57 dds Exp $
  *
  */
 
@@ -521,6 +521,8 @@ unary_expression:
         | SIZEOF unary_expression
 			{ $$ = basic(b_int); }
         | SIZEOF '(' type_name ')'
+			{ $$ = basic(b_int); }
+        | ALIGNOF '(' unary_expression ')'
 			{ $$ = basic(b_int); }
         | ALIGNOF '(' type_name ')'
 			{ $$ = basic(b_int); }
