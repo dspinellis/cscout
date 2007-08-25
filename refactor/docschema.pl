@@ -2,7 +2,7 @@
 #
 # Document the database schema
 #
-# $Id: docschema.pl,v 1.6 2007/08/19 14:45:21 dds Exp $
+# $Id: docschema.pl,v 1.7 2007/08/25 05:29:29 dds Exp $
 #
 
 sub
@@ -20,7 +20,7 @@ $dir =~ s,\/[^/]+$,/,;
 
 print '<?xml version="1.0" ?>
 <notes>
-<!-- Automatically generated file: $Id: docschema.pl,v 1.6 2007/08/19 14:45:21 dds Exp $ -->
+<!-- Automatically generated file: $Id: docschema.pl,v 1.7 2007/08/25 05:29:29 dds Exp $ -->
 The following sections describe the
 schema of the database created through the SQL backend.
 ';
@@ -45,6 +45,7 @@ $2.
 			$description = $2;
 			$type = 'INTEGER' if (/INTEGER/);
 			$type = 'BOOLEAN' if (/booltype/);
+			$type = 'INTEGER or BIGINT<sup><a href="#note1">1</a></sup>' if (/ptrtype/);
 			$type = 'CHARACTER VARYING' if (/varchar/);
 			printline();
 		} elsif (/AUTOSCHEMA INCLUDE ([^ ]+) (\w+)/) {
@@ -67,6 +68,8 @@ $2.
 	}
 }
 
-print "
+print '
+<p>
+<a name="note1">Note 1</a>: INTEGER on 32-bit architectures, BIGINT on 64-bit archiectures.
 </notes>
-";
+';

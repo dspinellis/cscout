@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.44 2007/08/23 07:54:08 dds Exp $
+ * $Id: workdb.cpp,v 1.45 2007/08/25 05:29:29 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -295,7 +295,7 @@ workdb_schema(Sql *db, ostream &of)
 	cout <<
 		// BEGIN AUTOSCHEMA
 		"CREATE TABLE IDS("			// Details of interdependant identifiers appearing in the workspace
-		"EID INTEGER PRIMARY KEY,"		// Unique identifier key
+		"EID " << db->ptrtype() << " PRIMARY KEY,"		// Unique identifier key
 		"NAME " << db->varchar() << ","		// Identifier name
 		"READONLY " << db->booltype() << ", "	// True if it appears in at least one read-only file
 		"UNDEFMACRO " << db->booltype() << ", "	// True if it is apparantly an undefined macro
@@ -327,7 +327,7 @@ workdb_schema(Sql *db, ostream &of)
 		"CREATE TABLE TOKENS("			// Instances of identifier tokens within the source code
 		"FID INTEGER,"				// File key (references FILES)
 		"FOFFSET INTEGER,"			// Offset within the file
-		"EID INTEGER,\n"			// Identifier key (references IDS)
+		"EID " << db->ptrtype() << ",\n"				// Identifier key (references IDS)
 		"PRIMARY KEY(FID, FOFFSET),"
 		"FOREIGN KEY(FID) REFERENCES FILES(FID),"
 		"FOREIGN KEY(EID) REFERENCES IDS(EID)"
@@ -372,7 +372,7 @@ workdb_schema(Sql *db, ostream &of)
 		");\n"
 
 		"CREATE TABLE IDPROJ("			// Identifiers appearing in projects
-		"EID INTEGER,"				// Identifier key (references IDS)
+		"EID " << db->ptrtype() << ","				// Identifier key (references IDS)
 		"PID INTEGER,"				// Project key (references PROJECTS)
 		"FOREIGN KEY(EID) REFERENCES IDS(EID),"
 		"FOREIGN KEY(PID) REFERENCES PROJECTS(PID)"
@@ -438,7 +438,7 @@ workdb_schema(Sql *db, ostream &of)
 		");\n"
 
 		"CREATE TABLE FUNCTIONS("		// C functions and function-like macros
-		"ID INTEGER PRIMARY KEY,\n"		// Unique function identifier
+		"ID " << db->ptrtype() << " PRIMARY KEY,\n"		// Unique function identifier
 		"NAME " << db->varchar() << ",\n"	// Function name (redundant; see FUNCTIONID)
 		"ISMACRO " << db->booltype() << ",\n"	// True if a function-like macro (otherwise a C function)
 		"DEFINED " << db->booltype() << ",\n"	// True if the function is defined within the workspace
@@ -451,7 +451,7 @@ workdb_schema(Sql *db, ostream &of)
 		");\n"
 
 		"CREATE TABLE FUNCTIONMETRICS("		// Metrics of defined functions and macros
-		"FUNCTIONID INTEGER PRIMARY KEY,\n";	// Function identifier key (references FUNCTIONS)
+		"FUNCTIONID " << db->ptrtype() << " PRIMARY KEY,\n";	// Function identifier key (references FUNCTIONS)
 		// AUTOSCHEMA INCLUDE metrics.cpp Metrics
 		// AUTOSCHEMA INCLUDE funmetrics.cpp FunMetrics
 		for (int i = 0; i < FunMetrics::metric_max; i++)
@@ -468,17 +468,17 @@ workdb_schema(Sql *db, ostream &of)
 		");\n"
 
 		"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
-		"FUNCTIONID INTEGER, "			// Function identifier key (references FUNCTIONS)
+		"FUNCTIONID " << db->ptrtype() << ", "			// Function identifier key (references FUNCTIONS)
 		"ORDINAL INTEGER, "			// Position of the identifier within the function name (0-based)
-		"EID INTEGER, "				// Identifier key (references IDS)
+		"EID " << db->ptrtype() << ", "				// Identifier key (references IDS)
 		"PRIMARY KEY(FUNCTIONID, ORDINAL), "
 		"FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID), "
 		"FOREIGN KEY(EID) REFERENCES IDS(EID)"
 		");\n"
 
 		"CREATE TABLE FCALLS("			// Function calls
-		"SOURCEID INTEGER, "			// Calling function identifier key (references FUNCTIONS)
-		"DESTID INTEGER, "			// Called function identifier key (references FUNCTIONS)
+		"SOURCEID " << db->ptrtype() << ", "			// Calling function identifier key (references FUNCTIONS)
+		"DESTID " << db->ptrtype() << ", "			// Called function identifier key (references FUNCTIONS)
 		"FOREIGN KEY(SOURCEID) REFERENCES FUNCTIONS(ID), "
 		"FOREIGN KEY(DESTID) REFERENCES FUNCTIONS(ID)"
 		");\n"
