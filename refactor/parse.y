@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.134 2007/08/25 06:33:51 dds Exp $
+ * $Id: parse.y,v 1.135 2007/08/25 17:48:38 dds Exp $
  *
  */
 
@@ -1289,7 +1289,7 @@ parameter_declaration:
 			$2.declare();
 			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
-			$$ = merge($1, $2);
+			$$ = $2;
 		}
 	/* int FILE */
         | declaration_specifier parameter_typedef_declarator
