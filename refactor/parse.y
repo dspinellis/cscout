@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.133 2007/08/18 13:23:39 dds Exp $
+ * $Id: parse.y,v 1.134 2007/08/25 06:33:51 dds Exp $
  *
  */
 
@@ -1364,6 +1364,7 @@ identifier_list:
 			{
 				obj_define($3.get_token(), basic(b_int));
 				$1.add_param();
+				$$ = $1;
 			}
         ;
 
@@ -1997,7 +1998,7 @@ old_function_declarator:
 
 postfix_old_function_declarator:
         paren_identifier_declarator '(' { Block::enter(); } identifier_list { Block::param_exit(); } ')'
-		{ $1.set_abstract(function_returning(basic(), $3.get_nparam())); $$ = $1; }
+		{ $1.set_abstract(function_returning(basic(), $4.get_nparam())); $$ = $1; }
         | '(' old_function_declarator ')'
 		{ $$ = $2; }
         | '(' old_function_declarator ')' postfixing_abstract_declarator
