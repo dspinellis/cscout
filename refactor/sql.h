@@ -3,7 +3,7 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.h,v 1.5 2007/08/25 05:29:29 dds Exp $
+ * $Id: sql.h,v 1.6 2007/08/26 05:25:53 dds Exp $
  */
 
 
@@ -20,7 +20,7 @@ public:
 	virtual string escape(string s);
 	virtual char * escape(char c);
 	virtual const char *ptrtype() {
-		return sizeof(void *) > 32 ? "BIGINT" : "INTEGER";
+		return sizeof(void *) > 4 ? "BIGINT" : "INTEGER";
 	}
 	virtual const char *booltype() { return "BOOLEAN"; }
 	virtual const char *varchar() { return "CHARACTER VARYING"; }
