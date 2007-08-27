@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.124 2007/08/25 06:08:33 dds Exp $
+# $Id: Makefile,v 1.125 2007/08/27 18:46:38 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -197,8 +197,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.124 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2007/08/25 06:08:33 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.125 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2007/08/27 18:46:38 $$";' >>version.cpp
 	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -265,7 +265,7 @@ rdist-tar:
 	tar cvf - $(ALLSRC) | gzip -c >cscout.tar.gz
 
 rdist-spy:
-	plink $(HOST) "perl -p -e 's/\r//' >bin/spy-make" <spy-make.pl \; \
+	plink $(HOST) "perl -p -e 's/\r//' >bin/spy-make" <csmake.pl \; \
 		chmod +x bin/spy-make
 
 lf:
