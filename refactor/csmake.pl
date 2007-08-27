@@ -15,7 +15,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.15 2007/08/27 18:44:51 dds Exp $
+# $Id: csmake.pl,v 1.16 2007/08/27 18:46:14 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -205,7 +205,7 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.15 2007/08/27 18:44:51 dds Exp $
+# Source file is $Id: csmake.pl,v 1.16 2007/08/27 18:46:14 dds Exp $
 #
 
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
@@ -359,7 +359,7 @@ if ($#cfiles >= 0) {
 	push(@ARGV2, $ENV{CSCOUT_SPY_TMPDIR} . '/empty.c');
 	# Escape shell metacharacters
 	for ($i = 0; $i < $#ARGV2; $i++) {
-		$ARGV2[$i] =~ s/([][*\\"';|()<> \t\n])/\\$1/g;
+		$ARGV2[$i] =~ s/([][*\\"';|()<> \t\n{}&])/\\$1/g;
 	}
 	$cmdline = $real . ' ' . join(' ', @ARGV2);
 	print STDERR "Running $cmdline\n" if ($debug);
