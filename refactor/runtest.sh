@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.18 2007/08/19 09:47:06 dds Exp $
+# $Id: runtest.sh,v 1.19 2007/08/27 18:47:30 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -58,6 +58,9 @@ echo '\p Loading database'
 (cd $DIR ; $CSCOUT -s hsqldb $CSFILE)
 echo '
 \p Fixing EIDs
+
+SET REFERENTIAL_INTEGRITY FALSE;
+
 CREATE TABLE FixedIds(EID integer primary key, fixedid integer);
 
 /*
@@ -109,6 +112,9 @@ SourceId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.sourceid),
 DestId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.DestId);
 
 DROP TABLE FixedIds;
+
+SET REFERENTIAL_INTEGRITY TRUE;
+
 \p Running selections
 SELECT * from Ids ORDER BY Eid;
 SELECT * from Tokens ORDER BY Fid, Foffset;
