@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.37 2007/08/10 17:37:31 dds Exp $
+ * $Id: fchar.cpp,v 1.38 2007/08/27 18:49:22 dds Exp $
  */
 
 #include <iostream>
@@ -40,6 +40,7 @@ stackFchar Fchar::ps;			// Putback Fchars (from putback())
 int Fchar::line_number;			// Current line number
 bool Fchar::yacc_file;			// True input comes from .y
 stackFchar::size_type Fchar::stack_lock_size;	// Locked elements in file stack
+bool Fchar::trigraphs_enabled;		// True if we handle trigraphs
 
 void
 Fchar::set_input(const string& s)
@@ -113,6 +114,8 @@ again:
 		in.putback(c2);
 		return;
 	case '?':			// Trigraph handling
+		if (!trigraphs_enabled)
+			return;
 		c2 = in.get();
 		if (c2 != '?') {
 			in.putback(c2);

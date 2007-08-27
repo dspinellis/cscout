@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.182 2007/08/25 06:34:31 dds Exp $
+ * $Id: cscout.cpp,v 1.183 2007/08/27 18:49:22 dds Exp $
  */
 
 #include <map>
@@ -2239,7 +2239,7 @@ usage(char *fname)
 		"[-H host] [-P port] [-A user:passwd] "
 #define CO(x) x
 #else
-		" [-c|-E|-r|-v] "
+		" [-c|-E|-r|-v|-3] "
 #define CO(x)
 #endif
 		"[-p port] [-m spec] file\n"
@@ -2256,6 +2256,7 @@ CO(		"\t-P port\tHTTP proxy host port (default 80)\n")
 		"\t-r\tGenerate an identifier and include file warning report\n"
 CO(		"\t-s db\tGenerate SQL output for the specified RDBMS\n")
 		"\t-v\tDisplay version and copyright information and exit\n"
+		"\t-3\tEnable the handling of trigraph characters\n"
 		;
 	exit(1);
 #undef CO
@@ -2284,8 +2285,11 @@ main(int argc, char *argv[])
 #endif
 
 
-	while ((c = getopt(argc, argv, "crvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3crvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
 		switch (c) {
+		case '3':
+			Fchar::enable_trigraphs();
+			break;
 		case 'E':
 			if (process_mode)
 				usage(argv[0]);

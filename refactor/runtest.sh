@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.19 2007/08/27 18:47:30 dds Exp $
+# $Id: runtest.sh,v 1.20 2007/08/27 18:49:22 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -216,7 +216,7 @@ runtest_cpp()
 	DIR=$2
 	CSFILE=$3
 	start_test $DIR $NAME
-(cd $DIR ; $CSCOUT -E $CSFILE 2>&1 ) >test/nout/$NAME
+(cd $DIR ; $CSCOUT -3 -E $CSFILE 2>&1 ) >test/nout/$NAME
 	end_test $DIR $NAME
 }
 

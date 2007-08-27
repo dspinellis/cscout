@@ -16,7 +16,7 @@
  * #include "fchar.h"
  * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.18 2007/08/10 18:54:03 dds Exp $
+ * $Id: fchar.h,v 1.19 2007/08/27 18:49:22 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -56,7 +56,8 @@ typedef stack <Fchar> stackFchar;
 
 class Fchar {
 private:
-	void simple_getnext();	// Trigraphs and slicing
+	void simple_getnext();		// Trigraphs and slicing
+	static bool trigraphs_enabled;	// True if trigraphs are enabled
 	static fifstream in;		// Stream we are reading from
 	static Fileid fi;		// and its Fileid
 	static int line_number;		// Current line number
@@ -110,6 +111,8 @@ public:
 	// Return true if the class's source is a file
 	static bool is_file_source() { return true; }
 	static bool is_yacc_file() { return yacc_file; }
+	// Enable the handling of trigraphs
+	static void enable_trigraphs() { trigraphs_enabled = true; }
 };
 
 #endif /* FCHAR_ */
