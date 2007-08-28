@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.51 2007/08/28 12:10:50 dds Exp $
+ * $Id: type.cpp,v 1.52 2007/08/28 15:26:39 dds Exp $
  */
 
 #include <iostream>
@@ -253,7 +253,7 @@ basic(enum e_btype t, enum e_sign s, enum e_storage_class sc, qualifiers_t q)
 }
 
 Type
-array_of(Type t, int nelem)
+array_of(Type t, CTConst nelem)
 {
 	return Type(new Tarray(t, nelem));
 }
@@ -373,17 +373,15 @@ Tbasic::print(ostream &o) const
 	case b_padbit: o << "padbit "; break;
 	case b_undeclared: o << "UNDECLARED "; break;
 	}
+
+	if (value.is_const())
+		o << value << ' ';
 }
 
 void
 Tarray::print(ostream &o) const
 {
-	o << "array[";
-	if (nelem == -1)
-		o << "unknown size";
-	else
-		o << nelem;
-	o << "] of " << of;
+	o << "array[" << nelem << "] of " << of;
 }
 
 void

@@ -4,11 +4,13 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.41 2007/08/28 12:10:50 dds Exp $
+ * $Id: type.h,v 1.42 2007/08/28 15:26:39 dds Exp $
  */
 
 #ifndef TYPE_
 #define TYPE_
+
+#include "ctconst.h"
 
 enum e_btype {
 	b_abstract,		// Abstract declaration target, to be filled-in
@@ -102,6 +104,8 @@ protected:
 	virtual int get_qualifiers() const;// Return the declaration's qualifiers
 	virtual int get_nparam() const;	// Return the number of parameters
 	virtual void add_param();	// Add another parameter to the list
+	virtual CTConst get_value() const {return CTConst(); }	// Return the value of a compile-time constant
+	virtual void set_value(CTConst v) {}	// Set the value of a compile-time constant
 	virtual void add_qualifiers(Type t);		// Set our qualifiers to t
 	virtual void add_member(const Token &tok, const Type &typ);
 	virtual Type get_default_specifier() const;
@@ -160,9 +164,10 @@ typedef QType_node::qualifiers_t qualifiers_t;
 // Basic type
 class Tbasic: public QType_node {
 private:
-	enum e_btype type;
-	enum e_sign sign;
-	Tstorage sclass;
+	enum e_btype type;	// Basic type
+	enum e_sign sign;	// Sign
+	Tstorage sclass;	// Storage class
+	CTConst value;		// Value of a compile-time constant
 public:
 	Tbasic(enum e_btype t = b_abstract, enum e_sign s = s_none,
 		enum e_storage_class sc = c_unspecified, qualifiers_t q = q_none) :
@@ -180,6 +185,8 @@ public:
 	inline void set_storage_class(Type t);
 	inline void clear_storage_class();
 	void set_abstract(Type t);		//For padbits
+	CTConst get_value() const {return value; }
+	void set_value(CTConst v) { value = v; }
 };
 
 /*
@@ -196,7 +203,7 @@ public:
 	// Creation functions
 	friend Type basic(enum e_btype t, enum e_sign s,
 			  enum e_storage_class sc, qualifiers_t);
-	friend Type array_of(Type t, int nelem = -1);
+	friend Type array_of(Type t, CTConst nelem = CTConst());
 	friend Type pointer_to(Type t);
 	friend Type function_returning(Type t, int n);
 	friend Type implict_function();
@@ -230,6 +237,8 @@ public:
 	void clear_storage_class()	{ return p->clear_storage_class(); }
 	void add_param()		{ p->add_param(); }
 	int get_nparam() const		{ return p->get_nparam(); }
+	CTConst get_value() const	{return p->get_value(); }
+	void set_value(CTConst v)	{ p->set_value(v); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_array() const		{ return p->is_array(); }
 	bool is_basic() const		{ return p->is_basic(); }

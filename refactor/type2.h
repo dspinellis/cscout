@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.26 2007/08/28 12:10:50 dds Exp $
+ * $Id: type2.h,v 1.27 2007/08/28 15:26:39 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -15,14 +15,14 @@
 class Tarray: public QType_node {
 private:
 	Type of;
-	int nelem;
+	CTConst nelem;
 public:
-	Tarray(Type t, int n = -1, qualifiers_t q = q_none) : QType_node(q), of(t), nelem(n) {}
+	Tarray(Type t, CTConst n = CTConst(), qualifiers_t q = q_none) : QType_node(q), of(t), nelem(n) {}
 	virtual ~Tarray() {}
 	Type clone() const { return Type(new Tarray(of.clone(), nelem, get_qualifiers())); }
 	Type deref() const { return of; }
 	Type subscript() const { return of; }
-	int get_nelem() const { return nelem; }
+	CTConst get_nelem() const { return nelem; }
 	bool is_ptr() const { return true; }
 	bool is_array() const { return true; }
 	void print(ostream &o) const;

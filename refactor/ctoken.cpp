@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.35 2007/08/18 15:08:26 dds Exp $
+ * $Id: ctoken.cpp,v 1.36 2007/08/28 15:26:39 dds Exp $
  */
 
 #include <map>
@@ -278,6 +278,20 @@ again:
 			/* We need the value in the $x yacc variables */
 			if (Fchar::is_yacc_file())
 				parse_lval.t = identifier(t);
+			else {
+				const char *num;
+				char *endptr;
+				num = t.get_val().c_str();
+				/*
+				 * Could be more clever here and set
+				 * signed/unsigned based on *endptr,
+				 * but it is not worth the trouble.
+				 * Search fo PP_NUMBER in pdtoken.cpp
+				 * to see how this is done.
+				 */
+				parse_lval.t = basic(b_int);
+				parse_lval.t.set_value(strtoul(num, &endptr, 0));
+			}
 			// XXX Could also be invalid, or FLOAT_CONST
 			return (INT_CONST);
 		case IDENTIFIER:
@@ -339,6 +353,14 @@ again:
 			/* We need the value in the $x yacc variables */
 			if (Fchar::is_yacc_file())
 				parse_lval.t = identifier(t);
+			else {
+				const string& s = t.get_val();
+				string::const_iterator si;
+
+				si = s.begin();
+				parse_lval.t = basic(b_int);
+				parse_lval.t.set_value(unescape_char(s, si));
+			}
 		default:
 			return (c);
 		}

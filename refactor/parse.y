@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.136 2007/08/25 20:08:57 dds Exp $
+ * $Id: parse.y,v 1.137 2007/08/28 15:26:39 dds Exp $
  *
  */
 
@@ -204,6 +204,9 @@ static bool yacc_typing;
 
 
 %type <t> IDENTIFIER
+%type <t> INT_CONST
+%type <t> CHAR_LITERAL
+%type <t> IDENTIFIER
 %type <t> TYPEDEF_NAME
 %type <t> identifier_or_typedef_name
 %type <t> member_name
@@ -306,8 +309,6 @@ static bool yacc_typing;
 %type <t> FOR
 
 /* Needed for yacc */
-%type <t> INT_CONST
-%type <t> CHAR_LITERAL
 %type <t> yacc_tag
 %type <t> yacc_name_list_declaration
 %type <t> yacc_name_number
@@ -361,11 +362,9 @@ int moo(const int identifier1 (T identifier2 (int identifier3)));
 
 /* CONSTANTS */
 constant:
-        CHAR_LITERAL
-			{ $$ = basic(b_int); }
-        | INT_CONST
-			{ $$ = basic(b_int); }
-        | FLOAT_CONST
+        CHAR_LITERAL	/* Default rule */
+        | INT_CONST	/* Default rule */
+        | FLOAT_CONST	/* Not currently returned */
 			{ $$ = basic(b_float); }
         /* We are not including ENUMERATIONconstant here  because  we
         are  treating  it like a variable with a type of "enumeration
@@ -512,12 +511,31 @@ unary_expression:
 			{ $$ = $2; }
         | DEC_OP unary_expression
 			{ $$ = $2; }
-        | arith_unary_operator cast_expression
+        | '+' cast_expression
 			{ $$ = $2; }
+        | '-' cast_expression
+			{
+				$$ = $2;
+				$$.set_value(-$2.get_value());
+			}
+        | '~' cast_expression
+			{
+				$$ = $2;
+				$$.set_value(~$2.get_value());
+			}
+        | '!' cast_expression
+			{
+				$$ = $2;
+				$$.set_value(!$2.get_value());
+			}
         | '&' cast_expression
 			{ $$ = pointer_to($2); }
         | '*' cast_expression
 			{ $$ = $2.deref(); }
+	/*
+	 * XXX We should be able to evalue these as constant expressions,
+	 * but we aren't.
+	 */
         | SIZEOF unary_expression
 			{ $$ = basic(b_int); }
         | SIZEOF '(' type_name ')'
@@ -531,18 +549,12 @@ unary_expression:
 		{ label_use($2.get_token()); }
         ;
 
-arith_unary_operator:
-        '+'
-        | '-'
-        | '~'
-        | '!'
-        ;
-
 cast_expression:
         unary_expression
         | '(' type_name ')' cast_expression
 		{
 			$$ = $2;
+			$$.set_value($4.get_value());
 			if (DP())
 				cout << "cast to " << $2 << "\n";
 		}
@@ -560,11 +572,20 @@ cast_expression:
 multiplicative_expression:
         cast_expression
         | multiplicative_expression '*' cast_expression
-		{ $$ = $1; }
+		{
+			$$ = $1;
+			$$.set_value($1.get_value() * $3.get_value());
+		}
         | multiplicative_expression '/' cast_expression
-		{ $$ = $1; }
+		{
+			$$ = $1;
+			$$.set_value($1.get_value() / $3.get_value());
+		}
         | multiplicative_expression '%' cast_expression
-		{ $$ = $1; }
+		{
+			$$ = $1;
+			$$.set_value($1.get_value() % $3.get_value());
+		}
         ;
 
 additive_expression:
@@ -576,6 +597,7 @@ additive_expression:
 					$$ = $3;
 				else
 					$$ = $1;
+				$$.set_value($1.get_value() + $3.get_value());
 			}
         | additive_expression '-' multiplicative_expression
 			{
@@ -583,65 +605,105 @@ additive_expression:
 					$$ = basic(b_int);
 				else
 					$$ = $1;
+				$$.set_value($1.get_value() - $3.get_value());
 			}
         ;
 
 shift_expression:
         additive_expression
         | shift_expression LEFT_OP additive_expression
-		{ $$ = $1; }
+		{
+			$$ = $1;
+			$$.set_value($1.get_value() << $3.get_value());
+		}
         | shift_expression RIGHT_OP additive_expression
-		{ $$ = $1; }
+		{
+			$$ = $1;
+			$$.set_value($1.get_value() >> $3.get_value());
+		}
         ;
 
 relational_expression:
         shift_expression
         | relational_expression '<' shift_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				$$.set_value($1.get_value() < $3.get_value());
+			}
         | relational_expression '>' shift_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				$$.set_value($1.get_value() > $3.get_value());
+			}
         | relational_expression LE_OP shift_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				$$.set_value($1.get_value() <= $3.get_value());
+			}
         | relational_expression GE_OP shift_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				$$.set_value($1.get_value() >= $3.get_value());
+			}
         ;
 
 equality_expression:
         relational_expression
         | equality_expression EQ_OP relational_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				$$.set_value($1.get_value() == $3.get_value());
+			}
         | equality_expression NE_OP relational_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				$$.set_value($1.get_value() != $3.get_value());
+			}
         ;
 
 and_expression:
         equality_expression
         | and_expression '&' equality_expression
-		{ $$ = $1; }
+		{
+			$$ = $1;
+			$$.set_value($1.get_value() & $3.get_value());
+		}
         ;
 
 exclusive_or_expression:
         and_expression
         | exclusive_or_expression '^' and_expression
-		{ $$ = $1; }
+		{
+			$$ = $1;
+			$$.set_value($1.get_value() ^ $3.get_value());
+		}
         ;
 
 inclusive_or_expression:
         exclusive_or_expression
         | inclusive_or_expression '|' exclusive_or_expression
-		{ $$ = $1; }
+		{
+			$$ = $1;
+			$$.set_value($1.get_value() | $3.get_value());
+		}
         ;
 
 logical_and_expression:
         inclusive_or_expression
         | logical_and_expression AND_OP inclusive_or_expression
-			{ $$ = basic(b_int); }
+		{
+			$$ = basic(b_int);
+			$$.set_value($1.get_value() && $3.get_value());
+		}
         ;
 
 logical_or_expression:
         logical_and_expression
         | logical_or_expression OR_OP logical_and_expression
-			{ $$ = basic(b_int); }
+		{
+			$$ = basic(b_int);
+			$$.set_value($1.get_value() || $3.get_value());
+		}
         ;
 
 conditional_expression:
@@ -662,6 +724,11 @@ conditional_expression:
 					$$ = $5;
 				else
 					$$ = $3;
+				if ($1.get_value().is_const())
+					if ($1.get_value().get_int_value())
+						$$.set_value($3.get_value());
+					else
+						$$.set_value($5.get_value());
 			}
         | logical_or_expression '?' ':' conditional_expression
 			{
@@ -673,6 +740,11 @@ conditional_expression:
 					$$ = $1;
 				else
 					$$ = $4;
+				if ($1.get_value().is_const())
+					if ($1.get_value().get_int_value())
+						$$.set_value($1.get_value());
+					else
+						$$.set_value($4.get_value());
 			}
         ;
 
@@ -717,7 +789,12 @@ comma_expression:
 
 constant_expression:
         conditional_expression
-        ; /* Default rules */
+		{
+			if (DP())
+				cout << $1 << endl;
+			$$ = $1;
+		}
+        ;
 
 range_expression:
 	constant_expression
@@ -2024,10 +2101,15 @@ postfixing_abstract_declarator:
 array_abstract_declarator:
         '[' ']'
 		{ $$ = array_of(basic()); }
+	/*
+	 * Could warn in the next two rules if we don't get a
+	 * constant expression, but our compile-time evaluation
+	 * isn't yet robust enough for this.
+	 */
         | '[' constant_expression ']'
-		{ $$ = array_of(basic()); }
+		{ $$ = array_of(basic(), $2.get_value()); }
         | array_abstract_declarator '[' constant_expression ']'
-		{ $$ = array_of($1); }
+		{ $$ = array_of($1, $3.get_value()); }
         ;
 
 unary_abstract_declarator:
