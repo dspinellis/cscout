@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.183 2007/08/27 18:49:22 dds Exp $
+ * $Id: cscout.cpp,v 1.184 2007/08/28 07:01:39 dds Exp $
  */
 
 #include <map>
@@ -2392,6 +2392,7 @@ main(int argc, char *argv[])
 	if (db_engine) {
 		if (!Sql::setEngine(db_engine))
 			return 1;
+		cout << Sql::getInterface()->begin_commands();
 		workdb_schema(Sql::getInterface(), cout);
 	}
 #endif
@@ -2461,6 +2462,7 @@ main(int argc, char *argv[])
 	if (Sql::getInterface()) {
 		workdb_rest(Sql::getInterface(), cout);
 		Call::dumpSql(Sql::getInterface(), cout);
+		cout << Sql::getInterface()->end_commands();
 		return 0;
 	}
 #else

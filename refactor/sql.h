@@ -3,7 +3,7 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.h,v 1.6 2007/08/26 05:25:53 dds Exp $
+ * $Id: sql.h,v 1.7 2007/08/28 07:01:39 dds Exp $
  */
 
 
@@ -17,6 +17,8 @@ public:
 	// Return true if OK
 	static bool setEngine(const char *dbengine);
 	static Sql *getInterface() { return instance; }
+	virtual const char * begin_commands() { return ""; };
+	virtual const char * end_commands() { return ""; };
 	virtual string escape(string s);
 	virtual char * escape(char c);
 	virtual const char *ptrtype() {
@@ -29,6 +31,9 @@ public:
 
 class Mysql: public Sql {
 public:
+	const char * begin_commands() {
+		return "SET SESSION sql_mode=NO_BACKSLASH_ESCAPES;\n";
+	};
 	const char *booltype() { return "bool"; }
 	const char *varchar() { return "TEXT"; }
 	const char *boolval(bool v);
