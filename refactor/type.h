@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.40 2007/08/15 19:56:23 dds Exp $
+ * $Id: type.h,v 1.41 2007/08/28 12:10:50 dds Exp $
  */
 
 #ifndef TYPE_
@@ -196,7 +196,7 @@ public:
 	// Creation functions
 	friend Type basic(enum e_btype t, enum e_sign s,
 			  enum e_storage_class sc, qualifiers_t);
-	friend Type array_of(Type t);
+	friend Type array_of(Type t, int nelem = -1);
 	friend Type pointer_to(Type t);
 	friend Type function_returning(Type t, int n);
 	friend Type implict_function();

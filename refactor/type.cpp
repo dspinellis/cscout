@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.50 2007/08/15 19:56:23 dds Exp $
+ * $Id: type.cpp,v 1.51 2007/08/28 12:10:50 dds Exp $
  */
 
 #include <iostream>
@@ -253,9 +253,9 @@ basic(enum e_btype t, enum e_sign s, enum e_storage_class sc, qualifiers_t q)
 }
 
 Type
-array_of(Type t)
+array_of(Type t, int nelem)
 {
-	return Type(new Tarray(t));
+	return Type(new Tarray(t, nelem));
 }
 
 Type
@@ -378,7 +378,12 @@ Tbasic::print(ostream &o) const
 void
 Tarray::print(ostream &o) const
 {
-	o << "array of " << of;
+	o << "array[";
+	if (nelem == -1)
+		o << "unknown size";
+	else
+		o << nelem;
+	o << "] of " << of;
 }
 
 void
@@ -601,7 +606,7 @@ Tarray::merge(Tbasic *b)
 	}
 
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
-	return Type(new Tarray(of, q));
+	return Type(new Tarray(of, nelem, q));
 }
 
 Type
