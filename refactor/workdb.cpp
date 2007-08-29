@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.46 2007/08/25 05:33:19 dds Exp $
+ * $Id: workdb.cpp,v 1.47 2007/08/29 04:17:23 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -484,8 +484,9 @@ workdb_schema(Sql *db, ostream &of)
 		");\n"
 
 		"CREATE TABLE FILECOPIES("		// Files occuring in more than one copy
-		"GROUPID INTEGER PRIMARY KEY, "		// Unique file group identifier
+		"GROUPID INTEGER, "			// File group identifier
 		"FID INTEGER, "				// Key of file belonging to a group of identical files (references FILES)
+		"PRIMARY KEY(GROUPID, FID), "
 		"FOREIGN KEY(FID) REFERENCES FILES(FID)"
 		");\n"
 
