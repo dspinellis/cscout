@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.20 2007/08/27 18:49:22 dds Exp $
+# $Id: runtest.sh,v 1.21 2007/09/01 06:02:20 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -175,6 +175,7 @@ Test chunk $NAME finishes correctly
 else
 	echo "
 Test chunk $NAME failed
+(Make sure the input file uses the correct line-end convention.)
 ------------------------------------------
 "
 	if [ x"$CONTINUE" != x"1" ]
@@ -254,6 +255,7 @@ set_test 1
 while test $# -gt 0; do
         case $1 in
 	-p)	PRIME=1
+		echo "Priming test data"
 		;;
 	-k)	CONTINUE=1
 		;;
