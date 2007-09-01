@@ -10,13 +10,13 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.10 2005/10/06 07:32:13 dds Exp $
+.\" $Id: cscout.1,v 1.11 2007/09/01 06:07:17 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
 \fBcscout\fP
-[\fB\-cErv\fP]
+[\fB\-cErv3\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
 [\fB\-o\fP | \fB\-s\fP \fIdb\fP]
@@ -175,6 +175,8 @@ therefore be automatically processed by editors that recognize this
 format.
 .IP "\fB\-v\fP"
 Display  the \fICScout\fP version and copyright information and exit.
+.IP "\fB\-3\fP"
+Implement support for trigraph characters.
 .SH MORE OPTIONS
 The following options are only available on the
 version of \fICScout\fP available through a support license.
