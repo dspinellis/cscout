@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.137 2007/08/28 15:26:39 dds Exp $
+ * $Id: parse.y,v 1.138 2007/09/01 05:50:39 dds Exp $
  *
  */
 
@@ -65,19 +65,44 @@ void parse_error(char *s)
 }
 
 /*
- * A stack needed for handling C99 designators
+ * A stack needed for handling initializers and C99 designators
  * The stack's top always contains the type of the
- * element that can be designated.
+ * element that can be initialized or designated.
+ * For elements that are not braced, when me move past the last
+ * element we pop the stack.
+ * Braces serve for two purposes:
+ * 	Scoping the C99 designators
+ *	Forcibly terminating initialization with fewer elements
  */
 struct Initializer {
-	int ordinal;		// Structure element ordinal number
+	int pos;		// Iterator to current structure or array element
+	CTConst end;		// Iterator's end
 	Type t;			// Initialized element's type
-	Initializer(Type typ) : ordinal(0), t(typ) {}
+	bool braced;		// True if we entered this element through a brace
+	Initializer(Type typ, bool b) : pos(0), t(typ), braced(b) {
+		end = t.get_nelem();
+	}
+	friend ostream& operator<<(ostream& o, const Initializer &i);
 };
 
+ostream&
+operator<<(ostream& o,const Initializer &i)
+{
+	o << i.t << " pos:" << i.pos << " end:" << i.end << " braced:" << i.braced << endl;
+	return o;
+}
+
 // The current element we expect is at the stack's top
-static stack <Initializer> initializer_stack;
-#define CURRENT_ELEMENT (initializer_stack.top())
+typedef stack <Initializer> InitializerStack;
+static InitializerStack initializer_stack;
+// Initializer top of stack
+#define ITOS (initializer_stack.top())
+
+/*
+ * We need to save and restore these stacks when we're dealing with assignment
+ * expressions, because they can have their own initializers.
+ */
+static stack <InitializerStack> saved_initializer_stacks;
 
 // The next element expected in an initializer
 static Type upcoming_element;
@@ -95,59 +120,42 @@ initializer_expect(Type t)
 		cout << "Expecting type " << t << "\n";
 }
 
-// An opening brace within an initializer context
+/*
+ * Move pos of the initializer's top of stack to the element
+ * identifier by id.
+ */
 static void
-initializer_open()
+initializer_move_top_pos(Id const *id)
 {
+	int count = 0;
 
+	for (vector <Id>::const_iterator i = ITOS.t.get_members_by_ordinal().begin(); i != ITOS.t.get_members_by_ordinal().end(); i++) {
+		if (id->get_name() == i->get_name()) {
+			ITOS.pos = count;
+			if (DP() && !initializer_stack.empty())
+				cout << "After move_top_pos to " << id->get_name() << ": " << ITOS;
+			return;
+		}
+		count++;
+	}
+	csassert(0);
+}
+
+// Remove from the stack all slots that can't hold this expression.
+static void
+initializer_clear_used_elements()
+{
 	if (DP() && !initializer_stack.empty())
-		cout << "Top initializer " << CURRENT_ELEMENT.t << " ordinal " << CURRENT_ELEMENT.ordinal << "\n";
-
-	initializer_stack.push(Initializer(upcoming_element));
-	if (DP()) {
-		cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
-		cout << "New initializer " << CURRENT_ELEMENT.t << " ordinal " << CURRENT_ELEMENT.ordinal << "\n";
-	}
-
-	if (CURRENT_ELEMENT.t.is_array())
-		upcoming_element = CURRENT_ELEMENT.t.subscript();
-	else if (CURRENT_ELEMENT.t.is_su()) {
-		Id const *id = CURRENT_ELEMENT.t.member(CURRENT_ELEMENT.ordinal);
-		if (id)
-			upcoming_element = id->get_type();
-		else
-			// Could be empty
-			upcoming_element = basic(b_undeclared);
-	} else
-		upcoming_element = CURRENT_ELEMENT.t;
-}
-
-// An comma within a designator context
-static void
-initializer_next()
-{
-	csassert(!initializer_stack.empty());
-	CURRENT_ELEMENT.ordinal++;
-	if (CURRENT_ELEMENT.t.is_su()) {
-		Id const *id = CURRENT_ELEMENT.t.member(CURRENT_ELEMENT.ordinal);
-		if (id)
-			upcoming_element = id->get_type();
-		else
-			// Could be a trailing comma
-			upcoming_element = basic(b_undeclared);
-	}
-}
-
-
-// An closing brace within a designator context
-static void
-initializer_close()
-{
-	if (!initializer_stack.empty()) {
-		initializer_expect(CURRENT_ELEMENT.t);	// Default
+		cout << "Before clear used elements: " << ITOS;
+	while (initializer_stack.size() > 1 &&
+	    ITOS.end.is_const() &&
+	    ITOS.pos == ITOS.end.get_int_value() &&
+	    !ITOS.braced) {
 		initializer_stack.pop();
-	} else
-		; // The error will be reported as a syntax error
+		ITOS.pos++;
+	}
+	if (DP() && !initializer_stack.empty())
+		cout << "After clear used elements: " << ITOS;
 }
 
 /*
@@ -280,7 +288,8 @@ static bool yacc_typing;
 %type <t> postfix_identifier_declarator
 %type <t> unary_identifier_declarator
 %type <t> identifier_declarator
-%type <t> designator
+%type <t> aggregate_key
+%type <t> range_expression
 
 %type <t> attribute
 %type <t> attribute_list
@@ -533,7 +542,7 @@ unary_expression:
         | '*' cast_expression
 			{ $$ = $2.deref(); }
 	/*
-	 * XXX We should be able to evalue these as constant expressions,
+	 * XXX We should be able to evaluate these as constant expressions,
 	 * but we aren't.
 	 */
         | SIZEOF unary_expression
@@ -559,13 +568,15 @@ cast_expression:
 				cout << "cast to " << $2 << "\n";
 		}
 	/* Compound literal; C99 feature */
-        | '(' type_name ')' { initializer_expect($2); } braced_initializer
+        | '(' type_name ')' { saved_initializer_stacks.push(initializer_stack); initializer_stack = InitializerStack(); initializer_expect($2); } braced_initializer
 		{
 			if (DP()) {
 				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
 				cout << "Type of compound literal " << $2 << "\n";
 			}
 			$$ = $2;
+			initializer_stack = saved_initializer_stacks.top();
+			saved_initializer_stacks.pop();
 		}
         ;
 
@@ -800,6 +811,8 @@ range_expression:
 	constant_expression
 	/* gcc extension */
         | constant_expression ELLIPSIS constant_expression
+	/* In designators we only care about the last value */
+		{ $$ = $3; }
 	;
 
     /* The following was used for clarity */
@@ -1112,6 +1125,7 @@ aggregate_name:
         aggregate_key '{'  member_declaration_list '}'
 		{
 			Fchar::get_fileid().metrics().add_aggregate();
+			$3.set_union((bool)$1.get_nparam());
 			$$ = $3;
 
 		}
@@ -1120,6 +1134,7 @@ aggregate_name:
 			Id const *id = tag_lookup($2.get_name());
 			if (id)
 				Token::unify(id->get_token(), $2.get_token());
+			$4.set_union((bool)$1.get_nparam());
 			tag_define($2.get_token(), $4);
 			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = $4;
@@ -1134,6 +1149,7 @@ aggregate_name:
 					cout << "lookup returns " << $$ << "\n";
 			} else {
 				$$ = incomplete($2.get_token(), Block::get_scope_level());
+				$$.set_union((bool)$1.get_nparam());
 				tag_define($2.get_token(), $$);
 			}
 		}
@@ -1145,17 +1161,22 @@ aggregate_name:
 				Token::unify(id->get_token(), $2.get_token());
 			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = struct_union();
+			$$.set_union((bool)$1.get_nparam());
 		}
         | aggregate_key '{'  /* EMPTY member_declaration_list */ '}'
 		{
 			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = struct_union();
+			$$.set_union((bool)$1.get_nparam());
 		}
         ;
 
+/* We overload plist to return a value from this rule */
 aggregate_key:
         STRUCT attribute_list_opt
+		{ $$ = plist(0); }
         | UNION attribute_list_opt
+		{ $$ = plist(1); }
         ;
 
 member_declaration_list:
@@ -1469,45 +1490,110 @@ initializer_opt:
 
 initializer_open:
 	'{'
-		{ initializer_open(); }
+		/* Push (braced) TOS[pos] */
+		{
+			if (DP() && !initializer_stack.empty()) {
+				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
+				cout << "Top initializer before initializer_open: " << ITOS;
+			}
+			initializer_clear_used_elements();
+			initializer_stack.push(Initializer(
+			    initializer_stack.empty() ?
+			    upcoming_element :
+			    ITOS.t.member(ITOS.pos), true));
+			if (DP())
+				cout << "New initializer: " << ITOS;
+		}
 	;
 
 initializer_close:
 	'}'
-		{ initializer_close(); }
+		/* Pop stack up to and including first brace. */
+		{
+			while (!initializer_stack.empty() && !ITOS.braced)
+				initializer_stack.pop();
+			csassert(!initializer_stack.empty() && ITOS.braced);
+			initializer_stack.pop();
+			if (!initializer_stack.empty())
+				ITOS.pos++;
+		}
 	;
 
 braced_initializer:
         initializer_open initializer_close
         | initializer_open initializer_list initializer_close
-        | initializer_open initializer_list initializer_comma initializer_close
+        | initializer_open initializer_list ',' initializer_close
         ;
 
 initializer:
         initializer_open initializer_close
         | initializer_open initializer_list initializer_close
-        | initializer_open initializer_list initializer_comma initializer_close
+        | initializer_open initializer_list ',' initializer_close
         | assignment_expression
+		{
+			// Remove from the stack all slots that can't hold this expression.
+			initializer_clear_used_elements();
+			if (!initializer_stack.empty())
+				if (ITOS.end.is_const() &&
+				    ITOS.pos == ITOS.end.get_int_value())
+					/*
+					 * @error
+					 * The members of an initializer list are more than the
+					 * elements of the corresponding structure or array.
+					 */
+					Error::error(E_WARN, "too many initializers");
+				else {
+					/*
+					 * XXX Here we should find an assignment compatible type.
+					 * Because this is difficult (esp. taking into account
+					 * scoping) we fudge it, and simply look for a type
+					 * with the same number of elements.
+					 */
+					for (;;) {
+						const Type &currt = ITOS.t.member(ITOS.pos);
+						if (
+						    // One case that fits: both are su with equal nelem
+						    (currt.is_su() && $1.is_su() &&
+						    $1.get_nelem().get_int_value() == currt.get_nelem().get_int_value()) ||
+						    // Other case: string assignment
+						    ($1.is_array() && $1.deref().is_char() && (currt.is_array() || currt.is_ptr()) && currt.deref().is_char()) ||
+						    // Other case: non-struct initializer into non-struct non-array
+						    (!$1.is_su() && !currt.is_su() && !currt.is_array())) {
+							ITOS.pos++;
+							if (DP()) cout << "Plain element assigned" << endl;
+							break;
+						} else if (currt.is_su() || currt.is_array()) {
+							if (DP()) cout << "Failed to assign element: " << $1 << endl << " to slot: " << currt << endl << "Pushing ITOS[pos]" << endl;
+							initializer_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+						} else {
+							/*
+							 * The type of the initializer does not match
+							 * the type of the initialized element.
+							 */
+							Error::error(E_ERR, "incompatible initializer");
+							break;
+						}
+					}
+				}
+			if (DP() && !initializer_stack.empty())
+				cout << "After assignment expression ITOS: " << ITOS;
+		}
         ;
 
 initializer_list:
         initializer_member
-        | initializer_list initializer_comma initializer_member
+        | initializer_list ',' initializer_member
         ;
-
-initializer_comma:
-	','
-		{ initializer_next(); }
-	;
 
 initializer_member:
 	initializer
-	| designator '=' { initializer_expect($1); } initializer
+	/* Do nothing, it will be handled by the underlying rules */
+	| designator '=' initializer
 	/* gcc extensions (argh!) */
-	| designator { initializer_expect($1); } initializer
+	| designator initializer
 	| member_name ':' initializer
 		{
-			Id const *id = CURRENT_ELEMENT.t.member($1.get_name());
+			Id const *id = ITOS.t.member($1.get_name());
 			if (id) {
 				csassert(id->get_name() == $1.get_name());
 				Token::unify(id->get_token(), $1.get_token());
@@ -1518,42 +1604,65 @@ initializer_member:
 
 /* C99 feature */
 designator:
+	/*
+	 * Range expression means fill all the range (inclusively!)
+	 * with a single scaler value (gcc extension).
+	 * Therefore, it is enough to advance to the range's
+	 * last element.
+	 */
         '[' range_expression ']'
 		{
+			/* Pop unbraced stack elements. Set pos of TOS to $2. */
+			while (!initializer_stack.empty() && !ITOS.braced)
+				initializer_stack.pop();
 			if (initializer_stack.empty())
-				$$ = basic(b_undeclared);
+				Error::error(E_ERR, "designator does not appear in a braced initializer");
 			else
-				$$ = CURRENT_ELEMENT.t.subscript();
+				if ($2.get_value().is_const())
+					ITOS.pos = $2.get_value().get_int_value();
+				else
+					Error::error(E_WARN, "unable to evaluate designator's compile-time constant");
 		}
         | '.' member_name
 		{
-			Id const *id = CURRENT_ELEMENT.t.member($2.get_name());
-			if (id) {
-				$$ = id->get_type();
-				if (DP())
-					cout << ". returns " << $$ << "\n";
-				csassert(id->get_name() == $2.get_name());
-				Token::unify(id->get_token(), $2.get_token());
-			} else {
-				Error::error(E_ERR, "structure or union does not have a member " + $2.get_name());
-				$$ = basic(b_undeclared);
+			/* Pop unbraced stack elements. Set pos of TOS to member_name ordinal. */
+			while (!initializer_stack.empty() && !ITOS.braced)
+				initializer_stack.pop();
+			if (initializer_stack.empty())
+				Error::error(E_ERR, "designator does not appear in a braced initializer");
+			else {
+				Id const *id = ITOS.t.member($2.get_name());
+				if (id) {
+					initializer_move_top_pos(id);
+					csassert(id->get_name() == $2.get_name());
+					Token::unify(id->get_token(), $2.get_token());
+				} else
+					Error::error(E_ERR, "structure or union does not have a member " + $2.get_name());
 			}
 		}
+	/* See above for how we handle range expressions. */
         | designator '[' range_expression ']'
-		{ $$ = $1.subscript(); }
+		{
+			/* Push (unbraced) TOS[pos] and set pos to $3. */
+			csassert(!initializer_stack.empty());
+			initializer_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+			if ($3.get_value().is_const())
+				ITOS.pos = $3.get_value().get_int_value();
+			else
+				Error::error(E_WARN, "unable to evaluate designator's compile-time constant");
+		}
         | designator '.' member_name
 		{
-			Id const *id = $1.member($3.get_name());
+			/* Push (unbraced) TOS[pos] and set pos to member_name ordinal. */
+			Id const *id = ITOS.t.member(ITOS.pos).member($3.get_name());
 			if (id) {
-				$$ = id->get_type();
-				if (DP())
-					cout << ". returns " << $$ << "\n";
 				csassert(id->get_name() == $3.get_name());
 				Token::unify(id->get_token(), $3.get_token());
-			} else {
+				csassert(!initializer_stack.empty());
+				initializer_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+				initializer_move_top_pos(id);
+			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
-				$$ = basic(b_undeclared);
-			}
 		}
 	;
 

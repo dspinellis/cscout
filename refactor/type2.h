@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.27 2007/08/28 15:26:39 dds Exp $
+ * $Id: type2.h,v 1.28 2007/09/01 05:50:39 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -31,6 +31,7 @@ public:
 	void clear_storage_class() { of.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
 	Type merge(Tbasic *b);
+	Type member(int n);
 };
 
 // Pointer to ...
@@ -105,46 +106,59 @@ private:
 	vector <Id> members_by_ordinal;
 	Type default_specifier;	// Used while declaring a series of members
 	Tstorage sclass;
+	bool is_union;		// True if this is a union
 public:
-	Tsu(const Token &tok, const Type &typ, const Type &spec) {
+	Tsu(const Token &tok, const Type &typ, const Type &spec) : is_union(false) {
 		tok.set_ec_attribute(is_sumember);
-		if (DP()) cout << "Adding member " << tok << "\n";
 		members_by_name.define(tok, typ);
 		members_by_ordinal.push_back(Id(tok, typ));
 		default_specifier = spec;
+		if (DP()) {
+			cout << "Added member " << tok << endl;
+			this->print(cout);
+		}
 	}
-	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc, qualifiers_t q) :
-			 QType_node(q),
-			 members_by_name(mbn),
+	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc, qualifiers_t q, bool u) :
+			QType_node(q),
+			members_by_name(mbn),
 			members_by_ordinal(mbo),
 			default_specifier(ds),
-			sclass(sc)
+			sclass(sc),
+			is_union(u)
 			{}
-	Tsu(const Type &spec) { default_specifier = spec; }
-	Tsu() {}
+	Tsu(const Type &spec) : is_union(false) { default_specifier = spec; }
+	Tsu() : is_union(false) {}
 	virtual ~Tsu() {}
+	// Return number of elements
+	CTConst get_nelem() const {
+		return is_union ? 1 : CTConst(members_by_ordinal.size());
+	}
 	bool is_su() const { return true; }
-	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class(), get_qualifiers())); }
+	// Indicate this is a union
+	void set_union(bool v) { is_union = v; }
+	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class(), get_qualifiers(), is_union)); }
 	void add_member(const Token &tok, const Type &typ) {
-		if (DP()) cout << "Adding member " << tok << "\n";
 		tok.set_ec_attribute(is_sumember);
 		members_by_name.define(tok, typ);
 		members_by_ordinal.push_back(Id(tok, typ));
+		if (DP()) {
+			cout << "Added member " << tok << endl;
+			this->print(cout);
+		}
 	}
 	Type get_default_specifier() const { return default_specifier; }
 	void merge_with(Type t) {
+		if (DP())
+			cout << "Merge: " << Type(this) << " with: " << t << endl;
 		members_by_name.merge_with(t.get_members_by_name());
 		const vector <Id> &m2 = t.get_members_by_ordinal();
 		members_by_ordinal.insert(members_by_ordinal.end(), m2.begin(), m2.end());
+		if (DP())
+			cout << "Gives: " << Type(this) << endl;
 	}
 	Id const* member(const string& s) const
 		{ return members_by_name.lookup(s); }
-	Id const* member(unsigned n) const {
-		if (n >= members_by_ordinal.size())
-			return NULL;
-		else
-			return &(members_by_ordinal[n]);
-	}
+	Type member(int n);
 	const Stab& get_members_by_name() const { return members_by_name; }
 	const vector <Id>& get_members_by_ordinal() const { return members_by_ordinal; }
 	void print(ostream &o) const;
@@ -159,17 +173,19 @@ class Tincomplete: public QType_node {
 private:
 	Ctoken t;
 	Tstorage sclass;
-	int scope_level;		// Level to lookup for complete definitions
+	int scope_level;	// Level to lookup for complete definitions
+	bool is_union;		// True if this is a union
 public:
-	Tincomplete(const Ctoken& tok, int l) : t(tok), scope_level(l) {}
-	Tincomplete(const Ctoken& tok, enum e_storage_class sc, int l, qualifiers_t q) :
+	Tincomplete(const Ctoken& tok, int l) : t(tok), scope_level(l), is_union(false) {}
+	Tincomplete(const Ctoken& tok, enum e_storage_class sc, int l, qualifiers_t q, bool u) :
 		QType_node(q),
 		t(tok),
 		sclass(sc),
-		scope_level(l)
+		scope_level(l),
+		is_union(u)
 		{}
 	virtual ~Tincomplete() {}
-	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), scope_level, get_qualifiers())); }
+	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), scope_level, get_qualifiers(), is_union)); }
 	Id const* member(const string& s) const;
 	void print(ostream &o) const;
 	const Ctoken& get_token() const { return t; }
@@ -177,6 +193,8 @@ public:
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 	void clear_storage_class() { sclass.clear_storage_class(); }
 	bool is_incomplete() const { return true; }
+	// Indicate this is a union
+	void set_union(bool v) { is_union = v; }
 	Type merge(Tbasic *b);
 };
 
@@ -198,7 +216,7 @@ public:
 	Type type(Type dflt) const { return of; }
 	Id const* member(const string& s) const
 		{ return of.member(s); }
-	Id const* member(unsigned n) const
+	Type member(int n)
 		{ return of.member(n); }
 	Type call() const;			// Function (undeclared)
 	void print(ostream &o) const;

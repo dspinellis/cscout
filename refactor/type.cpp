@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.52 2007/08/28 15:26:39 dds Exp $
+ * $Id: type.cpp,v 1.53 2007/09/01 05:50:39 dds Exp $
  */
 
 #include <iostream>
@@ -129,6 +129,13 @@ Type_node::get_token() const
 	return c;
 }
 
+void
+Type_node::set_union(bool v)
+{
+	Error::error(E_INTERNAL, "attempt to call set_union on a non struct/union type");
+	this->print(cerr);
+}
+
 Type
 Type_node::clone() const
 {
@@ -160,6 +167,7 @@ Type_node::deref() const
 	/*
 	 * @error
 	 * An attempt was made to dereference an element that is not a pointer
+	 * or an array.
 	 */
 	Error::error(E_ERR, "illegal pointer dereference");
 	if (DP())
@@ -198,13 +206,17 @@ Type_node::member(const string& s) const
 	return NULL;
 }
 
-const Id *
-Type_node::member(unsigned n) const
+Type
+Type_node::member(int n)
 {
-	Error::error(E_ERR, "invalid member access: not a structure or union");
-	if (DP())
-		this->print(cerr);
-	return NULL;
+	if (n == 0)
+		return Type(this);
+	else {
+		Error::error(E_ERR, "invalid member access: not a structure, union, or array");
+		if (DP())
+			this->print(cerr);
+		return basic(b_undeclared);
+	}
 }
 
 int
@@ -384,6 +396,21 @@ Tarray::print(ostream &o) const
 	o << "array[" << nelem << "] of " << of;
 }
 
+Type
+Tarray::member(int n)
+{
+	if (nelem.is_const() && n >= nelem.get_int_value()) {
+		/*
+		 * @error
+		 * The code attempted to access a member of an array that
+		 * is past the number of the array's declared elements.
+		 */
+		Error::error(E_ERR, "not that many elements in the array");
+		return basic(b_undeclared);
+	} else
+		return of;
+}
+
 void
 Tpointer::print(ostream &o) const
 {
@@ -414,7 +441,12 @@ Tsu::print(ostream &o) const
 	sclass.print(o);
 	QType_node::print(o);
 
-	o << "struct/union " << members_by_name;
+	o << "struct/union; members_by_name: " << members_by_name << endl;
+	int j = 0;
+	o << "Members by ordinal: {" << endl;
+	for (vector <Id>::const_iterator i = members_by_ordinal.begin(); i != members_by_ordinal.end(); i++, j++)
+		o << j << ": " << i->get_type() << endl;
+	o << '}' << endl;
 }
 
 void
@@ -558,7 +590,30 @@ Tsu::merge(Tbasic *b)
 		c = this->get_storage_class();
 
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
-	return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), c, q));
+	return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), c, q, is_union));
+}
+
+Type
+Tsu::member(int n)
+{
+	if (n >= (int)members_by_ordinal.size()) {
+		/*
+		 * @error
+		 * The code attempted to access a member of a structure that
+		 * is past the number of declared members of that structure.
+		 * Only the first member is accessible without a designator
+		 * in unions.
+		 */
+		Error::error(E_ERR, "illegal access to a structure or union member");
+		return basic(b_undeclared);
+	} else {
+		if (DP()) {
+			for (unsigned i = 0; i < members_by_ordinal.size(); i++)
+				cout << "Tsu::member(" << i << ")=" << n << members_by_ordinal[i].get_type() << endl;
+			cout << "Request was for " << n << endl;
+		}
+		return members_by_ordinal[n].get_type();
+	}
 }
 
 Type
@@ -629,7 +684,7 @@ Tincomplete::merge(Tbasic *b)
 		c = this->get_storage_class();
 
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
-	return Type(new Tincomplete(t, c, scope_level, q));
+	return Type(new Tincomplete(t, c, scope_level, q, is_union));
 }
 
 Type

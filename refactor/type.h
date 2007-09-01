@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.42 2007/08/28 15:26:39 dds Exp $
+ * $Id: type.h,v 1.43 2007/09/01 05:50:39 dds Exp $
  */
 
 #ifndef TYPE_
@@ -79,7 +79,7 @@ protected:
 	virtual Type type(Type dftl) const;	// Identifier
 	virtual Type clone() const;		// Deep copy
 	virtual Id const* member(const string& name) const;	// Structure and union
-	virtual Id const* member(unsigned n) const;	// Structure and union
+	virtual Type member(int n);	// For > 0 on structure, union, array
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_array() const { return false; }	// True for arrays
 	virtual bool is_basic() const { return false; }// False for undeclared
@@ -87,6 +87,7 @@ protected:
 	virtual bool is_identifier() const { return false; }// True only for identifiers
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual bool is_padbit() const { return false; }// True for pad bit field
+	virtual bool is_char() const { return false; }// True for pad bit field
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
 	virtual bool is_su() const { return false; }// True for struct/union
 	virtual bool is_valid() const { return true; }// False for undeclared
@@ -105,6 +106,9 @@ protected:
 	virtual int get_nparam() const;	// Return the number of parameters
 	virtual void add_param();	// Add another parameter to the list
 	virtual CTConst get_value() const {return CTConst(); }	// Return the value of a compile-time constant
+	// Return the number of elements this type can hold (array, structure, union)
+	virtual CTConst get_nelem() const { return CTConst(1); }
+	virtual void set_union(bool v);		// True for union false for struct
 	virtual void set_value(CTConst v) {}	// Set the value of a compile-time constant
 	virtual void add_qualifiers(Type t);		// Set our qualifiers to t
 	virtual void add_member(const Token &tok, const Type &typ);
@@ -178,6 +182,7 @@ public:
 	bool is_basic() const { return true; }// False for undeclared
 	bool is_void() const { return type == b_void; }
 	bool is_padbit() const { return type == b_padbit; }
+	bool is_char() const { return type == b_char; }
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
 	Tbasic *tobasic() { return this; }
@@ -237,7 +242,9 @@ public:
 	void clear_storage_class()	{ return p->clear_storage_class(); }
 	void add_param()		{ p->add_param(); }
 	int get_nparam() const		{ return p->get_nparam(); }
-	CTConst get_value() const	{return p->get_value(); }
+	CTConst get_value() const	{ return p->get_value(); }
+	CTConst get_nelem() const 	{ return p->get_nelem(); }
+	void set_union(bool v)		{ p->set_union(v); }
 	void set_value(CTConst v)	{ p->set_value(v); }
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_array() const		{ return p->is_array(); }
@@ -246,6 +253,7 @@ public:
 	bool is_identifier() const	{ return p->is_identifier(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
 	bool is_padbit() const		{ return p->is_padbit(); }
+	bool is_char() const		{ return p->is_char(); }
 	bool is_ptr() const		{ return p->is_ptr(); }
 	bool is_static() const		{ return p->is_static(); }
 	bool is_su() const		{ return p->is_su(); }
@@ -271,7 +279,7 @@ public:
 	const vector <Id>& get_members_by_ordinal() const	{ return p->get_members_by_ordinal(); }
 	Id const* member(const string& name) const	// Structure and union
 					{ return p->member(name); }
-	Id const* member(unsigned n) const	// Structure and union
+	Type member(int n) 		// Structure, union, array
 					{ return p->member(n); }
 	friend Type merge(Type a, Type b);
 };
