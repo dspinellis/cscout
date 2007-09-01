@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.23 2007/08/23 07:54:08 dds Exp $
+ * $Id: call.cpp,v 1.24 2007/09/01 06:09:12 dds Exp $
  */
 
 #include <map>
@@ -263,12 +263,12 @@ Call::dumpSql(Sql *db, ostream &of)
 			of << ");\n";
 		}
 
-		int start = 0;
+		int start = 0, ord = 0;
 		for (dequeTpart::const_iterator j = fun->get_token().get_parts_begin(); j != fun->get_token().get_parts_end(); j++) {
 			Tokid t2 = j->get_tokid();
 			int len = j->get_len() - start;
-			int pos, ord;
-			for (ord = pos = 0; pos < len; ord++) {
+			int pos = 0;
+			while (pos < len) {
 				Eclass *ec = t2.get_ec();
 				of << "INSERT INTO FUNCTIONID VALUES(" <<
 				ptr_offset(fun) << ',' <<
@@ -276,6 +276,7 @@ Call::dumpSql(Sql *db, ostream &of)
 				ptr_offset(ec) << ");\n";
 				pos += ec->get_len();
 				t2 += ec->get_len();
+				ord++;
 			}
 			start += j->get_len();
 		}
