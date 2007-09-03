@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.28 2007/09/01 05:50:39 dds Exp $
+ * $Id: type2.h,v 1.29 2007/09/03 18:01:24 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -236,6 +236,7 @@ public:
 class Tlabel: public Type_node {
 public:
 	Tlabel() {}
+	virtual ~Tlabel() {}
 	void print(ostream &o) const;
 };
 
@@ -244,6 +245,7 @@ class Tplist: public Type_node {
 private:
 	int nparam;
 public:
+	virtual ~Tplist() {}
 	Tplist(int n) : nparam(n) {}
 	int get_nparam() const { return nparam; }
 	void add_param() { nparam++; }
