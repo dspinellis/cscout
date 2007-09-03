@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.31 2007/08/18 15:08:47 dds Exp $
+ * $Id: pltoken.h,v 1.32 2007/09/03 12:49:31 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -455,7 +455,7 @@ Pltoken::getnext()
 			// C preprocessor #include "filename"
 			for (;;) {
 				c0.getnext();
-				if (c0.get_char() == EOF || c0.get_char() == '"')
+				if (c0.get_char() == EOF || c0.get_char() == '\n' || c0.get_char() == '"')
 					break;
 				val += c0.get_char();
 			}
@@ -468,26 +468,31 @@ Pltoken::getnext()
 				val += '\\';
 				// Consume one character after the backslash
 				c0.getnext();
-				if (c0.get_char() == EOF) {
-					/*
-					 * @error
-					 * The end of file was reached while
-					 * processing a string
-					 */
-					Error::error(E_ERR, "End of file in string literal");
+				if (c0.get_char() == EOF || c0.get_char() == '\n')
 					break;
-				}
 				val += c0.get_char();
 				// We will deal with escapes later
 				continue;
 			}
-			if (c0.get_char() == EOF || c0.get_char() == '"')
+			if (c0.get_char() == EOF || c0.get_char() == '\n' || c0.get_char() == '"')
 				break;
 			val += c0.get_char();
 		}
 		code = STRING_LITERAL;
 		if (c0.get_char() == EOF)
+			/*
+			 * @error
+			 * The end of the file was reached while
+			 * processing a string
+			 */
 			Error::error(E_ERR, "End of file in string literal");
+		if (c0.get_char() == '\n')
+			/*
+			 * @error
+			 * The end of the line was reached while
+			 * processing a string
+			 */
+			Error::error(E_ERR, "End of line in string literal");
 		break;
 	/* Various numbers */
 	case '0': case '1': case '2': case '3': case '4':

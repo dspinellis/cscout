@@ -13,7 +13,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.15 2007/05/07 14:24:08 dds Exp $
+# $Id: cswc.pl,v 1.16 2007/09/03 12:49:31 dds Exp $
 #
 
 # Syntax:
@@ -53,7 +53,7 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.15 $';
+	my $rel = '$Revision: 1.16 $';
 	$rel =~ s/\//;
 	$rel =~ s/\$//;
 	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
@@ -191,6 +191,6 @@ sub directory
 {
 	my($dir) = @_;
 	$dir{$unit} = $dir;
-	print "#pragma echo \"Entering directory $dir\n\"\n" unless ($opt_E);
+	print "#pragma echo \"Entering directory $dir\\n\"\n" unless ($opt_E);
 	print "#pragma pushd \"$dir\"\n";
 }
