@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.54 2007/09/03 13:22:32 dds Exp $
+ * $Id: type.cpp,v 1.55 2007/09/03 22:30:34 dds Exp $
  */
 
 #include <iostream>
@@ -210,7 +210,7 @@ Type
 Type_node::member(int n)
 {
 	if (n == 0)
-		return Type(this);
+		return Type(this->clone());
 	else {
 		Error::error(E_ERR, "invalid member access: not a structure, union, or array");
 		if (DP())
