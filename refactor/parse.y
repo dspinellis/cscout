@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.138 2007/09/01 05:50:39 dds Exp $
+ * $Id: parse.y,v 1.139 2007/09/03 13:22:32 dds Exp $
  *
  */
 
@@ -1535,14 +1535,16 @@ initializer:
 			initializer_clear_used_elements();
 			if (!initializer_stack.empty())
 				if (ITOS.end.is_const() &&
-				    ITOS.pos == ITOS.end.get_int_value())
+				    ITOS.pos == ITOS.end.get_int_value()) {
 					/*
 					 * @error
 					 * The members of an initializer list are more than the
 					 * elements of the corresponding structure or array.
 					 */
 					Error::error(E_WARN, "too many initializers");
-				else {
+					if (DP())
+						cout << "pos=" << ITOS.pos << " end=" << ITOS.end.get_int_value() << endl;
+				} else {
 					/*
 					 * XXX Here we should find an assignment compatible type.
 					 * Because this is difficult (esp. taking into account
@@ -2218,7 +2220,10 @@ array_abstract_declarator:
         | '[' constant_expression ']'
 		{ $$ = array_of(basic(), $2.get_value()); }
         | array_abstract_declarator '[' constant_expression ']'
-		{ $$ = array_of($1, $3.get_value()); }
+		{
+			$1.set_abstract(array_of(basic(), $3.get_value()));
+			$$ = $1;
+		}
         ;
 
 unary_abstract_declarator:

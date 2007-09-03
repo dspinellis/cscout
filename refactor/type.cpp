@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.53 2007/09/01 05:50:39 dds Exp $
+ * $Id: type.cpp,v 1.54 2007/09/03 13:22:32 dds Exp $
  */
 
 #include <iostream>
@@ -405,9 +405,10 @@ Tarray::member(int n)
 		 * The code attempted to access a member of an array that
 		 * is past the number of the array's declared elements.
 		 */
-		Error::error(E_ERR, "not that many elements in the array");
-		return basic(b_undeclared);
-	} else
+		Error::error(E_WARN, "not that many elements in the array");
+		if (DP())
+			cout << "n=" << n << " nelem=" << nelem.get_int_value() << endl;
+	}
 		return of;
 }
 
