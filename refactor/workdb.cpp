@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.47 2007/08/29 04:17:23 dds Exp $
+ * $Id: workdb.cpp,v 1.48 2007/09/05 06:49:41 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -424,7 +424,7 @@ workdb_schema(Sql *db, ostream &of)
 		//"FOREIGN KEY(PROVIDERID) REFERENCES FILES(FID)"
 		");\n"
 
-		"CREATE TABLE INCTRIGGERS("		// Included files defining required elements for a given compilation unit and project
+		"CREATE TABLE INCTRIGGERS("		// Tokens requiring file inclusion for a given compilation unit and project
 		"PID INTEGER, "				// Project key (references PROJECTS)
 		"CUID INTEGER, "			// Compilation unit key (references FILES)
 		"BASEFILEID INTEGER, "			// File requiring a definition (references FILES)
