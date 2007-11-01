@@ -3,7 +3,7 @@
  *
  * Evaluation functions for the compile-time constants
  *
- * $Id: ctconst.cpp,v 1.1 2007/08/28 15:26:39 dds Exp $
+ * $Id: ctconst.cpp,v 1.2 2007/11/01 12:53:39 dds Exp $
  */
 
 #include <string>
@@ -115,13 +115,13 @@ operator *(const CTConst& a, const CTConst& b)
 CTConst
 operator /(const CTConst& a, const CTConst& b)
 {
-	return (a.known && b.known) ?  CTConst(a.value / b.value) : CTConst();
+	return (a.known && b.known && b.value != 0) ?  CTConst(a.value / b.value) : CTConst();
 }
 
 CTConst
 operator %(const CTConst& a, const CTConst& b)
 {
-	return (a.known && b.known) ?  CTConst(a.value % b.value) : CTConst();
+	return (a.known && b.known && b.value != 0) ?  CTConst(a.value % b.value) : CTConst();
 }
 
 CTConst
