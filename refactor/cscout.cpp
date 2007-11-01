@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.185 2007/09/09 08:27:39 dds Exp $
+ * $Id: cscout.cpp,v 1.186 2007/11/01 12:55:53 dds Exp $
  */
 
 #include <map>
@@ -2464,6 +2464,11 @@ main(int argc, char *argv[])
 		workdb_rest(Sql::getInterface(), cout);
 		Call::dumpSql(Sql::getInterface(), cout);
 		cout << Sql::getInterface()->end_commands();
+#ifdef LINUX_STAT_MONITOR
+		char buff[100];
+		sprintf(buff, "cat /proc/%u/stat >%u.stat", getpid(), getpid());
+		system(buff);
+#endif
 		return 0;
 	}
 #else
