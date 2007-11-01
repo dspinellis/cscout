@@ -13,7 +13,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.16 2007/09/03 12:49:31 dds Exp $
+# $Id: cswc.pl,v 1.17 2007/11/01 11:26:40 dds Exp $
 #
 
 # Syntax:
@@ -53,7 +53,7 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.16 $';
+	my $rel = '$Revision: 1.17 $';
 	$rel =~ s/\//;
 	$rel =~ s/\$//;
 	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
@@ -68,6 +68,8 @@ if ($opt_v) {
 # Installation directory:
 # Search order
 # $opt_d, .cscout, $CSCOUT_HOME, and $HOME/.cscout
+use Cwd 'abs_path';
+
 if (defined($opt_d) && -d $opt_d) {
 	$instdir = $opt_d;
 } elsif (-d '.cscout') {
@@ -81,6 +83,7 @@ if (defined($opt_d) && -d $opt_d) {
 	print STDERR 'Create ./.cscout, or $HOME/.cscout, use -d, or set the $CSCOUT_HOME variable' . "\n";
 	exit(1);
 }
+$instdir = abs_path($instdir);
 
 if (!-r ($f = "$instdir/cscout_incs.h")) {
 	print STDERR "Unable to read $f: $!\n";
