@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.56 2007/11/01 13:55:29 dds Exp $
+ * $Id: type.cpp,v 1.57 2007/11/01 16:21:15 dds Exp $
  */
 
 #include <iostream>
@@ -239,49 +239,76 @@ Type_node::add_param()
 		this->print(cerr);
 }
 
-const Id *
-Tincomplete::member(const string& s) const
+/*
+ * An incomplete element (e.g. a typedef to an undeclared struct or union)
+ * can later be completed and then the type required for an operation
+ * (e.g. member access, initialization).
+ * This function returns the type of an incomplete element
+ * or an incomplete type if it can't be resolved
+ */
+Type
+Tincomplete::get_complete_type() const
 {
 	const Id *id = tag_lookup(scope_level, t.get_name());
 	if (DP() && id) {
-		cout << "Incomplete member access of " << t.get_name() << "." << s;
+		cout << "Access to an incomplete object " << t.get_name();
 		cout << " Type: " << id->get_type() << "\n";
 	}
 	if (!id || id->get_type().is_incomplete()) {
 		/*
 		 * @error
-		 * The member access for a structure or union is applied
-		 * on an object with an incomplete definition
+		 * A structure or union with an incomplete definition
+		 * was used as an initialization target or for obtaining
+		 * a member of it.
 		 */
-		Error::error(E_ERR, string("member access in incomplete struct/union: ") + t.get_name());
+		Error::error(E_ERR, string("incomplete struct/union: ") + t.get_name());
 		if (DP())
 			this->print(cerr);
-		return NULL;
+		// Return an incomplete type, as an error indication
+		return this->clone();
 	} else
-		return id->get_type().member(s);
+		return id->get_type();
+}
+
+const Id *
+Tincomplete::member(const string& s) const
+{
+	Type c = get_complete_type();
+	if (c.is_incomplete())
+		return NULL;
+	else
+		return c.member(s);
+}
+
+Type
+Tincomplete::member(int n)
+{
+	Type c = get_complete_type();
+	if (c.is_incomplete())
+		return basic(b_undeclared);
+	else
+		return c.member(n);
 }
 
 const vector <Id>&
 Tincomplete::get_members_by_ordinal() const
 {
-	const Id *id = tag_lookup(scope_level, t.get_name());
-	if (DP() && id) {
-		cout << "Incomplete get_members_by_ordinal access of " << t.get_name();
-		cout << " Type: " << id->get_type() << "\n";
-	}
-	if (!id || id->get_type().is_incomplete()) {
-		/*
-		 * @error
-		 * Attempting to initialize a structure or union
-		 * with an incomplete definition
-		 */
-		Error::error(E_ERR, string("initialization of incomplete struct/union: ") + t.get_name());
-		if (DP())
-			this->print(cerr);
+	Type c = get_complete_type();
+	if (c.is_incomplete()) {
 		static vector<Id> dummy;
 		return dummy;
 	} else
-		return id->get_type().get_members_by_ordinal();
+		return c.get_members_by_ordinal();
+}
+
+CTConst
+Tincomplete::get_nelem() const
+{
+	Type c = get_complete_type();
+	if (c.is_incomplete()) {
+		return 1;
+	} else
+		return c.get_nelem();
 }
 
 Type
