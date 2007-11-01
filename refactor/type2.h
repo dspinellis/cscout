@@ -5,7 +5,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.29 2007/09/03 18:01:24 dds Exp $
+ * $Id: type2.h,v 1.30 2007/11/01 13:55:29 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -187,6 +187,7 @@ public:
 	virtual ~Tincomplete() {}
 	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), scope_level, get_qualifiers(), is_union)); }
 	Id const* member(const string& s) const;
+	const vector <Id>& get_members_by_ordinal() const;
 	void print(ostream &o) const;
 	const Ctoken& get_token() const { return t; }
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }

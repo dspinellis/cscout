@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.55 2007/09/03 22:30:34 dds Exp $
+ * $Id: type.cpp,v 1.56 2007/11/01 13:55:29 dds Exp $
  */
 
 #include <iostream>
@@ -72,7 +72,8 @@ Type_node::get_members_by_name() const
 	static Stab dummy;
 
 	Error::error(E_INTERNAL, "get_members_by_name: not structure or union");
-	this->print(cout);
+	if (DP())
+		this->print(cerr);
 	return dummy;
 }
 
@@ -82,9 +83,11 @@ Type_node::get_members_by_ordinal() const
 	static vector<Id> dummy;
 
 	Error::error(E_INTERNAL, "get_members_by_ordinal: not structure or union");
-	this->print(cout);
+	if (DP())
+		this->print(cerr);
 	return dummy;
 }
+
 
 Type
 Type_node::call() const
@@ -256,6 +259,29 @@ Tincomplete::member(const string& s) const
 		return NULL;
 	} else
 		return id->get_type().member(s);
+}
+
+const vector <Id>&
+Tincomplete::get_members_by_ordinal() const
+{
+	const Id *id = tag_lookup(scope_level, t.get_name());
+	if (DP() && id) {
+		cout << "Incomplete get_members_by_ordinal access of " << t.get_name();
+		cout << " Type: " << id->get_type() << "\n";
+	}
+	if (!id || id->get_type().is_incomplete()) {
+		/*
+		 * @error
+		 * Attempting to initialize a structure or union
+		 * with an incomplete definition
+		 */
+		Error::error(E_ERR, string("initialization of incomplete struct/union: ") + t.get_name());
+		if (DP())
+			this->print(cerr);
+		static vector<Id> dummy;
+		return dummy;
+	} else
+		return id->get_type().get_members_by_ordinal();
 }
 
 Type
