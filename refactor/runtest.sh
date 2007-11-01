@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.21 2007/09/01 06:02:20 dds Exp $
+# $Id: runtest.sh,v 1.22 2007/11/01 12:49:01 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -278,6 +278,7 @@ hawk)
 	IPATH=/dds/src/research/CScout/include
 	DOTCSCOUT=/dds/src/research/CScout/example/.cscout
 	CPPTESTS=/dds/src/research/CScout/refactor/test/cpp
+	TMP=.
 	;;
 sense|medusa)
 	CSCOUT=$HOME/src/cscout/sparc/cscout
