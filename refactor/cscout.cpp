@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.186 2007/11/01 12:55:53 dds Exp $
+ * $Id: cscout.cpp,v 1.187 2007/11/08 09:24:28 dds Exp $
  */
 
 #include <map>
@@ -132,7 +132,7 @@ static Attributes::size_type current_project;
 void index_page(FILE *of, void *data);
 
 // Return the page suffix for the select call graph type
-static char *
+static const char *
 cgraph_suffix()
 {
 	switch (Option::cgraph_type->get()) {
@@ -1307,7 +1307,7 @@ funlist_page(FILE *fo, void *p)
 	fprintf(fo, "<h2>Function ");
 	html(fo, *f);
 	fprintf(fo, "</h2>");
-	char *calltype;
+	const char *calltype;
 	bool recurse;
 	switch (*ltype) {
 	case 'u': case 'd':
@@ -2153,8 +2153,8 @@ static void
 warning_report()
 {
 	struct {
-		char *message;
-		char *query;
+		const char *message;
+		const char *query;
 	} reports[] = {
 		{ "unused project scoped writable identifier",
 		  "L:writable:unused:pscope" },

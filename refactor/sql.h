@@ -3,7 +3,7 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.h,v 1.7 2007/08/28 07:01:39 dds Exp $
+ * $Id: sql.h,v 1.8 2007/11/08 09:24:28 dds Exp $
  */
 
 
@@ -20,7 +20,7 @@ public:
 	virtual const char * begin_commands() { return ""; };
 	virtual const char * end_commands() { return ""; };
 	virtual string escape(string s);
-	virtual char * escape(char c);
+	virtual const char * escape(char c);
 	virtual const char *ptrtype() {
 		return sizeof(void *) > 4 ? "BIGINT" : "INTEGER";
 	}
@@ -42,7 +42,7 @@ public:
 class Hsqldb: public Sql {
 public:
 	const char *varchar() { return "VARCHAR"; }
-	char * escape(char c);
+	const char * escape(char c);
 };
 
 class Postgres: public Sql {

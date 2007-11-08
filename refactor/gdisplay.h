@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.7 2006/10/02 07:10:58 dds Exp $
+ * $Id: gdisplay.h,v 1.8 2007/11/08 09:24:28 dds Exp $
  */
 
 
@@ -98,10 +98,10 @@ private:
 	char img[256];		// Image file name
 	char dot[256];		// dot file name
 	char cmd[1024];		// dot command
-	char *format;		// Output format
+	const char *format;	// Output format
 	FILE *result;		// Resulting image
 public:
-	GDDotImage(FILE *f, char *fmt) : GDDot(NULL), format(fmt), result(f) {}
+	GDDotImage(FILE *f, const char *fmt) : GDDot(NULL), format(fmt), result(f) {}
 
 	void head(const char *fname, const char *title) {
 		#if defined(unix) || defined(__MACH__)

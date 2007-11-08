@@ -3,7 +3,7 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.cpp,v 1.3 2007/08/23 07:54:08 dds Exp $
+ * $Id: sql.cpp,v 1.4 2007/11/08 09:24:28 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -17,7 +17,7 @@
 Sql *Sql::instance;
 
 // Return SQL equivalent of character c
-char *
+const char *
 Sql::escape(char c)
 {
 	static char str[2];
@@ -30,7 +30,7 @@ Sql::escape(char c)
 	}
 }
 
-char *
+const char *
 Hsqldb::escape(char c)
 {
 	static char str[2];

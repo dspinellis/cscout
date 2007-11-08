@@ -1,7 +1,7 @@
 /*
  * Calculate MD5 hashes.
  *
- * $Id: md5.c,v 1.4 2006/09/21 15:39:20 dds Exp $
+ * $Id: md5.c,v 1.5 2007/11/08 09:24:28 dds Exp $
  */
 
 
@@ -320,7 +320,7 @@ unsigned char *
 MD5File(const char *fname)
 {
 	static MD5_CTX md;
-	char buff[4096];
+	unsigned char buff[4096];
 	FILE *f;
 	int n;
 

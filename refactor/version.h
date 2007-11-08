@@ -5,7 +5,7 @@
  *
  * Include synopsis: version.h
  *
- * $Id: version.h,v 1.4 2004/07/23 06:55:38 dds Exp $
+ * $Id: version.h,v 1.5 2007/11/08 09:24:28 dds Exp $
  */
 
 class Version {
@@ -31,5 +31,5 @@ public:
 	}
 
 	// Think of an accessor when we need it
-	static char *ident[];		// RCS Id for all source files
+	static const char *ident[];		// RCS Id for all source files
 };
