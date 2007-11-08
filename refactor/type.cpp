@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.57 2007/11/01 16:21:15 dds Exp $
+ * $Id: type.cpp,v 1.58 2007/11/08 17:48:05 dds Exp $
  */
 
 #include <iostream>
@@ -426,6 +426,7 @@ Tbasic::print(ostream &o) const
 
 	switch (type) {
 	case b_abstract: o << "ABSTRACT "; break;
+	case b_bool: o << "_Bool "; break;
 	case b_void: o << "void "; break;
 	case b_char: o << "char "; break;
 	case b_short: o << "short "; break;
@@ -586,12 +587,13 @@ Tbasic::merge(Tbasic *b)
 		s = s_none;
 	}
 
-	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble)) {
+	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble || t == b_bool)) {
 		/*
 		 * @error
-		 * A signedness specification was given on a non-integral type
+		 * Signedness specifications are not allowed on
+		 * double, float, long double, and _Bool types
 		 */
-		Error::error(E_WARN, "sign specification on non-integral type - ignored");
+		Error::error(E_WARN, "illegal sign specification - ignored");
 		s = s_none;
 	}
 

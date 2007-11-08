@@ -4,7 +4,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.43 2007/09/01 05:50:39 dds Exp $
+ * $Id: type.h,v 1.44 2007/11/08 17:48:05 dds Exp $
  */
 
 #ifndef TYPE_
@@ -15,6 +15,7 @@
 enum e_btype {
 	b_abstract,		// Abstract declaration target, to be filled-in
 	b_void, b_char, b_short, b_int, b_long, b_float, b_double, b_ldouble,
+	b_bool,
 	b_padbit,
 	b_undeclared,		// Undeclared object
 	b_llong,		// long long

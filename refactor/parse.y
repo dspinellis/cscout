@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.139 2007/09/03 13:22:32 dds Exp $
+ * $Id: parse.y,v 1.140 2007/11/08 17:48:05 dds Exp $
  *
  */
 
@@ -1114,6 +1114,7 @@ basic_type_name:
         | SIGNED	{ $$ = basic(b_abstract, s_signed); }
         | UNSIGNED	{ $$ = basic(b_abstract, s_unsigned); }
         | TVOID		{ $$ = basic(b_void); }
+        | BOOL		{ $$ = basic(b_bool); }
         ;
 
 elaborated_type_name:
