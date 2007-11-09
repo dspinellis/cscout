@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.10 2006/06/11 21:44:18 dds Exp $
+ * $Id: fdep.cpp,v 1.11 2007/11/09 11:51:19 dds Exp $
  */
 
 #include <set>
@@ -36,26 +36,39 @@ Fileid Fdep::last_provider;	// Cache last value entered
 map <Fdep::include_trigger_domain, Fdep::include_trigger_value> Fdep::include_triggers;
 
 /*
- * Mark as used:
- * - the passed file (starting from the file currently being processed)
- * - all files that provided code and data
+ * Mark transitively as used:
+ * - the passed file
  * - all the files that contain definitions for it
  * - all files that include it
  */
 void
-Fdep::mark_required(Fileid f)
+Fdep::mark_required_transitive(Fileid f)
 {
 	if (f.required())
 		return;
 	f.set_required(true);
 	const set <Fileid> &defs = definers[f];
 	for (set <Fileid>::const_iterator i = defs.begin(); i != defs.end(); i++)
-		mark_required(*i);
-	for (set <Fileid>::const_iterator i = providers.begin(); i != providers.end(); i++)
-		mark_required(*i);
+		mark_required_transitive(*i);
 	const set <Fileid> &incs = includers[f];
 	for (set <Fileid>::const_iterator i = incs.begin(); i != incs.end(); i++)
-		mark_required(*i);
+		mark_required_transitive(*i);
+}
+
+/*
+ * Mark as used:
+ * - the passed file (the file currently being processed)
+ * - all files that provided code and data to it
+ * Transitively:
+ * - all the files that contain definitions for the above
+ * - all files that include the above
+ */
+void
+Fdep::mark_required(Fileid f)
+{
+	mark_required_transitive(f);
+	for (set <Fileid>::const_iterator i = providers.begin(); i != providers.end(); i++)
+		mark_required_transitive(*i);
 }
 
 // Clear definers and providers starting another round

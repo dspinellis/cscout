@@ -14,7 +14,7 @@
  * #include "metrics.h"
  * #include "fileid.h"
  *
- * $Id: fdep.h,v 1.8 2005/10/07 14:05:25 dds Exp $
+ * $Id: fdep.h,v 1.9 2007/11/09 11:51:19 dds Exp $
  */
 
 #ifndef FDEP_
@@ -35,6 +35,7 @@ private:
 	typedef set<include_trigger_element> include_trigger_value;
 	typedef map <include_trigger_domain, include_trigger_value> ITMap;
 	static ITMap include_triggers;			// Symbols for which a given file is included
+	static void mark_required_transitive(Fileid f);
 public:
 	// File def contains a definition needed by file ref
 	static void add_def_ref(Tokid def, Tokid ref, int len) {
@@ -62,8 +63,10 @@ public:
 	/*
 	 * Mark as used:
 	 * - the passed file (the file currently being processed)
-	 * - all files that provided code and data
-	 * - all the files that contain definitions for them
+	 * - all files that provided code and data to it
+	 * Transitively:
+	 * - all the files that contain definitions for the above
+	 * - all files that include the above
 	 */
 	static void mark_required(Fileid f);
 	// Clear definers and providers starting another round
