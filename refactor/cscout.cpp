@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.188 2007/11/09 11:53:16 dds Exp $
+ * $Id: cscout.cpp,v 1.189 2007/11/09 13:09:07 dds Exp $
  */
 
 #include <map>
@@ -2602,6 +2602,12 @@ garbage_collect(Fileid root)
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		Fileid fi = (*i);
 
+		/*
+		 * All files from which we input data during parsing
+		 * are marked as in need for GC. Therefore all the files
+		 * our parsing touched are marked as dirty
+		 * (and will be marked clean again at the end of this loop)
+		 */
 		if (fi.garbage_collected())
 			continue;
 
