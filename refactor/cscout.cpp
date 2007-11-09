@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.187 2007/11/08 09:24:28 dds Exp $
+ * $Id: cscout.cpp,v 1.188 2007/11/09 11:53:16 dds Exp $
  */
 
 #include <map>
@@ -2184,7 +2184,9 @@ warning_report()
 
 	/*
 	 * Generate unneeded include file warnings
-	 * A given include directive can include different files on different
+	 * The hard work has already been done by Fdep::mark_required()
+	 * Here we do some additional processing, because
+	 * a given include directive can include different files on different
 	 * compilations (through different include paths or macros)
 	 * Therefore maintain a map for include directive site information:
 	 */
