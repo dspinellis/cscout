@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.140 2007/11/08 17:48:05 dds Exp $
+ * $Id: parse.y,v 1.141 2007/11/10 16:15:33 dds Exp $
  *
  */
 
@@ -290,6 +290,8 @@ static bool yacc_typing;
 %type <t> identifier_declarator
 %type <t> aggregate_key
 %type <t> range_expression
+%type <t> enumerator_value_opt
+%type <t> enumerator_list
 
 %type <t> attribute
 %type <t> attribute_list
@@ -1340,21 +1342,45 @@ enum_name:
 
 enumerator_list:
 	/* EMPTY (Microsoft extension) */
+			{
+				$$ =  basic(b_int, s_none, c_enum);
+				$$.set_value(CTConst());
+			}
         | identifier_or_typedef_name enumerator_value_opt
 			{
-				obj_define($1.get_token(), basic(b_int, s_none, c_enum));
+				$$ = $2;
+				if (!$$.get_value().is_const())
+					$$.set_value(0);
+				obj_define($1.get_token(), $$);
+				if (DP())
+					cout << $1.get_token() << " = " << $$ << endl;
 				Fchar::get_fileid().metrics().add_emember();
 			}
         | enumerator_list ',' identifier_or_typedef_name enumerator_value_opt
 			{
-				obj_define($3.get_token(), basic(b_int, s_none, c_enum));
+				if ($4.get_value().is_const())
+					$$ = $4;
+				else {
+					$$ = $1;
+					$$.set_value($1.get_value() + 1);
+				}
+				obj_define($3.get_token(), $$);
+				if (DP())
+					cout << $3.get_token() << " = " << $$ << endl;
 				Fchar::get_fileid().metrics().add_emember();
 			}
         ;
 
 enumerator_value_opt:
         /* Nothing */
+		{
+			$$ =  basic(b_int, s_none, c_enum);
+			$$.set_value(CTConst());
+		}
         | '=' constant_expression
+		{
+			$$ = $2;
+		}
         ;
 
 /* Common extension: enum lists ending with a comma */
