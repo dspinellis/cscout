@@ -15,7 +15,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.16 2007/08/27 18:46:14 dds Exp $
+# $Id: csmake.pl,v 1.17 2007/11/12 21:39:44 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -205,7 +205,7 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.16 2007/08/27 18:46:14 dds Exp $
+# Source file is $Id: csmake.pl,v 1.17 2007/11/12 21:39:44 dds Exp $
 #
 
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
@@ -333,10 +333,16 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg =~ m/\.a$/i) {
 		push(@afiles, $arg);
 		next;
+	} elsif ($arg eq '-MF') {
+		# Output of dependency; skip it
+		$i++;
+		next;
 	} else {
-		push(@ARGV2, $arg);
+		push(@ARGV2, $arg) unless ($arg =~ m/^\-M/);
 	}
-	$bailout = 1 if (
+	# Write dependencies
+	# Some builds do that while compiling, so we can't just bail out
+	$depwrite = 1 if (
 		($arg =~ m/^-M/ || $arg =~ m/-dependencies/) &&
 		$arg !~ '-MD' && $arg !~ '-MMD' &&
 		$arg !~ "--write-dependencies" &&
@@ -346,6 +352,8 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	$bailout = 1 if ($arg =~ m/-print-file-name/);
 	$compile = 1 if ($arg eq '--compile' || $arg eq '-c');
 }
+
+$bailout = 1 if ($depwrite && !$compile);
 
 # We don't handle assembly files or preprocessing
 if ($bailout) {
@@ -413,7 +421,7 @@ for $cfile (@cfiles) {
 	print RULES "END COMPILE\n";
 }
 
-if (!$compile && $#cfiles >= 0 || $#ofiles >= 0) {
+if (!$compile && !depwrite && $#cfiles >= 0 || $#ofiles >= 0) {
 	print RULES "BEGIN LINK\n";
 	print RULES "CMDLINE $origline\n";
 	if ($output) {
