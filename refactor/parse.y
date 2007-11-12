@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.141 2007/11/10 16:15:33 dds Exp $
+ * $Id: parse.y,v 1.142 2007/11/12 09:32:29 dds Exp $
  *
  */
 
@@ -1718,21 +1718,16 @@ any_statement:
         | typed_function_definition { $$ = basic(b_void); } { $$ = basic(b_void); } [YYVALID;]
         ;
 
-/*
- * This rule used to have "statement" at the end of every production.
- * (Version 1.66)
- * Changed to its current form to allow the gcc extension of
- * labels without a following statement.
- * If we ever analyze statements this rule will case them to
- * be wrongly parsed:
- * if (x) foo: y; will  get parsed as if (x) {foo:} y;
- */
-labeled_statement:
+label:
         identifier_or_typedef_name ':' attribute_list_opt
 		{ label_define($1.get_token()); }
         | CASE range_expression ':'
         | DEFAULT ':'
         ;
+
+labeled_statement:
+	label statement
+	;
 
 function_brace_begin: '{'
 		{
@@ -1745,6 +1740,9 @@ brace_begin: '{'
 	;
 
 brace_end: '}'
+		{ Block::exit(); }
+	/* gcc extension */
+	| label '}'
 		{ Block::exit(); }
 	;
 
