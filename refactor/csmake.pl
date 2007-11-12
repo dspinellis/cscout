@@ -15,7 +15,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.17 2007/11/12 21:39:44 dds Exp $
+# $Id: csmake.pl,v 1.18 2007/11/12 21:55:03 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -205,7 +205,7 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.17 2007/11/12 21:39:44 dds Exp $
+# Source file is $Id: csmake.pl,v 1.18 2007/11/12 21:55:03 dds Exp $
 #
 
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
@@ -333,8 +333,8 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg =~ m/\.a$/i) {
 		push(@afiles, $arg);
 		next;
-	} elsif ($arg eq '-MF') {
-		# Output of dependency; skip it
+	} elsif ($arg =~ m/^\-M[TF]$/) {
+		# Output or target of dependency; skip it for ARGV2
 		$i++;
 		next;
 	} else {
