@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.142 2007/11/12 09:32:29 dds Exp $
+ * $Id: parse.y,v 1.143 2007/11/13 17:18:29 dds Exp $
  *
  */
 
@@ -1707,15 +1707,15 @@ statement:
 	;
 
 any_statement:
-        labeled_statement { $$ = basic(b_void); } [YYVALID;]
-        | compound_statement { $$ = basic(b_void); } [YYVALID;]
-        | expression_statement { $$ = $1; } [YYVALID;]
-        | selection_statement { $$ = basic(b_void); } [YYVALID;]
-        | iteration_statement { $$ = basic(b_void); } [YYVALID;]
-        | jump_statement { $$ = basic(b_void); } [YYVALID;]
-        | try_statement { $$ = basic(b_void); } [YYVALID;]
-        | assembly_statement { $$ = basic(b_void); } { $$ = basic(b_void); } [YYVALID;]
-        | typed_function_definition { $$ = basic(b_void); } { $$ = basic(b_void); } [YYVALID;]
+        labeled_statement { $$ = basic(b_void); }
+        | compound_statement { $$ = basic(b_void); }
+        | expression_statement { $$ = $1; }
+        | selection_statement { $$ = basic(b_void); }
+        | iteration_statement { $$ = basic(b_void); }
+        | jump_statement { $$ = basic(b_void); }
+        | try_statement { $$ = basic(b_void); }
+        | assembly_statement { $$ = basic(b_void); } { $$ = basic(b_void); }
+        | typed_function_definition { $$ = basic(b_void); } { $$ = basic(b_void); }
         ;
 
 label:
@@ -1767,9 +1767,9 @@ declaration_list:
 
 statement_or_declaration:
 	declaration
-		{ $$ = basic(b_void); }
+		[ YYVALID; $$ = basic(b_void); ]
 	| statement
-		{ $$ = $1; }
+		[ YYVALID; $$ = $1; ]
 	;
 
 statement_list:
