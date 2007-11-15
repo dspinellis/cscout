@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.58 2007/11/08 17:48:05 dds Exp $
+ * $Id: type.cpp,v 1.59 2007/11/15 21:54:21 dds Exp $
  */
 
 #include <iostream>
@@ -928,6 +928,8 @@ Tstorage::set_storage_class(Type t)
 		this->print(cout);
 		cout << "\nto " << t << endl;
 	}
+	if (sclass == newclass)
+		return;
 	if (sclass != c_unspecified &&
 	    sclass != c_typedef &&
 	    newclass != c_unspecified &&
