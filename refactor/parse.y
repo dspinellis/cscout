@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.143 2007/11/13 17:18:29 dds Exp $
+ * $Id: parse.y,v 1.144 2007/11/15 17:49:18 dds Exp $
  *
  */
 
@@ -1380,6 +1380,7 @@ enumerator_value_opt:
         | '=' constant_expression
 		{
 			$$ = $2;
+			$$.set_storage_class(basic(b_int, s_none, c_enum));
 		}
         ;
 
