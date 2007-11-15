@@ -14,7 +14,7 @@
  * #include "metrics.h"
  * #include "fileid.h"
  *
- * $Id: fdep.h,v 1.9 2007/11/09 11:51:19 dds Exp $
+ * $Id: fdep.h,v 1.10 2007/11/15 14:26:00 dds Exp $
  */
 
 #ifndef FDEP_
@@ -30,7 +30,7 @@ private:
 	static FSFMap includers;			// Files including a given file
 	static set <Fileid> providers;			// Files providing code and data
 	static Fileid last_provider;			// Cache last value entered
-	typedef pair<Fileid, Fileid> include_trigger_domain;
+	typedef pair<Fileid, Fileid> include_trigger_domain;	// Definition, reference
 	typedef pair<streampos, int> include_trigger_element;
 	typedef set<include_trigger_element> include_trigger_value;
 	typedef map <include_trigger_domain, include_trigger_value> ITMap;
