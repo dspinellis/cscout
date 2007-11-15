@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.11 2007/11/09 11:51:19 dds Exp $
+ * $Id: fdep.cpp,v 1.12 2007/11/15 18:09:15 dds Exp $
  */
 
 #include <set>
@@ -119,8 +119,8 @@ Fdep::dumpSql(Sql *db, Fileid cu)
 			cout << "INSERT INTO INCTRIGGERS VALUES(" <<
 			Project::get_current_projid() << ',' <<
 			cu.get_id() << ',' <<
-			i->first.first.get_id() << ',' <<
 			i->first.second.get_id() << ',' <<
+			i->first.first.get_id() << ',' <<
 			(unsigned)(j->first) << ',' <<
 			j->second << ");\n";
 		}
