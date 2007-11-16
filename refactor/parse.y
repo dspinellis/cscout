@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.144 2007/11/15 17:49:18 dds Exp $
+ * $Id: parse.y,v 1.145 2007/11/16 17:10:21 dds Exp $
  *
  */
 
@@ -766,6 +766,8 @@ assignment_expression:
         conditional_expression
 		{
 			Fdep::add_provider(Fchar::get_fileid());
+			if (DP())
+				Error::error(E_DEBUG, "Add provider for conditional_expression -> assignment_expression");
 			$$ = $1;
 		}
 	/*
@@ -776,6 +778,8 @@ assignment_expression:
         | cast_expression assignment_operator assignment_expression
 		{
 			Fdep::add_provider(Fchar::get_fileid());
+			if (DP())
+				Error::error(E_DEBUG, "Add provider for cast_expression assignment_operator assignment_expression -> assignment_expression");
 			$$ = $1;
 		}
         ;
@@ -1703,6 +1707,8 @@ statement:
 		{
 			Fchar::get_fileid().metrics().add_statement();
 			Fdep::add_provider(Fchar::get_fileid());
+			if (DP())
+				Error::error(E_DEBUG, "Add provider for any_statement -> statement");
 			$$ = $1;
 		}
 	;

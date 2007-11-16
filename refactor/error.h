@@ -8,7 +8,7 @@
  * #include <string>
  * #include "tokid.h"
  *
- * $Id: error.h,v 1.6 2006/06/11 21:50:43 dds Exp $
+ * $Id: error.h,v 1.7 2007/11/16 17:10:21 dds Exp $
  */
 
 #ifndef ERROR_
@@ -18,7 +18,8 @@ enum e_error_level {
 	E_WARN,
 	E_ERR,
 	E_INTERNAL,
-	E_FATAL
+	E_FATAL,
+	E_DEBUG
 };
 
 class Error {

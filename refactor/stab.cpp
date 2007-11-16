@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.47 2007/11/15 17:48:43 dds Exp $
+ * $Id: stab.cpp,v 1.48 2007/11/16 17:10:21 dds Exp $
  */
 
 #include <map>
@@ -201,7 +201,7 @@ obj_define(const Token& tok, Type typ)
 		// A definition contributing data to the current CU
 		if (sc != c_extern && sc != c_typedef && sc != c_enum && !typ.is_function()) {
 			if (DP())
-				cout << "obj_define for " << typ << " calls add_provider" << endl;
+				Error::error(E_DEBUG, "Add provider through obj_define");
 			Fdep::add_provider(Fchar::get_fileid());
 		}
 	} else {
