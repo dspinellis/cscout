@@ -3,10 +3,10 @@
 # Release a CScout version
 # a -c flag will include a remote copy step
 #
-# $Id: release.sh,v 1.2 2006/10/01 18:55:39 dds Exp $
+# $Id: release.sh,v 1.3 2007/11/19 07:30:34 dds Exp $
 #
 
-DESTDIR='c:/dds/pubs/web/home/cscout'
+DESTDIR="${UH}/dds/pubs/web/home/cscout"
 #DESTDIR='c:/tmp/cscout-try'
 VERSION=`sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' refactor/version.cpp`
 DISTDIR=cscout-$VERSION
