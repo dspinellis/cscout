@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.189 2007/11/09 13:09:07 dds Exp $
+ * $Id: cscout.cpp,v 1.190 2007/11/22 14:39:35 dds Exp $
  */
 
 #include <map>
@@ -2225,9 +2225,12 @@ warning_report()
 				const set <Fileid> &sf = (*si).second.get_files();
 				int line = (*si).first;
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
-					cerr << (*i).get_path() << ':' <<
-						line << ": unused included file " <<
-						(*fi).get_path() << endl;
+					cerr << i->get_path() << ':' <<
+						line << ": " <<
+						"(" << i->const_metrics().get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
+						" unused included file " <<
+						fi->get_path() <<
+						endl;
 			}
 	}
 }
