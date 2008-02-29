@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.127 2007/11/08 09:24:28 dds Exp $
+# $Id: Makefile,v 1.128 2008/02/29 16:46:16 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.127 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2007/11/08 09:24:28 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.128 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/02/29 16:46:16 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -327,14 +327,22 @@ classdiag.java: $(ALLSRC)
 classdiag.gif: classdiag.java
 
 # Cross building FreeBSD binaries on icarian
+# Cross-build the toolchain by running:
+# for a in alpha amd64 i386 ia64 powerpc sparc64 ; do make buildworld TARGET_ARCH=$a >make.$a.out 2>make.$a.err ; done
 H=/usr/home/dds/src/fbsd6
+ALPHABIN=$H/obj/alpha/alpha/$H/src/tmp/usr/bin
 AMD64BIN=$H/obj/amd64/amd64/$H/src/tmp/usr/bin
+I386BIN=$H/obj/i386/i386/$H/src/tmp/usr/bin
+IA64BIN=$H/obj/ia64/ia64/$H/src/tmp/usr/bin
+POWERPCBIN=$H/obj/powerpc/powerpc/$H/src/tmp/usr/bin
 SPARC64BIN=$H/obj/sparc64/sparc64/$H/src/tmp/usr/bin
-I386BIN=$H/obj/i386/$H/src/tmp/usr/bin
 
 crossbuild:
-	rm -rf amd64 sparc64 i386
-	mkdir amd64 sparc64 i386
+	rm -rf alpha amd64 i386 ia64 powerpc sparc64
+	mkdir alpha amd64 i386 ia64 powerpc sparc64
+	gmake ARCH=alpha CXX=$(ALPHABIN)/g++ CC=$(ALPHABIN)/gcc
 	gmake ARCH=amd64 CXX=$(AMD64BIN)/g++ CC=$(AMD64BIN)/gcc
-	gmake ARCH=sparc64 CXX=$(SPARC64BIN)/g++ CC=$(SPARC64BIN)/gcc
 	gmake ARCH=i386 CXX=$(I386BIN)/g++ CC=$(I386BIN)/gcc
+	gmake ARCH=ia64 CXX=$(IA64BIN)/g++ CC=$(IA64BIN)/gcc
+	gmake ARCH=powerpc CXX=$(POWERPCBIN)/g++ CC=$(POWERPCBIN)/gcc
+	gmake ARCH=sparc64 CXX=$(SPARC64BIN)/g++ CC=$(SPARC64BIN)/gcc
