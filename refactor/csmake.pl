@@ -15,7 +15,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.19 2008/04/06 18:38:41 dds Exp $
+# $Id: csmake.pl,v 1.20 2008/04/06 18:52:44 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -205,7 +205,7 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.19 2008/04/06 18:38:41 dds Exp $
+# Source file is $Id: csmake.pl,v 1.20 2008/04/06 18:52:44 dds Exp $
 #
 
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
@@ -440,7 +440,7 @@ if (!$compile && !depwrite && $#cfiles >= 0 || $#ofiles >= 0) {
 	for $afile (@afiles) {
 		print RULES "INLIB " . abs_path($afile) . "\n";
 	}
-	for $libfile (@afiles) {
+	for $libfile (@libs) {
 		for $ldir (@ldirs) {
 			if (-r ($try = "$ldir/lib$libfile.a")) {
 				print RULES "INLIB " . abs_path($try) . "\n";
@@ -523,7 +523,7 @@ if ($#ofiles >= 0 || $#afiles >= 0) {
 	for $afile (@afiles) {
 		print RULES 'INLIB ' . abs_path($afile) . "\n";
 	}
-	for $libfile (@afiles) {
+	for $libfile (@libs) {
 		for $ldir (@ldirs) {
 			if (-r ($try = "$ldir/lib$libfile.a")) {
 				print RULES "INLIB " . abs_path($try) . "\n";
