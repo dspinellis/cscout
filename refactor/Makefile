@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.132 2008/04/07 13:23:13 dds Exp $
+# $Id: Makefile,v 1.133 2008/04/07 13:27:41 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.132 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/04/07 13:23:13 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.133 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/04/07 13:27:41 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -334,7 +334,7 @@ ARCH=alpha amd64 i386 ia64 powerpc sparc64
 crossbuild:
 	for arch in $(ARCH);\
 	do \
-		-mkdir $$arch 2>/dev/null ;\
+		mkdir $$arch 2>/dev/null ;\
 		gmake ARCH=$$arch CXX=$H/$$arch/usr/src/tmp/usr/bin/g++ CC=$H/$$arch/usr/src/tmp/usr/bin/gcc ;\
 	done
 
