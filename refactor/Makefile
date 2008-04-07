@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.129 2008/04/07 05:50:39 dds Exp $
+# $Id: Makefile,v 1.130 2008/04/07 08:05:32 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.129 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/04/07 05:50:39 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.130 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/04/07 08:05:32 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -225,8 +225,8 @@ test:
 	sh runtest.sh
 
 # Distribution
-rdist-gemini:
-	tar cvf - $(ALLSRC) | gzip -c | $(SSH) gemini tar -C src/cscout -xzvf -
+rdist-parrot:
+	tar cvf - $(ALLSRC) | gzip -c | $(SSH) parrot tar -C src/cscout -xzvf -
 
 rdist-icarian:
 	tar cf - $(ALLSRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
