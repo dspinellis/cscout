@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.131 2008/04/07 08:12:26 dds Exp $
+# $Id: Makefile,v 1.132 2008/04/07 13:23:13 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.131 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/04/07 08:12:26 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.132 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/04/07 13:23:13 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -212,7 +212,7 @@ miniversion:
 	echo '#include "version.h"' >>version.cpp
 	echo 'char Version::revision[] = "$$R''evision: '$(BRANCH)' $$";' >>version.cpp
 	echo 'char Version::date[] = "$$D''ate: '$(DATE)' $$";' >>version.cpp
-	echo "const char *Version::ident[] = {" >>version.cpp
+	echo "char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
 
@@ -225,8 +225,8 @@ test:
 	sh runtest.sh
 
 # Distribution
-rdist-parrot:
-	tar cvf - $(ALLSRC) | gzip -c | $(SSH) parrot tar -C src/cscout -xzvf -
+rdist-gemini:
+	tar cvf - $(ALLSRC) | gzip -c | $(SSH) gemini tar -C src/cscout -xzvf -
 
 rdist-icarian:
 	tar cf - $(ALLSRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
@@ -326,23 +326,20 @@ classdiag.java: $(ALLSRC)
 
 classdiag.gif: classdiag.java
 
-# Cross building FreeBSD binaries on icarian
-# Cross-build the toolchain by running:
-# export MAKEOBJDIRPREFIX=/usr/home/dds/src/releng_7_0 ; for a in alpha amd64 i386 ia64 powerpc sparc64 ; do make buildworld TARGET_ARCH=$a >make.$a.out 2>make.$a.err ; done
-H=/usr/home/dds/src/fbsd6
-ALPHABIN=$H/obj/alpha/alpha/$H/src/tmp/usr/bin
-AMD64BIN=$H/obj/amd64/amd64/$H/src/tmp/usr/bin
-I386BIN=$H/obj/i386/i386/$H/src/tmp/usr/bin
-IA64BIN=$H/obj/ia64/ia64/$H/src/tmp/usr/bin
-POWERPCBIN=$H/obj/powerpc/powerpc/$H/src/tmp/usr/bin
-SPARC64BIN=$H/obj/sparc64/sparc64/$H/src/tmp/usr/bin
+# Cross building FreeBSD binaries on istlab
+# Cross-build the toolchain by running: make-toolchain
+H=/usr/home/dds/src/releng_6_3
+ARCH=alpha amd64 i386 ia64 powerpc sparc64
 
 crossbuild:
-	rm -rf alpha amd64 i386 ia64 powerpc sparc64
-	mkdir alpha amd64 i386 ia64 powerpc sparc64
-	gmake ARCH=alpha CXX=$(ALPHABIN)/g++ CC=$(ALPHABIN)/gcc
-	gmake ARCH=amd64 CXX=$(AMD64BIN)/g++ CC=$(AMD64BIN)/gcc
-	gmake ARCH=i386 CXX=$(I386BIN)/g++ CC=$(I386BIN)/gcc
-	gmake ARCH=ia64 CXX=$(IA64BIN)/g++ CC=$(IA64BIN)/gcc
-	gmake ARCH=powerpc CXX=$(POWERPCBIN)/g++ CC=$(POWERPCBIN)/gcc
-	gmake ARCH=sparc64 CXX=$(SPARC64BIN)/g++ CC=$(SPARC64BIN)/gcc
+	for arch in $(ARCH);\
+	do \
+		-mkdir $$arch 2>/dev/null ;\
+		gmake ARCH=$$arch CXX=$H/$$arch/usr/src/tmp/usr/bin/g++ CC=$H/$$arch/usr/src/tmp/usr/bin/gcc ;\
+	done
+
+crossbuild-clean:
+	for arch in $(ARCH);\
+	do \
+		rm -rf $$arch ;\
+	done
