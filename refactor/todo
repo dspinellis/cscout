@@ -1,4 +1,20 @@
-$Id: todo,v 1.88 2007/08/08 14:48:40 dds Exp $
+$Id: todo,v 1.89 2008/04/07 05:52:20 dds Exp $
+
+- Provide web-based input interface for trying it out: upload file and redirect
+  to CScout main page for that file
+
+- Automatically select web port
+
+- Add more foreign key specifications in the database definition
+  by turning off referential integrity checks.
+  Verify database in postgres and mysql.
+
+- Start script with drop table if exists foo; for each table
+  Must first delete dependent tables.
+
+- Provide quartile information for metrics
+
+- Make metric URLs more robust against CScout code changes.
 
 - Provide embedded SQL interface through SQLite.
   See http://www.sqlite.org/cvstrac/wiki?p=VirtualTableMethods
@@ -44,39 +60,18 @@ $Id: todo,v 1.88 2007/08/08 14:48:40 dds Exp $
 
 - Best effort identifier substitution for DSL files
 
+- Create web-based console during initial processing
+
 Upgrade communication to HTTP/1.1?
 See example at http://www.ragestorm.net/tutorial?id=15
 
 Interface to show identifiers shared between two files.
 
 Track global variables in the same way as functions are currently tracked.
+(Not needed.  Simply add a link in an identifier's page to list the
+functions where a given identifier appears.)
 
 Collect maintainability index and oo metrics (see SSAO04.)
-Per function/macro:
-	Extend (start, end offset / line)
-	Fan in (rename called directly)
-	Fan out (rename calls directly)
-	Number of syntactic contruct (operator, if/else/switch/do/return) and number of unique SO
-		For C functions are grammar rules
-		For function-like macros look at the tokens after macro definition
-	Lines of code
-	# of statements
-	# of comments
-	# parameters
-	Cyclomatic complexity (if, do, while, switch) + 1
-		Add option for counting #case or #switch
-		Add options for counting &&, ||, ? operators
-		(This means keeping them in separate fields)
-	Halstead complexity
-		Maybe not, but count total/distinct operators and operands
-	Henry and Kafura structure complexity
-		C_p = (fan-in * fan-out)^2
-	Henry and Selig information flow metric
-		HC_p = C_{ip} * (fan-in * fan-out)^2
-		Where C_{ip} is an internal complexity metric, like cyclomatic complexity
-	In functions create a heuristic to guess whether the token is native
-	or expanded (same fileid and offset >= function's start)
-
 
 System complexity metrics
 Provide an expression-oriented function metric query interface
@@ -84,8 +79,6 @@ Provide an expression-oriented function metric query interface
 Pointer analysis
 Locate similar / same lines (irrelevant, but useful for refactoring)
 See http://en.wikipedia.org/wiki/Karp-Rabin
-
-Calculate Cyclomatic complexity and LOC for each function / macro
 
 MRR04
 Precise Call Graphs for C Programs with Function Pointers
@@ -130,13 +123,13 @@ Tag functions appearing on the RHS of expressions (these are likely to
   refactored).
 
 Add support for type specifiers:
-	_Bool
+	_Bool (done)
 	_Complex
 	_Imaginary
 function specifier:
-	inline
+	inline (done)
 type qualifier:
-	restrict
+	restrict (done)
 
 Find duplicated code
 	(See CloSpan and CP-Miner)
