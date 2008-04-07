@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.18 2006/06/24 15:45:57 dds Exp $
+ * $Id: error.cpp,v 1.19 2008/04/07 08:16:21 dds Exp $
  */
 
 #include <iostream>
@@ -40,6 +40,7 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	if (showloc)
 		cerr << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
 	switch (level) {
+	case E_DEBUG: cerr << "debug message: "; break;
 	case E_WARN: cerr << "warning: "; break;
 	case E_ERR: cerr << "error: "; break;
 	case E_INTERNAL: cerr << "internal error: "; break;
@@ -47,6 +48,7 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	}
 	cerr << msg << endl;
 	switch (level) {
+	case E_DEBUG: break;
 	case E_WARN: num_warnings++; break;
 	case E_ERR:
 		num_errors++;
