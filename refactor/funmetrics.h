@@ -15,7 +15,7 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.13 2007/08/19 13:35:45 dds Exp $
+ * $Id: funmetrics.h,v 1.14 2008/04/07 07:57:14 dds Exp $
  */
 
 #ifndef FUNMETRICS_
@@ -139,7 +139,7 @@ public:
 	// Update the level of nesting
 	void update_nesting(int nesting) { if (nesting > count[em_maxnest]) count[em_maxnest] = nesting; }
 
-	template <class M> friend const struct MetricDetails &Metrics::get_detail(int n);
+	template <class M> friend const MetricDetails &Metrics::get_detail(int n);
 };
 
 // This can be kept per project and globally

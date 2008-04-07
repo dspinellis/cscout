@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.29 2007/08/19 13:35:45 dds Exp $
+ * $Id: metrics.h,v 1.30 2008/04/07 07:57:14 dds Exp $
  */
 
 #ifndef METRICS_
@@ -117,7 +117,7 @@ public:
 	static bool is_internal(int n) { return get_dbfield<M>(n) == "INTERNAL"; }
 
 	// Return a reference to the details of the specified metric
-	template <class M> static const struct MetricDetails & get_detail(int n);
+	template <class M> static const MetricDetails & get_detail(int n);
 
 	// Return the database field name of the specified metric
 	template <class M> static const string & get_dbfield(int n);
@@ -219,7 +219,7 @@ string avg(double v, double n);
 
 // Return a reference to the details of the specified metric
 template <class M>
-const struct MetricDetails &
+const MetricDetails &
 Metrics::get_detail(int n)
 {
 	static const MetricDetails unknown = {0, "UNKNOWN", "UNKNOWN"};
