@@ -3,7 +3,7 @@
 # Release a CScout version
 # a -c flag will include a remote copy step
 #
-# $Id: release.sh,v 1.5 2008/04/07 20:26:20 dds Exp $
+# $Id: release.sh,v 1.6 2008/04/07 20:27:24 dds Exp $
 #
 
 DESTDIR="${UH}/dds/pubs/web/home/cscout"
@@ -36,7 +36,8 @@ then
 	mkdir -p bin/win32-i386/$DISTDIR/bin
 	cp refactor/i386/cscout.exe bin/win32-i386/$DISTDIR/bin/cscout.exe || die "copy $INFILE to bin/win32-i386/$DISTDIR/bin/cscout.exe"
 	# Mac OS X
-	plink spiti wakemac
+	plink spiti wake macmini
+	sleep 1
 	copyfile macmini:src/cscout/macho/cscout darwin-macho
 	# Linux
 	copyfile parrot:src/cscout/i386/cscout linux-i386
