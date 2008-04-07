@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.130 2008/04/07 08:05:32 dds Exp $
+# $Id: Makefile,v 1.131 2008/04/07 08:12:26 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.130 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/04/07 08:05:32 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.131 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/04/07 08:12:26 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -212,7 +212,7 @@ miniversion:
 	echo '#include "version.h"' >>version.cpp
 	echo 'char Version::revision[] = "$$R''evision: '$(BRANCH)' $$";' >>version.cpp
 	echo 'char Version::date[] = "$$D''ate: '$(DATE)' $$";' >>version.cpp
-	echo "char *Version::ident[] = {" >>version.cpp
+	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
 
