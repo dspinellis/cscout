@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.128 2008/02/29 16:46:16 dds Exp $
+# $Id: Makefile,v 1.129 2008/04/07 05:50:39 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -198,8 +198,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.128 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/02/29 16:46:16 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.129 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/04/07 05:50:39 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -328,7 +328,7 @@ classdiag.gif: classdiag.java
 
 # Cross building FreeBSD binaries on icarian
 # Cross-build the toolchain by running:
-# for a in alpha amd64 i386 ia64 powerpc sparc64 ; do make buildworld TARGET_ARCH=$a >make.$a.out 2>make.$a.err ; done
+# export MAKEOBJDIRPREFIX=/usr/home/dds/src/releng_7_0 ; for a in alpha amd64 i386 ia64 powerpc sparc64 ; do make buildworld TARGET_ARCH=$a >make.$a.out 2>make.$a.err ; done
 H=/usr/home/dds/src/fbsd6
 ALPHABIN=$H/obj/alpha/alpha/$H/src/tmp/usr/bin
 AMD64BIN=$H/obj/amd64/amd64/$H/src/tmp/usr/bin
