@@ -3,7 +3,7 @@
 # Release a CScout version
 # a -c flag will include a remote copy step
 #
-# $Id: release.sh,v 1.3 2007/11/19 07:30:34 dds Exp $
+# $Id: release.sh,v 1.4 2008/04/07 05:57:02 dds Exp $
 #
 
 DESTDIR="${UH}/dds/pubs/web/home/cscout"
@@ -21,8 +21,8 @@ die()
 # Copy a binary file into the local distribution
 copyfile()
 {
-	DIST=$1
-	INFILE=$2
+	INFILE=$1
+	DIST=$2
 	mkdir -p bin/$DIST/$DISTDIR/bin
 	pscp $INFILE bin/$DIST/$DISTDIR/bin/cscout || die "copy $INFILE to bin/$DIST/$DISTDIR/bin/cscout"
 }
@@ -37,16 +37,16 @@ then
 	cp refactor/i386/cscout.exe bin/win32-i386/$DISTDIR/bin/cscout.exe || die "copy $INFILE to bin/win32-i386/$DISTDIR/bin/cscout.exe"
 	# Mac OS X
 	plink spiti wakemac
-	copyfile darwin-macho macmini:src/cscout/macho/cscout
+	copyfile macmini:src/cscout/macho/cscout darwin-macho
 	# Linux
-	copyfile linux-i386 gemini:src/cscout/i386/cscout
-	copyfile linux-x86_64 titan:src/cscout/x86_64/cscout
+	copyfile gemini:src/cscout/i386/cscout linux-i386
+	copyfile titan:src/cscout/x86_64/cscout linux-x86_64
 	# Solaris
-	copyfile solaris-sparc sense:src/cscout/sparc/cscout
+	copyfile sense:src/cscout/sparc/cscout solaris-sparc
 	# FreeBSD
 	for arch in i386 amd64 sparc64
 	do
-		copyfile fbsd-$arch icarian:src/cscout/$arch/cscout
+		copyfile icarian:src/cscout/$arch/cscout fbsd-$arch
 	done
 fi
 
