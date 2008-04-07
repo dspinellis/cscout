@@ -3,7 +3,7 @@
 # Release a CScout version
 # a -c flag will include a remote copy step
 #
-# $Id: release.sh,v 1.4 2008/04/07 05:57:02 dds Exp $
+# $Id: release.sh,v 1.5 2008/04/07 20:26:20 dds Exp $
 #
 
 DESTDIR="${UH}/dds/pubs/web/home/cscout"
@@ -39,14 +39,14 @@ then
 	plink spiti wakemac
 	copyfile macmini:src/cscout/macho/cscout darwin-macho
 	# Linux
-	copyfile gemini:src/cscout/i386/cscout linux-i386
+	copyfile parrot:src/cscout/i386/cscout linux-i386
 	copyfile titan:src/cscout/x86_64/cscout linux-x86_64
 	# Solaris
 	copyfile sense:src/cscout/sparc/cscout solaris-sparc
 	# FreeBSD
-	for arch in i386 amd64 sparc64
+	for arch in alpha amd64 i386 ia64 powerpc sparc64
 	do
-		copyfile icarian:src/cscout/$arch/cscout fbsd-$arch
+		copyfile istlab:src/cscout/$arch/cscout fbsd-$arch
 	done
 fi
 
