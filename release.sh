@@ -3,10 +3,10 @@
 # Release a CScout version
 # a -c flag will include a remote copy step
 #
-# $Id: release.sh,v 1.6 2008/04/07 20:27:24 dds Exp $
+# $Id: release.sh,v 1.7 2008/04/09 18:32:40 dds Exp $
 #
 
-DESTDIR="${UH}/dds/pubs/web/home/cscout"
+DESTDIR="/dds/pubs/web/home/cscout"
 #DESTDIR='c:/tmp/cscout-try'
 VERSION=`sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' refactor/version.cpp`
 DISTDIR=cscout-$VERSION
@@ -55,13 +55,13 @@ fi
 # Create the neutral directory
 cmd /c rd /q/s $DISTDIR
 mkdir $DISTDIR || die "Creating $DISTDIR"
-tar -cf - -C /dds/pubs/web/home/cscout doc --exclude=RCS \
-	-C /dds/src/research/cscout README example etc include man |
+tar -cf - -C ${UH}/${DESTDIR} doc --exclude=RCS \
+	-C ${UH}/dds/src/research/cscout README example etc include man |
 tar -xf - -C $DISTDIR  || die "Creating the neutral directory"
 
 # Create the neutral zip file
 NEUTRAL_ZIP=${DESTDIR}/cscout-${VERSION}-neutral.zip
-rm -f ${NEUTRAL_ZIP}
+rm -f ${UH}/${NEUTRAL_ZIP}
 zip -r ${NEUTRAL_ZIP} $DISTDIR || die "zip $DISTDIR into $NEUTRAL_ZIP"
 
 # Create the neutral tar file
@@ -69,7 +69,7 @@ zip -r ${NEUTRAL_ZIP} $DISTDIR || die "zip $DISTDIR into $NEUTRAL_ZIP"
 perl dirlf.pl $DISTDIR
 # tar it
 tar -cvf - $DISTDIR |
-gzip -c >${DESTDIR}/cscout-${VERSION}-neutral.tar.gz || die 'tar neutral'
+gzip -c >${UH}/${DESTDIR}/cscout-${VERSION}-neutral.tar.gz || die 'tar neutral'
 
 # Remove carriage returns from the specified file
 tolf()
@@ -97,20 +97,22 @@ binfile()
 	tolf refactor/cswc.pl bin/$DIST/$DISTDIR/bin/cswc
 	tolf refactor/csmake.pl bin/$DIST/$DISTDIR/bin/csmake
 	tar -cvf - -C bin/$DIST $DISTDIR/bin --mode=+x |
-	gzip -c >${DESTDIR}/cscout-${VERSION}-$DIST.tar.gz || die 'Creating tar binary package'
+	gzip -c >${UH}/${DESTDIR}/cscout-${VERSION}-$DIST.tar.gz || die 'Creating tar binary package'
 }
 
 
 # Create the Unix binary files
 rm -f bin/win32-i386/$DISTDIR/bin/cswc.bat bin/win32-i386/$DISTDIR/bin/csmake.bat
-for i in win32-i386 darwin-macho linux-i386 linux-x86_64 solaris-sparc fbsd-i386 fbsd-amd64 fbsd-sparc64
+for i in win32-i386 darwin-macho linux-i386 linux-x86_64 solaris-sparc \
+fbsd-alpha fbsd-amd64 fbsd-i386 fbsd-ia64 fbsd-powerpc fbsd-sparc64
+
 do
 	binfile $i
 done
 
 # Create the Windows zip file
 BIN_ZIP=${DESTDIR}/cscout-${VERSION}-win32-i386.zip
-rm -f ${BIN_ZIP}
+rm -f ${UH}/${BIN_ZIP}
 rm -f bin/win32-i386/$DISTDIR/bin/cswc bin/win32-i386/$DISTDIR/bin/csmake
 tobatch refactor/cswc.pl bin/win32-i386/$DISTDIR/bin/cswc.bat
 tobatch refactor/csmake.pl bin/win32-i386/$DISTDIR/bin/csmake.bat
@@ -118,4 +120,4 @@ tobatch refactor/csmake.pl bin/win32-i386/$DISTDIR/bin/csmake.bat
 (cd bin/win32-i386 ; zip -r ${BIN_ZIP} $DISTDIR || die "zip $DISTDIR into $BIN_ZIP")
 
 # Create the HTML index file
-sed -e "s/VERSION/${VERSION}/" doc/index.html >${DESTDIR}/index.html
+sed -e "s/VERSION/${VERSION}/" doc/index.html >${UH}/${DESTDIR}/index.html
