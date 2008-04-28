@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.190 2007/11/22 14:39:35 dds Exp $
+ * $Id: cscout.cpp,v 1.191 2008/04/28 16:33:14 dds Exp $
  */
 
 #include <map>
@@ -2404,6 +2404,10 @@ main(int argc, char *argv[])
 #endif
 
 	Project::set_current_project("unspecified");
+
+	// Set the contents of the master file as immutable
+	Fileid fi = Fileid(argv[optind]);
+	fi.set_readonly(true);
 
 	// Pass 1: process master file loop
 	Fchar::set_input(argv[optind]);
