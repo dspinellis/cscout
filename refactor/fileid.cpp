@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.45 2007/08/11 12:47:24 dds Exp $
+ * $Id: fileid.cpp,v 1.46 2008/04/28 13:31:15 dds Exp $
  */
 
 #include <fstream>
@@ -15,6 +15,7 @@
 #include <list>
 #include <deque>
 #include <set>
+#include <cctype>
 #include <vector>
 #include <algorithm>
 #if defined(unix) || defined(__MACH__)
@@ -55,15 +56,38 @@ Fileid::clear()
 	Fileid::anonymous = Fileid("ANONYMOUS", 0);
 }
 
+#ifdef WIN32
+// Return the canonical representation of a WIN32 filename character
+char
+win32canonical(char c)
+{
+	if (c == '\\')
+		return '/';
+	else
+		return (toupper(c));
+}
+#endif
+
 // Return true if file fname is read-only
 bool
 Fileid::is_readonly(string fname)
 {
 	if (DP())
 		cout << "Testing: " << fname << "\n";
-	for (list <string>::const_iterator i = ro_prefix.begin(); i != ro_prefix.end(); i++)
+	for (list <string>::const_iterator i = ro_prefix.begin(); i != ro_prefix.end(); i++) {
+#ifdef WIN32
+		unsigned j;
+
+		for (j = 0; j < i->length(); j++)
+			if (win32canonical((*i)[j]) != win32canonical(fname[j]))
+				break;
+		if (j == i->length())
+			return true;
+#else
 		if (fname.compare(0, i->length(), *i) == 0)
 			return true;
+#endif
+	}
 	if (access(fname.c_str(), W_OK) != 0)
 		return true;
 	if (DP())
