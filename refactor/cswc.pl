@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# (C) Copyright 2003-2006 Diomidis Spinellis
+# (C) Copyright 2003-2008 Diomidis Spinellis
 #
 # This software is distributed under the terms of the CScout Public License
 # The license is available as part of the software documentation, both
@@ -13,7 +13,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.17 2007/11/01 11:26:40 dds Exp $
+# $Id: cswc.pl,v 1.18 2008/04/28 20:13:26 dds Exp $
 #
 
 # Syntax:
@@ -26,13 +26,16 @@
 #	ro_prefix "path2"
 #	ipath "blah"
 #	ipath "foobar"
+#	readonly
 #	readonly "fname"
 #	# Linkage unit
 #	project name {
 #		cd ...
 #		define ...
 #		ipath ...
+#		readonly
 #		directory name {
+#			readonly
 #			file "fname.c" {
 #				cd ...
 #				define ...
@@ -53,12 +56,12 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.17 $';
+	my $rel = '$Revision: 1.18 $';
 	$rel =~ s/\//;
 	$rel =~ s/\$//;
 	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
 	# 80 column terminal width----------------------------------------------------
-	"(C) Copyright 2003-2006 Diomidis Spinelllis.\n\n" .
+	"(C) Copyright 2003-2008 Diomidis Spinelllis.\n\n" .
 	"Unsupported version.  Can be used and distributed under the terms of the\n" .
 	"CScout Public License available in the CScout documentation and online at\n" .
 	"http://www.spinellis.gr/cscout/doc/license.html\n";
@@ -120,13 +123,13 @@ while (<>) {
 	} elsif (/^cd\s+\"(.*)\"$/) {
 		directory($1);
 	} elsif (/^define\s+(.*)$/) {
-		$defines{$unit} .= "#define $1\n";
+		$defines{$unit . $name} .= "#define $1\n";
 	} elsif (/^ipath\s+(\".*\")$/) {
-		$ipaths{$unit} .= "#pragma includepath $1\n";
+		$ipaths{$unit . $name} .= "#pragma includepath $1\n";
 	} elsif (/^readonly\s+(\".*\")$/) {
 		print "#pragma readonly $1\n";
-	} elsif (/^readonly$/ && $unit eq 'file') {
-		print "#pragma readonly \"$name\"\n";
+	} elsif (/^readonly$/) {
+		$readonly{$unit . $name} = 1;
 	} elsif (/^\}$/) {
 		endunit();
 	} else {
@@ -137,14 +140,14 @@ while (<>) {
 sub endunit
 {
 	if ($unit eq 'file') {
-		print $ipaths{'workspace'};
-		print $defines{'workspace'};
-		print $ipaths{'project'};
-		print $defines{'project'};
-		print $ipaths{'directory'};
-		print $defines{'directory'};
-		print $ipaths{'file'};
-		print $defines{'file'};
+		my $i;
+		for ($i = 0; $i <= $#units; $i++) {
+			my $u = $units[$i];
+			my $n = $names[$i];
+			print $ipaths{$u . $n};
+			print $defines{$u . $n};
+			print "#pragma readonly \"$name\" // $u\n" if ($readonly{$u . $n});
+		}
 		print "#include \"$instdir/cscout_incs.h\"\n";
 		if ($opt_E) {
 			print "#include \"$name\"\n\n";
@@ -160,6 +163,7 @@ sub endunit
 	print "#pragma echo \"Done processing $unit $name\\n\"\n" unless ($opt_E);
 	$unit = pop(@units);
 	$name = pop(@names);
+	$readonly{$unit . $name} = pop(@readonlys);
 }
 
 
@@ -167,10 +171,12 @@ sub beginunit
 {
 	push(@units, $unit);
 	push(@names, $name);
+	push(@readonlys, $readonly{$unit . $name});
 	($unit, $name) = @_;
 	undef $dir{$unit};
-	undef $defines{$unit};
-	undef $ipaths{$unit};
+	undef $defines{$unit . $name};
+	undef $ipaths{$unit . $name};
+	undef $readonly{$unit . $name};
 	print "// $unit $name\n";
 	print "#pragma echo \"Processing $unit $name\\n\"\n" unless ($opt_E);
 	if ($unit eq 'project') {
