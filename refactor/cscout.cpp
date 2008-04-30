@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.192 2008/04/30 13:24:34 dds Exp $
+ * $Id: cscout.cpp,v 1.193 2008/04/30 14:19:54 dds Exp $
  */
 
 #include <map>
@@ -659,7 +659,7 @@ html_tail(FILE *of)
 		" &mdash; Web: "
 		"<a href=\"http://www.spinellis.gr/cscout\">Home</a>\n"
 		"<a href=\"http://www.spinellis.gr/cscout/doc/index.html\">Manual</a>\n"
-		"<br><hr><font size=-1>CScout %s - %s",
+		"<br><hr><font size=-1>CScout %s &mdash; %s",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str());
 #ifdef COMMERCIAL
