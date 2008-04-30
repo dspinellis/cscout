@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.3 2006/09/29 18:20:56 dds Exp $
+ * $Id: option.cpp,v 1.4 2008/04/30 13:24:34 dds Exp $
  */
 
 #include <string>
@@ -39,7 +39,8 @@ SelectionOption *Option::cgraph_type;		// Call graph type t(text h(tml d(ot s(vg
 SelectionOption *Option::cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
 TextOption *Option::sfile_re_string;		// Saved files replacement location RE string
 TextOption *Option::sfile_repl_string;		// Saved files replacement string
-IntegerOption *Option::entries_per_page;		// Number of elements to show in a page
+TextOption *Option::start_editor_cmd;		// Command to invoke an external editor
+IntegerOption *Option::entries_per_page;	// Number of elements to show in a page
 vector<Option *> Option::options;		// Options in the order they were added
 map<string, Option *> Option::omap;		// For loading options
 
@@ -133,6 +134,42 @@ Option::display_all(FILE *f)
 	fputs("</table>", f);
 }
 
+// Return s with the double quotes and ampersands suitably escaped for HTML
+static string
+quote_escape(const string &s)
+{
+	string result;
+
+	for (string::const_iterator i = s.begin(); i != s.end(); i++)
+		switch (*i) {
+		case '"':
+			result.append("&quot;");
+			break;
+		case '&':
+			result.append("&amp;");
+			break;
+		default:
+			result.push_back(*i);
+		}
+	return result;
+}
+
+
+void
+TextOption::display(FILE *f)
+{
+	fprintf(f,
+		"<tr>"
+		"<td>%s</td>\n"
+		"<td><input type=\"text\" name=\"%s\" size=\"%d\" maxlength=\"200\" value=\"%s\"></td>"
+		"</tr>\n",
+		user_name,
+		short_name,
+		size,
+		quote_escape(v).c_str()
+	);
+}
+
 
 // Initialize the option objects and their container
 void
@@ -173,4 +210,12 @@ Option::initialize()
 	Option::add(new TitleOption("Saved Files"));
 	Option::add(sfile_re_string = new TextOption("sfile_re_string", "When saving modified files replace RE"));
 	Option::add(sfile_repl_string = new TextOption("sfile_repl_string", "... with the string"));
+	Option::add(new TitleOption("Editing"));
+	Option::add(start_editor_cmd = new TextOption("start_editor_cmd", "External editor invocation command",
+#ifdef WIN32
+	"echo Ignoring search for \"%s\" & start notepad \"%s\""
+#else
+	"xterm -c \"$VISUAL +/'%s' '%s'\" &"
+#endif
+	, 50));
 }

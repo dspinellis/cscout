@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.4 2007/08/15 09:38:22 dds Exp $
+ * $Id: option.h,v 1.5 2008/04/30 13:24:34 dds Exp $
  */
 
 #ifndef OPTION_
@@ -58,6 +58,7 @@ public:
 	static SelectionOption *cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
 	static TextOption *sfile_re_string;		// Saved files replacement location RE string
 	static TextOption *sfile_repl_string;		// Saved files replacement string
+	static TextOption *start_editor_cmd;		// Command to invoke an external editor
 	static IntegerOption *entries_per_page;		// Number of elements to show in a page
 	// Initialize the global web options
 	static void initialize();
@@ -129,9 +130,10 @@ public:
 class TextOption : public Option {
 private:
 	string	v;		// The value
+	int size;		// Field size
 public:
 	// Constructor
-	TextOption(const char *sn, const char *un, const string &iv = "") : Option(sn, un), v(iv) {}
+	TextOption(const char *sn, const char *un, const string &iv = "", int s = 20) : Option(sn, un), v(iv), size(s) {}
 	// Save to a file
 	void save(ofstream &ofs) const { ofs << v; }
 	// Load from a file
@@ -143,17 +145,7 @@ public:
 	// Return the value
 	const string &get() { return v; }
 	// Display on a web page
-	void display(FILE *f) {
-		fprintf(f,
-			"<tr>"
-			"<td>%s</td>\n"
-			"<td><input type=\"text\" name=\"%s\" size=\"20\" maxlength=\"200\" value=\"%s\"></td>"
-			"</tr>\n",
-			user_name,
-			short_name,
-			v.c_str()
-		);
-	}
+	void display(FILE *f);
 };
 
 // A (positive) integer value

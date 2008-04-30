@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.46 2008/04/28 13:31:15 dds Exp $
+ * $Id: fileid.cpp,v 1.47 2008/04/30 13:24:34 dds Exp $
  */
 
 #include <fstream>
@@ -170,13 +170,15 @@ Fileid::set_readonly(bool r)
 Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 	name(n),
 	m_compilation_unit(false),
-	hash(h)
+	hash(h),
+	hand_edited(false)
 {
 	set_readonly(r);
 }
 
 Filedetails::Filedetails() :
-	m_compilation_unit(false)
+	m_compilation_unit(false),
+	hand_edited(false)
 {
 }
 
@@ -261,6 +263,25 @@ Filedetails::process_line(bool processed)
 	}
 }
 
+int
+Filedetails::hand_edit()
+{
+	ifstream in;
+
+	if (hand_edited)
+		return 0;
+	in.open(get_name().c_str(), ios::binary);
+	if (in.fail())
+		return -1;
+
+	int val;
+	while ((val = in.get()) != EOF)
+		contents.push_back((char)val);
+	if (DP())
+		cout << '[' << contents << ']' << endl;
+	hand_edited = true;
+	return 0;
+}
 
 // Read identifier tokens from file fname into tkov
 static void

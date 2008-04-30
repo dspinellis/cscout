@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.37 2007/08/13 15:09:49 dds Exp $
+ * $Id: fileid.h,v 1.38 2008/04/30 13:24:34 dds Exp $
  */
 
 #ifndef FILEID_
@@ -81,6 +81,9 @@ private:
 
 	// Update the specified map
 	void include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line);
+
+	bool hand_edited;	// True for files that have been hand-edited
+	string contents;	// Original contents, if hand-edited
 public:
 	Attributes attr;		// The projects this file participates in
 	FileMetrics m;			// File's metrics
@@ -110,6 +113,12 @@ public:
 	void include_update_includer(const Fileid includer, bool directly, bool required, int line);
 	const FileIncMap& get_includes() const { return includes; }
 	const FileIncMap& get_includers() const { return includers; }
+	// Should be called before hand-editing
+	int hand_edit();
+	// True if file has been hand-edited
+	bool is_hand_edited() const { return hand_edited; }
+	// Return the file's original contents
+	const string &get_original_contents() const { return contents; }
 };
 
 typedef map <string, int> FI_uname_to_id;
@@ -212,6 +221,12 @@ public:
 	inline friend bool operator ==(const class Fileid a, const class Fileid b);
 	inline friend bool operator !=(const class Fileid a, const class Fileid b);
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
+	// Should be called before hand-editing.  Return 0 if OK, !0 on error.
+	int hand_edit() { return i2d[id].hand_edit(); }
+	// True if file has been hand-edited
+	bool is_hand_edited() { return i2d[id].is_hand_edited(); }
+	// Return the file's original contents
+	const string &get_original_contents() { return i2d[id].get_original_contents(); }
 	// Return a (possibly sorted) list of all filenames used
 	static vector <Fileid> files(bool sorted);
 	// Return a reference to the underlying file's metrics

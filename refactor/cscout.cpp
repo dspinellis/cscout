@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.191 2008/04/28 16:33:14 dds Exp $
+ * $Id: cscout.cpp,v 1.192 2008/04/30 13:24:34 dds Exp $
  */
 
 #include <map>
@@ -105,6 +105,13 @@ static int portno = 8081;		// Port number (-p n)
 #ifdef COMMERCIAL
 static char *db_engine;			// Create SQL output for a specific db_iface
 #endif
+
+// Workspace modification state
+static enum e_modification_state {
+	ms_unmodified,			// Unmodified; can be modified
+	ms_subst,			// An identifier has been substituted; only further substitutions are allowed
+	ms_hand_edit			// A file has been hand-edited; only further hand-edits are allowed
+} modification_state;
 
 static Fileid input_file_id;
 
@@ -409,7 +416,7 @@ file_analyze(Fileid fi)
 static void
 file_hypertext(FILE *of, Fileid fi, bool eval_query)
 {
-	fifstream in;
+	istream *in;
 	const string &fname = fi.get_path();
 	bool at_bol = true;
 	int line_number = 1;
@@ -440,10 +447,15 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 
 	if (DP())
 		cout << "Write to " << fname << endl;
-	in.open(fname.c_str(), ios::binary);
-	if (in.fail()) {
-		html_perror(of, "Unable to open " + fname + " for reading");
-		return;
+	if (fi.is_hand_edited()) {
+		in = new istringstream(fi.get_original_contents());
+		fputs("<p>This file has been edited by hand. The following code reflects the contents before the first CScout-invoked hand edit.</p>", of);
+	} else {
+		in = new ifstream(fname.c_str(), ios::binary);
+		if (in->fail()) {
+			html_perror(of, "Unable to open " + fname + " for reading");
+			return;
+		}
 	}
 	fputs("<hr><code>", of);
 	(void)html('\n');	// Reset HTML tab handling
@@ -452,8 +464,8 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		Tokid ti;
 		int val;
 
-		ti = Tokid(fi, in.tellg());
-		if ((val = in.get()) == EOF)
+		ti = Tokid(fi, in->tellg());
+		if ((val = in->get()) == EOF)
 			break;
 		if (at_bol) {
 			fprintf(of,"<a name=\"%d\"></a>", line_number);
@@ -478,7 +490,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			s = (char)val;
 			int len = ec->get_len();
 			for (int j = 1; j < len; j++)
-				s += (char)in.get();
+				s += (char)in->get();
 			Identifier i(ec, s);
 			const IdPropElem ip(ec, i);
 			if (idq.eval(ip))
@@ -497,7 +509,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 					s = (char)val;
 					int len = ci->second->get_name().length();
 					for (int j = 1; j < len; j++)
-						s += (char)in.get();
+						s += (char)in->get();
 					html(of, *(ci->second));
 					break;
 				}
@@ -512,7 +524,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			line_number++;
 		}
 	}
-	in.close();
+	delete in;
 	fputs("<hr></code>", of);
 }
 
@@ -644,16 +656,16 @@ html_tail(FILE *of)
 	fprintf(of,
 		"<p>"
 		"<a href=\"index.html\">Main page</a>\n"
-		" - Web: "
+		" &mdash; Web: "
 		"<a href=\"http://www.spinellis.gr/cscout\">Home</a>\n"
 		"<a href=\"http://www.spinellis.gr/cscout/doc/index.html\">Manual</a>\n"
 		"<br><hr><font size=-1>CScout %s - %s",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str());
 #ifdef COMMERCIAL
-	fprintf(of, " - Licensee: %s", licensee);
+	fprintf(of, " &mdash; Licensee: %s", licensee);
 #else
-	fprintf(of, " - Unsupported version; can only be used on open-source software.");
+	fprintf(of, " &mdash; Unsupported version; can only be used on open-source software.");
 #endif
 	fprintf(of, "</font></body></html>\n");
 }
@@ -684,6 +696,15 @@ local_access(FILE *fo)
 #endif
 }
 #endif
+
+static void
+change_prohibited(FILE *fo)
+{
+	html_head(fo, "nochange", "Change Prohibited");
+	fputs("Identifier substitutions and the hand-editing of files are not allowed "
+		"to be performed within the same CScout session.", fo);
+	html_tail(fo);
+}
 
 // Call before the start of a file list
 static void
@@ -799,6 +820,8 @@ xfilequery_page(FILE *of,  void *p)
 			sorted_files.insert(*i);
 	}
 	html_file_begin(of);
+	if (modification_state != ms_subst)
+		fprintf(of, "<th></th>\n");
 	if (query.get_sort_order() != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
 	Pager pager(of, Option::entries_per_page->get(), query.base_url());
@@ -809,6 +832,9 @@ xfilequery_page(FILE *of,  void *p)
 			continue;
 		if (pager.show_next()) {
 			html_file(of, *i);
+			if (modification_state != ms_subst)
+				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
+				i->get_id());
 			if (query.get_sort_order() != -1)
 				fprintf(of, "<td align=\"right\">%g</td>", i->const_metrics().get_metric(query.get_sort_order()));
 			html_file_record_end(of);
@@ -1012,6 +1038,9 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 			fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
 				f.get_id(),
 				query_url.c_str());
+			if (modification_state != ms_subst)
+				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
+				f.get_id());
 			html_file_record_end(of);
 		}
 	}
@@ -1120,11 +1149,17 @@ identifier_page(FILE *fo, void *p)
 	char *subst;
 	Identifier &id = ids[e];
 	if ((subst = swill_getvar("sname"))) {
+		if (modification_state == ms_hand_edit) {
+			change_prohibited(fo);
+			return;
+		}
 		prohibit_remote_access(fo);
+
 		// Passing subst directly core-dumps under
 		// gcc version 2.95.4 20020320 [FreeBSD 4.7]
 		string ssubst(subst);
 		id.set_newid(ssubst);
+		modification_state = ms_subst;
 	}
 	html_head(fo, "id", string("Identifier: ") + html(id.get_id()));
 	fprintf(fo, "<FORM ACTION=\"id.html\" METHOD=\"GET\">\n<ul>\n");
@@ -1155,7 +1190,7 @@ identifier_page(FILE *fo, void *p)
 				}
 				fprintf(fo, "\n<li>");
 				html_string(fo, i->second);
-				fprintf(fo, " - <a href=\"fun.html?f=%p\">function page</a>", i->second);
+				fprintf(fo, " &mdash; <a href=\"fun.html?f=%p\">function page</a>", i->second);
 			}
 		}
 		if (found)
@@ -1164,7 +1199,7 @@ identifier_page(FILE *fo, void *p)
 	if (id.get_replaced())
 		fprintf(fo, "<li> Substituted with: [%s] (%s)\n", id.get_newid().c_str(),
 		id.get_active() ? "active" : "inactive");
-	if (!e->get_attribute(is_readonly)) {
+	if (!e->get_attribute(is_readonly) && modification_state != ms_hand_edit) {
 		fprintf(fo, "<li> Substitute with: \n"
 			"<INPUT TYPE=\"text\" NAME=\"sname\" SIZE=10 MAXLENGTH=256> "
 			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Substitute\">\n");
@@ -1180,8 +1215,11 @@ identifier_page(FILE *fo, void *p)
 		if ((*j).get_readonly() == false) {
 			html_file(fo, (*j).get_path());
 			fprintf(fo, "<td><a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a></td>",
-				(*j).get_id(),
+				j->get_id(),
 				e, id.get_id().c_str());
+			if (modification_state != ms_subst)
+				fprintf(fo, "<td><a href=\"fedit.html?id=%u&re=%s\">edit</a></td>",
+				j->get_id(), id.get_id().c_str());
 			html_file_record_end(fo);
 		}
 	html_file_end(fo);
@@ -1222,9 +1260,12 @@ function_page(FILE *fo, void *p)
 		int lnum = t.get_fileid().line_number(t.get_streampos());
 		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a><br />(and possibly in other places)\n",
 			t.get_fileid().get_id(), lnum, lnum);
-			fprintf(fo, " - <a href=\"qsrc.html?qt=fun&id=%u&match=Y&call=%p&n=Declaration+of+%s\">marked source</a>",
+			fprintf(fo, " &mdash; <a href=\"qsrc.html?qt=fun&id=%u&match=Y&call=%p&n=Declaration+of+%s\">marked source</a>",
 				t.get_fileid().get_id(),
 				f, f->get_name().c_str());
+			if (modification_state != ms_subst)
+				fprintf(fo, " &mdash; <a href=\"fedit.html?id=%u&re=%s\">edit</a>",
+				t.get_fileid().get_id(), f->get_name().c_str());
 	}
 	if (f->is_defined()) {
 		t = f->get_definition();
@@ -1234,6 +1275,9 @@ function_page(FILE *fo, void *p)
 		int lnum = t.get_fileid().line_number(t.get_streampos());
 		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a>\n",
 			t.get_fileid().get_id(), lnum, lnum);
+		if (modification_state != ms_subst)
+			fprintf(fo, " &mdash; <a href=\"fedit.html?id=%u&re=%s\">edit</a>",
+			t.get_fileid().get_id(), f->get_name().c_str());
 	} else
 		fprintf(fo, "<li> No definition found\n");
 	// Functions that are Down from us in the call graph
@@ -1846,15 +1890,19 @@ file_page(FILE *of, void *p)
 				html_string(of, j->get_path());
 			}
 		}
-		if (copies.size())
+		if (copies.size() > 1)
 			fprintf(of, "</ul>\n");
 	}
+	if (i.is_hand_edited())
+		fprintf(of, "<li>Hand edited\n");
 
 	fprintf(of, "</ul>\n<h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%u\">Source code</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"src.html?id=%u&marku=1\">Source code with unprocessed regions marked</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%u&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", i.get_id(), is_readonly);
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%u&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", i.get_id(), is_lscope);
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=fun&id=%u&match=Y&writable=1&ro=1&n=Source+Code+With+Hyperlinks+to+Function+and+Macro+Declarations\">Source code with hyperlinks to function and macro declarations</a>\n", i.get_id());
+	if (modification_state != ms_subst)
+		fprintf(of, "<li> <a href=\"fedit.html?id=%u\">Edit the file</a>", i.get_id());
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", i.get_id());
@@ -1884,6 +1932,33 @@ source_page(FILE *of, void *p)
 	html_tail(of);
 }
 
+static void
+fedit_page(FILE *of, void *p)
+{
+	if (modification_state == ms_subst) {
+		change_prohibited(of);
+		return;
+	}
+	prohibit_remote_access(of);
+
+	int id;
+	if (!swill_getargs("i(id)", &id)) {
+		fprintf(of, "Missing value");
+		return;
+	}
+	Fileid i(id);
+	i.hand_edit();
+	char *re = swill_getvar("re");
+	char buff[4096];
+	snprintf(buff, sizeof(buff), Option::start_editor_cmd ->get().c_str(), (re ? re : "^"), i.get_path().c_str());
+	cerr << "Running " << buff << endl;
+	system(buff);
+	html_head(of, "fedit", "External Editor");
+	fprintf(of, "The editor should have started in a separate window");
+	html_tail(of);
+	modification_state = ms_hand_edit;
+}
+
 void
 query_source_page(FILE *of, void *p)
 {
@@ -1899,7 +1974,7 @@ query_source_page(FILE *of, void *p)
 		html_head(of, "qsrc", string(qname) + ": " + html(pathname));
 	else
 		html_head(of, "qsrc", string("Source with queried elements marked: ") + html(pathname));
-	fputs("<p>(Use the tab key to move to each marked element.)<p>", of);
+	fputs("<p>Use the tab key to move to each marked element.</p>", of);
 	file_hypertext(of, i, true);
 	html_tail(of);
 }
@@ -2518,6 +2593,7 @@ main(int argc, char *argv[])
 	if (process_mode != pm_compile) {
 		swill_handle("src.html", source_page, NULL);
 		swill_handle("qsrc.html", query_source_page, NULL);
+		swill_handle("fedit.html", fedit_page, NULL);
 		swill_handle("file.html", file_page, NULL);
 
 		// Identifier query and execution
