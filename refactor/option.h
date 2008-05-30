@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.5 2008/04/30 13:24:34 dds Exp $
+ * $Id: option.h,v 1.6 2008/05/30 13:42:51 dds Exp $
  */
 
 #ifndef OPTION_
@@ -60,6 +60,7 @@ public:
 	static TextOption *sfile_repl_string;		// Saved files replacement string
 	static TextOption *start_editor_cmd;		// Command to invoke an external editor
 	static IntegerOption *entries_per_page;		// Number of elements to show in a page
+	static IntegerOption *cgraph_depth;		// How deep to descend in a call graph
 	// Initialize the global web options
 	static void initialize();
 };

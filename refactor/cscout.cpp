@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.193 2008/04/30 14:19:54 dds Exp $
+ * $Id: cscout.cpp,v 1.194 2008/05/30 13:42:51 dds Exp $
  */
 
 #include <map>
@@ -1317,8 +1317,11 @@ static void
 visit_functions(FILE *fo, const char *call_path, Call *f,
 	Call::const_fiterator_type (Call::*fbegin)() const,
 	Call::const_fiterator_type (Call::*fend)() const,
-	bool recurse, bool show)
+	bool recurse, bool show, int level)
 {
+	if (level == 0)
+		return;
+
 	Call::const_fiterator_type i;
 
 	f->set_visited();
@@ -1330,7 +1333,7 @@ visit_functions(FILE *fo, const char *call_path, Call *f,
 				fprintf(fo, call_path, *i);
 		}
 		if (recurse && !(*i)->is_visited())
-			visit_functions(fo, call_path, *i, fbegin, fend, recurse, show);
+			visit_functions(fo, call_path, *i, fbegin, fend, recurse, show, level - 1);
 	}
 }
 
@@ -1388,7 +1391,7 @@ funlist_page(FILE *fo, void *p)
 	}
 	fprintf(fo, "<ul>\n");
 	Call::clear_visit_flags();
-	visit_functions(fo, buff, f, fbegin, fend, recurse, true);
+	visit_functions(fo, buff, f, fbegin, fend, recurse, true, Option::cgraph_depth->get());
 	fprintf(fo, "</ul>\n");
 	html_tail(fo);
 }
@@ -1612,10 +1615,11 @@ single_function_graph()
 	char *ltype = swill_getvar("n");
 	switch (*ltype) {
 	case 'D':
-		visit_functions(NULL, NULL, f, &Call::call_begin, &Call::call_end, true, false);
+		visit_functions(NULL, NULL, f, &Call::call_begin, &Call::call_end, true, false, Option::cgraph_depth->get());
 		break;
 	case 'U':
-		visit_functions(NULL, NULL, f, &Call::caller_begin, &Call::caller_end, true, false);
+		visit_functions(NULL, NULL, f, &Call::caller_begin, &Call::caller_end, true, false, Option::cgraph_depth->get());
+
 		break;
 	}
 	return true;
