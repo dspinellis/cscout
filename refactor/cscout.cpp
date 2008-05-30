@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.194 2008/05/30 13:42:51 dds Exp $
+ * $Id: cscout.cpp,v 1.195 2008/05/30 16:13:54 dds Exp $
  */
 
 #include <map>
@@ -1284,11 +1284,13 @@ function_page(FILE *fo, void *p)
 	fprintf(fo, "<li> Calls directly %d functions", f->get_num_call());
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d\">List of directly called functions</a>\n", f);
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=D\">List of all called functions</a>\n", f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d&e=1\">Explore called functions</a>\n", f);
 	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=D\">Call graph of all called functions</a>", cgraph_suffix(), f);
 	// Functions that are Up from us in the call graph
 	fprintf(fo, "<li> Called directly by %d functions", f->get_num_caller());
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u\">List of direct callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u&e=1\">Explore callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", cgraph_suffix(), f);
 	fprintf(fo, "</ul>\n");
 	if (f->is_defined()) {
@@ -1337,6 +1339,40 @@ visit_functions(FILE *fo, const char *call_path, Call *f,
 	}
 }
 
+extern "C" { const char *swill_getquerystring(void); }
+
+/*
+ * Print a list of callers or called functions for the given function,
+ * recursively expanding functions that the user has specified.
+ */
+static void
+explore_functions(FILE *fo, Call *f,
+	Call::const_fiterator_type (Call::*fbegin)() const,
+	Call::const_fiterator_type (Call::*fend)() const,
+	int level)
+{
+	Call::const_fiterator_type i;
+
+	for (i = (f->*fbegin)(); i != (f->*fend)(); i++) {
+		for (int j = 0; j < level; j++)
+			fputs("....", fo);
+		if (((*i)->*fbegin)() == ((*i)->*fend)()) {
+			/* Nothing below this level */
+			html_string(fo, (*i)->get_name());
+			fputs("<br />\n", fo);
+		} else {
+			char param[1024];
+			sprintf(param, "f%02d%p", level, &(**i));
+			char *pval = swill_getvar(param);
+			fprintf(fo, "<a href=\"%s?%s&%s=%d\">", swill_getvar("__uri__"), swill_getquerystring(), param,
+			    (pval && *pval == '1') ? 0 : 1);
+			html_string(fo, (*i)->get_name());
+			fputs("</a><br />\n", fo);
+			if (pval && *pval == '1')
+				explore_functions(fo, *i, fbegin, fend, level + 1);
+		}
+	}
+}
 
 // List of functions associated with a given one
 static void
@@ -1389,10 +1425,15 @@ funlist_page(FILE *fo, void *p)
 		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%p&to=%%p\">call path to function</a>", cgraph_suffix(), f);
 		break;
 	}
-	fprintf(fo, "<ul>\n");
-	Call::clear_visit_flags();
-	visit_functions(fo, buff, f, fbegin, fend, recurse, true, Option::cgraph_depth->get());
-	fprintf(fo, "</ul>\n");
+	if (swill_getvar("e")) {
+		fprintf(fo, "<br />\n");
+		explore_functions(fo, f, fbegin, fend, 0);
+	} else {
+		fprintf(fo, "<ul>\n");
+		Call::clear_visit_flags();
+		visit_functions(fo, buff, f, fbegin, fend, recurse, true, Option::cgraph_depth->get());
+		fprintf(fo, "</ul>\n");
+	}
 	html_tail(fo);
 }
 
