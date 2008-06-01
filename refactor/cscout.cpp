@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.196 2008/06/01 10:47:37 dds Exp $
+ * $Id: cscout.cpp,v 1.197 2008/06/01 14:02:19 dds Exp $
  */
 
 #include <map>
@@ -627,12 +627,18 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"CScout %s - %s\">\n"
+		"<meta name=\"GENERATOR\" content=\"CScout %s - %s\">\n",
+		Version::get_revision().c_str(),
+		Version::get_date().c_str());
+	fputs(
 		"<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">"
 		"<style type=\"text/css\" >"
 		"<!--"
-		"  .unused  { color: red }\n"
+		// Unused lines
+		".unused  { color: red }\n"
+		// Heading for options
 		".opthead { font-weight:bold; font-size:large; text-align:left; padding-top:.8em;}\n"
+		// Graphical elements for the function exploration
 		"table.box {\n"
 		"	border-width: 0px;\n"
 		"	border-spacing: 2px;\n"
@@ -675,13 +681,12 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 		"}\n"
 		"-->"
 		"</style>"
-		"</head>"
+		"</head>", of);
+	fprintf(of,
 		"<title>%s</title>\n"
 		"</head>\n"
 		"<body>\n"
 		"<h1>%s</h1>\n",
-		Version::get_revision().c_str(),
-		Version::get_date().c_str(),
 		title.c_str(),
 		heading ? heading : title.c_str());
 }
@@ -1321,15 +1326,13 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<li> No definition found\n");
 	// Functions that are Down from us in the call graph
 	fprintf(fo, "<li> Calls directly %d functions", f->get_num_call());
-	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d\">List of directly called functions</a>\n", f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d&e=1\">Explore directly called functions</a>\n", f);
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=D\">List of all called functions</a>\n", f);
-	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d&e=1\">Explore called functions</a>\n", f);
 	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=D\">Call graph of all called functions</a>", cgraph_suffix(), f);
 	// Functions that are Up from us in the call graph
 	fprintf(fo, "<li> Called directly by %d functions", f->get_num_caller());
-	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u\">List of direct callers</a>\n", f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u&e=1\">Explore direct callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", f);
-	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u&e=1\">Explore callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", cgraph_suffix(), f);
 	fprintf(fo, "</ul>\n");
 	if (f->is_defined()) {
@@ -1395,6 +1398,7 @@ explore_functions(FILE *fo, Call *f,
 	for (i = (f->*fbegin)(); i != (f->*fend)(); i++) {
 		fprintf(fo, "<div style=\"margin-left: %dem\">", level * 2);
 		if (((*i)->*fbegin)() != ((*i)->*fend)()) {
+			/* Functions below; create +/- hyperlink. */
 			char param[1024];
 			sprintf(param, "f%02d%p", level, &(**i));
 			char *pval = swill_getvar(param);
@@ -1410,6 +1414,7 @@ explore_functions(FILE *fo, Call *f,
 			if (pval && *pval == '1')
 				explore_functions(fo, *i, fbegin, fend, level + 1);
 		} else {
+			/* No functions below. Just display the function. */
 			fputs("<table class=\"unbox\"> <tr><th></th><td>", fo);
 			html(fo, **i);
 			fputs("</td></tr></table></div>\n", fo);
