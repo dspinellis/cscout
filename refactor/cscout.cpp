@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.197 2008/06/01 14:02:19 dds Exp $
+ * $Id: cscout.cpp,v 1.198 2008/06/01 14:25:29 dds Exp $
  */
 
 #include <map>
@@ -659,6 +659,9 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 		"}\n"
 		"\n"
 		"a.plain:link {\n"
+		"    text-decoration: none;\n"
+		"}\n"
+		"a.plain:visited {\n"
 		"    text-decoration: none;\n"
 		"}\n"
 		"table.unbox {\n"
@@ -1403,12 +1406,20 @@ explore_functions(FILE *fo, Call *f,
 			sprintf(param, "f%02d%p", level, &(**i));
 			char *pval = swill_getvar(param);
 
-			fprintf(fo, "<table class=\"box\"> <tr><th><a class=\"plain\" href=\"%s?%s&%s=%d\">%s</a></th><td>",
-			    swill_getvar("__uri__"),
-			    swill_getquerystring(), param,
-			    (pval && *pval == '1') ? 0 : 1,
-			    (pval && *pval == '1') ? "&ndash;" : "+"
-			    );
+			if (pval) {
+				// Colapse hyperlink
+				string nquery(swill_getquerystring());
+				string::size_type start = nquery.find(param);
+				if (start != string::npos && start > 0)
+					// Erase &param=1 (i.e. param + 3 chars)
+					nquery.erase(start - 1, strlen(param) + 3);
+				fprintf(fo, "<table class=\"box\"> <tr><th><a class=\"plain\" href=\"%s?%s\">&ndash;</a></th><td>",
+				    swill_getvar("__uri__"), nquery.c_str());
+			} else
+				// Expand hyperlink
+				fprintf(fo, "<table class=\"box\"> <tr><th><a class=\"plain\" href=\"%s?%s&%s=1\">+</a></th><td>",
+				    swill_getvar("__uri__"),
+				    swill_getquerystring(), param);
 			html(fo, **i);
 			fputs("</td></tr></table></div>\n", fo);
 			if (pval && *pval == '1')
