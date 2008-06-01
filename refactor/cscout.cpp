@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.195 2008/05/30 16:13:54 dds Exp $
+ * $Id: cscout.cpp,v 1.196 2008/06/01 10:47:37 dds Exp $
  */
 
 #include <map>
@@ -631,9 +631,48 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 		"<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">"
 		"<style type=\"text/css\" >"
 		"<!--"
-		"  .unused  { color: red }"
-		".opthead { font-weight:bold; font-size:large; text-align:left; padding-top:.8em;}"
-
+		"  .unused  { color: red }\n"
+		".opthead { font-weight:bold; font-size:large; text-align:left; padding-top:.8em;}\n"
+		"table.box {\n"
+		"	border-width: 0px;\n"
+		"	border-spacing: 2px;\n"
+		"	border-style: none;\n"
+		"	border-collapse: separate;\n"
+		"}\n"
+		"table.box th {\n"
+		"	border-width: 1px 1px 1px 1px;\n"
+		"	padding: 0px;\n"
+		"	border-style: solid;\n"
+		"	border-color: gray;\n"
+		"	width: 1em;\n"
+		"}\n"
+		"table.box td {\n"
+		"	border-width: 0px;\n"
+		"	padding-left: 0.5em;\n"
+		"	border-style: none;\n"
+		"}\n"
+		"\n"
+		"a.plain:link {\n"
+		"    text-decoration: none;\n"
+		"}\n"
+		"table.unbox {\n"
+		"	border-width: 0px;\n"
+		"	border-spacing: 2px;\n"
+		"	border-style: none;\n"
+		"	border-collapse: separate;\n"
+		"}\n"
+		"table.unbox th {\n"
+		"	border-width: 1px 1px 1px 1px;\n"
+		"	padding: 1px;\n"
+		"	border-style: none;\n"
+		"	border-color: gray;\n"
+		"	width: 1em;\n"
+		"}\n"
+		"table.unbox td {\n"
+		"	border-width: 0px;\n"
+		"	padding-left: 0.5em;\n"
+		"	border-style: none;\n"
+		"}\n"
 		"-->"
 		"</style>"
 		"</head>"
@@ -1354,22 +1393,26 @@ explore_functions(FILE *fo, Call *f,
 	Call::const_fiterator_type i;
 
 	for (i = (f->*fbegin)(); i != (f->*fend)(); i++) {
-		for (int j = 0; j < level; j++)
-			fputs("....", fo);
-		if (((*i)->*fbegin)() == ((*i)->*fend)()) {
-			/* Nothing below this level */
-			html_string(fo, (*i)->get_name());
-			fputs("<br />\n", fo);
-		} else {
+		fprintf(fo, "<div style=\"margin-left: %dem\">", level * 2);
+		if (((*i)->*fbegin)() != ((*i)->*fend)()) {
 			char param[1024];
 			sprintf(param, "f%02d%p", level, &(**i));
 			char *pval = swill_getvar(param);
-			fprintf(fo, "<a href=\"%s?%s&%s=%d\">", swill_getvar("__uri__"), swill_getquerystring(), param,
-			    (pval && *pval == '1') ? 0 : 1);
-			html_string(fo, (*i)->get_name());
-			fputs("</a><br />\n", fo);
+
+			fprintf(fo, "<table class=\"box\"> <tr><th><a class=\"plain\" href=\"%s?%s&%s=%d\">%s</a></th><td>",
+			    swill_getvar("__uri__"),
+			    swill_getquerystring(), param,
+			    (pval && *pval == '1') ? 0 : 1,
+			    (pval && *pval == '1') ? "&ndash;" : "+"
+			    );
+			html(fo, **i);
+			fputs("</td></tr></table></div>\n", fo);
 			if (pval && *pval == '1')
 				explore_functions(fo, *i, fbegin, fend, level + 1);
+		} else {
+			fputs("<table class=\"unbox\"> <tr><th></th><td>", fo);
+			html(fo, **i);
+			fputs("</td></tr></table></div>\n", fo);
 		}
 	}
 }
