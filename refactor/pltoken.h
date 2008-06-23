@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.32 2007/09/03 12:49:31 dds Exp $
+ * $Id: pltoken.h,v 1.33 2008/06/23 14:43:50 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -15,7 +15,11 @@
 class Fchar;
 
 // C-preprocessor context influences lexical analysis
-enum e_cpp_context {cpp_normal, cpp_include, cpp_define};
+enum e_cpp_context {
+	cpp_normal,	// Normal operation
+	cpp_include,	// Set while processing a #include directive (will recognize ABSFNAME and PATHFNAME)
+	cpp_define	// Set while processing a #define directive (will recognize CONCAT)
+};
 
 class Pltoken: public Ptoken {
 private:
