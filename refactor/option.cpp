@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.5 2008/05/30 13:42:51 dds Exp $
+ * $Id: option.cpp,v 1.6 2008/06/24 16:17:55 dds Exp $
  */
 
 #include <string>
@@ -34,6 +34,10 @@ BoolOption *Option::file_icase;			// File name case-insensitive match
 BoolOption *Option::sort_rev;			// Reverse sorting of query results
 BoolOption *Option::show_projects;		// Show associated projects
 BoolOption *Option::show_identical_files;	// Show a list of identical files
+
+BoolOption *Option::rename_override_ro;		// Renames will override read-only identifiers
+BoolOption *Option::refactor_fun_arg_override_ro;// Refactoring of function arguments will override read-only identifiers
+
 IntegerOption *Option::tab_width;		// Tab width for code output
 SelectionOption *Option::cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 SelectionOption *Option::cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
@@ -184,6 +188,10 @@ Option::initialize()
 	Option::add(new TitleOption("Source Listings"));
 	Option::add(show_line_number = new BoolOption("show_line_number", "Show line numbers"));
 	Option::add(tab_width = new IntegerOption("tab_width", "Tab width", 8));
+
+	Option::add(new TitleOption("Refactoring"));
+	Option::add(rename_override_ro = new BoolOption("rename_override_ro", "Allow the renaming of read-only identifiers"));
+	Option::add(refactor_fun_arg_override_ro = new BoolOption("refactor_fun_arg_override_ro", "Allow the refactoring of function arguments of read-only functions"));
 
 	Option::add(new TitleOption("Queries"));
 	Option::add(file_icase = new BoolOption("file_icase", "Case-insensitive file name regular expression match"));

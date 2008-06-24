@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.199 2008/06/24 11:18:44 dds Exp $
+ * $Id: cscout.cpp,v 1.200 2008/06/24 16:17:55 dds Exp $
  */
 
 #include <map>
@@ -1558,7 +1558,9 @@ identifier_page(FILE *fo, void *p)
 	if (id.get_replaced())
 		fprintf(fo, "<li> Substituted with: [%s] (%s)\n", id.get_newid().c_str(),
 		id.get_active() ? "active" : "inactive");
-	if (!e->get_attribute(is_readonly) && modification_state != ms_hand_edit) {
+
+	if ((!e->get_attribute(is_readonly) || Option::rename_override_ro->get()) &&
+	    modification_state != ms_hand_edit) {
 		fprintf(fo, "<li> Substitute with: \n"
 			"<INPUT TYPE=\"text\" NAME=\"sname\" SIZE=10 MAXLENGTH=256> "
 			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n");
@@ -1677,7 +1679,8 @@ function_page(FILE *fo, void *p)
 	if (f->get_token().get_parts_size() == 1 &&
 	    modification_state != ms_hand_edit &&
 	    (ec = f->get_token().get_parts_begin()->get_tokid().check_ec()) &&
-	    !ec->get_attribute(is_readonly)) {
+	    (!ec->get_attribute(is_readonly) || Option::refactor_fun_arg_override_ro->get())
+	    ) {
 		// Count associated declared functions
 		int nfun = 0;
 		for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++)
