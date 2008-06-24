@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.38 2007/08/27 18:49:22 dds Exp $
+ * $Id: fchar.cpp,v 1.39 2008/06/24 11:18:44 dds Exp $
  */
 
 #include <iostream>
@@ -184,11 +184,17 @@ Fchar::getnext()
 			return;
 		}
 		FcharContext fc(cs.top());
-		set_input(fc.get_tokid().get_path());
-		in.seekg(fc.get_tokid().get_streampos());
-		line_number = fc.get_line_number();
+		set_context(fc);
 		cs.pop();
 	}
+}
+
+void
+Fchar::set_context(const FcharContext &fc)
+{
+	set_input(fc.get_tokid().get_path());
+	in.seekg(fc.get_tokid().get_streampos());
+	line_number = fc.get_line_number();
 }
 
 #ifdef UNIT_TEST

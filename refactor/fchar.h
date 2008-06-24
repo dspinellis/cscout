@@ -16,7 +16,7 @@
  * #include "fchar.h"
  * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.19 2007/08/27 18:49:22 dds Exp $
+ * $Id: fchar.h,v 1.20 2008/06/24 11:18:44 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -28,7 +28,8 @@ using namespace std;
 
 /*
  * A file position
- * This is used for
+ * Assumes that the putback stack is empty.
+ * FcharContext is used for:
  * - pushing/restoring include file handling
  * - identifying begin/end locations of functions and macros
  */
@@ -89,6 +90,9 @@ public:
 	static FcharContext get_context() {
 		return FcharContext(line_number, Tokid(fi, in.tellg()));
 	}
+	//
+	// Set the current file position
+	static void set_context(const FcharContext &c);
 
 	// Construct an unititialized one
 	Fchar() {};

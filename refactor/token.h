@@ -8,7 +8,7 @@
  * #include <deque>
  * #include "tokid.h"
  *
- * $Id: token.h,v 1.19 2007/08/18 13:23:39 dds Exp $
+ * $Id: token.h,v 1.20 2008/06/24 11:18:44 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -68,6 +68,9 @@ public:
 	// Iterators for accessing the token parts
 	inline dequeTpart::const_iterator get_parts_begin() const;
 	inline dequeTpart::const_iterator get_parts_end() const;
+	inline dequeTpart::size_type get_parts_size() const {
+		return parts.size();
+	}
 	// Set the token's equivalence class attribute
 	void set_ec_attribute(enum e_attribute a) const;
 	// Return true if the token's equivalence class(es) contain the attribute

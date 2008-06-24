@@ -4,7 +4,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.33 2008/06/23 14:43:50 dds Exp $
+ * $Id: pltoken.h,v 1.34 2008/06/24 11:18:44 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -21,17 +21,20 @@ enum e_cpp_context {
 	cpp_define	// Set while processing a #define directive (will recognize CONCAT)
 };
 
+// A C preprocessor lexical token
 class Pltoken: public Ptoken {
 private:
 	static enum e_cpp_context context;
 	// Allow line comments starting with a semicolon (inside Microsoft asm)
 	static bool semicolon_line_comments;
 	template <class C> void update_parts(Tokid& base, Tokid& follow, const C& c0);
+	Tokid t;		// Token identifier for delimeters: comma, bracket
 public:
 	template <class C> void getnext();
 	template <class C> void getnext_nospc();
 	static void set_context(enum e_cpp_context con) { context = con; };
 	static void set_semicolon_line_comments(bool v) { semicolon_line_comments = v; }
+	Tokid get_delimiter_tokid() const { return t; }
 };
 
 /*
@@ -87,6 +90,7 @@ Pltoken::getnext()
 	case '{': case '}':
 	case EOF:
 		val = (char)(code = c0.get_char());
+		t = c0.get_tokid();
 		break;
 	case ';':
 		if (semicolon_line_comments)

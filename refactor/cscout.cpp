@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.198 2008/06/01 14:25:29 dds Exp $
+ * $Id: cscout.cpp,v 1.199 2008/06/24 11:18:44 dds Exp $
  */
 
 #include <map>
@@ -132,9 +132,32 @@ static CompiledRE sfile_re;			// Saved files replacement location RE
 // Identifiers to monitor (-m parameter)
 static IdQuery monitor;
 
+// Additional identifier properties required for refactoring
 static IdProp ids;
 static vector <Fileid> files;
 static Attributes::size_type current_project;
+
+
+/*
+ * A map from an equivallence class to the string
+ * specifying the arguments of the corresponding
+ * refactored function call (e.g. "@2, @1")
+ */
+typedef map <Eclass *, string> RefFunCall;
+static RefFunCall rfcs;
+
+// Boundaries of a function argument
+struct ArgBound {
+	streampos start, end;
+};
+
+typedef map <Tokid, vector <ArgBound> > ArgBoundMap;
+static ArgBoundMap argbounds_map;
+
+// Keep track of the number of replacements made when saving the files
+static int num_id_replacements = 0;
+static int num_fun_call_refactorings = 0;
+
 
 void index_page(FILE *of, void *data);
 
@@ -184,6 +207,7 @@ html(char c)
 	case '&': column++; return "&amp;";
 	case '<': column++; return "&lt;";
 	case '>': column++; return "&gt;";
+	case '"': column++; return "&quot;";
 	case ' ': column++; return "&nbsp;";
 	case '\t':
 		if ((int)(spaces.size()) != Option::tab_width->get()) {
@@ -300,7 +324,7 @@ file_analyze(Fileid fi)
 {
 	using namespace std::rel_ops;
 
-	fifstream in;
+	ifstream in;
 	bool has_unused = false;
 	const string &fname = fi.get_path();
 	int line_number = 0;
@@ -528,59 +552,347 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 	fputs("<hr></code>", of);
 }
 
-// Go through the file doing any replacements needed
-// Return the number of replacements made
-static int
-file_replace(FILE *of, Fileid fid)
+
+// Set the function argument boundaries for refactored
+// function calls for the specified file
+static void
+establish_argument_boundaries(const string &fname)
+{
+	Pltoken::set_context(cpp_normal);
+	Fchar::set_input(fname);
+
+	for (;;) {
+		Pltoken t;
+again:
+		t.getnext<Fchar>();
+		if (t.get_code() == EOF)
+			break;
+
+		Tokid ti;
+		Eclass *ec;
+		RefFunCall::const_iterator rfc;
+		if (t.get_code() == IDENTIFIER &&
+		    (ti = t.get_parts_begin()->get_tokid(), ec = ti.check_ec()) &&
+		    (rfc = rfcs.find(ec)) != rfcs.end() &&
+		    (int)t.get_val().length() == ec->get_len()) {
+			Tokid call = t.get_parts_begin()->get_tokid();
+			// Gather args
+			FcharContext fc = Fchar::get_context();		// Save position to scan for another function
+			// Move just before the first arg
+			for (;;) {
+				t.getnext<Fchar>();
+				if (t.get_code() == EOF) {
+					/*
+					 * @error
+					 * End of file encountered while scanning the opening
+					 * bracket in a refactored function call
+					 */
+					Error::error(E_WARN, "Missing open bracket in refactored function call");
+					break;
+				}
+				if (t.get_code() == '(')
+					break;
+			}
+			// Gather the boundaries of all arguments of a single function
+			vector <ArgBound> abv;
+			for (;;) {
+				ArgBound ab;
+				// Set position of argument's first token part the delimiter read
+				ab.start = t.get_delimiter_tokid().get_streampos();
+				ab.start += 1;
+				if (DP())
+					cerr << "arg.start: " << ab.start << endl;
+				t.getnext<Fchar>();	// We just read the delimiter; move past it
+				int bracket = 0;
+				// Scan to argument's end
+				for (;;) {
+					if (bracket == 0 && (t.get_code() == ',' || t.get_code() == ')')) {
+						// End of arg
+						ab.end = t.get_delimiter_tokid().get_streampos();
+						abv.push_back(ab);
+						if (DP())
+							cerr << "arg.end: " << ab.end << endl;
+						if (t.get_code() == ')') {
+							// Done with this call
+							argbounds_map.insert(pair<ArgBoundMap::key_type, ArgBoundMap::mapped_type>(call, abv));
+							if (DP())
+								cerr << "Finish function" << endl;
+							Fchar::set_context(fc);		// Restore saved position
+							goto again;			// Scan again from the token following the function's name
+						}
+						break;	// Next argument
+					}
+					switch (t.get_code()) {
+					case '(':
+						bracket++;
+						break;
+					case ')':
+						bracket--;
+						break;
+					case EOF:
+						/*
+						 * @error
+						 * The end of file was reached while
+						 * gathering a refactored function call's arguments
+						 */
+						Error::error(E_WARN, "EOF while reading refactored function call arguments");
+						Fchar::set_context(fc);
+						goto again;
+					}
+					t.getnext<Fchar>();
+				}
+			}
+			/* NOTREACHED */
+		} // If refactored function call
+	} // For all the file's tokens
+}
+
+// Trim whitespace at the left of the string
+static string
+ltrim(const string &s)
+{
+	string::const_iterator i;
+
+	for (i = s.begin(); i != s.end(); i++)
+		if (!isspace(*i))
+			break;
+	return string(i, s.end());
+}
+
+/*
+ * Return (through the out params n and op) the value of
+ * an @ template replacement operator and the corresponding modifier.
+ * Update i to point to the first character after the @ sequence.
+ * For conditional modifiers (+ and -) set b2 and e2 to the enclosed text,
+ * otherwise set the two to point to end.
+ * Return true if the operator's syntax is correct, false if not.
+ * Set error to the corresponding error message.
+ */
+static bool
+parse_function_call_replacement(string::const_iterator &i, string::const_iterator end, vector<string>::size_type &n,
+    char &mod, string::const_iterator &b2, string::const_iterator &e2, char **error)
+{
+	if (DP())
+		cerr << "Scan replacement \"" << string(i, end) << '"' << endl;
+	csassert(*i == '@');
+	if (++i == end) {
+		*error = "Missing argument to @";
+		return false;
+	}
+	switch (*i) {
+	case '.':
+	case '+':
+	case '-':
+		mod = *i++;
+		break;
+	default:
+		mod = '=';
+		break;
+	}
+	int val, nchar;
+	if (DP())
+		cerr << "Scan number \"" << string(i, end) << '"' << endl;
+	int nconv = sscanf(string(i, end).c_str(), "%d%n", &val, &nchar);
+	if (nconv != 1 || val <= 0) {
+		*error = "Invalid numerical value to @";
+		return false;
+	}
+	i += nchar;
+	n = (unsigned)val;
+	if (mod == '+' || mod == '-') {
+		// Set b2, e2 to the limits argument in braces and update i past them
+		if (*i != '{') {
+			*error = "Missing opening brace";
+			return false;
+		}
+		b2 = i + 1;
+		int nbrace = 0;
+		for (; i != end; i++) {
+			if (*i == '{') nbrace++;
+			if (*i == '}') nbrace--;
+			if (nbrace == 0)
+				break;
+		}
+		if (i == end) {
+			*error = "Non-terminated argument in braces (missing closing brace)";
+			return false;
+		} else
+			e2 = i++;
+		if (DP())
+			cerr << "Enclosed range: \"" << string(b2, e2) << '"' << endl;
+	} else
+		b2 = e2 = end;
+	if (DP())
+		cerr << "nchar= " << nchar << " val=" << n << " remain: \"" << string(i, end) << '"' << endl;
+	csassert(i <= end);
+	*error = "No error";
+	return true;
+}
+
+
+/*
+ * Return true if a function call substitution string in the range is valid
+ * Set error to the corresponding error value
+ */
+static bool
+is_function_call_replacement_valid(string::const_iterator begin, string::const_iterator end, char **error)
+{
+	if (DP())
+		cerr << "Call valid for \"" << string(begin, end) << '"' << endl;
+	for (string::const_iterator i = begin; i != end;)
+		if (*i == '@') {
+			vector<string>::size_type n;
+			char modifier;
+			string::const_iterator b2, e2;
+			if (!parse_function_call_replacement(i, end, n, modifier, b2, e2, error))
+				return false;
+			if ((b2 != e2) && !is_function_call_replacement_valid(b2, e2, error))
+			    	return false;
+		} else
+			i++;
+	return true;
+}
+
+/*
+ * Set arguments in the new order as specified by the template begin..end
+ * @N  : use argument N
+ * @.N : use argument N and append a comma-separated list of all arguments following N
+ * @+N{...} : if argument N exists, substitute text in braces
+ * @-N{...} : if argument N doesn't exist, substitute text in braces
+ */
+string
+function_argument_replace(string::const_iterator begin, string::const_iterator end, const vector <string> &args)
+{
+	string ret;
+
+	for (string::const_iterator i = begin; i != end;)
+		if (*i == '@') {
+			vector<string>::size_type n;
+			char modifier;
+			string::const_iterator b2, e2;
+			char *error;
+			bool valid = parse_function_call_replacement(i, end, n, modifier, b2, e2, &error);
+			csassert(valid);
+			switch (modifier) {
+			case '.':	// Append comma-separated varargs
+				if (n <= args.size())
+					ret += ltrim(args[n - 1]);
+				for (vector<string>::size_type j = n; j < args.size(); j++) {
+					ret += ", ";
+					ret += ltrim(args[j]);
+				}
+				break;
+			case '+':	// if argument N exists, substitute text in braces
+				if (n <= args.size())
+					ret += function_argument_replace(b2, e2, args);
+				break;
+			case '-':	// if argument N doesn't exist, substitute text in braces
+				if (n > args.size())
+					ret += function_argument_replace(b2, e2, args);
+				break;
+			case '=':	// Exact argument
+				if (n <= args.size())
+					ret += ltrim(args[n - 1]);
+				break;
+			}
+		} else
+			ret += *i++;
+	return ret;
+}
+
+/*
+ * Return the smallest part of the file that can be chunked
+ * without renaming or having to reorder function arguments.
+ * Otherwise, return the part suitably renamed and with the
+ * function arguments reordered.
+ */
+static string
+get_refactored_part(ifstream &in, Fileid fid)
+{
+	Tokid ti;
+	int val;
+	string ret;
+
+	ti = Tokid(fid, in.tellg());
+	if ((val = in.get()) == EOF)
+		return ret;
+	Eclass *ec;
+
+	// Identifiers that should be replaced
+	IdProp::const_iterator idi;
+	if ((ec = ti.check_ec()) &&
+	    ec->is_identifier() &&
+	    (idi = ids.find(ec)) != ids.end() &&
+	    idi->second.get_replaced() &&
+	    idi->second.get_active()) {
+		int len = ec->get_len();
+		for (int j = 1; j < len; j++)
+			(void)in.get();
+		ret += (*idi).second.get_newid();
+		num_id_replacements++;
+	} else
+		ret = (char)val;
+
+	// Functions whose arguments need reordering
+	RefFunCall::const_iterator rfc;
+	if ((ec = ti.check_ec()) &&
+	    ec->is_identifier() &&
+	    (rfc = rfcs.find(ec)) != rfcs.end()) {
+		ArgBoundMap::mapped_type &argbounds = argbounds_map.find(ti)->second;
+		csassert (in.tellg() < argbounds[0].start);
+		// Gather material until first argument
+		while (in.tellg() < argbounds[0].start)
+			ret += get_refactored_part(in, fid);
+		// Gather arguments
+		vector<string> arg(argbounds.size());
+		for (ArgBoundMap::mapped_type::size_type i = 0; i < argbounds.size(); i++) {
+			while (in.tellg() < argbounds[i].end)
+				arg[i] += get_refactored_part(in, fid);
+			int endchar = in.get();
+			if (DP())
+			cerr << "arg[" << i << "] = \"" << arg[i] << "\" endchar: '" << (char)endchar << '\'' << endl;
+			csassert ((i == argbounds.size() - 1 && endchar == ')') ||
+			    (i < argbounds.size() - 1 && endchar == ','));
+		}
+		ret += function_argument_replace(rfc->second.begin(), rfc->second.end(), arg);
+		ret += ')';
+		num_fun_call_refactorings++;
+	} // Replaced function call
+	return ret;
+}
+
+// Go through the file doing any refactorings needed
+static void
+file_refactor(FILE *of, Fileid fid)
 {
 	string plain;
-	fifstream in;
+	ifstream in;
 	ofstream out;
 
+	cerr << "Processing file " << fid.get_path() << endl;
+
+	if (rfcs.size())
+		establish_argument_boundaries(fid.get_path());
 	in.open(fid.get_path().c_str(), ios::binary);
 	if (in.fail()) {
 		html_perror(of, "Unable to open " + fid.get_path() + " for reading");
-		return 0;
+		return;
 	}
 	string ofname(fid.get_path() + ".repl");
 	out.open(ofname.c_str(), ios::binary);
 	if (out.fail()) {
 		html_perror(of, "Unable to open " + ofname + " for writing");
-		return 0;
+		return;
 	}
-	cerr << "Processing file " << fid.get_path() << endl;
-	int replacements = 0;
-	// Go through the file character by character
-	for (;;) {
-		Tokid ti;
-		int val;
 
-		ti = Tokid(fid, in.tellg());
-		if ((val = in.get()) == EOF)
-			break;
-		Eclass *ec;
-		IdProp::const_iterator idi;
-		// Identifiers that should be replaced
-		if ((ec = ti.check_ec()) &&
-		    ec->is_identifier() &&
-		    (idi = ids.find(ec)) != ids.end() &&
-		    idi->second.get_replaced() &&
-		    idi->second.get_active()) {
-			int len = ec->get_len();
-			for (int j = 1; j < len; j++)
-				(void)in.get();
-			out << (*idi).second.get_newid();
-			replacements++;
-		} else {
-			out << (char)val;
-		}
-	}
+	while (!in.eof())
+		out << get_refactored_part(in, fid);
+	argbounds_map.clear();
+
 	// Needed for Windows
 	in.close();
 	out.close();
-	// Should actually be an assertion
-	if (!replacements)
-		return 0;
+
 	if (Option::sfile_re_string->get().length()) {
 		regmatch_t be;
 		if (sfile_re.exec(fid.get_path().c_str(), 1, &be, 0) == REG_NOMATCH ||
@@ -596,7 +908,7 @@ file_replace(FILE *of, Fileid fid)
 			(void)unlink(newname.c_str());
 			if (rename(ofname.c_str(), newname.c_str()) < 0) {
 				html_perror(of, "Renaming the file " + ofname + " to " + newname + " failed");
-				return 0;
+				return;
 			}
 			string cmd2("cscout_checkin " + newname);
 			system(cmd2.c_str());
@@ -607,12 +919,12 @@ file_replace(FILE *of, Fileid fid)
 		(void)unlink(fid.get_path().c_str());
 		if (rename(ofname.c_str(), fid.get_path().c_str()) < 0) {
 			html_perror(of, "Renaming the file " + ofname + " to " + fid.get_path() + " failed");
-			return 0;
+			return;
 		}
 		string cmd2("cscout_checkin " + fid.get_path());
 		system(cmd2.c_str());
 	}
-	return replacements;
+	return;
 }
 
 // Create a new HTML file with a given filename and title
@@ -1249,7 +1561,7 @@ identifier_page(FILE *fo, void *p)
 	if (!e->get_attribute(is_readonly) && modification_state != ms_hand_edit) {
 		fprintf(fo, "<li> Substitute with: \n"
 			"<INPUT TYPE=\"text\" NAME=\"sname\" SIZE=10 MAXLENGTH=256> "
-			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Substitute\">\n");
+			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n");
 		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", e);
 	}
 	fprintf(fo, "</ul>\n");
@@ -1294,7 +1606,29 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "Missing value");
 		return;
 	}
+	char *subst;
+	if ((subst = swill_getvar("ncall"))) {
+		string ssubst(subst);
+		char *error;
+		if (!is_function_call_replacement_valid(ssubst.begin(), ssubst.end(), &error)) {
+			fprintf(fo, "Invalid function call refactoring template: %s", error);
+			return;
+		}
+		Eclass *ec;
+		if (!swill_getargs("p(id)", &ec)) {
+			fprintf(fo, "Missing value");
+			return;
+		}
+		if (modification_state == ms_hand_edit) {
+			change_prohibited(fo);
+			return;
+		}
+		prohibit_remote_access(fo);
+		rfcs[ec] = string(subst);
+		modification_state = ms_subst;
+	}
 	html_head(fo, "fun", string("Function: ") + html(f->get_name()) + " (" + f->entity_type_name() + ')');
+	fprintf(fo, "<FORM ACTION=\"fun.html\" METHOD=\"GET\">\n");
 	fprintf(fo, "<h2>Details</h2>\n");
 	fprintf(fo, "<ul>\n");
 	fprintf(fo, "<li> Associated identifier(s): ");
@@ -1337,6 +1671,37 @@ function_page(FILE *fo, void *p)
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u&e=1\">Explore direct callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", cgraph_suffix(), f);
+
+	// Allow function call refactoring only if there is a one to one relationship between the identifier and the function
+	Eclass *ec;
+	if (f->get_token().get_parts_size() == 1 &&
+	    modification_state != ms_hand_edit &&
+	    (ec = f->get_token().get_parts_begin()->get_tokid().check_ec()) &&
+	    !ec->get_attribute(is_readonly)) {
+		// Count associated declared functions
+		int nfun = 0;
+		for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++)
+			if (i->second->contains(ec))
+				nfun++;
+		if (nfun == 1) {
+			ostringstream repl_temp;		// Replacement template
+			RefFunCall::const_iterator rfc;
+		    	if ((rfc = rfcs.find(ec)) != rfcs.end())
+				repl_temp << html(rfc->second);
+			else if (f->is_defined())
+				for (int i = 0; i < f->metrics().get_metric(FunMetrics::em_nparam); i++) {
+					repl_temp << '@' << i + 1;
+					if (i + 1 < f->metrics().get_metric(FunMetrics::em_nparam))
+						repl_temp << ", ";
+				}
+			fprintf(fo, "<li> Refactor arguments into: \n"
+				"<INPUT TYPE=\"text\" NAME=\"ncall\" VALUE=\"%s\" SIZE=40 MAXLENGTH=256> "
+				"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n",
+				repl_temp.str().c_str());
+			fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", ec);
+			fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"f\" VALUE=\"%p\">\n", f);
+		}
+	}
 	fprintf(fo, "</ul>\n");
 	if (f->is_defined()) {
 		fprintf(fo, "<h2>Metrics</h2>\n<table border='1'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
@@ -1345,6 +1710,7 @@ function_page(FILE *fo, void *p)
 				fprintf(fo, "<tr><td>%s</td><td>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
 		fprintf(fo, "</table>\n");
 	}
+	fprintf(fo, "</FORM>\n");
 	html_tail(fo);
 }
 
@@ -2211,9 +2577,10 @@ write_quit_page(FILE *of, void *exit)
 		}
 		html_head(of, "save", "Saving changes");
 	}
+
 	// Determine files we need to process
 	IFSet process;
-	cerr << "Examing identifiers for replacement" << endl;
+	cerr << "Examining identifiers for renaming" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (i->second.get_replaced() && i->second.get_active()) {
@@ -2223,14 +2590,22 @@ write_quit_page(FILE *of, void *exit)
 		}
 	}
 	cerr << endl;
-	// Now do the replacements
-	int replacements = 0;
-	cerr << "Processing files" << endl;
-	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++) {
-		cerr << "Processing file " << (*i).get_path() << endl;
-		replacements += file_replace(of, *i);
+
+	cerr << "Examining function calls for refactoring" << endl;
+	for (RefFunCall::iterator i = rfcs.begin(); i != rfcs.end(); i++) {
+		progress(i, rfcs);
+		Eclass *e = i->first;
+		IFSet ifiles = e->sorted_files();
+		process.insert(ifiles.begin(), ifiles.end());
 	}
-	fprintf(of, "A total of %d replacements were made in %zd files.", replacements, process.size());
+	cerr << endl;
+
+	// Now do the replacements
+	cerr << "Processing files" << endl;
+	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++)
+		file_refactor(of, *i);
+	fprintf(of, "A total of %d replacements and %d function call refactorings were made in %d files.",
+	    num_id_replacements, num_fun_call_refactorings, (unsigned)(process.size()));
 	if (exit) {
 		fprintf(of, "<p>Bye...</body></html>");
 		must_exit = true;
@@ -2807,7 +3182,7 @@ garbage_collect(Fileid root)
 		}
 
 		const string &fname = fi.get_path();
-		fifstream in;
+		ifstream in;
 
 		in.open(fname.c_str(), ios::binary);
 		if (in.fail()) {
