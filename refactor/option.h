@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.7 2008/06/24 16:17:55 dds Exp $
+ * $Id: option.h,v 1.8 2008/06/30 18:18:26 dds Exp $
  */
 
 #ifndef OPTION_
@@ -54,8 +54,8 @@ public:
 	static BoolOption *show_projects;		// Show associated projects
 	static BoolOption *show_identical_files;	// Show a list of identical files
 
-	static BoolOption *Option::rename_override_ro;	// Renames will override read-only identifiers
-	static BoolOption *Option::refactor_fun_arg_override_ro;// Refactoring of function arguments will override read-only identifiers
+	static BoolOption *rename_override_ro;	// Renames will override read-only identifiers
+	static BoolOption *refactor_fun_arg_override_ro;// Refactoring of function arguments will override read-only identifiers
 
 	static IntegerOption *tab_width;		// Tab width for code output
 	static SelectionOption *cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
