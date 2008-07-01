@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.117 2008/07/01 07:28:28 dds Exp $
+ * $Id: pdtoken.cpp,v 1.118 2008/07/01 09:24:39 dds Exp $
  */
 
 #include <iostream>
@@ -583,9 +583,9 @@ can_open(const string& s)
 }
 
 /*
- * When next is true we start scanning the include path from where we left
- * off.  This is a crude hack to approximate the unkown semantics of the
- * gcc include_next command.
+ * When next is true we start scanning the include path from the directory
+ * following the one in which the current file was found (gcc extension).
+ * See: http://www.delorie.com/gnu/docs/gcc/cpp_11.html (Wrapper headers)
  */
 void
 Pdtoken::process_include(bool next)
@@ -677,11 +677,14 @@ Pdtoken::process_include(bool next)
 			}
 		}
 		vectorstring::iterator i;
-		for (i = next ? next_i : include_path.begin(); i != include_path.end(); i++) {
+		i = include_path.begin();
+		if (next)
+			i += Fchar::get_ipath_offset() + 1;
+		for (; i != include_path.end(); i++) {
 			string fname(*i + "/" + f.get_val());
 			if (DP()) cout << "Try open " << fname << "\n";
 			if (can_open(fname)) {
-				Fchar::push_input(fname);
+				Fchar::push_input(fname, i - include_path.begin());
 				next_i = ++i;
 				return;
 			}

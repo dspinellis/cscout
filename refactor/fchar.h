@@ -16,7 +16,7 @@
  * #include "fchar.h"
  * #include "fifstream.h"
  *
- * $Id: fchar.h,v 1.20 2008/06/24 11:18:44 dds Exp $
+ * $Id: fchar.h,v 1.21 2008/07/01 09:24:39 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -37,10 +37,11 @@ class FcharContext {
 private:
 	int line_number;
 	Tokid ti;
+	int ipath_offset;
 public:
 	FcharContext() : line_number(-1) {}
-	FcharContext(int l, Tokid t) :
-		line_number(l), ti(t) {}
+	FcharContext(int l, Tokid t, int o) :
+		line_number(l), ti(t), ipath_offset(o)  {}
 	// Accessor methods
 	int get_line_number() const { return line_number; }
 	Tokid get_tokid() const { return ti; }
@@ -65,6 +66,7 @@ private:
 	static bool yacc_file;		// True if input file is yacc, not C
 	static StackFcharContext cs;	// Pushed contexts (from push_input())
 	static stackFchar ps;		// Putback stack
+	static int ipath_offset;	// Offset in the include file path where the current file was found
 	static stackFchar::size_type stack_lock_size;	// So many elements can not be removed
 					// from the push_input stack
 
@@ -75,7 +77,9 @@ public:
 	// Will read characters from file named s
 	static void set_input(const string& s);
 	// From now on will read from s; on EOF resume with previous file
-	static void push_input(const string& s);
+	// Offset is the location of the include file path where the file
+	// was located, and is used for implementing include_next
+	static void push_input(const string& s, int offset = 0);
 	// Next constructor will return c
 	static void putback(Fchar c);
 	/*
@@ -88,7 +92,7 @@ public:
 
 	// Return the current file position
 	static FcharContext get_context() {
-		return FcharContext(line_number, Tokid(fi, in.tellg()));
+		return FcharContext(line_number, Tokid(fi, in.tellg()), ipath_offset);
 	}
 	//
 	// Set the current file position
@@ -110,6 +114,7 @@ public:
 	static string  get_path() { return fi.get_path(); }
 	static string  get_fname() { return fi.get_fname(); }
 	static string  get_dir() { return fi.get_dir(); }
+	static int get_ipath_offset() { return ipath_offset; }
 	// Return the fileid of the file we are processing
 	static Fileid get_fileid() { return fi; }
 	// Return true if the class's source is a file
