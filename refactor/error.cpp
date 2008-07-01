@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: error.cpp,v 1.19 2008/04/07 08:16:21 dds Exp $
+ * $Id: error.cpp,v 1.20 2008/07/01 13:28:21 dds Exp $
  */
 
 #include <iostream>
@@ -52,13 +52,13 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	case E_WARN: num_warnings++; break;
 	case E_ERR:
 		num_errors++;
-		if (num_errors > 100)
+		if (num_errors > 1000)
 			/*
 			 * @error
-			 * To avoid cascading errors only the first 100 errors
+			 * To avoid cascading errors only the first 1000 errors
 			 * are reported
 			 */
-			Error::error(E_FATAL, "error count exceeds 100; exiting", false);
+			Error::error(E_FATAL, "error count exceeds 1000; exiting", false);
 		break;
 	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
 	case E_FATAL: exit(1);
