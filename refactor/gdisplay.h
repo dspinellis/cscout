@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.8 2007/11/08 09:24:28 dds Exp $
+ * $Id: gdisplay.h,v 1.9 2008/07/01 20:54:07 dds Exp $
  */
 
 
@@ -77,7 +77,7 @@ public:
 	virtual void node(Call *p) {
 		fprintf(fo, "\t_%p [label=\"%s\"", p, function_label(p, false).c_str());
 		if (isHyperlinked())
-			fprintf(fo, ", URL=\"http://localhost:%d/fun.html?f=%p\"", portno, p);
+			fprintf(fo, ", URL=\"fun.html?f=%p\"", p);
 		fprintf(fo, "];\n");
 	}
 
