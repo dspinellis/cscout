@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.200 2008/06/24 16:17:55 dds Exp $
+ * $Id: cscout.cpp,v 1.201 2008/07/01 13:17:56 dds Exp $
  */
 
 #include <map>
@@ -72,6 +72,8 @@
 #include "filequery.h"
 #include "logo.h"
 #include "pager.h"
+#include "html.h"
+#include "dirbrowse.h"
 
 
 #ifdef COMMERCIAL
@@ -116,8 +118,6 @@ static enum e_modification_state {
 static Fileid input_file_id;
 
 // Forward declarations required for gdisplay.h
-static void html_head(FILE *of, const string fname, const string title, const char *heading = NULL);
-static void html_tail(FILE *of);
 static string function_label(Call *f, bool hyperlink);
 static void html_perror(FILE *of, const string &user_msg, bool svg = false);
 
@@ -135,7 +135,8 @@ static IdQuery monitor;
 // Additional identifier properties required for refactoring
 static IdProp ids;
 static vector <Fileid> files;
-static Attributes::size_type current_project;
+
+Attributes::size_type current_project;
 
 
 /*
@@ -189,64 +190,6 @@ progress(typename container::const_iterator i, const container &c)
 		cerr << '\r' << percent << '%' << flush;
 		opercent = percent;
 	}
-}
-
-/*
- * Return as a C string the HTML equivalent of character c
- * Handles tab-stop expansion provided all output is processed through this
- * function
- */
-static const char *
-html(char c)
-{
-	static char str[2];
-	static int column = 0;
-	static vector<string> spaces(0);
-
-	switch (c) {
-	case '&': column++; return "&amp;";
-	case '<': column++; return "&lt;";
-	case '>': column++; return "&gt;";
-	case '"': column++; return "&quot;";
-	case ' ': column++; return "&nbsp;";
-	case '\t':
-		if ((int)(spaces.size()) != Option::tab_width->get()) {
-			spaces.resize(Option::tab_width->get());
-			for (int i = 0; i < Option::tab_width->get(); i++) {
-				string t;
-				for (int j = 0; j < Option::tab_width->get() - i; j++)
-					t += "&nbsp;";
-				spaces[i] = t;
-			}
-		}
-		return spaces[column % Option::tab_width->get()].c_str();
-	case '\n':
-		column = 0;
-		return "<br>\n";
-	default:
-		column++;
-		str[0] = c;
-		return str;
-	}
-}
-
-// HTML-encode the given string
-static string
-html(const string &s)
-{
-	string r;
-
-	for (string::const_iterator i = s.begin(); i != s.end(); i++)
-		r += html(*i);
-	return r;
-}
-
-// Output s as HTML in of
-static void
-html_string(FILE *of, string s)
-{
-	for (string::const_iterator i = s.begin(); i != s.end(); i++)
-		fputs(html(*i), of);
 }
 
 // Display an identifier hyperlink
@@ -925,108 +868,6 @@ file_refactor(FILE *of, Fileid fid)
 		system(cmd2.c_str());
 	}
 	return;
-}
-
-// Create a new HTML file with a given filename and title
-// The heading, if not given, will be the same as the title
-static void
-html_head(FILE *of, const string fname, const string title, const char *heading)
-{
-	swill_title(title.c_str());
-	if (DP())
-		cerr << "Write to " << fname << endl;
-	fprintf(of,
-		"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
-		"<html>\n"
-		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"CScout %s - %s\">\n",
-		Version::get_revision().c_str(),
-		Version::get_date().c_str());
-	fputs(
-		"<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">"
-		"<style type=\"text/css\" >"
-		"<!--"
-		// Unused lines
-		".unused  { color: red }\n"
-		// Heading for options
-		".opthead { font-weight:bold; font-size:large; text-align:left; padding-top:.8em;}\n"
-		// Graphical elements for the function exploration
-		"table.box {\n"
-		"	border-width: 0px;\n"
-		"	border-spacing: 2px;\n"
-		"	border-style: none;\n"
-		"	border-collapse: separate;\n"
-		"}\n"
-		"table.box th {\n"
-		"	border-width: 1px 1px 1px 1px;\n"
-		"	padding: 0px;\n"
-		"	border-style: solid;\n"
-		"	border-color: gray;\n"
-		"	width: 1em;\n"
-		"}\n"
-		"table.box td {\n"
-		"	border-width: 0px;\n"
-		"	padding-left: 0.5em;\n"
-		"	border-style: none;\n"
-		"}\n"
-		"\n"
-		"a.plain:link {\n"
-		"    text-decoration: none;\n"
-		"}\n"
-		"a.plain:visited {\n"
-		"    text-decoration: none;\n"
-		"}\n"
-		"table.unbox {\n"
-		"	border-width: 0px;\n"
-		"	border-spacing: 2px;\n"
-		"	border-style: none;\n"
-		"	border-collapse: separate;\n"
-		"}\n"
-		"table.unbox th {\n"
-		"	border-width: 1px 1px 1px 1px;\n"
-		"	padding: 1px;\n"
-		"	border-style: none;\n"
-		"	border-color: gray;\n"
-		"	width: 1em;\n"
-		"}\n"
-		"table.unbox td {\n"
-		"	border-width: 0px;\n"
-		"	padding-left: 0.5em;\n"
-		"	border-style: none;\n"
-		"}\n"
-		"-->"
-		"</style>"
-		"</head>", of);
-	fprintf(of,
-		"<title>%s</title>\n"
-		"</head>\n"
-		"<body>\n"
-		"<h1>%s</h1>\n",
-		title.c_str(),
-		heading ? heading : title.c_str());
-}
-
-// And an HTML file end
-static void
-html_tail(FILE *of)
-{
-	if (current_project)
-		fprintf(of, "<p> <b>Project %s is currently selected</b>\n", Project::get_projname(current_project).c_str());
-	fprintf(of,
-		"<p>"
-		"<a href=\"index.html\">Main page</a>\n"
-		" &mdash; Web: "
-		"<a href=\"http://www.spinellis.gr/cscout\">Home</a>\n"
-		"<a href=\"http://www.spinellis.gr/cscout/doc/index.html\">Manual</a>\n"
-		"<br><hr><font size=-1>CScout %s &mdash; %s",
-		Version::get_revision().c_str(),
-		Version::get_date().c_str());
-#ifdef COMMERCIAL
-	fprintf(of, " &mdash; Licensee: %s", licensee);
-#else
-	fprintf(of, " &mdash; Unsupported version; can only be used on open-source software.");
-#endif
-	fprintf(of, "</font></body></html>\n");
 }
 
 #ifndef COMMERCIAL
@@ -2266,11 +2107,14 @@ void
 index_page(FILE *of, void *data)
 {
 	html_head(of, "index", "CScout Main Page", "<img src=\"logo.png\">Scout Main Page");
-	fprintf(of,
+	fputs(
 		"<table><tr><td valign=\"top\">\n"
 		"<h2>Files</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"filemetrics.html\">File metrics</a>\n"
+		"<li>\n", of);
+	dir_top(of, "Browse file tree");
+	fprintf(of,
 		"<li> <a href=\"xfilequery.html?ro=1&writable=1&match=Y&n=All+Files\">All files</a>\n"
 		"<li> <a href=\"xfilequery.html?ro=1&match=Y&n=Read-only+Files\">Read-only files</a>\n"
 		"<li> <a href=\"xfilequery.html?writable=1&match=Y&n=Writable+Files\">Writable files</a>\n");
@@ -2368,6 +2212,7 @@ file_page(FILE *of, void *p)
 	}
 	if (i.is_hand_edited())
 		fprintf(of, "<li>Hand edited\n");
+	fprintf(of, "<li> <a href=\"dir.html?dir=%p\">File's directory</a>", dir_add_file(i));
 
 	fprintf(of, "</ul>\n<h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%u\">Source code</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"src.html?id=%u&marku=1\">Source code with unprocessed regions marked</a>\n", i.get_id());
@@ -3001,9 +2846,11 @@ main(int argc, char *argv[])
 		swill_handle("qexit.html", quit_page, 0);
 	}
 
-	// Populate the EC identifier member
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
-		/* bool has_unused = */ file_analyze(*i);
+	// Populate the EC identifier member and the directory tree
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+		file_analyze(*i);
+		dir_add_file(*i);
+	}
 
 	// Update file and function metrics
 	file_msum.summarize_files();
@@ -3077,6 +2924,7 @@ main(int argc, char *argv[])
 		swill_handle("qsrc.html", query_source_page, NULL);
 		swill_handle("fedit.html", fedit_page, NULL);
 		swill_handle("file.html", file_page, NULL);
+		swill_handle("dir.html", dir_page, NULL);
 
 		// Identifier query and execution
 		swill_handle("iquery.html", iquery_page, NULL);
@@ -3120,7 +2968,7 @@ main(int argc, char *argv[])
 		msg << file_msum.get_writable(Metrics::em_nuline) <<
 		    " conditionally compiled writable lines" << endl <<
 		    "(out of a total of " <<
-		    file_msum.get_writable(Metrics::em_nline) <<
+		    (int)file_msum.get_writable(Metrics::em_nline) <<
 		    " writable lines) were not processed";
 		Error::error(E_WARN, msg.str(), false);
 	}
