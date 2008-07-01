@@ -5,7 +5,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.31 2007/08/19 09:07:54 dds Exp $
+ * $Id: pdtoken.h,v 1.32 2008/07/01 07:28:28 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -58,6 +58,15 @@ public:
 	Pdtoken(const Ptoken &pt) : Ptoken(pt) {};
 	Pdtoken() {};
 	void getnext();
+	/*
+	 * Get next token, while processing cpp directives, but without expanding macro
+	 * identifiers.  This is used for gathering tokens inside macro arguments.  The
+	 * C standard says that cpp directives in this mode lead to undefined behavior,
+	 * but gcc CPP 3.2 and onward supports them doing the right thing.
+	 * See http://developer.apple.com/documentation/DeveloperTools/gcc-4.0.1/cpp/Directives-Within-Macro-Arguments.html
+	 */
+	void getnext_noexpand();
+	void getnext_noexpand_nospc();
 
 	// Clear the defined macro table (when changing compilation unit)
 	static void macros_clear() {

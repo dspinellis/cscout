@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.116 2007/08/18 13:23:39 dds Exp $
+ * $Id: pdtoken.cpp,v 1.117 2008/07/01 07:28:28 dds Exp $
  */
 
 #include <iostream>
@@ -70,7 +70,6 @@ void
 Pdtoken::getnext()
 {
 	Pltoken t;
-	PtokenSequence::iterator dummy;
 
 expand_get:
 	if (!expand.empty()) {
@@ -158,6 +157,67 @@ again:
 		*this = t;
 		break;
 	}
+}
+
+void
+Pdtoken::getnext_noexpand()
+{
+	Pltoken t;
+
+again:
+	t.getnext<Fchar>();
+	if (at_bol) {
+		if (t.get_code() == '#') {
+			process_directive();
+			goto again;
+		} else
+			at_bol = false;
+	}
+	if (skiplevel) {
+		if (t.get_code() == '\n')
+			at_bol = true;
+		else if (t.get_code() == EOF) {
+			/*
+			 * @error
+			 * The processing of code within a <code>#if</code>
+			 * block reached the end of file, without a
+			 * corresponding
+			 * <code>#endif</code> /
+			 * <code>#else</code> /
+			 * <code>#elif</code> directive.
+			 */
+			Error::error(E_ERR, "EOF while processing #if directive");
+			*this = t;
+			return;
+		}
+		goto again;
+	}
+	switch (t.get_code()) {
+	case '\n':
+		at_bol = true;
+		/* FALLTHROUGH */
+	default:
+		*this = t;
+		break;
+	case EOF:
+		if (!iftaken.empty()) {
+			Error::error(E_ERR, "EOF while processing #if directive");
+			while (!iftaken.empty())
+				iftaken.pop();
+		}
+		*this = t;
+		break;
+	}
+	if (DP())
+		cout << "getnext_noexpand returns " << *this << endl;
+}
+
+void
+Pdtoken::getnext_noexpand_nospc()
+{
+	do {
+		getnext_noexpand();
+	} while (code == SPACE);
 }
 
 

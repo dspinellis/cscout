@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.57 2006/09/22 20:46:26 dds Exp $
+ * $Id: macro.cpp,v 1.58 2008/07/01 07:28:28 dds Exp $
  */
 
 #include <iostream>
@@ -44,7 +44,8 @@
 /*
  * Return a macro argument token from tokens
  * Used by gather_args.
- * If get_more is true when tokens is exhausted read using pltoken::getnext
+ * If get_more is true when tokens is exhausted read using pdtoken::getnext_noexpand
+ * (see explanation on that method's comment for why we use pdtoken, rather than pltoken)
  * Leave in tokens the first token not gathered.
  * If want_space is true return spaces, otherwise discard them
  */
@@ -57,8 +58,8 @@ arg_token(PtokenSequence& tokens, bool get_more, bool want_space)
 			tokens.pop_front();
 			return (r);
 		} else if (get_more) {
-			Pltoken t;
-			t.getnext<Fchar>();
+			Pdtoken t;
+			t.getnext_noexpand();
 			return (t);
 		} else
 			return Ptoken(EOF, "");
@@ -70,9 +71,9 @@ arg_token(PtokenSequence& tokens, bool get_more, bool want_space)
 			tokens.pop_front();
 			return (r);
 		} else if (get_more) {
-			Pltoken t;
+			Pdtoken t;
 			do {
-				t.getnext_nospc<Fchar>();
+				t.getnext_noexpand_nospc();
 			} while (t.get_code() != EOF && t.is_space());
 			return (t);
 		} else
@@ -82,7 +83,7 @@ arg_token(PtokenSequence& tokens, bool get_more, bool want_space)
 
 /*
  * Get the macro arguments specified in formal_args, initiallly by
- * removing them from tokens, then, if get_more is true, from pltoken<fchar>.getnext.
+ * removing them from tokens, then, if get_more is true, from pdtoken.getnext_noexpand.
  * The opening bracket has already been gathered.
  * Build the map from formal name to argument value args.
  * Return in close the closing bracket token (used for its hideset)
@@ -624,9 +625,9 @@ fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed)
 	if (!ts.empty())
 		return (true);
 	if (get_more) {
-		Pltoken t;
+		Pdtoken t;
 		for (;;) {
-			t.getnext<Fchar>();
+			t.getnext_noexpand();
 			if (t.get_code() == EOF)
 				return (false);
 			else if (t.is_space())
