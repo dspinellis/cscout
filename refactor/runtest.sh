@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.22 2007/11/01 12:49:01 dds Exp $
+# $Id: runtest.sh,v 1.23 2008/07/01 07:27:59 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -350,6 +350,9 @@ then
 	cp test/nout/* test/out
 fi
 
-[ -z "$FAILED" ] || {
+if [ -z "$FAILED" ]
+then
+	echo "All tests passed"
+else
 	echo "The following test(s) failed: $FAILED"
-}
+fi
