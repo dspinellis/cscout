@@ -3,7 +3,7 @@
  *
  * Directory browsing code
  *
- * $Id: dirbrowse.cpp,v 1.1 2008/07/01 13:17:40 dds Exp $
+ * $Id: dirbrowse.cpp,v 1.2 2008/07/01 13:37:58 dds Exp $
  */
 
 #include <map>
@@ -44,7 +44,8 @@ class DirFile;
 class DirEntry {
 public:
 	// Display a link to the entry's contents as HTML on of
-	virtual void html(FILE *of) const;
+	virtual void html(FILE *of) const = 0;
+	virtual ~DirEntry() {}
 };
 
 // A file
@@ -55,11 +56,11 @@ public:
 	DirFile(Fileid i) : id(i) {}
 
 	// Display a link to the files's contents as HTML on of
-	void html(FILE *of) const {
+	virtual void html(FILE *of) const {
 		fprintf(of, "<a href=\"file.html?id=%u\">%s</a><br />",
 		    id.get_id(), id.get_fname().c_str());
 	}
-
+	virtual ~DirFile() {}
 };
 
 typedef map <string, DirEntry *> DirContents;
@@ -118,7 +119,7 @@ public:
 	}
 
 	// Display a link to the directory's contents as HTML on of
-	void html(FILE *of) const {
+	virtual void html(FILE *of) const {
 		html(of, name.c_str());
 	}
 
