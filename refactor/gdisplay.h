@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.10 2008/07/03 13:29:18 dds Exp $
+ * $Id: gdisplay.h,v 1.11 2008/07/03 14:29:03 dds Exp $
  */
 
 
@@ -154,8 +154,8 @@ public:
 		while ((c = getc(fimg)) != EOF)
 			putc(c, result);
 		fclose(fimg);
-		//(void)unlink(dot);
-		//(void)unlink(img);
+		(void)unlink(dot);
+		(void)unlink(img);
 	}
 	virtual ~GDDotImage() {}
 };
