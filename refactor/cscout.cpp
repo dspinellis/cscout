@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.201 2008/07/01 13:17:56 dds Exp $
+ * $Id: cscout.cpp,v 1.202 2008/07/03 14:51:00 dds Exp $
  */
 
 #include <map>
@@ -32,9 +32,11 @@
 #include <sys/types.h>		// mkdir
 #include <sys/stat.h>		// mkdir
 #include <unistd.h>		// unlink
+#define COMMERCIAL_UNIX_OPTIONS "b"
 #elif defined(WIN32)
 #include <io.h>			// mkdir
 #include <fcntl.h>		// O_BINARY
+#define COMMERCIAL_UNIX_OPTIONS ""
 #endif
 
 #include <regex.h>
@@ -93,6 +95,14 @@
 #else
 #define prohibit_remote_access(file) do { if (!local_access(file)) return; } while (0)
 #endif
+#define prohibit_browsers(file) \
+	do { \
+		if (browse_only) { \
+			nonbrowse_operation_prohibited(file); \
+			return; \
+		} \
+	} while (0)
+
 
 // Global command-line options
 static enum e_process {
@@ -126,6 +136,11 @@ static void html_perror(FILE *of, const string &user_msg, bool svg = false);
 
 // Set to true when the user has specified the application to exit
 static bool must_exit = false;
+
+// Set to true if we operate in browsing mode
+static bool browse_only = false;
+// Maximum number of nodes and edges allowed to browsing-only clients
+#define MAX_BROWSING_GRAPH_ELEMENTS 1000
 
 static CompiledRE sfile_re;			// Saved files replacement location RE
 
@@ -901,8 +916,18 @@ static void
 change_prohibited(FILE *fo)
 {
 	html_head(fo, "nochange", "Change Prohibited");
-	fputs("Identifier substitutions and the hand-editing of files are not allowed "
-		"to be performed within the same CScout session.", fo);
+	fputs("Identifier substitutions or function argument refactoring are not allowed "
+		"to be performed together with and the hand-editing of files"
+		"within the same CScout session.", fo);
+	html_tail(fo);
+}
+
+static void
+nonbrowse_operation_prohibited(FILE *fo)
+{
+	html_head(fo, "nochange", "Non-browsing Operations Disabled");
+	fputs("This is a multiuser browse-only CScout session."
+		"Non-browsing operations are disabled.", fo);
 	html_tail(fo);
 }
 
@@ -1020,7 +1045,7 @@ xfilequery_page(FILE *of,  void *p)
 			sorted_files.insert(*i);
 	}
 	html_file_begin(of);
-	if (modification_state != ms_subst)
+	if (modification_state != ms_subst && !browse_only)
 		fprintf(of, "<th></th>\n");
 	if (query.get_sort_order() != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
@@ -1032,7 +1057,7 @@ xfilequery_page(FILE *of,  void *p)
 			continue;
 		if (pager.show_next()) {
 			html_file(of, *i);
-			if (modification_state != ms_subst)
+			if (modification_state != ms_subst && !browse_only)
 				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
 				i->get_id());
 			if (query.get_sort_order() != -1)
@@ -1238,7 +1263,7 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 			fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
 				f.get_id(),
 				query_url.c_str());
-			if (modification_state != ms_subst)
+			if (modification_state != ms_subst && !browse_only)
 				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
 				f.get_id());
 			html_file_record_end(of);
@@ -1353,6 +1378,7 @@ identifier_page(FILE *fo, void *p)
 			change_prohibited(fo);
 			return;
 		}
+		prohibit_browsers(fo);
 		prohibit_remote_access(fo);
 
 		// Passing subst directly core-dumps under
@@ -1401,7 +1427,8 @@ identifier_page(FILE *fo, void *p)
 		id.get_active() ? "active" : "inactive");
 
 	if ((!e->get_attribute(is_readonly) || Option::rename_override_ro->get()) &&
-	    modification_state != ms_hand_edit) {
+	    modification_state != ms_hand_edit &&
+	    !browse_only) {
 		fprintf(fo, "<li> Substitute with: \n"
 			"<INPUT TYPE=\"text\" NAME=\"sname\" SIZE=10 MAXLENGTH=256> "
 			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n");
@@ -1419,7 +1446,7 @@ identifier_page(FILE *fo, void *p)
 			fprintf(fo, "<td><a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a></td>",
 				j->get_id(),
 				e, id.get_id().c_str());
-			if (modification_state != ms_subst)
+			if (modification_state != ms_subst && !browse_only)
 				fprintf(fo, "<td><a href=\"fedit.html?id=%u&re=%s\">edit</a></td>",
 				j->get_id(), id.get_id().c_str());
 			html_file_record_end(fo);
@@ -1466,6 +1493,7 @@ function_page(FILE *fo, void *p)
 			change_prohibited(fo);
 			return;
 		}
+		prohibit_browsers(fo);
 		prohibit_remote_access(fo);
 		rfcs[ec] = string(subst);
 		modification_state = ms_subst;
@@ -1487,7 +1515,7 @@ function_page(FILE *fo, void *p)
 			fprintf(fo, " &mdash; <a href=\"qsrc.html?qt=fun&id=%u&match=Y&call=%p&n=Declaration+of+%s\">marked source</a>",
 				t.get_fileid().get_id(),
 				f, f->get_name().c_str());
-			if (modification_state != ms_subst)
+			if (modification_state != ms_subst && !browse_only)
 				fprintf(fo, " &mdash; <a href=\"fedit.html?id=%u&re=%s\">edit</a>",
 				t.get_fileid().get_id(), f->get_name().c_str());
 	}
@@ -1499,7 +1527,7 @@ function_page(FILE *fo, void *p)
 		int lnum = t.get_fileid().line_number(t.get_streampos());
 		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a>\n",
 			t.get_fileid().get_id(), lnum, lnum);
-		if (modification_state != ms_subst)
+		if (modification_state != ms_subst && !browse_only)
 			fprintf(fo, " &mdash; <a href=\"fedit.html?id=%u&re=%s\">edit</a>",
 			t.get_fileid().get_id(), f->get_name().c_str());
 	} else
@@ -1519,6 +1547,7 @@ function_page(FILE *fo, void *p)
 	Eclass *ec;
 	if (f->get_token().get_parts_size() == 1 &&
 	    modification_state != ms_hand_edit &&
+	    !browse_only &&
 	    (ec = f->get_token().get_parts_begin()->get_tokid().check_ec()) &&
 	    (!ec->get_attribute(is_readonly) || Option::refactor_fun_arg_override_ro->get())
 	    ) {
@@ -1717,19 +1746,27 @@ call_path(GraphDisplay *gd, Call *from, Call *to, bool generate_nodes)
 	from->set_visited();
 	if (DP())
 		cout << "From path: from: " << from->get_name() << " to " << to->get_name() << endl;
+	int count = 0;
 	for (Call::const_fiterator_type i = from->call_begin(); i != from->call_end(); i++)
 		if (!(*i)->is_visited() && (*i == to || call_path(gd, *i, to, generate_nodes))) {
 			if (generate_nodes) {
 				if (!from->is_printed()) {
 					gd->node(from);
 					from->set_printed();
+					if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+						break;
 				}
 				if (!(*i)->is_printed()) {
 					gd->node(*i);
 					(*i)->set_printed();
+					if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+						break;
 				}
-			} else
+			} else {
 				gd->edge(from, *i);
+				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+					break;
+			}
 			ret = true;
 		}
 	if (DP())
@@ -1837,6 +1874,7 @@ set_options_page(FILE *fo, void *p)
 static void
 save_options_page(FILE *fo, void *p)
 {
+	prohibit_browsers(fo);
 	prohibit_remote_access(fo);
 
 	html_head(fo, "save_options", "Options Save");
@@ -1964,17 +2002,20 @@ cgraph_page(GraphDisplay *gd)
 	bool all = !!swill_getvar("all");
 	bool only_visited = single_function_graph();
 	gd->head("cgraph", "Call Graph");
+	int count = 0;
 	// First generate the node labels
 	Call::const_fmap_iterator_type fun;
+	Call::const_fiterator_type call;
 	for (fun = Call::fbegin(); fun != Call::fend(); fun++) {
 		if (!all && fun->second->is_file_scoped())
 			continue;
 		if (only_visited && !fun->second->is_visited())
 			continue;
 		gd->node(fun->second);
+		if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+			goto end;
 	}
 	// Now the edges
-	Call::const_fiterator_type call;
 	for (fun = Call::fbegin(); fun != Call::fend(); fun++) {
 		if (!all && fun->second->is_file_scoped())
 			continue;
@@ -1986,8 +2027,11 @@ cgraph_page(GraphDisplay *gd)
 			if (only_visited && !(*call)->is_visited())
 				continue;
 			gd->edge(fun->second, *call);
+			if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+				goto end;
 		}
 	}
+end:
 	gd->tail();
 }
 
@@ -2092,6 +2136,7 @@ select_project_page(FILE *fo, void *p)
 void
 set_project_page(FILE *fo, void *p)
 {
+	prohibit_browsers(fo);
 	prohibit_remote_access(fo);
 
 	if (!swill_getargs("i(projid)", &current_project)) {
@@ -2163,18 +2208,18 @@ index_page(FILE *of, void *data)
 		"</ul>"
 	);
 
-	fprintf(of, "<h2>Operations</h2>"
-		"<ul>\n"
-		"<li> <a href=\"options.html\">Global options</a>\n"
-		" &mdash; <a href=\"save_options.html\">save global options</a>\n"
-		"<li> <a href=\"replacements.html\">Identifier replacements</a>\n"
-		"<li> <a href=\"sproject.html\">Select active project</a>\n"
-		"<li> <a href=\"save.html\">Save changes and continue</a>\n"
-		"<li> <a href=\"sexit.html\">Exit &mdash; saving changes</a>\n"
-		"<li> <a href=\"qexit.html\">Exit &mdash; ignore changes</a>\n"
-		"</ul>"
-		"</td></tr></table>\n"
-	);
+	if (!browse_only)
+		fputs("<h2>Operations</h2>"
+			"<ul>\n"
+			"<li> <a href=\"options.html\">Global options</a>\n"
+			" &mdash; <a href=\"save_options.html\">save global options</a>\n"
+			"<li> <a href=\"replacements.html\">Identifier replacements</a>\n"
+			"<li> <a href=\"sproject.html\">Select active project</a>\n"
+			"<li> <a href=\"save.html\">Save changes and continue</a>\n"
+			"<li> <a href=\"sexit.html\">Exit &mdash; saving changes</a>\n"
+			"<li> <a href=\"qexit.html\">Exit &mdash; ignore changes</a>\n"
+			"</ul>", of);
+	fputs("</td></tr></table>\n", of);
 	html_tail(of);
 }
 
@@ -2219,7 +2264,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%u&match=Y&writable=1&a%d=1&n=Source+Code+With+Identifier+Hyperlinks\">Source code with identifier hyperlinks</a>\n", i.get_id(), is_readonly);
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=id&id=%u&match=L&writable=1&a%d=1&n=Source+Code+With+Hyperlinks+to+Project-global+Writable+Identifiers\">Source code with hyperlinks to project-global writable identifiers</a>\n", i.get_id(), is_lscope);
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=fun&id=%u&match=Y&writable=1&ro=1&n=Source+Code+With+Hyperlinks+to+Function+and+Macro+Declarations\">Source code with hyperlinks to function and macro declarations</a>\n", i.get_id());
-	if (modification_state != ms_subst)
+	if (modification_state != ms_subst && !browse_only)
 		fprintf(of, "<li> <a href=\"fedit.html?id=%u\">Edit the file</a>", i.get_id());
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", i.get_id());
@@ -2257,6 +2302,7 @@ fedit_page(FILE *of, void *p)
 		change_prohibited(of);
 		return;
 	}
+	prohibit_browsers(of);
 	prohibit_remote_access(of);
 
 	int id;
@@ -2382,6 +2428,7 @@ replacements_page(FILE *of, void *p)
 static void
 xreplacements_page(FILE *of,  void *p)
 {
+	prohibit_browsers(of);
 	prohibit_remote_access(of);
 
 	cerr << "Creating identifier list" << endl;
@@ -2409,6 +2456,7 @@ xreplacements_page(FILE *of,  void *p)
 void
 write_quit_page(FILE *of, void *exit)
 {
+	prohibit_browsers(of);
 	prohibit_remote_access(of);
 
 	if (exit)
@@ -2464,6 +2512,7 @@ write_quit_page(FILE *of, void *exit)
 void
 quit_page(FILE *of, void *p)
 {
+	prohibit_browsers(of);
 	prohibit_remote_access(of);
 
 	html_head(of, "quit", "CScout exiting");
@@ -2643,8 +2692,12 @@ usage(char *fname)
 {
 	cerr << "usage: " << fname <<
 #ifdef COMMERCIAL
-		" [-c|-E|-o|-r|-s db|-v] "
-		"[-H host] [-P port] [-A user:passwd] "
+		" ["
+#ifndef WIN32
+		"-b|"	// browse-only
+#endif
+		"-c|-E|-o|-r|-s db|-v] "
+		"[-l file] [-H host] [-P port] [-A user:passwd] "
 #define CO(x) x
 #else
 		" [-c|-E|-r|-v|-3] "
@@ -2652,10 +2705,14 @@ usage(char *fname)
 #endif
 		"[-p port] [-m spec] file\n"
 CO(		"\t-A u:p\tHTTP proxy authorization username and password\n")
+#ifndef WIN32
+CO(		"\t-b\tRun in multiuser browse-only mode\n")
+#endif
 		"\t-c\tProcess the file and exit\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
 CO(		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n")
+CO(		"\t-l file\tSpecify access log file\n")
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
 CO(		"\t-o\tCreate obfuscated versions of the processed files\n")
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
@@ -2687,7 +2744,7 @@ main(int argc, char *argv[])
 	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
 		cscout_des_decode(licensee + i * 8);
 	cscout_des_done();
-#define COMMERCIAL_OPTIONS "os:H:P:A:"
+#define COMMERCIAL_OPTIONS COMMERCIAL_UNIX_OPTIONS "l:os:H:P:A:"
 #else
 #define COMMERCIAL_OPTIONS ""
 #endif
@@ -2741,6 +2798,19 @@ main(int argc, char *argv[])
 #endif
 			exit(0);
 #ifdef COMMERCIAL
+		case 'b':
+			browse_only = true;
+			break;
+		case 'l':
+			if (!optarg)
+				usage(argv[0]);
+			FILE *logfile;
+			if ((logfile = fopen(optarg, "a")) == NULL) {
+				perror(optarg);
+				exit(1);
+			}
+			swill_log(logfile);
+			break;
 		case 'o':
 			if (process_mode)
 				usage(argv[0]);
@@ -2988,6 +3058,10 @@ main(int argc, char *argv[])
 	// Serve web pages
 	if (!must_exit)
 		cerr << "CScout is now ready to serve you at http://localhost:" << portno << endl;
+#if defined(COMMERCIAL) && !defined(WIN32)
+	if (browse_only)
+		swill_setfork();
+#endif
 	while (!must_exit)
 		swill_serve();
 
