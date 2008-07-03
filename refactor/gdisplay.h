@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.9 2008/07/01 20:54:07 dds Exp $
+ * $Id: gdisplay.h,v 1.10 2008/07/03 13:29:18 dds Exp $
  */
 
 
@@ -115,14 +115,15 @@ public:
 		strcpy(dot, img);
 		strcat(dot, "/CSdot-XXXXXX");
 		strcat(img, "/CSimg-XXXXXX");
-		#if defined(WIN32)
-		// Insecure, but not available under Win32
+		/*
+		 * Using mkstemp here doesn't provide more security,
+		 * because an attacker can switch the files underneath
+		 * dot's execution. The really secure way is to pipe our
+		 * data into dot and pipe dot's results directly from it.
+		 * Also, mkstemp is not available under WIN32.
+		 */
 		mktemp(dot);
 		mktemp(img);
-		#else
-		mkstemp(dot);
-		mkstemp(img);
-		#endif
 		fo = fopen(dot, "w");
 		if (fo == NULL) {
 			html_perror(fo, "Unable to open " + string(dot) + " for writing", true);
