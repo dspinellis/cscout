@@ -1,6 +1,6 @@
-.TH CSCOUT 1 "6 October 2005"
+.TH CSCOUT 1 "3 July 2008"
 .\"
-.\" (C) Copyright 2003-2005 Diomidis Spinellis.  All rights reserved.
+.\" (C) Copyright 2003-2008 Diomidis Spinellis.  All rights reserved.
 .\"
 .\" This software can be copied, distributed, and used subject to the
 .\" terms of the CScout public license available in the CScout documentation
@@ -10,13 +10,14 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.11 2007/09/01 06:07:17 dds Exp $
+.\" $Id: cscout.1,v 1.12 2008/07/03 14:59:09 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
 \fBcscout\fP
-[\fB\-cErv3\fP]
+[\fB\-bcErv3\fP]
+[\fB\-l\fP \fIlog file\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
 [\fB\-o\fP | \fB\-s\fP \fIdb\fP]
@@ -180,6 +181,14 @@ Implement support for trigraph characters.
 .SH MORE OPTIONS
 The following options are only available on the
 version of \fICScout\fP available through a support license.
+.IP "\fB\-b\fP"
+Operate in multiuser browse-only mode.
+In this mode the web server can concurrently process multiple requests.
+All web operations that can affect the server's functioning
+(such as setting the various options, renaming identifiers,
+refactoring function arguments, selecting a project, editing a file,
+or terminating the server) are prohibited.
+Call graphs are truncated to 1000 elements (nodes or edges).
 .IP "\fB\-H\fP \fIproxy host\fP"
 Specify a proxy HTTP host for connecting to the program's
 auditing and licensing server.
@@ -194,6 +203,8 @@ supported database back-ends.
 .IP "\fB\-A\fP \fIusername\fP:\fIpassword\fP"
 Specify a proxy host authorization username and password
 for connecting to the program's auditing and licensing server.
+.IP "\fB\-l\fP \fIlog file\fP"
+Specify the location of a file where web requests will be logged.
 .IP "\fB\-o\fP"
 Create obfuscated versions of all the writable files of the workspace.
 .PP
