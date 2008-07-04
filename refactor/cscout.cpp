@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.202 2008/07/03 14:51:00 dds Exp $
+ * $Id: cscout.cpp,v 1.203 2008/07/04 05:45:14 dds Exp $
  */
 
 #include <map>
@@ -628,7 +628,7 @@ ltrim(const string &s)
  */
 static bool
 parse_function_call_replacement(string::const_iterator &i, string::const_iterator end, vector<string>::size_type &n,
-    char &mod, string::const_iterator &b2, string::const_iterator &e2, char **error)
+    char &mod, string::const_iterator &b2, string::const_iterator &e2, const char **error)
 {
 	if (DP())
 		cerr << "Scan replacement \"" << string(i, end) << '"' << endl;
@@ -693,7 +693,7 @@ parse_function_call_replacement(string::const_iterator &i, string::const_iterato
  * Set error to the corresponding error value
  */
 static bool
-is_function_call_replacement_valid(string::const_iterator begin, string::const_iterator end, char **error)
+is_function_call_replacement_valid(string::const_iterator begin, string::const_iterator end, const char **error)
 {
 	if (DP())
 		cerr << "Call valid for \"" << string(begin, end) << '"' << endl;
@@ -728,7 +728,7 @@ function_argument_replace(string::const_iterator begin, string::const_iterator e
 			vector<string>::size_type n;
 			char modifier;
 			string::const_iterator b2, e2;
-			char *error;
+			const char *error;
 			bool valid = parse_function_call_replacement(i, end, n, modifier, b2, e2, &error);
 			csassert(valid);
 			switch (modifier) {
@@ -1479,7 +1479,7 @@ function_page(FILE *fo, void *p)
 	char *subst;
 	if ((subst = swill_getvar("ncall"))) {
 		string ssubst(subst);
-		char *error;
+		const char *error;
 		if (!is_function_call_replacement_valid(ssubst.begin(), ssubst.end(), &error)) {
 			fprintf(fo, "Invalid function call refactoring template: %s", error);
 			return;
