@@ -1,4 +1,18 @@
-$Id: todo,v 1.89 2008/04/07 05:52:20 dds Exp $
+$Id: todo,v 1.90 2008/07/15 15:41:55 dds Exp $
+
+- In the source code browser include directives, add hyperlinks to the
+  corresponding (potentially multiple) header files.
+
+- Fix the saving of the refactored files.
+
+- Standardize and improve the display of web error messages.
+
+- Add csassert(ps.empty) in static void set_context(const FcharContext &c);
+  and run all tests, plus some kernels
+
+- Provide web service front end (also useful for testing).
+
+- Fix the saving of options (look at the options files)
 
 - Provide web-based input interface for trying it out: upload file and redirect
   to CScout main page for that file
@@ -76,10 +90,10 @@ Collect maintainability index and oo metrics (see SSAO04.)
 System complexity metrics
 Provide an expression-oriented function metric query interface
 
-Pointer analysis
 Locate similar / same lines (irrelevant, but useful for refactoring)
 See http://en.wikipedia.org/wiki/Karp-Rabin
 
+Pointer analysis
 MRR04
 Precise Call Graphs for C Programs with Function Pointers
 Milanova A., Rountev A., Ryder B.   Automated Software Engineering 11(1): 7-26, 2004.
@@ -112,10 +126,7 @@ Option to specify leading file path to hide
 
 Refactorings
 	- Inline macro
-	- Add nth function argument (with default value)
-	- Remove nth function argument
-	- Change order of function arguments
-	- Globally replace identifier in code/strings/comments (select where)
+	- Globally replace text in code/strings/comments (select where)
 	- Add / replace first block comment
 
 Tag functions appearing on the RHS of expressions (these are likely to
