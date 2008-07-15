@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.137 2008/07/15 15:49:15 dds Exp $
+# $Id: Makefile,v 1.138 2008/07/15 18:35:20 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -202,8 +202,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.137 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/07/15 15:49:15 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.138 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/07/15 18:35:20 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -333,13 +333,13 @@ classdiag.gif: classdiag.java
 # Cross building FreeBSD binaries on istlab
 # Cross-build the toolchain by running: make-toolchain
 H=/usr/home/dds/obj
-ALLARCH=amd64 i386 ia64 sparc64
+ALLARCH=amd64 i386 sparc64
 
 crossbuild:
 	for arch in $(ALLARCH);\
 	do \
 		mkdir $$arch 2>/dev/null ;\
-		gmake ARCH=$$arch CXX=$H/$$arch/usr/src/tmp/usr/bin/g++ CC=$H/$$arch/usr/src/tmp/usr/bin/gcc ;\
+		gmake ARCH=$$arch CXX=$H/$$arch/$$arch/usr/src/tmp/usr/bin/g++ CC=$H/$$arch/$$arch/usr/src/tmp/usr/bin/gcc ;\
 	done
 
 crossbuild-clean:
