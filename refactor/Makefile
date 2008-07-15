@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.135 2008/07/01 13:17:56 dds Exp $
+# $Id: Makefile,v 1.136 2008/07/15 15:42:14 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -200,8 +200,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.135 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/07/01 13:17:56 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.136 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/07/15 15:42:14 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -227,8 +227,8 @@ test:
 	sh runtest.sh
 
 # Distribution
-rdist-gemini:
-	tar cvf - $(ALLSRC) | gzip -c | $(SSH) gemini tar -C src/cscout -xzvf -
+rdist-parrot:
+	tar cvf - $(ALLSRC) | gzip -c | $(SSH) parrot tar -C src/cscout -xzvf -
 
 rdist-icarian:
 	tar cf - $(ALLSRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
@@ -330,8 +330,8 @@ classdiag.gif: classdiag.java
 
 # Cross building FreeBSD binaries on istlab
 # Cross-build the toolchain by running: make-toolchain
-H=/usr/home/dds/src/releng_6_3
-ALLARCH=alpha amd64 i386 ia64 powerpc sparc64
+H=/usr/home/dds/obj
+ALLARCH=amd64 i386 ia64 sparc64
 
 crossbuild:
 	for arch in $(ALLARCH);\
