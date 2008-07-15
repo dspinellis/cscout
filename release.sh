@@ -3,7 +3,7 @@
 # Release a CScout version
 # a -c flag will include a remote copy step
 #
-# $Id: release.sh,v 1.7 2008/04/09 18:32:40 dds Exp $
+# $Id: release.sh,v 1.8 2008/07/15 18:33:30 dds Exp $
 #
 
 DESTDIR="/dds/pubs/web/home/cscout"
@@ -41,11 +41,11 @@ then
 	copyfile macmini:src/cscout/macho/cscout darwin-macho
 	# Linux
 	copyfile parrot:src/cscout/i386/cscout linux-i386
-	copyfile titan:src/cscout/x86_64/cscout linux-x86_64
+	copyfile ikaria:src/cscout/x86_64/cscout linux-x86_64
 	# Solaris
 	copyfile sense:src/cscout/sparc/cscout solaris-sparc
 	# FreeBSD
-	for arch in alpha amd64 i386 ia64 powerpc sparc64
+	for arch in amd64 i386 sparc64
 	do
 		copyfile istlab:src/cscout/$arch/cscout fbsd-$arch
 	done
@@ -60,8 +60,8 @@ tar -cf - -C ${UH}/${DESTDIR} doc --exclude=RCS \
 tar -xf - -C $DISTDIR  || die "Creating the neutral directory"
 
 # Create the neutral zip file
-NEUTRAL_ZIP=${DESTDIR}/cscout-${VERSION}-neutral.zip
-rm -f ${UH}/${NEUTRAL_ZIP}
+NEUTRAL_ZIP=${UH}/${DESTDIR}/cscout-${VERSION}-neutral.zip
+rm -f ${NEUTRAL_ZIP}
 zip -r ${NEUTRAL_ZIP} $DISTDIR || die "zip $DISTDIR into $NEUTRAL_ZIP"
 
 # Create the neutral tar file
@@ -104,15 +104,15 @@ binfile()
 # Create the Unix binary files
 rm -f bin/win32-i386/$DISTDIR/bin/cswc.bat bin/win32-i386/$DISTDIR/bin/csmake.bat
 for i in win32-i386 darwin-macho linux-i386 linux-x86_64 solaris-sparc \
-fbsd-alpha fbsd-amd64 fbsd-i386 fbsd-ia64 fbsd-powerpc fbsd-sparc64
+fbsd-amd64 fbsd-i386 fbsd-sparc64
 
 do
 	binfile $i
 done
 
 # Create the Windows zip file
-BIN_ZIP=${DESTDIR}/cscout-${VERSION}-win32-i386.zip
-rm -f ${UH}/${BIN_ZIP}
+BIN_ZIP=${UH}/${DESTDIR}/cscout-${VERSION}-win32-i386.zip
+rm -f ${BIN_ZIP}
 rm -f bin/win32-i386/$DISTDIR/bin/cswc bin/win32-i386/$DISTDIR/bin/csmake
 tobatch refactor/cswc.pl bin/win32-i386/$DISTDIR/bin/cswc.bat
 tobatch refactor/csmake.pl bin/win32-i386/$DISTDIR/bin/csmake.bat
