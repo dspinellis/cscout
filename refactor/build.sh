@@ -2,7 +2,7 @@
 #
 # Build the binaries on all supported platforms
 #
-# $Id: build.sh,v 1.2 2008/07/15 18:34:01 dds Exp $
+# $Id: build.sh,v 1.3 2008/07/15 18:35:03 dds Exp $
 #
 
 # Windows
@@ -49,4 +49,4 @@ plink ikaria 'cd src/cscout ; make clean ; PATH=/home/dds/bin/:$PATH make'
 # for arch in amd64 i386 sparc64; do make clean; make ARCH=$arch CXX=$H/$arch/$arch/usr/src/tmp/usr/bin/g++ CC=$H/$arch/$arch/usr/src/tmp/usr/bin/gcc RANLIB=$H/$arch/$arch/usr/src/tmp/usr/bin/ranlib AR=$H/$arch/$arch/usr/src/tmp/usr/bin/ar;cp libswill.a $HOME/lib/$arch; done
 
 make rdist-istlab
-plink istlab 'cd src/cscout ; gmake clean ; gmake crossbuild'
+plink istlab 'cd src/cscout ; gmake clean ; rm */* ; gmake crossbuild'
