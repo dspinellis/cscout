@@ -1,12 +1,13 @@
 <?xml version="1.0" ?>
 <notes>
+<!--$Id: change.xml,v 1.2 2008/08/28 10:06:28 dds Exp $-->
 <!-- Remember to add extensions to the ext.xml file as well -->
 <dl>
-<dt>Version 2.5<dd>
+<dt>Version 2.5</dt><dd>
 (Under development.)
 </dd>
 
-<dt>Version 2.4<dd>
+<dt>Version 2.4</dt><dd>
 <ul>
 <li>The web front-end now includes support for a multiuser read-only
 browsing mode, and a log file.</li>
@@ -41,7 +42,7 @@ a function's calling and called functions.</li>
 SVG viewer.</li>
 </ul>
 </dd>
-<dt>Version 2.3<dd>
+<dt>Version 2.3</dt><dd>
 <ul>
 <li> Each defined function is now associated with a comprehensive
 set of metrics. These appear in the function's page, can be queried
@@ -126,6 +127,7 @@ through the new -3 switch.
 <li> The contents of the columns BASEFILEID and DEFINERID of the SQL table
 INCTRIGGERS were reversed.
 Their contents now correspond to their definitions.
+</li>
 <li>
 Correct support for initializer designators in conjunction with serial
 initialization of aggregate elements.
@@ -137,7 +139,6 @@ class specifier.</li>
 elements in the FUNCTIONID table.</li>
 <li> The <code>__alignof__</code> <em>gcc</em> extension now also supports expressions,
 in addition to types.</li>
-BIGINT database field.</li>
 <li> On 64-bit architectures fields containing pointers are stored in a
 BIGINT database field.</li>
 <li> MySQL dumps now start with SET SESSION sql_mode=NO_BACKSLASH_ESCAPES.
@@ -160,9 +161,9 @@ handled.</li>
 inside Microsoft inline assembly blocks. </li>
 <li> Fix a potential crash when processing a project
 under the <code>-r</code> option. </li>
-</ul>
+</ul></dd>
 
-<dt>Version 2.2<dd>
+<dt>Version 2.2</dt><dd>
 <ul>
 <li> An new accompanying command, <em>csmake</em> can automatically
 generate <em>CScout</em> processing scripts by monitoring a project's
@@ -236,9 +237,9 @@ compilation unit source files that are also included in other compilation units.
 The unused included file report for such cases could incorrectly identify
 files that were required for compilation as unneeded.</li>
 <li>Support for the C99 <code>_Bool</code> data type.</li>
-</ul>
+</ul></dd>
 
-<dt>Version 2.1<dd>
+<dt>Version 2.1</dt><dd>
 <ul>
 <li>
 The mixing of NULL with object pointers in conditional expressions
@@ -267,150 +268,150 @@ initially declared with an incomplete structure tag.</li>
 <li>Correctly deduce writable Unix files.</li>
 <li>Correctly identify as the same a function whose name is composed
 through token concatenation, and occurs in two projects.</li>
-</ul>
+</ul></dd>
 
-<dt>Version 2.0<dd>
+<dt>Version 2.0</dt><dd>
 <ul>
 <li>Monitor calls across functions and macros,
 generating call graphs in various formats,
 including hyperlinked SVGs.
 A new category provides canned and customized queries on functions
-and macros.
+and macros.</li>
 <li>Monitor parts of files not processed due to conditional
 compilation.
 The results are available as a new file metric category.
 In addition, unprocessed parts can be identified in
-source listings in a different color.
+source listings in a different color.</li>
 <li> Global options can be saved to a file, and loaded from it
-on startup.
-<li> File queries can now specify a sorting order for the file results.
+on startup.</li>
+<li> File queries can now specify a sorting order for the file results.</li>
 <li> A new file query lists files with unprocessed lines, ordered
-by the number of unprocessed lines.
-<li> The presentation of file lists has been improved
+by the number of unprocessed lines.</li>
+<li> The presentation of file lists has been improved</li>
 <li> Will not report unused included files that are included with the
 same directive that also includes used files.
 This can happen when the same file is compiled multiple times with different
 include paths or when a file is included by expanding a macro.
-Problem spotted by Alexios Zavras in the FreeBSD kernel report.
+Problem spotted by Alexios Zavras in the FreeBSD kernel report.</li>
 <li> Allow <code>typedef</code>ed pointers and arrays to be further
 qualified with e.g. <code>const</code> or <code>volatile</code>.
-Problem reported by Walter Briscoe.
+Problem reported by Walter Briscoe.</li>
 <li> The second argument of a conditional expression can be
-omitted (gcc extension).
+omitted (gcc extension).</li>
 <li> Fix assertion generated when processing a yacc file without having
-defined a yyparse function.
-</ul>
+defined a yyparse function.</li>
+</ul></dd>
 
-<dt>Version 1.16<dd>
+<dt>Version 1.16</dt><dd>
 <ul>
-<li> Declarations can be intermixed with statements (C99).
+<li> Declarations can be intermixed with statements (C99).</li>
 <li> <code>__typeof</code> can have as its argument an expression
-and not only an identifier.
-<li> Support for C99 variable number of arguments preprocessor macros.
-<li> Allow <code>case</code> expression ranges (gcc extension).
+and not only an identifier.</li>
+<li> Support for C99 variable number of arguments preprocessor macros.</li>
+<li> Allow <code>case</code> expression ranges (gcc extension).</li>
 <li> Recognise <code>__atribute__(__unused__)</code> for determining which
-identifiers should not be reported as unused (gcc extension).
+identifiers should not be reported as unused (gcc extension).</li>
 <li> Command-line option to generate a wrongly scoped identifier and unused 
-include file and identifier warning report.
+include file and identifier warning report.</li>
 <li> Separate identifier attribute for enumeration constants.
 This allows us stop incorrectly categorizing them as having global
-(compilation unit) visibility.
-<li> Error reporting format is now compatible with gcc.
-<li> Dereferencing a function yields a function (common extension).
-<li> Command-line option to process the file and exit.
-<li> Document processing of the FreeBSD kernel.
-<li> Correct typing of assembly-annotated declarators.
+(compilation unit) visibility.</li>
+<li> Error reporting format is now compatible with gcc.</li>
+<li> Dereferencing a function yields a function (common extension).</li>
+<li> Command-line option to process the file and exit.</li>
+<li> Document processing of the FreeBSD kernel.</li>
+<li> Correct typing of assembly-annotated declarators.</li>
 <li> Fixed assertion failure that could be caused when parts of concatenated
 identifiers were no longer available (e.g. when processing files
-with the <code>-m T</code> option.)
+with the <code>-m T</code> option.)</li>
 <li> Correct handling of macro parameters that match other macros and
-are followed by a concatenation operator (they were erroneously replaced).
+are followed by a concatenation operator (they were erroneously replaced).</li>
 <li> Add workaround for gcc <code>__builtin_va_copy</code> in the provided
-definition files.
+definition files.</li>
 <li> Corrected the handling of <code>main()</code> in the example definition
-files.
-</ul>
+files.</li>
+</ul></dd>
 
-<dt>Version 1.15<dd>
+<dt>Version 1.15</dt><dd>
 <ul>
 <li> Plugged another memory leak.
 All remaining memory leaks are caused by STL caching and should be of a
-constant overhead.
-</ul>
+constant overhead.</li>
+</ul></dd>
 
 
-<dt>Version 1.14<dd>
+<dt>Version 1.14</dt><dd>
 <ul>
-<li> Support locally declared labels (<code>__label__</code>) (gcc extension).
-<li> Allow statement labels without a following statement (gcc extension).
-<li> Allow assignment to case expressions (common extension)
-<li> Support C99 initialization designators.
-<li> Support aggregate member initialization using the member: value syntax (gcc extension)
+<li> Support locally declared labels (<code>__label__</code>) (gcc extension).</li>
+<li> Allow statement labels without a following statement (gcc extension).</li>
+<li> Allow assignment to case expressions (common extension)</li>
+<li> Support C99 initialization designators.</li>
+<li> Support aggregate member initialization using the member: value syntax (gcc extension)</li>
 <li> Major memory leak plugged (a missing virtual destructor).
-<em>Cscout</em> will now consume about 7 times less memory.
-<li> In <code>#if</code> and </code>#elif</code> directives expand macros
-before processing the <code>defined</code> operator.
-<li> Support the vararg preprocessor macro syntax (gcc extension).
-<li> Allow empty member declarations in aggregates (gcc extension).
-<li> Allow the declaration of empty structures or unions (gcc extension).
-<li> An <code>__asm__</code> declaration can be used instead of a function's body (gcc).
+<em>Cscout</em> will now consume about 7 times less memory.</li>
+<li> In <code>#if</code> and <code>#elif</code> directives expand macros
+before processing the <code>defined</code> operator.</li>
+<li> Support the vararg preprocessor macro syntax (gcc extension).</li>
+<li> Allow empty member declarations in aggregates (gcc extension).</li>
+<li> Allow the declaration of empty structures or unions (gcc extension).</li>
+<li> An <code>__asm__</code> declaration can be used instead of a function's body (gcc).</li>
 <li> Correct typing of the conditional operator's return type
-when one argument is a pointer and the other NULL.
+when one argument is a pointer and the other NULL.</li>
 <li> New <em>-m</em> option to specify identifiers to track.
-Enormous memory savings at the expense of unsound operation.
-<li> Display an error when a file does not end with a newline
-<li> Allow yacc %union declaration to end with a ;
-<li> Accept the #ident preprocessor directive (gcc extension)
+Enormous memory savings at the expense of unsound operation.</li>
+<li> Display an error when a file does not end with a newline</li>
+<li> Allow yacc %union declaration to end with a ;</li>
+<li> Accept the #ident preprocessor directive (gcc extension)</li>
 <li> Fixed preprocessor bug:
 multiple expansions of the same function-like macro inside another macro would
-fail.
-<li> Correctly handle concatenation of empty macro arguments.
-<li> Correctly handle function prototypes inside old-style argument declarations.
-<li>  Do not replace strings or characters matching the name of a macro formal argument.
-<li> Accept an empty translation unit (common extension).
+fail.</li>
+<li> Correctly handle concatenation of empty macro arguments.</li>
+<li> Correctly handle function prototypes inside old-style argument declarations.</li>
+<li>  Do not replace strings or characters matching the name of a macro formal argument.</li>
+<li> Accept an empty translation unit (common extension).</li>
 <li> Adding a pointer to an integer now correctly yields a pointer
-(adding an integer to a pointer already worked correctly)
-<li> Support C99 compound literals.
-<li> Correct typing of compound statements as expressions (gcc extension)
-<li> Improved configuration definition files for the GNU C compiler
-</ul>
+(adding an integer to a pointer already worked correctly)</li>
+<li> Support C99 compound literals.</li>
+<li> Correct typing of compound statements as expressions (gcc extension)</li>
+<li> Improved configuration definition files for the GNU C compiler</li>
+</ul></dd>
 
-<dt>Version 1.13<dd>
+<dt>Version 1.13</dt><dd>
 <ul>
-<li> Handle GNU <code>__asm__</code> extension with a single operand
-<li> -d options to <em>cswc</em> for specifying configuration directory
-<li> <code>-p</code> command-line option to specify the web server port
-<li> Small corrections in the FreeBSD definition files.
-<li> Intel IA-64 and AMD-64 support
-</ul>
-<dt>Version 1.12<dd>
+<li> Handle GNU <code>__asm__</code> extension with a single operand</li>
+<li> -d options to <em>cswc</em> for specifying configuration directory</li>
+<li> <code>-p</code> command-line option to specify the web server port</li>
+<li> Small corrections in the FreeBSD definition files.</li>
+<li> Intel IA-64 and AMD-64 support</li>
+</ul></dd>
+<dt>Version 1.12</dt><dd>
 <ul>
-<li> New query: writable identifiers that should be made static
-<li> URLs now work on 64-bit architectures
-<li> Improved distribution format
-<li> Sun SPARC-64 support
-</ul>
-<dt>Version 1.10<dd>
+<li> New query: writable identifiers that should be made static</li>
+<li> URLs now work on 64-bit architectures</li>
+<li> Improved distribution format</li>
+<li> Sun SPARC-64 support</li>
+</ul></dd>
+<dt>Version 1.10</dt><dd>
 <ul>
-<li> Allow GNU __asm__ statements with a single operand.
-<li> GNU __asm__ statements can also appear at file scope.
-<li> Accept older "name = {action statements}" yacc syntax.
-<li> Can handle untyped yacc specifications.
-<li> Correctly handle struct/union type specifier followed by a type qualifier.
-<li> Small corrections in the supplied definition files.
-</ul>
+<li> Allow GNU __asm__ statements with a single operand.</li>
+<li> GNU __asm__ statements can also appear at file scope.</li>
+<li> Accept older "name = {action statements}" yacc syntax.</li>
+<li> Can handle untyped yacc specifications.</li>
+<li> Correctly handle struct/union type specifier followed by a type qualifier.</li>
+<li> Small corrections in the supplied definition files.</li>
+</ul></dd>
 
-<dt>Version 1.9<dd>
+<dt>Version 1.9</dt><dd>
 <ul>
 <li> Now distributed with ready-to-run example;
      the <em>awk</em> source code.
-     No setup required, just unpack the distribution and run.
-<li> Can now also process <em>yacc</em> files
-<li> Fixed syntax error in workspace compiler source code
-<li> Correctly documented -P switch as -E
-<li> Added stdlib.h generic header
-</ul>
+     No setup required, just unpack the distribution and run.</li>
+<li> Can now also process <em>yacc</em> files</li>
+<li> Fixed syntax error in workspace compiler source code</li>
+<li> Correctly documented -P switch as -E</li>
+<li> Added stdlib.h generic header</li>
+</ul></dd>
 
-<dt>Version 1.8<dd>First public release
+<dt>Version 1.8</dt><dd>First public release</dd>
 </dl>
 </notes>
