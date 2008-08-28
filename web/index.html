@@ -1,28 +1,3 @@
-<?xml version="1.0" encoding="us-ascii"?>
-<!DOCTYPE html
-	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<!--
-
-WARNING WARNING WARNING WARNING WARNING WARNING
-
-Change this file only in the CScout doc directory or your
-changes will go away.
-
-WARNING WARNING WARNING WARNING WARNING WARNING
-
-Front matter {{{1
--->
-<head>
-<title>CScout</title>
-<meta name="AUTHOR" content="Diomidis Spinellis" />
-<meta http-equiv="Content-type" content="text/html; charset=us-ascii" />
-</head>
-<body>
-<h1 align='right'><tt><font color="#ff0000">cscout dds</font></tt></h1>
-<img src="logo.png" alt="CScout logo" /><br />
-<h2>CScout</h2> <!--- {{{1 -->
 <em>CScout</em> is a source code analyzer and refactoring browser for
 collections of C programs.
 It can process workspaces of multiple projects (we define a project
@@ -59,18 +34,7 @@ functions and function-like macros.
 <a href="doc/walk.html">walkthrough</a>
 (<em>CScout</em> documentation.)
 <p />
-See also:
-<ul>
-<li>Diomidis Spinellis.
-<a href="../pubs/jrnl/2003-TSE-Refactor/html/Spi03r.html">Global analysis and transformations in preprocessed languages</a>.
-<cite>IEEE Transactions on Software Engineering</cite>,
-29(11):1019&ndash;1030, November 2003</li>
-<li><a href="http://www.spinellis.gr/codequality">Code Quality: The Open Source Perspective</a> (Addison Wesley, 2006)</li>
-<li><a href="http://www.spinellis.gr/codereading">Code Reading: The Open Source Perspective</a> (Addison Wesley, 2003)</li>
-</ul>
-
-<p />
-The <a href="doc/license.html">license</a>
+The <a href="license.html">license</a>
 of the free unsupported <em>CScout</em> version allows you
 to freely use <em>CScout</em> on open source software code.
 A different <em>CScout</em> version is available under a
@@ -83,73 +47,3 @@ support contract for use on proprietary software.
 <a href="http://www.freebsd.org">FreeBSD</a>, and
 <a href="http://www.sun.com/software/solaris/">Sun Solaris</a>,
 under several processor architectures.
-To run it download the binary bundle that matches your execution platform and
-the architecture-neutral bundle.
-Each binary bundle contains:
-<ul>
-<li> <em>cscout</em>, the <em>CScout</em> engine </li>
-<li> <em>cswc</em>, the workspace compiler (Perl source code) </li>
-<li> <em>csmake</em>, the build monitor (Perl source code) </li>
-</ul>
-The architecture-neutral bundle contains:
-<ul>
-<li> compiler-specific configuration files (C source code; gcc and Microsoft C have been tested)</li>
-<li> ANSI C generic header files</li>
-<li> read-to-run example (the ``one true <em>awk</em>'' source code)</li>
-<li> documentation (HTML)</li>
-</ul>
-
-<h2>Download CScout</h2> <!--- {{{1 -->
-All files are compressed tar or zip files and are distributed
-under the terms of
-the <a href="doc/license.html">CScout Public License</a>.
-You will need to download both the
-<a href="cscout-VERSION-neutral.tar.gz">architecture-neutral</a>
-files (documentation and selected source code)
-and the binary that matches your system.
-FreeBSD users would probably prefer to directly install the corresponding
-port (ports/devel/cscout).
-For really large collections (&gt; 1MLOC) you need a 64 bit processor
-and the corresponding application file (<em>CScout</em> has been
-tested on the SPARC-64 and AMD-64 architectures).
-<p />
-Unpack both files in the same location.
-<ul>
-<li><a href="cscout-VERSION-neutral.tar.gz">Architecture-neutral files (tar.gz)</a></li>
-<li><a href="cscout-VERSION-neutral.zip">Architecture-neutral files (zip)</a></li>
-<li><a href="cscout-VERSION-linux-i386.tar.gz">Linux i386 (tar.gz)</a></li>
-<li><a href="cscout-VERSION-linux-x86_64.tar.gz">Linux x86_64 (tar.gz)</a></li>
-<li><a href="cscout-VERSION-win32-i386.tar.gz">Microsoft Windows i386 (tar.gz)</a></li>
-<li><a href="cscout-VERSION-win32-i386.zip">Microsoft Windows i386 (zip)</a></li>
-<li><a href="cscout-VERSION-darwin-macho.tar.gz">Apple Mac OS X (PowerPC and i386; tar.gz)</a></li>
-<li><a href="cscout-VERSION-fbsd-amd64.tar.gz">FreeBSD AMD-64 (tar.gz)</a></li>
-<li><a href="cscout-VERSION-fbsd-i386.tar.gz">FreeBSD i386 (tar.gz)</a></li>
-<li><a href="cscout-VERSION-fbsd-sparc64.tar.gz">FreeBSD SPARC64 (tar.gz)</a></li>
-<li><a href="cscout-VERSION-solaris-sparc.tar.gz">Solaris SPARC (tar.gz)</a></li>
-</ul>
-
-<h2>Documentation</h2> <!--- {{{1 -->
-The <em>CScout</em> documentation is available through a table of contents,
-suitable for on-line browsing, and as a single page, suitable for printing.
-<ul>
-<li> <a href="doc/index.html">Table of contents</a></li>
-<li> <a href="doc/indexw.html">Single page</a></li>
-</ul>
-
-<h2>Change History</h2> <!--- {{{1 -->
-The current <em>CScout</em> cersion is VERSION.
-The <em>CScout</em> documentation contains the complete
-<a href="doc/change.html">change history</a>.
-<p />
-<a href="../">Diomidis Spinellis home page</a>
-<hr />
-<a href="http://validator.w3.org/check/referer"><img align="left" hspace="4" src="../valid-xhtml10.png" border="0" alt="Valid XHTML 1.0!" height="31" width="88" /></a>
-<a href="http://www.w3.org/WAI/WCAG1AAA-Conformance" title="Explanation of Level Triple-A Conformance"><img align="left" hspace="4" border="0" height="32" width="88" src="../wcag1AAA.gif" alt="Level Triple-A conformance icon, W3C-WAI Web Content Accessibility Guidelines 1.0" /></a>
-<font size="-2">
-<!--Creative Commons License--><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/gr/deed.en"><img hspace="4" align="left" alt="Creative Commons License" style="border-width: 0" src="http://creativecommons.org/images/public/somerights20.png"/></a>
-Unless otherwise expressly stated, all original material on this page created by Diomidis Spinellis is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/gr/deed.en">Creative Commons Attribution-Share Alike 3.0 Greece License</a>.
-<br />
-Last modified: $Date: 2008/03/15 11:22:18 $
-</font>
-</body>
-</html>
