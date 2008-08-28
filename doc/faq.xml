@@ -1,0 +1,144 @@
+<?xml version="1.0" ?>
+<notes>
+
+<!--
+To update the table of contents execute the following vim command from a register
+/^<h2>Contentsjjma/ul>kmb/^$"qyy:g/^<a name/s,<a name="\([^>]*\)><h2>\(.*\)</h2></a>,<li> <a href="\#\1>\2</a>,|y Q|u'ad'b"qP
+-->
+
+<h2>Contents</h2>
+<ul>
+
+<li> <a href="#cond">How do I handle conditional compilation?</a>
+<li> <a href="#auto">How can I handle automatically generated files?</a>
+<li> <a href="#save">How can I save an identifier or file query?</a>
+<li> <a href="#cgfmt">Why aren't my call graphs appearing in the form I specified?</a>
+<li> <a href="#mancpp">How can I manually convert a CScout project to obtain its preprocessed output with cscout -E?</a>
+<li> <a href="#win32fname">Why is my read-only prefix pragma not working under Windows?</a>
+<li> <a href="#mem">My system appears to be using the hard disk excessively (thrashing).  Why?</a>
+<li> <a href="#logo">Isn't the CScout logo infringing the intellectual property of the International Scout movement?</a>
+<li> <a href="#crit">When does <em>CScout</em> phone home?</a>
+<li> <a href="#det">What details does <em>CScout</em> send when calling its home base?</a>
+</ul>
+
+
+<!-- ******************************************************* -->
+<a name="cond"><h2>How do I handle conditional compilation?</h2></a>
+You can either define macros that will cover all conditional cases,
+or process the same project multiple times using different macro
+definitions.
+See <a href="short.html">this page</a>.
+
+
+<!-- ******************************************************* -->
+<a name="auto"><h2>How can I handle automatically generated files?</h2></a>
+Some projects use mini domain-specific languages
+similar to <em>yacc</em> and <em>lex</em> to express some of their
+elements.
+<em>CScout</em> can natively parse C and <em>yacc</em> source files, but
+no other language.
+Obviously changes should be performed in the original domain-specific
+files, rather than the generated C code.
+On the other hand, <em>CScout</em> can not parse the original files,
+but can parse the generated code.
+To escape this situation include the automatically generated file
+in your workspace definition, but define it as read-only.
+In this way <em>CScout</em> will not allow you to modify identifiers appearing
+in it.
+
+<!-- ******************************************************* -->
+<a name="save"><h2>How can I save an identifier or file query?</h2></a>
+Simply bookmark the page that shows the query's results.
+You can even pass the URL around or print it on a T-shirt;
+the URL contains the whole query.
+
+<!-- ******************************************************* -->
+<a name="cgfmt"><h2>Why aren't my call graphs appearing in the form I specified?</h2></a>
+Changing the global options that specify the format of call graphs
+affects the types of links appearing in the corresponding pages.
+If you go to a previous page using the back button and you do not
+reload it, you will use the old links and will obtain the old type
+of call graph.
+This is the only instance where the use of the back button will
+surprise you.
+
+<!-- ******************************************************* -->
+<a name="mancpp"><h2>How can I manually convert a CScout project to obtain its preprocessed output with cscout -E?</h2></a>
+Simply replace the line
+<code>#pragma process </code><em>filename</em>
+with
+<code>#include </code><em>filename</em>.
+
+<!-- ******************************************************* -->
+<a name="win32fname"><h2>Why is my read-only prefix pragma not working under Windows?</h2></a>
+Filename matching under Windows is a difficult subject.
+Filenames retain case, but are compared in a case insensitive manner.
+To avoid problems, when writing <code>ro_prefix</code> and <code>ipath</code>
+pragmas under a Windows platform, respect the following rules.
+<ul>
+<li> Include a drive letter in the path.</li>
+<li> Write the drive letter in uppercase.</li>
+<li> Separate the path elements using a single backslash.</li>
+<li> Do not end the path with a trailing backslash.</li>
+</ul>
+
+
+<!-- ******************************************************* -->
+<a name="mem"><h2>My system appears to be using the hard disk excessively (thrashing).  Why?</h2></a>
+<em>CScout</em> tags and follows each and every identifier of the source
+code it processes, including header files.
+As a result, the memory requirements of <em>CScout</em> are considerable.
+Typical memory requirements are 700-1600 bytes per line processed.
+If your system's main memory is less than the ammount needed,
+<em>CScout</em> will page to disk and thrashing will occur.
+
+<!-- ******************************************************* -->
+<a name="logo"><h2>Isn't the CScout logo infringing the intellectual property of the International Scout movement?</h2></a>
+The emblem of the International Scout movement is based on
+the <em>fleur de lys</em>,
+a traditional design of the 11th century that was later used
+to decorate maps and compass cards.
+CScout acts as a compass and a map for C code, so the association
+with the <em>fleur de lys</em> is particularly relevant.
+You can read more about the <em>fleur de lys</em> symbol at the
+<a href="http://www.wikipedia.org/wiki/Fleur-de-lis">Wikipedia</a>
+web site entry.
+Places or institutions
+that use the symbol informally or as part of their heraldic arms are:
+Quebec; Canada; Augsburg, Germany; Florence, Italy; Slovenia; the
+Fuggers medieval banking family; Bosnia and Herzegovina; and Louisville,
+Kentucky; the Prince of Wales also has a fleur de lys on his coat of
+arms.
+A
+<a href="http://images.google.com.gr/images?q=fleur+de+lys&hl=en&lr=&ie=ISO-8859-1&safe=on">Google image search</a> for the image
+will also show you tens of similar designs.
+Finally, note that the International Scout movement's
+rendering of the image includes two stars on the left and right leaves.
+CScout's logo does not contain this distinctive feature.
+
+<!-- ******************************************************* -->
+<a name="crit"><h2>When does <em>CScout</em> phone home?</h2></a>
+<em>CScout</em> will contact its home base after processing 2MB of source code
+(including headers), or if the processing time exceeds 10s.
+These limits allow you to process the supplied <em>awk</em>
+source code, or experiment with files including windows.h
+
+<!-- ******************************************************* -->
+<a name="det"><h2>What details does <em>CScout</em> send when calling its home base?</h2></a>
+Your name, address, and credit card number :-)
+<p>
+Seriously, the data sent to our server consists of
+<ul>
+<li> your workspace's file metrics
+<li> your workspace's identifier metrics
+<li> up to 10 project names you have specified
+<li> up to 50 names of cross-file identifiers
+<li> the version of <em>CScout</em> you are running
+<li> your host name
+<li> a random number, part of a simple challenge-response authentication.
+</ul>
+The authentication system is really a child's toy,
+even an idiot would be able to hack it, so don't bother.
+
+
+</notes>
