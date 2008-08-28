@@ -2,8 +2,9 @@
 #
 # Release a CScout version
 # a -c flag will include a remote copy step
+# a -w flag will only update the web page
 #
-# $Id: release.sh,v 1.8 2008/07/15 18:33:30 dds Exp $
+# $Id: release.sh,v 1.9 2008/08/28 10:25:18 dds Exp $
 #
 
 DESTDIR="/dds/pubs/web/home/cscout"
@@ -26,6 +27,22 @@ copyfile()
 	mkdir -p bin/$DIST/$DISTDIR/bin
 	pscp $INFILE bin/$DIST/$DISTDIR/bin/cscout || die "copy $INFILE to bin/$DIST/$DISTDIR/bin/cscout"
 }
+
+# Update web page
+webinst()
+{
+	cd web
+	sh build.sh
+	cp build/*.html ${UH}/${DESTDIR}
+	sed -e "s/VERSION/${VERSION}/" build/download.html >${UH}/${DESTDIR}/download.html
+	cd ..
+}
+
+webinst
+if [ "$1" == "-w" ]
+then
+	exit 0
+fi
 
 if [ "$1" == "-c" ]
 then
@@ -119,5 +136,3 @@ tobatch refactor/csmake.pl bin/win32-i386/$DISTDIR/bin/csmake.bat
 
 (cd bin/win32-i386 ; zip -r ${BIN_ZIP} $DISTDIR || die "zip $DISTDIR into $BIN_ZIP")
 
-# Create the HTML index file
-sed -e "s/VERSION/${VERSION}/" doc/index.html >${UH}/${DESTDIR}/index.html
