@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.47 2008/04/30 13:24:34 dds Exp $
+ * $Id: fileid.cpp,v 1.48 2008/09/03 11:50:20 dds Exp $
  */
 
 #include <fstream>
@@ -171,6 +171,7 @@ Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 	name(n),
 	m_compilation_unit(false),
 	hash(h),
+	ipath_offset(0),
 	hand_edited(false)
 {
 	set_readonly(r);
@@ -178,6 +179,7 @@ Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 
 Filedetails::Filedetails() :
 	m_compilation_unit(false),
+	ipath_offset(0),
 	hand_edited(false)
 {
 }

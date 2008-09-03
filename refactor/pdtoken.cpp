@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.118 2008/07/01 09:24:39 dds Exp $
+ * $Id: pdtoken.cpp,v 1.119 2008/09/03 11:50:20 dds Exp $
  */
 
 #include <iostream>
@@ -592,7 +592,6 @@ Pdtoken::process_include(bool next)
 {
 	Pltoken t;
 	PtokenSequence tokens;
-	static vectorstring::iterator next_i;
 
 	if (skiplevel >= 1)
 		return;
@@ -650,6 +649,10 @@ Pdtoken::process_include(bool next)
 		return;
 	}
 
+	if (DP()) {
+		cout << "Ready to include:\n";
+		copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));
+	}
 	// #include <foo.h> and #include "foo.h"
 	if (is_absolute_filename(f.get_val())) {
 		if (can_open(f.get_val())) {
@@ -669,7 +672,7 @@ Pdtoken::process_include(bool next)
 		 * 2) in the current directory
 		 * 3) in the specified include path
 		 */
-		if (f.get_code() == ABSFNAME) {
+		if (f.get_code() == ABSFNAME && !next) {
 			string fname(Fchar::get_dir() + "/" + f.get_val());
 			if (can_open(fname)) {
 				Fchar::push_input(fname);
@@ -679,13 +682,13 @@ Pdtoken::process_include(bool next)
 		vectorstring::iterator i;
 		i = include_path.begin();
 		if (next)
-			i += Fchar::get_ipath_offset() + 1;
-		for (; i != include_path.end(); i++) {
+			i += Fchar::get_fileid().get_ipath_offset() + 1;
+		for (; i < include_path.end(); i++) {
 			string fname(*i + "/" + f.get_val());
 			if (DP()) cout << "Try open " << fname << "\n";
 			if (can_open(fname)) {
-				Fchar::push_input(fname, i - include_path.begin());
-				next_i = ++i;
+				Fchar::push_input(fname);
+				Fchar::get_fileid().set_ipath_offset(i - include_path.begin());
 				return;
 			}
 		}

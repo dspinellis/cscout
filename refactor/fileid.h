@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.38 2008/04/30 13:24:34 dds Exp $
+ * $Id: fileid.h,v 1.39 2008/09/03 11:50:20 dds Exp $
  */
 
 #ifndef FILEID_
@@ -78,6 +78,7 @@ private:
 	FileIncMap includes;	// Files we include
 	FileIncMap includers;	// Files that include us
 	FileHash hash;			// MD5 hash for the file's contents
+	int ipath_offset;	// Offset in the include file path where this file was found
 
 	// Update the specified map
 	void include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line);
@@ -119,6 +120,9 @@ public:
 	bool is_hand_edited() const { return hand_edited; }
 	// Return the file's original contents
 	const string &get_original_contents() const { return contents; }
+	// Include file path offset
+	int get_ipath_offset() const { return ipath_offset; }
+	void set_ipath_offset(int o) { ipath_offset = o; }
 };
 
 typedef map <string, int> FI_uname_to_id;
@@ -202,6 +206,9 @@ public:
 	bool is_processed(int line) const { return i2d[id].is_processed(line); };
 	// Return the set of files that are the same as this (including this)
 	const set <Fileid> & get_identical_files() const { return identical_files[i2d[id].get_filehash()]; }
+	// Include file path offset
+	void set_ipath_offset(int o) { i2d[id].set_ipath_offset(o); }
+	int get_ipath_offset() const { return i2d[id].get_ipath_offset(); }
 
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered

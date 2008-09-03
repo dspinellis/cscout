@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.40 2008/07/01 09:24:39 dds Exp $
+ * $Id: fchar.cpp,v 1.41 2008/09/03 11:51:03 dds Exp $
  */
 
 #include <iostream>
@@ -38,7 +38,6 @@ Fileid Fchar::fi;
 StackFcharContext Fchar::cs;		// Pushed contexts (from push_input())
 stackFchar Fchar::ps;			// Putback Fchars (from putback())
 int Fchar::line_number;			// Current line number
-int Fchar::ipath_offset;		// Include file path offset for the current file
 bool Fchar::yacc_file;			// True input comes from .y
 stackFchar::size_type Fchar::stack_lock_size;	// Locked elements in file stack
 bool Fchar::trigraphs_enabled;		// True if we handle trigraphs
@@ -50,7 +49,6 @@ Fchar::set_input(const string& s)
 		in.close();
 	in.clear();		// Otherwise flags are dirty and open fails
 	in.open(s.c_str(), ios::binary);
-	ipath_offset = 0;
 	if (in.fail())
 		Error::error(E_FATAL, s + ": " + string(strerror(errno)), false);
 	fi = Fileid(s);
