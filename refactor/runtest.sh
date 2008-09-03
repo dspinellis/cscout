@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.24 2008/09/03 10:22:24 dds Exp $
+# $Id: runtest.sh,v 1.25 2008/09/03 11:19:39 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -221,7 +221,7 @@ runtest_cpp()
 	DIR=$2
 	CSFILE=$3
 	start_test $DIR $NAME
-	(cd $DIR ; $CSCOUT -3 -E $CSFILE >test/nout/$NAME.out 2>test/nout/$NAME.err )
+	(cd $DIR ; $CSCOUT -3 -E $CSFILE ) >test/nout/$NAME.out 2>test/nout/$NAME.err
 	end_test $DIR $NAME
 }
 
@@ -325,6 +325,7 @@ then
 		makecs_cpp $i
 		runtest_cpp $i . makecs.cs
 	done
+	runtest_cpp include_next test/inext driver.cs
 fi
 
 # Test cases for individual C files
