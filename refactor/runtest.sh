@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.23 2008/07/01 07:27:59 dds Exp $
+# $Id: runtest.sh,v 1.24 2008/09/03 10:22:24 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -25,7 +25,11 @@ end_test()
 	then
 		return 0
 	fi
-	if diff -ib test/out/$NAME test/nout/$NAME
+	if ( test -r test/out/$NAME.err &&
+	     diff -ib test/out/$NAME.out test/nout/$NAME.out &&
+	     diff -ib test/out/$NAME.err test/nout/$NAME.err ) ||
+	   ( test -r test/out/$NAME &&
+	     diff -ib test/out/$NAME test/nout/$NAME )
 	then
 		echo "
 Test $2 finishes correctly
@@ -217,7 +221,7 @@ runtest_cpp()
 	DIR=$2
 	CSFILE=$3
 	start_test $DIR $NAME
-(cd $DIR ; $CSCOUT -3 -E $CSFILE 2>&1 ) >test/nout/$NAME
+	(cd $DIR ; $CSCOUT -3 -E $CSFILE >test/nout/$NAME.out 2>test/nout/$NAME.err )
 	end_test $DIR $NAME
 }
 
