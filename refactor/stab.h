@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.24 2007/08/19 09:07:54 dds Exp $
+ * $Id: stab.h,v 1.25 2008/09/18 06:16:18 dds Exp $
  */
 
 #ifndef STAB_
@@ -14,7 +14,9 @@
  * Four namespaces:
  * 1. Label names:
  *    Disambinuated by the syntax of label declaration and
- *    used, stored in Function::label, defined using label_define
+ *    used, stored in Function::label, defined using label_define.
+ *    (gcc also allows block-local labels; these are stored in
+ *    Block.local_label and defined with local_label_define.)
  * 2. Tags for struct, union, enum:
  *    Disambiguated by following the respective keyword
  *    and stored in Block.tag, defined using tag_define
