@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.146 2008/09/18 08:39:27 dds Exp $
+ * $Id: parse.y,v 1.147 2008/09/18 10:35:42 dds Exp $
  *
  */
 
@@ -209,9 +209,52 @@ static Type yacc_stack;
 // True if the %union mechanism is used
 static bool yacc_typing;
 
+/*
+ * Types of yacc symbols
+ * All yacc symbols (terminal and non-terminal) are entered into the yacc symbol table.
+ * In addition, non-terminals are also defined as integer objects, so that they will
+ * unify with the symbols appearing in the C code.
+ */
+enum e_yacc_symbol_type {
+	y_terminal,		// Definitely a terminal symbol (e.g. EQUALS)
+	y_nonterminal,		// Definitely a non-terminal symbol e.g. expr
+	y_any			// Any of the two
+};
+
+// All declared yacc identifiers (terminal and non-terminal symbols)
+static Stab yacc_identifier;
+
+// Declare/use t as a yacc identifier of the specified type (see above)
+static void
+make_yacc_identifier(Type t, enum e_yacc_symbol_type ytype)
+{
+	if (DP())
+		cout << "Make yacc identifier " << t.get_name() << endl;
+	if (ytype == y_terminal) {
+		Id const *id = obj_lookup(t.get_name());
+		if (DP())
+			cout << "Object lookup for " << t.get_name() << " returns " << id << "\n";
+		if (id)
+			Token::unify(id->get_token(), t.get_token());
+		else
+			obj_define(t.get_token(), basic(b_int, s_none, c_static));
+	}
+	/*
+	 * Define t as a yacc identifier.
+	 * If it is already defined, unify it with the previous definition.
+	 */
+	t.get_token().set_ec_attribute(is_yacc);
+
+	Id const *id;
+	if ((id = yacc_identifier.lookup(t.get_name())))
+		Token::unify(id->get_token(), t.get_token());
+	else
+		yacc_identifier.define(t.get_token(), Type());
+}
+
 // Define the type of a given yacc name.
-void
-yacc_type_define(Type name, Type type)
+static void
+yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 {
 	// Set the type of the token to its tag
 	YaccTypeMap::const_iterator i = yacc_type.find(name.get_name());
@@ -219,8 +262,9 @@ yacc_type_define(Type name, Type type)
 		yacc_type[name.get_name()] = type;
 	// Declare the token as an integer
 	if (name.get_token().get_code() == IDENTIFIER)
-		obj_define(name.get_token(), basic(b_int, s_none, c_static));
+		make_yacc_identifier(name, ytype);
 }
+
 %}
 
 
@@ -333,7 +377,8 @@ yacc_type_define(Type name, Type type)
 
 /* Needed for yacc */
 %type <t> yacc_tag
-%type <t> yacc_name_list_declaration
+%type <t> yacc_terminal_list_declaration
+%type <t> yacc_type_list_declaration
 %type <t> yacc_name_number
 %type <t> yacc_name
 %type <t> yacc_variable
@@ -2301,6 +2346,7 @@ file:
 			parse_yacc_defs = true;
 			yacc_typing = false;
 			yacc_type.clear();
+			yacc_identifier.clear();
 		} yacc_body
 	| translation_unit
 	| /* Empty */
@@ -2341,7 +2387,9 @@ yacc_defs:
 
 yacc_def:
 	YSTART IDENTIFIER
-		{ obj_define($2.get_token(), basic(b_int, s_none, c_static)); }
+		{
+			make_yacc_identifier($2, y_nonterminal);
+		}
 	| UNION '{' { parse_yacc_defs = false; } member_declaration_list  '}'
 		{
 			Type ut = $4.clone();
@@ -2351,16 +2399,16 @@ yacc_def:
 			parse_yacc_defs = true;
 		}
 	| YLCURL translation_unit YRCURL
-	| yacc_rword yacc_name_list_declaration
+	| yacc_terminal_decl yacc_terminal_list_declaration
+	| YTYPE yacc_type_list_declaration
 	| ';' /* Noop */
 	;
 
-yacc_rword:
+yacc_terminal_decl:
 	YTOKEN
 	| YLEFT
 	| YRIGHT
 	| YNONASSOC
-	| YTYPE
 	;
 
 yacc_tag:
@@ -2396,19 +2444,36 @@ yacc_tag:
 			}
 	;
 
-yacc_name_list_declaration:
+yacc_terminal_list_declaration:
 	/*
-	 * As in: %type <Tree> expr, statement
-	 *        rword tag    yacc_name_number
+	 * As in: %token <Tree> expr, statement
+	 *               tag    yacc_name_number
 	 */
 	yacc_tag yacc_name_number
 		{
-			yacc_type_define($2, $1);
+			yacc_type_define($2, $1, y_terminal);
 			$$ = $1;
 		}
-	| yacc_name_list_declaration comma_opt yacc_name_number
+	| yacc_terminal_list_declaration comma_opt yacc_name_number
 		{
-			yacc_type_define($3, $1);
+			yacc_type_define($3, $1, y_terminal);
+			$$ = $1;
+		}
+	;
+
+yacc_type_list_declaration:
+	/*
+	 * As in: %type <Tree> expr, statement
+	 *              tag    yacc_name_number
+	 */
+	yacc_tag yacc_name_number
+		{
+			yacc_type_define($2, $1, y_nonterminal);
+			$$ = $1;
+		}
+	| yacc_type_list_declaration comma_opt yacc_name_number
+		{
+			yacc_type_define($3, $1, y_nonterminal);
 			$$ = $1;
 		}
 	;
@@ -2421,11 +2486,7 @@ yacc_name_number:
 yacc_name:
 	IDENTIFIER
 		{
-			Id const *id = obj_lookup($1.get_name());
-			if (DP())
-				cout << "Lookup for " << $1.get_name() << " returns " << id << "\n";
-			if (id)
-				Token::unify(id->get_token(), $1.get_token());
+			make_yacc_identifier($1, y_any);
 			$$ = $1;
 		}
 	| CHAR_LITERAL
@@ -2449,9 +2510,7 @@ yacc_rule:
 	/* yacc_dollar[0] is the name for $$ */
 	IDENTIFIER ':' { yacc_dollar.clear(); yacc_dollar.push_back($1.get_name()); } yacc_rule_body_list ';'
 		{
-			Id const *id = obj_lookup($1.get_name());
-			if (id)
-				Token::unify(id->get_token(), $1.get_token());
+			make_yacc_identifier($1, y_nonterminal);
 		}
 	;
 

@@ -3,7 +3,7 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.17 2007/08/18 13:23:39 dds Exp $
+ * $Id: attr.h,v 1.18 2008/09/18 10:35:42 dds Exp $
  */
 
 #ifndef ATTR_
@@ -32,6 +32,7 @@ enum e_attribute {
 	is_lscope,		// Linkage-unit scoped identifier
 	is_typedef,		// Typedef
 	is_enum,		// Enumeration member
+	is_yacc,		// Yacc identifier
 	is_function,		// Function
 
 	attr_end,		// From here-on we store projects
@@ -71,7 +72,8 @@ public:
 			attr[is_macro] ||
 			attr[is_macro_arg] ||
 			attr[is_undefined_macro] ||
-			attr[is_label];
+			attr[is_label] ||
+			attr[is_yacc];
 	}
 	void merge_with(Attributes &b) {
 		this->fix_size();

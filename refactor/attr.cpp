@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: attr.cpp,v 1.19 2007/08/18 13:23:39 dds Exp $
+ * $Id: attr.cpp,v 1.20 2008/09/18 10:35:42 dds Exp $
  */
 
 #include <map>
@@ -56,6 +56,7 @@ string Attributes::attribute_names[] = {
 
 	"Typedef",
 	"Enumeration constant",
+	"Yacc identifier",
 	"Function",
 };
 
@@ -81,6 +82,7 @@ string Attributes::attribute_short_names[] = {
 
 	"typedef",
 	"enumconst",
+	"yacc",
 	"function",
 };
 

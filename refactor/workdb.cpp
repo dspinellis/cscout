@@ -3,7 +3,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.49 2007/11/15 15:00:12 dds Exp $
+ * $Id: workdb.cpp,v 1.50 2008/09/18 10:35:42 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -93,6 +93,7 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 	db->boolval(e->get_attribute(is_label)) << ',' <<
 	db->boolval(e->get_attribute(is_typedef)) << ',' <<
 	db->boolval(e->get_attribute(is_enum)) << ',' <<
+	db->boolval(e->get_attribute(is_yacc)) << ',' <<
 	db->boolval(e->get_attribute(is_function)) << ',' <<
 	db->boolval(e->get_attribute(is_cscope)) << ',' <<
 	db->boolval(e->get_attribute(is_lscope)) << ',' <<
@@ -307,6 +308,7 @@ workdb_schema(Sql *db, ostream &of)
 		"LABEL " << db->booltype() << ", "	// True if it is a label
 		"TYPEDEF " << db->booltype() << ", "	// True if it is a typedef
 		"ENUM " << db->booltype() << ", "	// True if it is an enumeration member
+		"YACC " << db->booltype() << ", "	// True if it is a yacc identifier
 		"FUN " << db->booltype() << ", "	// True if it is a function name
 		"CSCOPE " << db->booltype() << ", "	// True if its scope is a compilation unit
 		"LSCOPE " << db->booltype() << ", "	// True if it has linkage scope
