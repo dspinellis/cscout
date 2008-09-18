@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.145 2007/11/16 17:10:21 dds Exp $
+ * $Id: parse.y,v 1.146 2008/09/18 08:39:27 dds Exp $
  *
  */
 
@@ -208,13 +208,25 @@ static Type yacc_stack;
 
 // True if the %union mechanism is used
 static bool yacc_typing;
+
+// Define the type of a given yacc name.
+void
+yacc_type_define(Type name, Type type)
+{
+	// Set the type of the token to its tag
+	YaccTypeMap::const_iterator i = yacc_type.find(name.get_name());
+	if (i == yacc_type.end() || !i->second.is_valid())
+		yacc_type[name.get_name()] = type;
+	// Declare the token as an integer
+	if (name.get_token().get_code() == IDENTIFIER)
+		obj_define(name.get_token(), basic(b_int, s_none, c_static));
+}
 %}
 
 
 %type <t> IDENTIFIER
 %type <t> INT_CONST
 %type <t> CHAR_LITERAL
-%type <t> IDENTIFIER
 %type <t> TYPEDEF_NAME
 %type <t> identifier_or_typedef_name
 %type <t> member_name
@@ -2385,27 +2397,18 @@ yacc_tag:
 	;
 
 yacc_name_list_declaration:
+	/*
+	 * As in: %type <Tree> expr, statement
+	 *        rword tag    yacc_name_number
+	 */
 	yacc_tag yacc_name_number
 		{
-			YaccTypeMap::const_iterator i = yacc_type.find($2.get_name());
-			// Set the type of the token to its tag
-			if (i != yacc_type.end() && (*i).second.is_valid())
-				yacc_type[$2.get_name()] = (*i).second;
-			else
-				yacc_type[$2.get_name()] = $1;
-			// Declare the token as an integer
-			obj_define($2.get_token(), basic(b_int, s_none, c_static));
+			yacc_type_define($2, $1);
 			$$ = $1;
 		}
 	| yacc_name_list_declaration comma_opt yacc_name_number
 		{
-			YaccTypeMap::const_iterator i = yacc_type.find($3.get_name());
-			if (i != yacc_type.end() && (*i).second.is_valid())
-				yacc_type[$3.get_name()] = (*i).second;
-			else
-				yacc_type[$3.get_name()] = $1;
-			if ($3.get_token().get_code() == IDENTIFIER)
-				obj_define($3.get_token(), basic(b_int, s_none, c_static));
+			yacc_type_define($3, $1);
 			$$ = $1;
 		}
 	;
