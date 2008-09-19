@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.18 2007/08/14 21:59:39 dds Exp $
+ * $Id: funquery.cpp,v 1.19 2008/09/19 12:58:19 dds Exp $
  */
 
 #include <map>
@@ -62,6 +62,7 @@ bool FunQuery::specified_order::reverse;
 // Construct an object based on URL parameters
 FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :
 	Query(!e, r, true),
+	match_fid(false),
 	call(NULL),
 	current_project(cp)
 {
@@ -74,6 +75,13 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	char *qname = swill_getvar("n");
 	if (qname && *qname)
 		name = qname;
+
+	// Match specific file
+	int ifid;
+	if (swill_getargs("i(fid)", &ifid)) {
+		match_fid = true;
+		fid = Fileid(ifid);
+	}
 
 	// Function call declaration direct match
 	if (!swill_getargs("p(call)", &call))
@@ -124,13 +132,17 @@ FunQuery::base_url() const
 string
 FunQuery::param_url() const
 {
+	char buff[256];
+
 	string r("qt=fun&match=");
 	r += Query::url(string(1, match_type));
 	r += mquery.param_url();
 	if (call) {
-		char buff[256];
-
 		sprintf(buff, "&call=%p", call);
+		r += buff;
+	}
+	if (match_fid) {
+		sprintf(buff, "&fid=%d", fid.get_id());
 		r += buff;
 	}
 	if (cfun)
@@ -184,6 +196,9 @@ FunQuery::eval(Call *c)
 
 	if (call)
 		return (c == call);
+
+	if (match_fid && c->get_begin().get_tokid().get_fileid() != fid)
+		return false;
 
 	Eclass *ec = c->get_tokid().get_ec();
 	if (current_project && !ec->get_attribute(current_project))

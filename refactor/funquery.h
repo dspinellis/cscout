@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.14 2007/08/15 13:11:28 dds Exp $
+ * $Id: funquery.h,v 1.15 2008/09/19 12:58:19 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -39,6 +39,8 @@ private:
 	bool pscope;		// True if project scoped
 	bool fscope;		// True if file scoped
 	bool defined;		// True if a definition was found
+	Fileid fid;		// Match from this file
+	bool match_fid;		// True to use the above
 	int ncallers;		// Number of callers
 	int ncallerop;		// Operator for comparing them
 
@@ -53,7 +55,7 @@ public:
 	// Construct object based on URL parameters
 	FunQuery(FILE *f, bool icase, Attributes::size_type current_project, bool e = true, bool r = true);
 	// Default
-	FunQuery() : Query(), match_fnre(false), match_fdre(false), match_fure(false), match_fre(false) {}
+	FunQuery() : Query(), match_fnre(false), match_fdre(false), match_fure(false), match_fre(false), match_fid(false)  {}
 
 	// Destructor
 	virtual ~FunQuery() {}

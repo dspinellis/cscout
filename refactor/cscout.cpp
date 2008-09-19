@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.203 2008/07/04 05:45:14 dds Exp $
+ * $Id: cscout.cpp,v 1.204 2008/09/19 12:58:19 dds Exp $
  */
 
 #include <map>
@@ -1973,6 +1973,27 @@ single_function_graph()
 	return true;
 }
 
+/*
+ * Return true if the call graph is specified for functions in a single file.
+ * In this case only show entries that have the visited flag set
+ */
+static bool
+single_file_function_graph()
+{
+	int id;
+	if (!swill_getargs("i(fid)", &id))
+		return false;
+	Fileid fileid(id);
+
+	Call::clear_visit_flags();
+	Call::const_fmap_iterator_type fun;
+	for (fun = Call::fbegin(); fun != Call::fend(); fun++)
+		if (fun->second->get_begin().get_tokid().get_fileid() == fileid)
+			fun->second->set_visited();
+	return true;
+}
+
+
 // Return a function's label, based on the user's preferences
 static string
 function_label(Call *f, bool hyperlink)
@@ -2000,7 +2021,7 @@ static void
 cgraph_page(GraphDisplay *gd)
 {
 	bool all = !!swill_getvar("all");
-	bool only_visited = single_function_graph();
+	bool only_visited = (single_function_graph() || single_file_function_graph());
 	gd->head("cgraph", "Call Graph");
 	int count = 0;
 	// First generate the node labels
@@ -2266,6 +2287,11 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=fun&id=%u&match=Y&writable=1&ro=1&n=Source+Code+With+Hyperlinks+to+Function+and+Macro+Declarations\">Source code with hyperlinks to function and macro declarations</a>\n", i.get_id());
 	if (modification_state != ms_subst && !browse_only)
 		fprintf(of, "<li> <a href=\"fedit.html?id=%u\">Edit the file</a>", i.get_id());
+	fprintf(of, "</ul>\n<h2>Functions</h2><ul>\n");
+	fprintf(of, "<li> <a href=\"xfunquery.html?fid=%d&pscope=1&match=L&ncallerop=0&ncallers=&n=Defined+Project-scoped+Functions+in+%s&qi=x\">Defined project-scoped functions</a>\n"
+		"<li> <a href=\"xfunquery.html?fid=%d&fscope=1&match=L&ncallerop=0&ncallers=&n=Defined+File-scoped+Functions+in+%s&qi=x\">Defined file-scoped functions</a>\n",
+		i.get_id(), i.get_fname().c_str(), i.get_id(), i.get_fname().c_str());
+	fprintf(of, "<li> <a href=\"cgraph%s?fid=%d&all=1\">Function and macro call graph</a>", cgraph_suffix(), i.get_id());
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", i.get_id());
