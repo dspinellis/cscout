@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.12 2008/09/19 11:22:16 dds Exp $
+ * $Id: gdisplay.h,v 1.13 2008/09/19 16:21:32 dds Exp $
  */
 
 
@@ -16,7 +16,9 @@ public:
 	virtual void head(const char *fname, const char *title) {};
 	virtual void subhead(const string &text) {};
 	virtual void node(Call *p) {};
+	virtual void node(Fileid f) {};
 	virtual void edge(Call *a, Call *b) = 0;
+	virtual void edge(Fileid a, Fileid b) = 0;
 	virtual void tail() {};
 	virtual ~GraphDisplay() {}
 };
@@ -41,6 +43,13 @@ public:
 		    function_label(b, true).c_str());
 	}
 
+	virtual void edge(Fileid a, Fileid b) {
+		fprintf(fo,
+		    "<tr><td align=\"right\">%s</td><td>&rarr;</td><td>%s</td></tr>\n",
+		    file_label(b, true).c_str(),
+		    file_label(a, true).c_str());
+	}
+
 	virtual void tail() {
 		fprintf(fo, "</table>\n");
 		html_tail(fo);
@@ -56,6 +65,12 @@ public:
 		fprintf(fo, "%s %s\n",
 		    function_label(a, false).c_str(),
 		    function_label(b, false).c_str());
+	}
+
+	virtual void edge(Fileid a, Fileid b) {
+		fprintf(fo, "%s %s\n",
+		    file_label(b, false).c_str(),
+		    file_label(a, false).c_str());
 	}
 	virtual ~GDTxt() {}
 };
@@ -81,8 +96,19 @@ public:
 		fprintf(fo, "];\n");
 	}
 
+	virtual void node(Fileid f) {
+		fprintf(fo, "\t_%d [label=\"%s\"", f.get_id(), file_label(f, false).c_str());
+		if (isHyperlinked())
+			fprintf(fo, ", URL=\"file.html?id=%d\"", f.get_id());
+		fprintf(fo, "];\n");
+	}
+
 	virtual void edge(Call *a, Call *b) {
 		fprintf(fo, "\t_%p -> _%p;\n", a, b);
+	}
+
+	virtual void edge(Fileid a, Fileid b) {
+		fprintf(fo, "\t_%d -> _%d [dir=back];\n", a.get_id(), b.get_id());
 	}
 
 	virtual void tail() {

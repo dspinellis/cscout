@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.39 2008/09/03 11:50:20 dds Exp $
+ * $Id: fileid.h,v 1.40 2008/09/19 16:21:32 dds Exp $
  */
 
 #ifndef FILEID_
@@ -85,6 +85,7 @@ private:
 
 	bool hand_edited;	// True for files that have been hand-edited
 	string contents;	// Original contents, if hand-edited
+	bool visited;                   // For calculating transitive closures
 public:
 	Attributes attr;		// The projects this file participates in
 	FileMetrics m;			// File's metrics
@@ -109,6 +110,7 @@ public:
 	// Return a line number given a file offset
 	int line_number(streampos p) const;
 
+
 	// Update maps when includer (us) includes included
 	void include_update_included(const Fileid included, bool directly, bool required, int line);
 	void include_update_includer(const Fileid includer, bool directly, bool required, int line);
@@ -123,6 +125,9 @@ public:
 	// Include file path offset
 	int get_ipath_offset() const { return ipath_offset; }
 	void set_ipath_offset(int o) { ipath_offset = o; }
+	void set_visited() { visited = true; }
+	void clear_visited() { visited = false; }
+	bool is_visited() const { return visited; }
 };
 
 typedef map <string, int> FI_uname_to_id;
@@ -209,6 +214,10 @@ public:
 	// Include file path offset
 	void set_ipath_offset(int o) { i2d[id].set_ipath_offset(o); }
 	int get_ipath_offset() const { return i2d[id].get_ipath_offset(); }
+
+	void set_visited() { i2d[id].set_visited(); }
+	void clear_visited() { i2d[id].clear_visited(); }
+	bool is_visited() const { return i2d[id].is_visited(); }
 
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered

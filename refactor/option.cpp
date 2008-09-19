@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.7 2008/09/19 11:22:16 dds Exp $
+ * $Id: option.cpp,v 1.8 2008/09/19 16:21:32 dds Exp $
  */
 
 #include <string>
@@ -41,11 +41,13 @@ BoolOption *Option::refactor_fun_arg_override_ro;// Refactoring of function argu
 IntegerOption *Option::tab_width;		// Tab width for code output
 SelectionOption *Option::cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 SelectionOption *Option::cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
+SelectionOption *Option::igraph_show;		// Include graph show e)dge n(ame p(ath
 TextOption *Option::sfile_re_string;		// Saved files replacement location RE string
 TextOption *Option::sfile_repl_string;		// Saved files replacement string
 TextOption *Option::start_editor_cmd;		// Command to invoke an external editor
 IntegerOption *Option::entries_per_page;	// Number of elements to show in a page
 IntegerOption *Option::cgraph_depth;		// How deep to descend in a call graph
+IntegerOption *Option::igraph_depth;		// How deep to descend in an include graph
 BoolOption *Option::cgraph_dot_url;		// Include URLs in dot output
 vector<Option *> Option::options;		// Options in the order they were added
 map<string, Option *> Option::omap;		// For loading options
@@ -202,8 +204,8 @@ Option::initialize()
 	Option::add(fname_in_context = new BoolOption("fname_in_context", "Show file lists with file name in context"));
 	Option::add(sort_rev = new BoolOption("sort_rev", "Sort identifiers starting from their last character"));
 
-	Option::add(new TitleOption("Call Graphs"));
-	Option::add(cgraph_type = new SelectionOption("cgraph_type", "Call graph links should lead to pages of:", 'h',
+	Option::add(new TitleOption("Call and Include Graphs"));
+	Option::add(cgraph_type = new SelectionOption("cgraph_type", "Graph links should lead to pages of:", 'h',
 		"t:plain text",
 		"h:HTML",
 		"d:dot",
@@ -216,7 +218,13 @@ Option::initialize()
 		"f:file and function names",
 		"p:path and function names",
 		NULL));
-	Option::add(cgraph_depth = new IntegerOption("cgraph_depth", "Maximum number of call levels in a graph", 5));
+	Option::add(igraph_show = new SelectionOption("igraph_show", "Include graphs should contain:", 'n',
+		"e:only edges",
+		"n:file names",
+		"p:path and file names",
+		NULL));
+	Option::add(cgraph_depth = new IntegerOption("cgraph_depth", "Maximum number of call levels in a call graph", 5));
+	Option::add(igraph_depth = new IntegerOption("igraph_depth", "Maximum number of include levels in an include graph", 5));
 	Option::add(cgraph_dot_url = new BoolOption("cgraph_dot_url", "Include URLs in dot output", false));
 
 	Option::add(new TitleOption("Saved Files"));

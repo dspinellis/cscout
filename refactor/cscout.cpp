@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.204 2008/09/19 12:58:19 dds Exp $
+ * $Id: cscout.cpp,v 1.205 2008/09/19 16:21:32 dds Exp $
  */
 
 #include <map>
@@ -129,6 +129,7 @@ static Fileid input_file_id;
 
 // Forward declarations required for gdisplay.h
 static string function_label(Call *f, bool hyperlink);
+static string file_label(Fileid f, bool hyperlink);
 static void html_perror(FILE *of, const string &user_msg, bool svg = false);
 
 // This uses many of the above, and is therefore included here
@@ -179,7 +180,7 @@ void index_page(FILE *of, void *data);
 
 // Return the page suffix for the select call graph type
 static const char *
-cgraph_suffix()
+graph_suffix()
 {
 	switch (Option::cgraph_type->get()) {
 	case 't': return ".txt";
@@ -1536,12 +1537,12 @@ function_page(FILE *fo, void *p)
 	fprintf(fo, "<li> Calls directly %d functions", f->get_num_call());
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d&e=1\">Explore directly called functions</a>\n", f);
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=D\">List of all called functions</a>\n", f);
-	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=D\">Call graph of all called functions</a>", cgraph_suffix(), f);
+	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=D\">Call graph of all called functions</a>", graph_suffix(), f);
 	// Functions that are Up from us in the call graph
 	fprintf(fo, "<li> Called directly by %d functions", f->get_num_caller());
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u&e=1\">Explore direct callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", f);
-	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", cgraph_suffix(), f);
+	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", graph_suffix(), f);
 
 	// Allow function call refactoring only if there is a one to one relationship between the identifier and the function
 	Eclass *ec;
@@ -1594,7 +1595,7 @@ function_page(FILE *fo, void *p)
  * in the string is used as a placeholder to fill the function's address.
  * The methods to obtain the relationship containers are passed through
  * the fbegin and fend method pointers.
- * If recurse is true the also list will contain all correspondingly
+ * If recurse is true the list will also contain all correspondingly
  * associated children functions.
  * If show is true, then a function hyperlink is printed, otherwise
  * only the visited flag is set.
@@ -1620,6 +1621,28 @@ visit_functions(FILE *fo, const char *call_path, Call *f,
 		}
 		if (recurse && !(*i)->is_visited())
 			visit_functions(fo, call_path, *i, fbegin, fend, recurse, show, level - 1);
+	}
+}
+
+/*
+ * Visit all files associated with a includes/included relationship with f
+ * The methods to obtain the relationship containers are passed through
+ * the fbegin and fend method pointers.
+ * Set the visited flag for all nodes visited.
+ */
+static void
+visit_files(Fileid f, const FileIncMap & (Fileid::*map)() const, int level)
+{
+	if (level == 0)
+		return;
+
+	if (DP())
+		cout << "Visiting " << f.get_fname() << endl;
+	f.set_visited();
+	const FileIncMap &m = (f.*map)();
+	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
+		if (!i->first.is_visited() && i->second.is_directly_included())
+			visit_files(i->first, map, level - 1);
 	}
 }
 
@@ -1713,14 +1736,14 @@ funlist_page(FILE *fo, void *p)
 		fbegin = &Call::caller_begin;
 		fend = &Call::caller_end;
 		fprintf(fo, "List of %s calling functions\n", calltype);
-		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%%p&to=%p\">call path from function</a>", cgraph_suffix(), f);
+		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%%p&to=%p\">call path from function</a>", graph_suffix(), f);
 		break;
 	case 'd':
 	case 'D':
 		fbegin = &Call::call_begin;
 		fend = &Call::call_end;
 		fprintf(fo, "List of %s called functions\n", calltype);
-		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%p&to=%%p\">call path to function</a>", cgraph_suffix(), f);
+		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%p&to=%%p\">call path to function</a>", graph_suffix(), f);
 		break;
 	}
 	if (swill_getvar("e")) {
@@ -1974,6 +1997,32 @@ single_function_graph()
 }
 
 /*
+ * Return true if the include graph is specified for a single file.
+ * In this case only show entries that have the visited flag set
+ */
+static bool
+single_file_graph()
+{
+	int id;
+	if (!swill_getargs("i(f)", &id))
+		return false;
+	Fileid fileid(id);
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
+		i->clear_visited();
+	// No output, just set the visited flag
+	char *ltype = swill_getvar("n");
+	switch (*ltype) {
+	case 'D':
+		visit_files(fileid, &Fileid::get_includers, Option::cgraph_depth->get());
+		break;
+	case 'U':
+		visit_files(fileid, &Fileid::get_includes, Option::cgraph_depth->get());
+		break;
+	}
+	return true;
+}
+
+/*
  * Return true if the call graph is specified for functions in a single file.
  * In this case only show entries that have the visited flag set
  */
@@ -1993,6 +2042,33 @@ single_file_function_graph()
 	return true;
 }
 
+
+// Return a function's label, based on the user's preferences
+static string
+file_label(Fileid f, bool hyperlink)
+{
+	string result;
+	char buff[256];
+
+	if (hyperlink) {
+		snprintf(buff, sizeof(buff), "<a href=\"file.html?id=%d\">", f.get_id());
+		result = buff;
+	}
+	switch (Option::igraph_show->get()) {
+	case 'p':			// Show complete paths
+		result += f.get_path() + "/";
+		/* FALLTHROUGH */
+	case 'n':			// Show only file names
+		result += f.get_fname();
+		break;
+	case 'e':			// Show only edges
+		result += " ";
+		break;
+	}
+	if (hyperlink)
+		result += "</a>";
+	return (result);
+}
 
 // Return a function's label, based on the user's preferences
 static string
@@ -2055,6 +2131,90 @@ cgraph_page(GraphDisplay *gd)
 end:
 	gd->tail();
 }
+
+// Include graph
+static void
+igraph_page(GraphDisplay *gd)
+{
+	bool all = !!swill_getvar("all");		// Otherwise exluce read-only files
+	bool only_visited = single_file_graph();
+	gd->head("igraph", "Include Graph");
+	int count = 0;
+	// First generate the node labels
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+		if (!all && i->get_readonly())
+			continue;
+		if (only_visited && !i->is_visited())
+			continue;
+		gd->node(*i);
+		if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+			goto end;
+	}
+	// Now the edges
+	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+		if (!all && i->get_readonly())
+			continue;
+		if (only_visited && !i->is_visited())
+			continue;
+		const FileIncMap &m = i->get_includes();
+		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
+			if (!j->second.is_directly_included())
+				continue;
+			if (!all && j->first.get_readonly())
+				continue;
+			if (only_visited && !j->first.is_visited())
+				continue;
+			gd->edge(j->first, *i);
+			if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+				goto end;
+		}
+	}
+end:
+	gd->tail();
+}
+
+// Include graph: text
+static void
+igraph_txt_page(FILE *fo, void *p)
+{
+	GDTxt gd(fo);
+	igraph_page(&gd);
+}
+
+// Include graph: HTML
+static void
+igraph_html_page(FILE *fo, void *p)
+{
+	GDHtml gd(fo);
+	igraph_page(&gd);
+}
+
+// Include graph: SVG via dot
+static void
+igraph_dot_page(FILE *fo, void *p)
+{
+	GDDot gd(fo);
+	igraph_page(&gd);
+}
+
+// Include graph: SVG via dot
+static void
+igraph_svg_page(FILE *fo, void *p)
+{
+	prohibit_remote_access(fo);
+	GDSvg gd(fo);
+	igraph_page(&gd);
+}
+
+// Include graph: GIF via dot
+static void
+igraph_gif_page(FILE *fo, void *p)
+{
+	prohibit_remote_access(fo);
+	GDGif gd(fo);
+	igraph_page(&gd);
+}
+
 
 // Call graph: text
 static void
@@ -2186,11 +2346,13 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"xfilequery.html?writable=1&match=Y&n=Writable+Files\">Writable files</a>\n");
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+Project-scoped+Writable+Identifiers\">Files containing unused project-scoped writable identifiers</a>\n", is_lscope);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qf=1&n=Files+Containing+Unused+File-scoped+Writable+Identifiers\">Files containing unused file-scoped writable identifiers</a>\n", is_cscope);
-		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statements\">Writable .c files without any statements</a>\n", FileMetrics::em_nstatement, Query::ec_eq, FileMetrics::em_nstatement);
-		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines\">Writable files containing unprocessed lines</a>\n", Metrics::em_nuline, Metrics::em_nuline, Query::ec_gt, Metrics::em_nuline);
-		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", Metrics::em_nstring, Query::ec_gt, Metrics::em_nstring);
-		fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives\">Writable .h files with #include directives</a>\n", FileMetrics::em_nincfile, Query::ec_gt, FileMetrics::em_nincfile);
-		fprintf(of, "<li> <a href=\"filequery.html\">Specify new file query</a>\n"
+	fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BcC%%5D%%24&n=Writable+.c+Files+Without+Any+Statements\">Writable .c files without any statements</a>\n", FileMetrics::em_nstatement, Query::ec_eq, FileMetrics::em_nstatement);
+	fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines\">Writable files containing unprocessed lines</a>\n", Metrics::em_nuline, Metrics::em_nuline, Query::ec_gt, Metrics::em_nuline);
+	fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", Metrics::em_nstring, Query::ec_gt, Metrics::em_nstring);
+	fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives\">Writable .h files with #include directives</a>\n", FileMetrics::em_nincfile, Query::ec_gt, FileMetrics::em_nincfile);
+	fprintf(of, "<li> <a href=\"igraph%s\">File include graph (writable files)</a>", graph_suffix());
+	fprintf(of, "<li> <a href=\"igraph%s?all=1\">File include graph (all files)</a>", graph_suffix());
+	fprintf(of, "<li> <a href=\"filequery.html\">Specify new file query</a>\n"
 		"</ul>\n");
 
 	fputs("<h2>Functions and Macros</h2>\n"
@@ -2198,8 +2360,8 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"funmetrics.html\">Function metrics</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All functions</a>\n",
 		of);
-	fprintf(of, "<li> <a href=\"cgraph%s\">Non-static function call graph</a>", cgraph_suffix());
-	fprintf(of, "<li> <a href=\"cgraph%s?all=1\">Function and macro call graph</a>", cgraph_suffix());
+	fprintf(of, "<li> <a href=\"cgraph%s\">Non-static function call graph</a>", graph_suffix());
+	fprintf(of, "<li> <a href=\"cgraph%s?all=1\">Function and macro call graph</a>", graph_suffix());
 	fprintf(of, "<li> <a href=\"xfunquery.html?writable=1&pscope=1&match=L&ncallerop=0&ncallers=&n=Project-scoped+Writable+Functions&qi=x\">Project-scoped writable functions</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&fscope=1&match=L&ncallerop=0&ncallers=&n=File-scoped+Writable+Functions&qi=x\">File-scoped writable functions</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=0&n=Writable+Functions+that+Are+Not+Directly+Called&qi=x\">Writable functions that are not directly called</a>\n"
@@ -2291,10 +2453,13 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<li> <a href=\"xfunquery.html?fid=%d&pscope=1&match=L&ncallerop=0&ncallers=&n=Defined+Project-scoped+Functions+in+%s&qi=x\">Defined project-scoped functions</a>\n"
 		"<li> <a href=\"xfunquery.html?fid=%d&fscope=1&match=L&ncallerop=0&ncallers=&n=Defined+File-scoped+Functions+in+%s&qi=x\">Defined file-scoped functions</a>\n",
 		i.get_id(), i.get_fname().c_str(), i.get_id(), i.get_fname().c_str());
-	fprintf(of, "<li> <a href=\"cgraph%s?fid=%d&all=1\">Function and macro call graph</a>", cgraph_suffix(), i.get_id());
+	fprintf(of, "<li> <a href=\"cgraph%s?fid=%d&all=1\">Function and macro call graph</a>", graph_suffix(), i.get_id());
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", i.get_id());
+	fprintf(of, "<li> <a href=\"igraph%s?all=1&f=%d&n=U\">Include graph of all included files</a>", graph_suffix(), i.get_id());
+	fprintf(of, "<li> <a href=\"igraph%s?f=%d&n=U\">Include graph of writable included files</a>", graph_suffix(), i.get_id());
+	fprintf(of, "<li> <a href=\"igraph%s?all=1&f=%d&n=D\">Include graph of all including files</a>", graph_suffix(), i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&includes=1&used=1&writable=1&n=All+Required+Included+Writable+Files\">All writable files that this file must include</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&n=Files+Including+the+File\">Files including this file</a>\n", i.get_id());
@@ -3046,6 +3211,12 @@ main(int argc, char *argv[])
 		swill_handle("cgraph_dot.txt", cgraph_dot_page, "txt");
 		swill_handle("cgraph.svg", cgraph_svg_page, NULL);
 		swill_handle("cgraph.gif", cgraph_gif_page, NULL);
+
+		swill_handle("igraph.html", igraph_html_page, NULL);
+		swill_handle("igraph.txt", igraph_txt_page, NULL);
+		swill_handle("igraph_dot.txt", igraph_dot_page, "txt");
+		swill_handle("igraph.svg", igraph_svg_page, NULL);
+		swill_handle("igraph.gif", igraph_gif_page, NULL);
 
 		swill_handle("cpath.html", cpath_html_page, NULL);
 		swill_handle("cpath.txt", cpath_txt_page, NULL);
