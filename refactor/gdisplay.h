@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.11 2008/07/03 14:29:03 dds Exp $
+ * $Id: gdisplay.h,v 1.12 2008/09/19 11:22:16 dds Exp $
  */
 
 
@@ -88,7 +88,7 @@ public:
 	virtual void tail() {
 		fprintf(fo, "}\n");
 	}
-	virtual bool isHyperlinked() { return (false); }
+	virtual bool isHyperlinked() { return Option::cgraph_dot_url->get(); }
 	virtual ~GDDot() {}
 };
 

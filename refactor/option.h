@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.8 2008/06/30 18:18:26 dds Exp $
+ * $Id: option.h,v 1.9 2008/09/19 11:22:16 dds Exp $
  */
 
 #ifndef OPTION_
@@ -65,6 +65,7 @@ public:
 	static TextOption *start_editor_cmd;		// Command to invoke an external editor
 	static IntegerOption *entries_per_page;		// Number of elements to show in a page
 	static IntegerOption *cgraph_depth;		// How deep to descend in a call graph
+	static BoolOption *cgraph_dot_url;		// Include URLs in dot output
 	// Initialize the global web options
 	static void initialize();
 };

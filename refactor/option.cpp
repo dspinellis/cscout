@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.6 2008/06/24 16:17:55 dds Exp $
+ * $Id: option.cpp,v 1.7 2008/09/19 11:22:16 dds Exp $
  */
 
 #include <string>
@@ -46,6 +46,7 @@ TextOption *Option::sfile_repl_string;		// Saved files replacement string
 TextOption *Option::start_editor_cmd;		// Command to invoke an external editor
 IntegerOption *Option::entries_per_page;	// Number of elements to show in a page
 IntegerOption *Option::cgraph_depth;		// How deep to descend in a call graph
+BoolOption *Option::cgraph_dot_url;		// Include URLs in dot output
 vector<Option *> Option::options;		// Options in the order they were added
 map<string, Option *> Option::omap;		// For loading options
 
@@ -216,6 +217,7 @@ Option::initialize()
 		"p:path and function names",
 		NULL));
 	Option::add(cgraph_depth = new IntegerOption("cgraph_depth", "Maximum number of call levels in a graph", 5));
+	Option::add(cgraph_dot_url = new BoolOption("cgraph_dot_url", "Include URLs in dot output", false));
 
 	Option::add(new TitleOption("Saved Files"));
 	Option::add(sfile_re_string = new TextOption("sfile_re_string", "When saving modified files replace RE"));
