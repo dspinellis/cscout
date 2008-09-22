@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) file query
  *
- * $Id: filequery.h,v 1.1 2007/08/10 10:15:05 dds Exp $
+ * $Id: filequery.h,v 1.2 2008/09/22 16:25:45 dds Exp $
  */
 
 #ifndef FILEQUERY_
@@ -17,6 +17,7 @@ private:
 	CompiledRE fre;		// Filename RE
 	// Match rules
 	bool match_fre;		// Filename RE
+	bool exclude_fre;	// Exclude filenames with matching RE
 	//
 	// Query arguments
 	char match_type;	// Type of boolean match

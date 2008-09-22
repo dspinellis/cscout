@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.205 2008/09/19 16:21:32 dds Exp $
+ * $Id: cscout.cpp,v 1.206 2008/09/22 16:25:45 dds Exp $
  */
 
 #include <map>
@@ -1012,7 +1012,9 @@ filequery_page(FILE *of,  void *p)
 	"&nbsp; &nbsp; &nbsp; &nbsp;\n"
 	"<input type=\"radio\" name=\"match\" value=\"L\">Match all of the above\n"
 	"<br><hr>\n"
-	"File names should match RE\n"
+	"File names should "
+	"(<input type=\"checkbox\" name=\"xfre\" value=\"1\"> not) \n"
+	" match RE\n"
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
@@ -1159,7 +1161,9 @@ iquery_page(FILE *of,  void *p)
 	"<INPUT TYPE=\"text\" NAME=\"ire\" SIZE=20 MAXLENGTH=256>\n"
 	"</td></tr>\n"
 	"<tr><td>\n"
-	"Select identifiers from filenames matching RE\n"
+	"Select identifiers from filenames "
+	"(<input type=\"checkbox\" name=\"xfre\" value=\"1\"> not) \n"
+	" matching RE\n"
 	"</td><td>\n"
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"</td></tr>\n"
@@ -1233,7 +1237,9 @@ funquery_page(FILE *of,  void *p)
 	"</td></tr>\n"
 
 	"<tr><td>\n"
-	"Select functions from filenames matching RE\n"
+	"Select functions from filenames "
+	"(<input type=\"checkbox\" name=\"xfre\" value=\"1\"> not) \n"
+	" matching RE\n"
 	"</td><td>\n"
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"</td></tr>\n"

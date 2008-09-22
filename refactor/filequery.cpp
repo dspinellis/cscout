@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) file query
  *
- * $Id: filequery.cpp,v 1.1 2007/08/10 10:15:05 dds Exp $
+ * $Id: filequery.cpp,v 1.2 2008/09/22 16:25:45 dds Exp $
  */
 
 #include <map>
@@ -88,6 +88,7 @@ FileQuery::FileQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, boo
 
 	writable = !!swill_getvar("writable");
 	ro = !!swill_getvar("ro");
+	exclude_fre = !!swill_getvar("xfre");
 
 	// Compile regular expression specs
 	if (!compile_re(of, "Filename", "fre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
@@ -116,6 +117,8 @@ FileQuery::param_url() const
 		url << "&ro=1";
 	if (match_fre)
 		url << "&fre=" << Query::url(str_fre);
+	if (exclude_fre)
+		url << "&xfre=1";
 	if (name.length())
 		url << "&n=" << Query::url(name);
 	return url.str();
@@ -146,7 +149,8 @@ FileQuery::eval(Fileid &f)
 	if (!add)
 		return false;
 
-	if (match_fre && fre.exec(f.get_path()) == REG_NOMATCH)
-			return false;	// No match found
+	int retval = exclude_fre ? 0 : REG_NOMATCH;
+	if (match_fre && fre.exec(f.get_path()) == retval)
+			return false;	// RE match failed spec
 	return true;
 }

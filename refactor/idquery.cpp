@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.15 2007/07/20 16:03:47 dds Exp $
+ * $Id: idquery.cpp,v 1.16 2008/09/22 16:25:45 dds Exp $
  */
 
 #include <map>
@@ -89,6 +89,7 @@ IdQuery::IdQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r)
 	unused = !!swill_getvar("unused");
 	writable = !!swill_getvar("writable");
 	exclude_ire = !!swill_getvar("xire");
+	exclude_fre = !!swill_getvar("xfre");
 
 	// Compile regular expression specs
 	if (!compile_re(of, "Identifier", "ire", ire, match_ire, str_ire))
@@ -189,6 +190,8 @@ IdQuery::param_url() const
 		r += "&ire=" + Query::url(str_ire);
 	if (exclude_ire)
 		r += "&xire=1";
+	if (exclude_fre)
+		r += "&xfre=1";
 	if (match_fre)
 		r += "&fre=" + Query::url(str_fre);
 	for (int i = attr_begin; i < attr_end; i++) {
@@ -278,10 +281,13 @@ IdQuery::eval(const IdPropElem &i)
 					cout << "Identifier " << i.second.get_id() <<
 					    " occurs in file " << j->get_path() <<
 					    ", which matches RE " << str_fre << "\n";
-				break;	// Yes is matches
+				if (exclude_fre)
+					return false;	// Match; fail
+				else
+					break;		// Match; stop search
 			}
-		if (j == f.end())
-			return false;	// No match found
+		if (!exclude_fre && j == f.end())
+			return false;	// Asked to match and no match found
 	}
 	return true;
 }

@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.15 2008/09/19 12:58:19 dds Exp $
+ * $Id: funquery.h,v 1.16 2008/09/22 16:25:45 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -30,6 +30,7 @@ private:
 	bool exclude_fnre;	// Function name RE
 	bool exclude_fdre;	// Called function name RE (down)
 	bool exclude_fure;	// Calling function name RE (up)
+	bool exclude_fre;	// Filename RE
 	// Query arguments
 	char match_type;	// Type of boolean match
 	bool cfun;		// True if C function

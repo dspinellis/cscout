@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.12 2007/08/15 09:42:15 dds Exp $
+ * $Id: idquery.h,v 1.13 2008/09/22 16:25:45 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -57,6 +57,7 @@ private:
 	CompiledRE fre, ire;	// Compiled REs
 	bool match_fre, match_ire;
 	bool exclude_ire;	// Exclude matched identifiers
+	bool exclude_fre;	// Exclude matched files
 	// Attribute match specs
 	vector <bool> match;
 	// Other query arguments

@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.19 2008/09/19 12:58:19 dds Exp $
+ * $Id: funquery.cpp,v 1.20 2008/09/22 16:25:45 dds Exp $
  */
 
 #include <map>
@@ -111,6 +111,7 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	exclude_fnre = !!swill_getvar("xfnre");
 	exclude_fure = !!swill_getvar("xfure");
 	exclude_fdre = !!swill_getvar("xfdre");
+	exclude_fre = !!swill_getvar("xfre");
 
 	// Compile regular expression specs
 	if (!compile_re(of, "Function name", "fnre", fnre, match_fnre, str_fnre) ||
@@ -173,6 +174,8 @@ FunQuery::param_url() const
 		r += "&xfure=1";
 	if (exclude_fdre)
 		r += "&xfdre=1";
+	if (exclude_fre)
+		r += "&xfre=1";
 	if (ncallerop != ec_ignore) {
 		ostringstream varname;
 
@@ -252,8 +255,11 @@ FunQuery::eval(Call *c)
 	int retval = exclude_fnre ? 0 : REG_NOMATCH;
 	if (match_fnre && fnre.exec(c->get_name()) == retval)
 		return false;
-	if (match_fre && fre.exec(c->get_fileid().get_path()) != 0)
-			return false;	// No match found
+
+	retval = exclude_fre ? 0 : REG_NOMATCH;
+	if (match_fre && fre.exec(c->get_fileid().get_path()) == retval)
+			return false;
+
 	Call::const_fiterator_type c2;
 	if (match_fdre) {
 		for (c2 = c->call_begin(); c2 != c->call_end(); c2++)
