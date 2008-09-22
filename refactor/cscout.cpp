@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.206 2008/09/22 16:25:45 dds Exp $
+ * $Id: cscout.cpp,v 1.207 2008/09/22 16:51:41 dds Exp $
  */
 
 #include <map>
@@ -1831,13 +1831,12 @@ cpath_page(GraphDisplay *gd)
 }
 
 /*
- * Attempt to open a CScout file, setting in to the file stream.
- * Return true on success, false on error.
- * The file is searched in three different directories:
- * .cscout, $CSCOUT_HOME, and $HOME/.cscout
+ * Return directories where CScout should be storing configuration files
+ * The path includes four different directories:
+ * .cscout, $CSCOUT_HOME, $HOME/.cscout, and $APPDATA/.cscout
  */
-static bool
-cscout_file(const string &basename, ifstream &in, string &fname)
+static vector <string>
+cscout_dirs()
 {
 	vector <string> dirs;
 	dirs.push_back(".cscout");
@@ -1845,6 +1844,20 @@ cscout_file(const string &basename, ifstream &in, string &fname)
 		dirs.push_back(getenv("CSCOUT_HOME"));
 	if (getenv("HOME"))
 		dirs.push_back(string(getenv("HOME")) + "/.cscout");
+	if (getenv("APPDATA"))
+		dirs.push_back(string(getenv("HOME")) + "/.cscout");
+	return dirs;
+}
+
+/*
+ * Attempt to open a CScout file for input, setting in to the file stream
+ * and fname to the file name used.
+ * Return true on success, false on error.
+ */
+static bool
+cscout_input_file(const string &basename, ifstream &in, string &fname)
+{
+	vector <string> dirs = cscout_dirs();
 	vector <string>::const_iterator i;
 
 	for (i = dirs.begin(); i != dirs.end(); i++) {
@@ -1852,6 +1865,44 @@ cscout_file(const string &basename, ifstream &in, string &fname)
 		in.open(fname.c_str());
 		if (in.fail())
 			in.clear();
+		else
+			return true;
+	}
+	return false;
+}
+
+
+/*
+ * Attempt to open a CScout file for output, setting out to the file stream
+ * and fname to the file name used.
+ * Return true on success, false on error.
+ */
+static bool
+cscout_output_file(const string &basename, ofstream &out, string &fname)
+{
+	vector <string> dirs = cscout_dirs();
+	vector <string>::const_iterator i;
+
+	// First try to see if an existing .cscout directory exists
+	for (i = dirs.begin(); i != dirs.end(); i++) {
+		fname = *i + "/" + basename;
+		out.open(fname.c_str());
+		if (out.fail())
+			out.clear();
+		else
+			return true;
+	}
+	// Then try to create it
+	for (i = dirs.begin(); i != dirs.end(); i++) {
+		#if defined(unix) || defined(__MACH__)
+		(void)mkdir(i->c_str(), 0777);
+		#else
+		(void)mkdir(i->c_str());
+		#endif
+		fname = *i + "/" + basename;
+		out.open(fname.c_str());
+		if (out.fail())
+			out.clear();
 		else
 			return true;
 	}
@@ -1907,20 +1958,16 @@ save_options_page(FILE *fo, void *p)
 	prohibit_remote_access(fo);
 
 	html_head(fo, "save_options", "Options Save");
-	#if defined(unix) || defined(__MACH__)
-	(void)mkdir(".cscout", 0777);
-	#else
-	(void)mkdir(".cscout");
-	#endif
-	ofstream out(".cscout/options");
-	if (out.fail()) {
-		html_perror(fo, "Unable to open .cscout/options for writing");
+	ofstream out;
+	string fname;
+	if (!cscout_output_file("options", out, fname)) {
+		html_perror(fo, "Unable to open " + fname + " for writing");
 		return;
 	}
 	Option::save_all(out);
 	out.close();
-	fprintf(fo, "Options have been saved in the file \".cscout/options\".");
-	fprintf(fo, "They will be loaded when CScout is executed again in this directory.");
+	fprintf(fo, "Options have been saved in the file \"%s\".\n", fname.c_str());
+	fprintf(fo, "They will be loaded when CScout is executed again.");
 	html_tail(fo);
 }
 
@@ -1931,7 +1978,7 @@ options_load()
 	ifstream in;
 	string fname;
 
-	if (!cscout_file("options", in, fname)) {
+	if (!cscout_input_file("options", in, fname)) {
 		fprintf(stderr, "No options file found; will use default options.\n");
 		return;
 	}
@@ -2728,7 +2775,7 @@ parse_acl()
 	string ad, host;
 	string fname;
 
-	if (cscout_file("acl", in, fname)) {
+	if (cscout_input_file("acl", in, fname)) {
 		cerr << "Parsing ACL from " << fname << endl;
 		for (;;) {
 			in >> ad;
