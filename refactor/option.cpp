@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.8 2008/09/19 16:21:32 dds Exp $
+ * $Id: option.cpp,v 1.9 2008/09/24 11:21:40 dds Exp $
  */
 
 #include <string>
@@ -235,7 +235,7 @@ Option::initialize()
 #ifdef WIN32
 	"echo Ignoring search for \"%s\" & start notepad \"%s\""
 #else
-	"xterm -c \"$VISUAL +/'%s' '%s'\" &"
+	"xterm -e \"$VISUAL +/'%s' '%s'\" &"
 #endif
 	, 50));
 }
