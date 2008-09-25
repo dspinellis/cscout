@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.207 2008/09/22 16:51:41 dds Exp $
+ * $Id: cscout.cpp,v 1.208 2008/09/25 07:37:04 dds Exp $
  */
 
 #include <map>
@@ -277,6 +277,7 @@ html_string(FILE *of, const Call *f)
 
 // Add identifiers of the file fi into ids
 // Collect metrics for the file and its functions
+// Populate the file's accociated files set
 // Return true if the file contains unused identifiers
 static bool
 file_analyze(Fileid fi)
@@ -365,6 +366,8 @@ file_analyze(Fileid fi)
 					ids.insert(idi, IdProp::value_type(ec, Identifier(ec, s)));
 				if (ec->is_unused())
 					has_unused = true;
+				else
+					; // TODO fi.set_associated_files(ec);
 				continue;
 			} else {
 				/*
@@ -1637,7 +1640,7 @@ visit_functions(FILE *fo, const char *call_path, Call *f,
  * Set the visited flag for all nodes visited.
  */
 static void
-visit_files(Fileid f, const FileIncMap & (Fileid::*map)() const, int level)
+visit_include_files(Fileid f, const FileIncMap & (Fileid::*map)() const, int level)
 {
 	if (level == 0)
 		return;
@@ -1648,7 +1651,7 @@ visit_files(Fileid f, const FileIncMap & (Fileid::*map)() const, int level)
 	const FileIncMap &m = (f.*map)();
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
 		if (!i->first.is_visited() && i->second.is_directly_included())
-			visit_files(i->first, map, level - 1);
+			visit_include_files(i->first, map, level - 1);
 	}
 }
 
@@ -2066,10 +2069,10 @@ single_file_graph()
 	char *ltype = swill_getvar("n");
 	switch (*ltype) {
 	case 'D':
-		visit_files(fileid, &Fileid::get_includers, Option::cgraph_depth->get());
+		visit_include_files(fileid, &Fileid::get_includers, Option::cgraph_depth->get());
 		break;
 	case 'U':
-		visit_files(fileid, &Fileid::get_includes, Option::cgraph_depth->get());
+		visit_include_files(fileid, &Fileid::get_includes, Option::cgraph_depth->get());
 		break;
 	}
 	return true;
