@@ -3,7 +3,7 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.10 2007/08/15 09:42:15 dds Exp $
+ * $Id: query.h,v 1.11 2008/09/26 05:35:26 dds Exp $
  */
 
 #ifndef QUERY_
@@ -51,6 +51,8 @@ public:
 	bool need_eval() { return !lazy; }
 	// Return the URL for listing a file based on this query
 	virtual string param_url() const = 0;
+	// Return true if the query's URL can be bookmarked across CScout invocations
+	virtual bool bookmarkable() const = 0;
 	// Return the URL for re-executing this query
 	virtual string base_url() const = 0;
 	// Compare two strings from end to start or start to end

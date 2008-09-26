@@ -3,7 +3,7 @@
  *
  * A pager for HTML output
  *
- * $Id: pager.cpp,v 1.3 2006/09/22 12:29:03 dds Exp $
+ * $Id: pager.cpp,v 1.4 2008/09/26 05:34:33 dds Exp $
  */
 
 #include <string>
@@ -19,7 +19,7 @@
 #include "debug.h"
 #include "pager.h"
 
-Pager::Pager(FILE *f, int ps, const string &qurl) : of(f), pagesize(ps), current(0), url(qurl)
+Pager::Pager(FILE *f, int ps, const string &qurl, bool bmk) : of(f), pagesize(ps), current(0), url(qurl), bookmarkable(bmk)
 {
 	if (!swill_getargs("I(skip)", &skip))
 		skip = 0;
@@ -74,5 +74,7 @@ Pager::end()
 			fprintf(of, "<a href=\"%s&skip=-1\">all</a>", url.c_str());
 		fputs("<br />", of);
 	}
-	fprintf(of, "You can bookmark <a href=\"%s\">this link</a> to save the respective query.</p>", url.c_str());
+	if (bookmarkable)
+		fprintf(of, "You can bookmark <a href=\"%s\">this link</a> to save the respective query.", url.c_str());
+	fputs("</p>\n", of);
 }

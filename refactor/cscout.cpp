@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.208 2008/09/25 07:37:04 dds Exp $
+ * $Id: cscout.cpp,v 1.209 2008/09/26 05:34:33 dds Exp $
  */
 
 #include <map>
@@ -993,14 +993,6 @@ html_file(FILE *of, Fileid fi)
 		fname.c_str());
 }
 
-static void
-html_file(FILE *of, string fname)
-{
-	Fileid fi = Fileid(fname);
-
-	html_file(of, fi);
-}
-
 // File query page
 static void
 filequery_page(FILE *of,  void *p)
@@ -1055,7 +1047,7 @@ xfilequery_page(FILE *of,  void *p)
 		fprintf(of, "<th></th>\n");
 	if (query.get_sort_order() != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
-	Pager pager(of, Option::entries_per_page->get(), query.base_url());
+	Pager pager(of, Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
 	html_file_set_begin(of);
 	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
@@ -1090,7 +1082,7 @@ display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 	else
 		fputs("<p>\n", of);
 
-	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1");
+	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
 	typename container::const_iterator i;
 	for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
 		if (pager.show_next()) {
@@ -1119,7 +1111,7 @@ display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &so
 	    "<th width='50%%' align='right'>%s</th>\n",
 	    Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
 
-	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1");
+	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
 	for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
 		if (pager.show_next()) {
 			fputs("<tr><td witdh='50%'>", of);
@@ -1175,6 +1167,7 @@ iquery_page(FILE *of,  void *p)
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
+	"<INPUT TYPE=\"submit\" NAME=\"qfun\" VALUE=\"Show functions\">\n"
 	"</FORM>\n"
 	, of);
 	html_tail(of);
@@ -1255,6 +1248,7 @@ funquery_page(FILE *of,  void *p)
 	, of);
 	html_tail(of);
 }
+
 void
 display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 {
@@ -1263,7 +1257,7 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
 	html_file_set_begin(of);
-	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qf=1");
+	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qf=1", query.bookmarkable());
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !f.get_attribute(current_project))
@@ -1291,8 +1285,10 @@ xiquery_page(FILE *of,  void *p)
 
 	Sids sorted_ids;
 	IFSet sorted_files;
+	set <Call *> funs;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
+	bool q_fun = !!swill_getvar("qfun");	// Show matching functions
 	char *qname = swill_getvar("n");
 	IdQuery query(of, Option::file_icase->get(), current_project);
 
@@ -1309,9 +1305,12 @@ xiquery_page(FILE *of,  void *p)
 			continue;
 		if (q_id)
 			sorted_ids.insert(&*i);
-		if (q_file) {
-			IFSet f = (*i).first->sorted_files();
+		else if (q_file) {
+			IFSet f = i->first->sorted_files();
 			sorted_files.insert(f.begin(), f.end());
+		} else if (q_fun) {
+			set <Call *> ecfuns(i->first->functions());
+			funs.insert(ecfuns.begin(), ecfuns.end());
 		}
 	}
 	cerr << endl;
@@ -1321,6 +1320,13 @@ xiquery_page(FILE *of,  void *p)
 	}
 	if (q_file)
 		display_files(of, query, sorted_files);
+	if (q_fun) {
+		fputs("<h2>Matching Functions</h2>\n", of);
+		Sfuns sorted_funs;
+		sorted_funs.insert(funs.begin(), funs.end());
+		display_sorted(of, query, sorted_funs);
+	}
+
 	html_tail(of);
 }
 
@@ -1415,6 +1421,8 @@ identifier_page(FILE *fo, void *p)
 				fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
 		fprintf(fo, "</ul>\n");
 	}
+	fprintf(fo, "<li><a href=\"xiquery.html?ec=%p&n=Dependent+Files+for+Identifier+%s&qf=1\">Dependent files</a>", e, id.get_id().c_str());
+	fprintf(fo, "<li><a href=\"xfunquery.html?ec=%p&qi=1&n=Functions+Containing+Identifier+%s\">Associated functions</a>", e, id.get_id().c_str());
 	if (e->get_attribute(is_function) || e->get_attribute(is_macro)) {
 		bool found = false;
 		// Loop through all declared functions
@@ -1445,34 +1453,6 @@ identifier_page(FILE *fo, void *p)
 		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", e);
 	}
 	fprintf(fo, "</ul>\n");
-
-	IFSet ifiles = e->sorted_files();
-	fprintf(fo, "<h2>Dependent Files (Writable)</h2>\n");
-	html_file_begin(fo);
-	html_file_set_begin(fo);
-	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++)
-		if ((*j).get_readonly() == false) {
-			html_file(fo, (*j).get_path());
-			fprintf(fo, "<td><a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a></td>",
-				j->get_id(),
-				e, id.get_id().c_str());
-			if (modification_state != ms_subst && !browse_only)
-				fprintf(fo, "<td><a href=\"fedit.html?id=%u&re=%s\">edit</a></td>",
-				j->get_id(), id.get_id().c_str());
-			html_file_record_end(fo);
-		}
-	html_file_end(fo);
-	fprintf(fo, "<h2>Dependent Files (All)</h2>\n");
-	html_file_begin(fo);
-	html_file_set_begin(fo);
-	for (IFSet::const_iterator j = ifiles.begin(); j != ifiles.end(); j++) {
-		html_file(fo, (*j).get_path());
-		fprintf(fo, "<td><a href=\"qsrc.html?qt=id&id=%u&ec=%p&n=Identifier+%s\">marked source</a></td>",
-			(*j).get_id(),
-			e, id.get_id().c_str());
-		html_file_record_end(fo);
-	}
-	html_file_end(fo);
 	fprintf(fo, "</FORM>\n");
 	html_tail(fo);
 }

@@ -4,7 +4,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.13 2008/09/22 16:25:45 dds Exp $
+ * $Id: idquery.h,v 1.14 2008/09/26 05:34:33 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -87,6 +87,8 @@ public:
 	// Return the query's parameters as a URL
 	string param_url() const;
 	static void usage();	// Report string constructor usage information
+	// Return true if the query's URL can be bookmarked across CScout invocations
+	bool bookmarkable() const { return ec == NULL; }
 };
 
 /*

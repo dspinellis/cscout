@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) file query
  *
- * $Id: filequery.h,v 1.2 2008/09/22 16:25:45 dds Exp $
+ * $Id: filequery.h,v 1.3 2008/09/26 05:34:33 dds Exp $
  */
 
 #ifndef FILEQUERY_
@@ -70,6 +70,8 @@ public:
 	// Return the query's parameters as a URL
 	string param_url() const;
 	int get_sort_order() const { return mquery.get_sort_order(); }
+	// Return true if the query's URL can be bookmarked across CScout invocations
+	bool bookmarkable() const { return true; }
 };
 
 #endif // FILEQUERY_

@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.20 2008/09/22 16:25:45 dds Exp $
+ * $Id: funquery.cpp,v 1.21 2008/09/26 05:34:33 dds Exp $
  */
 
 #include <map>
@@ -63,6 +63,7 @@ bool FunQuery::specified_order::reverse;
 FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :
 	Query(!e, r, true),
 	match_fid(false),
+	id_ec(NULL),
 	call(NULL),
 	current_project(cp)
 {
@@ -87,15 +88,20 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	if (!swill_getargs("p(call)", &call))
 		call = NULL;
 
-	// Type of boolean match
-	char *m;
-	if (!(m = swill_getvar("match"))) {
-		fprintf(of, "Missing value: match");
-		valid = return_val = false;
-		lazy = true;
-		return;
+	// Identifier EC match
+	if (!swill_getargs("p(ec)", &id_ec)) {
+		id_ec = NULL;
+
+		// Type of boolean match
+		char *m;
+		if (!(m = swill_getvar("match"))) {
+			fprintf(of, "Missing value: match");
+			valid = return_val = false;
+			lazy = true;
+			return;
+		}
+		match_type = *m;
 	}
-	match_type = *m;
 	mquery.set_match_type(match_type);
 
 	cfun = !!swill_getvar("cfun");
@@ -135,8 +141,16 @@ FunQuery::param_url() const
 {
 	char buff[256];
 
-	string r("qt=fun&match=");
-	r += Query::url(string(1, match_type));
+	string r("qt=fun");
+	if (id_ec) {
+		char buff[256];
+
+		sprintf(buff, "&ec=%p", id_ec);
+		r += buff;
+	} else {
+		r += "&match=";
+		r += Query::url(string(1, match_type));
+	}
 	r += mquery.param_url();
 	if (call) {
 		sprintf(buff, "&call=%p", call);
@@ -199,6 +213,16 @@ FunQuery::eval(Call *c)
 
 	if (call)
 		return (c == call);
+
+	if (id_ec) {
+		if (!c->is_span_valid())
+			return false;
+		const setTokid &m = id_ec->get_members();
+		for (setTokid::const_iterator i = m.begin(); i != m.end(); i++)
+			if (*i >= c->get_begin().get_tokid() && *i <= c->get_end().get_tokid())
+			    	return true;
+		return false;
+	}
 
 	if (match_fid && c->get_begin().get_tokid().get_fileid() != fid)
 		return false;

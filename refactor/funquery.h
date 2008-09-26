@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.16 2008/09/22 16:25:45 dds Exp $
+ * $Id: funquery.h,v 1.17 2008/09/26 05:34:33 dds Exp $
  */
 
 #ifndef FUNQUERY_
@@ -44,6 +44,9 @@ private:
 	bool match_fid;		// True to use the above
 	int ncallers;		// Number of callers
 	int ncallerop;		// Operator for comparing them
+
+	Eclass *id_ec;		// True if identifier EC matches
+				// No other evaluation takes place
 
 	Call *call;		// True if call matches
 				// No other evaluation takes place
@@ -93,6 +96,8 @@ public:
 		}
 	};
 	int get_sort_order() const { return mquery.get_sort_order(); }
+	// Return true if the query's URL can be bookmarked across CScout invocations
+	bool bookmarkable() const { return id_ec == NULL; }
 };
 
 typedef multiset <const Call *, FunQuery::specified_order> Sfuns;

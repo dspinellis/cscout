@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: eclass.cpp,v 1.32 2006/09/21 12:25:09 dds Exp $
+ * $Id: eclass.cpp,v 1.33 2008/09/26 05:34:33 dds Exp $
  */
 
 #include <iostream>
@@ -119,16 +119,33 @@ Eclass::add_tokid(Tokid t)
 	}
 }
 
-// Return a sorted vector of all files used
+// Return a set of all files where the equivalence class appears
 IFSet
 Eclass::sorted_files()
 {
 	set <Fileid, fname_order> r;
 	setTokid::const_iterator i;
-	int j;
 
-	for (i = members.begin(), j = 0; i != members.end(); i++)
-		r.insert(((*i).get_fileid()));
+	for (i = members.begin(); i != members.end(); i++)
+		r.insert(i->get_fileid());
+	return (r);
+}
+
+// Return a set of all functions where the equivalence class appears
+set <Call *>
+Eclass::functions()
+{
+	set <Call *> r;
+	setTokid::const_iterator i;
+
+	for (i = members.begin(); i != members.end(); i++) {
+		FCallSet fc(i->get_fileid().get_functions());
+		for (FCallSet::const_iterator j = fc.begin(); j != fc.end(); j++)
+			if ((*j)->is_span_valid() &&
+			    *i >= (*j)->get_begin().get_tokid() &&
+			    *i <= (*j)->get_end().get_tokid())
+				r.insert(*j);
+	}
 	return (r);
 }
 

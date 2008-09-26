@@ -16,7 +16,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.24 2007/08/18 13:23:39 dds Exp $
+ * $Id: tokid.h,v 1.25 2008/09/26 05:34:33 dds Exp $
  */
 
 #ifndef TOKID_
@@ -51,6 +51,8 @@ public:
 	inline friend bool operator ==(const class Tokid a, const class Tokid b);
 	inline friend bool operator !=(const class Tokid a, const class Tokid b);
 	inline friend bool operator <(const class Tokid a, const class Tokid b);
+	inline friend bool operator <=(const class Tokid a, const class Tokid b);
+	inline friend bool operator >=(const class Tokid a, const class Tokid b);
 	// Advance i character positions
 	inline Tokid& operator +=(int i);
 	inline friend Tokid operator +(const Tokid& a, int i);
@@ -144,6 +146,18 @@ operator <(const class Tokid a, const class Tokid b)
 		return (a.offs < b.offs);
 	else
 		return (a.fi < b.fi);
+}
+
+inline bool
+operator <=(const class Tokid a, const class Tokid b)
+{
+	return a < b || a == b;
+}
+
+inline bool
+operator >=(const class Tokid a, const class Tokid b)
+{
+	return b < a || a == b;
 }
 
 inline Eclass *

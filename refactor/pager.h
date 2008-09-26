@@ -3,7 +3,7 @@
  *
  * A pager for HTML output
  *
- * $Id: pager.h,v 1.1 2006/09/22 09:20:41 dds Exp $
+ * $Id: pager.h,v 1.2 2008/09/26 05:34:33 dds Exp $
  */
 
 class Pager {
@@ -13,8 +13,9 @@ private:
 	int current;		// Number of current element
 	int skip;		// Elements to skip; -1 means show all
 	string url;		// Query URL
+	bool bookmarkable;	// True if result is bookmarkable
 public:
-	Pager(FILE *f, int ps, const string &qurl);
+	Pager(FILE *f, int ps, const string &qurl, bool bmk);
 	bool show_next();
 	void end();
 };

@@ -11,13 +11,15 @@
  * #include "tokid.h"
  * #include "tokmap.h"
  *
- * $Id: eclass.h,v 1.22 2006/09/21 12:25:09 dds Exp $
+ * $Id: eclass.h,v 1.23 2008/09/26 05:34:33 dds Exp $
  */
 
 #ifndef ECLASS_
 #define ECLASS_
 
 typedef set<Tokid> setTokid;
+
+class Call;
 
 class Eclass {
 private:
@@ -42,9 +44,12 @@ public:
 	// Return number of members
 	int get_size() { return members.size(); }
 	friend ostream& operator<<(ostream& o,const Eclass& ec);
-	// Other accessor functions
 	const setTokid & get_members(void) const { return members; }
+	// Files where the this appears
 	IFSet sorted_files();
+	// Functions where the this appears
+	set <Call *> functions();
+	// Other accessor functions
 	void set_attribute(int v) { attr.set_attribute(v); }
 	bool get_attribute(int v) { return attr.get_attribute(v); }
 	bool is_identifier() { return attr.is_identifier(); }
