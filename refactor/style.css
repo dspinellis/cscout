@@ -1,0 +1,62 @@
+/* Unused lines */
+.unused  {
+	color: red
+}
+
+/* Heading for options */
+.opthead {
+	font-weight:bold;
+	font-size:large;
+	text-align:left;
+	padding-top:.8em;
+}
+
+/* Graphical elements for the function exploration */
+table.box {
+	border-width: 0px;
+	border-spacing: 2px;
+	border-style: none;
+	border-collapse: separate;
+}
+
+table.box th {
+	border-width: 1px 1px 1px 1px;
+	padding: 0px;
+	border-style: solid;
+	border-color: gray;
+	width: 1em;
+}
+
+table.box td {
+	border-width: 0px;
+	padding-left: 0.5em;
+	border-style: none;
+}
+
+a.plain:link {
+    text-decoration: none;
+}
+a.plain:visited {
+    text-decoration: none;
+}
+
+table.unbox {
+	border-width: 0px;
+	border-spacing: 2px;
+	border-style: none;
+	border-collapse: separate;
+}
+
+table.unbox th {
+	border-width: 1px 1px 1px 1px;
+	padding: 1px;
+	border-style: none;
+	border-color: gray;
+	width: 1em;
+}
+
+table.unbox td {
+	border-width: 0px;
+	padding-left: 0.5em;
+	border-style: none;
+}
