@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.138 2008/07/15 18:35:20 dds Exp $
+# $Id: Makefile,v 1.139 2008/09/27 09:01:20 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -17,7 +17,7 @@ parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
 getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
 logo.o workdb.o obfuscate.o sql.o base64.o md5.o os.o pager.o \
 option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
-dirbrowse.o html.o
+dirbrowse.o html.o fileutils.o gdisplay.o
 
 # monitor.o
 
@@ -67,10 +67,10 @@ SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	base64.h base64.c gdisplay.h eval.h md5.h md5.c os.cpp os.h \
 	filequery.cpp filequery.h mquery.h mcall.cpp  filemetrics.h funmetrics.h \
 	pager.h pager.cpp option.cpp option.h  filemetrics.cpp funmetrics.cpp \
-	ctconst.cpp ctconst.h \
-	html.h html.cpp dirbrowse.h dirbrowse.cpp \
+	ctconst.cpp ctconst.h gdisplay.cpp \
+	html.h html.cpp dirbrowse.h dirbrowse.cpp fileutils.cpp fileutils.h \
 	runtest.sh \
-	csmake.pl cswc.pl
+	csmake.pl cswc.pl style.css
 
 ALLSRC=$(SRC) logo.png version.cpp
 
@@ -192,6 +192,11 @@ $(ARCH)/cscout.o: cscout.cpp ytab.h
 tokname.cpp: ytab.h tokname.pl
 	perl tokname.pl ytab.h tokname.cpp
 
+$(ARCH)/html.o: html.cpp css.c
+
+css.c: style.css
+	sed 's/\\/\\\\/g;s/"/\\"/g;s/^/"/;s/$$/\\n"/' $? >$@
+
 # Create error message documentation
 mkerr:
 	perl mkerr.pl >../doc/error.xml
@@ -202,8 +207,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.138 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/07/15 18:35:20 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.139 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/09/27 09:01:20 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

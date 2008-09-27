@@ -1,3 +1,57 @@
+/*
+ * CScout Cascading Style Sheet
+ *
+ * This is converted into css.c and compiled into the code.
+ * It can also be loaded as style.css from a CScout configuration
+ * directory.
+ *
+ * $Id: style.css,v 1.2 2008/09/27 09:01:20 dds Exp $
+ */
+
+/* General style */
+h1 {
+	font-family: tahoma;
+	font-size:1.6em;
+	color:#888888;
+	border-bottom: 4px solid #0066cc;
+	padding:0px 0px 5px 0px;
+}
+
+h2 {
+	font-family: tahoma;
+	font-size:1.2em;
+	color:#666666;
+	border-bottom: 1px dotted #777777;
+	padding: 20px 0px 3px 0px;
+}
+
+h3 {
+	font-family: tahoma;
+	font-size:1.1em;
+	color:#003399;
+	border-left: 5px double #666666;
+	padding: 0px 0px 0px 5px;
+	margin: 30px 0px 5px 0px;
+}
+
+p {
+	font-family: verdana;
+	font-size:0.8em;
+	line-height:1.5em;
+}
+
+ul {
+	list-style-type: square;
+	font-family: verdana;
+	font-size:0.8em;
+	color:#242424;
+	line-height:1.5em;
+}
+
+a:link {color:#3366cc;}
+a:visited {color:#3366cc;}
+a:hover {color:#888888;}
+
 /* Unused lines */
 .unused  {
 	color: red

@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.13 2008/09/19 16:21:32 dds Exp $
+ * $Id: gdisplay.h,v 1.14 2008/09/27 09:01:20 dds Exp $
  */
 
 
@@ -128,61 +128,8 @@ private:
 	FILE *result;		// Resulting image
 public:
 	GDDotImage(FILE *f, const char *fmt) : GDDot(NULL), format(fmt), result(f) {}
-
-	void head(const char *fname, const char *title) {
-		#if defined(unix) || defined(__MACH__)
-		strcpy(img, "/tmp");
-		#elif defined(WIN32)
-		char *tmp = getenv("TEMP");
-		strcpy(img, tmp ? tmp : ".");
-		#else
-		#error "Don't know how to obtain temporary directory"
-		#endif
-		strcpy(dot, img);
-		strcat(dot, "/CSdot-XXXXXX");
-		strcat(img, "/CSimg-XXXXXX");
-		/*
-		 * Using mkstemp here doesn't provide more security,
-		 * because an attacker can switch the files underneath
-		 * dot's execution. The really secure way is to pipe our
-		 * data into dot and pipe dot's results directly from it.
-		 * Also, mkstemp is not available under WIN32.
-		 */
-		mktemp(dot);
-		mktemp(img);
-		fo = fopen(dot, "w");
-		if (fo == NULL) {
-			html_perror(fo, "Unable to open " + string(dot) + " for writing", true);
-			return;
-		}
-		GDDot::head(fname, title);
-	}
-
-	virtual void tail() {
-		GDDot::tail();
-		fclose(fo);
-		snprintf(cmd, sizeof(cmd), "dot -T%s \"%s\" \"-o%s\"", format, dot, img);
-		if (DP())
-			cout << cmd << '\n';
-		if (system(cmd) != 0) {
-			html_perror(fo, "Unable to execute " + string(cmd) + ". Shell execution", true);
-			return;
-		}
-		FILE *fimg = fopen(img, "rb");
-		if (fimg == NULL) {
-			html_perror(fo, "Unable to open " + string(img) + " for reading", true);
-			return;
-		}
-		int c;
-		#ifdef WIN32
-		setmode(fileno(result), O_BINARY);
-		#endif
-		while ((c = getc(fimg)) != EOF)
-			putc(c, result);
-		fclose(fimg);
-		(void)unlink(dot);
-		(void)unlink(img);
-	}
+	void head(const char *fname, const char *title);
+	virtual void tail();
 	virtual ~GDDotImage() {}
 };
 

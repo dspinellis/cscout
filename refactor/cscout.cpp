@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.209 2008/09/26 05:34:33 dds Exp $
+ * $Id: cscout.cpp,v 1.210 2008/09/27 09:01:20 dds Exp $
  */
 
 #include <map>
@@ -27,17 +27,6 @@
 
 #include "swill.h"
 #include "getopt.h"
-
-#if defined(unix) || defined(__MACH__)
-#include <sys/types.h>		// mkdir
-#include <sys/stat.h>		// mkdir
-#include <unistd.h>		// unlink
-#define COMMERCIAL_UNIX_OPTIONS "b"
-#elif defined(WIN32)
-#include <io.h>			// mkdir
-#include <fcntl.h>		// O_BINARY
-#define COMMERCIAL_UNIX_OPTIONS ""
-#endif
 
 #include <regex.h>
 
@@ -76,7 +65,13 @@
 #include "pager.h"
 #include "html.h"
 #include "dirbrowse.h"
+#include "fileutils.h"
 
+#if defined(unix) || defined(__MACH__)
+#define COMMERCIAL_UNIX_OPTIONS "b"
+#elif defined(WIN32)
+#define COMMERCIAL_UNIX_OPTIONS ""
+#endif
 
 #ifdef COMMERCIAL
 #include "des.h"
@@ -126,11 +121,6 @@ static enum e_modification_state {
 } modification_state;
 
 static Fileid input_file_id;
-
-// Forward declarations required for gdisplay.h
-static string function_label(Call *f, bool hyperlink);
-static string file_label(Fileid f, bool hyperlink);
-static void html_perror(FILE *of, const string &user_msg, bool svg = false);
 
 // This uses many of the above, and is therefore included here
 #include "gdisplay.h"
@@ -223,25 +213,6 @@ html(FILE *of, const Call &c)
 	fprintf(of, "<a href=\"fun.html?f=%p\">", &c);
 	html_string(of, c.get_name());
 	fputs("</a>", of);
-}
-
-// Display a system error on the HTML output.
-static void
-html_perror(FILE *of, const string &user_msg, bool svg)
-{
-	string error_msg(user_msg + ": " + string(strerror(errno)) + "\n");
-	fputs(error_msg.c_str(), stderr);
-	if (svg)
-		fprintf(of, "<?xml version=\"1.0\" ?>\n"
-			"<svg>\n"
-			"<text  x=\"20\" y=\"50\" >%s</text>\n"
-			"</svg>\n", error_msg.c_str());
-	else {
-		fputs(error_msg.c_str(), of);
-		fputs("</p><p>The operation you requested is incomplete.  "
-			"Please correct the underlying cause, and return to the "
-			"CScout <a href=\"index.html\">main page</a> to retry the operation.</p>", of);
-	}
 }
 
 // Display a hyperlink based on a string and its starting tokid
@@ -867,7 +838,7 @@ file_refactor(FILE *of, Fileid fid)
 			newname.replace(be.rm_so, be.rm_eo - be.rm_so, Option::sfile_repl_string->get());
 			string cmd("cscout_checkout " + newname);
 			system(cmd.c_str());
-			(void)unlink(newname.c_str());
+			(void)unlink(newname);
 			if (rename(ofname.c_str(), newname.c_str()) < 0) {
 				html_perror(of, "Renaming the file " + ofname + " to " + newname + " failed");
 				return;
@@ -878,7 +849,7 @@ file_refactor(FILE *of, Fileid fid)
 	} else {
 		string cmd("cscout_checkout " + fid.get_path());
 		system(cmd.c_str());
-		(void)unlink(fid.get_path().c_str());
+		(void)unlink(fid.get_path());
 		if (rename(ofname.c_str(), fid.get_path().c_str()) < 0) {
 			html_perror(of, "Renaming the file " + ofname + " to " + fid.get_path() + " failed");
 			return;
@@ -1813,85 +1784,6 @@ cpath_page(GraphDisplay *gd)
 	gd->tail();
 }
 
-/*
- * Return directories where CScout should be storing configuration files
- * The path includes four different directories:
- * .cscout, $CSCOUT_HOME, $HOME/.cscout, and $APPDATA/.cscout
- */
-static vector <string>
-cscout_dirs()
-{
-	vector <string> dirs;
-	dirs.push_back(".cscout");
-	if (getenv("CSCOUT_HOME"))
-		dirs.push_back(getenv("CSCOUT_HOME"));
-	if (getenv("HOME"))
-		dirs.push_back(string(getenv("HOME")) + "/.cscout");
-	if (getenv("APPDATA"))
-		dirs.push_back(string(getenv("HOME")) + "/.cscout");
-	return dirs;
-}
-
-/*
- * Attempt to open a CScout file for input, setting in to the file stream
- * and fname to the file name used.
- * Return true on success, false on error.
- */
-static bool
-cscout_input_file(const string &basename, ifstream &in, string &fname)
-{
-	vector <string> dirs = cscout_dirs();
-	vector <string>::const_iterator i;
-
-	for (i = dirs.begin(); i != dirs.end(); i++) {
-		fname = *i + "/" + basename;
-		in.open(fname.c_str());
-		if (in.fail())
-			in.clear();
-		else
-			return true;
-	}
-	return false;
-}
-
-
-/*
- * Attempt to open a CScout file for output, setting out to the file stream
- * and fname to the file name used.
- * Return true on success, false on error.
- */
-static bool
-cscout_output_file(const string &basename, ofstream &out, string &fname)
-{
-	vector <string> dirs = cscout_dirs();
-	vector <string>::const_iterator i;
-
-	// First try to see if an existing .cscout directory exists
-	for (i = dirs.begin(); i != dirs.end(); i++) {
-		fname = *i + "/" + basename;
-		out.open(fname.c_str());
-		if (out.fail())
-			out.clear();
-		else
-			return true;
-	}
-	// Then try to create it
-	for (i = dirs.begin(); i != dirs.end(); i++) {
-		#if defined(unix) || defined(__MACH__)
-		(void)mkdir(i->c_str(), 0777);
-		#else
-		(void)mkdir(i->c_str());
-		#endif
-		fname = *i + "/" + basename;
-		out.open(fname.c_str());
-		if (out.fail())
-			out.clear();
-		else
-			return true;
-	}
-	return false;
-}
-
 
 // Front-end global options page
 void
@@ -2076,56 +1968,6 @@ single_file_function_graph()
 		if (fun->second->get_begin().get_tokid().get_fileid() == fileid)
 			fun->second->set_visited();
 	return true;
-}
-
-
-// Return a function's label, based on the user's preferences
-static string
-file_label(Fileid f, bool hyperlink)
-{
-	string result;
-	char buff[256];
-
-	if (hyperlink) {
-		snprintf(buff, sizeof(buff), "<a href=\"file.html?id=%d\">", f.get_id());
-		result = buff;
-	}
-	switch (Option::igraph_show->get()) {
-	case 'p':			// Show complete paths
-		result += f.get_path() + "/";
-		/* FALLTHROUGH */
-	case 'n':			// Show only file names
-		result += f.get_fname();
-		break;
-	case 'e':			// Show only edges
-		result += " ";
-		break;
-	}
-	if (hyperlink)
-		result += "</a>";
-	return (result);
-}
-
-// Return a function's label, based on the user's preferences
-static string
-function_label(Call *f, bool hyperlink)
-{
-	string result;
-	char buff[256];
-
-	if (hyperlink) {
-		snprintf(buff, sizeof(buff), "<a href=\"fun.html?f=%p\">", f);
-		result = buff;
-	}
-	if (Option::cgraph_show->get() == 'f')		// Show files
-		result += f->get_site().get_fileid().get_fname() + ":";
-	else if (Option::cgraph_show->get() == 'p')	// Show paths
-		result += f->get_site().get_fileid().get_path() + ":";
-	if (Option::cgraph_show->get() != 'e')		// Empty labels
-		result += f->get_name();
-	if (hyperlink)
-		result += "</a>";
-	return (result);
 }
 
 // Call graph

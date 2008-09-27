@@ -3,7 +3,7 @@
  *
  * HTML utility functions
  *
- * $Id: html.cpp,v 1.1 2008/07/01 13:17:40 dds Exp $
+ * $Id: html.cpp,v 1.2 2008/09/27 09:01:20 dds Exp $
  */
 
 #include <map>
@@ -35,10 +35,24 @@
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
-#include "html.h"
-#include "option.h"
-#include "version.h"
+#include "tokid.h"
+#include "token.h"
+#include "ptoken.h"
+#include "fchar.h"
+#include "pltoken.h"
+#include "macro.h"
+#include "pdtoken.h"
+#include "eclass.h"
+#include "ctoken.h"
+#include "type.h"
+#include "stab.h"
 #include "license.h"
+#include "fdep.h"
+#include "version.h"
+#include "call.h"
+#include "html.h"
+#include "fileutils.h"
+#include "option.h"
 
 /*
  * Return as a C string the HTML equivalent of character c
@@ -117,55 +131,19 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 	fputs(
 		"<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">"
 		"<style type=\"text/css\" >"
-		"<!--"
-		// Unused lines
-		".unused  { color: red }\n"
-		// Heading for options
-		".opthead { font-weight:bold; font-size:large; text-align:left; padding-top:.8em;}\n"
-		// Graphical elements for the function exploration
-		"table.box {\n"
-		"	border-width: 0px;\n"
-		"	border-spacing: 2px;\n"
-		"	border-style: none;\n"
-		"	border-collapse: separate;\n"
-		"}\n"
-		"table.box th {\n"
-		"	border-width: 1px 1px 1px 1px;\n"
-		"	padding: 0px;\n"
-		"	border-style: solid;\n"
-		"	border-color: gray;\n"
-		"	width: 1em;\n"
-		"}\n"
-		"table.box td {\n"
-		"	border-width: 0px;\n"
-		"	padding-left: 0.5em;\n"
-		"	border-style: none;\n"
-		"}\n"
-		"\n"
-		"a.plain:link {\n"
-		"    text-decoration: none;\n"
-		"}\n"
-		"a.plain:visited {\n"
-		"    text-decoration: none;\n"
-		"}\n"
-		"table.unbox {\n"
-		"	border-width: 0px;\n"
-		"	border-spacing: 2px;\n"
-		"	border-style: none;\n"
-		"	border-collapse: separate;\n"
-		"}\n"
-		"table.unbox th {\n"
-		"	border-width: 1px 1px 1px 1px;\n"
-		"	padding: 1px;\n"
-		"	border-style: none;\n"
-		"	border-color: gray;\n"
-		"	width: 1em;\n"
-		"}\n"
-		"table.unbox td {\n"
-		"	border-width: 0px;\n"
-		"	padding-left: 0.5em;\n"
-		"	border-style: none;\n"
-		"}\n"
+		"<!--\n", of);
+
+	ifstream in;
+	string css_fname;
+	if (cscout_input_file("style.css", in, css_fname)) {
+		int val;
+		while ((val = in.get()) != EOF)
+			putc(val, of);
+	} else
+		fputs(
+		#include "css.c"
+		, of);
+	fputs(
 		"-->"
 		"</style>"
 		"</head>", of);
@@ -203,3 +181,70 @@ html_tail(FILE *of)
 	fprintf(of, "</font></body></html>\n");
 }
 
+// Return a function's label, based on the user's preferences
+string
+file_label(Fileid f, bool hyperlink)
+{
+	string result;
+	char buff[256];
+
+	if (hyperlink) {
+		snprintf(buff, sizeof(buff), "<a href=\"file.html?id=%d\">", f.get_id());
+		result = buff;
+	}
+	switch (Option::igraph_show->get()) {
+	case 'p':			// Show complete paths
+		result += f.get_path() + "/";
+		/* FALLTHROUGH */
+	case 'n':			// Show only file names
+		result += f.get_fname();
+		break;
+	case 'e':			// Show only edges
+		result += " ";
+		break;
+	}
+	if (hyperlink)
+		result += "</a>";
+	return (result);
+}
+
+// Return a function's label, based on the user's preferences
+string
+function_label(Call *f, bool hyperlink)
+{
+	string result;
+	char buff[256];
+
+	if (hyperlink) {
+		snprintf(buff, sizeof(buff), "<a href=\"fun.html?f=%p\">", f);
+		result = buff;
+	}
+	if (Option::cgraph_show->get() == 'f')		// Show files
+		result += f->get_site().get_fileid().get_fname() + ":";
+	else if (Option::cgraph_show->get() == 'p')	// Show paths
+		result += f->get_site().get_fileid().get_path() + ":";
+	if (Option::cgraph_show->get() != 'e')		// Empty labels
+		result += f->get_name();
+	if (hyperlink)
+		result += "</a>";
+	return (result);
+}
+
+// Display a system error on the HTML output.
+void
+html_perror(FILE *of, const string &user_msg, bool svg)
+{
+	string error_msg(user_msg + ": " + string(strerror(errno)) + "\n");
+	fputs(error_msg.c_str(), stderr);
+	if (svg)
+		fprintf(of, "<?xml version=\"1.0\" ?>\n"
+			"<svg>\n"
+			"<text  x=\"20\" y=\"50\" >%s</text>\n"
+			"</svg>\n", error_msg.c_str());
+	else {
+		fputs(error_msg.c_str(), of);
+		fputs("</p><p>The operation you requested is incomplete.  "
+			"Please correct the underlying cause, and return to the "
+			"CScout <a href=\"index.html\">main page</a> to retry the operation.</p>", of);
+	}
+}
