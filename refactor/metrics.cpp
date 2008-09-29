@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.30 2007/08/19 13:35:45 dds Exp $
+ * $Id: metrics.cpp,v 1.31 2008/09/29 09:17:36 dds Exp $
  */
 
 #include <iostream>
@@ -179,7 +179,7 @@ operator<<(ostream& o, const IdMetricsSet &mi)
 {
 	IdMetricsSet &m = (IdMetricsSet &)mi;
 
-	o << "<table border=1>"
+	o << "<table class='metrics'>"
 		"<tr><th>" "Identifier class" "</th>"
 		"<th>" "Distinct # ids" "</th>"
 		"<th>" "Total # ids" "</th>"

@@ -3,7 +3,7 @@
  *
  * A pager for HTML output
  *
- * $Id: pager.cpp,v 1.4 2008/09/26 05:34:33 dds Exp $
+ * $Id: pager.cpp,v 1.5 2008/09/29 09:17:36 dds Exp $
  */
 
 #include <string>
@@ -60,19 +60,19 @@ Pager::end()
 		break;
 	}
 	if (nelem > pagesize) {
-		fputs("Select page: ", of);
+		fputs("Page: ", of);
 		if (skip > 0)
-			fprintf(of, "<a href=\"%s&skip=%d\">previous</a> ", url.c_str(), skip - pagesize);
+			fprintf(of, "<a class='pagen prev' href=\"%s&skip=%d\">previous</a> ", url.c_str(), skip - pagesize);
 		for (int i = 0; i < npages; i++)
 			if (i == thispage && skip != -1)
-				fprintf(of, "%d ", i + 1);
+				fprintf(of, "<span class='pagen this'>%d</span> ", i + 1);
 			else
-				fprintf(of, "<a href=\"%s&skip=%d\">%d</a> ", url.c_str(), i * pagesize, i + 1);
+				fprintf(of, "<a class='pagen' href=\"%s&skip=%d\">%d</a> ", url.c_str(), i * pagesize, i + 1);
 		if (skip != -1 && thispage + 1 < npages)
-			fprintf(of, "<a href=\"%s&skip=%d\">next</a> ", url.c_str(), skip + pagesize);
+			fprintf(of, "<a class='pagen next' href=\"%s&skip=%d\">next</a> ", url.c_str(), skip + pagesize);
 		if (skip != -1)
-			fprintf(of, "<a href=\"%s&skip=-1\">all</a>", url.c_str());
-		fputs("<br />", of);
+			fprintf(of, "<a class='pagen all' href=\"%s&skip=-1\">all</a>", url.c_str());
+		fputs("<br clear='all'/>", of);
 	}
 	if (bookmarkable)
 		fprintf(of, "You can bookmark <a href=\"%s\">this link</a> to save the respective query.", url.c_str());

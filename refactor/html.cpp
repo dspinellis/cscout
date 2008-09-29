@@ -3,7 +3,7 @@
  *
  * HTML utility functions
  *
- * $Id: html.cpp,v 1.2 2008/09/27 09:01:20 dds Exp $
+ * $Id: html.cpp,v 1.3 2008/09/29 09:17:36 dds Exp $
  */
 
 #include <map>
@@ -170,7 +170,7 @@ html_tail(FILE *of)
 		" &mdash; Web: "
 		"<a href=\"http://www.spinellis.gr/cscout\">Home</a>\n"
 		"<a href=\"http://www.spinellis.gr/cscout/doc/index.html\">Manual</a>\n"
-		"<br><hr><font size=-1>CScout %s &mdash; %s",
+		"<br><hr><div class=\"footer\">CScout %s &mdash; %s",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str());
 #ifdef COMMERCIAL
@@ -178,7 +178,7 @@ html_tail(FILE *of)
 #else
 	fprintf(of, " &mdash; Unsupported version; can only be used on open-source software.");
 #endif
-	fprintf(of, "</font></body></html>\n");
+	fprintf(of, "</div></body></html>\n");
 }
 
 // Return a function's label, based on the user's preferences

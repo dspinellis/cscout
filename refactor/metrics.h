@@ -15,7 +15,7 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.30 2008/04/07 07:57:14 dds Exp $
+ * $Id: metrics.h,v 1.31 2008/09/29 09:17:36 dds Exp $
  */
 
 #ifndef METRICS_
@@ -307,7 +307,7 @@ operator<<(ostream& o, const MetricsRange<M, E> &m)
 	o << "Number of elements: " << m.total.get_nelement() << "<p>\n";
 	if (m.total.get_nelement() == 0)
 		return o;
-	o << "<table border=1>"
+	o << "<table class='metrics'>"
 		"<tr><th>" "Metric" "</th>"
 		"<th>" "Total" "</th>"
 		"<th>" "Min" "</th>"

@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.210 2008/09/27 09:01:20 dds Exp $
+ * $Id: cscout.cpp,v 1.211 2008/09/29 09:17:36 dds Exp $
  */
 
 #include <map>
@@ -911,7 +911,7 @@ static void
 html_file_begin(FILE *of)
 {
 	if (Option::fname_in_context->get())
-		fprintf(of, "<table><tr><th>Directory</th><th>File</th>");
+		fprintf(of, "<table class='dirlist'><tr><th>Directory</th><th>File</th>");
 	else
 		fprintf(of, "<table><tr><th></th><th></th>");
 }
@@ -1077,7 +1077,7 @@ display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 static void
 display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &sorted_ids)
 {
-	fprintf(of, "<table><tr>"
+	fprintf(of, "<table class=\"metrics\"><tr>"
 	    "<th width='50%%' align='left'>Name</th>"
 	    "<th width='50%%' align='right'>%s</th>\n",
 	    Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
@@ -1538,7 +1538,7 @@ function_page(FILE *fo, void *p)
 	}
 	fprintf(fo, "</ul>\n");
 	if (f->is_defined()) {
-		fprintf(fo, "<h2>Metrics</h2>\n<table border='1'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
+		fprintf(fo, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 		for (int j = 0; j < FunMetrics::metric_max; j++)
 			if (!Metrics::is_internal<FunMetrics>(j))
 				fprintf(fo, "<tr><td>%s</td><td>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
@@ -2213,6 +2213,7 @@ index_page(FILE *of, void *data)
 	html_head(of, "index", "CScout Main Page", "<img src=\"logo.png\">Scout Main Page");
 	fputs(
 		"<table><tr><td valign=\"top\">\n"
+		"<div class=\"mainblock\">\n"
 		"<h2>Files</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"filemetrics.html\">File metrics</a>\n"
@@ -2231,9 +2232,11 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<li> <a href=\"igraph%s\">File include graph (writable files)</a>", graph_suffix());
 	fprintf(of, "<li> <a href=\"igraph%s?all=1\">File include graph (all files)</a>", graph_suffix());
 	fprintf(of, "<li> <a href=\"filequery.html\">Specify new file query</a>\n"
-		"</ul>\n");
+		"</ul></div>\n");
 
-	fputs("<h2>Functions and Macros</h2>\n"
+	fputs(
+		"<div class=\"mainblock\">\n"
+		"<h2>Functions and Macros</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"funmetrics.html\">Function metrics</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All functions</a>\n",
@@ -2245,15 +2248,17 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=0&n=Writable+Functions+that+Are+Not+Directly+Called&qi=x\">Writable functions that are not directly called</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=1&n=Writable+Functions+that+Are++Called+Exactly+Once&qi=x\">Writable functions that are called exactly once</a>\n"
 		"<li> <a href=\"funquery.html\">Specify new function query</a>\n"
-		"</ul>\n"
+		"</ul></div>\n"
 	);
 
 	fprintf(of, "</td><td valign=\"top\">\n");
 
-	fprintf(of, "<h2>Identifiers</h2>\n"
+	fputs(
+		"<div class=\"mainblock\">\n"
+		"<h2>Identifiers</h2>\n"
 		"<ul>\n"
-		"<li> <a href=\"idmetrics.html\">Identifier metrics</a>\n"
-		);
+		"<li> <a href=\"idmetrics.html\">Identifier metrics</a>\n",
+		of);
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&match=Y&qi=1&n=All+Identifiers\">All identifiers</a>\n", is_readonly);
 	fprintf(of, "<li> <a href=\"xiquery.html?a%d=1&match=Y&qi=1&n=Read-only+Identifiers\">Read-only identifiers</a>\n", is_readonly);
 	fputs("<li> <a href=\"xiquery.html?writable=1&match=Y&qi=1&n=Writable+Identifiers\">Writable identifiers</a>\n"
@@ -2266,11 +2271,13 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&a%d=1&a%d=1&match=T&ire=&fre=&n=Writable+identifiers+that+should+be+made+static&qi=1\">Writable function identifiers that should be made static</a>\n", is_ordinary, is_lscope, is_function);
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
-		"</ul>"
+		"</ul></div>"
 	);
 
 	if (!browse_only)
-		fputs("<h2>Operations</h2>"
+		fputs(
+			"<div class=\"mainblock\">\n"
+			"<h2>Operations</h2>"
 			"<ul>\n"
 			"<li> <a href=\"options.html\">Global options</a>\n"
 			" &mdash; <a href=\"save_options.html\">save global options</a>\n"
@@ -2279,7 +2286,7 @@ index_page(FILE *of, void *data)
 			"<li> <a href=\"save.html\">Save changes and continue</a>\n"
 			"<li> <a href=\"sexit.html\">Exit &mdash; saving changes</a>\n"
 			"<li> <a href=\"qexit.html\">Exit &mdash; ignore changes</a>\n"
-			"</ul>", of);
+			"</ul></div>", of);
 	fputs("</td></tr></table>\n", of);
 	html_tail(of);
 }
@@ -2342,7 +2349,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&n=Files+Including+the+File\">Files including this file</a>\n", i.get_id());
 	fprintf(of, "</ul>\n");
-	fprintf(of, "<h2>Metrics</h2>\n<table border='1'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
+	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
 		fprintf(of, "<tr><td>%s</td><td>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
 	fprintf(of, "</table>\n");
