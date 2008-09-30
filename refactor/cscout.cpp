@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.211 2008/09/29 09:17:36 dds Exp $
+ * $Id: cscout.cpp,v 1.212 2008/09/30 14:07:51 dds Exp $
  */
 
 #include <map>
@@ -2014,7 +2014,7 @@ end:
 static void
 igraph_page(GraphDisplay *gd)
 {
-	bool all = !!swill_getvar("all");		// Otherwise exluce read-only files
+	bool all = !!swill_getvar("all");		// Otherwise exclude read-only files
 	bool only_visited = single_file_graph();
 	gd->head("igraph", "Include Graph");
 	int count = 0;
@@ -3181,7 +3181,7 @@ garbage_collect(Fileid root)
 			continue;
 
 		fi.set_required(false);	// Mark the file as not being required
-		touched_files.insert(*i);
+		touched_files.insert(fi);
 
 		if (!monitor.is_valid()) {
 			fi.set_gc(true);	// Mark the file as garbage collected
@@ -3207,7 +3207,7 @@ garbage_collect(Fileid root)
 			mapTokidEclass::iterator ei = ti.find_ec();
 			if (ei != ti.end_ec()) {
 				sum++;
-				Eclass *ec = (*ei).second;
+				Eclass *ec = ei->second;
 				IdPropElem ec_id(ec, Identifier());
 				if (!monitor.eval(ec_id)) {
 					count++;
@@ -3230,7 +3230,7 @@ garbage_collect(Fileid root)
 	// Store them in a set to calculate set difference
 	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
 		if (*i != root && *i != input_file_id)
-			root.includes(*i, /* directly included = */ false, (*i).required());
+			root.includes(*i, /* directly included (conservatively) */ false, i->required());
 #ifdef COMMERCIAL
 	if (Sql::getInterface())
 		Fdep::dumpSql(Sql::getInterface(), root);

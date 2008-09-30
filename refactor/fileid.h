@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.40 2008/09/19 16:21:32 dds Exp $
+ * $Id: fileid.h,v 1.41 2008/09/30 14:07:51 dds Exp $
  */
 
 #ifndef FILEID_
@@ -225,7 +225,11 @@ public:
 	// Return a line number given a file offset
 	int line_number(streampos p) const { return i2d[id].line_number(p); }
 
-	// Called when we include file f
+	/*
+	 * Called when we include file f
+	 * A false value in the Boolean flags can simply mean "don't know" and
+	 * can be later upgraded to true.
+	 */
 	void includes(const Fileid f, bool directly, bool required, int line = -1) {
 		i2d[id].include_update_included(f, directly, required, line);
 		i2d[f.get_id()].include_update_includer(id, directly, required, line);

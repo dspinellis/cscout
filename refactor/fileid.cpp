@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.48 2008/09/03 11:50:20 dds Exp $
+ * $Id: fileid.cpp,v 1.49 2008/09/30 14:07:51 dds Exp $
  */
 
 #include <fstream>
@@ -201,17 +201,21 @@ Filedetails::include_update(const Fileid f, FileIncMap Filedetails::*map, bool d
 			FileIncMap::value_type(f, IncDetails(directly, required)));
 		i = result.first;
 	} else
-		(*i).second.update(directly, required);
+		i->second.update(directly, required);
 	if (line != -1)
-		(*i).second.add_line(line);
+		i->second.add_line(line);
 }
 
-// Update maps when we include included
+/*
+ * Update maps when we include included
+ * A false value in the Boolean flags can simply mean "don't know" and
+ * can be later upgraded to true.
+ */
 void
 Filedetails::include_update_included(const Fileid included, bool directly, bool required, int line)
 {
 	if (DP())
-		cout << "File includes " << included.get_path() <<
+		cout << "File " << this->get_name() << " includes " << included.get_path() <<
 			(directly ? " directly " : " indirectly ") <<
 			(required ? " required " : " non required ") <<
 			" line " << line << "\n";
