@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.48 2007/11/16 17:10:21 dds Exp $
+ * $Id: stab.cpp,v 1.49 2008/09/30 15:24:31 dds Exp $
  */
 
 #include <map>
@@ -247,8 +247,11 @@ obj_define(const Token& tok, Type typ)
 
 	static Stab Block::*objptr = &Block::obj;
 	Block::define(objptr, tok, typ, fc);
-	// Identifiers with extern scope are also added to the linkage unit
-	// definitions.  These are not searched, but are used for unification
+	/*
+	 * Identifiers with extern scope are also added to the linkage unit
+	 * definitions.  These definitions are not searched, for locating objects,
+	 * but are used for unification of objects, simulating the linking phase.
+	 */
 	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
 		if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())))
 			Token::unify(id->get_token(), tok);
