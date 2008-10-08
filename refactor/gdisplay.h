@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.14 2008/09/27 09:01:20 dds Exp $
+ * $Id: gdisplay.h,v 1.15 2008/10/08 17:23:47 dds Exp $
  */
 
 
@@ -19,6 +19,7 @@ public:
 	virtual void node(Fileid f) {};
 	virtual void edge(Call *a, Call *b) = 0;
 	virtual void edge(Fileid a, Fileid b) = 0;
+	virtual void error(const char *msg) = 0;
 	virtual void tail() {};
 	virtual ~GraphDisplay() {}
 };
@@ -50,6 +51,10 @@ public:
 		    file_label(a, true).c_str());
 	}
 
+	virtual void error(const char *msg) {
+		fprintf(fo, "<h2>%s</h2>", msg);
+	}
+
 	virtual void tail() {
 		fprintf(fo, "</table>\n");
 		html_tail(fo);
@@ -72,6 +77,11 @@ public:
 		    file_label(b, false).c_str(),
 		    file_label(a, false).c_str());
 	}
+
+	virtual void error(const char *msg) {
+		fprintf(fo, "%s", msg);
+	}
+
 	virtual ~GDTxt() {}
 };
 
@@ -109,6 +119,10 @@ public:
 
 	virtual void edge(Fileid a, Fileid b) {
 		fprintf(fo, "\t_%d -> _%d [dir=back];\n", a.get_id(), b.get_id());
+	}
+
+	virtual void error(const char *msg) {
+		fprintf(fo, "\tERROR [label=\"%s\" shape=plaintext];\n", msg);
 	}
 
 	virtual void tail() {

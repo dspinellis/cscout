@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.49 2008/09/30 14:07:51 dds Exp $
+ * $Id: fileid.cpp,v 1.50 2008/10/08 17:23:47 dds Exp $
  */
 
 #include <fstream>
@@ -245,6 +245,13 @@ Fileid::files(bool sorted)
 	if (sorted)
 		sort(r.begin(), r.end(), fname_order());
 	return (r);
+}
+
+void
+Fileid::clear_all_visited()
+{
+	for (FI_id_to_details::iterator i = i2d.begin(); i != i2d.end(); i++)
+		i->clear_visited();
 }
 
 void

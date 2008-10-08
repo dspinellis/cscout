@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.212 2008/09/30 14:07:51 dds Exp $
+ * $Id: cscout.cpp,v 1.213 2008/10/08 17:23:47 dds Exp $
  */
 
 #include <map>
@@ -66,6 +66,7 @@
 #include "html.h"
 #include "dirbrowse.h"
 #include "fileutils.h"
+#include "globobj.h"
 
 #if defined(unix) || defined(__MACH__)
 #define COMMERCIAL_UNIX_OPTIONS "b"
@@ -152,6 +153,9 @@ Attributes::size_type current_project;
  */
 typedef map <Eclass *, string> RefFunCall;
 static RefFunCall rfcs;
+
+// Matrix used to store graph edges
+typedef vector<vector<bool> > EdgeMatrix;
 
 // Boundaries of a function argument
 struct ArgBound {
@@ -1541,7 +1545,7 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 		for (int j = 0; j < FunMetrics::metric_max; j++)
 			if (!Metrics::is_internal<FunMetrics>(j))
-				fprintf(fo, "<tr><td>%s</td><td>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
+				fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
 		fprintf(fo, "</table>\n");
 	}
 	fprintf(fo, "</FORM>\n");
@@ -1586,12 +1590,15 @@ visit_functions(FILE *fo, const char *call_path, Call *f,
 
 /*
  * Visit all files associated with a includes/included relationship with f
- * The methods to obtain the relationship containers are passed through
- * the fbegin and fend method pointers.
+ * The method to obtain the relationship container is passed through
+ * the get_map method pointer.
+ * The method to check if a file should be included in the visit is passed through the
+ * the is_ok method pointer.
  * Set the visited flag for all nodes visited.
  */
 static void
-visit_include_files(Fileid f, const FileIncMap & (Fileid::*map)() const, int level)
+visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
+    bool (IncDetails::*is_ok)() const, int level)
 {
 	if (level == 0)
 		return;
@@ -1599,12 +1606,70 @@ visit_include_files(Fileid f, const FileIncMap & (Fileid::*map)() const, int lev
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
 	f.set_visited();
-	const FileIncMap &m = (f.*map)();
+	const FileIncMap &m = (f.*get_map)();
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
-		if (!i->first.is_visited() && i->second.is_directly_included())
-			visit_include_files(i->first, map, level - 1);
+		if (!i->first.is_visited() && (i->second.*is_ok)())
+			visit_include_files(i->first, get_map, is_ok, level - 1);
 	}
 }
+
+/*
+ * Visit all files associated with a global variable def/ref relationship with f
+ * The method to obtain the relationship container is passed through
+ * the get_set method pointer.
+ * Set the visited flag for all nodes visited.
+ */
+static void
+visit_globobj_files(Fileid f, const Fileidset & (Fileid::*get_set)() const, int level)
+{
+	if (level == 0)
+		return;
+
+	if (DP())
+		cout << "Visiting " << f.get_fname() << endl;
+	f.set_visited();
+	const Fileidset &s = (f.*get_set)();
+	for (Fileidset::const_iterator i = s.begin(); i != s.end(); i++) {
+		if (!i->is_visited())
+			visit_globobj_files(*i, get_set, level - 1);
+	}
+}
+
+/*
+ * Visit all files associated with a function call relationship with f
+ * (a control dependency).
+ * The methods to obtain the relationship iterators are passed through
+ * the abegin and aend method pointers.
+ * Set the visited flag for all nodes visited and the edges matrix for
+ * the corresponding edges.
+ */
+static void
+visit_fcall_files(Fileid f, Call::const_fiterator_type (Call::*abegin)() const, Call::const_fiterator_type (Call::*aend)() const, int level, EdgeMatrix &edges)
+{
+	if (level == 0)
+		return;
+
+	if (DP())
+		cout << "Visiting " << f.get_fname() << endl;
+	f.set_visited();
+	/*
+	 * For every function in this file:
+	 * for every function associated with this function
+	 * set the edge and visit the corresponding files.
+	 */
+	for (FCallSet::const_iterator filefun = f.get_functions().begin(); filefun != f.get_functions().end(); filefun++) {
+		if (!(*filefun)->is_cfun())
+			continue;
+		for (Call::const_fiterator_type afun = ((*filefun)->*abegin)(); afun != ((*filefun)->*aend)(); afun++)
+			if ((*afun)->is_defined() && (*afun)->is_cfun()) {
+				Fileid f2((*afun)->get_definition().get_fileid());
+				edges[f.get_id()][f2.get_id()] = true;
+				if (!f2.is_visited())
+					visit_fcall_files(f2, abegin, aend, level - 1, edges);
+			}
+	}
+}
+
 
 extern "C" { const char *swill_getquerystring(void); }
 
@@ -1662,11 +1727,11 @@ funlist_page(FILE *fo, void *p)
 	Call *f;
 	char buff[256];
 
-	if (!swill_getargs("p(f)", &f)) {
+	char *ltype = swill_getvar("n");
+	if (!swill_getargs("p(f)", &f) || !ltype) {
 		fprintf(fo, "Missing value");
 		return;
 	}
-	char *ltype = swill_getvar("n");
 	html_head(fo, "funlist", "Function List");
 	fprintf(fo, "<h2>Function ");
 	html(fo, *f);
@@ -1907,11 +1972,11 @@ static bool
 single_function_graph()
 {
 	Call *f;
-	if (!swill_getargs("p(f)", &f))
+	char *ltype = swill_getvar("n");
+	if (!swill_getargs("p(f)", &f) || !ltype)
 		return false;
 	Call::clear_visit_flags();
 	// No output, just set the visited flag
-	char *ltype = swill_getvar("n");
 	switch (*ltype) {
 	case 'D':
 		visit_functions(NULL, NULL, f, &Call::call_begin, &Call::call_end, true, false, Option::cgraph_depth->get());
@@ -1925,26 +1990,63 @@ single_function_graph()
 }
 
 /*
- * Return true if the include graph is specified for a single file.
- * In this case only show entries that have the visited flag set
+ * Return true if the include/global/call graph is specified for a single file.
+ * In this case caller will only show entries that have the visited flag set, so
+ * set this flag as specified.
+ * For function * call graphs also fill edges with a matrix indicating the dges to draw
  */
 static bool
-single_file_graph()
+single_file_graph(char gtype, EdgeMatrix &edges)
 {
 	int id;
-	if (!swill_getargs("i(f)", &id))
+	char *ltype = swill_getvar("n");
+	if (!swill_getargs("i(f)", &id) || !ltype)
 		return false;
 	Fileid fileid(id);
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
-		i->clear_visited();
+	Fileid::clear_all_visited();
 	// No output, just set the visited flag
-	char *ltype = swill_getvar("n");
-	switch (*ltype) {
-	case 'D':
-		visit_include_files(fileid, &Fileid::get_includers, Option::cgraph_depth->get());
+	switch (gtype) {
+	case 'I':		// Include graph
+		switch (*ltype) {
+		case 'D':
+			visit_include_files(fileid, &Fileid::get_includers, &IncDetails::is_directly_included, Option::cgraph_depth->get());
+			break;
+		case 'U':
+			visit_include_files(fileid, &Fileid::get_includes, &IncDetails::is_directly_included, Option::cgraph_depth->get());
+			break;
+		}
 		break;
-	case 'U':
-		visit_include_files(fileid, &Fileid::get_includes, Option::cgraph_depth->get());
+	case 'C':		// Compile-time dependency graph
+		switch (*ltype) {
+		case 'D':
+			visit_include_files(fileid, &Fileid::get_includers, &IncDetails::is_required, Option::cgraph_depth->get());
+			break;
+		case 'U':
+			visit_include_files(fileid, &Fileid::get_includes, &IncDetails::is_required, Option::cgraph_depth->get());
+			break;
+		}
+		break;
+	case 'G':		// Global object def/ref graph (data dependency)
+		switch (*ltype) {
+		case 'D':
+			visit_globobj_files(fileid, &Fileid::glob_uses, Option::cgraph_depth->get());
+			break;
+		case 'U':
+			visit_globobj_files(fileid, &Fileid::glob_used_by, Option::cgraph_depth->get());
+			break;
+		}
+		break;
+	case 'F':		// Function call graph (control dependency)
+		int size = Fileid::max_id() + 1;
+		edges.insert(edges.begin(), size, vector<bool>(size, 0));
+		switch (*ltype) {
+		case 'D':
+			visit_fcall_files(fileid, &Call::call_begin, &Call::call_end, Option::cgraph_depth->get(), edges);
+			break;
+		case 'U':
+			visit_fcall_files(fileid, &Call::caller_begin, &Call::caller_end, Option::cgraph_depth->get(), edges);
+			break;
+		}
 		break;
 	}
 	return true;
@@ -2010,13 +2112,60 @@ end:
 	gd->tail();
 }
 
-// Include graph
+// File dependency graph
 static void
-igraph_page(GraphDisplay *gd)
+fgraph_page(GraphDisplay *gd)
 {
+	char *gtype = swill_getvar("gtype");		// Graph type
+	char *ltype = swill_getvar("n");
+	if (!gtype || !*gtype || (*gtype == 'F' && !ltype)) {
+		gd->head("fgraph", "Error");
+		gd->error("Missing value");
+		gd->tail();
+		return;
+	}
 	bool all = !!swill_getvar("all");		// Otherwise exclude read-only files
-	bool only_visited = single_file_graph();
-	gd->head("igraph", "Include Graph");
+	EdgeMatrix edges;
+	bool only_visited = single_file_graph(*gtype, edges);
+	switch (*gtype) {
+	case 'I':		// Include graph
+		gd->head("fgraph", "Include Graph");
+		break;
+	case 'C':		// Compile-time dependency graph
+		gd->head("fgraph", "Compile-Time Dependency Graph");
+		break;
+	case 'G':		// Global object def/ref graph (data dependency)
+		gd->head("fgraph", "Global Object (Data) Dependency Graph");
+		break;
+	case 'F':		// Function call graph (control dependency)
+		gd->head("fgraph", "Function Call (Control) Dependency Graph");
+		if (!only_visited) {
+			int size = Fileid::max_id() + 1;
+			edges.insert(edges.begin(), size, vector<bool>(size, 0));
+			// Fill the edges for all files
+			Fileid::clear_all_visited();
+			for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+				if (i->is_visited())
+					continue;
+				if (!all && i->get_readonly())
+					continue;
+				switch (*ltype) {
+				case 'D':
+					visit_fcall_files(*i, &Call::call_begin, &Call::call_end, Option::cgraph_depth->get(), edges);
+					break;
+				case 'U':
+					visit_fcall_files(*i, &Call::caller_begin, &Call::caller_end, Option::cgraph_depth->get(), edges);
+					break;
+				}
+			}
+		}
+		break;
+	default:
+		gd->head("fgraph", "Error");
+		gd->error("Unknown graph type");
+		gd->tail();
+		return;
+	}
 	int count = 0;
 	// First generate the node labels
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
@@ -2034,17 +2183,62 @@ igraph_page(GraphDisplay *gd)
 			continue;
 		if (only_visited && !i->is_visited())
 			continue;
-		const FileIncMap &m = i->get_includes();
-		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
-			if (!j->second.is_directly_included())
-				continue;
-			if (!all && j->first.get_readonly())
-				continue;
-			if (only_visited && !j->first.is_visited())
-				continue;
-			gd->edge(j->first, *i);
-			if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
-				goto end;
+		switch (*gtype) {
+		case 'C':		// Compile-time dependency graph
+		case 'I': {		// Include graph
+			const FileIncMap &m(i->get_includes());
+			for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
+				if (*gtype == 'I' && !j->second.is_directly_included())
+					continue;
+				if (*gtype == 'C' && !j->second.is_required())
+					continue;
+				if (!all && j->first.get_readonly())
+					continue;
+				if (only_visited && !j->first.is_visited())
+					continue;
+				gd->edge(j->first, *i);
+				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+					goto end;
+			}
+			break;
+		}
+		case 'F':		// Function call graph (control dependency)
+			for (vector <Fileid>::iterator j = files.begin(); j != files.end(); j++) {
+				if (!all && j->get_readonly())
+					continue;
+				if (only_visited && !j->is_visited())
+					continue;
+				if (*i == *j)
+					continue;
+				if (DP())
+					cout << "Checking " << i->get_fname() << " - " << j->get_fname() << endl;
+				if (edges[i->get_id()][j->get_id()])
+					switch (*ltype) {
+					case 'D':
+						gd->edge(*j, *i);
+						break;
+					case 'U':
+						gd->edge(*i, *j);
+						break;
+					}
+				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+					goto end;
+			}
+			break;
+		case 'G':		// Global object def/ref graph (data dependency)
+			for (Fileidset::const_iterator j = i->glob_uses().begin(); j != i->glob_uses().end(); j++) {
+				if (!all && j->get_readonly())
+					continue;
+				if (only_visited && !j->is_visited())
+					continue;
+				gd->edge(*j, *i);
+				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
+					goto end;
+			}
+			break;
+		default:
+			csassert(0);
+			break;
 		}
 	}
 end:
@@ -2053,44 +2247,44 @@ end:
 
 // Include graph: text
 static void
-igraph_txt_page(FILE *fo, void *p)
+fgraph_txt_page(FILE *fo, void *p)
 {
 	GDTxt gd(fo);
-	igraph_page(&gd);
+	fgraph_page(&gd);
 }
 
 // Include graph: HTML
 static void
-igraph_html_page(FILE *fo, void *p)
+fgraph_html_page(FILE *fo, void *p)
 {
 	GDHtml gd(fo);
-	igraph_page(&gd);
+	fgraph_page(&gd);
 }
 
 // Include graph: SVG via dot
 static void
-igraph_dot_page(FILE *fo, void *p)
+fgraph_dot_page(FILE *fo, void *p)
 {
 	GDDot gd(fo);
-	igraph_page(&gd);
+	fgraph_page(&gd);
 }
 
 // Include graph: SVG via dot
 static void
-igraph_svg_page(FILE *fo, void *p)
+fgraph_svg_page(FILE *fo, void *p)
 {
 	prohibit_remote_access(fo);
 	GDSvg gd(fo);
-	igraph_page(&gd);
+	fgraph_page(&gd);
 }
 
 // Include graph: GIF via dot
 static void
-igraph_gif_page(FILE *fo, void *p)
+fgraph_gif_page(FILE *fo, void *p)
 {
 	prohibit_remote_access(fo);
 	GDGif gd(fo);
-	igraph_page(&gd);
+	fgraph_page(&gd);
 }
 
 
@@ -2229,10 +2423,22 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&order=%d&c%d=%d&n%d=0&reverse=0&match=L&n=Writable+Files+Containing+Unprocessed+Lines\">Writable files containing unprocessed lines</a>\n", Metrics::em_nuline, Metrics::em_nuline, Query::ec_gt, Metrics::em_nuline);
 	fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&n=Writable+Files+Containing+Strings\">Writable files containing strings</a>\n", Metrics::em_nstring, Query::ec_gt, Metrics::em_nstring);
 	fprintf(of, "<li> <a href=\"xfilequery.html?writable=1&c%d=%d&n%d=0&match=L&fre=%%5C.%%5BhH%%5D%%24&n=Writable+.h+Files+With+%%23include+directives\">Writable .h files with #include directives</a>\n", FileMetrics::em_nincfile, Query::ec_gt, FileMetrics::em_nincfile);
-	fprintf(of, "<li> <a href=\"igraph%s\">File include graph (writable files)</a>", graph_suffix());
-	fprintf(of, "<li> <a href=\"igraph%s?all=1\">File include graph (all files)</a>", graph_suffix());
 	fprintf(of, "<li> <a href=\"filequery.html\">Specify new file query</a>\n"
 		"</ul></div>\n");
+
+	fputs(
+		"<div class=\"mainblock\">\n"
+		"<h2>File Dependencies</h2>"
+		"<ul>\n", of);
+	fprintf(of, "<li> File include graph: <a href=\"fgraph%s?gtype=I\">writable files</a>, ", graph_suffix());
+	fprintf(of, "<a href=\"fgraph%s?gtype=I&all=1\">all files</a>", graph_suffix());
+	fprintf(of, "<li> Compile-time dependency graph: <a href=\"fgraph%s?gtype=C\">writable files</a>, ", graph_suffix());
+	fprintf(of, "<a href=\"fgraph%s?gtype=C&all=1\">all files</a>", graph_suffix());
+	fprintf(of, "<li> Control dependency graph (through function calls): <a href=\"fgraph%s?gtype=F&n=D\">writable files</a>, ", graph_suffix());
+	fprintf(of, "<a href=\"fgraph%s?gtype=F&n=D&all=1\">all files</a>", graph_suffix());
+	fprintf(of, "<li> Data dependency graph (through global variables): <a href=\"fgraph%s?gtype=G\">writable files</a>, ", graph_suffix());
+	fprintf(of, "<a href=\"fgraph%s?gtype=G&all=1\">all files</a>", graph_suffix());
+	fputs("</ul></div>", of);
 
 	fputs(
 		"<div class=\"mainblock\">\n"
@@ -2273,6 +2479,7 @@ index_page(FILE *of, void *data)
 		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
 		"</ul></div>"
 	);
+
 
 	if (!browse_only)
 		fputs(
@@ -2334,24 +2541,52 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<li> <a href=\"qsrc.html?qt=fun&id=%u&match=Y&writable=1&ro=1&n=Source+Code+With+Hyperlinks+to+Function+and+Macro+Declarations\">Source code with hyperlinks to function and macro declarations</a>\n", i.get_id());
 	if (modification_state != ms_subst && !browse_only)
 		fprintf(of, "<li> <a href=\"fedit.html?id=%u\">Edit the file</a>", i.get_id());
+
 	fprintf(of, "</ul>\n<h2>Functions</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"xfunquery.html?fid=%d&pscope=1&match=L&ncallerop=0&ncallers=&n=Defined+Project-scoped+Functions+in+%s&qi=x\">Defined project-scoped functions</a>\n"
 		"<li> <a href=\"xfunquery.html?fid=%d&fscope=1&match=L&ncallerop=0&ncallers=&n=Defined+File-scoped+Functions+in+%s&qi=x\">Defined file-scoped functions</a>\n",
 		i.get_id(), i.get_fname().c_str(), i.get_id(), i.get_fname().c_str());
 	fprintf(of, "<li> <a href=\"cgraph%s?fid=%d&all=1\">Function and macro call graph</a>", graph_suffix(), i.get_id());
+
+	fprintf(of, "</ul>\n<h2>File Dependencies</h2><ul>\n");
+	fprintf(of, "<li> Graph of files that depend on this file at compile time: "
+	    "<a href=\"fgraph%s?gtype=C&f=%d&n=D\">writable</a>, "
+	    "<a href=\"fgraph%s?gtype=C&all=1&f=%d&n=D\">all</a>",
+	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+	fprintf(of, "<li> Graph of files on which this file depends at compile time: "
+	    "<a href=\"fgraph%s?gtype=C&f=%d&n=U\">writable</a>, "
+	    "<a href=\"fgraph%s?gtype=C&all=1&f=%d&n=U\">all</a>",
+	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+	fprintf(of, "<li> Graph of files whose functions this file calls (control dependency): "
+	    "<a href=\"fgraph%s?gtype=F&f=%d&n=D\">writable</a>, "
+	    "<a href=\"fgraph%s?gtype=F&all=1&f=%d&n=D\">all</a>",
+	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+	fprintf(of, "<li> Graph of files calling this file's functions (control dependency): "
+	    "<a href=\"fgraph%s?gtype=F&f=%d&n=U\">writable</a>, "
+	    "<a href=\"fgraph%s?gtype=F&all=1&f=%d&n=U\">all</a>",
+	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+	fprintf(of, "<li> Graph of files whose global variables this file accesses (data dependency): "
+	    "<a href=\"fgraph%s?gtype=G&f=%d&n=D\">writable</a>, "
+	    "<a href=\"fgraph%s?gtype=G&all=1&f=%d&n=D\">all</a>",
+	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+	fprintf(of, "<li> Graph of files accessing this file's global variables (data dependency): "
+	    "<a href=\"fgraph%s?gtype=G&f=%d&n=U\">writable</a>, "
+	    "<a href=\"fgraph%s?gtype=G&all=1&f=%d&n=U\">all</a>",
+	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&includes=1&n=All+Included+Files\">All files that this file includes</a>\n", i.get_id());
-	fprintf(of, "<li> <a href=\"igraph%s?all=1&f=%d&n=U\">Include graph of all included files</a>", graph_suffix(), i.get_id());
-	fprintf(of, "<li> <a href=\"igraph%s?f=%d&n=U\">Include graph of writable included files</a>", graph_suffix(), i.get_id());
-	fprintf(of, "<li> <a href=\"igraph%s?all=1&f=%d&n=D\">Include graph of all including files</a>", graph_suffix(), i.get_id());
+	fprintf(of, "<li> <a href=\"fgraph%s?gtype=I&all=1&f=%d&n=U\">Include graph of all included files</a>", graph_suffix(), i.get_id());
+	fprintf(of, "<li> <a href=\"fgraph%s?gtype=I&f=%d&n=U\">Include graph of writable included files</a>", graph_suffix(), i.get_id());
+	fprintf(of, "<li> <a href=\"fgraph%s?gtype=I&all=1&f=%d&n=D\">Include graph of all including files</a>", graph_suffix(), i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&includes=1&used=1&writable=1&n=All+Required+Included+Writable+Files\">All writable files that this file must include</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&n=Files+Including+the+File\">Files including this file</a>\n", i.get_id());
 	fprintf(of, "</ul>\n");
 	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "<tr><td>%s</td><td>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
+		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
 	fprintf(of, "</table>\n");
 	html_tail(of);
 }
@@ -3002,6 +3237,9 @@ main(int argc, char *argv[])
 	file_msum.summarize_files();
 	fun_msum.summarize_functions();
 
+	// Set runtime file dependencies
+	GlobObj::set_file_dependencies();
+
 	// Set xfile and  metrics for each identifier
 	cerr << "Processing identifiers" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
@@ -3097,11 +3335,11 @@ main(int argc, char *argv[])
 		swill_handle("cgraph.svg", cgraph_svg_page, NULL);
 		swill_handle("cgraph.gif", cgraph_gif_page, NULL);
 
-		swill_handle("igraph.html", igraph_html_page, NULL);
-		swill_handle("igraph.txt", igraph_txt_page, NULL);
-		swill_handle("igraph_dot.txt", igraph_dot_page, "txt");
-		swill_handle("igraph.svg", igraph_svg_page, NULL);
-		swill_handle("igraph.gif", igraph_gif_page, NULL);
+		swill_handle("fgraph.html", fgraph_html_page, NULL);
+		swill_handle("fgraph.txt", fgraph_txt_page, NULL);
+		swill_handle("fgraph_dot.txt", fgraph_dot_page, "txt");
+		swill_handle("fgraph.svg", fgraph_svg_page, NULL);
+		swill_handle("fgraph.gif", fgraph_gif_page, NULL);
 
 		swill_handle("cpath.html", cpath_html_page, NULL);
 		swill_handle("cpath.txt", cpath_txt_page, NULL);

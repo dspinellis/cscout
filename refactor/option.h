@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.10 2008/09/19 16:21:32 dds Exp $
+ * $Id: option.h,v 1.11 2008/10/08 17:23:47 dds Exp $
  */
 
 #ifndef OPTION_
@@ -60,13 +60,13 @@ public:
 	static IntegerOption *tab_width;		// Tab width for code output
 	static SelectionOption *cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 	static SelectionOption *cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
-	static SelectionOption *igraph_show;		// Include graph show e(dge n(ame p(ath
+	static SelectionOption *fgraph_show;		// File graph show e(dge n(ame p(ath
 	static TextOption *sfile_re_string;		// Saved files replacement location RE string
 	static TextOption *sfile_repl_string;		// Saved files replacement string
 	static TextOption *start_editor_cmd;		// Command to invoke an external editor
 	static IntegerOption *entries_per_page;		// Number of elements to show in a page
 	static IntegerOption *cgraph_depth;		// How deep to descend in a call graph
-	static IntegerOption *igraph_depth;		// How deep to descend in an include graph
+	static IntegerOption *fgraph_depth;		// How deep to descend in a file graph
 	static BoolOption *cgraph_dot_url;		// Include URLs in dot output
 	// Initialize the global web options
 	static void initialize();

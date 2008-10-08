@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.25 2008/09/18 06:16:18 dds Exp $
+ * $Id: stab.h,v 1.26 2008/10/08 17:23:47 dds Exp $
  */
 
 #ifndef STAB_
@@ -29,8 +29,8 @@
  */
 
 class Type;
-
 class FCall;
+class GlobObj;
 
 // A C identifier as stored in the symbol table
 class Id {
@@ -39,14 +39,16 @@ private:
 					// Needed for unification
 	Type type;			// For type resolution
 	FCall *fcall;			// Function call info
+	GlobObj *glob;			// Corresponding global object
 public:
-	Id(const Token& tok, Type typ, FCall *fc = NULL);
+	Id(const Token& tok, Type typ, FCall *fc = NULL, GlobObj *go = NULL);
 	Id() : type(basic(b_undeclared)) {}			// Needed for map
 	Type get_type() const { return type; }
 	void set_type(const Type &t) { type = t; }
 	const Token& get_token() const { return token; }
 	const string& get_name() const { return token.get_name(); }
 	FCall *get_fcall() const { return fcall; }
+	GlobObj *get_glob() const { return glob; }
 };
 
 typedef map<string,Id> Stab_element;
@@ -57,7 +59,7 @@ private:
 	Stab_element m;
 public:
 	Id const* lookup(const string& s) const;
-	void define(const Token& tok, const Type& typ, FCall *fc = NULL);
+	Id *define(const Token& tok, const Type& typ, FCall *fc = NULL, GlobObj *go = NULL);
 	void clear() { m.clear(); }
 	int size() { return m.size(); }
 	Stab_element::const_iterator begin() const { return m.begin(); }
@@ -102,8 +104,8 @@ private:
 	static Block param_block;	// Function parameter declarations
 	static bool use_param;		// Declare in param_block when true
 
-	static void define(Stab Block::*table, const Token& tok, const Type& t, FCall *fc = NULL);
-	static Id const * lookup(const Stab Block::*table, const string& name);
+	static void define(Stab Block::*table, const Token& tok, const Type& t, FCall *fc = NULL, GlobObj *go = NULL);
+	static pair <Id const *, int> lookup(const Stab Block::*table, const string& name);
 public:
 	// Should be private appart from taking member address
 	Stab obj;		// Objects (variables...)
@@ -186,25 +188,17 @@ void local_label_define(const Token& tok);
 Id const * obj_lookup(const string& name);
 
 inline Id const *
-obj_lookup(const string& name)
-{
-	static Stab Block::*objptr = &Block::obj;
-	return Block::lookup(objptr, name);
-}
-
-
-inline Id const *
 tag_lookup(const string& name)
 {
 	static Stab Block::*tagptr = &Block::tag;
-	return Block::lookup(tagptr, name);
+	return Block::lookup(tagptr, name).first;
 }
 
 inline Id const *
 local_label_lookup(const string& name)
 {
 	static Stab Block::*llptr = &Block::local_label;
-	return Block::lookup(llptr, name);
+	return Block::lookup(llptr, name).first;
 }
 
 inline Id const *

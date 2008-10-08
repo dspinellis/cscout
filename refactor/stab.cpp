@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.49 2008/09/30 15:24:31 dds Exp $
+ * $Id: stab.cpp,v 1.50 2008/10/08 17:23:47 dds Exp $
  */
 
 #include <map>
@@ -38,6 +38,7 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "globobj.h"
 
 
 int Block::current_block = -1;
@@ -46,8 +47,8 @@ Stab Function::label;
 Block Block::param_block;	// Function parameter declarations
 bool Block::use_param;		// Declare in param_block when true
 
-Id::Id(const Token& tok, Type typ, FCall *fc) :
-	token(tok), type(typ), fcall(fc)
+Id::Id(const Token& tok, Type typ, FCall *fc, GlobObj *go) :
+	token(tok), type(typ), fcall(fc), glob(go)
 {
 }
 
@@ -95,9 +96,9 @@ Block::param_exit()
  * Define name to be the identifier id
  */
 void
-Block::define(Stab Block::*table, const Token& tok, const Type& typ, FCall *fc)
+Block::define(Stab Block::*table, const Token& tok, const Type& typ, FCall *fc, GlobObj *go)
 {
-	(scope_block[current_block].*table).define(tok, typ, fc);
+	(scope_block[current_block].*table).define(tok, typ, fc, go);
 }
 
 // Called when exiting a function block statement
@@ -225,11 +226,11 @@ obj_define(const Token& tok, Type typ)
 		tok.set_ec_attribute(is_function);
 		if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
 			// Extern linkage: get it from the lu block which we do not normaly search
-			if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())))
+			if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())) != NULL)
 				fc = id->get_fcall();
 		} else {
 			// Static linkage: get it from the normal blocks
-			if ((id = obj_lookup(tok.get_name())))
+			if ((id = obj_lookup(tok.get_name())) != NULL)
 				fc = id->get_fcall();
 		}
 		// Try to match the function against one in another project
@@ -253,10 +254,36 @@ obj_define(const Token& tok, Type typ)
 	 * but are used for unification of objects, simulating the linking phase.
 	 */
 	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
-		if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())))
+		GlobObj *go = NULL;
+		if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())) != NULL) {
 			Token::unify(id->get_token(), tok);
-		else
-			Block::scope_block[Block::lu_block].obj.define(tok, typ, fc);
+			go = id->get_glob();
+		} else {
+			/*
+			 * Create all the GlobObj elements we track at their declaration/definition point,
+			 * so that id is correctly initialized with one.  However, we add a def, only if it
+			 * is a definition of a global variable, rather than a declaration.
+			 */
+			if (!typ.is_function()) {
+				if (DP())
+					cout << "Define global variable identifier " << tok.get_name() << endl;
+				// Try to match the global against one in another project
+				Token utok(tok.unique());	// To handle identical files
+				go = GlobObj::get_glob(utok);
+				if (!go) {
+					if (DP())
+						cout << "Creating new glob\n";
+					go = new GlobObj(utok, typ, tok.get_name());
+				}
+			}
+			id = Block::scope_block[Block::lu_block].obj.define(tok, typ, fc, go);
+		}
+		/*
+		 * We test go, because it might be null if the object is defined as a function in one
+		 * and as a variable in another.
+		 */
+		if (go && !typ.is_function() && sc == c_unspecified && Block::current_block == Block::cu_block)
+			go->add_def(Fchar::get_fileid());
 	}
 }
 
@@ -289,20 +316,19 @@ tag_define(const Token& tok, const Type& typ)
 
 /*
  * Lookup in the block pointed by table (obj or tag) for name
- * and return the relevant identifier or NULL if not defined.
+ * and return the relevant identifier or NULL if not defined
+ * and the definition's scope level.
  */
-Id const *
+pair <Id const *, int>
 Block::lookup(const Stab Block::*table, const string& name)
 {
-	int i;
 	Id const * id;
 
-	for (i = current_block; i != lu_block; i--)
+	for (int i = current_block; i != lu_block; i--)
 		if ((id = (scope_block[i].*table).lookup(name)))
-			return id;
-	return NULL;
+			return pair <Id const *, int>(id, i);
+	return pair <Id const *, int>(NULL, 0);
 }
-
 
 Id const *
 Stab::lookup(const string& s) const
@@ -316,10 +342,54 @@ Stab::lookup(const string& s) const
 		return &((*i).second);
 }
 
-void
-Stab::define(const Token& tok, const Type& typ, FCall *fc)
+
+Id const *
+obj_lookup(const string& name)
 {
-	m[tok.get_name()] = Id(tok, typ, fc);
+	static Stab Block::*objptr = &Block::obj;
+	pair <Id const *, int> r = Block::lookup(objptr, name);
+	Id const *id = r.first;
+	if (id) {
+		enum e_storage_class sc = r.first->get_type().get_storage_class();
+		if (!r.first->get_type().is_function() &&
+		    (sc == c_extern || (sc == c_unspecified && r.second == Block::cu_block))) {
+			if (DP())
+				cout << "Lookup global variable identifier " << name << endl;
+			GlobObj *go = id->get_glob();
+			// Try to match the global against one in another project
+			if (!go) {
+				Token utok(id->get_token().unique());	// To handle identical files
+				go = GlobObj::get_glob(utok);
+				if (!go) {
+					if (DP())
+						cout << "Creating new glob\n";
+					go = new GlobObj(utok, id->get_type(), name);
+				}
+			}
+			go->add_ref(Fchar::get_fileid());
+		}
+	}
+	return id;
+}
+
+
+Id *
+Stab::define(const Token& tok, const Type& typ, FCall *fc, GlobObj *go)
+{
+	Stab_element::key_type key(tok.get_name());
+	Stab_element::mapped_type data(Id(tok, typ, fc, go));
+	/*
+	 * Efficient implementation of
+	 * m[tok.get_name()] = Id(tok, typ, fc, go);
+	 * return (Id *)Stab::lookup(tok.get_name());
+	 * See Meyers Effective STL, Item 24.
+	 */
+	Stab_element::iterator i = m.lower_bound(key);
+	if (i != m.end() && i->first == key) {
+		i->second = data;
+		return &(i->second);
+	} else
+		return &(m.insert(i, Stab_element::value_type(key, data))->second);
 }
 
 /*

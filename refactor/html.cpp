@@ -3,7 +3,7 @@
  *
  * HTML utility functions
  *
- * $Id: html.cpp,v 1.3 2008/09/29 09:17:36 dds Exp $
+ * $Id: html.cpp,v 1.4 2008/10/08 17:23:47 dds Exp $
  */
 
 #include <map>
@@ -192,7 +192,7 @@ file_label(Fileid f, bool hyperlink)
 		snprintf(buff, sizeof(buff), "<a href=\"file.html?id=%d\">", f.get_id());
 		result = buff;
 	}
-	switch (Option::igraph_show->get()) {
+	switch (Option::fgraph_show->get()) {
 	case 'p':			// Show complete paths
 		result += f.get_path() + "/";
 		/* FALLTHROUGH */

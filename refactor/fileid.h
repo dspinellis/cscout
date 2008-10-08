@@ -15,7 +15,7 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.41 2008/09/30 14:07:51 dds Exp $
+ * $Id: fileid.h,v 1.42 2008/10/08 17:23:47 dds Exp $
  */
 
 #ifndef FILEID_
@@ -62,6 +62,7 @@ struct function_file_order : public binary_function <const Call *, const Call *,
 typedef map <Fileid, IncDetails> FileIncMap;
 typedef vector<unsigned char> FileHash;
 typedef set <Call *, function_file_order> FCallSet;
+typedef set <Fileid> Fileidset;
 
 // Details we keep for each file
 class Filedetails {
@@ -79,6 +80,8 @@ private:
 	FileIncMap includers;	// Files that include us
 	FileHash hash;			// MD5 hash for the file's contents
 	int ipath_offset;	// Offset in the include file path where this file was found
+	Fileidset runtime_uses;	// Files whose global objects this file uses at runtime
+	Fileidset runtime_used_by;	// Files that use at runtime this file's global objects
 
 	// Update the specified map
 	void include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line);
@@ -128,6 +131,14 @@ public:
 	void set_visited() { visited = true; }
 	void clear_visited() { visited = false; }
 	bool is_visited() const { return visited; }
+	// Add file that this file uses at runtime
+	void glob_uses(Fileid f);
+	// Add file that is used by this file at runtime
+	void glob_used_by(Fileid f);
+	// Return the set of files that we depend on for runtime objects
+	const Fileidset & glob_uses() const { return runtime_uses; }
+	// Return the set of files that depend on us for runtime objects
+	const Fileidset & glob_used_by() const { return runtime_used_by; }
 };
 
 typedef map <string, int> FI_uname_to_id;
@@ -186,6 +197,10 @@ public:
 	static void add_ro_prefix(string prefix) { ro_prefix.push_back(prefix); }
 	// Unify identifiers of files that are exact copies
 	static void unify_identical_files(void);
+	// Return the maximum file id
+	static int max_id() { return counter - 1; }
+	// Clear the visited flag for all fileids
+	static void clear_all_visited();
 	// Return a reference to the Metrics class
 	FileMetrics &metrics() { return i2d[id].m; }
 	// Return a reference to the Metrics class
@@ -210,7 +225,11 @@ public:
 	// Return true if a line is processed
 	bool is_processed(int line) const { return i2d[id].is_processed(line); };
 	// Return the set of files that are the same as this (including this)
-	const set <Fileid> & get_identical_files() const { return identical_files[i2d[id].get_filehash()]; }
+	const Fileidset & get_identical_files() const { return identical_files[i2d[id].get_filehash()]; }
+	// Return the set of files that we depend on for runtime objects
+	const Fileidset & glob_uses() const { return i2d[id].glob_uses(); }
+	// Return the set of files that depend on us for runtime objects
+	const Fileidset & glob_used_by() const { return i2d[id].glob_used_by(); }
 	// Include file path offset
 	void set_ipath_offset(int o) { i2d[id].set_ipath_offset(o); }
 	int get_ipath_offset() const { return i2d[id].get_ipath_offset(); }
@@ -218,6 +237,11 @@ public:
 	void set_visited() { i2d[id].set_visited(); }
 	void clear_visited() { i2d[id].clear_visited(); }
 	bool is_visited() const { return i2d[id].is_visited(); }
+
+	// Add file that this file uses at runtime
+	void glob_uses(Fileid f) { i2d[id].glob_uses(f); }
+	// Add file that is used by this file at runtime
+	void glob_used_by(Fileid f) { i2d[id].glob_used_by(f); }
 
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered
@@ -251,6 +275,11 @@ public:
 	static vector <Fileid> files(bool sorted);
 	// Return a reference to the underlying file's metrics
 };
+
+// Add file that this file uses at runtime
+inline void Filedetails::glob_uses(Fileid f) { runtime_uses.insert(f); }
+// Add file that is used by this file at runtime
+inline void Filedetails::glob_used_by(Fileid f) { runtime_used_by.insert(f); }
 
 inline bool
 operator ==(const class Fileid a, const class Fileid b)
