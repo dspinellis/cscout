@@ -3,7 +3,7 @@
  *
  * HTML utility functions
  *
- * $Id: html.cpp,v 1.4 2008/10/08 17:23:47 dds Exp $
+ * $Id: html.cpp,v 1.5 2008/11/04 11:13:19 dds Exp $
  */
 
 #include <map>
@@ -65,6 +65,7 @@ html(char c)
 	static char str[2];
 	static int column = 0;
 	static vector<string> spaces(0);
+	int space_idx;
 
 	switch (c) {
 	case '&': column++; return "&amp;";
@@ -82,8 +83,14 @@ html(char c)
 				spaces[i] = t;
 			}
 		}
-		return spaces[column % Option::tab_width->get()].c_str();
+		space_idx = column % Option::tab_width->get();
+		if (DP())
+			cout << "Tab; " << " column before:" << column << " space_idx: " << space_idx << endl;
+		column += 8 - space_idx;
+		return spaces[space_idx].c_str();
 	case '\n':
+	case '\r':
+	case '\f':
 		column = 0;
 		return "<br>\n";
 	default:
