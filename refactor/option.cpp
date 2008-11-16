@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.11 2008/11/16 15:05:06 dds Exp $
+ * $Id: option.cpp,v 1.12 2008/11/16 15:40:18 dds Exp $
  */
 
 #include <string>
@@ -101,6 +101,8 @@ void
 Option::save_all(ofstream &ofs)
 {
 	for (vector <Option *>::const_iterator i = options.begin(); i != options.end(); i++) {
+		if (!(*i)->is_saveable())
+			continue;
 		ofs << (*i)->short_name << ": ";
 		(*i)->save(ofs);
 		ofs << endl;

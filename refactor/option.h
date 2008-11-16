@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.11 2008/10/08 17:23:47 dds Exp $
+ * $Id: option.h,v 1.12 2008/11/16 15:40:18 dds Exp $
  */
 
 #ifndef OPTION_
@@ -33,6 +33,8 @@ public:
 	virtual void set() = 0;
 	// Display on a web page
 	virtual void display(FILE *f) = 0;
+	// Return true if the option can be saved
+	virtual bool is_saveable() { return true; }
 
 	// Add a new option to the pool
 	static void add(Option *o);
@@ -205,6 +207,8 @@ public:
 	void load(ifstream &ifs) {}
 	// Set from a submitted page - noop
 	void set() {}
+	// Return true if the option can be saved
+	virtual bool is_saveable() { return false; }
 	// Display on a web page
 	void display(FILE *f) {
 		fprintf(f,
