@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.10 2008/10/08 17:23:47 dds Exp $
+ * $Id: option.cpp,v 1.11 2008/11/16 15:05:06 dds Exp $
  */
 
 #include <string>
@@ -204,7 +204,7 @@ Option::initialize()
 	Option::add(fname_in_context = new BoolOption("fname_in_context", "Show file lists with file name in context"));
 	Option::add(sort_rev = new BoolOption("sort_rev", "Sort identifiers starting from their last character"));
 
-	Option::add(new TitleOption("Call and Include Graphs"));
+	Option::add(new TitleOption("Call and File Dependency Graphs"));
 	Option::add(cgraph_type = new SelectionOption("cgraph_type", "Graph links should lead to pages of:", 'h',
 		"t:plain text",
 		"h:HTML",
