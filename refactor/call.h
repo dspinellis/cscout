@@ -3,7 +3,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.24 2007/08/18 13:23:39 dds Exp $
+ * $Id: call.h,v 1.25 2008/11/16 12:31:05 dds Exp $
  */
 
 #ifndef CALL_
@@ -42,6 +42,18 @@ private:
 
 	// Container for storing all declared functions
 	typedef set <Call *> fun_container;
+	/*
+	 * When processing the program a Call * is stored with each Id
+	 * This allows accurate lookup of calls within a linkage unit.
+	 * However, once a linkage unit goes out of scope, we need further
+	 * help to reunite functions from varying projects and also locate
+	 * function declarations when processing the source code.  A function
+	 * can be identified well enough by using the Tokid of its declaration.
+	 * However, the same Tokid can through token pasting be used for
+	 * declaring multiple functions.  Therefore we use a multimap, and
+	 * as a second step when we lookup a function we compare the
+	 * corresponding tokens.
+	 */
 	typedef multimap <Tokid, Call *> fun_map;
 
 	string name;			// Function's name
@@ -64,6 +76,7 @@ protected:
 
 	/*
 	 * A token (almost) uniquely identifying the call entity.
+	 * (See fun_map comment for more details on the "almost".)
 	 * Examples:
 	 * Function's first declaration
 	 * (could also be reference if implicitly declared)
