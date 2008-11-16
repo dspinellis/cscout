@@ -5,7 +5,7 @@
  * It can also be loaded as style.css from a CScout configuration
  * directory.
  *
- * $Id: style.css,v 1.4 2008/10/09 10:45:47 dds Exp $
+ * $Id: style.css,v 1.5 2008/11/16 14:18:27 dds Exp $
  */
 
 /* General style */
@@ -19,25 +19,25 @@ h1 {
 
 h2 {
 	font-family: tahoma;
-	font-size:1.2em;
-	color:#666666;
+	font-size:1.3em;
+	color:#003399;
 	border-bottom: 1px dotted #777777;
 	padding: 2px 0px 3px 0px;
+	margin: 20px 0px 5px 0px;
 }
 
 h3 {
 	font-family: tahoma;
 	font-size:1.1em;
-	color:#003399;
-	border-left: 5px double #666666;
+	color:#666666;
+	border-left: 5px solid #666666;
 	padding: 0px 0px 0px 5px;
-	margin: 30px 0px 5px 0px;
+	margin: 10px 0px 5px 0px;
 }
 
-p,td,th,body {
+p,td,th,body,ul,body {
 	font-family: verdana;
-	font-size:1em;
-	line-height:1.5em;
+	line-height:1.2em;
 }
 
 .footer {
@@ -50,15 +50,39 @@ p,td,th,body {
 
 ul {
 	list-style-type: square;
-	font-family: verdana;
-	font-size:0.8em;
 	color:#242424;
-	line-height:1.5em;
+	line-height:1.4em;
 }
 
 a:link {color:#3366cc;}
 a:visited {color:#3366cc;}
 a:hover {color:#888888;}
+
+/* Used in the manual pages */
+pre {
+	line-height:1.1em;
+	padding:4px;
+	background-color: #eeeeee;
+	border: 1px solid #000080;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+div.code {
+	line-height:1.1em;
+	padding:4px;
+	background-color: #eeeeee;
+	border: 1px solid #000080;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+
+ul, ol, table {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
 
 /* Page numbering */
 .pagen {
@@ -88,7 +112,7 @@ a:hover {color:#888888;}
 /* Main page operation blocks */
 .mainblock {
 	background: #f0f0f0;
-	padding: 1em 1em 1em 1em;
+	padding: 0.01em 1em 1em 1em;
 	margin-right: 1em;
 	margin-top: 1em;
 }
