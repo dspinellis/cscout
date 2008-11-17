@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.142 2008/11/17 10:21:17 dds Exp $
+# $Id: Makefile,v 1.143 2008/11/17 10:46:47 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -195,7 +195,7 @@ tokname.cpp: ytab.h tokname.pl
 $(ARCH)/html.o: html.cpp css.c
 
 css.c: style.css
-	sed 's///;s/\\/\\\\/g;s/"/\\"/g;s/^/"/;s/$$/\\n"/' $? >$@
+	tr -d \\r <$? | sed 's/\\/\\\\/g;s/"/\\"/g;s/^/"/;s/$$/\\n"/' >$@
 
 # Create error message documentation
 mkerr:
@@ -207,8 +207,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.142 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/11/17 10:21:17 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.143 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/11/17 10:46:47 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
