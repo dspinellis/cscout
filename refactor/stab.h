@@ -3,7 +3,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.26 2008/10/08 17:23:47 dds Exp $
+ * $Id: stab.h,v 1.27 2008/11/17 10:30:54 dds Exp $
  */
 
 #ifndef STAB_
@@ -170,7 +170,7 @@ public:
 	static int get_cur_block() { return current_block; }
 
 	// Lookup and define of objects and struct/union/enum tags
-	inline friend Id const * obj_lookup(const string& name);
+	friend Id const * obj_lookup(const string& name);
 	friend void obj_define(const Token& tok, Type t);
 	inline friend Id const * tag_lookup(const string& name);
 	friend void tag_define(const Token& tok, const Type& t);
@@ -184,8 +184,6 @@ public:
 void obj_define(const Token& tok, Type t);
 void tag_define(const Token& tok, const Type& t);
 void local_label_define(const Token& tok);
-
-Id const * obj_lookup(const string& name);
 
 inline Id const *
 tag_lookup(const string& name)
