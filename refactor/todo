@@ -1,4 +1,4 @@
-$Id: todo,v 1.92 2008/11/17 10:21:32 dds Exp $
+$Id: todo,v 1.93 2008/11/17 12:21:03 dds Exp $
 
 - Add URL links to file dependency edges
 
@@ -226,7 +226,6 @@ Create editor
 I will take the opportunity to comment on the product. You may scrap
 those comments or use them to improve CScout if you like:
 1) An installer will make CScout more acceptable to Windows users;
-3) I find it curious that entries in "Change history" are undated;
 4) I think it would be an an improvement to allow cswc project | cscout
 and would like a control to cause a browser to open automatically in
 Windows.
