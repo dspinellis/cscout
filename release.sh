@@ -4,7 +4,9 @@
 # a -c flag will include a remote copy step
 # a -w flag will only update the web page
 #
-# $Id: release.sh,v 1.10 2008/11/17 12:03:17 dds Exp $
+# See release.txt for other instructions.
+#
+# $Id: release.sh,v 1.11 2008/11/17 12:03:46 dds Exp $
 #
 
 DESTDIR="/dds/pubs/web/home/cscout"
