@@ -4,7 +4,7 @@
 # a -c flag will include a remote copy step
 # a -w flag will only update the web page
 #
-# $Id: release.sh,v 1.9 2008/08/28 10:25:18 dds Exp $
+# $Id: release.sh,v 1.10 2008/11/17 12:03:17 dds Exp $
 #
 
 DESTDIR="/dds/pubs/web/home/cscout"
@@ -70,7 +70,7 @@ fi
 
 
 # Create the neutral directory
-cmd /c rd /q/s $DISTDIR
+rm -rf $DISTDIR
 mkdir $DISTDIR || die "Creating $DISTDIR"
 tar -cf - -C ${UH}/${DESTDIR} doc --exclude=RCS \
 	-C ${UH}/dds/src/research/cscout README example etc include man |
