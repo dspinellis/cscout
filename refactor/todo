@@ -1,37 +1,45 @@
-$Id: todo,v 1.91 2008/10/08 17:23:47 dds Exp $
+$Id: todo,v 1.92 2008/11/17 10:21:32 dds Exp $
+
+- Add URL links to file dependency edges
 
 - Move first page and bottom links into a menu.  See
 file:///C:/dds/src/Research/cscout/refactor/menu/1.4/example1.html
 
 - Fix HTML soup to be XHTML
+  Use div for screen dumps, by modifying fixdump.pl into
+@#!sh %0.bat %* 2>nul
+winclip -p |
+perl -n -e '
+BEGIN { print qq{<div class="screendump">\n}; }
+s/logo\.png/smlogo.png/g;
+s/href="[^"]+"/href="simul.html"/g;
+s/ACTION="[^"]+"/ACTION="simul.html"/;
+s/CScout \d+\.\d+.*/CScout<\/font>/;
+$part .= $_ if (/h2>/../font>/);
+$all .= $_;
+END {
+	print length($part) ? $part : $all;
+	print qq{</div> <!-- screendump -->\n";
+}
+' | winclip -c
+and by fixing existing pages using the following Perl script:
+if (/^<table border=1><tr><td>/../^<\/td><\/tr><\/table>/) {
+	s/^<table border=1><tr><td>/<div class="screendump">/;
+	s/^\<\/td><\/tr><\/table>/<\/div> <!-- screendump -->/;
+	s/h2>/h1>/g;
+	s/h3>/h2>/g;
+}
 
-- Capture screens using the Pearl Crescent Page Saver
-"\Program Files\Mozilla Firefox\firefox.exe" -savepng http://localhost:8081/index.html
 
-- In identifier query page add Show associated functions (document)
+- Use portable URLs instead of pointers, and automate screen dumps.
+
 
 - Add option "prune call graphs: [ ] No,  [ ] after writable functions,
   [ ] at writable functions.
 - Add option "prune file graphs: [ ] No,  [ ] after writable files,
   [ ] at writable files.
 
-- Runtime file dependency graphs (file a depends on file b) (O'Keefe) (document)
-  - Data dependencies:
-   - Graph of files whose global variables this file accesses
-   - Graph of files changing this file's global variables
-  - Control dependencies:
-   - Graph of files whose functions this file calls
-   - Graph of files calling this file's functions
-- Compile-time file dependency graphs (file a depends on file b)
-  - Graph of files that depend on this file at compile time
-  - Graph of files on which this file depends at compile time
-  (implement by changing is_directly_included with is_defined)
-- File association graphs (file a shares an identifier with file b)
-  See: set_associated_files in cscout.cpp
-
 - Add support for configurable source views, including syntax coloring
-
-- Document dot URL option and add to changes.
 
 - Allow arbitrary queries by allowing the user to specify queries in Lua.
   Only the variables specified in the query are parameters to the defined
@@ -47,16 +55,12 @@ file:///C:/dds/src/Research/cscout/refactor/menu/1.4/example1.html
 - In the source code browser include directives, add hyperlinks to the
   corresponding (potentially multiple) header files.
 
-- Fix the saving of the refactored files.
-
 - Standardize and improve the display of web error messages.
 
 - Add csassert(ps.empty) in static void set_context(const FcharContext &c);
   and run all tests, plus some kernels
 
 - Provide web service front end (also useful for testing).
-
-- Fix the saving of options (look at the options files)
 
 - Provide web-based input interface for trying it out: upload file and redirect
   to CScout main page for that file
