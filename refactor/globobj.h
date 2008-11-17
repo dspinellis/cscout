@@ -1,7 +1,7 @@
 /*
  * A globally defined/referenced object (variable or function)
  *
- * $Id: globobj.h,v 1.1 2008/10/08 17:23:47 dds Exp $
+ * $Id: globobj.h,v 1.2 2008/11/17 10:37:23 dds Exp $
  *
  */
 
@@ -35,7 +35,7 @@ public:
 	const string &get_name() const { return name; }
 
 	// Set the global def/ref dependencies for all files
-	static void GlobObj::set_file_dependencies();
+	static void set_file_dependencies();
 	// Get a identifier for a given Token
 	static GlobObj *get_glob(const Token &t);
 
