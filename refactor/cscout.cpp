@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.213 2008/10/08 17:23:47 dds Exp $
+ * $Id: cscout.cpp,v 1.214 2008/11/18 08:19:18 dds Exp $
  */
 
 #include <map>
@@ -2245,131 +2245,79 @@ end:
 	gd->tail();
 }
 
-// Include graph: text
+// Graph: text
 static void
-fgraph_txt_page(FILE *fo, void *p)
+graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	GDTxt gd(fo);
-	fgraph_page(&gd);
+	graph_fun(&gd);
 }
 
-// Include graph: HTML
+// Graph: HTML
 static void
-fgraph_html_page(FILE *fo, void *p)
+graph_html_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	GDHtml gd(fo);
-	fgraph_page(&gd);
+	graph_fun(&gd);
 }
 
-// Include graph: SVG via dot
+// Graph: dot
 static void
-fgraph_dot_page(FILE *fo, void *p)
+graph_dot_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	GDDot gd(fo);
-	fgraph_page(&gd);
+	graph_fun(&gd);
 }
 
-// Include graph: SVG via dot
+// Graph: SVG via dot
 static void
-fgraph_svg_page(FILE *fo, void *p)
+graph_svg_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	prohibit_remote_access(fo);
 	GDSvg gd(fo);
-	fgraph_page(&gd);
+	graph_fun(&gd);
 }
 
-// Include graph: GIF via dot
+// Graph: GIF via dot
 static void
-fgraph_gif_page(FILE *fo, void *p)
+graph_gif_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	prohibit_remote_access(fo);
 	GDGif gd(fo);
-	fgraph_page(&gd);
+	graph_fun(&gd);
 }
 
 
-// Call graph: text
+// Graph: PNG via dot
 static void
-cgraph_txt_page(FILE *fo, void *p)
-{
-	GDTxt gd(fo);
-	cgraph_page(&gd);
-}
-
-// Call graph: HTML
-static void
-cgraph_html_page(FILE *fo, void *p)
-{
-	GDHtml gd(fo);
-	cgraph_page(&gd);
-}
-
-// Call graph: SVG via dot
-static void
-cgraph_dot_page(FILE *fo, void *p)
-{
-	GDDot gd(fo);
-	cgraph_page(&gd);
-}
-
-// Call graph: SVG via dot
-static void
-cgraph_svg_page(FILE *fo, void *p)
+graph_png_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	prohibit_remote_access(fo);
-	GDSvg gd(fo);
-	cgraph_page(&gd);
+	GDPng gd(fo);
+	graph_fun(&gd);
 }
 
-// Call graph: GIF via dot
+
+// Graph: PDF via dot
 static void
-cgraph_gif_page(FILE *fo, void *p)
+graph_pdf_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	prohibit_remote_access(fo);
-	GDGif gd(fo);
-	cgraph_page(&gd);
+	GDPdf gd(fo);
+	graph_fun(&gd);
 }
 
-// Call path: text
+// Setup graph handling for all supported graph output types
 static void
-cpath_txt_page(FILE *fo, void *p)
+graph_handle(string name, void (*graph_fun)(GraphDisplay *))
 {
-	GDTxt gd(fo);
-	cpath_page(&gd);
-}
-
-// Call path: HTML
-static void
-cpath_html_page(FILE *fo, void *p)
-{
-	GDHtml gd(fo);
-	cpath_page(&gd);
-}
-
-// Call path: SVG via dot
-static void
-cpath_dot_page(FILE *fo, void *p)
-{
-	GDDot gd(fo);
-	cpath_page(&gd);
-}
-
-// Call path: SVG via dot
-static void
-cpath_svg_page(FILE *fo, void *p)
-{
-	prohibit_remote_access(fo);
-	GDSvg gd(fo);
-	cpath_page(&gd);
-}
-
-// Call path: GIF via dot
-static void
-cpath_gif_page(FILE *fo, void *p)
-{
-	prohibit_remote_access(fo);
-	GDGif gd(fo);
-	cpath_page(&gd);
+	swill_handle((name + ".html").c_str(), graph_html_page, graph_fun);
+	swill_handle((name + ".txt").c_str(), graph_txt_page, graph_fun);
+	swill_handle((name + "_dot.txt").c_str(), graph_dot_page, graph_fun);
+	swill_handle((name + ".svg").c_str(), graph_svg_page, graph_fun);
+	swill_handle((name + ".gif").c_str(), graph_gif_page, graph_fun);
+	swill_handle((name + ".png").c_str(), graph_png_page, graph_fun);
+	swill_handle((name + ".pdf").c_str(), graph_pdf_page, graph_fun);
 }
 
 // Display all projects, allowing user to select
@@ -3329,23 +3277,9 @@ main(int argc, char *argv[])
 		swill_handle("filemetrics.html", file_metrics_page, NULL);
 		swill_handle("idmetrics.html", id_metrics_page, NULL);
 
-		swill_handle("cgraph.html", cgraph_html_page, NULL);
-		swill_handle("cgraph.txt", cgraph_txt_page, NULL);
-		swill_handle("cgraph_dot.txt", cgraph_dot_page, "txt");
-		swill_handle("cgraph.svg", cgraph_svg_page, NULL);
-		swill_handle("cgraph.gif", cgraph_gif_page, NULL);
-
-		swill_handle("fgraph.html", fgraph_html_page, NULL);
-		swill_handle("fgraph.txt", fgraph_txt_page, NULL);
-		swill_handle("fgraph_dot.txt", fgraph_dot_page, "txt");
-		swill_handle("fgraph.svg", fgraph_svg_page, NULL);
-		swill_handle("fgraph.gif", fgraph_gif_page, NULL);
-
-		swill_handle("cpath.html", cpath_html_page, NULL);
-		swill_handle("cpath.txt", cpath_txt_page, NULL);
-		swill_handle("cpath_dot.txt", cpath_dot_page, "txt");
-		swill_handle("cpath.svg", cpath_svg_page, NULL);
-		swill_handle("cpath.gif", cpath_gif_page, NULL);
+		graph_handle("cgraph", cgraph_page);
+		graph_handle("fgraph", fgraph_page);
+		graph_handle("cgraph", cpath_page);
 
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("logo.png", logo_page, NULL);

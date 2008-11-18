@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.15 2008/10/08 17:23:47 dds Exp $
+ * $Id: gdisplay.h,v 1.16 2008/11/18 08:19:18 dds Exp $
  */
 
 
@@ -160,4 +160,19 @@ class GDGif: public GDDotImage {
 public:
 	GDGif(FILE *f) : GDDotImage(f, "gif") {}
 	virtual ~GDGif() {}
+};
+
+// PNG via dot
+class GDPng: public GDDotImage {
+public:
+	GDPng(FILE *f) : GDDotImage(f, "png") {}
+	virtual ~GDPng() {}
+};
+
+// PDF via dot
+class GDPdf: public GDDotImage {
+public:
+	GDPdf(FILE *f) : GDDotImage(f, "pdf") {}
+	virtual bool isHyperlinked() { return (true); }
+	virtual ~GDPdf() {}
 };

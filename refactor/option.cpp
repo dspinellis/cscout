@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.12 2008/11/16 15:40:18 dds Exp $
+ * $Id: option.cpp,v 1.13 2008/11/18 08:19:18 dds Exp $
  */
 
 #include <string>
@@ -208,11 +208,13 @@ Option::initialize()
 
 	Option::add(new TitleOption("Call and File Dependency Graphs"));
 	Option::add(cgraph_type = new SelectionOption("cgraph_type", "Graph links should lead to pages of:", 'h',
-		"t:plain text",
-		"h:HTML",
 		"d:dot",
-		"s:SVG (via dot)",
 		"g:GIF (via dot)",
+		"h:HTML",
+		"f:PDF (via dot)",
+		"t:plain text",
+		"p:PNG (via dot)",
+		"s:SVG (via dot)",
 		NULL));
 	Option::add(cgraph_show = new SelectionOption("cgraph_show", "Call graphs should contain:", 'f',
 		"e:only edges",
