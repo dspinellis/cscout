@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.214 2008/11/18 08:19:18 dds Exp $
+ * $Id: cscout.cpp,v 1.215 2008/11/18 09:41:29 dds Exp $
  */
 
 #include <map>
@@ -182,6 +182,8 @@ graph_suffix()
 	case 'd': return "_dot.txt";
 	case 's': return ".svg";
 	case 'g': return ".gif";
+	case 'p': return ".png";
+	case 'f': return ".pdf";
 	}
 	return "";
 }
@@ -3279,7 +3281,7 @@ main(int argc, char *argv[])
 
 		graph_handle("cgraph", cgraph_page);
 		graph_handle("fgraph", fgraph_page);
-		graph_handle("cgraph", cpath_page);
+		graph_handle("cpath", cpath_page);
 
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("logo.png", logo_page, NULL);
