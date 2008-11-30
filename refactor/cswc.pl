@@ -13,7 +13,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.18 2008/04/28 20:13:26 dds Exp $
+# $Id: cswc.pl,v 1.19 2008/11/30 21:10:45 dds Exp $
 #
 
 # Syntax:
@@ -56,7 +56,7 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.18 $';
+	my $rel = '$Revision: 1.19 $';
 	$rel =~ s/\//;
 	$rel =~ s/\$//;
 	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
@@ -122,8 +122,12 @@ while (<>) {
 		print "#pragma ro_prefix $1\n";
 	} elsif (/^cd\s+\"(.*)\"$/) {
 		directory($1);
-	} elsif (/^define\s+(.*)$/) {
+	} elsif (/^define\s+(\w+)\s*(.*)$/) {
+		$defines{$unit . $name} .= "#define $1 $2\n";
+		# print "DEBUG define $1 $2 ($unit $name)\n";
+	} elsif (/^define\s+(\w+)$/) {
 		$defines{$unit . $name} .= "#define $1\n";
+		# print "DEBUG define $1 ($unit $name)\n";
 	} elsif (/^ipath\s+(\".*\")$/) {
 		$ipaths{$unit . $name} .= "#pragma includepath $1\n";
 	} elsif (/^readonly\s+(\".*\")$/) {
@@ -141,13 +145,20 @@ sub endunit
 {
 	if ($unit eq 'file') {
 		my $i;
+		# Include current ones in the scope
+		push(@units, $unit);
+		push(@names, $name);
 		for ($i = 0; $i <= $#units; $i++) {
 			my $u = $units[$i];
 			my $n = $names[$i];
 			print $ipaths{$u . $n};
 			print $defines{$u . $n};
+			# print "DEBUG looking defines for $u $n\n";
 			print "#pragma readonly \"$name\" // $u\n" if ($readonly{$u . $n});
 		}
+		# Current ones no longer needed
+		pop(@units);
+		pop(@names);
 		print "#include \"$instdir/cscout_incs.h\"\n";
 		if ($opt_E) {
 			print "#include \"$name\"\n\n";
@@ -173,6 +184,7 @@ sub beginunit
 	push(@names, $name);
 	push(@readonlys, $readonly{$unit . $name});
 	($unit, $name) = @_;
+	# print "DEBUG beginunit $unit $name\n";
 	undef $dir{$unit};
 	undef $defines{$unit . $name};
 	undef $ipaths{$unit . $name};
