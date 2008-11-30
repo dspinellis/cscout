@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.143 2008/11/17 10:46:47 dds Exp $
+# $Id: Makefile,v 1.144 2008/11/30 11:47:30 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -207,8 +207,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.143 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/11/17 10:46:47 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.144 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/11/30 11:47:30 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -312,7 +312,7 @@ wc:
 	wc -l $(SRC)
 
 enc-src:
-	tar cvf - $(ALLSRC) | gzip -c | $(SSH) spiti encrypt-cscout >/dds/pubs/web/home/cscout/cscout-src.tar.gz
+	tar cvf - $(ALLSRC) | gzip -c | $(SSH) spiti encrypt-cscout >$(UH)/dds/pubs/web/home/cscout/cscout-src.tar.gz
 
 # sparc
 sparc: rdist-sourceforge
@@ -352,4 +352,11 @@ crossbuild-clean:
 	for arch in $(ALLARCH);\
 	do \
 		rm -rf $$arch ;\
+	done
+
+dbdump:
+	for db in mysql hsqldb postgres;\
+	do \
+		(cd ../example ; \
+		../refactor/i386/cscout -s $$db awk.cs | gzip -c > $(UH)/dds/pubs/web/home/cscout/awk-$$db.sql.gz) ;\
 	done
