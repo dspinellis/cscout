@@ -3,7 +3,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.16 2008/11/18 08:19:18 dds Exp $
+ * $Id: gdisplay.h,v 1.17 2008/11/30 11:05:41 dds Exp $
  */
 
 
@@ -97,6 +97,9 @@ public:
 			Version::get_date().c_str());
 		if (Option::cgraph_show->get() == 'e')			// Empty nodes
 			fprintf(fo, "\tnode [height=.001,width=0.000001,shape=box,label=\"\",fontsize=8];\n");
+		else
+			fprintf(fo, "\tnode [%s];\n", Option::dot_node_options->get().c_str());
+		fprintf(fo, "\tedge [%s];\n", Option::dot_edge_options->get().c_str());
 	}
 
 	virtual void node(Call *p) {

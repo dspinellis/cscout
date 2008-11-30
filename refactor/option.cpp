@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.13 2008/11/18 08:19:18 dds Exp $
+ * $Id: option.cpp,v 1.14 2008/11/30 11:05:41 dds Exp $
  */
 
 #include <string>
@@ -39,6 +39,8 @@ BoolOption *Option::rename_override_ro;		// Renames will override read-only iden
 BoolOption *Option::refactor_fun_arg_override_ro;// Refactoring of function arguments will override read-only identifiers
 
 IntegerOption *Option::tab_width;		// Tab width for code output
+TextOption *Option::dot_node_options;		// Node options passed to dot
+TextOption *Option::dot_edge_options;		// Edge options passed to dot
 SelectionOption *Option::cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 SelectionOption *Option::cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
 SelectionOption *Option::fgraph_show;		// File graph show e)dge n(ame p(ath
@@ -230,6 +232,8 @@ Option::initialize()
 	Option::add(cgraph_depth = new IntegerOption("cgraph_depth", "Maximum number of call levels in a call graph", 5));
 	Option::add(fgraph_depth = new IntegerOption("fgraph_depth", "Maximum dependency depth in a file graph", 5));
 	Option::add(cgraph_dot_url = new BoolOption("cgraph_dot_url", "Include URLs in dot output", false));
+	Option::add(dot_node_options = new TextOption("dot_node_options", "Node options for dot"));
+	Option::add(dot_edge_options = new TextOption("dot_edge_options", "Edge options for dot"));
 
 	Option::add(new TitleOption("Saved Files"));
 	Option::add(sfile_re_string = new TextOption("sfile_re_string", "When saving modified files replace RE"));
