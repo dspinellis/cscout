@@ -3,7 +3,7 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.12 2007/08/18 13:23:39 dds Exp $
+ * $Id: obfuscate.cpp,v 1.13 2008/11/30 21:17:00 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -76,7 +76,9 @@ CProcessor::output_id(ostream &out, ptrdiff_t id)
 		cstate = s_normal;
 	}
 	spaced = false;
-	out << "OI_" << id;
+	ios_base::fmtflags ofmt = out.flags();
+	out << "OI_" << noshowbase << hex << id;
+	out.flags(ofmt);
 }
 
 // Output an identifier, given its name
