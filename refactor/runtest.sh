@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.25 2008/09/03 11:19:39 dds Exp $
+# $Id: runtest.sh,v 1.26 2008/12/02 13:24:40 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -73,9 +73,9 @@ CREATE TABLE FixedIds(EID integer primary key, fixedid integer);
  * 1:	File1 Offset0
  * 2:	File2 Offset0
  * ...
- * 1234: File134 Offset0
- * 1235: File0 Offset1
- * 1236: File1 Offset1
+ * 134: File134 Offset0
+ * 135: File0 Offset1
+ * 136: File1 Offset1
  * ...
  *
  * Then map them into odd numbers to ensure they do not clash with existing
