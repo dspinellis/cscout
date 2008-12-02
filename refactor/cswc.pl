@@ -13,7 +13,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.19 2008/11/30 21:10:45 dds Exp $
+# $Id: cswc.pl,v 1.20 2008/12/02 14:04:35 dds Exp $
 #
 
 # Syntax:
@@ -56,7 +56,7 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.19 $';
+	my $rel = '$Revision: 1.20 $';
 	$rel =~ s/\//;
 	$rel =~ s/\$//;
 	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
@@ -122,12 +122,12 @@ while (<>) {
 		print "#pragma ro_prefix $1\n";
 	} elsif (/^cd\s+\"(.*)\"$/) {
 		directory($1);
-	} elsif (/^define\s+(\w+)\s*(.*)$/) {
-		$defines{$unit . $name} .= "#define $1 $2\n";
-		# print "DEBUG define $1 $2 ($unit $name)\n";
 	} elsif (/^define\s+(\w+)$/) {
 		$defines{$unit . $name} .= "#define $1\n";
 		# print "DEBUG define $1 ($unit $name)\n";
+	} elsif (/^define\s+(\w+)\s*(.*)$/) {
+		$defines{$unit . $name} .= "#define $1 $2\n";
+		# print "DEBUG define $1 $2 ($unit $name)\n";
 	} elsif (/^ipath\s+(\".*\")$/) {
 		$ipaths{$unit . $name} .= "#pragma includepath $1\n";
 	} elsif (/^readonly\s+(\".*\")$/) {
