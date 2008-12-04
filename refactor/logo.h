@@ -3,11 +3,15 @@
  *
  * The CScout logo access functions
  *
- * $Id: logo.h,v 1.1 2004/07/30 09:58:33 dds Exp $
+ * $Id: logo.h,v 1.2 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef LOGO_
 #define LOGO_
+
+#include <cstdio>
+
+using namespace std;
 
 class Logo {
 private:

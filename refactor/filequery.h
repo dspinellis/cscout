@@ -3,11 +3,20 @@
  *
  * Encapsulates a (user interface) file query
  *
- * $Id: filequery.h,v 1.3 2008/09/26 05:34:33 dds Exp $
+ * $Id: filequery.h,v 1.4 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef FILEQUERY_
 #define FILEQUERY_
+
+#include <string>
+
+using namespace std;
+
+#include "query.h"
+#include "mquery.h"
+#include "filemetrics.h"
+#include "fileid.h"
 
 class FileQuery : public Query {
 private:

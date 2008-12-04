@@ -5,11 +5,15 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.31 2007/11/01 16:21:15 dds Exp $
+ * $Id: type2.h,v 1.32 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef TYPE2_
 #define TYPE2_
+
+#include "type.h"
+#include "stab.h"
+#include "debug.h"
 
 // Array of ...
 class Tarray: public QType_node {

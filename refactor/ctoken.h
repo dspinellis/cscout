@@ -5,11 +5,19 @@
  * The getnext() method for these tokens converts preprocessor tokens to C
  * tokens.
  *
- * $Id: ctoken.h,v 1.5 2004/07/23 06:55:38 dds Exp $
+ * $Id: ctoken.h,v 1.6 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef CTOKEN_
 #define CTOKEN_
+
+#include <string>
+#include <map>
+
+#include "token.h"
+#include "pdtoken.h"
+
+using namespace std;
 
 char unescape_char(const string& s, string::const_iterator& si);
 

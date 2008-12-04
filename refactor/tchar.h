@@ -3,25 +3,24 @@
  *
  * A character coming from a token.
  *
- * Include synopsis:
- * #include <fstream>
- * #include <stack>
- * #include <deque>
- * #include <map>
- *
- * #include "fileid.h"
- * #include "cpp.h"
- * #include "tokid.h"
- * #include "tchar.h"
- *
- * $Id: tchar.h,v 1.6 2004/07/23 06:55:38 dds Exp $
+ * $Id: tchar.h,v 1.7 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef TCHAR_
 #define TCHAR_
 
+#include <fstream>
+#include <stack>
+#include <deque>
+#include <map>
+
 using namespace std;
 
+#include "fileid.h"
+#include "cpp.h"
+#include "tokid.h"
+#include "tchar.h"
+#include "ptoken.h"
 
 class Tchar;
 

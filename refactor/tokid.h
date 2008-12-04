@@ -16,11 +16,19 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.25 2008/09/26 05:34:33 dds Exp $
+ * $Id: tokid.h,v 1.26 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef TOKID_
 #define TOKID_
+
+#include <deque>
+#include <map>
+
+using namespace std;
+
+#include "cpp.h"
+#include "fileid.h"
 
 class Eclass;
 

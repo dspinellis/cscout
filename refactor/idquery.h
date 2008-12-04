@@ -4,11 +4,18 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.14 2008/09/26 05:34:33 dds Exp $
+ * $Id: idquery.h,v 1.15 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef IDQUERY_
 #define IDQUERY_
+
+#include <string>
+
+using namespace std;
+
+#include "query.h"
+#include "eclass.h"
 
 // Our identifiers to store as a map
 class Identifier {

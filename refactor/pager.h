@@ -3,8 +3,16 @@
  *
  * A pager for HTML output
  *
- * $Id: pager.h,v 1.2 2008/09/26 05:34:33 dds Exp $
+ * $Id: pager.h,v 1.3 2008/12/04 15:19:06 dds Exp $
  */
+
+#ifndef PAGER_
+#define PAGER_
+
+#include <string>
+#include <cstdio>
+
+using namespace std;
 
 class Pager {
 private:
@@ -19,3 +27,5 @@ public:
 	bool show_next();
 	void end();
 };
+
+#endif // PAGER_

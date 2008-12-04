@@ -3,22 +3,27 @@
  *
  * A preprocessor token.
  *
- * Include synopsis:
- * #include <iostream>
- * #include <map>
- * #include <string>
- * #include <deque>
  *
- * #include "cpp.h"
- * #include "fileid.h"
- * #include "tokid.h"
- * #include "token.h"
- *
- * $Id: ptoken.h,v 1.11 2006/07/29 07:26:35 dds Exp $
+ * $Id: ptoken.h,v 1.12 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef PTOKEN_
 #define PTOKEN_
+
+#include <iostream>
+#include <map>
+#include <string>
+#include <deque>
+
+using namespace std;
+
+#include "cpp.h"
+#include "fileid.h"
+#include "tokid.h"
+#include "token.h"
+#include "ytab.h"
+
+class Ctoken;
 
 typedef set <Token> HideSet;
 
@@ -29,7 +34,9 @@ public:
 	// Construct it based on the token code and the contents
 	Ptoken(int icode, const string& ival) : Token(icode, ival) {};
 	// Efficient constructor
-	Ptoken() {};
+	Ptoken() {}
+	// Construct it from a CToken
+	Ptoken(const Ctoken &t);
 	// Accessor methods
 	inline bool hideset_contains(Ptoken t) const { return (hideset.find(t) != hideset.end()); }
 	inline void hideset_insert(Token t) { hideset.insert(t); }

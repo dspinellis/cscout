@@ -3,11 +3,21 @@
  *
  * A preprocessor macro definition.
  *
- * $Id: macro.h,v 1.18 2007/08/15 17:46:11 dds Exp $
+ * $Id: macro.h,v 1.19 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef MACRO_
 #define MACRO_
+
+#include <deque>
+#include <list>
+#include <map>
+#include <set>
+#include <stack>
+
+using namespace std;
+
+#include "ptoken.h"
 
 class Pdtoken;
 class Macro;

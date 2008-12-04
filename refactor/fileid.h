@@ -15,11 +15,16 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.42 2008/10/08 17:23:47 dds Exp $
+ * $Id: fileid.h,v 1.43 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef FILEID_
 #define FILEID_
+
+#include <set>
+#include <list>
+
+using namespace std;
 
 #include "filemetrics.h"
 

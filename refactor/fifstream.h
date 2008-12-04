@@ -21,9 +21,17 @@
  * user    0m4.409s
  * sys     0m0.041s
  *
- * $Id: fifstream.h,v 1.2 2006/06/18 19:34:46 dds Exp $
+ * $Id: fifstream.h,v 1.3 2008/12/04 15:19:06 dds Exp $
  */
 
+#ifndef FIFSTREAM_
+#define FIFSTREAM_
+
+#include <fstream>
+
+using namespace std;
+
+#include "error.h"
 
 class fifstream {
 private:
@@ -76,3 +84,5 @@ public:
 		return *this;
 	}
 };
+
+#endif /* FIFSTREAM_ */

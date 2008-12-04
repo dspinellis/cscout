@@ -5,13 +5,19 @@
  *
  * Include synopsis:
  *
- * $Id: tokmap.h,v 1.3 2006/06/23 17:05:08 dds Exp $
+ * $Id: tokmap.h,v 1.4 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef TOKMAP_
 #define TOKMAP_
 
+#include <map>
+
 using namespace std;
+
+#include "tokid.h"
+
+class Eclass;
 
 typedef map <Tokid, Eclass *> TM_map;
 

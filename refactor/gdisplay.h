@@ -3,9 +3,20 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.17 2008/11/30 11:05:41 dds Exp $
+ * $Id: gdisplay.h,v 1.18 2008/12/04 15:19:06 dds Exp $
  */
 
+#ifndef GDISPLAY_
+#define GDISPLAY_
+
+#include <string>
+
+using namespace std;
+
+#include "call.h"
+#include "html.h"
+#include "version.h"
+#include "option.h"
 
 // Abstract base class, used for drawing
 class GraphDisplay {
@@ -179,3 +190,5 @@ public:
 	virtual bool isHyperlinked() { return (true); }
 	virtual ~GDPdf() {}
 };
+
+#endif // GDISPLAY_

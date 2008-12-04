@@ -4,24 +4,20 @@
  * A character coming from a file.
  * This class also handles trigraphs and newline splicing.
  *
- * Include synopsis:
- * #include <fstream>
- * #include <stack>
- * #include <deque>
- * #include <map>
- *
- * #include "fileid.h"
- * #include "cpp.h"
- * #include "tokid.h"
- * #include "fchar.h"
- * #include "fifstream.h"
- *
- * $Id: fchar.h,v 1.22 2008/09/03 11:51:03 dds Exp $
+ * $Id: fchar.h,v 1.23 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef FCHAR_
 #define FCHAR_
 
+#include <stack>
+#include <deque>
+#include <map>
+
+#include "fileid.h"
+#include "cpp.h"
+#include "tokid.h"
+#include "fchar.h"
 #include "fifstream.h"
 
 using namespace std;

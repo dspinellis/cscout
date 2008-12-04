@@ -15,11 +15,13 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: filemetrics.h,v 1.26 2008/04/07 07:57:14 dds Exp $
+ * $Id: filemetrics.h,v 1.27 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef FILEMETRICS_
 #define FILEMETRICS_
+
+#include "metrics.h"
 
 class FileMetrics : public Metrics {
 private:

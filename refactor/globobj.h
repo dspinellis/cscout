@@ -1,9 +1,22 @@
 /*
  * A globally defined/referenced object (variable or function)
  *
- * $Id: globobj.h,v 1.2 2008/11/17 10:37:23 dds Exp $
+ * $Id: globobj.h,v 1.3 2008/12/04 15:19:06 dds Exp $
  *
  */
+
+#ifndef GLOBOBJ_
+#define GLOBOBJ_
+
+#include <string>
+#include <set>
+
+using namespace std;
+
+#include "fileid.h"
+#include "token.h"
+#include "type.h"
+#include "tokid.h"
 
 class GlobObj {
 private:
@@ -50,3 +63,4 @@ public:
 #endif /* COMMERCIAL */
 };
 
+#endif // GLOBOBJ_

@@ -2,9 +2,18 @@
  * Reference-counted compiled regular expressions
  * See the Handle class in Stroutrup's section 25.7
  *
- * $Id: compiledre.h,v 1.1 2005/09/27 21:34:09 dds Exp $
+ * $Id: compiledre.h,v 1.2 2008/12/04 15:19:06 dds Exp $
  *
  */
+
+
+#ifndef COMPILEDRE_H
+#define COMPILEDRE_H
+
+#include <regex.h>
+#include <string>
+
+using namespace std;
 
 class CompiledRE {
 	regex_t *re;
@@ -62,3 +71,5 @@ public:
 		return regexec(re, str.c_str(), nmatch, pmatch, eflags);
 	}
 };
+
+#endif /* COMPILEDRE_H */

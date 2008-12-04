@@ -4,11 +4,20 @@
  * Encapsulates a (user interface) metrics query part
  * Can be used to evaluate elements referenced through E against M metrics
  *
- * $Id: mquery.h,v 1.5 2007/08/18 14:24:16 dds Exp $
+ * $Id: mquery.h,v 1.6 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef MQUERY_
 #define MQUERY_
+
+#include <vector>
+#include <sstream>
+
+using namespace std;
+
+#include "query.h"
+#include "swill.h"
+#include "metrics.h"
 
 template <class M, class E>
 class MQuery {

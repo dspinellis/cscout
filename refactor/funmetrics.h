@@ -15,12 +15,17 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.14 2008/04/07 07:57:14 dds Exp $
+ * $Id: funmetrics.h,v 1.15 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef FUNMETRICS_
 #define FUNMETRICS_
 
+#include <set>
+
+using namespace std;
+
+#include "metrics.h"
 #include "ytab.h"
 
 class Call;

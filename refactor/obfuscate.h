@@ -3,7 +3,13 @@
  *
  * Obfuscation function
  *
- * $Id: obfuscate.h,v 1.1 2007/08/23 07:30:02 dds Exp $
+ * $Id: obfuscate.h,v 1.2 2008/12/04 15:19:06 dds Exp $
  */
 
+#ifndef OBFUSCATE_
+#define OBFUSCATE_
+
 int obfuscate(void);
+
+#endif // OBFUSCATE_
+

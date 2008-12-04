@@ -3,16 +3,20 @@
  *
  * A lexical token.
  *
- * Include synopsis:
- * #include <iostream>
- * #include <deque>
- * #include "tokid.h"
  *
- * $Id: token.h,v 1.20 2008/06/24 11:18:44 dds Exp $
+ * $Id: token.h,v 1.21 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef TOKEN_
 #define TOKEN_
+
+#include <iostream>
+#include <deque>
+#include <string>
+
+#include "tokid.h"
+
+using namespace std;
 
 // A token part; the smallest unit that is recognised for replacement
 class Tpart {

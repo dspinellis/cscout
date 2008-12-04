@@ -5,8 +5,15 @@
  *
  * Include synopsis: version.h
  *
- * $Id: version.h,v 1.5 2007/11/08 09:24:28 dds Exp $
+ * $Id: version.h,v 1.6 2008/12/04 15:19:06 dds Exp $
  */
+
+#ifndef VERSION_
+#define VERSION_
+
+#include <string>
+
+using namespace std;
 
 class Version {
 private:
@@ -33,3 +40,5 @@ public:
 	// Think of an accessor when we need it
 	static const char *ident[];		// RCS Id for all source files
 };
+
+#endif // VERSION_

@@ -4,18 +4,20 @@
  * An identifier equivalence class.
  * Contains all tokids that belong to the same class
  *
- * Include synopsis:
- * #include <deque>
- * #include <vector>
- * #include "attr.h"
- * #include "tokid.h"
- * #include "tokmap.h"
- *
- * $Id: eclass.h,v 1.23 2008/09/26 05:34:33 dds Exp $
+ * $Id: eclass.h,v 1.24 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef ECLASS_
 #define ECLASS_
+
+#include <deque>
+#include <vector>
+
+using namespace std;
+
+#include "attr.h"
+#include "tokid.h"
+#include "tokmap.h"
 
 typedef set<Tokid> setTokid;
 

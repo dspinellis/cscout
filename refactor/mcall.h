@@ -3,11 +3,14 @@
  *
  * Function call graph information. Macros.
  *
- * $Id: mcall.h,v 1.7 2007/08/12 07:22:01 dds Exp $
+ * $Id: mcall.h,v 1.8 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef MCALL_
 #define MCALL_
+
+#include "call.h"
+#include "macro.h"
 
 // Function-like macro calling information
 class MCall : public Call {

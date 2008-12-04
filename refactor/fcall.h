@@ -3,11 +3,16 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.14 2007/08/12 07:22:01 dds Exp $
+ * $Id: fcall.h,v 1.15 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef FCALL_
 #define FCALL_
+
+#include "call.h"
+#include "type.h"
+#include "tokid.h"
+#include "token.h"
 
 /*
  * Function call information is always associated with Id objects

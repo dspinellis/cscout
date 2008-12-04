@@ -8,11 +8,15 @@
  * #include <string>
  * #include "tokid.h"
  *
- * $Id: error.h,v 1.7 2007/11/16 17:10:21 dds Exp $
+ * $Id: error.h,v 1.8 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef ERROR_
 #define ERROR_
+
+#include <string>
+
+using namespace std;
 
 enum e_error_level {
 	E_WARN,

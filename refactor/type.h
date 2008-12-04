@@ -4,13 +4,14 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.44 2007/11/08 17:48:05 dds Exp $
+ * $Id: type.h,v 1.45 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef TYPE_
 #define TYPE_
 
 #include "ctconst.h"
+#include "ctoken.h"
 
 enum e_btype {
 	b_abstract,		// Abstract declaration target, to be filled-in

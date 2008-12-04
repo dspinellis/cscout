@@ -3,11 +3,17 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.18 2008/09/18 10:35:42 dds Exp $
+ * $Id: attr.h,v 1.19 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef ATTR_
 #define ATTR_
+
+#include <vector>
+#include <string>
+#include <map>
+
+using namespace std;
 
 // Attributes that can be set for an EC
 // Keep in sync with attribute_names[] and short_names[]

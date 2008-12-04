@@ -5,11 +5,24 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.32 2008/07/01 07:28:28 dds Exp $
+ * $Id: pdtoken.h,v 1.33 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef PDTOKEN_
 #define PDTOKEN_
+
+#include <string>
+#include <deque>
+#include <list>
+#include <set>
+#include <map>
+#include <stack>
+#include <vector>
+
+using namespace std;
+
+#include "ptoken.h"
+#include "macro.h"
 
 class Pdtoken;
 

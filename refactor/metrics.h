@@ -15,11 +15,21 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.31 2008/09/29 09:17:36 dds Exp $
+ * $Id: metrics.h,v 1.32 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef METRICS_
 #define METRICS_
+
+#include <string>
+#include <vector>
+#include <limits>
+#include <ostream>
+
+using namespace std;
+
+#include "attr.h"
+#include "error.h"
 
 class Eclass;
 

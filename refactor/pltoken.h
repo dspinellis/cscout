@@ -4,12 +4,15 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.34 2008/06/24 11:18:44 dds Exp $
+ * $Id: pltoken.h,v 1.35 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef PLTOKEN_
 #define PLTOKEN_
 
+#include "debug.h"
+#include "tokid.h"
+#include "ptoken.h"
 #include "call.h"
 
 class Fchar;

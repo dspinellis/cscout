@@ -3,13 +3,20 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.11 2008/09/26 05:35:26 dds Exp $
+ * $Id: query.h,v 1.12 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef QUERY_
 #define QUERY_
 
+#include <iostream>
+
+using namespace std;
+
+#include "attr.h"
 #include "option.h"
+#include "compiledre.h"
+#include "debug.h"
 
 class Query {
 protected:

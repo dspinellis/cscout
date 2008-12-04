@@ -3,11 +3,20 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.17 2008/09/26 05:34:33 dds Exp $
+ * $Id: funquery.h,v 1.18 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef FUNQUERY_
 #define FUNQUERY_
+
+#include <string>
+
+using namespace std;
+
+#include "query.h"
+#include "mquery.h"
+#include "fileid.h"
+#include "call.h"
 
 class FunQuery : public Query {
 private:

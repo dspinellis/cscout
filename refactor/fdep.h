@@ -3,22 +3,24 @@
  *
  * File dependency monitoring
  *
- * Include synopsis:
- * #include <set>
- * #include <map>
- * #include <string>
- * #include <vector>
- * #include <list>
- *
- * #include "attr.h"
- * #include "metrics.h"
- * #include "fileid.h"
- *
- * $Id: fdep.h,v 1.10 2007/11/15 14:26:00 dds Exp $
+ * $Id: fdep.h,v 1.11 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef FDEP_
 #define FDEP_
+
+#include <set>
+#include <map>
+#include <string>
+#include <vector>
+#include <list>
+
+using namespace std;
+
+#include "attr.h"
+#include "metrics.h"
+#include "fileid.h"
+#include "tokid.h"
 
 class Sql;
 

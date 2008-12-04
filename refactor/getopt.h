@@ -1,6 +1,9 @@
 /*
- * $Id: getopt.h,v 1.3 2004/07/23 06:55:38 dds Exp $
+ * $Id: getopt.h,v 1.4 2008/12/04 15:19:06 dds Exp $
  */
+
+#ifndef GETOPT_
+#define GETOPT_
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,3 +16,5 @@ int getopt(int argc, char * const argv[], const char *optstring);
 #ifdef __cplusplus
 };
 #endif
+
+#endif // GETOPT_

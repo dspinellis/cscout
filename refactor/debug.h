@@ -5,11 +5,16 @@
  * The debugpoint() macro should be used to efficiently disable debugging output
  * A debugpoint on a file's 0 line will enable all debugpoints for that file
  *
- * $Id: debug.h,v 1.8 2006/01/18 15:14:09 dds Exp $
+ * $Id: debug.h,v 1.9 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef DEBUG_
 #define DEBUG_
+
+#include <string>
+#include <set>
+
+using namespace std;
 
 class Debug {
 private:

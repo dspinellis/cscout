@@ -3,11 +3,21 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.13 2008/11/30 11:05:41 dds Exp $
+ * $Id: option.h,v 1.14 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef OPTION_
 #define OPTION_
+
+#include <string>
+#include <map>
+#include <vector>
+#include <fstream>
+
+using namespace std;
+
+#include "error.h"
+#include "swill.h"
 
 class BoolOption;
 class IntegerOption;

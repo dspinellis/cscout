@@ -3,11 +3,19 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.28 2008/11/17 10:39:19 dds Exp $
+ * $Id: stab.h,v 1.29 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef STAB_
 #define STAB_
+
+#include <string>
+
+using namespace std;
+
+#include "token.h"
+#include "id.h"
+#include "type.h"
 
 /*
  * A refresher on identifier namespaces (ANSI 3.1.2.3)

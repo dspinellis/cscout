@@ -3,11 +3,15 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.h,v 1.8 2007/11/08 09:24:28 dds Exp $
+ * $Id: sql.h,v 1.9 2008/12/04 15:19:06 dds Exp $
  */
 
 
+#ifndef SQL_
+#define SQL_
+
 #ifdef COMMERCIAL
+
 class Sql {
 	// Instance of current engine
 	static Sql *instance;
@@ -64,3 +68,5 @@ Mysql::boolval(bool v)
 }
 
 #endif /* COMMERCIAL */
+
+#endif // SQL_
