@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.14 2008/11/30 11:05:41 dds Exp $
+ * $Id: option.cpp,v 1.15 2008/12/05 10:24:28 dds Exp $
  */
 
 #include <string>
@@ -39,6 +39,7 @@ BoolOption *Option::rename_override_ro;		// Renames will override read-only iden
 BoolOption *Option::refactor_fun_arg_override_ro;// Refactoring of function arguments will override read-only identifiers
 
 IntegerOption *Option::tab_width;		// Tab width for code output
+TextOption *Option::dot_graph_options;		// Graph options passed to dot
 TextOption *Option::dot_node_options;		// Node options passed to dot
 TextOption *Option::dot_edge_options;		// Edge options passed to dot
 SelectionOption *Option::cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
@@ -209,14 +210,14 @@ Option::initialize()
 	Option::add(sort_rev = new BoolOption("sort_rev", "Sort identifiers starting from their last character"));
 
 	Option::add(new TitleOption("Call and File Dependency Graphs"));
-	Option::add(cgraph_type = new SelectionOption("cgraph_type", "Graph links should lead to pages of:", 'h',
+	Option::add(cgraph_type = new SelectionOption("cgraph_type", "Graph links should lead to pages of:", 's',
 		"d:dot",
-		"g:GIF (via dot)",
+		"g:GIF",
 		"h:HTML",
-		"f:PDF (via dot)",
+		"f:PDF",
 		"t:plain text",
-		"p:PNG (via dot)",
-		"s:SVG (via dot)",
+		"p:PNG",
+		"s:SVG",
 		NULL));
 	Option::add(cgraph_show = new SelectionOption("cgraph_show", "Call graphs should contain:", 'f',
 		"e:only edges",
@@ -232,8 +233,9 @@ Option::initialize()
 	Option::add(cgraph_depth = new IntegerOption("cgraph_depth", "Maximum number of call levels in a call graph", 5));
 	Option::add(fgraph_depth = new IntegerOption("fgraph_depth", "Maximum dependency depth in a file graph", 5));
 	Option::add(cgraph_dot_url = new BoolOption("cgraph_dot_url", "Include URLs in dot output", false));
-	Option::add(dot_node_options = new TextOption("dot_node_options", "Node options for dot"));
-	Option::add(dot_edge_options = new TextOption("dot_edge_options", "Edge options for dot"));
+	Option::add(dot_graph_options = new TextOption("dot_graph_options", "Graph options"));
+	Option::add(dot_node_options = new TextOption("dot_node_options", "Node options"));
+	Option::add(dot_edge_options = new TextOption("dot_edge_options", "Edge options"));
 
 	Option::add(new TitleOption("Saved Files"));
 	Option::add(sfile_re_string = new TextOption("sfile_re_string", "When saving modified files replace RE"));

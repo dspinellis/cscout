@@ -3,7 +3,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.215 2008/11/18 09:41:29 dds Exp $
+ * $Id: cscout.cpp,v 1.216 2008/12/05 10:24:28 dds Exp $
  */
 
 #include <map>
@@ -1838,7 +1838,7 @@ cpath_page(GraphDisplay *gd)
 		fprintf(stderr, "Missing to value");
 		return;
 	}
-	gd->head("filepath", "Function Call Path");
+	gd->head("callpath", "Function Call Path", Option::cgraph_show->get() == 'e');
 	gd->subhead(string("Path ") +
 	    function_label(from, true) +
 	    string(" &rarr; ") +
@@ -2080,7 +2080,7 @@ cgraph_page(GraphDisplay *gd)
 {
 	bool all = !!swill_getvar("all");
 	bool only_visited = (single_function_graph() || single_file_function_graph());
-	gd->head("cgraph", "Call Graph");
+	gd->head("cgraph", "Call Graph", Option::cgraph_show->get() == 'e');
 	int count = 0;
 	// First generate the node labels
 	Call::const_fmap_iterator_type fun;
@@ -2121,26 +2121,27 @@ fgraph_page(GraphDisplay *gd)
 	char *gtype = swill_getvar("gtype");		// Graph type
 	char *ltype = swill_getvar("n");
 	if (!gtype || !*gtype || (*gtype == 'F' && !ltype)) {
-		gd->head("fgraph", "Error");
+		gd->head("fgraph", "Error", false);
 		gd->error("Missing value");
 		gd->tail();
 		return;
 	}
 	bool all = !!swill_getvar("all");		// Otherwise exclude read-only files
+	bool empty_node = (Option::fgraph_show->get() == 'e');
 	EdgeMatrix edges;
 	bool only_visited = single_file_graph(*gtype, edges);
 	switch (*gtype) {
 	case 'I':		// Include graph
-		gd->head("fgraph", "Include Graph");
+		gd->head("fgraph", "Include Graph", empty_node);
 		break;
 	case 'C':		// Compile-time dependency graph
-		gd->head("fgraph", "Compile-Time Dependency Graph");
+		gd->head("fgraph", "Compile-Time Dependency Graph", empty_node);
 		break;
 	case 'G':		// Global object def/ref graph (data dependency)
-		gd->head("fgraph", "Global Object (Data) Dependency Graph");
+		gd->head("fgraph", "Global Object (Data) Dependency Graph", empty_node);
 		break;
 	case 'F':		// Function call graph (control dependency)
-		gd->head("fgraph", "Function Call (Control) Dependency Graph");
+		gd->head("fgraph", "Function Call (Control) Dependency Graph", empty_node);
 		if (!only_visited) {
 			int size = Fileid::max_id() + 1;
 			edges.insert(edges.begin(), size, vector<bool>(size, 0));
@@ -2163,7 +2164,7 @@ fgraph_page(GraphDisplay *gd)
 		}
 		break;
 	default:
-		gd->head("fgraph", "Error");
+		gd->head("fgraph", "Error", empty_node);
 		gd->error("Unknown graph type");
 		gd->tail();
 		return;

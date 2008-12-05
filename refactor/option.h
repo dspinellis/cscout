@@ -3,7 +3,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.14 2008/12/04 15:19:06 dds Exp $
+ * $Id: option.h,v 1.15 2008/12/05 10:24:28 dds Exp $
  */
 
 #ifndef OPTION_
@@ -70,6 +70,7 @@ public:
 	static BoolOption *refactor_fun_arg_override_ro;// Refactoring of function arguments will override read-only identifiers
 
 	static IntegerOption *tab_width;		// Tab width for code output
+	static TextOption *dot_graph_options;		// Graph options passed to dot
 	static TextOption *dot_node_options;		// Node options passed to dot
 	static TextOption *dot_edge_options;		// Edge options passed to dot
 	static SelectionOption *cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
