@@ -3,7 +3,7 @@
  *
  * HTML utility functions
  *
- * $Id: html.cpp,v 1.5 2008/11/04 11:13:19 dds Exp $
+ * $Id: html.cpp,v 1.6 2008/12/05 08:08:59 dds Exp $
  */
 
 #include <map>
@@ -89,10 +89,14 @@ html(char c)
 		column += 8 - space_idx;
 		return spaces[space_idx].c_str();
 	case '\n':
-	case '\r':
-	case '\f':
 		column = 0;
 		return "<br>\n";
+	case '\r':
+		column = 0;
+		return "";
+	case '\f':
+		column = 0;
+		return "<br><hr><br>\n";
 	default:
 		column++;
 		str[0] = c;
