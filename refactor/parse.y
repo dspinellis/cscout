@@ -14,7 +14,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.147 2008/09/18 10:35:42 dds Exp $
+ * $Id: parse.y,v 1.148 2008/12/05 07:25:33 dds Exp $
  *
  */
 
@@ -2452,11 +2452,13 @@ yacc_terminal_list_declaration:
 	yacc_tag yacc_name_number
 		{
 			yacc_type_define($2, $1, y_terminal);
+			Pdtoken::create_undefined_macro($2.get_token());
 			$$ = $1;
 		}
 	| yacc_terminal_list_declaration comma_opt yacc_name_number
 		{
 			yacc_type_define($3, $1, y_terminal);
+			Pdtoken::create_undefined_macro($3.get_token());
 			$$ = $1;
 		}
 	;

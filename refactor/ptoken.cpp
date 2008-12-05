@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ptoken.cpp,v 1.15 2006/07/30 10:30:50 dds Exp $
+ * $Id: ptoken.cpp,v 1.16 2008/12/05 07:25:33 dds Exp $
  */
 
 #include <iostream>
@@ -23,6 +23,7 @@
 #include "tokid.h"
 #include "token.h"
 #include "ptoken.h"
+#include "ctoken.h"
 
 ostream&
 operator<<(ostream& o,const Ptoken &t)
@@ -42,6 +43,10 @@ ostream& operator<<(ostream& o,const PtokenSequence &t)
 	for (i = t.begin(); i != t.end(); i++)
 		o << *i;
 	return (o);
+}
+
+Ptoken::Ptoken(const Ctoken &t) : Token(t)
+{
 }
 
 #ifdef UNIT_TEST
