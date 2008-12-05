@@ -3,7 +3,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.50 2008/10/08 17:23:47 dds Exp $
+ * $Id: stab.cpp,v 1.51 2008/12/05 11:11:52 dds Exp $
  */
 
 #include <map>
@@ -146,16 +146,16 @@ obj_define(const Token& tok, Type typ)
 		(Block::param_block.obj).define(tok, typ);
 		return;
 	}
-	if ((sc == c_extern ||
-	    (sc == c_unspecified && typ.is_function())) &&
-	    (id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
-		// If the declaration of an identifier contains extern the identifier
-		// has the same linkage as any visible declaration of the identifier
-		// with file scope 6.2.2-4
+	if (sc == c_unspecified && typ.is_function())
 		// If the declaration of an identifier for a function has no
 		// storage-class specifier, its linkage is determined exactly
-		// as if it were declatred with the storage class specifier
+		// as if it were declared with the storage class specifier
 		// extern 6.2.2-5
+		sc = c_extern;
+	if (sc == c_extern && (id = obj_lookup(tok.get_name()))) {
+		// If the declaration of an identifier contains extern the identifier
+		// has the same linkage as the prior visible declaration of the identifier
+		// 6.2.2-4
 		enum e_storage_class sc2 = id->get_type().get_storage_class();
 		if (sc2 != sc) {
 			typ.set_storage_class(basic(b_abstract, s_none, sc2));
