@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest.sh,v 1.26 2008/12/02 13:24:40 dds Exp $
+# $Id: runtest.sh,v 1.27 2008/12/05 13:18:36 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -19,9 +19,9 @@ Test $2 begins
 }
 
 # End a test (arguments directory, name)
-end_test()
+end_compare()
 {
-	if [ "$PRIME" = "1" ]
+	if [ "$PRIME" = 1 ]
 	then
 		return 0
 	fi
@@ -31,20 +31,34 @@ end_test()
 	   ( test -r test/out/$NAME &&
 	     diff -ib test/out/$NAME test/nout/$NAME )
 	then
+		end_test $2 1
+	else
+		end_test $2 0
+	fi
+}
+
+# End a test (arguments result, name)
+end_test()
+{
+	NTEST=`expr $NTEST + 1`
+	if [ "$2" = 1 ]
+	then
+		OK=`expr $OK + 1`
 		echo "
-Test $2 finishes correctly
+Test $1 finishes correctly
 ------------------------------------------
 "
 	else
+		NOK=`expr $NOK + 1`
 		echo "
-Test $2 failed
+Test $1 failed
 ------------------------------------------
 "
 		if [ x"$CONTINUE" != x"1" ]
 		then
 			exit 1
 		else
-			FAILED="$FAILED $2"
+			FAILED="$FAILED $1"
 		fi
 	fi
 }
@@ -140,7 +154,7 @@ SELECT * from Fcalls ORDER BY SourceID, DESTID;
 ) |
 $HSQLDB mem - |
 sed -e '1,/^Running selections/d' >test/nout/$NAME
-	end_test $DIR $NAME
+	end_compare $DIR $NAME
 }
 
 # Test the correct dumping of a file's contents into the SQL tables
@@ -222,7 +236,7 @@ runtest_cpp()
 	CSFILE=$3
 	start_test $DIR $NAME
 	(cd $DIR ; $CSCOUT -3 -E $CSFILE ) >test/nout/$NAME.out 2>test/nout/$NAME.err
-	end_test $DIR $NAME
+	end_compare $DIR $NAME
 }
 
 # Create a CScout preprocessing project file for the given source code file
@@ -248,11 +262,16 @@ set_test()
 	TEST_RECONST=$1
 	TEST_CPP=$1
 	TEST_C=$1
+	TEST_OBFUSCATION=$1
 }
 
 #
 # Main script starts here
 #
+
+NTEST=0
+OK=0
+NOK=0
 
 # Parse command-line arguments
 set_test 1
@@ -341,6 +360,25 @@ then
 	done
 fi
 
+# Obfuscation
+if [ $TEST_OBFUSCATION = 1 ]
+then
+	echo 'Running the obfuscation test'
+	echo '----------------------------'
+	(
+		cd ../example.obf
+		sh run.sh
+		cd awk
+		make
+		if [ -r awk.exe ]
+		then
+			end_test obfsucation 1
+		else
+			end_test obfsucation 0
+		fi
+	)
+fi
+
 # awk
 if [ $TEST_AWK = 1 ]
 then
@@ -355,9 +393,9 @@ then
 	cp test/nout/* test/out
 fi
 
-if [ -z "$FAILED" ]
+echo "$OK/$NTEST tests passed"
+if ! [ -z "$FAILED" ]
 then
-	echo "All tests passed"
-else
+	echo "$NOK/$NTEST tests failed"
 	echo "The following test(s) failed: $FAILED"
 fi
