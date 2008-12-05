@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.146 2008/12/05 11:35:38 dds Exp $
+# $Id: Makefile,v 1.147 2008/12/05 12:07:47 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -9,6 +9,9 @@
 # make LICENSEE="John Smith"
 # For a debug build run make as:
 # make DEBUG=1
+
+CC?=gcc
+CXX?=g++
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -39,8 +42,10 @@ endif
 
 # Build Mach-O fat binaries
 ifeq ($(OS),Darwin)
+CC=gcc-4.2
+CXX=g++-4.2
 ARCH=macho
-CPPFLAGS+=-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+CPPFLAGS+=-isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386 -arch ppc
 LDFLAGS+=-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
 endif
 
@@ -76,8 +81,6 @@ ALLSRC=$(SRC) logo.png version.cpp
 
 YACC=btyacc
 #YACC=yacc
-CC=gcc
-CXX?=g++
 
 CPPFLAGS+=-pipe -Wall
 CPPFLAGS+=-DSPINELLIS_SERVER
@@ -207,8 +210,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.146 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/12/05 11:35:38 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.147 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/12/05 12:07:47 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
