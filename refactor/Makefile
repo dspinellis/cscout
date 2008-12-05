@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.147 2008/12/05 12:07:47 dds Exp $
+# $Id: Makefile,v 1.148 2008/12/05 13:23:21 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -10,8 +10,10 @@
 # For a debug build run make as:
 # make DEBUG=1
 
-CC?=gcc
-CXX?=g++
+WEBHOME=$(UH)/dds/pubs/web/home/cscout/
+
+CC=gcc
+CXX=g++
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -210,8 +212,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.147 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/12/05 12:07:47 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.148 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/12/05 13:23:21 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -362,5 +364,12 @@ dbdump:
 	for db in mysql hsqldb postgres;\
 	do \
 		(cd ../example ; \
-		../refactor/i386/cscout -s $$db awk.cs | gzip -c > $(UH)/dds/pubs/web/home/cscout/awk-$$db.sql.gz) ;\
+		../refactor/i386/cscout -s $$db awk.cs | gzip -c > $(WEBHOME)/awk-$$db.sql.gz) ;\
 	done
+
+obfuscation:
+	( cd ../example.obf ; \
+	sh run.sh ; \
+	tar cf - awk | gzip -c > $(WEBHOME)/awk-obf.tar.gz ; \
+	zip -r $(WEBHOME)/awk-obf.zip awk ; \
+	)
