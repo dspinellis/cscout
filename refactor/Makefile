@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.144 2008/11/30 11:47:30 dds Exp $
+# $Id: Makefile,v 1.145 2008/12/05 07:16:01 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -46,7 +46,7 @@ endif
 
 OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
 
-.SUFFIXES:.java .dot .ps .gif .pic .eps .png .svg
+.SUFFIXES:.java .dot .ps .png .pic .eps .png .svg
 
 # Do not add version.cpp here
 SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
@@ -207,8 +207,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.144 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/11/30 11:47:30 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.145 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2008/12/05 07:16:01 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -322,11 +322,11 @@ clean:
 	rm -f $(ARCH)/* parse_tab.h parse.cpp ytab.h tokname.cpp eval.cpp
 
 .java.dot:
-	javadoc -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet gr.spinellis.umlgraph.doclet.UmlGraph -private $<
+	javadoc -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
 	mv graph.dot $@
 
-.dot.gif:
-	dot -Tgif -o$@ $<
+.dot.png:
+	dot -Tpng -o$@ $<
 
 classdiag.java: $(ALLSRC)
 	grep -h ":.*public" *.h | \
@@ -334,7 +334,7 @@ classdiag.java: $(ALLSRC)
 	sed 's/class //;s/://;s/public //;s/{//;s/  */ /g' | \
 	awk '{print "class " $$1 " extends " $$2 " {}"}' >$@
 
-classdiag.gif: classdiag.java
+classdiag.png: classdiag.java
 
 # Cross building FreeBSD binaries on istlab
 # Cross-build the toolchain by running: make-toolchain
