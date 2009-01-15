@@ -1,9 +1,13 @@
 /*
- * (C) Copyright 2006 Diomidis Spinellis.
+ * (C) Copyright 2006-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * A pager for HTML output
  *
- * $Id: pager.cpp,v 1.5 2008/09/29 09:17:36 dds Exp $
+ * $Id: pager.cpp,v 1.6 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <string>

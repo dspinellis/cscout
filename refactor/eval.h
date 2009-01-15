@@ -1,11 +1,15 @@
 /*
- * (C) Copyright 2006 Diomidis Spinellis.
+ * (C) Copyright 2005-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * The structure used for communication token values
  * between the lexical analyzer and the preprocessor expression
  * evaluation parser.
  *
- * $Id: eval.h,v 1.2 2006/08/07 18:33:47 dds Exp $
+ * $Id: eval.h,v 1.3 2009/01/15 14:32:57 dds Exp $
  *
  */
 

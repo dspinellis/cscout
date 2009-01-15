@@ -1,9 +1,13 @@
 /*
- * (C) Copyright 2004 Diomidis Spinellis.
+ * (C) Copyright 2004-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * The CScout logo access functions
  *
- * $Id: logo.h,v 1.2 2008/12/04 15:19:06 dds Exp $
+ * $Id: logo.h,v 1.3 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef LOGO_

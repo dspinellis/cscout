@@ -1,9 +1,13 @@
 /*
- * (C) Copyright 2001-2003 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.11 2006/09/24 20:58:46 dds Exp $
+ * $Id: query.cpp,v 1.12 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <map>

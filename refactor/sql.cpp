@@ -1,9 +1,13 @@
 /*
- * (C) Copyright 2001 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.cpp,v 1.4 2007/11/08 09:24:28 dds Exp $
+ * $Id: sql.cpp,v 1.5 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifdef COMMERCIAL

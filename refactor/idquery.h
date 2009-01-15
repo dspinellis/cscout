@@ -1,10 +1,14 @@
 /*
- * (C) Copyright 2004 Diomidis Spinellis.
+ * (C) Copyright 2003-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.15 2008/12/04 15:19:06 dds Exp $
+ * $Id: idquery.h,v 1.16 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef IDQUERY_

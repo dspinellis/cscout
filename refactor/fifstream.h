@@ -1,5 +1,9 @@
 /*
- * (C) Copyright 2005 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * IFstream wrapper for providing a fast tellg()
  * The current (gcc 3.4.2) implementation calls pubseek_off,
@@ -21,7 +25,7 @@
  * user    0m4.409s
  * sys     0m0.041s
  *
- * $Id: fifstream.h,v 1.3 2008/12/04 15:19:06 dds Exp $
+ * $Id: fifstream.h,v 1.4 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef FIFSTREAM_

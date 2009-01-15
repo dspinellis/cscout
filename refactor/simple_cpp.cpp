@@ -1,10 +1,14 @@
 /*
- * (C) Copyright 2001 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * Simple preprocessor.
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.17 2006/06/18 19:34:46 dds Exp $
+ * $Id: simple_cpp.cpp,v 1.18 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <iostream>

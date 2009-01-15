@@ -1,7 +1,11 @@
 #
-# (C) Copyright 2001-2005 Diomidis Spinellis
+# (C) Copyright 2001-2009 Diomidis Spinellis All rights reserved.
 #
-# $Id: Makefile,v 1.149 2009/01/15 12:12:13 dds Exp $
+# You may only use this code if you agree to the terms of the CScout
+# Source Code License agreement (see License.txt).
+# If you do not agree to the terms, do not use the code.
+#
+# $Id: Makefile,v 1.150 2009/01/15 14:32:57 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -215,8 +219,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.149 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2009/01/15 12:12:13 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.150 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2009/01/15 14:32:57 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -377,7 +381,11 @@ obfuscation:
 	zip -r $(WEBHOME)/awk-obf.zip awk ; \
 	)
 
-distedit:
+distco:
 	co -l $(DISTSRC)
+
+distedit:
 	wi $(DISTSRC)
+
+distci:
 	ci -u $(DISTSRC)

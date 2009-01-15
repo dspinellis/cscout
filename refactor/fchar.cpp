@@ -1,9 +1,13 @@
 /*
- * (C) Copyright 2001 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.41 2008/09/03 11:51:03 dds Exp $
+ * $Id: fchar.cpp,v 1.42 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <iostream>

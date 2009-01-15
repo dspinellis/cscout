@@ -1,5 +1,9 @@
 /*
- * (C) Copyright 2002 Diomidis Spinellis.
+ * (C) Copyright 2002-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * A metrics and a metrics summary container.
  *
@@ -15,7 +19,7 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.15 2008/12/04 15:19:06 dds Exp $
+ * $Id: funmetrics.h,v 1.16 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef FUNMETRICS_

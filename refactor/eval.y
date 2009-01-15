@@ -1,9 +1,14 @@
 /*
- * (C) Copyright 2001 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
+ *
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.17 2006/08/07 11:36:44 dds Exp $
+ * $Id: eval.y,v 1.18 2009/01/15 14:32:57 dds Exp $
  *
  */
 

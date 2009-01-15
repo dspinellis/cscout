@@ -1,11 +1,15 @@
 /*
- * (C) Copyright 2001 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * Token definitions for btyacc
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.13 2007/11/08 17:48:05 dds Exp $
+ * $Id: ytoken.h,v 1.14 2009/01/15 14:32:57 dds Exp $
  */
 
 

@@ -1,9 +1,13 @@
 /*
- * (C) Copyright 2001 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * For documentation read the corresponding .h file
  *
- * $Id: debug.cpp,v 1.4 2006/06/13 15:32:05 dds Exp $
+ * $Id: debug.cpp,v 1.5 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <set>

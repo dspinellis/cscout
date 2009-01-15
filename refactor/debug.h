@@ -1,11 +1,15 @@
 /*
- * (C) Copyright 2001 Diomidis Spinellis.
+ * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ *
+ * You may only use this code if you agree to the terms of the CScout
+ * Source Code License agreement (see License.txt).
+ * If you do not agree to the terms, do not use the code.
  *
  * Debugpoints can be set for selectively enabling debugging output
  * The debugpoint() macro should be used to efficiently disable debugging output
  * A debugpoint on a file's 0 line will enable all debugpoints for that file
  *
- * $Id: debug.h,v 1.9 2008/12/04 15:19:06 dds Exp $
+ * $Id: debug.h,v 1.10 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef DEBUG_
