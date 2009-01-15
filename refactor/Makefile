@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.150 2009/01/15 14:32:57 dds Exp $
+# $Id: Makefile,v 1.151 2009/01/15 17:25:16 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -60,8 +60,8 @@ OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
 .SUFFIXES:.java .dot .ps .png .pic .eps .png .svg
 
 # Source we distribute
-# Do not add version.cpp license.c license.h here
-DISTSRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
+# Do not add Makefile version.cpp license.c license.h here
+DISTSRC=License.txt attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	ctoken.h debug.cpp debug.h defs.h des.c des.h eclass.cpp \
 	eclass.h error.cpp error.h eval.y fchar.cpp \
 	fchar.h fileid.cpp fileid.h id.h incs.h \
@@ -84,7 +84,8 @@ DISTSRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	runtest.sh \
 	csmake.pl cswc.pl style.css
 
-SRC=$(DISTSRC) license.c license.h
+# Sources needed for building
+SRC=Makefile $(DISTSRC) license.c license.h
 
 ALLSRC=$(SRC) logo.png version.cpp
 
@@ -219,8 +220,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.150 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2009/01/15 14:32:57 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.151 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2009/01/15 17:25:16 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -389,3 +390,10 @@ distedit:
 
 distci:
 	ci -u $(DISTSRC)
+
+evalsrc:
+	rm -rf cscout-$(BRANCH)-evalsrc
+	mkdir cscout-$(BRANCH)-evalsrc
+	cp $(DISTSRC) cscout-$(BRANCH)-evalsrc
+	tar czvf cscout-$(BRANCH)-evalsrc.tar.gz cscout-$(BRANCH)-evalsrc
+	rm -rf cscout-$(BRANCH)-evalsrc
