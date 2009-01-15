@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2001-2005 Diomidis Spinellis
 #
-# $Id: Makefile,v 1.148 2008/12/05 13:23:21 dds Exp $
+# $Id: Makefile,v 1.149 2009/01/15 12:12:13 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -55,11 +55,12 @@ OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
 
 .SUFFIXES:.java .dot .ps .png .pic .eps .png .svg
 
-# Do not add version.cpp here
-SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
+# Source we distribute
+# Do not add version.cpp license.c license.h here
+DISTSRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	ctoken.h debug.cpp debug.h defs.h des.c des.h eclass.cpp \
 	eclass.h error.cpp error.h eval.y fchar.cpp \
-	fchar.h fileid.cpp fileid.h id.h incs.h license.c license.h \
+	fchar.h fileid.cpp fileid.h id.h incs.h \
 	macro.cpp macro.h metrics.cpp metrics.h mscdefs.h \
 	mscincs.h obfuscate.cpp parse.y pdtoken.cpp \
 	pdtoken.h pltoken.cpp pltoken.h ptoken.cpp ptoken.h regex.h \
@@ -78,6 +79,8 @@ SRC=Makefile attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	html.h html.cpp dirbrowse.h dirbrowse.cpp fileutils.cpp fileutils.h \
 	runtest.sh \
 	csmake.pl cswc.pl style.css
+
+SRC=$(DISTSRC) license.c license.h
 
 ALLSRC=$(SRC) logo.png version.cpp
 
@@ -212,8 +215,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.148 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2008/12/05 13:23:21 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.149 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2009/01/15 12:12:13 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -373,3 +376,8 @@ obfuscation:
 	tar cf - awk | gzip -c > $(WEBHOME)/awk-obf.tar.gz ; \
 	zip -r $(WEBHOME)/awk-obf.zip awk ; \
 	)
+
+distedit:
+	co -l $(DISTSRC)
+	wi $(DISTSRC)
+	ci -u $(DISTSRC)
