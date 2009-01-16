@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.151 2009/01/15 17:25:16 dds Exp $
+# $Id: Makefile,v 1.152 2009/01/16 09:06:52 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -220,8 +220,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.151 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2009/01/15 17:25:16 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.152 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2009/01/16 09:06:52 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -336,7 +336,7 @@ clean:
 	rm -f $(ARCH)/* parse_tab.h parse.cpp ytab.h tokname.cpp eval.cpp
 
 .java.dot:
-	javadoc -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
+	cmd /c javadoc.exe -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
 	mv graph.dot $@
 
 .dot.png:
@@ -344,7 +344,7 @@ clean:
 
 classdiag.java: $(ALLSRC)
 	grep -h ":.*public" *.h | \
-	grep -v binary_func | \
+	egrep -v '(struct|binary_func)' | \
 	sed 's/class //;s/://;s/public //;s/{//;s/  */ /g' | \
 	awk '{print "class " $$1 " extends " $$2 " {}"}' >$@
 
