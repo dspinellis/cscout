@@ -7,7 +7,7 @@
  *
  * HTML utility functions
  *
- * $Id: html.cpp,v 1.7 2009/01/15 14:32:57 dds Exp $
+ * $Id: html.cpp,v 1.8 2009/01/28 07:52:19 dds Exp $
  */
 
 #include <map>
@@ -259,7 +259,7 @@ html_perror(FILE *of, const string &user_msg, bool svg)
 	else {
 		fputs(error_msg.c_str(), of);
 		fputs("</p><p>The operation you requested is incomplete.  "
-			"Please correct the underlying cause, and return to the "
+			"Please correct the underlying cause, and (if possible) return to the "
 			"CScout <a href=\"index.html\">main page</a> to retry the operation.</p>", of);
 	}
 }

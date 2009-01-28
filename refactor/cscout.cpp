@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.219 2009/01/28 07:26:12 dds Exp $
+ * $Id: cscout.cpp,v 1.220 2009/01/28 07:52:19 dds Exp $
  */
 
 #include <map>
@@ -854,9 +854,12 @@ file_refactor(FILE *of, Fileid fid)
 			newname.replace(be.rm_so, be.rm_eo - be.rm_so, Option::sfile_repl_string->get());
 			string cmd("cscout_checkout " + newname);
 			system(cmd.c_str());
-			(void)unlink(newname);
+			if (unlink(newname) < 0) {
+				html_perror(of, "Changes are saved in " + ofname + ", because deleting the target file " + newname + " failed");
+				return;
+			}
 			if (rename(ofname.c_str(), newname.c_str()) < 0) {
-				html_perror(of, "Renaming the file " + ofname + " to " + newname + " failed");
+				html_perror(of, "Changes are saved in " + ofname + ", because renaming the file " + ofname + " to " + newname + " failed");
 				return;
 			}
 			string cmd2("cscout_checkin " + newname);
@@ -865,9 +868,12 @@ file_refactor(FILE *of, Fileid fid)
 	} else {
 		string cmd("cscout_checkout " + fid.get_path());
 		system(cmd.c_str());
-		(void)unlink(fid.get_path());
+		if (unlink(fid.get_path()) < 0) {
+			html_perror(of, "Changes are saved in " + ofname + ", because deleting the target file " + fid.get_path() + " failed");
+			return;
+		}
 		if (rename(ofname.c_str(), fid.get_path().c_str()) < 0) {
-			html_perror(of, "Renaming the file " + ofname + " to " + fid.get_path() + " failed");
+			html_perror(of, "Changes are saved in " + ofname + ", because renaming the file " + ofname + " to " + fid.get_path() + " failed");
 			return;
 		}
 		string cmd2("cscout_checkin " + fid.get_path());
