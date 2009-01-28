@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.221 2009/01/28 08:49:08 dds Exp $
+ * $Id: cscout.cpp,v 1.222 2009/01/28 10:26:09 dds Exp $
  */
 
 #include <map>
@@ -155,8 +155,23 @@ Attributes::size_type current_project;
  * specifying the arguments of the corresponding
  * refactored function call (e.g. "@2, @1")
  */
-typedef map <Eclass *, string> RefFunCall;
-static RefFunCall rfcs;
+class RefFunCall {
+private:
+	Call *fun;		// Function
+	string repl;		// Replacement patttern
+	bool active;		// True if active
+public:
+	typedef map <Eclass *, RefFunCall> store_type;	// Store of all refactorings
+	static store_type store;
+	RefFunCall(Call *f, string s) : fun(f), repl(s), active(true) {}
+	const Call *get_function() const { return fun; }
+	const string &get_replacement() const { return repl; }
+	void set_replacement(const string &s) { repl = s; }
+	bool is_active() const { return active; }
+	void set_active(bool a) { active = a; }
+};
+
+RefFunCall::store_type RefFunCall::store;
 
 // Matrix used to store graph edges
 typedef vector<vector<bool> > EdgeMatrix;
@@ -513,10 +528,11 @@ again:
 
 		Tokid ti;
 		Eclass *ec;
-		RefFunCall::const_iterator rfc;
+		RefFunCall::store_type::const_iterator rfc;
 		if (t.get_code() == IDENTIFIER &&
 		    (ti = t.get_parts_begin()->get_tokid(), ec = ti.check_ec()) &&
-		    (rfc = rfcs.find(ec)) != rfcs.end() &&
+		    (rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end() &&
+		    rfc->second.is_active() &&
 		    (int)t.get_val().length() == ec->get_len()) {
 			Tokid call = t.get_parts_begin()->get_tokid();
 			// Gather args
@@ -781,11 +797,12 @@ get_refactored_part(ifstream &in, Fileid fid)
 		ret = (char)val;
 
 	// Functions whose arguments need reordering
-	RefFunCall::const_iterator rfc;
+	RefFunCall::store_type::const_iterator rfc;
 	ArgBoundMap::const_iterator abi;
 	if ((ec = ti.check_ec()) &&
 	    ec->is_identifier() &&
-	    (rfc = rfcs.find(ec)) != rfcs.end() &&
+	    (rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end() &&
+	    rfc->second.is_active() &&
 	    (abi = argbounds_map.find(ti)) != argbounds_map.end()) {
 		const ArgBoundMap::mapped_type &argbounds = abi->second;
 		csassert (in.tellg() < argbounds[0].start);
@@ -803,7 +820,7 @@ get_refactored_part(ifstream &in, Fileid fid)
 			csassert ((i == argbounds.size() - 1 && endchar == ')') ||
 			    (i < argbounds.size() - 1 && endchar == ','));
 		}
-		ret += function_argument_replace(rfc->second.begin(), rfc->second.end(), arg);
+		ret += function_argument_replace(rfc->second.get_replacement().begin(), rfc->second.get_replacement().end(), arg);
 		ret += ')';
 		num_fun_call_refactorings++;
 	} // Replaced function call
@@ -820,7 +837,7 @@ file_refactor(FILE *of, Fileid fid)
 
 	cerr << "Processing file " << fid.get_path() << endl;
 
-	if (rfcs.size())
+	if (RefFunCall::store.size())
 		establish_argument_boundaries(fid.get_path());
 	in.open(fid.get_path().c_str(), ios::binary);
 	if (in.fail()) {
@@ -1433,17 +1450,17 @@ identifier_page(FILE *fo, void *p)
 		if (found)
 			fprintf(fo, "</ol><br />\n");
 	}
-	if (id.get_replaced())
-		fprintf(fo, "<li> Substituted with: [%s] (%s)\n", id.get_newid().c_str(),
-		id.get_active() ? "active" : "inactive");
 
 	if ((!e->get_attribute(is_readonly) || Option::rename_override_ro->get()) &&
 	    modification_state != ms_hand_edit &&
 	    !browse_only) {
 		fprintf(fo, "<li> Substitute with: \n"
-			"<INPUT TYPE=\"text\" NAME=\"sname\" SIZE=10 MAXLENGTH=256> "
-			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n");
+			"<INPUT TYPE=\"text\" NAME=\"sname\" VALUE=\"%s\" SIZE=10 MAXLENGTH=256> "
+			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n",
+			(id.get_replaced() ? id.get_newid() : id.get_id()).c_str());
 		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", e);
+		if (!id.get_active())
+			fputs("<br>(This substitution is inactive.  Visit the <a href='replacements.html'>replacements page</a> to activate it again.)", fo);
 	}
 	fprintf(fo, "</ul>\n");
 	fprintf(fo, "</FORM>\n");
@@ -1478,7 +1495,7 @@ function_page(FILE *fo, void *p)
 		}
 		prohibit_browsers(fo);
 		prohibit_remote_access(fo);
-		rfcs[ec] = string(subst);
+		RefFunCall::store.insert(RefFunCall::store_type::value_type(ec, RefFunCall(f, subst)));
 		modification_state = ms_subst;
 	}
 	html_head(fo, "fun", string("Function: ") + html(f->get_name()) + " (" + f->entity_type_name() + ')');
@@ -1541,9 +1558,9 @@ function_page(FILE *fo, void *p)
 				nfun++;
 		if (nfun == 1) {
 			ostringstream repl_temp;		// Replacement template
-			RefFunCall::const_iterator rfc;
-		    	if ((rfc = rfcs.find(ec)) != rfcs.end())
-				repl_temp << html(rfc->second);
+			RefFunCall::store_type::const_iterator rfc;
+		    	if ((rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end())
+				repl_temp << html(rfc->second.get_replacement());
 			else if (f->is_defined())
 				for (int i = 0; i < f->metrics().get_metric(FunMetrics::em_nparam); i++) {
 					repl_temp << '@' << i + 1;
@@ -1556,6 +1573,8 @@ function_page(FILE *fo, void *p)
 				repl_temp.str().c_str());
 			fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", ec);
 			fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"f\" VALUE=\"%p\">\n", f);
+			if (rfc != RefFunCall::store.end() && !rfc->second.is_active())
+				fputs("<br>(This refactoring is inactive.  Visit the <a href='funargrefs.html'>refactorings page</a> to activate it again.)", fo);
 		}
 	}
 	fprintf(fo, "</ul>\n");
@@ -2454,6 +2473,7 @@ index_page(FILE *of, void *data)
 			"<li> <a href=\"options.html\">Global options</a>\n"
 			" &mdash; <a href=\"save_options.html\">save global options</a>\n"
 			"<li> <a href=\"replacements.html\">Identifier replacements</a>\n"
+			"<li> <a href=\"funargrefs.html\">Function argument refactorings</a>\n"
 			"<li> <a href=\"sproject.html\">Select active project</a>\n"
 			"<li> <a href=\"save.html\">Save changes and continue</a>\n"
 			"<li> <a href=\"sexit.html\">Exit &mdash; saving changes</a>\n"
@@ -2729,6 +2749,51 @@ xreplacements_page(FILE *of,  void *p)
 }
 
 
+static void
+funargrefs_page(FILE *of, void *p)
+{
+	prohibit_remote_access(of);
+	html_head(of, "funargrefs", "Function Argument Refactorings");
+	fputs("<p><form action=\"xfunargrefs.html\" method=\"get\">\n"
+		"<table><tr><th>Function</th><th>Arguments</th><th>Active</th></tr>\n"
+	, of);
+
+	for (RefFunCall::store_type::iterator i = RefFunCall::store.begin(); i != RefFunCall::store.end(); i++) {
+		fputs("<tr><td>", of);
+		html(of, *(i->second.get_function()));
+		fprintf(of,
+			"</td><td><input type=\"text\" name=\"r%p\" value=\"%s\" size=\"10\" maxlength=\"256\"></td>"
+			"<td><input type=\"checkbox\" name=\"a%p\" value=\"1\" %s></td></tr>\n",
+			i->first, i->second.get_replacement().c_str(),
+			i->first, i->second.is_active() ? "checked" : "");
+	}
+	fputs("</table><p><INPUT TYPE=\"submit\" name=\"repl\" value=\"OK\">\n", of);
+	html_tail(of);
+}
+
+// Process a function argument refactorings form
+static void
+xfunargrefs_page(FILE *of,  void *p)
+{
+	prohibit_browsers(of);
+	prohibit_remote_access(of);
+
+	for (RefFunCall::store_type::iterator i = RefFunCall::store.begin(); i != RefFunCall::store.end(); i++) {
+		char varname[128];
+		snprintf(varname, sizeof(varname), "r%p", i->first);
+		char *subst;
+		if ((subst = swill_getvar(varname))) {
+			string ssubst(subst);
+			i->second.set_replacement(ssubst);
+		}
+
+		snprintf(varname, sizeof(varname), "a%p", i->first);
+		i->second.set_active(!!swill_getvar(varname));
+	}
+	index_page(of, p);
+}
+
+
 void
 write_quit_page(FILE *of, void *exit)
 {
@@ -2764,8 +2829,10 @@ write_quit_page(FILE *of, void *exit)
 	cerr << endl;
 
 	cerr << "Examining function calls for refactoring" << endl;
-	for (RefFunCall::iterator i = rfcs.begin(); i != rfcs.end(); i++) {
-		progress(i, rfcs);
+	for (RefFunCall::store_type::iterator i = RefFunCall::store.begin(); i != RefFunCall::store.end(); i++) {
+		progress(i, RefFunCall::store);
+		if (!i->second.is_active())
+			continue;
 		Eclass *e = i->first;
 		IFSet ifiles = e->sorted_files();
 		process.insert(ifiles.begin(), ifiles.end());
@@ -3184,6 +3251,8 @@ main(int argc, char *argv[])
 		swill_handle("sproject.html", select_project_page, 0);
 		swill_handle("replacements.html", replacements_page, 0);
 		swill_handle("xreplacements.html", xreplacements_page, NULL);
+		swill_handle("funargrefs.html", funargrefs_page, 0);
+		swill_handle("xfunargrefs.html", xfunargrefs_page, NULL);
 		swill_handle("options.html", options_page, 0);
 		swill_handle("soptions.html", set_options_page, 0);
 		swill_handle("save_options.html", save_options_page, 0);
