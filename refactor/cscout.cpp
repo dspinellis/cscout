@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.220 2009/01/28 07:52:19 dds Exp $
+ * $Id: cscout.cpp,v 1.221 2009/01/28 08:49:08 dds Exp $
  */
 
 #include <map>
@@ -2412,17 +2412,15 @@ index_page(FILE *of, void *data)
 		"<h2>Functions and Macros</h2>\n"
 		"<ul>\n"
 		"<li> <a href=\"funmetrics.html\">Function metrics</a>\n"
-		"<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All functions</a>\n",
-		of);
-	fprintf(of, "<li> <a href=\"cgraph%s\">Non-static function call graph</a>", graph_suffix());
-	fprintf(of, "<li> <a href=\"cgraph%s?all=1\">Function and macro call graph</a>", graph_suffix());
-	fprintf(of, "<li> <a href=\"xfunquery.html?writable=1&pscope=1&match=L&ncallerop=0&ncallers=&n=Project-scoped+Writable+Functions&qi=x\">Project-scoped writable functions</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&ro=1&match=Y&ncallerop=0&ncallers=&n=All+Functions&qi=x\">All functions</a>\n"
+		"<li> <a href=\"xfunquery.html?writable=1&pscope=1&match=L&ncallerop=0&ncallers=&n=Project-scoped+Writable+Functions&qi=x\">Project-scoped writable functions</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&fscope=1&match=L&ncallerop=0&ncallers=&n=File-scoped+Writable+Functions&qi=x\">File-scoped writable functions</a>\n"
 		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=0&n=Writable+Functions+that+Are+Not+Directly+Called&qi=x\">Writable functions that are not directly called</a>\n"
-		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=1&n=Writable+Functions+that+Are++Called+Exactly+Once&qi=x\">Writable functions that are called exactly once</a>\n"
-		"<li> <a href=\"funquery.html\">Specify new function query</a>\n"
-		"</ul></div>\n"
-	);
+		"<li> <a href=\"xfunquery.html?writable=1&match=Y&ncallerop=1&ncallers=1&n=Writable+Functions+that+Are++Called+Exactly+Once&qi=x\">Writable functions that are called exactly once</a>\n", of);
+	fprintf(of, "<li> <a href=\"cgraph%s\">Non-static function call graph</a>", graph_suffix());
+	fprintf(of, "<li> <a href=\"cgraph%s?all=1\">Function and macro call graph</a>", graph_suffix());
+	fputs("<li> <a href=\"funquery.html\">Specify new function query</a>\n"
+		"</ul></div>\n", of);
 
 	fprintf(of, "</td><td valign=\"top\">\n");
 
