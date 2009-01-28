@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.218 2009/01/27 10:17:29 dds Exp $
+ * $Id: cscout.cpp,v 1.219 2009/01/28 07:26:12 dds Exp $
  */
 
 #include <map>
@@ -535,6 +535,10 @@ again:
 				}
 				if (t.get_code() == '(')
 					break;
+				if (!isspace(t.get_code())) {
+					Fchar::set_context(fc);		// Restore saved position
+					goto again;
+				}
 			}
 			// Gather the boundaries of all arguments of a single function
 			vector <ArgBound> abv;
@@ -778,10 +782,12 @@ get_refactored_part(ifstream &in, Fileid fid)
 
 	// Functions whose arguments need reordering
 	RefFunCall::const_iterator rfc;
+	ArgBoundMap::const_iterator abi;
 	if ((ec = ti.check_ec()) &&
 	    ec->is_identifier() &&
-	    (rfc = rfcs.find(ec)) != rfcs.end()) {
-		ArgBoundMap::mapped_type &argbounds = argbounds_map.find(ti)->second;
+	    (rfc = rfcs.find(ec)) != rfcs.end() &&
+	    (abi = argbounds_map.find(ti)) != argbounds_map.end()) {
+		const ArgBoundMap::mapped_type &argbounds = abi->second;
 		csassert (in.tellg() < argbounds[0].start);
 		// Gather material until first argument
 		while (in.tellg() < argbounds[0].start)
