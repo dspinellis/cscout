@@ -7,7 +7,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.cpp,v 1.3 2009/01/15 14:32:57 dds Exp $
+ * $Id: gdisplay.cpp,v 1.4 2009/01/28 08:41:27 dds Exp $
  */
 
 #include <map>
@@ -80,7 +80,8 @@ GDDot::head(const char *fname, const char *title, bool empty_node) {
 		"digraph %s {\n",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str(), fname);
-	fprintf(fo, "\t%s;\n", Option::dot_graph_options->get().c_str());
+	if (Option::dot_graph_options->get().length() > 0)
+		fprintf(fo, "\t%s;\n", Option::dot_graph_options->get().c_str());
 	if (empty_node)			// Empty nodes
 		fprintf(fo, "\tnode [height=.001,width=0.000001,shape=box,label=\"\",fontsize=8];\n");
 	else
