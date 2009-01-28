@@ -7,7 +7,7 @@
 # If you do not agree to the terms, do not use the code.
 #
 #
-# $Id: runtest.sh,v 1.28 2009/01/15 14:32:57 dds Exp $
+# $Id: runtest.sh,v 1.29 2009/01/28 15:54:14 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -401,7 +401,7 @@ then
 fi
 
 echo "$OK/$NTEST tests passed"
-if ! [ -z "$FAILED" ]
+if [ ! -z "$FAILED" ]
 then
 	echo "$NOK/$NTEST tests failed"
 	echo "The following test(s) failed: $FAILED"
