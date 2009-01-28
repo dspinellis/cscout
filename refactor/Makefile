@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.152 2009/01/16 09:06:52 dds Exp $
+# $Id: Makefile,v 1.153 2009/01/28 11:17:02 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -220,8 +220,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.152 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2009/01/16 09:06:52 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.153 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2009/01/28 11:17:02 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -273,6 +273,10 @@ rdist-sourceforge:
 rdist-sense:
 	tar cf - $(ALLSRC) | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
 	$(SSH) sense "(cd src/cscout ; /usr/sfw/bin/gmake lf)"
+
+rdist-test-sense:
+	tar cf - test | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
+	tar -C .. -cf - example example.obf | gzip -c | $(SSH) sense '(cd src ; gzip -dc | tar -xvf -)'
 
 rdist-niagara:
 	tar cf - $(ALLSRC) | gzip -c | $(SSH) niagara '(cd src/cscout ; gzip -dc | tar -xvf -)'
