@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <notes>
-<!--$Id: license.xml,v 1.2 2008/08/28 10:06:28 dds Exp $-->
+<!--$Id: license.xml,v 1.3 2009/03/13 10:16:27 dds Exp $-->
 <p> The free unsupported <em>CScout</em> version is distributed under the
 CScout Public License.
 It allows free use of <em>CScout</em> for analyzing and modifying
@@ -12,9 +12,9 @@ available.
 The supported version comes with a normal commercial software license, with
 none of the special restrictions of this license.
 </p> <hr />
-<h2> THE CSCOUT PUBLIC LICENSE version 1.0 </h2>
+<h2> THE CSCOUT PUBLIC LICENSE version 1.3 </h2>
 <b>
-Copyright (C) 2003 Diomidis Spinelllis, Athens, Greece.<br />
+Copyright (C) 2003-2009 Diomidis Spinelllis, Athens, Greece.<br />
 Everyone is permitted to copy and distribute this license document.
 </b>
 <p> The intent of this license is to establish freedom to use,
@@ -92,6 +92,16 @@ technical measures to enforce parts of this license
 (such as providing the public with a browsable version of the code you are
 analyzing, and the transmission of workspace-related data)
 and agree not to interfere with these measures.
+</p>
+<p> 6. The work contains materials distributed under the
+GNU Lesser General Public License version 2.1 (LGPL).
+Under the terms of the LGPL you may modify
+the work for your own use and reverse
+engineer it for debugging such modifications.
+Furthermore, you may obtain the materials specified in Subsection 6a
+of the LGPL by sending email to
+the Software's author, specifying the Software's processor architecture and
+operating system for which these materials are required.
 </p>
 <h3>Limitations of Liability</h3>
 <p> In no event shall the initial developers or copyright holders be liable
