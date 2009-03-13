@@ -1,6 +1,20 @@
 <?xml version="1.0" ?>
 <notes>
-<!--$Id: license.xml,v 1.3 2009/03/13 10:16:27 dds Exp $-->
+<!--$Id: license.xml,v 1.4 2009/03/13 11:01:03 dds Exp $-->
+<p>
+<b>The CScout Refactoring Browser</b> <br />
+(c) Copyright 2003-2009 Diomidis Spinelllis, Athens, Greece.<br />
+<br />
+Portions Copyright (c) 1989, 1990 James A. Roskind.<br />
+Portions Copyright (c) 1996-1999 by Internet Software Consortium.<br />
+Portions Copyright (c) 1995 by International Business Machines, Inc.<br />
+Portions derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm.<br />
+Portions Copyright (c) 1992 Henry Spencer.<br />
+Portions Copyright (c) 1992, 1993 The Regents of the University of California.<br />
+CScout includes the SWILL (Simple Web Interface Link Library) library written by David Beazley and Sotiria Lampoudi.  Copyright (c) 1998-2002 University of Chicago. SWILL is distributed under the terms of the GNU Lesser General Public License version 2.1 available <a href="http://www.gnu.org/licenses/lgpl-2.1.html">online</a>.<br />
+Includes code written by Jim Gillogly, Phil Karn, and Henry Spencer.<br />
+</p>
+
 <p> The free unsupported <em>CScout</em> version is distributed under the
 CScout Public License.
 It allows free use of <em>CScout</em> for analyzing and modifying
@@ -12,7 +26,7 @@ available.
 The supported version comes with a normal commercial software license, with
 none of the special restrictions of this license.
 </p> <hr />
-<h2> THE CSCOUT PUBLIC LICENSE version 1.3 </h2>
+<h2> THE CSCOUT PUBLIC LICENSE version 1.1 </h2>
 <b>
 Copyright (C) 2003-2009 Diomidis Spinelllis, Athens, Greece.<br />
 Everyone is permitted to copy and distribute this license document.
