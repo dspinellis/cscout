@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.28 2009/01/15 14:32:57 dds Exp $
+ * $Id: token.cpp,v 1.29 2009/03/13 14:38:21 dds Exp $
  */
 
 #include <iostream>
@@ -189,7 +189,7 @@ operator<<(ostream& o,const dequeTpart& dt)
 
 /*
  * Return true if this token is equal on a tokid by tokid
- * bases with the passed stale token.  The passed token's
+ * basis with the passed stale token.  The passed token's
  * parts need not correspond to equivalence classes.
  */
 bool
@@ -206,6 +206,8 @@ Token::equals(const Token &stale) const
 	for (;;) {
 		if (fi == freshp.end() && si == stalep.end())
 			return true;
+		if (fi == freshp.end() || si == stalep.end())
+			return false;
 		fid = fi->get_tokid();
 		sid = si->get_tokid();
 		flen = fi->get_len();
