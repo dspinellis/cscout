@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.222 2009/01/28 10:26:09 dds Exp $
+ * $Id: cscout.cpp,v 1.223 2009/03/13 10:46:36 dds Exp $
  */
 
 #include <map>
@@ -2385,6 +2385,69 @@ set_project_page(FILE *fo, void *p)
 	index_page(fo, p);
 }
 
+// Return version information
+static string
+version_info(bool html)
+{
+	ostringstream v;
+
+	string end = html ? "<br />" : "\n";
+	string fold = html ? " " : "\n";
+
+	v << "CScout version " <<
+	Version::get_revision() << " - " <<
+	Version::get_date() << end << end <<
+	// 80 column terminal width---------------------------------------------------
+	"(c) Copyright 2003-2009 Diomidis Spinelllis, Athens, Greece." << end <<
+	end <<
+	// C grammar
+	"Portions Copyright (c) 1989, 1990 James A. Roskind." << end <<
+	// Base64
+	"Portions Copyright (c) 1996-1999 by Internet Software Consortium." << end <<
+	"Portions Copyright (c) 1995 by International Business Machines, Inc." << end <<
+	// MD-5
+	"Portions derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm." << end <<
+	// Regex
+	"Portions Copyright (c) 1992 Henry Spencer." << end <<
+	"Portions Copyright (c) 1992, 1993 The Regents of the University of California." << end <<
+
+	"Includes the SWILL (Simple Web Interface Link Library) library written by David" << fold <<
+	"Beazley and Sotiria Lampoudi.  Copyright (c) 1998-2002 University of Chicago." << fold <<
+	"SWILL is distributed under the terms of the GNU Lesser General Public License" << fold <<
+	"version 2.1 available " <<
+	(html ? "<a href=\"http://www.gnu.org/licenses/lgpl-2.1.html\">online</a>." : "online at http://www.gnu.org/licenses/lgpl-2.1.html.") << end <<
+
+	"Includes code written by " <<
+	"Jim Gillogly, " <<		// DES
+	"Phil Karn, and " <<		// DES
+	"Henry Spencer." <<		// getopt
+	end <<
+	end <<
+
+#ifdef COMMERCIAL
+	"Commercial version.  All rights reserved." << end <<
+	"Licensee: " << licensee << '.' << end;
+#else /* !COMMERCIAL */
+	"Unsupported version.  Can be used and distributed under the terms of the" << end <<
+	"CScout Public License available in the CScout documentation and ";
+	if (html)
+		v << "<a href=\"http://www.spinellis.gr/cscout/doc/license.html\">online</a>.";
+	else
+		v << "online at" << end <<
+		"http://www.spinellis.gr/cscout/doc/license.html." << end;
+#endif
+	return v.str();
+}
+
+// Display information about CScout
+void
+about_page(FILE *fo, void *p)
+{
+	html_head(fo, "about", "About CScout");
+	fputs(version_info(true).c_str(), fo);
+	html_tail(fo);
+}
+
 
 // Index
 void
@@ -2475,6 +2538,7 @@ index_page(FILE *of, void *data)
 			"<li> <a href=\"replacements.html\">Identifier replacements</a>\n"
 			"<li> <a href=\"funargrefs.html\">Function argument refactorings</a>\n"
 			"<li> <a href=\"sproject.html\">Select active project</a>\n"
+			"<li> <a href=\"about.html\">About CScout</a>\n"
 			"<li> <a href=\"save.html\">Save changes and continue</a>\n"
 			"<li> <a href=\"sexit.html\">Exit &mdash; saving changes</a>\n"
 			"<li> <a href=\"qexit.html\">Exit &mdash; ignore changes</a>\n"
@@ -3126,19 +3190,7 @@ main(int argc, char *argv[])
 			process_mode = pm_report;
 			break;
 		case 'v':
-			cerr << "CScout version " <<
-			Version::get_revision() << " - " <<
-			Version::get_date() << "\n\n"
-			// 80 column terminal width---------------------------------------------------
-			"(C) Copyright 2003-2009 Diomidis Spinelllis, Athens, Greece.\n\n"
-#ifdef COMMERCIAL
-			"Commercial version.  All rights reserved.\n"
-			"Licensee: " << licensee << '.' << endl;
-#else /* !COMMERCIAL */
-			"Unsupported version.  Can be used and distributed under the terms of the\n"
-			"CScout Public License available in the CScout documentation and online at\n"
-			"http://www.spinellis.gr/cscout/doc/license.html\n";
-#endif
+			cout << version_info(false);
 			exit(0);
 #ifdef COMMERCIAL
 		case 'b':
@@ -3367,6 +3419,7 @@ main(int argc, char *argv[])
 		graph_handle("fgraph", fgraph_page);
 		graph_handle("cpath", cpath_page);
 
+		swill_handle("about.html", about_page, NULL);
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("logo.png", logo_page, NULL);
 		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
