@@ -19,7 +19,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.149 2009/01/15 14:32:57 dds Exp $
+ * $Id: parse.y,v 1.150 2009/03/13 13:21:48 dds Exp $
  *
  */
 
@@ -799,11 +799,12 @@ conditional_expression:
 					$$ = $5;
 				else
 					$$ = $3;
-				if ($1.get_value().is_const())
+				if ($1.get_value().is_const()) {
 					if ($1.get_value().get_int_value())
 						$$.set_value($3.get_value());
 					else
 						$$.set_value($5.get_value());
+				}
 			}
         | logical_or_expression '?' ':' conditional_expression
 			{
@@ -815,11 +816,12 @@ conditional_expression:
 					$$ = $1;
 				else
 					$$ = $4;
-				if ($1.get_value().is_const())
+				if ($1.get_value().is_const()) {
 					if ($1.get_value().get_int_value())
 						$$.set_value($1.get_value());
 					else
 						$$.set_value($4.get_value());
+				}
 			}
         ;
 
@@ -1627,7 +1629,7 @@ initializer:
 		{
 			// Remove from the stack all slots that can't hold this expression.
 			initializer_clear_used_elements();
-			if (!initializer_stack.empty())
+			if (!initializer_stack.empty()) {
 				if (ITOS.end.is_const() &&
 				    ITOS.pos == ITOS.end.get_int_value()) {
 					/*
@@ -1671,6 +1673,7 @@ initializer:
 						}
 					}
 				}
+			}
 			if (DP() && !initializer_stack.empty())
 				cout << "After assignment expression ITOS: " << ITOS;
 		}

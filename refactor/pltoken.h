@@ -8,7 +8,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.36 2009/01/15 14:32:57 dds Exp $
+ * $Id: pltoken.h,v 1.37 2009/03/13 13:21:48 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -530,7 +530,7 @@ Pltoken::getnext()
 				}
 			}
 			if (c0.get_char() == EOF ||
-		            (!isalnum(c0.get_char()) && c0.get_char() != '.') && c0.get_char() != '_')
+		            (!isalnum(c0.get_char()) && c0.get_char() != '.' && c0.get_char() != '_'))
 		         	break;
 			update_parts(base, follow, c0);
 			val += c0.get_char();

@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.42 2009/01/15 14:32:57 dds Exp $
+ * $Id: fchar.cpp,v 1.43 2009/03/13 13:21:48 dds Exp $
  */
 
 #include <iostream>
@@ -20,6 +20,7 @@
 #include <vector>
 #include <list>
 #include <errno.h>
+#include <cstring>
 
 #include "cpp.h"
 #include "error.h"

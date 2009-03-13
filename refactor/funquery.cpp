@@ -7,7 +7,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.22 2009/01/15 14:32:57 dds Exp $
+ * $Id: funquery.cpp,v 1.23 2009/03/13 13:21:48 dds Exp $
  */
 
 #include <map>
@@ -291,21 +291,23 @@ FunQuery::eval(Call *c)
 	Call::const_fiterator_type c2;
 	if (match_fdre) {
 		for (c2 = c->call_begin(); c2 != c->call_end(); c2++)
-			if (fdre.exec((*c2)->get_name()) == 0)
+			if (fdre.exec((*c2)->get_name()) == 0) {
 				if (exclude_fdre)
 					return false;
 				else
 					break;
+			}
 		if (!exclude_fdre && c2 == c->call_end())
 			return false;
 	}
 	if (match_fure) {
 		for (c2 = c->caller_begin(); c2 != c->caller_end(); c2++)
-			if (fure.exec((*c2)->get_name()) == 0)
+			if (fure.exec((*c2)->get_name()) == 0) {
 				if (exclude_fure)
 					return false;
 				else
 					break;
+			}
 		if (!exclude_fure && c2 == c->caller_end())
 			return false;
 	}

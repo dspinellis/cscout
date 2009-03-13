@@ -7,7 +7,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.16 2009/01/15 14:32:57 dds Exp $
+ * $Id: option.h,v 1.17 2009/03/13 13:21:48 dds Exp $
  */
 
 #ifndef OPTION_
@@ -17,6 +17,7 @@
 #include <map>
 #include <vector>
 #include <fstream>
+#include <cstring>
 
 using namespace std;
 

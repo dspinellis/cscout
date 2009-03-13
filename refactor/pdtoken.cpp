@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.120 2009/01/15 14:32:57 dds Exp $
+ * $Id: pdtoken.cpp,v 1.121 2009/03/13 13:21:48 dds Exp $
  */
 
 #include <iostream>
@@ -28,6 +28,7 @@
 #include <functional>		// compose1
 #endif
 #include <cstdlib>		// strtoul
+#include <cstring>		// strerror
 
 #include <errno.h>
 #include <unistd.h>		// chdir
@@ -843,7 +844,7 @@ Pdtoken::process_define()
 
 	// Check that the new macro is undefined or not different from an older definition
 	mapMacro::const_iterator i = macros.find(name);
-	if (i != macros.end())
+	if (i != macros.end()) {
 		if ((*i).second.get_is_defined() && (*i).second != m) {
 			/*
 			 * @error
@@ -854,6 +855,7 @@ Pdtoken::process_define()
 			if (DP()) cout << (*i).second;
 		} else
 			Token::unify((*i).second.get_name_token(), nametok);
+	}
 	/*
 	 * Add the macro in the map.  We do not use [] to avoid
 	 * creating a default object.  We do not use insert,
