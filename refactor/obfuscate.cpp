@@ -1,13 +1,9 @@
 /*
- * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
- *
- * You may only use this code if you agree to the terms of the CScout
- * Source Code License agreement (see License.txt).
- * If you do not agree to the terms, do not use the code.
+ * (C) Copyright 2001 Diomidis Spinellis.
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.14 2009/01/15 14:32:57 dds Exp $
+ * $Id: obfuscate.cpp,v 1.15 2009/03/13 16:10:54 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -24,6 +20,11 @@
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror
 #include <cstdlib>		// rand
+
+#ifdef PRINT_RUSAGE
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
 
 #include "cpp.h"
 #include "debug.h"
@@ -265,12 +266,25 @@ int
 obfuscate(void)
 {
 	Pdtoken t;
+	#ifdef PRINT_RUSAGE
+	struct rusage u;
+	getrusage(RUSAGE_SELF, &u);
+	printf("Before obfuscation u=%ld.%06lu s=%ld.%06lu\n",
+		u.ru_utime.tv_sec, u.ru_utime.tv_usec,
+		u.ru_stime.tv_sec, u.ru_stime.tv_usec);
+	#endif
 
 	// Pass 2: Obfuscate the files
 	vector <Fileid> files = Fileid::files(true);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++)
 		if ((*i).get_readonly() == false)
 			file_obfuscate(*i);
+	#ifdef PRINT_RUSAGE
+	getrusage(RUSAGE_SELF, &u);
+	printf("After obfuscation u=%ld.%06lu s=%ld.%06lu\n",
+		u.ru_utime.tv_sec, u.ru_utime.tv_usec,
+		u.ru_stime.tv_sec, u.ru_stime.tv_usec);
+	#endif
 	return (0);
 }
 #endif /* COMMERCIAL */
