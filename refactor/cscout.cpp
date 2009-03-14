@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.223 2009/03/13 10:46:36 dds Exp $
+ * $Id: cscout.cpp,v 1.224 2009/03/14 21:34:38 dds Exp $
  */
 
 #include <map>
@@ -86,6 +86,8 @@
 #include "lname.c"
 #endif
 
+#define ids Identifier::ids
+
 /*
  * Prohibit remote access to the free version of CScout
  * The commercial version has an ACL.
@@ -143,8 +145,6 @@ static CompiledRE sfile_re;			// Saved files replacement location RE
 // Identifiers to monitor (-m parameter)
 static IdQuery monitor;
 
-// Additional identifier properties required for refactoring
-static IdProp ids;
 static vector <Fileid> files;
 
 Attributes::size_type current_project;
@@ -2891,6 +2891,27 @@ write_quit_page(FILE *of, void *exit)
 		}
 	}
 	cerr << endl;
+
+	// Check for identifier clashes
+	Token::found_clashes = false;
+	if (Option::refactor_check_clashes->get() && process.size()) {
+		cerr << "Checking rename refactorings for name clashes." << endl;
+		Token::check_clashes = true;
+		// Reparse everything
+		Fchar::set_input(input_file_id.get_path());
+		Error::set_parsing(true);
+		Pdtoken t;
+		do
+			t.getnext();
+		while (t.get_code() != EOF);
+		Error::set_parsing(false);
+		Token::check_clashes = false;
+	}
+	if (Token::found_clashes) {
+		fprintf(of, "Renamed identifier clashes detected. Errors reported on console output. No files were saved.");
+		html_tail(of);
+		return;
+	}
 
 	cerr << "Examining function calls for refactoring" << endl;
 	for (RefFunCall::store_type::iterator i = RefFunCall::store.begin(); i != RefFunCall::store.end(); i++) {

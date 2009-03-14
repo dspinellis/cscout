@@ -7,7 +7,7 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.30 2009/01/15 14:32:57 dds Exp $
+ * $Id: stab.h,v 1.31 2009/03/14 21:34:38 dds Exp $
  */
 
 #ifndef STAB_
@@ -58,7 +58,7 @@ public:
 	Type get_type() const { return type; }
 	void set_type(const Type &t) { type = t; }
 	const Token& get_token() const { return token; }
-	const string& get_name() const { return token.get_name(); }
+	const string get_name() const { return token.get_name(); }
 	FCall *get_fcall() const { return fcall; }
 	GlobObj *get_glob() const { return glob; }
 };

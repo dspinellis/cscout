@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: type.cpp,v 1.60 2009/01/15 14:32:57 dds Exp $
+ * $Id: type.cpp,v 1.61 2009/03/14 21:34:38 dds Exp $
  */
 
 #include <iostream>
@@ -159,7 +159,7 @@ Type_node::tobasic()
 	return NULL;
 }
 
-const string&
+const string
 Type_node::get_name() const
 {
 	static string s("unknown");

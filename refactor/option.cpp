@@ -7,7 +7,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.16 2009/01/15 14:32:57 dds Exp $
+ * $Id: option.cpp,v 1.17 2009/03/14 21:34:38 dds Exp $
  */
 
 #include <string>
@@ -41,6 +41,7 @@ BoolOption *Option::show_identical_files;	// Show a list of identical files
 
 BoolOption *Option::rename_override_ro;		// Renames will override read-only identifiers
 BoolOption *Option::refactor_fun_arg_override_ro;// Refactoring of function arguments will override read-only identifiers
+BoolOption *Option::refactor_check_clashes;	// Check for renamed identifier clashes when saving refactored code
 
 IntegerOption *Option::tab_width;		// Tab width for code output
 TextOption *Option::dot_graph_options;		// Graph options passed to dot
@@ -204,6 +205,7 @@ Option::initialize()
 	Option::add(new TitleOption("Refactoring"));
 	Option::add(rename_override_ro = new BoolOption("rename_override_ro", "Allow the renaming of read-only identifiers"));
 	Option::add(refactor_fun_arg_override_ro = new BoolOption("refactor_fun_arg_override_ro", "Allow the refactoring of function arguments of read-only functions"));
+	Option::add(refactor_check_clashes = new BoolOption("refactor_check_clashes", "Check for renamed identifier clashes when saving refactored code", true));
 
 	Option::add(new TitleOption("Queries"));
 	Option::add(file_icase = new BoolOption("file_icase", "Case-insensitive file name regular expression match"));

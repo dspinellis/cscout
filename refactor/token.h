@@ -8,7 +8,7 @@
  * A lexical token.
  *
  *
- * $Id: token.h,v 1.22 2009/01/15 14:32:57 dds Exp $
+ * $Id: token.h,v 1.23 2009/03/14 21:34:38 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -49,6 +49,11 @@ protected:
 	dequeTpart parts;		// Identifiers for constituent parts
 	string val;			// Token character contents (for identifiers)
 public:
+	// Modify class's operation to check for name clashes of refactored ids
+	static bool check_clashes;
+	// True if during checks identifier clashes were detected
+	static bool found_clashes;
+
 	// Unify the constituent equivalence classes for def and ref
 	// The definition/reference order is only required when maintaining
 	// dependency relationships across files
@@ -63,8 +68,11 @@ public:
 	Token() {};
 	// Accessor method
 	int get_code() const { return (code); }
-	const string& get_val() const { return (val); };
-	const string& get_name() const { return (val); };
+	// Return an identifier token's name
+	const string get_name() const { return check_clashes ? get_refactored_name() : val; };
+	const string get_val() const { return get_name(); };
+	// Return the name after applying rename identifier refactorings
+	const string get_refactored_name() const;
 	// Return the token's symbolic name based on its code
 	string name() const;
 	// Return the constituent Tokids; they may be more than the parts

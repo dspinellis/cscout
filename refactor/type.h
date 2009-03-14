@@ -8,7 +8,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.46 2009/01/15 14:32:57 dds Exp $
+ * $Id: type.h,v 1.47 2009/03/14 21:34:38 dds Exp $
  */
 
 #ifndef TYPE_
@@ -102,7 +102,7 @@ protected:
 	virtual bool qualified_restrict() const { return false; }// True for constructs containing the restrict attribute
 	virtual bool qualified_unused() const { return false; }// True for constructs containing the unused attribute
 	virtual bool qualified_volatile() const { return false; }// True for constructs containing the volatile attribute
-	virtual const string& get_name() const;	// True for identifiers
+	virtual const string get_name() const;	// True for identifiers
 	virtual const Ctoken& get_token() const;// True for identifiers
 	virtual void set_abstract(Type t);	// Set abstract basic type to t
 	virtual void set_storage_class(Type t);	// Set typedef's underlying storage class to t
@@ -272,7 +272,7 @@ public:
 	bool qualified_volatile() const	{ return p->qualified_volatile(); }
 	void add_qualifiers(Type t)	{ return p->add_qualifiers(t); }
 	qualifiers_t get_qualifiers() const { return p->get_qualifiers(); }
-	const string& get_name() const	{ return p->get_name(); }
+	const string get_name() const	{ return p->get_name(); }
 	const Ctoken& get_token() const { return p->get_token(); }
 	enum e_storage_class get_storage_class() const
 					{return p->get_storage_class(); }

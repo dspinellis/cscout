@@ -8,7 +8,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.18 2009/01/15 14:32:57 dds Exp $
+ * $Id: idquery.cpp,v 1.19 2009/03/14 21:34:38 dds Exp $
  */
 
 #include <map>
@@ -60,6 +60,8 @@
 #include "option.h"
 #include "query.h"
 #include "idquery.h"
+
+IdProp Identifier::ids;
 
 // Construct an object based on URL parameters
 IdQuery::IdQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :

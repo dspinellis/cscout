@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.29 2009/03/13 14:38:21 dds Exp $
+ * $Id: token.cpp,v 1.30 2009/03/14 21:34:38 dds Exp $
  */
 
 #include <iostream>
@@ -30,6 +30,10 @@
 #include "ytab.h"
 #include "debug.h"
 #include "fdep.h"
+#include "idquery.h"
+
+bool Token::check_clashes;
+bool Token::found_clashes;
 
 // Display a token part
 ostream&
@@ -77,6 +81,30 @@ Token::constituents() const
 		copy(c.begin(), c.end(), back_inserter(r));
 	}
 	return (r);
+}
+
+const string
+Token::get_refactored_name() const
+{
+	if (parts.begin() == parts.end())
+		return val;
+	string result;
+	for (dequeTpart::const_iterator i = parts.begin(); i != parts.end(); i++) {
+		Eclass *ec = i->get_tokid().check_ec();
+		if (ec == NULL)
+			return val;
+		IdProp::const_iterator idi;
+		idi = Identifier::ids.find(ec);
+		if (idi == Identifier::ids.end())
+			return val;
+		if (idi->second.get_replaced())
+			result += idi->second.get_newid();
+		else
+			result += idi->second.get_id();
+	}
+	if (DP())
+		cout << "refactored name for " << val << " is " << result << endl;
+	return result;
 }
 
 void
@@ -168,10 +196,19 @@ Token::unify(const Token &a /* definition */, const Token &b /* reference */)
 	// Now merge the corresponding ECs
 	dequeTpart::const_iterator ai, bi;
 	for (ai = ac.begin(), bi = bc.begin(); ai != ac.end(); ai++, bi++) {
-		merge((*ai).get_tokid().get_ec(), (*bi).get_tokid().get_ec());
-		Fdep::add_def_ref((*ai).get_tokid(), (*bi).get_tokid(), (*ai).get_tokid().get_ec()->get_len());
+		if (check_clashes) {
+			if (ai->get_tokid().get_ec() != bi->get_tokid().get_ec()) {
+				Error::error(E_ERR, "Refactored identifier name clash", true);
+				found_clashes = true;
+				return;
+			}
+		} else {
+			merge(ai->get_tokid().get_ec(), bi->get_tokid().get_ec());
+			Fdep::add_def_ref((*ai).get_tokid(), (*bi).get_tokid(), (*ai).get_tokid().get_ec()->get_len());
+		}
 	}
-	csassert(bi == bc.end());
+	if (!check_clashes)
+		csassert(bi == bc.end());
 }
 
 ostream&

@@ -8,7 +8,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.16 2009/01/15 14:32:57 dds Exp $
+ * $Id: idquery.h,v 1.17 2009/03/14 21:34:38 dds Exp $
  */
 
 #ifndef IDQUERY_
@@ -21,6 +21,10 @@ using namespace std;
 #include "query.h"
 #include "eclass.h"
 
+class Identifier;
+
+typedef map <Eclass *, Identifier> IdProp;
+
 // Our identifiers to store as a map
 class Identifier {
 	string id;		// Identifier name
@@ -29,6 +33,9 @@ class Identifier {
 	bool replaced;		// True if newid has been set
 	bool active;		// True if the replacement is active
 public:
+	// Additional identifier properties required for refactoring
+	static IdProp ids;
+
 	Identifier(Eclass *e, const string &s) : id(s), replaced(false), active(true) {
 		/*
 		 * Normally, e crosses a file boundary if the EFn, the # of files it appears in > 1
@@ -57,7 +64,6 @@ public:
 	}
 };
 
-typedef map <Eclass *, Identifier> IdProp;
 typedef IdProp::value_type IdPropElem;
 
 class IdQuery : public Query {

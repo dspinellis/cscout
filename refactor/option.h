@@ -7,7 +7,7 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.17 2009/03/13 13:21:48 dds Exp $
+ * $Id: option.h,v 1.18 2009/03/14 21:34:38 dds Exp $
  */
 
 #ifndef OPTION_
@@ -73,6 +73,7 @@ public:
 
 	static BoolOption *rename_override_ro;	// Renames will override read-only identifiers
 	static BoolOption *refactor_fun_arg_override_ro;// Refactoring of function arguments will override read-only identifiers
+	static BoolOption *refactor_check_clashes;	// Check for renamed identifier clashes when saving refactored code
 
 	static IntegerOption *tab_width;		// Tab width for code output
 	static TextOption *dot_graph_options;		// Graph options passed to dot
