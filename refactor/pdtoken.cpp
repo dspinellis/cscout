@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.121 2009/03/13 13:21:48 dds Exp $
+ * $Id: pdtoken.cpp,v 1.122 2009/03/14 16:53:22 dds Exp $
  */
 
 #include <iostream>
@@ -1113,6 +1113,8 @@ Pdtoken::process_pragma()
 			eat_to_eol();
 			return;
 		}
+		if (DP())
+			cout << "popd to " << dirstack.top().c_str() << endl;
 		if (chdir(dirstack.top().c_str()) != 0)
 			Error::error(E_FATAL, "popd: " + dirstack.top() + ": " + string(strerror(errno)));
 		dirstack.pop();
