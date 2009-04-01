@@ -7,7 +7,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.27 2009/01/15 14:32:57 dds Exp $
+ * $Id: call.h,v 1.28 2009/04/01 08:00:26 dds Exp $
  */
 
 #ifndef CALL_
@@ -66,7 +66,7 @@ private:
 	string name;			// Function's name
 	fun_container call;		// Functions this function calls
 	fun_container caller;		// Functions that call this function
-	bool visited;			// For calculating transitive closures
+	unsigned char visited;		// For calculating transitive closures (bit mask or boolean)
 	bool printed;			// For printing a graph's nodes
 	FcharContext begin, end;	// Span of definition
 	FunMetrics m;			// Metrics for this function
@@ -141,7 +141,11 @@ public:
 	int get_num_caller() const { return caller.size(); }
 
 	void set_visited() { visited = true; }
-	bool is_visited() const { return visited; }
+	// Bit-or the specified visit flag
+	void set_visited(unsigned char v) { visited |= v; }
+	bool is_visited() const { return (bool)visited; }
+	bool is_visited(unsigned short visit_id) const { return (bool)(visited & visit_id); }
+	unsigned char get_visited() const { return visited; }
 	void set_printed() { printed = true; }
 	bool is_printed() const { return printed; }
 

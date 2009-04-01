@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.224 2009/03/14 21:34:38 dds Exp $
+ * $Id: cscout.cpp,v 1.225 2009/04/01 08:00:26 dds Exp $
  */
 
 #include <map>
@@ -1542,6 +1542,7 @@ function_page(FILE *fo, void *p)
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u&e=1\">Explore direct callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", f);
 	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", graph_suffix(), f);
+	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=B\">Call graph of all calling and called functions</a> (function in context)", graph_suffix(), f);
 
 	// Allow function call refactoring only if there is a one to one relationship between the identifier and the function
 	Eclass *ec;
@@ -1599,29 +1600,29 @@ function_page(FILE *fo, void *p)
  * If recurse is true the list will also contain all correspondingly
  * associated children functions.
  * If show is true, then a function hyperlink is printed, otherwise
- * only the visited flag is set.
+ * only the visited flag is set to visit_id.
  */
 static void
 visit_functions(FILE *fo, const char *call_path, Call *f,
 	Call::const_fiterator_type (Call::*fbegin)() const,
 	Call::const_fiterator_type (Call::*fend)() const,
-	bool recurse, bool show, int level)
+	bool recurse, bool show, int level, int visit_id = 1)
 {
 	if (level == 0)
 		return;
 
 	Call::const_fiterator_type i;
 
-	f->set_visited();
+	f->set_visited(visit_id);
 	for (i = (f->*fbegin)(); i != (f->*fend)(); i++) {
-		if (show && (!(*i)->is_visited() || *i == f)) {
+		if (show && (!(*i)->is_visited(visit_id) || *i == f)) {
 			fprintf(fo, "<li> ");
 			html(fo, **i);
 			if (recurse && call_path)
 				fprintf(fo, call_path, *i);
 		}
-		if (recurse && !(*i)->is_visited())
-			visit_functions(fo, call_path, *i, fbegin, fend, recurse, show, level - 1);
+		if (recurse && !(*i)->is_visited(visit_id))
+			visit_functions(fo, call_path, *i, fbegin, fend, recurse, show, level - 1, visit_id);
 	}
 }
 
@@ -2022,6 +2023,11 @@ single_function_graph()
 		visit_functions(NULL, NULL, f, &Call::caller_begin, &Call::caller_end, true, false, Option::cgraph_depth->get());
 
 		break;
+	case 'B':
+		visit_functions(NULL, NULL, f, &Call::call_begin, &Call::call_end, true, false, Option::cgraph_depth->get(), 1);
+		visit_functions(NULL, NULL, f, &Call::caller_begin, &Call::caller_end, true, false, Option::cgraph_depth->get(), 2);
+
+		break;
 	}
 	return true;
 }
@@ -2138,7 +2144,9 @@ cgraph_page(GraphDisplay *gd)
 		for (call = fun->second->call_begin(); call != fun->second->call_end(); call++) {
 			if (!all && (*call)->is_file_scoped())
 				continue;
-			if (only_visited && !(*call)->is_visited())
+			// No edge unless both functions were visited on the same tour
+			// as indicated by the corresponding bitmasks.
+			if (only_visited && !((*call)->get_visited() & fun->second->get_visited()))
 				continue;
 			gd->edge(fun->second, *call);
 			if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
