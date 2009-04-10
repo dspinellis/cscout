@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.225 2009/04/01 08:00:26 dds Exp $
+ * $Id: cscout.cpp,v 1.226 2009/04/10 08:19:57 dds Exp $
  */
 
 #include <map>
@@ -71,6 +71,7 @@
 #include "dirbrowse.h"
 #include "fileutils.h"
 #include "globobj.h"
+#include "fifstream.h"
 
 #if defined(unix) || defined(__MACH__)
 #define COMMERCIAL_UNIX_OPTIONS "b"
@@ -280,7 +281,7 @@ file_analyze(Fileid fi)
 {
 	using namespace std::rel_ops;
 
-	ifstream in;
+	fifstream in;
 	bool has_unused = false;
 	const string &fname = fi.get_path();
 	int line_number = 0;
@@ -770,7 +771,7 @@ function_argument_replace(string::const_iterator begin, string::const_iterator e
  * function arguments reordered.
  */
 static string
-get_refactored_part(ifstream &in, Fileid fid)
+get_refactored_part(fifstream &in, Fileid fid)
 {
 	Tokid ti;
 	int val;
@@ -832,7 +833,7 @@ static void
 file_refactor(FILE *of, Fileid fid)
 {
 	string plain;
-	ifstream in;
+	fifstream in;
 	ofstream out;
 
 	cerr << "Processing file " << fid.get_path() << endl;
@@ -3529,7 +3530,7 @@ garbage_collect(Fileid root)
 		}
 
 		const string &fname = fi.get_path();
-		ifstream in;
+		fifstream in;
 
 		in.open(fname.c_str(), ios::binary);
 		if (in.fail()) {

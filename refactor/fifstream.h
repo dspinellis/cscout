@@ -25,7 +25,7 @@
  * user    0m4.409s
  * sys     0m0.041s
  *
- * $Id: fifstream.h,v 1.4 2009/01/15 14:32:57 dds Exp $
+ * $Id: fifstream.h,v 1.5 2009/04/10 08:19:57 dds Exp $
  */
 
 #ifndef FIFSTREAM_
@@ -43,6 +43,13 @@ private:
 	ifstream i;		// The underlying ifstream
 	long mypos;		// Cached position
 public:
+	fifstream() {}
+	fifstream(const char *s, ios_base::openmode mode = ios_base::out) : i(s, mode) {
+		// If the file is not binary, this optimization will not work
+		csassert(mode & ios::binary);
+		dirty = true;
+	}
+
 	// fifstream supports a subset of the ifstream methods
 	bool is_open() { return i.is_open(); }
 	void close() {
@@ -61,6 +68,9 @@ public:
 	}
 	bool fail() const {
 		return i.fail();
+	}
+	bool eof() const {
+		return i.eof();
 	}
 	ifstream::pos_type tellg() {
 		if (dirty) {
