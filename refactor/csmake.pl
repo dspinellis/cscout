@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# (C) Copyright 2006 Diomidis Spinellis
+# (C) Copyright 2006-2009 Diomidis Spinellis
 #
 # This software is distributed under the terms of the CScout Public License
 # The license is available as part of the software documentation, both
@@ -15,7 +15,7 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.20 2008/04/06 18:52:44 dds Exp $
+# $Id: csmake.pl,v 1.21 2009/06/18 21:34:12 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -205,7 +205,7 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.20 2008/04/06 18:52:44 dds Exp $
+# Source file is $Id: csmake.pl,v 1.21 2009/06/18 21:34:12 dds Exp $
 #
 
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
@@ -586,7 +586,7 @@ sub which
 	$prog =~ s,^.*/,,;
 	my @dirs = split(/:/, $ENV{PATH});
 	for my $d (@dirs) {
-		next if ($d eq $ENV{CSCOUT_SPY_TMPDIR});
+		next if ($d eq $ENV{CSCOUT_SPY_TMPDIR} || $d =~ m/ccache/);
 		return "$d/$prog" if (-x "$d/$prog");
 	}
 	die "Unable to locate $prog in PATH $ENV{PATH}\n";
