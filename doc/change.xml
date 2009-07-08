@@ -1,10 +1,42 @@
 <?xml version="1.0" ?>
 <notes>
-<!--$Id: change.xml,v 1.3 2008/12/05 13:35:27 dds Exp $-->
+<!--$Id: change.xml,v 1.4 2009/07/08 08:22:22 dds Exp $-->
 <!-- Remember to add extensions to the ext.xml file as well -->
 <dl>
-<dt>Version 2.7 ()</dt><dd>
-(Under development.)
+<dt>Version 2.7 (2009-07-08)</dt><dd>
+<ul>
+<li>New call graph for functions showing a function in context:
+with all the paths from its callers and all called functions.</li>
+<li> When saving refactored code CScout will verify that the
+renamed identifiers do not clash with other existing identifiers.
+This requires a complete re-processing of the code.
+A corresponding option can disable this feature.
+</li>
+<li> Added function argument refactorings page through which
+function argument refactorings can be reviewed, changed, and
+deactivated.
+</li>
+<li> Optimize file handling during the post-processing phase.
+In a typical use case this results in a 37% reduction in
+processing time.
+<!--
+==> post-opt.time <==
+1.03user 0.02system 0:01.10elapsed 95%CPU (0avgtext+0avgdata 0maxresident)k
+216inputs+0outputs (0major+3053minor)pagefaults 0swaps
+==> preopt.time <==
+1.06user 0.42system 0:01.51elapsed 98%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+3057minor)pagefaults 0swaps
+-->
+</li>
+<li>Correct handling of function names appearing as function pointers,
+when refactoring function arguments.</li>
+<li>Corrected dot syntax error when generating  graphs with no global options set.</li>
+<li>Better error handling when refactored files cannot be renamed or unlinked.</li>
+<li>Preprocessor expressions are evaluated as if the have the same
+representation intmax_t/uintmax_t, rather than long.</li>
+<li>Fix a crash that occurred when processing Apache httpd 1.3.27.</li>
+<li>Fix to avoid <em>csmake</em> getting confused by <em>ccache</em>.</li>
+</ul>
 </dd>
 
 <dt>Version 2.6 (2008-12-05)</dt><dd>
