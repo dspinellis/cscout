@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.154 2009/06/22 17:50:44 dds Exp $
+# $Id: Makefile,v 1.155 2009/10/28 09:43:46 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -220,13 +220,13 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.154 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2009/06/22 17:50:44 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.155 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2009/10/28 09:43:46 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
 	ci -m"New version" -u version.cpp
-	rcs -nR`ident version.cpp | gawk '/Revision/{print $$2}' | sed 's/\./-/g'`: $(SRC)
+	-rcs -nR`ident version.cpp | gawk '/Revision/{print $$2}' | sed 's/\./-/g'`: $(SRC)
 	echo Manually fix ../doc/change.xml
 
 miniversion:
