@@ -9,7 +9,7 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.34 2009/01/15 14:32:57 dds Exp $
+ * $Id: pdtoken.h,v 1.35 2010/10/27 20:19:35 dds Exp $
  */
 
 #ifndef PDTOKEN_
@@ -53,6 +53,7 @@ private:
 	static bool at_bol;			// At beginning of line
 	static stackbool iftaken;		// Taken #ifs
 	static int skiplevel;			// Level of enclosing #ifs
+	static bool output_defines;		// Output #defines on stdout
 
 	static vectorstring include_path;	// Include file path
 
@@ -116,6 +117,8 @@ public:
 	static MCall *get_body_token_macro_mcall(Tokid t);
 	// Return true if we are currently skipping due to conditional compilation
 	static bool skipping() { return skiplevel != 0; }
+	// Call this to output the #define code on stdout
+	static void set_output_defines() { output_defines = true; }
 };
 
 ostream& operator<<(ostream& o,const dequePtoken &dp);

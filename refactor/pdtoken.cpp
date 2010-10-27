@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.122 2009/03/14 16:53:22 dds Exp $
+ * $Id: pdtoken.cpp,v 1.123 2010/10/27 20:19:35 dds Exp $
  */
 
 #include <iostream>
@@ -63,6 +63,7 @@ using __gnu_cxx::compose1;	// STL extensions
 #endif
 
 bool Pdtoken::at_bol = true;
+bool Pdtoken::output_defines = false;
 PtokenSequence Pdtoken::expand;
 mapMacro Pdtoken::macros;		// Defined macros
 stackbool Pdtoken::iftaken;		// Taken #ifs
@@ -235,6 +236,7 @@ Pdtoken::eat_to_eol()
 	do {
 		t.getnext<Fchar>();
 	} while (t.get_code() != EOF && t.get_code() != '\n');
+	Pltoken::clear_echo();
 }
 
 
@@ -715,6 +717,10 @@ Pdtoken::process_define()
 
 	if (skiplevel >= 1)
 		return;
+	if (output_defines) {
+		cout << "#define";
+		Pltoken::set_echo();
+	}
 	Pltoken::set_context(cpp_define);
 	t.getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
@@ -869,6 +875,7 @@ Pdtoken::process_define()
 	if (is_function)
 		m.register_macro_body(macro_body_tokens);
 	if (DP()) cout << "Macro define " << m;
+	Pltoken::clear_echo();
 }
 
 void

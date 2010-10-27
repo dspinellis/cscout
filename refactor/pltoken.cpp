@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.17 2009/01/15 14:32:57 dds Exp $
+ * $Id: pltoken.cpp,v 1.18 2010/10/27 20:19:35 dds Exp $
  */
 
 #include <iostream>
@@ -36,6 +36,7 @@
 
 enum e_cpp_context Pltoken::context = cpp_normal;
 bool Pltoken::semicolon_line_comments;
+bool Pltoken::echo;
 
 #ifdef ndef
 ostream&

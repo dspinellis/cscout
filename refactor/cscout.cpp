@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.227 2010/10/27 16:03:03 dds Exp $
+ * $Id: cscout.cpp,v 1.228 2010/10/27 20:19:35 dds Exp $
  */
 
 #include <map>
@@ -3123,7 +3123,7 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-c|-E|-o|-r|-s db|-v] "
+		"-c|-d D|-E|-o|-r|-s db|-v] "
 		"[-l file] [-H host] [-P port] [-A user:passwd] "
 #define CO(x) x
 #else
@@ -3136,6 +3136,7 @@ CO(		"\t-A u:p\tHTTP proxy authorization username and password\n")
 CO(		"\t-b\tRun in multiuser browse-only mode\n")
 #endif
 		"\t-c\tProcess the file and exit\n"
+		"\t-d D\tOutput the #defines being processed on standard output\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
 CO(		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n")
@@ -3177,7 +3178,7 @@ main(int argc, char *argv[])
 #endif
 
 
-	while ((c = getopt(argc, argv, "3crvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3cd:rvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3191,6 +3192,17 @@ main(int argc, char *argv[])
 			if (process_mode)
 				usage(argv[0]);
 			process_mode = pm_compile;
+			break;
+		case 'd':
+			if (!optarg)
+				usage(argv[0]);
+			switch (*optarg) {
+			case 'D':
+				Pdtoken::set_output_defines();
+				break;
+			default:
+				usage(argv[0]);
+			}
 			break;
 		case 'p':
 			if (!optarg)

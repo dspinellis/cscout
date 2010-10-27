@@ -8,7 +8,7 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.37 2009/03/13 13:21:48 dds Exp $
+ * $Id: pltoken.h,v 1.38 2010/10/27 20:19:35 dds Exp $
  */
 
 #ifndef PLTOKEN_
@@ -34,14 +34,19 @@ private:
 	static enum e_cpp_context context;
 	// Allow line comments starting with a semicolon (inside Microsoft asm)
 	static bool semicolon_line_comments;
+	// Echo characters read on standard output
+	static bool echo;
 	template <class C> void update_parts(Tokid& base, Tokid& follow, const C& c0);
 	Tokid t;		// Token identifier for delimeters: comma, bracket
+	template <class C> void getnext_analyze();
 public:
 	template <class C> void getnext();
 	template <class C> void getnext_nospc();
 	static void set_context(enum e_cpp_context con) { context = con; };
 	static void set_semicolon_line_comments(bool v) { semicolon_line_comments = v; }
 	Tokid get_delimiter_tokid() const { return t; }
+	static void set_echo() { echo = true; }
+	static void clear_echo() { echo = false; }
 };
 
 /*
@@ -75,7 +80,7 @@ Pltoken::update_parts(Tokid& base, Tokid& follow, const C& c0)
  */
 template <class C>
 void
-Pltoken::getnext()
+Pltoken::getnext_analyze()
 {
 	int n;
 	C c0, c1;
@@ -548,6 +553,15 @@ Pltoken::getnext()
 	if (code != SPACE && code != '\n')
 		Metrics::call_metrics(&Metrics::add_pptoken);
 	if (DP()) cout << "getnext returns: " << *this << "\n";
+}
+
+template <class C>
+void
+Pltoken::getnext()
+{
+	getnext_analyze<C>();
+	if (echo)
+		cout << get_c_val();
 }
 
 template <class C>
