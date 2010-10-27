@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.30 2009/03/14 21:34:38 dds Exp $
+ * $Id: token.cpp,v 1.31 2010/10/27 16:03:03 dds Exp $
  */
 
 #include <iostream>
@@ -18,6 +18,7 @@
 #include <vector>
 #include <fstream>
 #include <list>
+#include <sstream>		// ostringstream
 
 #include "cpp.h"
 #include "error.h"
@@ -57,6 +58,23 @@ operator<<(ostream& o,const Token &t)
 	cout << "Token code:" << t.name() << "(" << t.code << "):[" << t.val << "]\n";
 	cout << "Parts:" << t.parts << "\n";
 	return o;
+}
+
+const string
+Token::get_c_val() const
+{
+	ostringstream rval;
+
+	if (get_code() == STRING_LITERAL)
+		rval << '\"';
+	else if (get_code() == CHAR_LITERAL)
+		rval << '\'';
+	rval << get_name();
+	if (get_code() == STRING_LITERAL)
+		rval << '\"';
+	else if (get_code() == CHAR_LITERAL)
+		rval << '\'';
+	return rval.str();
 }
 
 Token

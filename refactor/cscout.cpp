@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.226 2009/04/10 08:19:57 dds Exp $
+ * $Id: cscout.cpp,v 1.227 2010/10/27 16:03:03 dds Exp $
  */
 
 #include <map>
@@ -3003,17 +3003,7 @@ simple_cpp()
 		t.getnext();
 		if (t.get_code() == EOF)
 			break;
-		if (t.get_code() == STRING_LITERAL)
-			cout << '\"';
-		else if (t.get_code() == CHAR_LITERAL)
-			cout << '\'';
-
-		cout << t.get_val();
-
-		if (t.get_code() == STRING_LITERAL)
-			cout << '\"';
-		else if (t.get_code() == CHAR_LITERAL)
-			cout << '\'';
+		cout << t.get_c_val();
 	}
 	return(0);
 }

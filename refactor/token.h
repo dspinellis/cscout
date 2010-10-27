@@ -8,7 +8,7 @@
  * A lexical token.
  *
  *
- * $Id: token.h,v 1.23 2009/03/14 21:34:38 dds Exp $
+ * $Id: token.h,v 1.24 2010/10/27 16:03:03 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -71,6 +71,8 @@ public:
 	// Return an identifier token's name
 	const string get_name() const { return check_clashes ? get_refactored_name() : val; };
 	const string get_val() const { return get_name(); };
+	// Return the value escaping strings as needed
+	const string get_c_val() const;
 	// Return the name after applying rename identifier refactorings
 	const string get_refactored_name() const;
 	// Return the token's symbolic name based on its code
