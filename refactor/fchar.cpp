@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.43 2009/03/13 13:21:48 dds Exp $
+ * $Id: fchar.cpp,v 1.44 2010/10/28 09:58:38 dds Exp $
  */
 
 #include <iostream>
@@ -46,6 +46,7 @@ int Fchar::line_number;			// Current line number
 bool Fchar::yacc_file;			// True input comes from .y
 stackFchar::size_type Fchar::stack_lock_size;	// Locked elements in file stack
 bool Fchar::trigraphs_enabled;		// True if we handle trigraphs
+bool Fchar::output_headers;		// Debug print of files being processed
 
 void
 Fchar::set_input(const string& s)
@@ -72,6 +73,11 @@ Fchar::push_input(const string& s, int offset)
 	int include_lnum = line_number - 1;
 
 	cs.push(get_context());
+	if (output_headers) {
+		for (StackFcharContext::size_type i = 0; i < cs.size(); i++)
+			cout << '.';
+		cout << ' ' << s << endl;
+	}
 	set_input(s);
 	Fdep::add_include(includer, fi, include_lnum);
 	/*

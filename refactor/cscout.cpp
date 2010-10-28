@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.228 2010/10/27 20:19:35 dds Exp $
+ * $Id: cscout.cpp,v 1.229 2010/10/28 09:58:38 dds Exp $
  */
 
 #include <map>
@@ -2407,7 +2407,7 @@ version_info(bool html)
 	Version::get_revision() << " - " <<
 	Version::get_date() << end << end <<
 	// 80 column terminal width---------------------------------------------------
-	"(c) Copyright 2003-2009 Diomidis Spinelllis, Athens, Greece." << end <<
+	"(c) Copyright 2003-2010 Diomidis Spinelllis, Athens, Greece." << end <<
 	end <<
 	// C grammar
 	"Portions Copyright (c) 1989, 1990 James A. Roskind." << end <<
@@ -3123,7 +3123,7 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-c|-d D|-E|-o|-r|-s db|-v] "
+		"-c|-d D|-d H|-E|-o|-r|-s db|-v] "
 		"[-l file] [-H host] [-P port] [-A user:passwd] "
 #define CO(x) x
 #else
@@ -3137,6 +3137,7 @@ CO(		"\t-b\tRun in multiuser browse-only mode\n")
 #endif
 		"\t-c\tProcess the file and exit\n"
 		"\t-d D\tOutput the #defines being processed on standard output\n"
+		"\t-d H\tOutput the included files being processed on standard output\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
 CO(		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n")
@@ -3197,8 +3198,11 @@ main(int argc, char *argv[])
 			if (!optarg)
 				usage(argv[0]);
 			switch (*optarg) {
-			case 'D':
+			case 'D':	// Similar to gcc -dD
 				Pdtoken::set_output_defines();
+				break;
+			case 'H':	// Similar to gcc -H
+				Fchar::set_output_headers();
 				break;
 			default:
 				usage(argv[0]);

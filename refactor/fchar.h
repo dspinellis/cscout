@@ -8,7 +8,7 @@
  * A character coming from a file.
  * This class also handles trigraphs and newline splicing.
  *
- * $Id: fchar.h,v 1.24 2009/01/15 14:32:57 dds Exp $
+ * $Id: fchar.h,v 1.25 2010/10/28 09:58:38 dds Exp $
  */
 
 #ifndef FCHAR_
@@ -68,6 +68,7 @@ private:
 	static stackFchar::size_type stack_lock_size;	// So many elements can not be removed
 					// from the push_input stack
 
+	static bool output_headers;	// Debug print of files being processed
 	int val;
 	Tokid ti;			// (pos_type from tellg(), fi)
 
@@ -87,6 +88,7 @@ public:
 	 */
 	static void lock_stack() { stack_lock_size = cs.size(); }
 	static void unlock_stack() { stack_lock_size = 0; }
+	static void set_output_headers() { output_headers = true; }
 
 	// Return the current file position
 	static FcharContext get_context() {
