@@ -1,6 +1,6 @@
-.TH CSCOUT 1 "3 July 2008"
+.TH CSCOUT 1 "28 October 2010"
 .\"
-.\" (C) Copyright 2003-2008 Diomidis Spinellis.  All rights reserved.
+.\" (C) Copyright 2003-2010 Diomidis Spinellis.  All rights reserved.
 .\"
 .\" This software can be copied, distributed, and used subject to the
 .\" terms of the CScout public license available in the CScout documentation
@@ -10,13 +10,15 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.12 2008/07/03 14:59:09 dds Exp $
+.\" $Id: cscout.1,v 1.13 2010/10/28 10:09:56 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
 \fBcscout\fP
 [\fB\-bcErv3\fP]
+[\fB\-d D\fP]
+[\fB\-d H\fP]
 [\fB\-l\fP \fIlog file\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
@@ -99,6 +101,13 @@ http://www.spinellis.gr/cscout.
 .IP "\fB\-c\fP"
 Exit immediately after processing the specified files.
 Useful, when you simply want to check the source code for errors.
+.IP "\fB\-d D\fP"
+Display the \fC#define\fP directives being processed on the standard
+output.
+.IP "\fB\-d H\fP"
+Display the (mainly header) files being included on the standard output.
+Each line is prefixed by a number of dots indicating the depth
+of the included file stack.
 .IP "\fB\-E\fP"
 Preprocess the specified file and send the result to the standard
 output.
@@ -291,4 +300,4 @@ We are now ready to serve you at http://localhost:8081
 .SH "SEE ALSO"
 cswc(1)
 .SH AUTHOR
-(C) Copyright 2003-2005 Diomidis Spinellis.
+(c) Copyright 2003-2010 Diomidis Spinellis.
