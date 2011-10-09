@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <notes>
-<!--$Id: change.xml,v 1.5 2010/10/28 10:10:49 dds Exp $-->
+<!--$Id: change.xml,v 1.6 2011/10/09 07:56:26 dds Exp $-->
 <!-- Remember to add extensions to the ext.xml file as well -->
 <dl>
 <dt>Version 2.8 (under development)</dt><dd>
@@ -10,6 +10,7 @@ the <code>#define</code> directives that get processed.</li>
 <li> New <code>-d H</code> option will dump on the standard output
 the (mostly header) files getting included.</li>
 </ul>
+</dd>
 <dt>Version 2.7 (2009-07-08)</dt><dd>
 <ul>
 <li>New call graph for functions showing a function in context:
