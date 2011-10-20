@@ -5,7 +5,7 @@
  * It can also be loaded as style.css from a CScout configuration
  * directory.
  *
- * $Id: style.css,v 1.5 2008/11/16 14:18:27 dds Exp $
+ * $Id: style.css,v 1.6 2011/10/20 16:06:53 dds Exp $
  */
 
 /* General style */
@@ -89,8 +89,7 @@ ul, ol, table {
 	font-family:Trebuchet MS,Helvetica,sans-serif;
 	border:1px solid #ccc;
 	color:#808185;
-	display:block;
-	float:left;
+	display:inline-block;
 	margin-right:3px;
 	margin-bottom:3px;
 	padding:2px 4px 3px;
