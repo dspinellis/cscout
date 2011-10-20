@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.155 2009/10/28 09:43:46 dds Exp $
+# $Id: Makefile,v 1.156 2011/10/20 15:39:37 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -130,7 +130,7 @@ ADDLIBS += -lsocket -lnsl
 #OBJ += dlstubs.o
 endif
 
-ifeq ($(OS),CYGWIN_NT-5.1)
+ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
 CPPFLAGS += -I.
 endif
 
@@ -152,7 +152,7 @@ $(ARCH)/%.o: %.c
 $(ARCH)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
-ifeq ($(OS),CYGWIN_NT-5.1)
+ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
 # Windows
 all: $(ARCH)/cscout.exe
 SSH=plink
@@ -220,8 +220,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.155 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2009/10/28 09:43:46 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.156 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2011/10/20 15:39:37 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
