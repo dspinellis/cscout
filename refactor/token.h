@@ -8,7 +8,7 @@
  * A lexical token.
  *
  *
- * $Id: token.h,v 1.24 2010/10/27 16:03:03 dds Exp $
+ * $Id: token.h,v 1.25 2011/10/22 08:22:20 dds Exp $
  */
 
 #ifndef TOKEN_
@@ -81,6 +81,8 @@ public:
 	dequeTpart constituents() const;
 	// Return a token that uniquely represents all same tokens coming from identical files
 	Token unique() const;
+	// Return the Tokid best defining this token wrt the current file position
+	Tokid get_defining_tokid() const;
 	// Send it on ostream
 	friend ostream& operator<<(ostream& o,const Token &t);
 	// Iterators for accessing the token parts

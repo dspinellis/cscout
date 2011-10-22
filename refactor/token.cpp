@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.31 2010/10/27 16:03:03 dds Exp $
+ * $Id: token.cpp,v 1.32 2011/10/22 08:22:20 dds Exp $
  */
 
 #include <iostream>
@@ -19,6 +19,8 @@
 #include <fstream>
 #include <list>
 #include <sstream>		// ostringstream
+#include <limits>
+#include <cstdlib>		// abs
 
 #include "cpp.h"
 #include "error.h"
@@ -32,6 +34,7 @@
 #include "debug.h"
 #include "fdep.h"
 #include "idquery.h"
+#include "fchar.h"
 
 bool Token::check_clashes;
 bool Token::found_clashes;
@@ -296,6 +299,31 @@ Token::equals(const Token &stale) const
 	}
 }
 
+// Return the Tokid best defining this token wrt the current file position
+Tokid
+Token::get_defining_tokid() const
+{
+	// Trivial case
+	if (parts.size() == 1)
+		return parts.begin()->get_tokid().unique();
+	// Otherwise return the tokid closest to the current file position
+	Tokid current(Fchar::get_context().get_tokid());
+	Tokid best;
+	bool have_best = false;
+	int best_distance = numeric_limits<int>::max();
+	int d;
+	for (dequeTpart::const_iterator i = parts.begin(); i != parts.end(); i++)
+		if (i->get_tokid().get_fileid() == current.get_fileid() &&
+		    (d = abs(i->get_tokid().get_streampos() - current.get_streampos())) < best_distance) {
+		    	best_distance = d;
+			best = i->get_tokid();
+			have_best = true;
+		}
+	if (have_best)
+		return best.unique();
+	else
+		return parts.begin()->get_tokid().unique();
+}
 
 
 #ifdef UNIT_TEST
