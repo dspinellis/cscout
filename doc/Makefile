@@ -1,7 +1,10 @@
+#
+# $Id: Makefile,v 1.2 2011/10/23 16:17:57 dds Exp $
+#
 #UXHOST=spiti
 UXHOST=istlab
 #DESTDIR="c:/tmp/cscout"
-DESTDIR="c:/dds/pubs/web/home/cscout"
+DESTDIR="/dds/pubs/web/home/cscout"
 NOTETOOLS=/dds/pubs/courses/tools
 
 .SUFFIXES:.java .dot .ps .gif .pic .eps .png
@@ -27,8 +30,8 @@ all: mancscout.xml mancswc.xml dbschema.xml
 	chmod 444 style.css
 	sh /cygdrive/c$(NOTETOOLS)/coursebib.sh bib
 	echo "The CScout Refactoring Browser" | perl $(NOTETOOLS)/thread.pl -h html -r -p ../index.html index ${DESTDIR}/doc
-	cp simul.html ${DESTDIR}/doc
-	cp logo.png ${DESTDIR}
+	cp simul.html ${UH}/${DESTDIR}/doc
+	cp logo.png ${UH}/${DESTDIR}
 
 mancscout.xml: ../man/cscout.1
 	echo '<?xml version="1.0" ?>' >mancscout.xml
@@ -45,4 +48,4 @@ mancswc.xml: ../man/cswc.1
 dbschema.xml: ../refactor/workdb.cpp ../refactor/metrics.cpp ../refactor/docschema.pl
 	perl ../refactor/docschema.pl ../refactor/workdb.cpp >dbschema.xml
 clean:
-	rm ${DESTDIR}/*
+	rm ${UH}/${DESTDIR}/*
