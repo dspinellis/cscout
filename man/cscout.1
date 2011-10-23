@@ -1,6 +1,6 @@
-.TH CSCOUT 1 "28 October 2010"
+.TH CSCOUT 1 "23 October 2011"
 .\"
-.\" (C) Copyright 2003-2010 Diomidis Spinellis.  All rights reserved.
+.\" (C) Copyright 2003-2011 Diomidis Spinellis.  All rights reserved.
 .\"
 .\" This software can be copied, distributed, and used subject to the
 .\" terms of the CScout public license available in the CScout documentation
@@ -10,13 +10,13 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.\" $Id: cscout.1,v 1.13 2010/10/28 10:09:56 dds Exp $
+.\" $Id: cscout.1,v 1.14 2011/10/23 16:15:01 dds Exp $
 .\"
 .SH NAME
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
 \fBcscout\fP
-[\fB\-bcErv3\fP]
+[\fB\-bCcErv3\fP]
 [\fB\-d D\fP]
 [\fB\-d H\fP]
 [\fB\-l\fP \fIlog file\fP]
@@ -98,9 +98,17 @@ found in the online hypertext documentation and at the project's home page
 http://www.spinellis.gr/cscout.
 .PP
 .SH OPTIONS
+.IP "\fB\-C\fP"
+Create a \fIctags\fP-compatible tags file.
+Tens of editors and other tools can utilize tags to help you navigate
+through the code.
+In contrast to other tag generation tools, the file that \fICScout\fP
+creates also includes information about entities dynamically generated
+through macros.
 .IP "\fB\-c\fP"
 Exit immediately after processing the specified files.
-Useful, when you simply want to check the source code for errors.
+Useful, when you simply want to check the source code for errors or when
+you want to create a \fItags\fP file.
 .IP "\fB\-d D\fP"
 Display the \fC#define\fP directives being processed on the standard
 output.
@@ -300,4 +308,4 @@ We are now ready to serve you at http://localhost:8081
 .SH "SEE ALSO"
 cswc(1)
 .SH AUTHOR
-(c) Copyright 2003-2010 Diomidis Spinellis.
+(c) Copyright 2003-2011 Diomidis Spinellis.
