@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.157 2011/10/23 16:22:06 dds Exp $
+# $Id: Makefile,v 1.158 2011/10/23 20:01:14 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -221,8 +221,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.157 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2011/10/23 16:22:06 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.158 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2011/10/23 20:01:14 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -252,6 +252,9 @@ test:
 # Distribution
 rdist-parrot:
 	tar cvf - $(ALLSRC) | gzip -c | $(SSH) parrot tar -C src/cscout -xzvf -
+
+rdist-gemini:
+	tar cvf - $(ALLSRC) | gzip -c | $(SSH) aegean.dmst.aueb.gr ssh gemini tar -C src/cscout -xzvf -
 
 rdist-icarian:
 	tar cf - $(ALLSRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
