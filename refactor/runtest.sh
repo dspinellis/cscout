@@ -7,7 +7,7 @@
 # If you do not agree to the terms, do not use the code.
 #
 #
-# $Id: runtest.sh,v 1.29 2009/01/28 15:54:14 dds Exp $
+# $Id: runtest.sh,v 1.30 2011/10/23 07:08:36 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -302,7 +302,7 @@ done
 NULL=/dev/null
 TMP=/tmp
 case `hostname` in
-hawk)
+vaio)
 	CSCOUT=/cygdrive/c/dds/src/research/cscout/refactor/i386/cscout
 	HSQLDB="java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc"
 	IPATH=/dds/src/research/CScout/include
@@ -316,6 +316,10 @@ sense|medusa)
 	IPATH=$HOME/src/include
 	CPPTESTS=$HOME/src/cscout/test/cpp
 	DOTCSCOUT=$HOME/src/example/.cscout
+	;;
+*)
+	echo Unknown testing environment 1>&2
+	exit 1
 	;;
 esac
 
