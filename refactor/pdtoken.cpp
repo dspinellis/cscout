@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.123 2010/10/27 20:19:35 dds Exp $
+ * $Id: pdtoken.cpp,v 1.124 2011/10/23 16:22:06 dds Exp $
  */
 
 #include <iostream>
@@ -55,6 +55,7 @@
 #include "call.h"
 #include "mcall.h"
 #include "os.h"
+#include "ctag.h"
 #include "type.h"		// stab.h
 #include "stab.h"		// Block::enter()
 
@@ -735,6 +736,7 @@ Pdtoken::process_define()
 		eat_to_eol();
 		return;
 	}
+	CTag::add(t, 'd');
 	t.set_ec_attribute(is_macro);
 	Pltoken nametok = t;
 	name = t.get_val();

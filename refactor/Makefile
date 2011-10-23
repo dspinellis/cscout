@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.156 2011/10/20 15:39:37 dds Exp $
+# $Id: Makefile,v 1.157 2011/10/23 16:22:06 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -26,7 +26,7 @@ parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
 getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
 logo.o workdb.o obfuscate.o sql.o base64.o md5.o os.o pager.o \
 option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
-dirbrowse.o html.o fileutils.o gdisplay.o globobj.o
+dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o
 
 # monitor.o
 
@@ -81,6 +81,7 @@ DISTSRC=License.txt attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	pager.h pager.cpp option.cpp option.h  filemetrics.cpp funmetrics.cpp \
 	ctconst.cpp ctconst.h gdisplay.cpp  globobj.cpp globobj.h \
 	html.h html.cpp dirbrowse.h dirbrowse.cpp fileutils.cpp fileutils.h \
+	ctag.cpp ctag.h \
 	runtest.sh \
 	csmake.pl cswc.pl style.css
 
@@ -220,8 +221,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.156 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2011/10/20 15:39:37 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.157 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2011/10/23 16:22:06 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp

@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.229 2010/10/28 09:58:38 dds Exp $
+ * $Id: cscout.cpp,v 1.230 2011/10/23 16:22:06 dds Exp $
  */
 
 #include <map>
@@ -72,6 +72,7 @@
 #include "fileutils.h"
 #include "globobj.h"
 #include "fifstream.h"
+#include "ctag.h"
 
 #if defined(unix) || defined(__MACH__)
 #define COMMERCIAL_UNIX_OPTIONS "b"
@@ -3123,7 +3124,7 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-c|-d D|-d H|-E|-o|-r|-s db|-v] "
+		"-C|-c|-d D|-d H|-E|-o|-r|-s db|-v] "
 		"[-l file] [-H host] [-P port] [-A user:passwd] "
 #define CO(x) x
 #else
@@ -3135,6 +3136,7 @@ CO(		"\t-A u:p\tHTTP proxy authorization username and password\n")
 #ifndef WIN32
 CO(		"\t-b\tRun in multiuser browse-only mode\n")
 #endif
+		"\t-C\tCreate a ctags(1)-compatible tags file\n"
 		"\t-c\tProcess the file and exit\n"
 		"\t-d D\tOutput the #defines being processed on standard output\n"
 		"\t-d H\tOutput the included files being processed on standard output\n"
@@ -3179,7 +3181,7 @@ main(int argc, char *argv[])
 #endif
 
 
-	while ((c = getopt(argc, argv, "3cd:rvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3Ccd:rvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3188,6 +3190,9 @@ main(int argc, char *argv[])
 			if (process_mode)
 				usage(argv[0]);
 			process_mode = pm_preprocess;
+			break;
+		case 'C':
+			CTag::enable();
 			break;
 		case 'c':
 			if (process_mode)
@@ -3321,9 +3326,6 @@ main(int argc, char *argv[])
 	Error::set_parsing(false);
 
 	input_file_id = Fileid(argv[optind]);
-
-	if (process_mode == pm_compile)
-		return 0;
 
 	Fileid::unify_identical_files();
 
@@ -3475,6 +3477,7 @@ main(int argc, char *argv[])
 	if (motd)
 		cerr << motd << endl;
 
+	CTag::save();
 	if (process_mode == pm_report) {
 		if (!must_exit)
 			warning_report();

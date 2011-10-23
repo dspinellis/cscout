@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.23 2011/10/22 08:22:20 dds Exp $
+ * $Id: fcall.cpp,v 1.24 2011/10/23 16:22:06 dds Exp $
  */
 
 #include <map>
@@ -42,6 +42,7 @@
 #include "call.h"
 #include "fcall.h"
 #include "eclass.h"
+#include "ctag.h"
 
 // Constructor
 FCall::FCall(const Token& tok, Type typ, const string &s) :
@@ -76,6 +77,7 @@ FCall::set_current_fun(const Type &t)
 {
 	Id const *id = obj_lookup(t.get_name());
 	csassert(id);
+	CTag::add(id->get_token(), t.type(), t.get_storage_class());
 	FCall *cfun;			// FCall rather than simply Call
 	current_fun = cfun = id->get_fcall();
 	if (!cfun) {
@@ -92,8 +94,10 @@ FCall::set_current_fun(const Type &t)
 	cfun->mark_begin();
 	cfun->definition = t.get_token().get_defining_tokid();
 	cfun->defined = true;
-	if (DP())
+	if (DP()) {
 		cout << "Current function " << id->get_name() << "\n";
+		cout << "Type: " << t << "\n";
+	}
 	cfun->metrics().set_metric(FunMetrics::em_ngnsoc,
 	    Block::global_namespace_occupants_size() +
 	    Pdtoken::macros_size());

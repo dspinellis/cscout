@@ -9,7 +9,7 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.34 2009/03/14 21:34:38 dds Exp $
+ * $Id: type2.h,v 1.35 2011/10/23 16:22:06 dds Exp $
  */
 
 #ifndef TYPE2_
@@ -88,6 +88,7 @@ public:
 	bool qualified_unused() const { return returning.qualified_unused(); }
 	qualifiers_t get_qualifiers() const { return returning.get_qualifiers(); }
 	int get_nparam() const { return nparam; }
+	char ctags_kind() const	{ return 'f'; }
 };
 
 // Enumeration
@@ -103,6 +104,7 @@ public:
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 	void clear_storage_class() { sclass.clear_storage_class(); }
 	Type merge(Tbasic *b);
+	char ctags_kind() const	{ return 'g'; }
 };
 
 class Stab;
@@ -174,6 +176,7 @@ public:
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 	void clear_storage_class() { sclass.clear_storage_class(); }
 	Type merge(Tbasic *b);
+	char ctags_kind() const	{ return is_union ? 'u' : 's'; }
 };
 //
 // Incomplete structure or union reference
@@ -208,6 +211,7 @@ public:
 	// Indicate this is a union
 	void set_union(bool v) { is_union = v; }
 	Type merge(Tbasic *b);
+	char ctags_kind() const	{ return is_union ? 'u' : 's'; }
 };
 
 

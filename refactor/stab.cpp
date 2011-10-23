@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.52 2009/01/15 14:32:57 dds Exp $
+ * $Id: stab.cpp,v 1.53 2011/10/23 16:22:06 dds Exp $
  */
 
 #include <map>
@@ -43,6 +43,7 @@
 #include "fcall.h"
 #include "mcall.h"
 #include "globobj.h"
+#include "ctag.h"
 
 
 int Block::current_block = -1;
@@ -169,6 +170,11 @@ obj_define(const Token& tok, Type typ)
 	if (DP())
 		cout << "Type of " << tok << " is " << typ << (typ.is_typedef() ? " (typedef)\n" : "\n");
 	if (Block::get_scope_level() == Block::cu_block) {
+		// Function *definitions* are added from FCall::set_current_fun
+		// We don't add extern variables
+		if (!typ.is_function() && sc != c_extern)
+			CTag::add(tok, typ, sc);
+
 		// Special rules for definitions at file scope
 		// ANSI 3.1.2.2 p. 22
 		switch (sc) {
@@ -297,6 +303,15 @@ obj_define(const Token& tok, Type typ)
 void
 tag_define(const Token& tok, const Type& typ)
 {
+	// Store CTags info
+	CTag::add(tok, typ);
+	if (!typ.is_incomplete()) {
+		const vector <Id>& members = typ.get_members_by_ordinal();
+		for (vector <Id>::const_iterator i = members.begin(); i != members.end(); i++)
+			CTag::add(i->get_token(), typ.ctags_kind(), tok.get_name());
+	}
+
+	// Update symbol table
 	tok.set_ec_attribute(is_suetag);
 	static Stab Block::*tagptr = &Block::tag;
 	const Id *id;

@@ -8,7 +8,7 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.47 2009/03/14 21:34:38 dds Exp $
+ * $Id: type.h,v 1.48 2011/10/23 16:22:06 dds Exp $
  */
 
 #ifndef TYPE_
@@ -98,6 +98,7 @@ protected:
 	virtual bool is_su() const { return false; }// True for struct/union
 	virtual bool is_valid() const { return true; }// False for undeclared
 	virtual bool is_void() const { return false; }// True only for the void basic type
+	virtual char ctags_kind() const { return 'X'; }		// The ctags kind of the corresponding type (ctags --list-kinds)
 	virtual bool qualified_const() const { return false; }// True for constructs containing the const attribute
 	virtual bool qualified_restrict() const { return false; }// True for constructs containing the restrict attribute
 	virtual bool qualified_unused() const { return false; }// True for constructs containing the unused attribute
@@ -266,6 +267,7 @@ public:
 	bool is_typedef() const		{ return p->is_typedef(); }
 	bool is_valid() const		{ return p->is_valid(); }
 	bool is_void() const		{ return p->is_void(); }
+	char ctags_kind() const		{ return p->ctags_kind(); }
 	bool qualified_const() const	{ return p->qualified_const(); }
 	bool qualified_restrict() const	{ return p->qualified_restrict(); }
 	bool qualified_unused() const	{ return p->qualified_unused(); }
