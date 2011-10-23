@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fileid.cpp,v 1.51 2009/01/15 14:32:57 dds Exp $
+ * $Id: fileid.cpp,v 1.52 2011/10/23 07:24:41 dds Exp $
  */
 
 #include <fstream>
@@ -128,6 +128,7 @@ Fileid::Fileid(const string &name, int i)
 	i2d.resize(i + 1);
 	i2d[i] = Filedetails(name, true, FileHash());
 	id = i;
+	identical_files[FileHash()].insert(*this);
 	counter = i + 1;
 }
 
