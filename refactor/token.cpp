@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.32 2011/10/22 08:22:20 dds Exp $
+ * $Id: token.cpp,v 1.33 2011/10/23 19:37:33 dds Exp $
  */
 
 #include <iostream>
@@ -314,7 +314,7 @@ Token::get_defining_tokid() const
 	int d;
 	for (dequeTpart::const_iterator i = parts.begin(); i != parts.end(); i++)
 		if (i->get_tokid().get_fileid() == current.get_fileid() &&
-		    (d = abs(i->get_tokid().get_streampos() - current.get_streampos())) < best_distance) {
+		    (d = labs(i->get_tokid().get_streampos() - current.get_streampos())) < best_distance) {
 		    	best_distance = d;
 			best = i->get_tokid();
 			have_best = true;
