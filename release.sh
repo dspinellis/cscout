@@ -6,7 +6,7 @@
 #
 # See release.txt for other instructions.
 #
-# $Id: release.sh,v 1.11 2008/11/17 12:03:46 dds Exp $
+# $Id: release.sh,v 1.12 2011/10/24 10:36:21 dds Exp $
 #
 
 DESTDIR="/dds/pubs/web/home/cscout"
@@ -26,6 +26,7 @@ copyfile()
 {
 	INFILE=$1
 	DIST=$2
+	echo copy $INFILE
 	mkdir -p bin/$DIST/$DISTDIR/bin
 	pscp $INFILE bin/$DIST/$DISTDIR/bin/cscout || die "copy $INFILE to bin/$DIST/$DISTDIR/bin/cscout"
 }
@@ -54,20 +55,20 @@ then
 	# Windows
 	mkdir -p bin/win32-i386/$DISTDIR/bin
 	cp refactor/i386/cscout.exe bin/win32-i386/$DISTDIR/bin/cscout.exe || die "copy $INFILE to bin/win32-i386/$DISTDIR/bin/cscout.exe"
+	# Linux
+	copyfile parrot:src/cscout/i386/cscout linux-i386
+	copyfile ikaria:src/cscout/x86_64/cscout linux-x86_64
+	# FreeBSD
+	for arch in i386 amd64 sparc64
+	do
+		copyfile istlab:src/cscout/$arch/cscout fbsd-$arch
+	done
 	# Mac OS X
 	plink spiti wake macmini
 	sleep 1
 	copyfile macmini:src/cscout/macho/cscout darwin-macho
-	# Linux
-	copyfile parrot:src/cscout/i386/cscout linux-i386
-	copyfile ikaria:src/cscout/x86_64/cscout linux-x86_64
 	# Solaris
 	copyfile sense:src/cscout/sparc/cscout solaris-sparc
-	# FreeBSD
-	for arch in amd64 i386 sparc64
-	do
-		copyfile istlab:src/cscout/$arch/cscout fbsd-$arch
-	done
 fi
 
 
@@ -79,8 +80,8 @@ tar -cf - -C ${UH}/${DESTDIR} doc --exclude=RCS \
 tar -xf - -C $DISTDIR  || die "Creating the neutral directory"
 
 # Create the neutral zip file
-NEUTRAL_ZIP=${UH}/${DESTDIR}/cscout-${VERSION}-neutral.zip
-rm -f ${NEUTRAL_ZIP}
+NEUTRAL_ZIP=${DESTDIR}/cscout-${VERSION}-neutral.zip
+rm -f ${UH}/${NEUTRAL_ZIP}
 zip -r ${NEUTRAL_ZIP} $DISTDIR || die "zip $DISTDIR into $NEUTRAL_ZIP"
 
 # Create the neutral tar file
@@ -130,8 +131,8 @@ do
 done
 
 # Create the Windows zip file
-BIN_ZIP=${UH}/${DESTDIR}/cscout-${VERSION}-win32-i386.zip
-rm -f ${BIN_ZIP}
+BIN_ZIP=${DESTDIR}/cscout-${VERSION}-win32-i386.zip
+rm -f ${UH}/${BIN_ZIP}
 rm -f bin/win32-i386/$DISTDIR/bin/cswc bin/win32-i386/$DISTDIR/bin/csmake
 tobatch refactor/cswc.pl bin/win32-i386/$DISTDIR/bin/cswc.bat
 tobatch refactor/csmake.pl bin/win32-i386/$DISTDIR/bin/csmake.bat
