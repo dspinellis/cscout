@@ -6,7 +6,7 @@
 #
 # See release.txt for other instructions.
 #
-# $Id: release.sh,v 1.12 2011/10/24 10:36:21 dds Exp $
+# $Id: release.sh,v 1.13 2011/10/24 10:36:57 dds Exp $
 #
 
 DESTDIR="/dds/pubs/web/home/cscout"
@@ -56,7 +56,9 @@ then
 	mkdir -p bin/win32-i386/$DISTDIR/bin
 	cp refactor/i386/cscout.exe bin/win32-i386/$DISTDIR/bin/cscout.exe || die "copy $INFILE to bin/win32-i386/$DISTDIR/bin/cscout.exe"
 	# Linux
-	copyfile parrot:src/cscout/i386/cscout linux-i386
+	#copyfile parrot:src/cscout/i386/cscout linux-i386
+	plink aegean.dmst.aueb.gr scp gemini:src/cscout/i386/cscout .
+	copyfile aegean.dmst.aueb.gr:cscout linux-i386
 	copyfile ikaria:src/cscout/x86_64/cscout linux-x86_64
 	# FreeBSD
 	for arch in i386 amd64 sparc64
