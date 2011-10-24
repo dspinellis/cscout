@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.230 2011/10/23 16:22:06 dds Exp $
+ * $Id: cscout.cpp,v 1.231 2011/10/24 10:43:24 dds Exp $
  */
 
 #include <map>
@@ -2408,7 +2408,9 @@ version_info(bool html)
 	Version::get_revision() << " - " <<
 	Version::get_date() << end << end <<
 	// 80 column terminal width---------------------------------------------------
-	"(c) Copyright 2003-2010 Diomidis Spinelllis, Athens, Greece." << end <<
+	"(c) Copyright 2003-" << (__DATE__ + string(__DATE__).length() - 4) <<
+				 // Current year
+	" Diomidis Spinelllis, Athens, Greece." << end <<
 	end <<
 	// C grammar
 	"Portions Copyright (c) 1989, 1990 James A. Roskind." << end <<
