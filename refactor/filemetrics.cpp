@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: filemetrics.cpp,v 1.30 2009/01/15 14:32:57 dds Exp $
+ * $Id: filemetrics.cpp,v 1.31 2012/05/24 14:07:52 dds Exp $
  */
 
 #include <iostream>
@@ -20,8 +20,6 @@
 #include <vector>
 #include <sstream>		// ostringstream
 #include <list>
-#include <climits>		// INT_MAX
-//#include <limits>		// numeric_limits
 #include <errno.h>
 
 #include "cpp.h"
