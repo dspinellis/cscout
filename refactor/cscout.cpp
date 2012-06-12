@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.231 2011/10/24 10:43:24 dds Exp $
+ * $Id: cscout.cpp,v 1.232 2012/06/12 16:16:47 dds Exp $
  */
 
 #include <map>
@@ -73,6 +73,10 @@
 #include "globobj.h"
 #include "fifstream.h"
 #include "ctag.h"
+
+#ifdef PICO_QL
+#include "stl_search.h"
+#endif
 
 #if defined(unix) || defined(__MACH__)
 #define COMMERCIAL_UNIX_OPTIONS "b"
@@ -3126,7 +3130,11 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-C|-c|-d D|-d H|-E|-o|-r|-s db|-v] "
+		"-C|-c|-d D|-d H|-E|-o|"
+#ifdef PICO_QL
+		"-q|"
+#endif
+		"-r|-s db|-v] "
 		"[-l file] [-H host] [-P port] [-A user:passwd] "
 #define CO(x) x
 #else
@@ -3151,6 +3159,9 @@ CO(		"\t-o\tCreate obfuscated versions of the processed files\n")
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
 CO(		"\t-P port\tHTTP proxy host port (default 80)\n")
+#ifdef PICO_QL
+		"\t-q\tProvide a PiCO_QL query interface\n"
+#endif
 		"\t-r\tGenerate an identifier and include file warning report\n"
 CO(		"\t-s db\tGenerate SQL output for the specified RDBMS\n")
 		"\t-v\tDisplay version and copyright information and exit\n"
@@ -3166,6 +3177,9 @@ main(int argc, char *argv[])
 	Pdtoken t;
 	char *motd;
 	int c;
+#ifdef PICO_QL
+	bool pico_ql = false;
+#endif
 
 	Debug::db_read();
 
@@ -3183,7 +3197,7 @@ main(int argc, char *argv[])
 #endif
 
 
-	while ((c = getopt(argc, argv, "3Ccd:rvEp:m:" COMMERCIAL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3Ccd:rvEp:qm:" COMMERCIAL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3196,6 +3210,11 @@ main(int argc, char *argv[])
 		case 'C':
 			CTag::enable();
 			break;
+		#ifdef PICO_QL
+		case 'q':
+			pico_ql = true;
+			/* FALLTHROUGH */
+		#endif
 		case 'c':
 			if (process_mode)
 				usage(argv[0]);
@@ -3485,6 +3504,15 @@ main(int argc, char *argv[])
 			warning_report();
 		return (0);
 	}
+
+#ifdef PICO_QL
+	if (pico_ql) {
+		register_pico_ql(&files, "files");
+		call_pico_ql();
+		return (0);
+	}
+#endif
+
 	if (process_mode == pm_compile)
 		return (0);
 	if (DP())

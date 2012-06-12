@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.158 2011/10/23 20:01:14 dds Exp $
+# $Id: Makefile,v 1.159 2012/06/12 16:16:47 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -29,6 +29,11 @@ option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
 dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o
 
 # monitor.o
+
+ifdef PICO_QL
+OBJBASE += stl_search.o stl_to_sql.o user_functions.o workers.o stl_test.o
+endif
+
 
 # For miniversion
 BRANCH=$(shell sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' version.cpp)
@@ -144,6 +149,11 @@ dummy := $(shell gcc -o ccode -DCCODE des.c)
 dummy := $(shell ./ccode "$(LICENSEE)")
 endif
 
+ifdef PICO_QL
+CPPFLAGS += -DPICO_QL -I/usr/include
+ADDLIBS += -lsqlite3
+endif
+
 CPPFLAGS+=$(EXTRA_CPPFLAGS)
 
 # Pattern rules for C and C++ files
@@ -221,8 +231,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.158 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2011/10/23 20:01:14 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.159 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/06/12 16:16:47 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -405,3 +415,18 @@ evalsrc:
 	cp $(DISTSRC) cscout-$(BRANCH)-evalsrc
 	tar czvf cscout-$(BRANCH)-evalsrc.tar.gz cscout-$(BRANCH)-evalsrc
 	rm -rf cscout-$(BRANCH)-evalsrc
+
+ifdef PICO_QL
+stl_search.cpp: generator.rb cscout-data.sql
+	ruby generator.rb cscout-data.sql
+
+stl_search.o: stl_search.cpp stl_search.h user_functions.h workers.h
+
+stl_to_sql.o: stl_to_sql.c stl_to_sql.h stl_search.h
+
+user_functions.o: user_functions.c user_functions.h stl_test.h
+
+workers.o: workers.cpp workers.h stl_search.h
+
+stl_test.o: stl_test.c stl_test.h
+endif
