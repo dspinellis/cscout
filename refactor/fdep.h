@@ -7,7 +7,7 @@
  *
  * File dependency monitoring
  *
- * $Id: fdep.h,v 1.12 2009/01/15 14:32:57 dds Exp $
+ * $Id: fdep.h,v 1.13 2012/06/18 09:05:08 dds Exp $
  */
 
 #ifndef FDEP_
@@ -48,8 +48,8 @@ public:
 		if (def.get_fileid() == ref.get_fileid())
 			return;
 		definers[ref.get_fileid()].insert(def.get_fileid());
-		include_triggers[include_trigger_domain::pair(def.get_fileid(), ref.get_fileid())].insert(
-			include_trigger_element::pair(def.get_streampos(), len));
+		include_triggers[include_trigger_domain(def.get_fileid(), ref.get_fileid())].insert(
+			include_trigger_element(def.get_streampos(), len));
 	}
 
 	// File includer includes the file included
