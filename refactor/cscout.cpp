@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.232 2012/06/12 16:16:47 dds Exp $
+ * $Id: cscout.cpp,v 1.233 2012/06/18 10:45:15 dds Exp $
  */
 
 #include <map>
@@ -3520,7 +3520,7 @@ main(int argc, char *argv[])
 	// Serve web pages
 	if (!must_exit)
 		cerr << "CScout is now ready to serve you at http://localhost:" << portno << endl;
-#if defined(COMMERCIAL) && !defined(WIN32)
+#if (defined(COMMERCIAL) && !defined(WIN32)) && !defined(__CYGWIN__)
 	if (browse_only)
 		swill_setfork();
 #endif
