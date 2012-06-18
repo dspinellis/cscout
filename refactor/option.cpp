@@ -7,7 +7,7 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.17 2009/03/14 21:34:38 dds Exp $
+ * $Id: option.cpp,v 1.18 2012/06/18 10:44:52 dds Exp $
  */
 
 #include <string>
@@ -121,6 +121,8 @@ Option::save_all(ofstream &ofs)
 void
 Option::load_all(ifstream &in)
 {
+	if (DP())
+		cout << "Reading options" << endl;
 	while (!in.eof()) {
 		string val;
 		in >> val;
@@ -131,7 +133,11 @@ Option::load_all(ifstream &in)
 			i->second->load(in);
 		else
 			cerr << "Skipping unknown option :" << val << endl;
+		if (DP())
+			cout << "Read option " << val << endl;
 	}
+	if (DP())
+		cout << "Finished reading options" << endl;
 }
 
 // Set from a submitted page
