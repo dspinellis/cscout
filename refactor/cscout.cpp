@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.233 2012/06/18 10:45:15 dds Exp $
+ * $Id: cscout.cpp,v 1.234 2012/06/18 11:02:58 dds Exp $
  */
 
 #include <map>
@@ -75,7 +75,7 @@
 #include "ctag.h"
 
 #ifdef PICO_QL
-#include "stl_search.h"
+#include "pico_ql_search.h"
 #endif
 
 #if defined(unix) || defined(__MACH__)
@@ -3507,8 +3507,8 @@ main(int argc, char *argv[])
 
 #ifdef PICO_QL
 	if (pico_ql) {
-		register_pico_ql(&files, "files");
-		call_pico_ql();
+		pico_ql_register(&files, "files");
+		pico_ql_start();
 		return (0);
 	}
 #endif

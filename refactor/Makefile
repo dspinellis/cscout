@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.159 2012/06/12 16:16:47 dds Exp $
+# $Id: Makefile,v 1.160 2012/06/18 11:02:58 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -31,7 +31,8 @@ dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o
 # monitor.o
 
 ifdef PICO_QL
-OBJBASE += stl_search.o stl_to_sql.o user_functions.o workers.o stl_test.o
+OBJBASE += pico_ql_search.o pico_ql_vt.o pico_ql_interface.o \
+ pico_ql_search_helper.o pico_ql_test.o sqlite3.o
 endif
 
 
@@ -72,7 +73,7 @@ DISTSRC=License.txt attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	fchar.h fileid.cpp fileid.h id.h incs.h \
 	macro.cpp macro.h metrics.cpp metrics.h mscdefs.h \
 	mscincs.h obfuscate.cpp parse.y pdtoken.cpp \
-	pdtoken.h pltoken.cpp pltoken.h ptoken.cpp ptoken.h regex.h \
+	pdtoken.h pltoken.cpp pltoken.h ptoken.cpp ptoken.h \
 	simple_cpp.cpp stab.cpp stab.h swill.h tchar.cpp tchar.h \
 	tclfuns.cpp token.cpp token.h tokid.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
@@ -150,8 +151,8 @@ dummy := $(shell ./ccode "$(LICENSEE)")
 endif
 
 ifdef PICO_QL
-CPPFLAGS += -DPICO_QL -I/usr/include
-ADDLIBS += -lsqlite3
+CPPFLAGS += -DPICO_QL -I/usr/include -I../sqlite-amalgamation
+CPPFLAGS += -I/cygdrive/c/vol/boost_1_44_0
 endif
 
 CPPFLAGS+=$(EXTRA_CPPFLAGS)
@@ -191,7 +192,7 @@ $(ARCH)/cscout-cc: $(ARCH)/cscout.o  $(OBJ)
 	ccmalloc $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout-cc  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
 
 $(ARCH)/cscout.exe: $(ARCH)/cscout.o  $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32 -lregex
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lregex -lswill -lws2_32
 
 ccheck: license.c license.h des.c des.h
 	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
@@ -231,8 +232,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.159 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/06/12 16:16:47 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.160 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/06/18 11:02:58 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -417,16 +418,21 @@ evalsrc:
 	rm -rf cscout-$(BRANCH)-evalsrc
 
 ifdef PICO_QL
-stl_search.cpp: generator.rb cscout-data.sql
-	ruby generator.rb cscout-data.sql
+pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql
+	ruby pico_ql_generator.rb cscout-data.sql
 
-stl_search.o: stl_search.cpp stl_search.h user_functions.h workers.h
+pico_ql_search.o: pico_ql_search.cpp pico_ql_search.h pico_ql_interface.h pico_ql_search_helper.h
 
-stl_to_sql.o: stl_to_sql.c stl_to_sql.h stl_search.h
+pico_ql_vt.o: pico_ql_vt.c pico_ql_vt.h pico_ql_search.h
 
-user_functions.o: user_functions.c user_functions.h stl_test.h
+pico_ql_interface.o: pico_ql_interface.c pico_ql_interface.h pico_ql_test.h
 
-workers.o: workers.cpp workers.h stl_search.h
+pico_ql_search_helper.o: pico_ql_search_helper.cpp pico_ql_search_helper.h pico_ql_search.h
 
-stl_test.o: stl_test.c stl_test.h
+pico_ql_test.o: pico_ql_test.c pico_ql_test.h
+
+sqlite3.o: sqlite3.o
+
+sqlite3.c: ../sqlite-amalgamation/sqlite3.c
+	cp $< .
 endif
