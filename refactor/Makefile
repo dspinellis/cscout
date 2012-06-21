@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.160 2012/06/18 11:02:58 dds Exp $
+# $Id: Makefile,v 1.161 2012/06/21 09:07:07 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -151,8 +151,8 @@ dummy := $(shell ./ccode "$(LICENSEE)")
 endif
 
 ifdef PICO_QL
-CPPFLAGS += -DPICO_QL -I/usr/include -I../sqlite-amalgamation
-CPPFLAGS += -I/cygdrive/c/vol/boost_1_44_0
+CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I/usr/include -I../sqlite-amalgamation
+CPPFLAGS += -I/vol/boost_1_44_0
 endif
 
 CPPFLAGS+=$(EXTRA_CPPFLAGS)
@@ -232,8 +232,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.160 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/06/18 11:02:58 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.161 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/06/21 09:07:07 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
