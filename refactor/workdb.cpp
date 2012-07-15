@@ -7,7 +7,7 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.51 2009/01/15 14:32:57 dds Exp $
+ * $Id: workdb.cpp,v 1.52 2012/07/15 05:07:11 dds Exp $
  */
 
 #ifdef COMMERCIAL
@@ -72,7 +72,7 @@ public:
 	}
 };
 
-// Insert an equivalence classe in the database
+// Insert an equivalence class in the database
 static void
 insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 {
@@ -393,8 +393,8 @@ workdb_schema(Sql *db, ostream &of)
 
 		/*
 		 * Foreign keys for the following four tables are not specified, because it is difficult
-		 * to satisfy integrit constraints: files (esp. their metrics, esp. ncopies) can't
-		 * be written until the end of processing, while to conserve space, these table are
+		 * to satisfy integrity constraints: files (esp. their metrics, esp. ncopies) can't
+		 * be written until the end of processing, while to conserve space, these tables are
 		 * written after each file is processed.
 		 * Alternatively, we can wrap inserts to these tables into
 		 * SET REFERENTIAL_INTEGRITY { TRUE | FALSE } calls.
