@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.161 2012/06/21 09:07:07 dds Exp $
+# $Id: Makefile,v 1.162 2012/07/15 06:43:30 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -232,8 +232,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.161 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/06/21 09:07:07 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.162 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/07/15 06:43:30 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -419,7 +419,8 @@ evalsrc:
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql
-	ruby pico_ql_generator.rb cscout-data.sql
+	perl picoschema.pl cscout-data.sql >cscout-data.auto
+	ruby pico_ql_generator.rb cscout-data.auto
 
 pico_ql_search.o: pico_ql_search.cpp pico_ql_search.h pico_ql_interface.h pico_ql_search_helper.h
 
