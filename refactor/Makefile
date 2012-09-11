@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.165 2012/09/11 08:09:34 dds Exp $
+# $Id: Makefile,v 1.166 2012/09/11 10:37:44 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -88,7 +88,7 @@ DISTSRC=License.txt attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	pager.h pager.cpp option.cpp option.h  filemetrics.cpp funmetrics.cpp \
 	ctconst.cpp ctconst.h gdisplay.cpp  globobj.cpp globobj.h \
 	html.h html.cpp dirbrowse.h dirbrowse.cpp fileutils.cpp fileutils.h \
-	ctag.cpp ctag.h \
+	ctag.cpp ctag.h timer.cpp timer.h \
 	runtest.sh \
 	csmake.pl cswc.pl style.css
 
@@ -152,9 +152,21 @@ dummy := $(shell ./ccode "$(LICENSEE)")
 endif
 
 ifdef PICO_QL
-CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I/usr/include -I../sqlite-amalgamation
+CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I/usr/include -I.
+
+ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
 CPPFLAGS += -I/vol/boost_1_44_0
-ALLSRC += cscout-data.sql picoschema.pl
+else
+CPPFLAGS += -I../boost_1_44_0
+endif
+
+ALLSRC += pico_ql_erb_templates pico_ql_generator.rb picoschema.pl \
+  cscout-data.sql \
+  sqlite3.c sqlite3.h pico_ql_error_page.c pico_ql_interface.c \
+  pico_ql_interface.h pico_ql_logo.c \
+  pico_ql_search.h pico_ql_search_helper.cpp pico_ql_search_helper.h \
+  pico_ql_swill_access_func.h pico_ql_test.c pico_ql_test.h pico_ql_vt.c \
+  pico_ql_vt.h
 endif
 
 CPPFLAGS+=$(EXTRA_CPPFLAGS)
@@ -234,8 +246,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.165 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/09/11 08:09:34 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.166 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/09/11 10:37:44 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
