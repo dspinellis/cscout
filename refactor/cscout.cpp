@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.236 2012/09/10 17:02:02 dds Exp $
+ * $Id: cscout.cpp,v 1.237 2012/09/11 08:09:01 dds Exp $
  */
 
 #include <map>
@@ -73,6 +73,7 @@
 #include "globobj.h"
 #include "fifstream.h"
 #include "ctag.h"
+#include "timer.h"
 
 #ifdef PICO_QL
 #include "pico_ql_search.h"
@@ -1044,6 +1045,7 @@ struct ignore : public binary_function <int, int, bool> {
 static void
 xfilequery_page(FILE *of,  void *p)
 {
+	Timer timer;
 	char *qname = swill_getvar("n");
 	FileQuery query(of, Option::file_icase->get(), current_project);
 
@@ -1081,6 +1083,7 @@ xfilequery_page(FILE *of,  void *p)
 	}
 	html_file_end(of);
 	pager.end();
+	timer.print_elapsed(of);
 	html_tail(of);
 }
 
@@ -1297,6 +1300,7 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 static void
 xiquery_page(FILE *of,  void *p)
 {
+	Timer timer;
 	prohibit_remote_access(of);
 
 	Sids sorted_ids;
@@ -1343,6 +1347,7 @@ xiquery_page(FILE *of,  void *p)
 		display_sorted(of, query, sorted_funs);
 	}
 
+	timer.print_elapsed(of);
 	html_tail(of);
 }
 
@@ -1351,6 +1356,7 @@ static void
 xfunquery_page(FILE *of,  void *p)
 {
 	prohibit_remote_access(of);
+	Timer timer;
 
 	Sfuns sorted_funs;
 	IFSet sorted_files;
@@ -1383,6 +1389,7 @@ xfunquery_page(FILE *of,  void *p)
 	}
 	if (q_file)
 		display_files(of, query, sorted_files);
+	timer.print_elapsed(of);
 	html_tail(of);
 }
 
