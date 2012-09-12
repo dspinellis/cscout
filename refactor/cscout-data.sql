@@ -17,6 +17,8 @@
 #include <cstdlib>		// atoi
 #include <cerrno>		// errno
 
+#include <boost/iostreams/positioning.hpp>
+
 #include "swill.h"
 #include "getopt.h"
 
@@ -51,28 +53,28 @@ CREATE STRUCT VIEW Eclass (
 	len INTEGER FROM get_len(),
 	size INTEGER FROM get_size(),
 	unused BOOLEAN FROM is_unused(),					// True if this equivalence class is unintentionally unused
-	is_declared_unused BOOLEAN FROM get_attribute(is_declared_unused),	// Declared with __unused__ attribute
-	is_macro_token BOOLEAN FROM get_attribute(is_macro_token),		// Identifier stored in a macro
+	isDeclaredUnused BOOLEAN FROM get_attribute(is_declared_unused),	// Declared with __unused__ attribute
+	isMacroToken BOOLEAN FROM get_attribute(is_macro_token),		// Identifier stored in a macro
 
-	is_readonly BOOLEAN FROM get_attribute(is_readonly),			// Read-only; true if any member
+	isReadonly BOOLEAN FROM get_attribute(is_readonly),			// Read-only; true if any member
 										// comes from an ro file
 	// The four C namespaces
-	is_suetag BOOLEAN FROM get_attribute(is_suetag),			// Struct/union/enum tag
-	is_sumember BOOLEAN FROM get_attribute(is_sumember),			// Struct/union member
-	is_label BOOLEAN FROM get_attribute(is_label),				// Goto label
-	is_ordinary BOOLEAN FROM get_attribute(is_ordinary),			// Ordinary identifier
+	isSuetag BOOLEAN FROM get_attribute(is_suetag),			// Struct/union/enum tag
+	isSumember BOOLEAN FROM get_attribute(is_sumember),			// Struct/union member
+	isLabel BOOLEAN FROM get_attribute(is_label),				// Goto label
+	isOrdinary BOOLEAN FROM get_attribute(is_ordinary),			// Ordinary identifier
 
-	is_macro BOOLEAN FROM get_attribute(is_macro),				// Name of an object or function-like macro
-	is_undefined_macro BOOLEAN FROM get_attribute(is_undefined_macro),	// Macro (heuristic: ifdef, defined)
-	is_macro_arg BOOLEAN FROM get_attribute(is_macro_arg),			// Macro argument
-	// The following are valid if is_ordinary is true:
-	is_cscope BOOLEAN FROM get_attribute(is_cscope),			// Compilation-unit (file) scoped
+	isMacro BOOLEAN FROM get_attribute(is_macro),				// Name of an object or function-like macro
+	isUndefined_macro BOOLEAN FROM get_attribute(is_undefined_macro),	// Macro (heuristic: ifdef, defined)
+	isMacro_arg BOOLEAN FROM get_attribute(is_macro_arg),			// Macro argument
+	// The following are valid if isOrdinary is true:
+	isCscope BOOLEAN FROM get_attribute(is_cscope),			// Compilation-unit (file) scoped
 				// identifier  (static)
-	is_lscope BOOLEAN FROM get_attribute(is_lscope),			// Linkage-unit scoped identifier
-	is_typedef BOOLEAN FROM get_attribute(is_typedef),			// Typedef
-	is_enum BOOLEAN FROM get_attribute(is_enum),				// Enumeration member
-	is_yacc BOOLEAN FROM get_attribute(is_yacc),				// Yacc identifier
-	is_function BOOLEAN FROM get_attribute(is_function),			// Function
+	isLscope BOOLEAN FROM get_attribute(is_lscope),			// Linkage-unit scoped identifier
+	isTypedef BOOLEAN FROM get_attribute(is_typedef),			// Typedef
+	isEnum BOOLEAN FROM get_attribute(is_enum),				// Enumeration member
+	isYacc BOOLEAN FROM get_attribute(is_yacc),				// Yacc identifier
+	isFunction BOOLEAN FROM get_attribute(is_function),			// Function
         FOREIGN KEY(members) FROM get_members() REFERENCES Tokids
 );
 
@@ -101,7 +103,8 @@ WITH REGISTERED C TYPE map<Eclass *, Identifier>;
 
 CREATE STRUCT VIEW Tokid (
 	fileid INTEGER FROM get_fileid().get_id(),
-	offset INTEGER FROM get_streampos()
+	// Make it an integer on all systems
+	offset INTEGER FROM boost::iostreams::position_to_offset(this.get_streampos())
 );
 
 CREATE VIRTUAL TABLE cscout.Tokids
