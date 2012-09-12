@@ -73,7 +73,7 @@ CREATE STRUCT VIEW Eclass (
 	is_enum BOOLEAN FROM get_attribute(is_enum),				// Enumeration member
 	is_yacc BOOLEAN FROM get_attribute(is_yacc),				// Yacc identifier
 	is_function BOOLEAN FROM get_attribute(is_function),			// Function
-        FOREIGN KEY(members) FROM get_members() REFERENCES Tokens
+        FOREIGN KEY(members) FROM get_members() REFERENCES Tokids
 );
 
 CREATE VIRTUAL TABLE cscout.Eclass
@@ -99,11 +99,22 @@ USING STRUCT VIEW IdentifierProperties
 WITH REGISTERED C NAME ids
 WITH REGISTERED C TYPE map<Eclass *, Identifier>;
 
-CREATE STRUCT VIEW Token (
+CREATE STRUCT VIEW Tokid (
 	fileid INTEGER FROM get_fileid().get_id(),
 	offset INTEGER FROM get_streampos()
 );
 
-CREATE VIRTUAL TABLE cscout.Tokens
-USING STRUCT VIEW Token
+CREATE VIRTUAL TABLE cscout.Tokids
+USING STRUCT VIEW Tokid
 WITH REGISTERED C TYPE set<Tokid>;
+
+CREATE STRUCT VIEW TokidEquivalenceClasses (
+      FOREIGN KEY(tokid) FROM first REFERENCES Tokid,
+      FOREIGN KEY(eclass) FROM second REFERENCES Eclass POINTER
+);
+
+
+CREATE VIRTUAL TABLE cscout.TokidEquivalenceClasses
+USING STRUCT VIEW TokidEquivalenceClasses
+WITH REGISTERED C NAME tm
+WITH REGISTERED C TYPE map<Tokid, Eclass *>;

@@ -20,7 +20,7 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.27 2009/01/15 14:32:57 dds Exp $
+ * $Id: tokid.h,v 1.28 2012/09/12 09:46:20 dds Exp $
  */
 
 #ifndef TOKID_
@@ -45,8 +45,13 @@ class Tokid;
 typedef map <Tokid, Eclass *> mapTokidEclass;
 
 class Tokid {
+#ifdef PICO_QL
+public:
+#else
 private:
+#endif
 	static mapTokidEclass tm;	// Map from tokens to their equivalence
+private:
 					// classes
 	Fileid fi;			// File
 	cs_offset_t offs;		// Offset

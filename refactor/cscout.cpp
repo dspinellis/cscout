@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.237 2012/09/11 08:09:01 dds Exp $
+ * $Id: cscout.cpp,v 1.238 2012/09/12 09:46:20 dds Exp $
  */
 
 #include <map>
@@ -3516,6 +3516,7 @@ main(int argc, char *argv[])
 	if (pico_ql) {
 		pico_ql_register(&files, "files");
 		pico_ql_register(&Identifier::ids, "ids");
+		pico_ql_register(&Tokid::tm, "tm");
 		while (pico_ql_serve())
 			;
 		return (0);
