@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.166 2012/09/11 10:37:44 dds Exp $
+# $Id: Makefile,v 1.167 2012/09/18 14:17:45 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -246,8 +246,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.166 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/09/11 10:37:44 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.167 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/09/18 14:17:45 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -448,6 +448,6 @@ pico_ql_error_page.o: pico_ql_error_page.c pico_ql_swill_access_func.h
 
 sqlite3.o: sqlite3.o
 
-sqlite3.c: ../sqlite-amalgamation/sqlite3.c
-	cp $< .
+#sqlite3.c: ../sqlite-amalgamation/sqlite3.c
+#	cp $< .
 endif
