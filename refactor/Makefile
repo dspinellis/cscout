@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.167 2012/09/18 14:17:45 dds Exp $
+# $Id: Makefile,v 1.168 2012/09/18 14:25:51 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -152,7 +152,7 @@ dummy := $(shell ./ccode "$(LICENSEE)")
 endif
 
 ifdef PICO_QL
-CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I/usr/include -I.
+CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I/usr/include -I. -ldl -lpthread
 
 ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
 CPPFLAGS += -I/vol/boost_1_44_0
@@ -246,8 +246,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.167 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/09/18 14:17:45 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.168 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/09/18 14:25:51 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
