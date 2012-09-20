@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.169 2012/09/18 15:20:12 dds Exp $
+# $Id: Makefile,v 1.170 2012/09/20 10:34:17 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -100,12 +100,11 @@ ALLSRC=$(SRC) logo.png version.cpp
 YACC=btyacc
 #YACC=yacc
 
-CPPFLAGS+=-pipe -Wall
+CPPFLAGS+=-pipe -Wall -I.
 CPPFLAGS+=-DSPINELLIS_SERVER
 ifdef DEBUG
 # Debug build
 # To get yacc debugging info set YYDEBUG environment variable to 1
-# and add -DYYDEBUG to the flags below
 # To get stack traces for STL problems use gdb and break _Error_formatter::_M_at
 CPPFLAGS+=-g -DCOMMERCIAL -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 # -D_GLIBCXX_CONCEPT_CHECKS
@@ -153,7 +152,7 @@ dummy := $(shell ./ccode "$(LICENSEE)")
 endif
 
 ifdef PICO_QL
-CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I/usr/include -I../sqlite-amalgamation -ldl -lpthread
+CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I../sqlite-amalgamation -ldl -lpthread
 
 ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
 CPPFLAGS += -I/vol/boost_1_44_0
@@ -247,8 +246,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.169 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/09/18 15:20:12 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.170 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/09/20 10:34:17 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
