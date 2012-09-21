@@ -33,6 +33,7 @@
 #include "fileid.h"
 #include "filemetrics.h"
 #include "idquery.h"
+#include "call.h"
 ;
 
 CREATE STRUCT VIEW File (
@@ -40,7 +41,7 @@ CREATE STRUCT VIEW File (
 	id INTEGER FROM get_id(),
 	fname STRING FROM get_fname(),
 	dir STRING FROM get_dir(),
-	#schema filemetrics.cpp FileMetrics metrics().get_int_metric(FileMetrics::FIELDNAME)
+	#schema filemetrics.cpp FileMetrics INTEGER metrics().get_int_metric(FileMetrics::FIELDNAME)
 	readonly INTEGER FROM get_readonly()
 );
 
@@ -104,20 +105,51 @@ WITH REGISTERED C TYPE map<Eclass *, Identifier>;
 CREATE STRUCT VIEW Tokid (
 	fileid INTEGER FROM get_fileid().get_id(),
 	// Make it an integer on all systems
-	offset INTEGER FROM boost::iostreams::position_to_offset(this.get_streampos())
+	offset INTEGER FROM (int)boost::iostreams::position_to_offset(this.get_streampos())
 );
 
 CREATE VIRTUAL TABLE cscout.Tokids
 USING STRUCT VIEW Tokid
 WITH REGISTERED C TYPE set<Tokid>;
 
+CREATE VIRTUAL TABLE cscout.Tokid
+USING STRUCT VIEW Tokid
+WITH REGISTERED C TYPE Tokid;
+
 CREATE STRUCT VIEW TokidEquivalenceClasses (
       FOREIGN KEY(tokid) FROM first REFERENCES Tokid,
       FOREIGN KEY(eclass) FROM second REFERENCES Eclass POINTER
 );
 
-
 CREATE VIRTUAL TABLE cscout.TokidEquivalenceClasses
 USING STRUCT VIEW TokidEquivalenceClasses
 WITH REGISTERED C NAME tm
 WITH REGISTERED C TYPE map<Tokid, Eclass *>;
+
+CREATE STRUCT VIEW FunctionMap (
+      FOREIGN KEY(tokid) FROM first REFERENCES Tokid,
+      FOREIGN KEY(call) FROM second REFERENCES Call POINTER
+);
+
+CREATE VIRTUAL TABLE cscout.FunctionMap
+USING STRUCT VIEW FunctionMap
+WITH REGISTERED C NAME fun_map
+WITH REGISTERED C TYPE map<Tokid, Call *>;
+
+
+CREATE STRUCT VIEW Call (
+	name STRING FROM get_name(),
+	fileid INTEGER FROM get_fileid().get_id(),
+	isDefined BOOLEAN FROM is_defined(),
+	isDeclared BOOLEAN FROM is_declared(),
+	isFileScoped BOOLEAN FROM is_file_scoped(),
+	isCFun BOOLEAN FROM is_cfun(),
+	isMacro BOOLEAN FROM is_macro(),
+	#schema funmetrics.cpp FunMetrics DOUBLE metrics().get_metric(FunMetrics::FIELDNAME)
+	entityTypeName STRING FROM entity_type_name(),
+	FOREIGN KEY(atokid) FROM get_tokid() REFERENCES Tokid
+);
+
+CREATE VIRTUAL TABLE cscout.Call
+USING STRUCT VIEW Call
+WITH REGISTERED C TYPE Call;
