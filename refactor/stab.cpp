@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.53 2011/10/23 16:22:06 dds Exp $
+ * $Id: stab.cpp,v 1.54 2012/09/21 07:56:03 dds Exp $
  */
 
 #include <map>
@@ -305,7 +305,8 @@ tag_define(const Token& tok, const Type& typ)
 {
 	// Store CTags info
 	CTag::add(tok, typ);
-	if (!typ.is_incomplete()) {
+	// For structures and unions (but not for enums) store their members
+	if (typ.is_su() && !typ.is_incomplete()) {
 		const vector <Id>& members = typ.get_members_by_ordinal();
 		for (vector <Id>::const_iterator i = members.begin(); i != members.end(); i++)
 			CTag::add(i->get_token(), typ.ctags_kind(), tok.get_name());
