@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.171 2012/09/21 07:53:22 dds Exp $
+# $Id: Makefile,v 1.172 2012/09/21 07:55:02 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -152,12 +152,14 @@ dummy := $(shell ./ccode "$(LICENSEE)")
 endif
 
 ifdef PICO_QL
-CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I../sqlite-amalgamation -ldl -lpthread
+CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I../sqlite-amalgamation
+
 
 ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
 CPPFLAGS += -I/vol/boost_1_44_0
 else
 CPPFLAGS += -I../boost_1_44_0
+LDFLAGS += -ldl -lpthread
 endif
 
 ALLSRC += pico_ql_erb_templates pico_ql_generator.rb picoschema.pl \
@@ -246,8 +248,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.171 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/09/21 07:53:22 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.172 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2012/09/21 07:55:02 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
