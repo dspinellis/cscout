@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.239 2012/09/20 10:30:40 dds Exp $
+ * $Id: cscout.cpp,v 1.240 2012/09/21 08:08:07 dds Exp $
  */
 
 #include <map>
@@ -3133,21 +3133,28 @@ usage(char *fname)
 {
 	cerr << "usage: " << fname <<
 #ifdef COMMERCIAL
+#define COMMERCIAL_OPTIONS COMMERCIAL_UNIX_OPTIONS "l:os:H:P:A:"
 		" ["
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
 		"-C|-c|-d D|-d H|-E|-o|"
-#ifdef PICO_QL
-		"-q|"
-#endif
 		"-r|-s db|-v] "
 		"[-l file] [-H host] [-P port] [-A user:passwd] "
 #define CO(x) x
 #else
+#define COMMERCIAL_OPTIONS ""
 		" [-c|-E|-r|-v|-3] "
 #define CO(x)
 #endif
+
+#ifdef PICO_QL
+#define PICO_QL_OPTIONS "q"
+		"-q|"
+#else
+#define PICO_QL_OPTIONS ""
+#endif
+
 		"[-p port] [-m spec] file\n"
 CO(		"\t-A u:p\tHTTP proxy authorization username and password\n")
 #ifndef WIN32
@@ -3198,13 +3205,9 @@ main(int argc, char *argv[])
 	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
 		cscout_des_decode(licensee + i * 8);
 	cscout_des_done();
-#define COMMERCIAL_OPTIONS COMMERCIAL_UNIX_OPTIONS "l:os:H:P:A:"
-#else
-#define COMMERCIAL_OPTIONS ""
 #endif
 
-
-	while ((c = getopt(argc, argv, "3Ccd:rvEp:qm:" COMMERCIAL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3Ccd:rvEp:m:" PICO_QL_OPTIONS COMMERCIAL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
