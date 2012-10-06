@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.240 2012/09/21 08:08:07 dds Exp $
+ * $Id: cscout.cpp,v 1.241 2012/10/06 18:06:52 dds Exp $
  */
 
 #include <map>
@@ -77,6 +77,7 @@
 
 #ifdef PICO_QL
 #include "pico_ql_search.h"
+using namespace picoQL;
 #endif
 
 #if defined(unix) || defined(__MACH__)
@@ -3521,7 +3522,7 @@ main(int argc, char *argv[])
 		pico_ql_register(&Identifier::ids, "ids");
 		pico_ql_register(&Tokid::tm, "tm");
 		pico_ql_register(&Call::functions(), "fun_map");
-		while (pico_ql_serve())
+		while (pico_ql_serve(portno))
 			;
 		return (0);
 	}
