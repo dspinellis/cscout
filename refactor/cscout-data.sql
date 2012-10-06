@@ -45,10 +45,16 @@ CREATE STRUCT VIEW File (
 	readonly INTEGER FROM get_readonly()
 );
 
+// File details gathered during parsing for GUI operation
 CREATE VIRTUAL TABLE cscout.File
 USING STRUCT VIEW File
 WITH REGISTERED C NAME files
 WITH REGISTERED C TYPE vector<Fileid>;
+
+CREATE VIRTUAL TABLE cscout.FileId
+USING STRUCT VIEW File
+WITH REGISTERED C TYPE Fileid;
+
 
 CREATE STRUCT VIEW Eclass (
 	len INTEGER FROM get_len(),
@@ -103,9 +109,9 @@ WITH REGISTERED C NAME ids
 WITH REGISTERED C TYPE map<Eclass *, Identifier>;
 
 CREATE STRUCT VIEW Tokid (
-	fileid INTEGER FROM get_fileid().get_id(),
 	// Make it an integer on all systems
-	offset INTEGER FROM (int)boost::iostreams::position_to_offset(this.get_streampos())
+	offset INTEGER FROM (int)boost::iostreams::position_to_offset(this.get_streampos()),
+        FOREIGN KEY(fileid) FROM get_fileid() REFERENCES FileId
 );
 
 CREATE VIRTUAL TABLE cscout.Tokids
@@ -139,7 +145,6 @@ WITH REGISTERED C TYPE map<Tokid, Call *>;
 
 CREATE STRUCT VIEW Call (
 	name STRING FROM get_name(),
-	fileid INTEGER FROM get_fileid().get_id(),
 	isDefined BOOLEAN FROM is_defined(),
 	isDeclared BOOLEAN FROM is_declared(),
 	isFileScoped BOOLEAN FROM is_file_scoped(),
@@ -147,7 +152,8 @@ CREATE STRUCT VIEW Call (
 	isMacro BOOLEAN FROM is_macro(),
 	#schema funmetrics.cpp FunMetrics DOUBLE metrics().get_metric(FunMetrics::FIELDNAME)
 	entityTypeName STRING FROM entity_type_name(),
-	FOREIGN KEY(atokid) FROM get_tokid() REFERENCES Tokid
+	FOREIGN KEY(atokid) FROM get_tokid() REFERENCES Tokid,
+        FOREIGN KEY(fileid) FROM get_fileid() REFERENCES FileId
 );
 
 CREATE VIRTUAL TABLE cscout.Call
