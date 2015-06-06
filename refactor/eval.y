@@ -8,7 +8,7 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.18 2009/01/15 14:32:57 dds Exp $
+ * $Id: eval.y,v 1.19 2015/06/06 09:04:06 dds Exp $
  *
  */
 
@@ -68,7 +68,7 @@
 // Result is 1 or 0, therefore always signed
 #define logop(res, x, op, y) (res.v.u = (x.v.u op y.v.u), res.su = e_signed)
 
-void eval_error(char *) {}
+void eval_error(const char *, ...) {}
 extern int eval_lex();
 
 %}

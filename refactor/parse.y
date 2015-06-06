@@ -19,7 +19,7 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.150 2009/03/13 13:21:48 dds Exp $
+ * $Id: parse.y,v 1.151 2015/06/06 09:04:06 dds Exp $
  *
  */
 
@@ -64,7 +64,7 @@
 #include "fcall.h"
 #include "mcall.h"
 
-void parse_error(char *s)
+void parse_error(const char *s, ...)
 {
 	Error::error(E_ERR, "syntax error");
 }
