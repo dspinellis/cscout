@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
 #
@@ -7,7 +7,7 @@
 # If you do not agree to the terms, do not use the code.
 #
 #
-# $Id: runtest.sh,v 1.30 2011/10/23 07:08:36 dds Exp $
+# $Id: runtest.sh,v 1.31 2015/06/06 20:33:50 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -34,7 +34,8 @@ end_compare()
 	fi
 	if ( test -r test/out/$NAME.err &&
 	     diff -ib test/out/$NAME.out test/nout/$NAME.out &&
-	     diff -ib test/out/$NAME.err test/nout/$NAME.err ) ||
+	     diff -ib <(sed "s|^.*$(pwd)||" test/out/$NAME.err)
+	       <(sed "s|^.*$(pwd)||" test/nout/$NAME.err) ) ||
 	   ( test -r test/out/$NAME &&
 	     diff -ib test/out/$NAME test/nout/$NAME )
 	then
@@ -302,7 +303,7 @@ done
 NULL=/dev/null
 TMP=/tmp
 case `hostname` in
-vaio)
+macpro)
 	CSCOUT=/cygdrive/c/dds/src/research/cscout/refactor/i386/cscout
 	HSQLDB="java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc"
 	IPATH=/dds/src/research/CScout/include
