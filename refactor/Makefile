@@ -5,7 +5,7 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.172 2012/09/21 07:55:02 dds Exp $
+# $Id: Makefile,v 1.173 2015/06/06 20:33:21 dds Exp $
 #
 
 # By default a production, unsupported build is made.
@@ -97,7 +97,7 @@ SRC=Makefile $(DISTSRC) license.c license.h
 
 ALLSRC=$(SRC) logo.png version.cpp
 
-YACC=btyacc
+YACC=/c/dds/src/port/btyacc/btyacc
 #YACC=yacc
 
 CPPFLAGS+=-pipe -Wall -I.
@@ -106,7 +106,7 @@ ifdef DEBUG
 # Debug build
 # To get yacc debugging info set YYDEBUG environment variable to 1
 # To get stack traces for STL problems use gdb and break _Error_formatter::_M_at
-CPPFLAGS+=-g -DCOMMERCIAL -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+CPPFLAGS+=-g -DCOMMERCIAL -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -DDEBUG
 # -D_GLIBCXX_CONCEPT_CHECKS
 dummy := $(shell gcc -o ccode -DCCODE des.c)
 dummy := $(shell ./ccode "(internal use only)")
@@ -208,7 +208,7 @@ $(ARCH)/cscout-cc: $(ARCH)/cscout.o  $(OBJ)
 	ccmalloc $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout-cc  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
 
 $(ARCH)/cscout.exe: $(ARCH)/cscout.o  $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lregex -lswill -lws2_32
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32
 
 ccheck: license.c license.h des.c des.h
 	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
@@ -218,15 +218,15 @@ ccheck-install: ccheck
 
 eval.cpp: eval.y
 	$(YACC) -b eval -p eval_ eval.y
-	mv -f eval_tab.c eval.cpp
+	mv -f eval.tab.c eval.cpp
 
-parse.cpp parse_tab.h: parse.y ytoken.h
+parse.cpp parse.tab.h: parse.y ytoken.h
 	@echo Expect 3 shift/reduce conflicts
 	$(YACC) -d -b parse -p parse_ parse.y
-	mv -f parse_tab.c parse.cpp
+	mv -f parse.tab.c parse.cpp
 
-ytab.h: parse_tab.h
-	grep 'define ' parse_tab.h >ytab.h
+ytab.h: parse.tab.h
+	grep 'define ' parse.tab.h >ytab.h
 
 $(ARCH)/cscout.o: cscout.cpp ytab.h
 
@@ -248,8 +248,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.172 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2012/09/21 07:55:02 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.173 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2015/06/06 20:33:21 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -369,7 +369,7 @@ sparc: rdist-sourceforge
 	$(SSH) $(SF) "ssh sparc-solaris2 '(cd src/cs ; make mkdir lf all ; strip sparc/cscout)'"
 
 clean:
-	rm -f $(ARCH)/* parse_tab.h parse.cpp ytab.h tokname.cpp eval.cpp
+	rm -f $(ARCH)/* parse.tab.h parse.cpp ytab.h tokname.cpp eval.cpp
 
 .java.dot:
 	cmd /c javadoc.exe -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
