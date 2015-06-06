@@ -13,7 +13,7 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.20 2008/12/02 14:04:35 dds Exp $
+# $Id: cswc.pl,v 1.21 2015/06/06 23:41:28 dds Exp $
 #
 
 # Syntax:
@@ -56,10 +56,9 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.20 $';
-	$rel =~ s/\//;
-	$rel =~ s/\$//;
-	print STDERR "cswc - CScout workspace compiler - version $rel\n\n" .
+	my $rel = '$Revision: 1.21 $';
+	$rel =~ s/\$//g;
+	print STDERR "cswc - CScout workspace compiler - $rel\n\n" .
 	# 80 column terminal width----------------------------------------------------
 	"(C) Copyright 2003-2008 Diomidis Spinelllis.\n\n" .
 	"Unsupported version.  Can be used and distributed under the terms of the\n" .

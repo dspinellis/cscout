@@ -7,7 +7,7 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.cpp,v 1.4 2009/01/28 08:41:27 dds Exp $
+ * $Id: gdisplay.cpp,v 1.5 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>
@@ -52,7 +52,6 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
-#include "license.h"
 #include "fdep.h"
 #include "version.h"
 #include "call.h"

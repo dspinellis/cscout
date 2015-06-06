@@ -7,7 +7,7 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.23 2009/03/13 13:21:48 dds Exp $
+ * $Id: funquery.cpp,v 1.24 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>
@@ -48,7 +48,6 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
-#include "license.h"
 #include "fdep.h"
 #include "version.h"
 #include "call.h"

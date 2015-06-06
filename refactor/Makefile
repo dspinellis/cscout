@@ -5,12 +5,10 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.173 2015/06/06 20:33:21 dds Exp $
+# $Id: Makefile,v 1.174 2015/06/06 23:41:28 dds Exp $
 #
 
-# By default a production, unsupported build is made.
-# For a commercial build run make as:
-# make LICENSEE="John Smith"
+# By default a production build is made.
 # For a debug build run make as:
 # make DEBUG=1
 
@@ -22,7 +20,7 @@ CXX=g++
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
-parse.o type.o stab.o attr.o metrics.o license.o des.o version.o \
+parse.o type.o stab.o attr.o metrics.o version.o \
 getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
 logo.o workdb.o obfuscate.o sql.o base64.o md5.o os.o pager.o \
 option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
@@ -67,9 +65,9 @@ OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
 .SUFFIXES:.java .dot .ps .png .pic .eps .png .svg
 
 # Source we distribute
-# Do not add Makefile version.cpp license.c license.h here
+# Do not add Makefile version.cpp here
 DISTSRC=License.txt attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
-	ctoken.h debug.cpp debug.h defs.h des.c des.h eclass.cpp \
+	ctoken.h debug.cpp debug.h defs.h eclass.cpp \
 	eclass.h error.cpp error.h eval.y fchar.cpp \
 	fchar.h fileid.cpp fileid.h id.h incs.h \
 	macro.cpp macro.h metrics.cpp metrics.h mscdefs.h \
@@ -93,7 +91,7 @@ DISTSRC=License.txt attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	csmake.pl cswc.pl style.css
 
 # Sources needed for building
-SRC=Makefile $(DISTSRC) license.c license.h
+SRC=Makefile $(DISTSRC)
 
 ALLSRC=$(SRC) logo.png version.cpp
 
@@ -106,10 +104,8 @@ ifdef DEBUG
 # Debug build
 # To get yacc debugging info set YYDEBUG environment variable to 1
 # To get stack traces for STL problems use gdb and break _Error_formatter::_M_at
-CPPFLAGS+=-g -DCOMMERCIAL -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -DDEBUG
+CPPFLAGS+=-g -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -DDEBUG
 # -D_GLIBCXX_CONCEPT_CHECKS
-dummy := $(shell gcc -o ccode -DCCODE des.c)
-dummy := $(shell ./ccode "(internal use only)")
 else
 CPPFLAGS+=-DPRODUCTION -O3
 endif
@@ -124,10 +120,7 @@ endif
 
 # Local development flag options
 # Displays information on licensing protocol
-#CPPFLAGS+=-DDEBUG_LICENSING
 # Will always call the licensing server
-#CPPFLAGS+=-DTEST_LICENSING
-#CPPFLAGS+=-DNO_LOCK
 #CPPFLAGS+=-DOFFICE_SERVER
 
 # Moving away from static linking
@@ -142,13 +135,8 @@ ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
 CPPFLAGS += -I.
 endif
 
-ifdef LICENSEE
-CPPFLAGS += -DCOMMERCIAL=1
 ifeq ($(ARCH),sparc)
 CPPFLAGS += -mcpu=v8
-endif
-dummy := $(shell gcc -o ccode -DCCODE des.c)
-dummy := $(shell ./ccode "$(LICENSEE)")
 endif
 
 ifdef PICO_QL
@@ -210,12 +198,6 @@ $(ARCH)/cscout-cc: $(ARCH)/cscout.o  $(OBJ)
 $(ARCH)/cscout.exe: $(ARCH)/cscout.o  $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32
 
-ccheck: license.c license.h des.c des.h
-	gcc -o ccheck -DSERVER -DPRODUCTION license.c des.c
-
-ccheck-install: ccheck
-	cp ccheck /home/dds/web/spinellis-cgi-bin/
-
 eval.cpp: eval.y
 	$(YACC) -b eval -p eval_ eval.y
 	mv -f eval.tab.c eval.cpp
@@ -248,8 +230,8 @@ version:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.173 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2015/06/06 20:33:21 $$";' >>version.cpp
+	echo 'char Version::revision[] = "$$Revision: 1.174 $$";' >>version.cpp
+	echo 'char Version::date[] = "$$Date: 2015/06/06 23:41:28 $$";' >>version.cpp
 	echo "const char *Version::ident[] = {" >>version.cpp
 	ident $(SRC) | sed -n -f version.sed >>version.cpp
 	echo "0 };" >>version.cpp
@@ -335,18 +317,6 @@ lf:
 
 mkdir:
 	-mkdir alpha  i386  sparc64  amd64  ia64 sparc
-
-rdist-spiti-server:
-	pscp Makefile des.[ch] license.[ch] spiti:src/cscout-server
-
-rdist-istlab-server:
-	pscp Makefile des.[ch] license.[ch] istlab:src/cscout-server
-
-istlab-server:
-	cc -o ${HOME}/web/istlab-cgi-bin/ccheck -DSERVER des.c license.c
-
-spiti-server:
-	cc -o /usr/local/www/cgi-bin/ccheck -DSERVER des.c license.c
 
 # Used for regenerating the logo
 Xlogo.cpp: logo.png

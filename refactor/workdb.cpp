@@ -7,10 +7,8 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.52 2012/07/15 05:07:11 dds Exp $
+ * $Id: workdb.cpp,v 1.53 2015/06/06 23:41:28 dds Exp $
  */
-
-#ifdef COMMERCIAL
 
 #include <map>
 #include <string>
@@ -543,5 +541,3 @@ workdb_rest(Sql *db, ostream &of)
 		}
 	}
 }
-
-#endif /* COMMERCIAL */

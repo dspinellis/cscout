@@ -7,7 +7,7 @@
  *
  * HTML utility functions
  *
- * $Id: html.cpp,v 1.8 2009/01/28 07:52:19 dds Exp $
+ * $Id: html.cpp,v 1.9 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>
@@ -50,7 +50,6 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
-#include "license.h"
 #include "fdep.h"
 #include "version.h"
 #include "call.h"
@@ -188,11 +187,7 @@ html_tail(FILE *of)
 		"<br><hr><div class=\"footer\">CScout %s &mdash; %s",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str());
-#ifdef COMMERCIAL
-	fprintf(of, " &mdash; Licensee: %s", licensee);
-#else
 	fprintf(of, " &mdash; Unsupported version; can only be used on open-source software.");
-#endif
 	fprintf(of, "</div></body></html>\n");
 }
 

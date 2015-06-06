@@ -1,4 +1,25 @@
-$Id: todo,v 1.93 2008/11/17 12:21:03 dds Exp $
+$Id: todo,v 1.94 2015/06/06 23:41:28 dds Exp $
+
+- Use modern C++11
+http://herbsutter.com/elements-of-modern-c-style/
+Perhaps include compiler as part of the build environment.
+
+- Use lcc for C++ parsing?
+
+- Check http://blog.regehr.org/archives/696
+  57 Small Programs that Crash Compilers
+
+- compile with cygwin:
+  Use cygwin-compiled swill
+  Remove getopt, libregex
+  Use cygwin_conv_to_posix_path(filename, buf)
+  See http://www.google.com/codesearch/p?hl=en&sa=N&cd=2&ct=rc#z8q9Dn24ahs/cygwin-1.5.5-1/winsup/utils/cygpath.cc&q=cygpath
+
+- integrate sqlite
+
+- Add HTTP logging.
+
+- Add a timeout on expensive queries.
 
 - Add URL links to file dependency edges
 
@@ -32,7 +53,6 @@ if (/^<table border=1><tr><td>/../^<\/td><\/tr><\/table>/) {
 
 
 - Use portable URLs instead of pointers, and automate screen dumps.
-
 
 - Add option "prune call graphs: [ ] No,  [ ] after writable functions,
   [ ] at writable functions.
@@ -83,8 +103,6 @@ if (/^<table border=1><tr><td>/../^<\/td><\/tr><\/table>/) {
 
 - Eclipse integration
 
-- Add HTTP logging and a timeout on expensive queries.
-
 - Don't report identifiers in function prototypes as unused
   (r mark them as a new attribute function arguments).
 
@@ -133,6 +151,7 @@ Collect maintainability index and oo metrics (see SSAO04.)
 
 System complexity metrics
 Provide an expression-oriented function metric query interface
+Lua?
 
 Locate similar / same lines (irrelevant, but useful for refactoring)
 See http://en.wikipedia.org/wiki/Karp-Rabin
@@ -141,13 +160,6 @@ Pointer analysis
 MRR04
 Precise Call Graphs for C Programs with Function Pointers
 Milanova A., Rountev A., Ryder B.   Automated Software Engineering 11(1): 7-26, 2004.
-
-Create a cc-compatible front-end that will accumulate invocation
-intructions in a script, or send them to a cscout server,
-as an alternative to the current configuration approach.
-Need to create front ends to gcc, ld, ar
-/usr/src/gnu/usr.bin/ld/ld.c
-/usr/src/contrib/gcc/gcc.c
 
 See perforce terms:
 http://www.perforce.com/perforce/price.html

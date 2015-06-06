@@ -8,7 +8,7 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.19 2009/03/14 21:34:38 dds Exp $
+ * $Id: idquery.cpp,v 1.20 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>
@@ -50,7 +50,6 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
-#include "license.h"
 #include "fdep.h"
 #include "version.h"
 #include "call.h"

@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: globobj.cpp,v 1.2 2009/01/15 14:32:57 dds Exp $
+ * $Id: globobj.cpp,v 1.3 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>
@@ -99,7 +99,7 @@ GlobObj::GlobObj(const Token &t, Type typ, const string &s) :
 	all.insert(glob_map::value_type(t.get_parts_begin()->get_tokid(), this));
 }
 
-#if defined(COMMERCIAL_TODO)
+#if defined(TODO)
 void
 GlobObj::dumpSql(Sql *db, ostream &of)
 {
@@ -159,4 +159,4 @@ GlobObj::dumpSql(Sql *db, ostream &of)
 			    ptr_offset(*dest) << ");\n";
 	}
 }
-#endif /* COMMERCIAL */
+#endif /* TODO */

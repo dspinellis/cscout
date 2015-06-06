@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.13 2009/01/15 14:32:57 dds Exp $
+ * $Id: fdep.cpp,v 1.14 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <set>
@@ -86,7 +86,6 @@ Fdep::reset()
 	last_provider = Fileid();	// Clear cache
 }
 
-#ifdef COMMERCIAL
 /*
  * Dump using the provided SQL interface
  * the defines, providers and includers for the
@@ -129,4 +128,3 @@ Fdep::dumpSql(Sql *db, Fileid cu)
 			j->second << ");\n";
 		}
 }
-#endif /* COMMERCIAL */

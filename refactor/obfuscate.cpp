@@ -3,10 +3,9 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.15 2009/03/13 16:10:54 dds Exp $
+ * $Id: obfuscate.cpp,v 1.16 2015/06/06 23:41:28 dds Exp $
  */
 
-#ifdef COMMERCIAL
 #include <map>
 #include <string>
 #include <deque>
@@ -287,4 +286,3 @@ obfuscate(void)
 	#endif
 	return (0);
 }
-#endif /* COMMERCIAL */

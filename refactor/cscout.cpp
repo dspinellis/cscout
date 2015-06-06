@@ -7,7 +7,7 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.241 2012/10/06 18:06:52 dds Exp $
+ * $Id: cscout.cpp,v 1.242 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>
@@ -52,7 +52,6 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
-#include "license.h"
 #include "fdep.h"
 #include "version.h"
 #include "call.h"
@@ -81,30 +80,18 @@ using namespace picoQL;
 #endif
 
 #if defined(unix) || defined(__MACH__)
-#define COMMERCIAL_UNIX_OPTIONS "b"
+#define ADD_UNIX_OPTIONS "b"
 #elif defined(WIN32)
-#define COMMERCIAL_UNIX_OPTIONS ""
+#define ADD_UNIX_OPTIONS ""
 #endif
 
-#ifdef COMMERCIAL
-#include "des.h"
 #include "sql.h"
 #include "workdb.h"
 #include "obfuscate.h"
-#include "lname.c"
-#endif
 
 #define ids Identifier::ids
 
-/*
- * Prohibit remote access to the free version of CScout
- * The commercial version has an ACL.
- */
-#ifdef COMMERCIAL
 #define prohibit_remote_access(file)
-#else
-#define prohibit_remote_access(file) do { if (!local_access(file)) return; } while (0)
-#endif
 #define prohibit_browsers(file) \
 	do { \
 		if (browse_only) { \
@@ -124,9 +111,7 @@ static enum e_process {
 	pm_obfuscation
 } process_mode;
 static int portno = 8081;		// Port number (-p n)
-#ifdef COMMERCIAL
 static char *db_engine;			// Create SQL output for a specific db_iface
-#endif
 
 // Workspace modification state
 static enum e_modification_state {
@@ -906,33 +891,6 @@ file_refactor(FILE *of, Fileid fid)
 	}
 	return;
 }
-
-#ifndef COMMERCIAL
-/*
- * Return TRUE if the access if from the local host
- * Used to safeguard dangerous operations such as renaming and exiting
- */
-static bool
-local_access(FILE *fo)
-{
-#if defined(OFFICE_SERVER) || defined(NO_LOCK)
-	return true;
-#else
-	char *peer = swill_getpeerip();
-
-	if (peer && strcmp(peer, "127.0.0.1") == 0)
-		return true;
-	else {
-		html_head(fo, "Remote access", "Remote Access not Allowed");
-		fputs("This function is expensive or potentially disruptive."
-			"This free version of CScout does not allow its execution from a remote host.\n"
-			"Make sure you are accessing CScout as localhost or 127.0.0.1.", fo);
-		html_tail(fo);
-		return false;
-	}
-#endif
-}
-#endif
 
 static void
 change_prohibited(FILE *fo)
@@ -2448,10 +2406,6 @@ version_info(bool html)
 	end <<
 	end <<
 
-#ifdef COMMERCIAL
-	"Commercial version.  All rights reserved." << end <<
-	"Licensee: " << licensee << '.' << end;
-#else /* !COMMERCIAL */
 	"Unsupported version.  Can be used and distributed under the terms of the" << end <<
 	"CScout Public License available in the CScout documentation and ";
 	if (html)
@@ -2459,7 +2413,6 @@ version_info(bool html)
 	else
 		v << "online at" << end <<
 		"http://www.spinellis.gr/cscout/doc/license.html." << end;
-#endif
 	return v.str();
 }
 
@@ -2973,7 +2926,6 @@ quit_page(FILE *of, void *p)
 	must_exit = true;
 }
 
-#ifdef COMMERCIAL
 // Parse the access control list acl.
 static void
 parse_acl()
@@ -3005,7 +2957,6 @@ parse_acl()
 		swill_allow("127.0.0.1");
 	}
 }
-#endif
 
 // Process the input as a C preprocessor
 // Fchar should already have its input set
@@ -3133,21 +3084,13 @@ static void
 usage(char *fname)
 {
 	cerr << "usage: " << fname <<
-#ifdef COMMERCIAL
-#define COMMERCIAL_OPTIONS COMMERCIAL_UNIX_OPTIONS "l:os:H:P:A:"
 		" ["
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
 		"-C|-c|-d D|-d H|-E|-o|"
 		"-r|-s db|-v] "
-		"[-l file] [-H host] [-P port] [-A user:passwd] "
-#define CO(x) x
-#else
-#define COMMERCIAL_OPTIONS ""
-		" [-c|-E|-r|-v|-3] "
-#define CO(x)
-#endif
+		"[-l file] "
 
 #ifdef PICO_QL
 #define PICO_QL_OPTIONS "q"
@@ -3157,9 +3100,8 @@ usage(char *fname)
 #endif
 
 		"[-p port] [-m spec] file\n"
-CO(		"\t-A u:p\tHTTP proxy authorization username and password\n")
 #ifndef WIN32
-CO(		"\t-b\tRun in multiuser browse-only mode\n")
+		"\t-b\tRun in multiuser browse-only mode\n"
 #endif
 		"\t-C\tCreate a ctags(1)-compatible tags file\n"
 		"\t-c\tProcess the file and exit\n"
@@ -3167,30 +3109,26 @@ CO(		"\t-b\tRun in multiuser browse-only mode\n")
 		"\t-d H\tOutput the included files being processed on standard output\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
 		"\t\t(the workspace file must have also been processed with -E)\n"
-CO(		"\t-H host\tSpecify HTTP proxy host for connection to the licensing server\n")
-CO(		"\t-l file\tSpecify access log file\n")
+		"\t-l file\tSpecify access log file\n"
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
-CO(		"\t-o\tCreate obfuscated versions of the processed files\n")
+		"\t-o\tCreate obfuscated versions of the processed files\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
-CO(		"\t-P port\tHTTP proxy host port (default 80)\n")
 #ifdef PICO_QL
 		"\t-q\tProvide a PiCO_QL query interface\n"
 #endif
 		"\t-r\tGenerate an identifier and include file warning report\n"
-CO(		"\t-s db\tGenerate SQL output for the specified RDBMS\n")
+		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
 		"\t-v\tDisplay version and copyright information and exit\n"
 		"\t-3\tEnable the handling of trigraph characters\n"
 		;
 	exit(1);
-#undef CO
 }
 
 int
 main(int argc, char *argv[])
 {
 	Pdtoken t;
-	char *motd;
 	int c;
 #ifdef PICO_QL
 	bool pico_ql = false;
@@ -3198,17 +3136,7 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
-#ifdef COMMERCIAL
-	// Decode name of licensee
-	char lkey[] = LKEY;
-	cscout_des_init(0);
-	cscout_des_set_key(lkey);
-	for (size_t i = 0; i < sizeof(licensee) / 8; i++)
-		cscout_des_decode(licensee + i * 8);
-	cscout_des_done();
-#endif
-
-	while ((c = getopt(argc, argv, "3Ccd:rvEp:m:" PICO_QL_OPTIONS COMMERCIAL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3Ccd:rvEp:m:l:os:" ADD_UNIX_OPTIONS PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3265,7 +3193,6 @@ main(int argc, char *argv[])
 		case 'v':
 			cout << version_info(false);
 			exit(0);
-#ifdef COMMERCIAL
 		case 'b':
 			browse_only = true;
 			break;
@@ -3292,22 +3219,6 @@ main(int argc, char *argv[])
 			process_mode = pm_database;
 			db_engine = strdup(optarg);
 			break;
-		case 'H':
-			if (!optarg)
-				usage(argv[0]);
-			license_set_proxy_host(optarg);
-			break;
-		case 'P':
-			if (!optarg)
-				usage(argv[0]);
-			license_set_proxy_port(atoi(optarg));
-			break;
-		case 'A':
-			if (!optarg)
-				usage(argv[0]);
-			license_set_proxy_authorization(optarg);
-			break;
-#endif /* COMMERCIAL */
 		case '?':
 			usage(argv[0]);
 		}
@@ -3329,11 +3240,8 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 
-	license_init();
-
 	Option::initialize();
 	options_load();
-#ifdef COMMERCIAL
 	parse_acl();
 	if (db_engine) {
 		if (!Sql::setEngine(db_engine))
@@ -3341,7 +3249,6 @@ main(int argc, char *argv[])
 		cout << Sql::getInterface()->begin_commands();
 		workdb_schema(Sql::getInterface(), cout);
 	}
-#endif
 
 	Project::set_current_project("unspecified");
 
@@ -3361,10 +3268,8 @@ main(int argc, char *argv[])
 
 	Fileid::unify_identical_files();
 
-#ifdef COMMERCIAL
 	if (process_mode == pm_obfuscation)
 		return obfuscate();
-#endif
 
 	// Pass 2: Create web pages
 	files = Fileid::files(true);
@@ -3411,8 +3316,6 @@ main(int argc, char *argv[])
 	if (DP())
 		cout << "Size " << file_msum.get_total(Metrics::em_nchar) << endl;
 
-#ifdef COMMERCIAL
-	motd = license_check(licensee, Query::url(Version::get_revision()).c_str(), (int)(file_msum.get_total(Metrics::em_nchar)));
 	if (Sql::getInterface()) {
 		workdb_rest(Sql::getInterface(), cout);
 		Call::dumpSql(Sql::getInterface(), cout);
@@ -3424,40 +3327,6 @@ main(int argc, char *argv[])
 #endif
 		return 0;
 	}
-#else
-	/*
-	 * Send the metrics
-	 * up to 10 project names
-	 * up 50 cross-file identifiers
-	 */
-	ostringstream mstring;
-	mstring << file_msum;
-	mstring << id_msum;
-	mstring << "\nxids: ";
-	int count = 0;
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		if ((*i).second.get_xfile() == true)
-			mstring << (*i).second.get_id() << ' ';
-		if (count++ > 100)
-			break;
-	}
-	mstring << "\nprojnames: ";
-	count = 0;
-	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++) {
-		mstring << Project::get_projname(j) << ' ';
-		if (count++ > 10)
-			break;
-	}
-	mstring << "\n";
-	motd = license_check(mstring.str().c_str(), Version::get_revision().c_str(), (int)(file_msum.get_total(Metrics::em_nchar)));
-#endif
-
-	must_exit = (CORRECTION_FACTOR - license_offset != 0);
-#ifndef PRODUCTION
-	if (must_exit)
-		cerr << "**********Unable to obtain correct license*********\n"
-			"license_offset = " << license_offset << endl;
-#endif
 
 	if (process_mode != pm_compile) {
 		swill_handle("src.html", source_page, NULL);
@@ -3492,7 +3361,7 @@ main(int argc, char *argv[])
 		swill_handle("about.html", about_page, NULL);
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("logo.png", logo_page, NULL);
-		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page - CORRECTION_FACTOR + license_offset), 0);
+		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page), 0);
 	}
 
 
@@ -3505,9 +3374,6 @@ main(int argc, char *argv[])
 		    " writable lines) were not processed";
 		Error::error(E_WARN, msg.str(), false);
 	}
-
-	if (motd)
-		cerr << motd << endl;
 
 	CTag::save();
 	if (process_mode == pm_report) {
@@ -3535,7 +3401,7 @@ main(int argc, char *argv[])
 	// Serve web pages
 	if (!must_exit)
 		cerr << "CScout is now ready to serve you at http://localhost:" << portno << endl;
-#if (defined(COMMERCIAL) && !defined(WIN32)) && !defined(__CYGWIN__)
+#if (!defined(WIN32)) && !defined(__CYGWIN__)
 	if (browse_only)
 		swill_setfork();
 #endif
@@ -3626,10 +3492,8 @@ garbage_collect(Fileid root)
 	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
 		if (*i != root && *i != input_file_id)
 			root.includes(*i, /* directly included (conservatively) */ false, i->required());
-#ifdef COMMERCIAL
 	if (Sql::getInterface())
 		Fdep::dumpSql(Sql::getInterface(), root);
-#endif
 	Fdep::reset();
 
 	return;

@@ -3,7 +3,7 @@
  *
  * Encapsulates a (user interface) file query
  *
- * $Id: filequery.cpp,v 1.2 2008/09/22 16:25:45 dds Exp $
+ * $Id: filequery.cpp,v 1.3 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>
@@ -44,7 +44,6 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
-#include "license.h"
 #include "fdep.h"
 #include "version.h"
 #include "call.h"

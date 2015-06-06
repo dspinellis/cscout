@@ -7,7 +7,7 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.28 2009/04/01 08:00:26 dds Exp $
+ * $Id: call.h,v 1.29 2015/06/06 23:41:28 dds Exp $
  */
 
 #ifndef CALL_
@@ -123,9 +123,7 @@ public:
 	static pair <const_fmap_iterator_type, const_fmap_iterator_type> get_calls(Tokid t);
 
 	// Dump the data in SQL format
-#ifdef COMMERCIAL
 	static void dumpSql(Sql *db, ostream &of);
-#endif /* COMMERCIAL */
 
 	const string &get_name() const { return name; }
 	bool contains(Eclass *e) const;

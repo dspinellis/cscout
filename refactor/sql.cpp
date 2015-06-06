@@ -7,10 +7,9 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.cpp,v 1.5 2009/01/15 14:32:57 dds Exp $
+ * $Id: sql.cpp,v 1.6 2015/06/06 23:41:28 dds Exp $
  */
 
-#ifdef COMMERCIAL
 #include <cstring>
 #include <iostream>
 
@@ -75,5 +74,3 @@ Sql::setEngine(const char *dbengine)
 	}
 	return true;
 }
-
-#endif /* COMMERCIAL */

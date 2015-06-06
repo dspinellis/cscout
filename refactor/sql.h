@@ -7,14 +7,12 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.h,v 1.10 2009/01/15 14:32:57 dds Exp $
+ * $Id: sql.h,v 1.11 2015/06/06 23:41:28 dds Exp $
  */
 
 
 #ifndef SQL_
 #define SQL_
-
-#ifdef COMMERCIAL
 
 class Sql {
 	// Instance of current engine
@@ -70,7 +68,5 @@ Mysql::boolval(bool v)
 {
 	return v ? "1" : "0";
 }
-
-#endif /* COMMERCIAL */
 
 #endif // SQL_

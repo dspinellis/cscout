@@ -7,7 +7,7 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: call.cpp,v 1.25 2009/01/15 14:32:57 dds Exp $
+ * $Id: call.cpp,v 1.26 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>
@@ -235,7 +235,6 @@ Call::check_macro_nesting(const Ctoken &t)
 		macro_nesting++;
 }
 
-#ifdef COMMERCIAL
 void
 Call::dumpSql(Sql *db, ostream &of)
 {
@@ -295,4 +294,3 @@ Call::dumpSql(Sql *db, ostream &of)
 			    ptr_offset(*dest) << ");\n";
 	}
 }
-#endif /* COMMERCIAL */

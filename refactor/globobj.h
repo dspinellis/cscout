@@ -7,7 +7,7 @@
  *
  * A globally defined/referenced object (variable or function)
  *
- * $Id: globobj.h,v 1.4 2009/01/15 14:32:57 dds Exp $
+ * $Id: globobj.h,v 1.5 2015/06/06 23:41:28 dds Exp $
  *
  */
 
@@ -64,9 +64,7 @@ public:
 	void add_ref(Fileid f) { used.insert(f); }
 
 	// Dump the data in SQL format
-#ifdef COMMERCIAL
 	static void dumpSql(Sql *db, ostream &of);
-#endif /* COMMERCIAL */
 };
 
 #endif // GLOBOBJ_
