@@ -7,7 +7,7 @@
 # If you do not agree to the terms, do not use the code.
 #
 #
-# $Id: runtest.sh,v 1.31 2015/06/06 20:33:50 dds Exp $
+# $Id: runtest.sh,v 1.32 2015/06/06 21:26:24 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
@@ -34,8 +34,8 @@ end_compare()
 	fi
 	if ( test -r test/out/$NAME.err &&
 	     diff -ib test/out/$NAME.out test/nout/$NAME.out &&
-	     diff -ib <(sed "s|^.*$(pwd)||" test/out/$NAME.err)
-	       <(sed "s|^.*$(pwd)||" test/nout/$NAME.err) ) ||
+	     diff -ib <(sed "s|[^ ]*$(pwd)||i" test/out/$NAME.err) \
+	       <(sed "s|[^ ]*$(pwd)||i" test/nout/$NAME.err) ) ||
 	   ( test -r test/out/$NAME &&
 	     diff -ib test/out/$NAME test/nout/$NAME )
 	then
