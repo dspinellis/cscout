@@ -40,27 +40,9 @@ BRANCH=$(shell sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' version.cpp)
 DATE=$(shell date +'%Y/%m/%d %H:%M:%S')
 
 # Determine architecture and OS
-ARCH=$(shell ( [ `uname -p` != unknown ] && uname -p 2>/dev/null ) || uname -m )
 OS=$(shell uname -s)
 
-# Sanitize processor types
-ifeq ($(ARCH),x86)
-ARCH=i386
-endif
-ifeq ($(ARCH),i686)
-ARCH=i386
-endif
-
-# Build Mach-O fat binaries
-ifeq ($(OS),Darwin)
-CC=gcc-4.2
-CXX=g++-4.2
-ARCH=macho
-CPPFLAGS+=-isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386 -arch ppc
-LDFLAGS+=-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
-endif
-
-OBJ=$(addprefix $(ARCH)/, $(OBJBASE))
+OBJ=$(addprefix build/, $(OBJBASE))
 
 .SUFFIXES:.java .dot .ps .png .pic .eps .png .svg
 
@@ -131,11 +113,11 @@ ADDLIBS += -lsocket -lnsl
 #OBJ += dlstubs.o
 endif
 
-ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
+ifeq ($(OS),Windows_NT)
 CPPFLAGS += -I.
 endif
 
-ifeq ($(ARCH),sparc)
+ifeq (build,sparc)
 CPPFLAGS += -mcpu=v8
 endif
 
@@ -143,7 +125,7 @@ ifdef PICO_QL
 CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I../sqlite-amalgamation
 
 
-ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
+ifeq ($(OS),Windows_NT)
 CPPFLAGS += -I/vol/boost_1_44_0
 else
 CPPFLAGS += -I../boost_1_44_0
@@ -162,21 +144,21 @@ endif
 CPPFLAGS+=$(EXTRA_CPPFLAGS)
 
 # Pattern rules for C and C++ files
-$(ARCH)/%.o: %.c
+build/%.o: %.c
 	$(CC) -c $(CPPFLAGS) -o $@ $<
 
-$(ARCH)/%.o: %.cpp
+build/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
-ifeq ($(OS),CYGWIN_NT-6.1-WOW64)
+ifeq ($(OS),Windows_NT)
 # Windows
-all: $(ARCH)/cscout.exe
+all: build/cscout.exe
 SSH=plink
 SCP=pscp
 FREEFALL=freefall
 else
 # Unix
-all: $(ARCH)/cscout
+all: build/cscout
 SSH=ssh
 SCP=scp
 FREEFALL=freefall.freebsd.org
@@ -188,15 +170,15 @@ SF=shell.cf.sourceforge.net
 
 #all: simple_cpp
 
-$(ARCH)/cscout: $(ARCH)/cscout.o  $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill $(ADDLIBS)
+build/cscout: build/cscout.o  $(OBJ)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o -L${HOME}/lib/build -lswill $(ADDLIBS)
 
 # CCmalloc version
-$(ARCH)/cscout-cc: $(ARCH)/cscout.o  $(OBJ)
-	ccmalloc $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout-cc  $(OBJ) $(ARCH)/cscout.o -L${HOME}/lib/$(ARCH) -lswill
+build/cscout-cc: build/cscout.o  $(OBJ)
+	ccmalloc $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout-cc  $(OBJ) build/cscout.o -L${HOME}/lib/build -lswill
 
-$(ARCH)/cscout.exe: $(ARCH)/cscout.o  $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(ARCH)/cscout  $(OBJ) $(ARCH)/cscout.o -L. -lswill -lws2_32
+build/cscout.exe: build/cscout.o  $(OBJ)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o -L. -lswill -lws2_32
 
 eval.cpp: eval.y
 	$(YACC) -b eval -p eval_ eval.y
@@ -210,12 +192,12 @@ parse.cpp parse.tab.h: parse.y ytoken.h
 ytab.h: parse.tab.h
 	grep 'define ' parse.tab.h >ytab.h
 
-$(ARCH)/cscout.o: cscout.cpp ytab.h
+build/cscout.o: cscout.cpp ytab.h
 
 tokname.cpp: ytab.h tokname.pl
 	perl tokname.pl ytab.h tokname.cpp
 
-$(ARCH)/html.o: html.cpp css.c
+build/html.o: html.cpp css.c
 
 css.c: style.css
 	tr -d \\r <$? | sed 's/\\/\\\\/g;s/"/\\"/g;s/^/"/;s/$$/\\n"/' >$@
@@ -339,7 +321,7 @@ sparc: rdist-sourceforge
 	$(SSH) $(SF) "ssh sparc-solaris2 '(cd src/cs ; make mkdir lf all ; strip sparc/cscout)'"
 
 clean:
-	rm -f $(ARCH)/* parse.tab.h parse.cpp ytab.h tokname.cpp eval.cpp
+	rm -f build/* parse.tab.h parse.cpp ytab.h tokname.cpp eval.cpp
 
 .java.dot:
 	cmd /c javadoc.exe -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
@@ -355,24 +337,6 @@ classdiag.java: $(ALLSRC)
 	awk '{print "class " $$1 " extends " $$2 " {}"}' >$@
 
 classdiag.png: classdiag.java
-
-# Cross building FreeBSD binaries on istlab
-# Cross-build the toolchain by running: make-toolchain
-H=/usr/home/dds/obj
-ALLARCH=amd64 i386 sparc64
-
-crossbuild:
-	for arch in $(ALLARCH);\
-	do \
-		mkdir $$arch 2>/dev/null ;\
-		gmake ARCH=$$arch CXX=$H/$$arch/$$arch/usr/src/tmp/usr/bin/g++ CC=$H/$$arch/$$arch/usr/src/tmp/usr/bin/gcc ;\
-	done
-
-crossbuild-clean:
-	for arch in $(ALLARCH);\
-	do \
-		rm -rf $$arch ;\
-	done
 
 dbdump:
 	for db in mysql hsqldb postgres;\
