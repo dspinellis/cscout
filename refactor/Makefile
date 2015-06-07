@@ -16,6 +16,7 @@ WEBHOME=$(UH)/dds/pubs/web/home/cscout/
 
 CC=gcc
 CXX=g++
+LDFLAGS=-Llib
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -33,11 +34,6 @@ OBJBASE += pico_ql_search.o pico_ql_vt.o pico_ql_interface.o \
  pico_ql_search_helper.o pico_ql_test.o sqlite3.o \
  pico_ql_logo.o pico_ql_error_page.o
 endif
-
-
-# For miniversion
-BRANCH=$(shell sed -n '/Revision:/{;s/^.*: //;s/ .*//;p;}' version.cpp)
-DATE=$(shell date +'%Y/%m/%d %H:%M:%S')
 
 # Determine architecture and OS
 OS=$(shell uname -s)
@@ -81,7 +77,6 @@ YACC=/c/dds/src/port/btyacc/btyacc
 #YACC=yacc
 
 CPPFLAGS+=-pipe -Wall -I.
-CPPFLAGS+=-DSPINELLIS_SERVER
 ifdef DEBUG
 # Debug build
 # To get yacc debugging info set YYDEBUG environment variable to 1
@@ -103,7 +98,6 @@ endif
 # Local development flag options
 # Displays information on licensing protocol
 # Will always call the licensing server
-#CPPFLAGS+=-DOFFICE_SERVER
 
 # Moving away from static linking
 #CPPFLAGS += -static
@@ -123,7 +117,6 @@ endif
 
 ifdef PICO_QL
 CPPFLAGS += -DPICO_QL -DPICO_QL_SINGLE_THREADED -I../sqlite-amalgamation
-
 
 ifeq ($(OS),Windows_NT)
 CPPFLAGS += -I/vol/boost_1_44_0
@@ -165,12 +158,9 @@ FREEFALL=freefall.freebsd.org
 endif
 
 
-
-SF=shell.cf.sourceforge.net
-
 #all: simple_cpp
 
-build/cscout: build/cscout.o  $(OBJ)
+build/cscout: build/cscout.o  $(OBJ) version
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o -L${HOME}/lib/build -lswill $(ADDLIBS)
 
 # CCmalloc version
@@ -207,98 +197,19 @@ mkerr:
 	perl mkerr.pl >../doc/error.xml
 
 # Create version info
+version.cpp: version
+
 version:
-	co -l version.cpp
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$Revision: 1.174 $$";' >>version.cpp
-	echo 'char Version::date[] = "$$Date: 2015/06/06 23:41:28 $$";' >>version.cpp
-	echo "const char *Version::ident[] = {" >>version.cpp
-	ident $(SRC) | sed -n -f version.sed >>version.cpp
-	echo "0 };" >>version.cpp
-	ci -m"New version" -u version.cpp
-	-rcs -nR`ident version.cpp | gawk '/Revision/{print $$2}' | sed 's/\./-/g'`: $(SRC)
+	echo 'char Version::revision[] = "'$$(git log -n 1 --format='%H')'";' >>version.cpp
+	echo 'char Version::date[] = "'$$(git log -n 1 --format='%ci')'";' >>version.cpp
+	echo 'char Version::compiled[] = "'$$(date +'%F %T')'";' >>version.cpp
 	echo Manually fix ../doc/change.xml
-
-miniversion:
-	attrib -r version.cpp
-	echo '#include <string>' >version.cpp
-	echo 'using namespace std;' >>version.cpp
-	echo '#include "version.h"' >>version.cpp
-	echo 'char Version::revision[] = "$$R''evision: '$(BRANCH)' $$";' >>version.cpp
-	echo 'char Version::date[] = "$$D''ate: '$(DATE)' $$";' >>version.cpp
-	echo "char *Version::ident[] = {" >>version.cpp
-	ident $(SRC) | sed -n -f version.sed >>version.cpp
-	echo "0 };" >>version.cpp
-
-versioncheck:
-	ident $(SRC) | sed -n -f version.sed | grep '^"' | perl -p -e 's/\r//' >thisversion
-	grep '^"' version.cpp >oldversion
-	diff oldversion thisversion
 
 test:
 	sh runtest.sh
-
-# Distribution
-rdist-parrot:
-	tar cvf - $(ALLSRC) | gzip -c | $(SSH) parrot tar -C src/cscout -xzvf -
-
-rdist-gemini:
-	tar cvf - $(ALLSRC) | gzip -c | $(SSH) aegean.dmst.aueb.gr ssh gemini tar -C src/cscout -xzvf -
-
-rdist-icarian:
-	tar cf - $(ALLSRC) | gzip -c | $(SSH) icarian tar -C src/cscout -xzvf -
-
-rdist-macmini:
-	tar cf - $(ALLSRC) | gzip -c | $(SSH) macmini tar -C src/cscout -xzvf -
-
-rdist-istlab:
-	tar cf - $(ALLSRC) | gzip -c | $(SSH) istlab tar -C src/cscout -xzvf -
-
-rdist-freefall:
-	$(SSH) $(FREEFALL) "mkdir src/cscout ; chmod 700 src/cscout"
-	tar -cvf - $(ALLSRC) | gzip -c | $(SSH) $(FREEFALL) tar -C src/cscout -xzvf -
-	$(SSH) $(FREEFALL) "(cd src/cscout ; gmake lf; gmake eval.cpp parse.cpp)"
-
-rdist-sourceforge:
-	$(SSH) $(SF) "mkdir src/cs ; chmod 700 src/cs"
-	tar cf - $(ALLSRC) | gzip -c | $(SSH) $(SF) tar -C src/cs -xzvf -
-
-rdist-sense:
-	tar cf - $(ALLSRC) | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
-	$(SSH) sense "(cd src/cscout ; /usr/sfw/bin/gmake lf)"
-
-rdist-test-sense:
-	tar cf - test | gzip -c | $(SSH) sense '(cd src/cscout ; gzip -dc | tar -xvf -)'
-	tar -C .. -cf - example example.obf | gzip -c | $(SSH) sense '(cd src ; gzip -dc | tar -xvf -)'
-
-rdist-niagara:
-	tar cf - $(ALLSRC) | gzip -c | $(SSH) niagara '(cd src/cscout ; gzip -dc | tar -xvf -)'
-	$(SSH) niagara "(cd src/cscout ; /usr/sfw/bin/gmake lf)"
-
-rdist-titan:
-	tar -cvf - $(ALLSRC) | gzip -c | $(SSH) titan tar -C src/cscout -xzvf -
-	$(SSH) titan "(cd src/cscout ; gmake lf)"
-
-rdist-ikaria:
-	tar -cvf - $(ALLSRC) | gzip -c | $(SSH) ikaria tar -C src/cscout -xzvf -
-	$(SSH) ikaria "(cd src/cscout ; make lf)"
-
-rdist-tar:
-	tar cvf - $(ALLSRC) | gzip -c >cscout.tar.gz
-
-rdist-spy:
-	plink $(HOST) "perl -p -e 's/\r//' >bin/spy-make" <csmake.pl \; \
-		chmod +x bin/spy-make
-
-lf:
-	chmod +w $(ALLSRC)
-	perl -pi -e 's/\r//' $(ALLSRC)
-	rm -f regex.h
-
-mkdir:
-	-mkdir alpha  i386  sparc64  amd64  ia64 sparc
 
 # Used for regenerating the logo
 Xlogo.cpp: logo.png
@@ -312,13 +223,6 @@ Xlogo.cpp: logo.png
 #	echo ';' >>logo.cpp
 wc:
 	wc -l $(SRC)
-
-enc-src:
-	tar cvf - $(ALLSRC) | gzip -c | $(SSH) spiti encrypt-cscout >$(UH)/dds/pubs/web/home/cscout/cscout-src.tar.gz
-
-# sparc
-sparc: rdist-sourceforge
-	$(SSH) $(SF) "ssh sparc-solaris2 '(cd src/cs ; make mkdir lf all ; strip sparc/cscout)'"
 
 clean:
 	rm -f build/* parse.tab.h parse.cpp ytab.h tokname.cpp eval.cpp

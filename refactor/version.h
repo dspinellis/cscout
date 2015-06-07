@@ -21,28 +21,18 @@ using namespace std;
 
 class Version {
 private:
-	static char revision[];		// RCS Revision tag
+	static char revision[];		// Git identifier
 	static char date[];		// Version release date
+	static char compiled[];		// Compilation date
 public:
 	// Return the global revision number
 	static const string get_revision() {
-		// 1.5 $
-		string tail(revision + 11);
-		// 1.5
-		string head(tail, 0, tail.length() - 2);
-		return head;
+		return string(revision, 0, 6);
 	}
 
 	static const string get_date() {
-		// 2003/... $
-		string tail(date + 7);
-		// Remove trailing " $"
-		string head(tail, 0, tail.length() - 2);
-		return head;
+		return date;
 	}
-
-	// Think of an accessor when we need it
-	static const char *ident[];		// RCS Id for all source files
 };
 
 #endif // VERSION_

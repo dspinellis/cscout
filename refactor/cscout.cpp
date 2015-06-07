@@ -2400,8 +2400,6 @@ version_info(bool html)
 	(html ? "<a href=\"http://www.gnu.org/licenses/lgpl-2.1.html\">online</a>." : "online at http://www.gnu.org/licenses/lgpl-2.1.html.") << end <<
 
 	"Includes code written by " <<
-	"Jim Gillogly, " <<		// DES
-	"Phil Karn, and " <<		// DES
 	"Henry Spencer." <<		// getopt
 	end <<
 	end <<
