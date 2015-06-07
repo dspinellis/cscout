@@ -1,0 +1,8 @@
+#RSC 1.1 Workspace
+#$Id: rsc.tcl 1.24 2001/10/26 08:58:53 dds Exp dds $
+array set name {wptest test wptest/dos/dds/src/sena/ie/refactor/test/struct2.c /dos/dds/src/sena/ie/refactor/test/struct2.c int {Internal Settings} wp Workspace}
+array set readonly {wptest 1 int 1 wp 1}
+array set dir {wptest /home/dds/src/refactor/test int  wp /home/dds/src/ui}
+array set macro {wptest {} int __STDC__ wp {}}
+array set ipath {wptest {} int . wp {}}
+array set fileholder {wptest 1 wptest/dos/dds/src/sena/ie/refactor/test/struct2.c 0 all 0 wr 0 ro 0 dep 0 edit 0 int 0 wp 0}
