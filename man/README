@@ -1,0 +1,4 @@
+This directory contains the CScout Unix manual page source files.
+They are typically installed in a directory like /usr/local/man/man1.
+If you are not running Unix ignore this directory; the manual
+pages appear in the included hypertext documentation.
