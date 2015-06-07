@@ -206,21 +206,19 @@ version:
 	echo 'char Version::revision[] = "'$$(git log -n 1 --format='%H')'";' >>version.cpp
 	echo 'char Version::date[] = "'$$(git log -n 1 --format='%ci')'";' >>version.cpp
 	echo 'char Version::compiled[] = "'$$(date +'%F %T')'";' >>version.cpp
-	echo Manually fix ../doc/change.xml
 
 test:
 	sh runtest.sh
 
 # Used for regenerating the logo
-Xlogo.cpp: logo.png
+logo.cpp: logo.png
 	echo '#include <stdio.h>' >logo.cpp
 	echo '#include "logo.h"' >>logo.cpp
-	echo 'const char Logo::logo_bytes[] = {' >>logo.cpp
+	echo 'const unsigned char Logo::logo_bytes[] = {' >>logo.cpp
 	od -vb logo.png | tr -d "\r" | sed 's/^.......//;s/^ /0/;s/ /,0/g;s/$$/,/;s/^,$$//' >>logo.cpp
 	echo '};' >>logo.cpp
 	echo -n 'int Logo::len = sizeof(Logo::logo_bytes);' >>logo.cpp
-#	wc -c logo.gif >>logo.cpp
-#	echo ';' >>logo.cpp
+
 wc:
 	wc -l $(SRC)
 

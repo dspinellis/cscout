@@ -1,6 +1,7 @@
 *.swp
 css.c
 eval.cpp
+logo.cpp
 parse.cpp
 parse.tab.h
 tokname.cpp

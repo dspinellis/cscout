@@ -19,7 +19,7 @@ using namespace std;
 
 class Logo {
 private:
-	static const char logo_bytes[];
+	static const unsigned char logo_bytes[];
 	static int len;
 public:
 	static void logo(FILE *fo) {
