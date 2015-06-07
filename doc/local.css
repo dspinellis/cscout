@@ -1,0 +1,9 @@
+/* Local manual-specific changes. */
+
+.screendump {
+	background: #f8f8f8;
+	padding: 1em 1em 1em 1em;
+	margin-right: 1em;
+	margin-top: 1em;
+	border:1px solid #ccc;
+}

@@ -1,0 +1,220 @@
+<?xml version="1.0" ?>
+<notes>
+<h2>Warnings</h2>
+<ul>
+<li> <code>#ifdef argument is not an identifier</code><br>
+The token following a
+<code>#ifdef</code>
+directive is not a legal identifier.<p><li> <code>Application of macro " ... ": operator # only valid before macro parameters</code><br>
+The stringizing operator
+<code>#</code> was not followed
+by a macro parameter.<p><li> <code>Assuming declaration int  ... (...)</code><br>
+An undeclared identifier is used as a function.<p><li> <code>Duplicate (different) macro definition of macro  ...</code><br>
+A defined macro can be redefined only if the
+two definitions are exactly the same.<p><li> <code>Empty character literal</code><br>
+Character lirerals must include a character.<p><li> <code>Illegal combination of sign specifiers</code><br>
+The signedness specifiers used can not be combined
+(e.g. <code>unsigned signed</code>).<p><li> <code>Processing automatically generated file; #line directive ignored.</code><br>
+A
+<code>#line</code>
+directive was found.
+This signifies that the source file is automatically
+generated and refactoring changes on that file may
+be lost in the future.
+References to the original source file are ignored.<p><li> <code>Sign specification on non-integral type - ignored</code><br>
+A signedness specification was given on a non-integral type.<p><li> <code>Undeclared identifier in typeof expression:  ...</code><br>
+The identifier appearing within
+<code>typeof</code>
+has not been declared.<p><li> <code>Undeclared identifier:  ...</code><br>
+An undeclared identifier was used
+in a primary expression.<p></ul>
+<h2>Fatal Errors</h2>
+<ul>
+<li> <code>#pragma pushd: unable to get current directory:  ...</code><br>
+The call to <code>getcwd</code> failed while
+processing the 
+<code>#pragma pushd</code>
+CScout-specific directive.<p><li> <code>EOF in comment</code><br>
+The end of file was reached while 
+processing a block comment.<p><li> <code>Error count exceeds 100; exiting ...</code><br>
+To avoid cascading errors only the first 100 errors
+are reported.<p><li> <code>Invalid C token: '$'</code><br>
+A '$' token was encountered in C code.
+Values starting with a '$' token are only allowed inside
+yacc rules.<p><li> <code>Unable to get path of file  ...</code><br>
+The Win32 GetfullPathName system call used to retrieve the
+unique path file name failed (Windows-specific).<p><li> <code>Unable to stat file  ...</code><br>
+The POSIX stat system call used to retrieve the
+unique file identifier failed (Unix-specific).<p></ul>
+<h2>Errors</h2>
+<ul>
+<li> <code>#pragma echo: string expected</code><br>
+The
+<code>#pragma echo</code>
+CScout-specific directive was not followed by a 
+string.<p><li> <code>#pragma includepath: string expected</code><br>
+The
+<code>#pragma includepath</code>
+CScout-specific directive was not followed by a 
+string.<p><li> <code>#pragma process: string expected</code><br>
+The
+<code>#pragma process</code>
+CScout-specific directive was not followed by a 
+string.<p><li> <code>#pragma project: string expected</code><br>
+The
+<code>#pragma project</code>
+CScout-specific directive was not followed by a 
+string.<p><li> <code>#pragma pushd: string expected</code><br>
+The
+<code>#pragma pushd</code>
+CScout-specific directive was not followed by a 
+string.<p><li> <code>#pragma readonly: string expected</code><br>
+The
+<code>#pragma readonly</code>
+CScout-specific directive was not followed by a 
+string.<p><li> <code>#pragma ro_prefix: string expected</code><br>
+The
+<code>#pragma ro_prefix</code>
+CScout-specific directive was not followed by a 
+string.<p><li> <code>% not followed by yacc keyword</code><br>
+In the definitions section of a yacc file the
+% symbol was not followed by a legal yacc keyword.<p><li> <code>%union does not have a member  ...</code><br>
+The member used in a $&lt;name&gt;X yacc construct
+was not defined as a %union member.<p><li> <code>Application of macro " ... ": operator # at end of macro pattern</code><br>
+No argument was supplied to the right
+of the stringizing operator 
+<code>#</code>.<p><li> <code>Array not an abstract type</code><br>
+The underlying array object for which a type is
+specified is not an abstract type.<p><li> <code>At most one storage class can be specified</code><br>
+More than one storage class was given for the same
+object.<p><li> <code>Conflicting declarations for identifier  ...</code><br>
+An identifier is declared twice
+with compilation or linkage
+unit scope with conflicting
+declarations.<p><li> <code>Declared parameter does not appear in old-style function parameter list:  ...</code><br>
+While processing an old-style (K&amp;R) parameter
+declaration, a declared parameter did not match
+any of the parameters appearing in the function's
+arguments definition.<p><li> <code>Division by zero in #if expression</code><br>
+A <code>#if</code> expression
+divided by zero.<p><li> <code>Duplicate definition of identifier  ...</code><br>
+An identifier is declared twice within the
+same block.<p><li> <code>Duplicate definition of tag   ...</code><br>
+A structure, union, or enumeration tag was defined
+twice for the same entity.<p><li> <code>EOF while processing #if directive</code><br>
+The processing of code within a <code>#if</code>
+block reached the end of file, without a
+corresponding
+<code>#endif</code> /
+<code>#else</code> /
+<code>#elif</code> directive.<p><li> <code>Empty #include directive</code><br>
+A
+<code>#include</code>
+directive was not followed by a filename specification.<p><li> <code>End of file in character literal</code><br>
+The end of file was reached while 
+processing a character literal:
+a single quote was never closed.<p><li> <code>End of file in string literal</code><br>
+The end of file was reached while 
+processing a string.<p><li> <code>Explicit element tag without no %union in effect</code><br>
+The yacc $<tag>n syntax was used
+to specify an element of the %union 
+but no union was defined.<p><li> <code>Illegal characters in hex escape sequence</code><br>
+A hexadecimal character escape sequence
+<code>\x</code> continued with a non-hexadecimal 
+character.<p><li> <code>Illegal combination of type specifiers</code><br>
+The type specifiers used can not be combined
+(e.g. <code>double char</code>).<p><li> <code>Illegal pointer dereference</code><br>
+An attempt was made to dereference an element that is not a pointer.<p><li> <code>Invalid #include syntax</code><br>
+A
+<code>#include</code>
+directive was not followed by a legal filename specification.<p><li> <code>Invalid application of basic type, storage class, or type specifier</code><br>
+A basic type, storage class or type specified was specified in
+an invalid underlying object.<p><li> <code>Invalid character escape sequence</code><br>
+A character escape sequence <code>\c</code> can not be
+recognised.<p><li> <code>Invalid macro name</code><br>
+The macro name specified in a 
+<code>#define</code> or
+<code>#undef</code>
+directive is not a valid identifier.<p><li> <code>Invalid macro parameter name</code><br>
+A macro parameter name specified in a 
+<code>#define</code>
+directive is not a valid identifier.<p><li> <code>Invalid macro parameter punctuation</code><br>
+The formal parameters in a
+<code>#define</code> macro
+definition are not separated
+by commas.<p><li> <code>Invalid preprocessor directive</code><br>
+An invalid preprocessor directive was found.
+The directive did not match an identifier.<p><li> <code>Invalid type specification</code><br>
+An attempt was made to specify a type on an object that
+did not allow this specification.<p><li> <code>Label  ...  already defined</code><br>
+The same <code>goto</code> label is defined more 
+than once in a given function.<p><li> <code>Macro [ ... ]: EOF while reading function macro arguments</code><br>
+The end of file was reached while 
+gathering a macro's arguments.<p><li> <code>Macro [ ... ]: close bracket expected for function-like macro</code><br>
+The arguments to a function-like macro did
+not terminate with a closing bracket.<p><li> <code>Member access in incomplete struct/union:  ...</code><br>
+The member access for a structure or union is applied
+on an object with an incomplete definition.<p><li> <code>Missing close bracket in defined operator</code><br>
+The identifier of a 
+<code>defined</code> operator was not
+followed by a closing bracket.<p><li> <code>Modulo division by zero in #if expression</code><br>
+A <code>#if</code> expression
+divided by zero in a modulo 
+expression.<p><li> <code>Multiple storage classes in type declaration</code><br>
+Incompatible storage classes were specified in a single
+type declaration.<p><li> <code>No identifier following defined operator</code><br>
+The 
+<code>defined</code> operator was not followed
+by an identifier.<p><li> <code>Object is not a function</code><br>
+The object used as a function to be called is not a function
+or a pointer to a function.<p><li> <code>Only struct/union anonymous elements allowed</code><br>
+Anonymous members within a member
+declaring list (e.g.
+<code>struct {int x, y;}</code>)
+can only be structures or unions.
+(GCC/Microsoft C extension).<p><li> <code>Pointer not an abstract type</code><br>
+The underlying pointer object for which a type is
+specified is not an abstract type.<p><li> <code>Popd: directory stack empty</code><br>
+The
+<code>#pragma popd</code>
+CScout-specific directive was performed on an
+empty directory stack.<p><li> <code>Structure or union does not have a member  ...</code><br>
+The structure or union on the left
+of the
+<code>.</code> or
+<code>-&gt;</code> operator
+does not have as a member the
+identifier appearing on the
+operator's right.<p><li> <code>Subscript not on array or pointer</code><br>
+The object being subscripted using the <code>[]</code>
+operator is not an array or a pointer.<p><li> <code>Syntax error in preprocessor expression</code><br>
+A
+<code>#if</code> or
+<code>#elif</code> expression was syntactically
+incorrect.<p><li> <code>Unable to open include file  ...</code><br>
+The specified include file could not be opened.<p><li> <code>Unbalanced #elif</code><br>
+A
+<code>#elif</code>
+directive was found without a corresponding
+<code>#if</code>.<p><li> <code>Unbalanced #else</code><br>
+A
+<code>#else</code>
+directive was found without a corresponding
+<code>#if</code>.<p><li> <code>Unbalanced #endif</code><br>
+A
+<code>#endif</code>
+directive was found without a corresponding
+<code>#if</code>.<p><li> <code>Undefined label  ...</code><br>
+A <code>goto</code>
+label used within a function was never defined.<p><li> <code>Unexpected end in character escape sequence</code><br>
+A character escape sequence (<code>\c</code>) was not
+completed; no character follows the backslash.<p><li> <code>Unknown preprocessor directive:  ...</code><br>
+An unkown preprocessor directive was found.<p><li> <code>Unkown %union element tag  ...</code><br>
+The yacc %union 
+does not have as a member the
+identifier appearing on the
+element's tag.<p><li> <code>Yacc $value out of range</code><br>
+The number used in a $n yacc variable was greater than the
+number of identifiers and actions on the rule's left side.<p></ul>
+
+</notes>

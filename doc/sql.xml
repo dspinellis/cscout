@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<notes>
+The supported version of <em>CScout</em> can dump the relationships of
+an entire workspace in the form of a SQL script.
+This can then be uploaded into a relational database for further
+querying and processing.
+<p />
+To generate the SQL script simply
+run <em>CScout</em> with the switch <code>-s</code> <i>dialect</i>,
+where the argument specifies the SQL dialect (for example,
+mysql, or postgresql).
+The SQL script will appear in <em>CScout</em>'s standard output,
+allowing you to directly pipe the results into the database's
+client.
+For example, say the database you would want to create for your project
+was called <code>myproj</code>.<br />
+For MySQL you would write:
+<fmtcode ext="sh">
+(
+	echo "create database myproj; use myproj ;"
+	cscout -s mysql myproj.cs
+) | mysql
+</fmtcode>
+For PostgreSQL you would write:
+<fmtcode ext="sh">
+createdb -U username myproj
+cscout -s postgres myproj.cs | psql -U username myproj
+</fmtcode>
+For HSQLDB you would write:
+<fmtcode ext="sh">
+cscout -s hsqldb myproj.cs |
+java -classpath $HSQLDBHOME/lib/hsqldb/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HSQLDBHOME/lib/hsqldb/sqltool.rc mem -
+</fmtcode>
+
+The direct piping allows you to avoid the overhead of creating an
+intermediate file, which can be very large.
+</notes>

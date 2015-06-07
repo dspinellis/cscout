@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<index>
+<ch><ti>Introduction</ti><fi>intro</fi></ch>
+<ch><ti>Walkthrough</ti><fi>walk</fi></ch>
+<ch><ti>Installation and Setup</ti><fi>setup</fi></ch>
+<ch><ti>Workflow</ti><fi>flow</fi></ch>
+<ch><ti>Defining Workspaces</ti><fi>wsp</fi></ch>
+<ch><ti>Workspace Definition Details</ti><fi>wspd</fi></ch>
+<ch><ti>Automated Generation of the Processing Script</ti><fi>csmake</fi></ch>
+<ch><ti>Tailoring the Build Process to Generate the Processing Script</ti><fi>pragma</fi></ch>
+<ch><ti>CScout Execution</ti><fi>run</fi></ch>
+<ch><ti>Basic Concepts</ti><fi>concept</fi></ch>
+<ch><ti>The Web Interface</ti><fi>web</fi></ch>
+<ch><ti>File Elements</ti><fi>file</fi></ch>
+<ch><ti>Generic File Queries</ti><fi>fileq</fi></ch>
+<ch><ti>Include Graphs</ti><fi>ig</fi></ch>
+<ch><ti>C Namespaces</ti><fi>name</fi></ch>
+<ch><ti>Identifier Elements</ti><fi>id</fi></ch>
+<ch><ti>Generic Identifier Queries</ti><fi>idq</fi></ch>
+<ch><ti>Function Elements</ti><fi>fun</fi></ch>
+<ch><ti>Refactoring Function Arguments</ti><fi>funarg</fi></ch>
+<ch><ti>Call Graphs</ti><fi>cg</fi></ch>
+<ch><ti>Generic Function Queries</ti><fi>funq</fi></ch>
+<ch><ti>Global Options</ti><fi>opt</fi></ch>
+<ch><ti>Option Files</ti><fi>optf</fi></ch>
+<ch><ti>Operations</ti><fi>op</fi></ch>
+<ch><ti>Hand-Editing</ti><fi>hedit</fi></ch>
+<ch><ti>Interfacing with Version Management Systems</ti><fi>cvs</fi></ch>
+<ch><ti>Language Extensions</ti><fi>ext</fi></ch>
+<ch><ti>Processing Yacc Files</ti><fi>yacc</fi></ch>
+<ch><ti>Regular Expression Syntax</ti><fi>re</fi></ch>
+<ch><ti>Access Control</ti><fi>access</fi></ch>
+<ch><ti>Obfuscation Back-end</ti><fi>obf</fi></ch>
+<ch><ti>SQL Back-end</ti><fi>sql</fi></ch>
+<ch><ti>Schema of the Generated Database</ti><fi>dbschema</fi></ch>
+<ch><ti>Examples of SQL Queries</ti><fi>qeg</fi></ch>
+<ch><ti>Details of the Collected Metrics</ti><fi>metrics</fi></ch>
+<ch><ti>Shortcomings</ti><fi>short</fi></ch>
+<ch><ti>Error Messages</ti><fi>error</fi></ch>
+<ch><ti>License</ti><fi>license</fi></ch>
+<ch><ti>Frequently Asked Questions</ti><fi>faq</fi></ch>
+<ch><ti>The cscout Command Manual Page</ti><fi>mancscout</fi></ch>
+<ch><ti>The cswc Command Manual Page</ti><fi>mancswc</fi></ch>
+<ch><ti>Bibliography</ti><fi>bib</fi></ch>
+<ch><ti>Change History</ti><fi>change</fi></ch>
+</index>

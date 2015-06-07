@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<notes>
+The main screen <em>CScout</em> presents to your browser is divided into four
+sections:
+<ul>
+<li> <b>Files</b>: queries that list files and related properties
+<li> <b>Identifiers</b>: queries that locate identifiers
+<li> <b>Functions</b>: queries that locate functions and macros
+<li> <b>Operations</b>: changes  to <em>CScout</em>'s global context
+</ul>
+Most pages <em>CScout</em> sends to your browser are dynamically
+generated and may contain elements that can vary from one <em>CScout</em>
+invocation to the next.
+Therefore you should not bookmark source listings, or file or identifier
+detail pages, and expect them to be available on another <em>CScout</em>
+invocation.
+On the other hand, the pages containing results of identifier, function, or
+file queries can be freely bookmarked and are identified with a comment
+specifying the fact and a corresponding link.
+
+<table border=1><tr><td>
+<h2>File-spanning Writable Identifiers</h2>
+<h3>Matching Identifiers</h3>
+<p>
+<a href="simul.html">ADD</a><br>
+...<br>
+<a href="simul.html">BTRUE</a><br>
+<a href="simul.html">CALL</a><br>
+
+</p>
+<p>Elements 1 to 20 of 416.<br />Select page: 1 <a href="simul.html">2</a> <a href="simul.html">3</a> <a href="simul.html">4</a> <a href="simul.html">5</a> <a href="simul.html">6</a> <a href="simul.html">7</a> <a href="simul.html">8</a> <a href="simul.html">9</a> <a href="simul.html">10</a> <a href="simul.html">11</a> <a href="simul.html">12</a> <a href="simul.html">13</a> <a href="simul.html">14</a> <a href="simul.html">15</a> <a href="simul.html">16</a> <a href="simul.html">17</a> <a href="simul.html">18</a> <a href="simul.html">19</a> <a href="simul.html">20</a> <a href="simul.html">21</a> <a href="simul.html">next</a> <a href="simul.html">all</a><br />You can bookmark <a href="simul.html">this link</a> to save the respective query.</p><p><a href="simul.html">Main page</a>
+
+</td></tr></table>
+
+You can therefore use your browser's bookmark facility to ``store'' such
+queries for future use, or pass the URL around so that others can reproduce
+your results.
+
+<p>
+Also note that often a query's results are split into pages.
+The program's options allow you to specify how many elements you want to
+see on each page.
+Keep in mind that some browsers may choke on huge pages, so keep this
+number down to a reasonable number (say below 1000).
+You can navigate between result pages using the links at the bottom of
+each result page page.
+The link titled <em>all</em> will present all the query's results.
+It is most useful as a way to save all the query's results into a file,
+using a browser command like <em>Save Link Target As ...</em>
+<p>
+We will examine <em>CScout</em>'s functionality using as an
+example the <code>bin</code> workspace we presented in the previous section.
+</notes>

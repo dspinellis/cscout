@@ -1,0 +1,310 @@
+<?xml version="1.0" ?>
+<notes>
+The generic function query allows you to select functions by
+means of the following form.
+<table border=1><tr><td>
+<h2>Function Query</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<input type="checkbox" name="cfun" value="1">C function<br>
+<input type="checkbox" name="macro" value="1">Function-like macro<br>
+<input type="checkbox" name="writable" value="1">Writable declaration<br>
+
+<input type="checkbox" name="ro" value="1">Read-only declaration<br>
+<input type="checkbox" name="pscope" value="1">Project scope<br>
+<input type="checkbox" name="fscope" value="1">File scope<br>
+<input type="checkbox" name="defined" value="1">Defined<br>
+<table><tr><th>Sort-by</th><th>Metric</th><th>Compare</th><th>Value</th></tr>
+<tr><td><input type="radio" name="order" value="0"> </td>
+<td>Number of characters</td><td><select name="c0" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n0" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="1"> </td>
+<td>Number of comment characters</td><td><select name="c1" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n1" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="2"> </td>
+<td>Number of space characters</td><td><select name="c2" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n2" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="3"> </td>
+<td>Number of line comments</td><td><select name="c3" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n3" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="4"> </td>
+<td>Number of block comments</td><td><select name="c4" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n4" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="5"> </td>
+
+<td>Number of lines</td><td><select name="c5" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n5" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="6"> </td>
+<td>Maximum number of characters in a line</td><td><select name="c6" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n6" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="7"> </td>
+<td>Number of character strings</td><td><select name="c7" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n7" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="8"> </td>
+<td>Number of unprocessed lines</td><td><select name="c8" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n8" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="9"> </td>
+<td>Number of C preprocessor directives</td><td><select name="c9" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n9" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="10"> </td>
+<td>Number of processed C preprocessor conditionals (ifdef, if, elif)</td><td><select name="c10" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n10" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="11"> </td>
+<td>Number of defined C preprocessor function-like macros</td><td><select name="c11" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n11" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="12"> </td>
+
+<td>Number of defined C preprocessor object-like macros</td><td><select name="c12" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n12" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="13"> </td>
+<td>Number of preprocessed tokens</td><td><select name="c13" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n13" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="14"> </td>
+<td>Number of compiled tokens</td><td><select name="c14" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n14" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="15"> </td>
+<td>Number of statements or declarations</td><td><select name="c15" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n15" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="16"> </td>
+<td>Number of operators</td><td><select name="c16" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n16" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="17"> </td>
+<td>Number of unique operators</td><td><select name="c17" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n17" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="18"> </td>
+<td>Number of numeric constants</td><td><select name="c18" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n18" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="19"> </td>
+
+<td>Number of character literals</td><td><select name="c19" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n19" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="21"> </td>
+<td>Number of if statements</td><td><select name="c21" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n21" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="22"> </td>
+<td>Number of else clauses</td><td><select name="c22" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n22" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="23"> </td>
+<td>Number of switch statements</td><td><select name="c23" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n23" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="24"> </td>
+<td>Number of case labels</td><td><select name="c24" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n24" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="25"> </td>
+<td>Number of default labels</td><td><select name="c25" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n25" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="26"> </td>
+<td>Number of break statements</td><td><select name="c26" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n26" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="27"> </td>
+
+<td>Number of for statements</td><td><select name="c27" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n27" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="28"> </td>
+<td>Number of while statements</td><td><select name="c28" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n28" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="29"> </td>
+<td>Number of do statements</td><td><select name="c29" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n29" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="30"> </td>
+<td>Number of continue statements</td><td><select name="c30" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n30" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="31"> </td>
+<td>Number of goto statements</td><td><select name="c31" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n31" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="32"> </td>
+<td>Number of return statements</td><td><select name="c32" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n32" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="33"> </td>
+<td>Number of project-scope identifiers</td><td><select name="c33" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n33" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="34"> </td>
+
+<td>Number of file-scope (static) identifiers</td><td><select name="c34" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n34" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="35"> </td>
+<td>Number of macro identifiers</td><td><select name="c35" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n35" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="36"> </td>
+<td>Total number of object and object-like identifiers</td><td><select name="c36" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n36" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="37"> </td>
+<td>Number of unique project-scope identifiers</td><td><select name="c37" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n37" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="38"> </td>
+<td>Number of unique file-scope (static) identifiers</td><td><select name="c38" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n38" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="39"> </td>
+<td>Number of unique macro identifiers</td><td><select name="c39" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n39" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="40"> </td>
+<td>Number of unique object and object-like identifiers</td><td><select name="c40" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n40" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="42"> </td>
+
+<td>Number of global namespace occupants at function's top</td><td><select name="c42" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n42" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="43"> </td>
+<td>Number of parameters</td><td><select name="c43" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n43" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="44"> </td>
+<td>Maximum level of statement nesting</td><td><select name="c44" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n44" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="45"> </td>
+<td>Number of goto labels</td><td><select name="c45" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n45" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="46"> </td>
+<td>Fan-in (number of calling functions)</td><td><select name="c46" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n46" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="47"> </td>
+<td>Fan-out (number of called functions)</td><td><select name="c47" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n47" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="48"> </td>
+<td>Cyclomatic complexity (control statements)</td><td><select name="c48" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n48" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="49"> </td>
+
+<td>Extended cyclomatic complexity (includes branching operators)</td><td><select name="c49" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n49" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="50"> </td>
+<td>Maximum cyclomatic complexity (includes branching operators and all switch branches)</td><td><select name="c50" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n50" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="51"> </td>
+<td>Structure complexity (Henry and Kafura)</td><td><select name="c51" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n51" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="52"> </td>
+<td>Halstead complexity</td><td><select name="c52" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n52" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="53"> </td>
+<td>Information flow metric (Henry and Selig)</td><td><select name="c53" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n53" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="-1" CHECKED></td>
+<td>Entity name</td><td></td><td></td></tr></table>
+<p><input type="checkbox" name="reverse" value="0">Reverse sort order
+<p><input type="radio" name="match" value="Y" CHECKED>Match any marked
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="L">Match all marked
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="E">Exclude marked
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+<input type="radio" name="match" value="T" >Exact match
+<br><hr>
+<table>
+<tr><td>
+Number of direct callers
+<select name="ncallerop" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td>
+<INPUT TYPE="text" NAME="ncallers" SIZE=5 MAXLENGTH=10>
+</td><td>
+<tr><td>
+Function names should (<input type="checkbox" name="xfnre" value="1"> not) 
+ match RE
+</td><td>
+
+<INPUT TYPE="text" NAME="fnre" SIZE=20 MAXLENGTH=256>
+</td></tr>
+<tr><td>
+Names of calling functions should (<input type="checkbox" name="xfure" value="1"> not) 
+ match RE
+</td><td>
+<INPUT TYPE="text" NAME="fure" SIZE=20 MAXLENGTH=256>
+</td></tr>
+<tr><td>
+Names of called functions should (<input type="checkbox" name="xfdre" value="1"> not) 
+ match RE
+</td><td>
+<INPUT TYPE="text" NAME="fdre" SIZE=20 MAXLENGTH=256>
+</td></tr>
+<tr><td>
+
+Select functions from filenames (<input type="checkbox" name="xfre" value="1"> not) 
+ matching RE
+</td><td>
+<INPUT TYPE="text" NAME="fre" SIZE=20 MAXLENGTH=256>
+</td></tr>
+</table>
+<hr>
+<p>Query title <INPUT TYPE="text" NAME="n" SIZE=60 MAXLENGTH=256>
+&nbsp;&nbsp;<INPUT TYPE="submit" NAME="qi" VALUE="Show functions">
+<INPUT TYPE="submit" NAME="qf" VALUE="Show files">
+</FORM>
+<p><a href="simul.html">Main page</a>
+ &mdash; Web: <a href="simul.html">Home</a>
+
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout</font>
+</td></tr></table>
+<p>
+On the top you can specify whether each function you want listed:
+<ul>
+<li>is a C function</li>
+<li>is a function-like macro</li>
+<li>has a writable declaration</li>
+<li>has a read-only declaration</li>
+<li>is visible in the whole project scope</li>
+<li>is visible only in a file scope</li>
+<li>has a definition body.</li>
+</ul>
+<p>
+As is the case in file queries,
+next comes a series of metrics <em>CScout</em> collects for each
+defined function.
+For each metric (e.g. the number of comments) you can specify
+an operator <code>==, !=, &lt;</code> or <code>&gt;</code> and a number
+to match that metric against.
+Thus to locate functions containing <code>goto</code> statement
+you would specify<br>
+Number of goto statements <code>!=</code> 0.
+<p>
+On the left of each metric you can specify whether that metric
+will be used to sort the resulting file list.
+In that case, the corresponding number will appear together with
+each file listed.
+A separate option allows you to specify that files should be sorted
+in the reverse order.
+<p>
+Similarly to the identifier query,
+you can also specify whether the specified properties should be treated
+ <ul>
+ <li> as a disjunction (match any marked),
+ <li> as a conjunction (match all marked),
+ <li> as a negation excluding all identifiers matching any property (exclude marked), or
+ <li> as an exact match specification matching only identifiers that match
+ exactly the properties specified (exact match)
+ </ul>
+
+ <p>
+In addition you can specify:
+<ul>
+<li> That the function should have a specified number of direct callers.</li>
+<li> A regular expression against which function names should match
+(or not match)
+<li> A regular expression against which the names of calling functions should match
+(or not match)
+<li> A regular expression against which the names of any called functions should match
+(or not match)
+<li> A regular expression that filenames in which functions are declared occur should
+match (or not match)
+<li> A query title to be used for naming the result page.
+The title will appear on the result document annotating the
+results, and will also provide you with a sensible name when creating a
+bookmark to it.
+</ul>
+</notes>
+

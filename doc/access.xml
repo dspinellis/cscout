@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<notes>
+The unsupported version of <em>CScout</em> allows any machine
+from the Internet to connect to your server for casual browsing.
+Operations requiring substantial CPU resources, or operations that
+will modify source files or will change the <em>CScout</em> execution
+environment can only be performed from the local host.
+<p>
+The supported version of <em>CScout</em> features an access control list.
+The list is specified in a file called <code>acl</code> which
+should be located in 
+<code>$CSCOUT_HOME</code>,
+<code>$HOME/.cscout</code>, or 
+<code>.cscout</code> in the current directory.
+The list contains lines with IP numeric addresses prefixed by an
+<code>A</code> (allow)
+or
+<code>D</code> (deny)
+prefix and a space.
+Matching is performed by comparing a substring of a machine's IP address
+against the specified access rule.
+Thus an entry such as
+<pre>
+A 128.135.11.
+</pre>
+can be used to allow access from a whole subnet.
+Unfortunatelly allowing access from the IP address
+<code>192.168.1.1</code> will
+also allow access 
+<code>192.168.1.10</code>, <code>192.168.1.100</code>, and so on.
+
+Allow and deny entries cannot be combined in a useful manner
+since the rules followed are:
+<ul>
+<li> If the address matches an allowed entry the machine will be allowed access.
+<li> If no allowed entries have been specified,
+the machine will be allowed access unless it has been denied access.
+(i.e. you can not use a deny entry to exclude a machine from an
+allowed group)
+</ul>
+Thus you will either specify a restricted list of allowed hosts,
+or allow access to the world, specifying a list of denied hosts.
+</notes>

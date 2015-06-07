@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<notes>
+Some file and identifier listings provide an option to edit the file by
+hand.
+Such an operation is useful when CScout has identified a function as unused, and
+one therefore wishes to remove the complete function body.
+The <em>edit</em> link invokes an external editor,
+where possible with an argument that will move the edit point near the point
+of the corresponding identifier.
+The argument is specified as a regular expression.
+This has the advantage that the location will work
+even when the file length changes,
+but the disadvantage is imprecise and can also result in spurious matches.
+<p />
+The automatic global identifier replacement and the hand-editing of
+files are mutualy exclusive operations.
+Once either of the two is performed the other ceases to be available.
+This is done to protect the integrity of the underlying source code.
+Furthermore, all CScout's operations, such as queries and source code listings,
+are always performed on a snapshot of the source code taken just before a
+file is edited by hand.
+</notes>

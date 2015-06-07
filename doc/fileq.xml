@@ -1,0 +1,160 @@
+<?xml version="1.0" ?>
+<notes>
+A generic file query is a powerful mechanism for locating files
+that match the criteria you specify.
+All the ready-made file queries that <em>CScout</em> provides you are
+just URLs specifying saved instances of generic queries.
+<p>
+You specify the query through the following form:
+
+<table border=1><tr><td>
+<h2>File Query</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<input type="checkbox" name="writable" value="1">Writable<br>
+<input type="checkbox" name="ro" value="1">Read-only<br>
+<table><tr><th>Sort-by</th><th>Metric</th><th>Compare</th><th>Value</th></tr>
+
+<tr><td><input type="radio" name="order" value="0"> </td>
+<td>Number of characters</td><td><select name="c0" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n0" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="1"> </td>
+<td>Number of comment characters</td><td><select name="c1" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n1" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="2"> </td>
+
+<td>Number of space characters</td><td><select name="c2" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n2" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="3"> </td>
+<td>Number of line comments</td><td><select name="c3" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n3" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="4"> </td>
+<td>Number of block comments</td><td><select name="c4" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n4" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="5"> </td>
+<td>Number of lines</td><td><select name="c5" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n5" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="6"> </td>
+<td>Maximum number of characters in a line</td><td><select name="c6" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n6" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="7"> </td>
+<td>Number of character strings</td><td><select name="c7" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n7" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="8"> </td>
+<td>Number of unprocessed lines</td><td><select name="c8" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n8" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="9"> </td>
+
+<td>Number of C preprocessor directives</td><td><select name="c9" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n9" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="10"> </td>
+<td>Number of processed C preprocessor conditionals (ifdef, if, elif)</td><td><select name="c10" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n10" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="11"> </td>
+<td>Number of defined C preprocessor function-like macros</td><td><select name="c11" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n11" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="12"> </td>
+<td>Number of defined C preprocessor object-like macros</td><td><select name="c12" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n12" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="13"> </td>
+<td>Number of preprocessed tokens</td><td><select name="c13" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n13" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="14"> </td>
+<td>Number of compiled tokens</td><td><select name="c14" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n14" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="15"> </td>
+<td>Number of copies of the file</td><td><select name="c15" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n15" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="16"> </td>
+
+<td>Number of statements</td><td><select name="c16" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n16" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="17"> </td>
+<td>Number of defined project-scope functions</td><td><select name="c17" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n17" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="18"> </td>
+<td>Number of defined file-scope (static) functions</td><td><select name="c18" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n18" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="19"> </td>
+<td>Number of defined project-scope variables</td><td><select name="c19" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n19" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="20"> </td>
+<td>Number of defined file-scope (static) variables</td><td><select name="c20" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n20" SIZE=5 MAXLENGTH=10></td></tr>
+
+<tr><td><input type="radio" name="order" value="21"> </td>
+<td>Number of complete aggregate (struct/union) declarations</td><td><select name="c21" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n21" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="22"> </td>
+<td>Number of declared aggregate (struct/union) members</td><td><select name="c22" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n22" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="23"> </td>
+
+<td>Number of complete enumeration declarations</td><td><select name="c23" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n23" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="24"> </td>
+<td>Number of declared enumeration elements</td><td><select name="c24" value="1">
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n24" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="25"> </td>
+<td>Number of directly included files</td><td><select name="c25" value="1">
+
+<option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n25" SIZE=5 MAXLENGTH=10></td></tr>
+<tr><td><input type="radio" name="order" value="-1" CHECKED></td>
+<td>Entity name</td><td></td><td></td></tr></table>
+<p><input type="checkbox" name="reverse" value="0">Reverse sort order
+<p><input type="radio" name="match" value="Y" CHECKED>Match any of the above
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="L">Match all of the above
+<br><hr>
+File names should (<input type="checkbox" name="xfre" value="1"> not) 
+ match RE
+
+<INPUT TYPE="text" NAME="fre" SIZE=20 MAXLENGTH=256>
+<hr>
+<p>Query title <INPUT TYPE="text" NAME="n" SIZE=60 MAXLENGTH=256>
+&nbsp;&nbsp;<INPUT TYPE="submit" NAME="qf" VALUE="Show files">
+</FORM>
+<p><a href="simul.html">Main page</a>
+ &mdash; Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout</font>
+</td></tr></table>
+
+<p>
+You start by specifying whether the file should be
+writable (i.e. typically part of your application)
+and/or
+readable (i.e. typically part of the compiler or system).
+Next come a series of metrics <em>CScout</em> collects for each
+file.
+For each metric (e.g. the number of comments) you can specify
+an operator <code>==, !=, &lt;</code> or <code>&gt;</code> and a number
+to match that metric against.
+Thus to locate files without any comments you would specify<br>
+Number of block comments <code>==</code> 0.
+<p>
+On the left of each metric you can specify whether that metric
+will be used to sort the resulting file list.
+In that case, the corresponding number will appear together with
+each file listed.
+A separate option allows you to specify that files should be sorted
+in the reverse order.
+<p>
+You can request to see files matching any of your specifications
+(Match any of the above) or to see files matching all your
+specifications
+(Match all of the above).
+<p>
+Sometimes you may only want to search in a subset of files;
+you can then specify a regular expression that filenames should
+match (or not match) against: "File names should (not) match RE".
+<p>
+Finally, you can also specify a title for your query.
+The title will then appear on the result document annotating the
+results, and will also provide you with a sensible name when creating a
+bookmark to it.
+</notes>

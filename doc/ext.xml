@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<notes>
+<em>CScout</em>  implements the
+C language as defined in ANSI X3.159-1989.
+In addition, it supports the following extensions:
+<ol>
+<li> Preprocessor directives can appear within a call to a function-like macro (gcc)</li>
+<li> Initializers and compound literals can be empty (gcc)</li>
+<li> The <code>alignof</code> operator can be used on types (gcc) </li>
+<li> A declaration expression as the first element of a <code>for</code> statement (C99)
+<li> The <code>restrict</code> qualifier and the <code>inline</code> specifier (C99)
+<li> Initialization designators (C99)
+<li> Array initialization designators can include ranges (gcc) </li>
+<li> ANSI-style function definitions can be nested (gcc) (gcc also allows
+nested K&R-style function definitions)</li>
+<li> The equals sign following an initializer designator is optional (gcc) </li>
+<li> Array and structure initialization (gcc)
+<li> Compound literals (C99)
+<li> Declarations can be intermixed with statements (C99).
+<li> Recognise <code>__atribute__(__unused__)</code> for determining which
+identifiers should not be reported as unused (gcc).
+<li> <code>//</code> line comments (common extension)
+<li> <code>__asm__</code> blocks (gcc)
+<li> <code>enum</code> lists ending with a comma (common extension)
+<li> Anonymous <code>struct/union</code> members (gcc, Microsoft C)
+<li> Allow <code>case</code> expression ranges (gcc).
+<li> An enumeration list can be empty (Microsoft C)
+<li>Allow braces around scalar initializers (common extension).</li>
+<li> Indirect <code>goto</code> targets and the label address-of operator (gcc).
+<li> <code>__typeof</code> keyword (gcc)
+<li> A compound statement in brackets can be an expression (gcc)
+<li> Macros expanding from <code>/##/</code> into
+<code>//</code> are then treated as a line comment (Microsoft C)
+<li> Exception handling using the <code>__try __except __finally __leave</code> keywords (Microsoft C) </li>
+<li> <code>#include_next</code> preprocessor directive (gcc)
+<li> <code>#warning</code> preprocessor directive (gcc)
+<li> Variable number of arguments preprocessor macros
+(support for both the gcc and the C99 syntax)
+<li> Allow empty member declarations in aggregates (gcc)
+<li> <code>long long</code> type (common extension)
+<li> A semicolon can appear as a declatation (common extension)
+<li> An aggregate declaration body can be empty (gcc)
+<li> Aggregate member initialization using the member: value syntax (gcc)
+<li> Statement labels do not require a statement following them (gcc)
+<li> #ident preprocessor directive (gcc)
+<li> Allow assignment to case expressions (common extension)
+<li> Accept an empty translation unit (common extension).
+<li> Support locally declared labels (<code>__label__</code>) (gcc).
+<li> The second argument of a conditional expression can be omitted (gcc).
+<li> Dereferencing a function yields a function (common extension).
+</ol>
+Many other compiler-specific extensions are handled by suitable
+macro definitions in the <em>CScout</em> initialization file.
+</notes>

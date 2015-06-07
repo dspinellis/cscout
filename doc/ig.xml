@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<notes>
+<em>CScout</em> can create include graphs that list how files include each
+other.
+
+<p>
+Two global options
+specify the format of the include graph and the content
+on each graph's node.
+Through these options you can obtain graphs in
+<ul>
+<li>plain text form: suitable for processing with other tools,</li>
+<li> HTML: suitable for browsing via <em>CScout</em>,</li>
+<li> dot: suitable for generating high-quality graphics files,</li>
+<li> SVG: suitable for graphical browsing, if your browser supports this format, and</li>
+<li> GIF: suitable for viewing on SVG-challenged browsers.</li>
+</ul>
+All diagrams follow the notation
+<pre>
+including file -> included file
+</pre>
+
+<p>
+Two links on the main page
+(file include graph - writable files and
+file include graph - all files)
+can give you the include graphs of the complete program.
+For programs larger than a hundred thousand lines,
+these graphs are only useful in their textual form.
+In their graphical form, even with node information disabled,
+they can only serve to give you a rough idea of how the program is
+structured.
+The following image depicts how writable (non-system) files are
+included in the <em>awk</em> source code.
+<br> <img src="awkinc.gif"><br>
+and the following is a part of the include file structure of the
+Windows Research Kernel
+<br> <img src="wrk-inc.gif"><p>
+
+More useful are typically the include graphs that can be generated for
+individual files.
+These can allow you to see what paths can possibly lead to the inclusion
+of a given file (include graph of all including files) or what files
+a given file includes (include graph of all included files).
+
+(call graph of all callers),
+which functions can be reached starting from a given function,
+and how functions in a given file relate to each other.
+<p>
+As an example, the following diagram depicts all files that
+<code>main.c</code> includes
+<br> <img src="main-inc.gif">
+<br>
+while the following diagrams shows all the files including
+(directly or indirectly)
+<code>proto.h</code>.
+<br> <img src="proto-inc.gif"><p>
+</notes>

@@ -1,0 +1,769 @@
+<?xml version="1.0" ?>
+<notes>
+Although some of the file queries operate on identifier properties,
+all file queries produce file-list data as their result.
+Clicking on an element of a file list leads you to a page
+with a summary of the file.
+
+<table border=1><tr><td>
+<h2>File: C:\dds\src\Research\cscout\example\awk\main.c</h2>
+<h3>Details</h3><ul>
+<li> Read-only: No
+<li> Used in project(s): 
+
+<ul><li>awk
+</ul>
+<li>Other exact copies: (none)
+<li> <a href="simul.html">File's directory</a></ul>
+<h3>Listings</h3><ul>
+<li> <a href="simul.html">Source code</a>
+<li> <a href="simul.html">Source code with unprocessed regions marked</a>
+<li> <a href="simul.html">Source code with identifier hyperlinks</a>
+
+<li> <a href="simul.html">Source code with hyperlinks to project-global writable identifiers</a>
+<li> <a href="simul.html">Source code with hyperlinks to function and macro declarations</a>
+<li> <a href="simul.html">Edit the file</a></ul>
+<h3>Functions</h3><ul>
+<li> <a href="simul.html">Defined project-scoped functions</a>
+<li> <a href="simul.html">Defined file-scoped functions</a>
+
+<li> <a href="simul.html">Function and macro call graph</a></ul>
+<h3>File Dependencies</h3><ul>
+<li> Graph of files that depend on this file at compile time: <a href="simul.html">writable</a>, <a href="simul.html">all</a><li> Graph of files on which this file depends at compile time: <a href="simul.html">writable</a>, <a href="simul.html">all</a><li> Graph of files whose functions this file calls (control dependency): <a href="simul.html">writable</a>, <a href="simul.html">all</a><li> Graph of files calling this file's functions (control dependency): <a href="simul.html">writable</a>, <a href="simul.html">all</a><li> Graph of files whose global variables this file accesses (data dependency): <a href="simul.html">writable</a>, <a href="simul.html">all</a><li> Graph of files accessing this file's global variables (data dependency): <a href="simul.html">writable</a>, <a href="simul.html">all</a></ul>
+
+<h3>Include Files</h3><ul>
+<li> <a href="simul.html">Writable files that this file directly includes</a>
+<li> <a href="simul.html">All files that this file includes</a>
+<li> <a href="simul.html">Include graph of all included files</a><li> <a href="simul.html">Include graph of writable included files</a><li> <a href="simul.html">Include graph of all including files</a><li> <a href="simul.html">All writable files that this file must include</a>
+
+<li> <a href="simul.html">Unused directly included files</a>
+<li> <a href="simul.html">Files including this file</a>
+</ul>
+<h3>Metrics</h3>
+<table class='metrics'>
+<tr><th>Metric</th><th>Value</th></tr>
+<tr><td>Number of characters</td><td align='right'>5155</td></tr><tr><td>Number of comment characters</td><td align='right'>1878</td></tr><tr><td>Number of space characters</td><td align='right'>754</td></tr><tr><td>Number of line comments</td><td align='right'>0</td></tr><tr><td>Number of block comments</td><td align='right'>27</td></tr><tr><td>Number of lines</td><td align='right'>190</td></tr><tr><td>Maximum number of characters in a line</td><td align='right'>107</td></tr><tr><td>Number of character strings</td><td align='right'>25</td></tr><tr><td>Number of unprocessed lines</td><td align='right'>0</td></tr><tr><td>Number of C preprocessor directives</td><td align='right'>9</td></tr><tr><td>Number of processed C preprocessor conditionals (ifdef, if, elif)</td><td align='right'>0</td></tr><tr><td>Number of defined C preprocessor function-like macros</td><td align='right'>0</td></tr><tr><td>Number of defined C preprocessor object-like macros</td><td align='right'>1</td></tr><tr><td>Number of preprocessed tokens</td><td align='right'>893</td></tr><tr><td>Number of compiled tokens</td><td align='right'>921</td></tr><tr><td>Number of copies of the file</td><td align='right'>1</td></tr><tr><td>Number of statements</td><td align='right'>123</td></tr><tr><td>Number of defined project-scope functions</td><td align='right'>3</td></tr><tr><td>Number of defined file-scope (static) functions</td><td align='right'>0</td></tr><tr><td>Number of defined project-scope variables</td><td align='right'>13</td></tr><tr><td>Number of defined file-scope (static) variables</td><td align='right'>0</td></tr><tr><td>Number of complete aggregate (struct/union) declarations</td><td align='right'>0</td></tr><tr><td>Number of declared aggregate (struct/union) members</td><td align='right'>0</td></tr><tr><td>Number of complete enumeration declarations</td><td align='right'>0</td></tr><tr><td>Number of declared enumeration elements</td><td align='right'>0</td></tr><tr><td>Number of directly included files</td><td align='right'>8</td></tr></table>
+
+<p><a href="simul.html">Main page</a>
+ &mdash; Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><div class="footer">CScout</font>
+</td></tr></table>
+The page starts with
+the projects using this file,
+whether the file also exists as an exact duplicate in other locations,
+and a link to browse within <em>CScout</em> the directory where the file
+is located.
+Four subsequent sections provide links for
+<ul>
+<li> viewing the file's source code,</ul>
+<li> examining the functions defined in the file,</ul>
+<li> listing various file dependencies, and</ul>
+<li> exploring the file's include relationships.</ul>
+</ul>
+The page ends with representative metrics for the given file.
+<h2>Source Code Views</h2>
+<p>
+You can view a file's source code in five different forms:
+<ol>
+<li> The plain source code, will only provide you the file's code text
+<li> The source code with unprocessed regions marked, will enable you
+to see which parts of the file was not processed due to conditional compilation
+instructions.
+You may want to use the marked parts as a guide to construct a
+more inclusive workspace definition (perhaps by processing the
+project multiple times, with different preprocessor options).
+<table border=1><tr><td>
+<code>
+<a name="360"></a>&nbsp;&nbsp;360&nbsp;#if&nbsp;defined(__GNUC__)&nbsp;&amp;&amp;&nbsp;defined(__STDC__)<br>
+<a name="361"></a>&nbsp;&nbsp;361&nbsp;static&nbsp;__inline&nbsp;int&nbsp;__sputc(int&nbsp;_c,&nbsp;FILE&nbsp;*_p)&nbsp;{<br>
+<a name="362"></a>&nbsp;&nbsp;362&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(--_p-&gt;_w&nbsp;&gt;=&nbsp;0&nbsp;||&nbsp;(_p-&gt;_w&nbsp;&gt;=&nbsp;_p-&gt;_lbfsize&nbsp;&amp;&amp;&nbsp;(char)_c&nbsp;!=&nbsp;'\n'))<br>
+
+<a name="363"></a>&nbsp;&nbsp;363&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(*_p-&gt;_p++&nbsp;=&nbsp;_c);<br>
+<a name="364"></a>&nbsp;&nbsp;364&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>
+<a name="365"></a>&nbsp;&nbsp;365&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(__swbuf(_c,&nbsp;_p));<br>
+<a name="366"></a>&nbsp;&nbsp;366&nbsp;}<br>
+
+<a name="367"></a>&nbsp;&nbsp;367&nbsp;#else<br>
+<a name="368"></a><font color="red">&nbsp;&nbsp;368&nbsp;/*<br>
+</color><a name="369"></a><font color="red">&nbsp;&nbsp;369&nbsp;&nbsp;*&nbsp;This&nbsp;has&nbsp;been&nbsp;tuned&nbsp;to&nbsp;generate&nbsp;reasonable&nbsp;code&nbsp;on&nbsp;the&nbsp;vax&nbsp;using&nbsp;pcc.<br>
+
+</color><a name="370"></a><font color="red">&nbsp;&nbsp;370&nbsp;&nbsp;*/<br>
+</color><a name="371"></a><font color="red">&nbsp;&nbsp;371&nbsp;#define&nbsp;__sputc(c,&nbsp;p)&nbsp;\<br>
+</color><a name="372"></a><font color="red">&nbsp;&nbsp;372&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(--(p)-&gt;_w&nbsp;&lt;&nbsp;0&nbsp;?&nbsp;\<br>
+</color><a name="373"></a><font color="red">&nbsp;&nbsp;373&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p)-&gt;_w&nbsp;&gt;=&nbsp;(p)-&gt;_lbfsize&nbsp;?&nbsp;\<br>
+
+</color><a name="374"></a><font color="red">&nbsp;&nbsp;374&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(*(p)-&gt;_p&nbsp;=&nbsp;(c)),&nbsp;*(p)-&gt;_p&nbsp;!=&nbsp;'\n'&nbsp;?&nbsp;\<br>
+</color><a name="375"></a><font color="red">&nbsp;&nbsp;375&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(int)*(p)-&gt;_p++&nbsp;:&nbsp;\<br>
+
+</color><a name="376"></a><font color="red">&nbsp;&nbsp;376&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__swbuf('\n',&nbsp;p)&nbsp;:&nbsp;\<br>
+</color><a name="377"></a><font color="red">&nbsp;&nbsp;377&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__swbuf((int)(c),&nbsp;p)&nbsp;:&nbsp;\<br>
+</color><a name="378"></a><font color="red">&nbsp;&nbsp;378&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(*(p)-&gt;_p&nbsp;=&nbsp;(c),&nbsp;(int)*(p)-&gt;_p++))<br>
+
+</color><a name="379"></a><font color="red">&nbsp;&nbsp;379&nbsp;#endif<br>
+</color><a name="380"></a>&nbsp;&nbsp;380&nbsp;<br>
+</code>
+</td></tr></table>
+<li> Source code with identifier hyperlinks, will provide you with
+a page of the file's code text where each identifier is represented as
+a hyperlink leading to the identifier's page.
+The following is a representative example.
+
+<table border=1><tr><td>
+<code>
+int<br>
+<a href="simul.html">copy_fifo</a>(<a href="simul.html">from_stat</a>,&nbsp;<a href="simul.html">exists</a>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;<a href="simul.html">stat</a>&nbsp;*<a href="simul.html">from_stat</a>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;<a href="simul.html">exists</a>;<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(<a href="simul.html">exists</a>&nbsp;&amp;&amp;&nbsp;<a href="simul.html">unlink</a>(<a href="simul.html">to</a>.<a href="simul.html">p_path</a>))&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">warn</a>("unlink:&nbsp;%s",&nbsp;<a href="simul.html">to</a>.<a href="simul.html">p_path</a>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(1);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(<a href="simul.html">mkfifo</a>(<a href="simul.html">to</a>.<a href="simul.html">p_path</a>,&nbsp;<a href="simul.html">from_stat</a>-&gt;<a href="simul.html">st_mode</a>))&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">warn</a>("mkfifo:&nbsp;%s",&nbsp;<a href="simul.html">to</a>.<a href="simul.html">p_path</a>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(1);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(<a href="simul.html">pflag</a>&nbsp;?&nbsp;<a href="simul.html">setfile</a>(<a href="simul.html">from_stat</a>,&nbsp;0)&nbsp;:&nbsp;0);<br>
+}<br>
+<br>
+</code>
+</td></tr></table>
+
+<li> As the above display can be overwhelming, you may prefer
+to browse the source code with hyperlinks only to project-global writable
+identifiers, which are typically the most important identifiers.
+Consider again how the above example would be displayed:
+
+<table border=1><tr><td>
+<code>
+int<br>
+<a href="simul.html">copy_fifo</a>(from_stat,&nbsp;exists)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;stat&nbsp;*from_stat;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;exists;<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(exists&nbsp;&amp;&amp;&nbsp;unlink(<a href="simul.html">to</a>.p_path))&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;warn("unlink:&nbsp;%s",&nbsp;<a href="simul.html">to</a>.p_path);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(1);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(mkfifo(<a href="simul.html">to</a>.p_path,&nbsp;from_stat-&gt;st_mode))&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;warn("mkfifo:&nbsp;%s",&nbsp;<a href="simul.html">to</a>.p_path);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(1);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(<a href="simul.html">pflag</a>&nbsp;?&nbsp;<a href="simul.html">setfile</a>(from_stat,&nbsp;0)&nbsp;:&nbsp;0);<br>
+}<br>
+</td></tr></table>
+<li> Source code with hyperlinks to function and macro declarations
+provides you hyperlinks to the <em>function</em> pages for each
+function declaration (implicit or explict) and macro definition.
+Again, here is an example:
+<table border=1><tr><td>
+<code>
+<a name="84"></a>#if&nbsp;!defined(_ANSI_SOURCE)&nbsp;&amp;&amp;&nbsp;!defined(_POSIX_SOURCE)<br>
+<a name="85"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">digittoint</a>&nbsp;__P((int));<br>
+<a name="86"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">isascii</a>&nbsp;__P((int));<br>
+
+<a name="87"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">isblank</a>&nbsp;__P((int));<br>
+<a name="88"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">ishexnumber</a>&nbsp;__P((int));<br>
+<a name="89"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">isideogram</a>&nbsp;__P((int));<br>
+<a name="90"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">isnumber</a>&nbsp;__P((int));<br>
+<a name="91"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">isphonogram</a>&nbsp;__P((int));<br>
+
+<a name="92"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">isrune</a>&nbsp;__P((int));<br>
+<a name="93"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">isspecial</a>&nbsp;__P((int));<br>
+<a name="94"></a>int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">toascii</a>&nbsp;__P((int));<br>
+<a name="95"></a>#endif<br>
+<a name="96"></a>__END_DECLS<br>
+<a name="97"></a><br>
+
+<a name="98"></a>#define&nbsp;<a href="simul.html">__istype</a>(c,f)&nbsp;&nbsp;&nbsp;&nbsp;(!!__maskrune((c),(f)))<br>
+<a name="99"></a><br>
+<a name="100"></a>#define&nbsp;<a href="simul.html">isalnum</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_A|_CTYPE_D)<br>
+<a name="101"></a>#define&nbsp;<a href="simul.html">isalpha</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_A)<br>
+
+<a name="102"></a>#define&nbsp;<a href="simul.html">iscntrl</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_C)<br>
+<a name="103"></a>#define&nbsp;<a href="simul.html">isdigit</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__isctype((c),&nbsp;_CTYPE_D)&nbsp;/*&nbsp;ANSI&nbsp;--&nbsp;locale&nbsp;independent&nbsp;*/<br>
+
+<a name="104"></a>#define&nbsp;<a href="simul.html">isgraph</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_G)<br>
+<a name="105"></a>#define&nbsp;<a href="simul.html">islower</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_L)<br>
+<a name="106"></a>#define&nbsp;<a href="simul.html">isprint</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_R)<br>
+
+<a name="107"></a>#define&nbsp;<a href="simul.html">ispunct</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_P)<br>
+<a name="108"></a>#define&nbsp;<a href="simul.html">isspace</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_S)<br>
+<a name="109"></a>#define&nbsp;<a href="simul.html">isupper</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__istype((c),&nbsp;_CTYPE_U)<br>
+
+<a name="110"></a>#define&nbsp;<a href="simul.html">isxdigit</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__isctype((c),&nbsp;_CTYPE_X)&nbsp;/*&nbsp;ANSI&nbsp;--&nbsp;locale&nbsp;independent&nbsp;*/<br>
+<a name="111"></a>#define&nbsp;<a href="simul.html">tolower</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__tolower(c)<br>
+
+<a name="112"></a>#define&nbsp;<a href="simul.html">toupper</a>(c)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__toupper(c)<br>
+<a name="113"></a><br>
+</code>
+</td></tr></table>
+</ol>
+Finally, you can also choose to launch your editor on the file.
+The way the editor is launched is specified in <em>CScout</em>'s
+options page.
+
+<h2>File Metrics </h2>
+File metrics produces a summary of the workspace's file-based
+metrics like the following:
+<table border=1><tr><td>
+<h2>File Metrics</h2>
+<h3>Writable Files</h3>
+Number of elements: 13<p>
+<table class='metrics'><tr><th>Metric</th><th>Total</th><th>Min</th><th>Max</th><th>Avg</th></tr>
+
+<tr><td>Number of characters</td><td>157268</td><td>1923</td><td>43297</td><td>12097.5</td></tr>
+<tr><td>Number of comment characters</td><td>30152</td><td>0</td><td>6307</td><td>2319.38</td></tr>
+<tr><td>Number of space characters</td><td>28707</td><td>298</td><td>8735</td><td>2208.23</td></tr>
+
+<tr><td>Number of line comments</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Number of block comments</td><td>760</td><td>0</td><td>190</td><td>58.4615</td></tr>
+<tr><td>Number of lines</td><td>6432</td><td>100</td><td>1913</td><td>494.769</td></tr>
+
+<tr><td>Maximum number of characters in a line</td><td>1054</td><td>24</td><td>107</td><td>81.0769</td></tr>
+<tr><td>Number of character strings</td><td>684</td><td>0</td><td>154</td><td>52.6154</td></tr>
+<tr><td>Number of unprocessed lines</td><td>12</td><td>0</td><td>8</td><td>0.923077</td></tr>
+
+<tr><td>Number of C preprocessor directives</td><td>274</td><td>0</td><td>92</td><td>21.0769</td></tr>
+<tr><td>Number of processed C preprocessor conditionals (ifdef, if, elif)</td><td>6</td><td>0</td><td>3</td><td>0.461538</td></tr>
+<tr><td>Number of defined C preprocessor function-like macros</td><td>30</td><td>0</td><td>22</td><td>2.30769</td></tr>
+
+<tr><td>Number of defined C preprocessor object-like macros</td><td>161</td><td>0</td><td>92</td><td>12.3846</td></tr>
+<tr><td>Number of preprocessed tokens</td><td>39529</td><td>393</td><td>12189</td><td>3040.69</td></tr>
+<tr><td>Number of compiled tokens</td><td>44119</td><td>25</td><td>14020</td><td>3393.77</td></tr>
+
+<tr><td>Number of copies of the file</td><td>13</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>Number of statements</td><td>4293</td><td>0</td><td>1589</td><td>330.231</td></tr>
+<tr><td>Number of defined project-scope functions</td><td>168</td><td>0</td><td>51</td><td>12.9231</td></tr>
+
+<tr><td>Number of defined file-scope (static) functions</td><td>2</td><td>0</td><td>1</td><td>0.153846</td></tr>
+<tr><td>Number of defined project-scope variables</td><td>149</td><td>1</td><td>36</td><td>11.4615</td></tr>
+<tr><td>Number of defined file-scope (static) variables</td><td>109</td><td>0</td><td>92</td><td>8.38462</td></tr>
+
+<tr><td>Number of complete aggregate (struct/union) declarations</td><td>12</td><td>0</td><td>6</td><td>0.923077</td></tr>
+<tr><td>Number of declared aggregate (struct/union) members</td><td>56</td><td>0</td><td>32</td><td>4.30769</td></tr>
+<tr><td>Number of complete enumeration declarations</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+
+<tr><td>Number of declared enumeration elements</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Number of directly included files</td><td>62</td><td>0</td><td>9</td><td>4.76923</td></tr>
+</table>
+<h3>Read-only Files</h3>
+Number of elements: 15<p>
+
+<table class='metrics'><tr><th>Metric</th><th>Total</th><th>Min</th><th>Max</th><th>Avg</th></tr>
+<tr><td>Number of characters</td><td>43094</td><td>227</td><td>9876</td><td>2872.93</td></tr>
+<tr><td>Number of comment characters</td><td>26967</td><td>107</td><td>5695</td><td>1797.8</td></tr>
+
+<tr><td>Number of space characters</td><td>3179</td><td>13</td><td>948</td><td>211.933</td></tr>
+<tr><td>Number of line comments</td><td>12</td><td>0</td><td>12</td><td>0.8</td></tr>
+<tr><td>Number of block comments</td><td>128</td><td>0</td><td>60</td><td>8.53333</td></tr>
+
+<tr><td>Number of lines</td><td>1198</td><td>13</td><td>275</td><td>79.8667</td></tr>
+<tr><td>Maximum number of characters in a line</td><td>1073</td><td>48</td><td>85</td><td>71.5333</td></tr>
+<tr><td>Number of character strings</td><td>62</td><td>0</td><td>58</td><td>4.13333</td></tr>
+
+<tr><td>Number of unprocessed lines</td><td>17</td><td>0</td><td>5</td><td>1.13333</td></tr>
+<tr><td>Number of C preprocessor directives</td><td>288</td><td>1</td><td>102</td><td>19.2</td></tr>
+<tr><td>Number of processed C preprocessor conditionals (ifdef, if, elif)</td><td>27</td><td>0</td><td>6</td><td>1.8</td></tr>
+
+<tr><td>Number of defined C preprocessor function-like macros</td><td>30</td><td>0</td><td>13</td><td>2</td></tr>
+<tr><td>Number of defined C preprocessor object-like macros</td><td>87</td><td>0</td><td>31</td><td>5.8</td></tr>
+<tr><td>Number of preprocessed tokens</td><td>3461</td><td>16</td><td>1068</td><td>230.733</td></tr>
+
+<tr><td>Number of compiled tokens</td><td>1779</td><td>0</td><td>602</td><td>118.6</td></tr>
+<tr><td>Number of copies of the file</td><td>15</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>Number of statements</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+
+<tr><td>Number of defined project-scope functions</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Number of defined file-scope (static) functions</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Number of defined project-scope variables</td><td>6</td><td>0</td><td>3</td><td>0.4</td></tr>
+
+<tr><td>Number of defined file-scope (static) variables</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Number of complete aggregate (struct/union) declarations</td><td>7</td><td>0</td><td>3</td><td>0.466667</td></tr>
+<tr><td>Number of declared aggregate (struct/union) members</td><td>56</td><td>0</td><td>23</td><td>3.73333</td></tr>
+
+<tr><td>Number of complete enumeration declarations</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Number of declared enumeration elements</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Number of directly included files</td><td>24</td><td>0</td><td>20</td><td>1.6</td></tr>
+
+</table>
+<p><a href="simul.html">Main page</a>
+ &mdash; Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><div class="footer">CScout</font>
+</td></tr></table>
+
+<h2>All files </h2>
+The "All files" link will list all the project's files, including
+source files, and directly and indirectly included files.
+You can use this list to create a "bill of materials" for the files your
+workspace requires to compile.
+The following is an example of the output:
+<table border=1><tr><td>
+<h3>All Files</h3>
+<ul>
+
+<li><a href="simul.html">/home/dds/src/cscout/cscout_defs.h</a>
+<li><a href="simul.html">/home/dds/src/cscout/cscout_incs.h</a>
+<li><a href="simul.html">/usr/home/dds/src/cscout/bin.c</a>
+<li><a href="simul.html">/usr/include/ctype.h</a>
+<li><a href="simul.html">/usr/include/err.h</a>
+<li><a href="simul.html">/usr/include/errno.h</a>
+<li><a href="simul.html">/usr/include/fcntl.h</a>
+<li><a href="simul.html">/usr/include/fts.h</a>
+<li><a href="simul.html">/usr/include/limits.h</a>
+<li><a href="simul.html">/usr/include/locale.h</a>
+<li><a href="simul.html">/usr/include/machine/ansi.h</a>
+<li><a href="simul.html">/usr/include/machine/endian.h</a>
+<li><a href="simul.html">/usr/include/machine/limits.h</a>
+<li><a href="simul.html">/usr/include/machine/param.h</a>
+<li><a href="simul.html">/usr/include/machine/signal.h</a>
+<li><a href="simul.html">/usr/include/machine/trap.h</a>
+<li><a href="simul.html">/usr/include/machine/types.h</a>
+<li><a href="simul.html">/usr/include/machine/ucontext.h</a>
+<li><a href="simul.html">/usr/include/runetype.h</a>
+<li><a href="simul.html">/usr/include/stdio.h</a>
+<li><a href="simul.html">/usr/include/stdlib.h</a>
+<li><a href="simul.html">/usr/include/string.h</a>
+<li><a href="simul.html">/usr/include/sys/_posix.h</a>
+<li><a href="simul.html">/usr/include/sys/cdefs.h</a>
+<li><a href="simul.html">/usr/include/sys/inttypes.h</a>
+<li><a href="simul.html">/usr/include/sys/param.h</a>
+<li><a href="simul.html">/usr/include/sys/signal.h</a>
+<li><a href="simul.html">/usr/include/sys/stat.h</a>
+<li><a href="simul.html">/usr/include/sys/syslimits.h</a>
+<li><a href="simul.html">/usr/include/sys/time.h</a>
+<li><a href="simul.html">/usr/include/sys/types.h</a>
+<li><a href="simul.html">/usr/include/sys/ucontext.h</a>
+<li><a href="simul.html">/usr/include/sys/unistd.h</a>
+<li><a href="simul.html">/usr/include/sysexits.h</a>
+<li><a href="simul.html">/usr/include/syslog.h</a>
+<li><a href="simul.html">/usr/include/time.h</a>
+<li><a href="simul.html">/usr/include/unistd.h</a>
+<li><a href="simul.html">/vol/src/bin/cp/cp.c</a>
+<li><a href="simul.html">/vol/src/bin/cp/extern.h</a>
+<li><a href="simul.html">/vol/src/bin/cp/utils.c</a>
+<li><a href="simul.html">/vol/src/bin/date/date.c</a>
+<li><a href="simul.html">/vol/src/bin/date/extern.h</a>
+<li><a href="simul.html">/vol/src/bin/date/vary.h</a>
+<li><a href="simul.html">/vol/src/bin/echo/echo.c</a></ul>
+
+</ul>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+
+<h2>Read-only files </h2>
+The "Read-only files" link will typically show you the system files your
+project used.
+The following output was generated using the "Show file lists with file name in context" option.
+
+<table border=1><tr><td>
+<h2>Read-only Files</h2>
+<table><tr><th>Directory</th><th>File</th></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">ctype.h</a></td></tr>
+
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">err.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">errno.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">fcntl.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">fts.h</a></td></tr>
+<tr><td align="right">/usr/include/
+
+</td>
+<td><a href="simul.html">limits.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">locale.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">ansi.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">endian.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+
+<td><a href="simul.html">limits.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">param.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">signal.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">trap.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">types.h</a></td></tr>
+
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">ucontext.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">runetype.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">stdio.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">stdlib.h</a></td></tr>
+<tr><td align="right">/usr/include/
+
+</td>
+<td><a href="simul.html">string.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">_posix.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">cdefs.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">inttypes.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+
+<td><a href="simul.html">param.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">signal.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">stat.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">syslimits.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">time.h</a></td></tr>
+
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">types.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">ucontext.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">unistd.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">sysexits.h</a></td></tr>
+<tr><td align="right">/usr/include/
+
+</td>
+<td><a href="simul.html">syslog.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">time.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">unistd.h</a></td></tr>
+</table>
+
+</ul>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+
+ - Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout 2.0 - 2004/07/31 12:37:12</font>
+</td></tr></table>
+
+<h2>Writable files </h2>
+Correspondingly the "Writable files" link will only show you all your 
+workspace's source files:
+
+<table border=1><tr><td>
+<h3>Writable Files</h3>
+<ul>
+
+<li><a href="simul.html">/home/dds/src/cscout/cscout_defs.h</a>
+<li><a href="simul.html">/home/dds/src/cscout/cscout_incs.h</a>
+<li><a href="simul.html">/usr/home/dds/src/cscout/bin.c</a>
+<li><a href="simul.html">/vol/src/bin/cp/cp.c</a>
+<li><a href="simul.html">/vol/src/bin/cp/extern.h</a>
+<li><a href="simul.html">/vol/src/bin/cp/utils.c</a>
+<li><a href="simul.html">/vol/src/bin/date/date.c</a>
+<li><a href="simul.html">/vol/src/bin/date/extern.h</a>
+<li><a href="simul.html">/vol/src/bin/date/vary.h</a>
+<li><a href="simul.html">/vol/src/bin/echo/echo.c</a></ul>
+
+</ul>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+
+<h2>Files containing unused project-scoped writable identifiers </h2>
+The link 
+``files containing unused project-scoped writable identifiers''
+performs an identifier query, but lists as output files containing
+matching identifiers.
+Specifically, the link will produce a list of files containing
+global (project-scoped) unused writable identifiers.
+Modern compilers can detect unused block-local or even file-local
+(<code>static</code>) identifiers, but
+detecting global identifiers is more tricky, since it requires 
+processing of all files that will be linked together.
+The restriction to writable identifiers will filter-out noise
+generated through the use of the system's library functions.
+<p>
+In our example, the following list is generated:
+
+<table border=1><tr><td>
+<h2>Files Containing Unused Project-scoped Writable Identifiers</h2>
+<h3>Matching Files</h3>
+<table><tr><th>Directory</th><th>File</th></tr>
+<tr><td align="right">/vol/src/bin/cp/
+
+</td>
+<td><a href="simul.html">cp.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+<tr><td align="right">/vol/src/bin/date/
+</td>
+<td><a href="simul.html">date.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+</table>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+ - Web: <a href="simul.html">Home</a>
+
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout 2.0 - 2004/07/31 12:37:12</font>
+</td></tr></table>
+
+The output contains the path to each file, and a link that will
+generate the file's source code with the offending identifiers
+marked as hyperlinks.
+You can use the ``marked source'' link to inspect the identifiers in the
+context of their source code;
+simply follow the link with your browser and press <code>tab</code> 
+to go to each hyperlink.
+In our example the identifier will appear as follows:
+
+<table border=1><tr><td>
+<code>
+<br>
+void<br>
+<a href="simul.html">setthetime</a>(fmt,&nbsp;p,&nbsp;jflag,&nbsp;nflag)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;char&nbsp;*fmt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;register&nbsp;const&nbsp;char&nbsp;*p;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;jflag,&nbsp;nflag;<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;register&nbsp;struct&nbsp;tm&nbsp;*lt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;timeval&nbsp;tv;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;char&nbsp;*dot,&nbsp;*t;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;century;<br>
+<br>
+</code>
+</td></tr></table>
+(In our case the function <code>setthetime</code> is declared as
+<code>static</code>, but not defined as such.)
+
+<h2>Files containing unused file-scoped writable identifiers </h2>
+The link 
+``files containing unused file-scoped writable identifiers''
+performs an identifier query, but lists as output files containing
+matching identifiers.
+Specifically, the link will produce a list of files containing
+file-scoped  (<code>static</code>) unused writable identifiers.
+Although some modern compilers can detect file-local
+identifiers, they fail to detect macros and some types of
+variable declarations.
+The <em>CScout</em> query is more general and can be more reliable.
+The restriction to writable identifiers will filter-out noise
+generated through the use of the system's library functions.
+<p>
+In our example, the following list is generated:
+
+<table border=1><tr><td>
+<h2>Files Containing Unused File-scoped Writable Identifiers</h2>
+<h3>Matching Files</h3>
+<table><tr><th>Directory</th><th>File</th></tr>
+<tr><td align="right">/vol/src/bin/cp/
+
+</td>
+<td><a href="simul.html">cp.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">utils.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+<tr><td align="right">/vol/src/bin/date/
+</td>
+<td><a href="simul.html">date.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+<tr><td align="right">/vol/src/bin/echo/
+</td>
+<td><a href="simul.html">echo.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+
+</table>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+ - Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout 2.0 - 2004/07/31 12:37:12</font>
+</td></tr></table>
+
+In our case all identifiers located were the
+<code>copyright</code> and the <code>rcsid</code>
+identifiers.
+
+<table border=1><tr><td>
+<code>
+<br>
+#ifndef&nbsp;lint<br>
+static&nbsp;char&nbsp;const&nbsp;<a href="simul.html">copyright</a>[]&nbsp;=<br>
+"@(#)&nbsp;Copyright&nbsp;(c)&nbsp;1989,&nbsp;1993\n\<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;Regents&nbsp;of&nbsp;the&nbsp;University&nbsp;of&nbsp;California.&nbsp;&nbsp;All&nbsp;rights&nbsp;reserved.\n";<br>
+#endif&nbsp;/*&nbsp;not&nbsp;lint&nbsp;*/<br>
+<br>
+#ifndef&nbsp;lint<br>
+#if&nbsp;0<br>
+static&nbsp;char&nbsp;sccsid[]&nbsp;=&nbsp;"@(#)echo.c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8.1&nbsp;(Berkeley)&nbsp;5/31/93";<br>
+#endif<br>
+static&nbsp;const&nbsp;char&nbsp;<a href="simul.html">rcsid</a>[]&nbsp;=<br>
+&nbsp;&nbsp;"$FreeBSD:&nbsp;src/bin/echo/echo.c,v&nbsp;1.8.2.1&nbsp;2001/08/01&nbsp;02:33:32&nbsp;obrien&nbsp;Exp&nbsp;$";<br>
+#endif&nbsp;/*&nbsp;not&nbsp;lint&nbsp;*/<br>
+<br>
+</code>
+</td></tr></table>
+Later on we will explain how an identifier query could have used a regular
+expression to filter-out the noise generated by these two identifiers.
+
+<h2>Writable .c files without any statements </h2>
+The
+``writable .c files without any statements''
+will locate C files that do not contain any C statements.
+You can use it to locate files that only contain variable definitions,
+or files that are <code>#ifdef</code>'d out.
+<p>
+In our example,
+the result set only contains the processing script
+(the compiled workspace definition file).
+
+<table border=1><tr><td>
+<h3>Writable .c Files Without Any Statments</h3>
+<ul>
+
+<li><a href="simul.html">/usr/home/dds/src/cscout/bin.c</a></ul>
+
+</ul>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+
+The processing script (the compiled workspace definition file)
+follows the C syntax,
+but only contains preprocessor directives
+(mostly <em>CScout</em>-specific <code>#pragma</code> commands)
+to drive the <em>CScout</em>'s source code analysis.
+
+<h2>Writable files containing unprocessed lines </h2>
+The ``writable files containing unprocessed lines'' link will present you
+C files containing lines that were skipped by the C preprocossor,
+due to conditional compilation directives.
+The files are ordered according to the number of unprocessed lines
+(files with the largest number will appear on the top).
+<p>
+In our case the results are:
+
+<table border=1><tr><td>
+<h2>Writable Files Containing Unprocessed Lines</h2>
+<table><tr><th>Directory</th><th>File</th><th>Number of unprocessed lines</th>
+</tr>
+<tr><td align="right">/vol/src/bin/cp/
+
+</td>
+<td><a href="simul.html">utils.c</a></td><td align="right">30</td></tr>
+<tr><td align="right">/home/dds/src/cscout/
+</td>
+<td><a href="simul.html">cscout_defs.h</a></td><td align="right">3</td></tr>
+<tr><td align="right">/vol/src/bin/echo/
+</td>
+<td><a href="simul.html">echo.c</a></td><td align="right">2</td></tr>
+<tr><td align="right">/vol/src/bin/date/
+</td>
+<td><a href="simul.html">date.c</a></td><td align="right">2</td></tr>
+
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">cp.c</a></td><td align="right">2</td></tr>
+<tr><td align="right">/home/dds/src/cscout/
+</td>
+<td><a href="simul.html">cscout_incs.h</a></td><td align="right">2</td></tr>
+</table>
+
+</ul>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+ - Web: <a href="simul.html">Home</a>
+
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout 2.0 - 2004/07/31 12:37:12</font>
+</td></tr></table>
+Lines skipped by the C preprocessor can be detrimental to the analysis
+and the refactoring you perform.
+If those lines contain live code that will be used under some other
+circumstances (a different platform, or different configuration options),
+then any results you obtain may miss important data.
+The list of files allows you to see if there are any large chunks of
+code that <em>CScout</em> ignored.
+If there are, think about specifying additional configuration options as
+preprocessor variables.
+If some configuration options are mutually exclusive you can process the same
+source multiple times, with different preprocessor variables set.
+
+<h2>Writable files containing strings </h2>
+The ``writable files containing strings'' link will present you
+C files containing C strings.
+In some applications user-messages are not supposed to be put
+in the source code, to aid localization efforts.
+This file query can then help you locate files that contain
+strings.
+<p>
+In our case the results are:
+
+<table border=1><tr><td>
+<h3>Writable Files Containing Strings</h3>
+<ul>
+
+<li><a href="simul.html">/home/dds/src/cscout/cscout_defs.h</a>
+<li><a href="simul.html">/home/dds/src/cscout/cscout_incs.h</a>
+<li><a href="simul.html">/usr/home/dds/src/cscout/bin.c</a>
+<li><a href="simul.html">/vol/src/bin/cp/cp.c</a>
+<li><a href="simul.html">/vol/src/bin/cp/utils.c</a>
+<li><a href="simul.html">/vol/src/bin/date/date.c</a>
+<li><a href="simul.html">/vol/src/bin/echo/echo.c</a></ul>
+
+</ul>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+
+<h2>Writable .h files with #include directives </h2>
+Some coding conventions dictate against recursive <code>#include</code>
+invocations.
+This query can be used to find files that break such a guideline.
+As usual, read-only system files are excluded; these typically
+use recursive <code>#include</code> invocations as a matter of course.
+
+<p>
+In our example, the result is:
+
+<table border=1><tr><td>
+<h3>Writable .h Files With #include directives</h3>
+<ul>
+
+<li><a href="simul.html">/vol/src/bin/cp/extern.h</a></ul>
+
+</ul>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+
+</notes>

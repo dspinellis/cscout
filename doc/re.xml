@@ -1,0 +1,137 @@
+<?xml version="1.0" ?>
+<notes>
+<em>CScout</em> allows you to specify regular expressions for specifying
+identifier or file names you are looking for.
+The following description of the regular expressions
+<em>CScout</em> accepts
+is adapted from the FreeBSD re_format(7) manual page.
+<p>
+Regular expressions (``REs''), as defined in IEEE Std 1003.2
+(``POSIX.2''), come in two forms: modern REs (roughly those of egrep(1);
+1003.2 calls these ``extended'' REs) and obsolete REs (roughly those of
+ed(1); 1003.2 ``basic'' REs).  
+<em>CScout</em> has adopted the use of modern (extended) REs.
+<p>
+A (modern) RE is one= or more non-empty= <em>branches</em>, separated by `|'.  It
+matches anything that matches one of the branches.
+<p>
+A branch is one= or more <em>pieces</em>, concatenated.  It matches a match for
+the first, followed by a match for the second, etc.
+<p>
+A piece is an <em>atom</em> possibly followed by a single= `*', `+', `?', or
+<em>bound</em>.  An atom followed by `*' matches a sequence of 0 or more matches
+of the atom.  An atom followed by `+' matches a sequence of 1 or more
+matches of the atom.  An atom followed by `?' matches a sequence of 0 or
+1 matches of the atom.
+<p>
+A <em>bound</em> is `{' followed by an unsigned decimal integer, possibly followed
+by `,' possibly followed by another unsigned decimal integer, always fol-
+lowed by `}'.  The integers must lie between 0 and RE_DUP_MAX (255=)
+inclusive, and if there are two of them, the first may not exceed the
+second.  An atom followed by a bound containing one integer <em>i</em> and no
+comma matches a sequence of exactly <em>i</em> matches of the atom.  An atom fol-
+lowed by a bound containing one integer <em>i</em> and a comma matches a sequence
+of <em>i</em> or more matches of the atom.  An atom followed by a bound containing
+two integers <em>i</em> and <em>j</em> matches a sequence of <em>i</em> through <em>j</em> (inclusive)
+matches of the atom.
+<p>
+An atom is a regular expression enclosed in `()' (matching a match for
+the regular expression), an empty set of `()' (matching the null
+string)=, a <em>bracket expression</em> (see below), `.' (matching any single
+character), `^' (matching the null string at the beginning of a line),
+`$' (matching the null string at the end of a line), a `\' followed by
+one of the characters `^.[$()|*+?{\' (matching that character taken as an
+ordinary character), a `\' followed by any other character= (matching
+that character taken as an ordinary character, as if the `\' had not been
+present=), or a single character with no other significance (matching
+that character).  A `{' followed by a character other than a digit is an
+ordinary character, not the beginning of a bound=.  It is illegal to end
+an RE with `\'.
+<p>
+A <em>bracket expression</em> is a list of characters enclosed in `[]'.  It nor-
+mally matches any single character from the list (but see below).  If the
+list begins with `^', it matches any single character (but see below) <em>not</em>
+from the rest of the list.  If two characters in the list are separated
+by `-', this is shorthand for the full <em>range</em> of characters between those
+two (inclusive) in the collating sequence, e.g. `[0-9]' in ASCII matches
+any decimal digit.  It is illegal= for two ranges to share an endpoint,
+e.g. `a-c-e'.  Ranges are very collating-sequence-dependent, and portable
+programs should avoid relying on them.
+<p>
+To include a literal `]' in the list, make it the first character (fol-
+lowing a possible `^').  To include a literal `-', make it the first or
+last character, or the second endpoint of a range.  To use a literal `-'
+as the first endpoint of a range, enclose it in `[.' and `.]' to make it
+a collating element (see below).  With the exception of these and some
+combinations using `[' (see next paragraphs), all other special charac-
+ters, including `\', lose their special significance within a bracket
+expression.
+<p>
+Within a bracket expression, a collating element (a character, a multi-
+character sequence that collates as if it were a single character, or a
+collating-sequence name for either) enclosed in `[.' and `.]' stands for
+the sequence of characters of that collating element.  The sequence is a
+single element of the bracket expression's list.  A bracket expression
+containing a multi-character collating element can thus match more than
+one character, e.g. if the collating sequence includes a `ch' collating
+element, then the RE `[[.ch.]]*c' matches the first five characters of
+`chchcc'.
+<p>
+Within a bracket expression, a collating element enclosed in `[=' and
+`=]' is an equivalence class, standing for the sequences of characters of
+all collating elements equivalent to that one, including itself.  (If
+there are no other equivalent collating elements, the treatment is as if
+the enclosing delimiters were `[.' and `.]'.)  For example, if `x' and
+`y' are the members of an equivalence class, then `[[=x=]]', `[[=y=]]',
+and `[xy]' are all synonymous.  An equivalence class may not= be an end-
+point of a range.
+<p>
+Within a bracket expression, the name of a <em>character class</em> enclosed in
+`[:' and `:]' stands for the list of all characters belonging to that
+class.  Standard character class names are:
+<pre>
+   alnum    digit    punct
+   alpha    graph    space
+   blank    lower    upper
+   cntrl    print    xdigit
+</pre>
+These stand for the character classes defined in ctype(3).  A locale may
+provide others.  A character class may not be used as an endpoint of a
+range.
+<p>
+There are two special cases= of bracket expressions: the bracket expres-
+sions `[[:&lt;:]]' and `[[:&gt;:]]' match the null string at the beginning and
+end of a word respectively.  A word is defined as a sequence of word
+characters which is neither preceded nor followed by word characters.  A
+word character is an <em>alnum</em> character (as defined by ctype(3)) or an
+underscore.  This is an extension, compatible with but not specified by
+IEEE Std 1003.2 (``POSIX.2''), and should be used with caution in soft-
+ware intended to be portable to other systems.
+<p>
+In the event that an RE could match more than one substring of a given
+string, the RE matches the one starting earliest in the string.  If the
+RE could match more than one substring starting at that point, it matches
+the longest.  Subexpressions also match the longest possible substrings,
+subject to the constraint that the whole match be as long as possible,
+with subexpressions starting earlier in the RE taking priority over ones
+starting later.  Note that higher-level subexpressions thus take priority
+over their lower-level component subexpressions.
+<p>
+Match lengths are measured in characters, not collating elements.  A null
+string is considered longer than no match at all.  For example, `bb*'
+matches the three middle characters of `abbbc',
+`(wee|week)(knights|nights)' matches all ten characters of `weeknights',
+when `(.*).*' is matched against `abc' the parenthesized subexpression
+matches all three characters, and when `(a*)*' is matched against `bc'
+both the whole RE and the parenthesized subexpression match the null
+string.
+<p>
+If case-independent matching is specified, the effect is much as if all
+case distinctions had vanished from the alphabet.  When an alphabetic
+that exists in multiple cases appears as an ordinary character outside a
+bracket expression, it is effectively transformed into a bracket expres-
+sion containing both cases, e.g. `x' becomes `[xX]'.  When it appears
+inside a bracket expression, all case counterparts of it are added to the
+bracket expression, so that (e.g.)  `[x]' becomes `[xX]' and `[^x]'
+becomes `[^xX]'.
+</notes>

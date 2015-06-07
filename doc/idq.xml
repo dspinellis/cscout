@@ -1,0 +1,154 @@
+<?xml version="1.0" ?>
+<notes>
+The generic identifier query feature of <em>CScout</em> is one of
+its most powerfull features, allowing you to accurately specify
+the properties of identifiers you are looking for, by means of
+the following form.
+
+<table border=1><tr><td>
+<h2>Identifier Query</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<input type="checkbox" name="writable" value="1">Writable<br>
+<input type="checkbox" name="a2" value="1">Read-only<br>
+<input type="checkbox" name="a3" value="1">Tag for struct/union/enum<br>
+
+<input type="checkbox" name="a4" value="1">Member of struct/union<br>
+<input type="checkbox" name="a5" value="1">Label<br>
+<input type="checkbox" name="a6" value="1">Ordinary identifier<br>
+<input type="checkbox" name="a7" value="1">Macro<br>
+<input type="checkbox" name="a8" value="1">Undefined macro<br>
+<input type="checkbox" name="a9" value="1">Macro argument<br>
+<input type="checkbox" name="a10" value="1">File scope<br>
+<input type="checkbox" name="a11" value="1">Project scope<br>
+<input type="checkbox" name="a12" value="1">Typedef<br>
+
+<input type="checkbox" name="a13" value="1">Enumeration constant<br>
+<input type="checkbox" name="a14" value="1">Yacc identifier<br>
+<input type="checkbox" name="a15" value="1">Function<br>
+<input type="checkbox" name="xfile" value="1">Crosses file boundary<br>
+<input type="checkbox" name="unused" value="1">Unused<br>
+<p>
+<input type="radio" name="match" value="Y" CHECKED>Match any marked
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="L">Match all marked
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="E">Exclude marked
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="T" >Exact match
+<br><hr>
+<table>
+<tr><td>
+Identifier names should (<input type="checkbox" name="xire" value="1"> not) 
+ match RE
+</td><td>
+
+<INPUT TYPE="text" NAME="ire" SIZE=20 MAXLENGTH=256>
+</td></tr>
+<tr><td>
+Select identifiers from filenames (<input type="checkbox" name="xfre" value="1"> not) 
+ matching RE
+</td><td>
+<INPUT TYPE="text" NAME="fre" SIZE=20 MAXLENGTH=256>
+</td></tr>
+</table>
+<hr>
+<p>Query title <INPUT TYPE="text" NAME="n" SIZE=60 MAXLENGTH=256>
+&nbsp;&nbsp;<INPUT TYPE="submit" NAME="qi" VALUE="Show identifiers">
+<INPUT TYPE="submit" NAME="qf" VALUE="Show files">
+<INPUT TYPE="submit" NAME="qfun" VALUE="Show functions">
+</FORM>
+
+<p><a href="simul.html">Main page</a>
+ &mdash; Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><div class="footer">CScout</font>
+</td></tr></table>
+
+In the form you specify:
+<ul>
+<li> The properties (namespace, scope, instances) of the identifier
+<li> Whether the specified properties should be 
+treated 
+ <ul>
+ <li> as a disjunction (match any marked),
+ <li> as a conjunction (match all marked),
+ <li> as a negation excluding all identifiers matching any property (exclude marked), or
+ <li> as an exact match specification matching only identifiers that match
+ exactly the properties specified (exact match)
+ </ul>
+<li> A regular expression against which identifier names should match
+(or not match)
+<li> A regular expression that filenames in which identifiers occur should
+match (or not match)
+<li> A query title to be used for naming the result page.
+The title will appear on the result document annotating the
+results, and will also provide you with a sensible name when creating a
+bookmark to it.
+</ul>
+
+Through the query's submission button can choose to obtain as a result
+<ul>
+<li> the identifiers that match the specific query, </li>
+<li> the files containing identifiers that match the query, or</li>
+<li> the functions containing identifiers that match the query.</li>
+</ul>
+In the second case (matching files),
+each file in the file list will provide you with
+a link (marked source) showing the file's source code with all matched
+identifiers marked using hyperlinks.
+<p>
+As an example, the following query could be used to identify
+unused file-scoped writable identifiers, but excluding
+the <code>copyright</code> and <code>rcsid</code> identifiers:
+
+<table border=1><tr><td>
+<h2>Identifier Query</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<input type="checkbox" name="writable" value="1" CHECKED>Writable<br>
+<input type="checkbox" name="a0" value="1">Read-only<br>
+<input type="checkbox" name="a1" value="1">Tag for struct/union/enum<br>
+<input type="checkbox" name="a2" value="1">Member of struct/union<br>
+<input type="checkbox" name="a3" value="1">Label<br>
+<input type="checkbox" name="a4" value="1">Ordinary identifier<br>
+<input type="checkbox" name="a5" value="1">Macro<br>
+<input type="checkbox" name="a6" value="1">Undefined macro<br>
+<input type="checkbox" name="a7" value="1">Macro argument<br>
+<input type="checkbox" name="a8" value="1" CHECKED>File scope<br>
+<input type="checkbox" name="a9" value="1">Project scope<br>
+<input type="checkbox" name="a10" value="1">Typedef<br>
+<input type="checkbox" name="a11" value="1">Enumeration constant<br>
+<input type="checkbox" name="xfile" value="1">Crosses file boundary<br>
+<input type="checkbox" name="unused" value="1" CHECKED>Unused<br>
+<p>
+<input type="radio" name="match" value="Y" >Match any marked
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="L" CHECKED>Match all marked
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="E">Exclude marked
+&nbsp; &nbsp; &nbsp; &nbsp;
+<input type="radio" name="match" value="T" >Exact match
+<br><hr>
+<table>
+<tr><td>
+Identifier names should (<input type="checkbox" name="xire" value="1" CHECKED> not) 
+ match RE
+</td><td>
+<INPUT TYPE="text" NAME="ire" VALUE="copyright|rcsid" SIZE=20 MAXLENGTH=256>
+</td></tr>
+<tr><td>
+Select identifiers from filenames matching RE
+</td><td>
+<INPUT TYPE="text" NAME="fre" SIZE=20 MAXLENGTH=256>
+</td></tr>
+</table>
+<hr>
+<p>Query title <INPUT TYPE="text" NAME="n" SIZE=60 MAXLENGTH=256>
+&nbsp;&nbsp;<INPUT TYPE="submit" NAME="qi" VALUE="Show identifiers">
+<INPUT TYPE="submit" NAME="qf" VALUE="Show files">
+</FORM>
+<p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.16 - 2003/08/17 12:13:01</font>
+</td></tr></table>
+
+</notes>

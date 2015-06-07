@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<notes>
+<em>CScout</em> can create call graphs that list how functions call each
+other.
+Keep in mind that the graphs only indicate the calls detected by statically
+analyzing the program source.
+Calls via function pointers will not appear in the call graph.
+
+<p>
+Two global options
+specify the format of the call graph and the content
+on each graph's node.
+Through these options you can obtain graphs in
+<ul>
+<li>plain text form: suitable for processing with other tools,</li>
+<li> HTML: suitable for browsing via <em>CScout</em>,</li>
+<li> dot: suitable for generating high-quality graphics files,</li>
+<li> SVG: suitable for graphical browsing, if your browser supports this format, and</li>
+<li> GIF: suitable for viewing on SVG-challenged browsers.</li>
+</ul>
+All diagrams follow the notation
+<pre>
+calling function -> called function
+</pre>
+
+<p>
+Two links on the main page
+(function and macro call graph, and non-static function call graph)
+can give you the call graphs of the complete program.
+For any program larger than a few thousand lines,
+these graphs are only useful in their textual form.
+In their graphical form, even with node information disabled,
+they can only serve to give you a rough idea of how the program is
+structured.
+The following image depicts how the three different programs we
+analyzed in the <em>bin</em> example relate to each other.
+<br> <img src="mismash.gif"><p>
+
+More useful are the call graphs that can be generated for individual
+functions or files.
+These can allow you to see what paths can possibly lead to a given function
+(call graph of all callers),
+which functions can be reached starting from a given function,
+the function in context,
+and how functions in a given file relate to each other.
+<p>
+As an example, the following diagram depicts all paths leading to the
+<code>setfile</code> function.
+<br> <img src="setfile.gif"><p>
+
+Correspondingly, the functions that can be reached starting from the
+<code>copy_file</code> function appears in the following diagram.
+<br> <img src="copy_file.gif"><p>
+
+while the following shows the function <code>setsymtab</code> in context,
+depicting all the paths leading to it (callers) and leaving from it
+(called functions).
+<br> <img src="context.png"><p>
+
+
+Finally, the following is an example of how the functions in a single
+file (parse.c) relate to each other.
+<br> <img src="filefuncall.gif"><p>
+</notes>

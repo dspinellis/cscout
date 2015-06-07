@@ -1,0 +1,129 @@
+<?xml version="1.0" ?>
+<notes>
+<h2>System Requirements</h2>
+To run <em>CScout</em> your system must satisfy the following
+requirements:
+<ul>
+<li> Have an installation of the <a href="http://www.perl.org">Perl</a>
+interpreter
+<li> Contain the include files of the compiler your programs use
+<!-- (unless your programs only include the ANSI C include files from
+the system's include directory) -->
+<li> Support a Web browser (text or graphics-based).
+<em>CScout</em> uses vanilla HTML and has been tested with
+Firefox, SeaMonkey, Mozilla, Safari,
+the Microsoft Internet Explorer, and Lynx.
+<li> (Optional, needed only for displaying call and dependency graphs.)
+Have an installation of the AT&amp;T
+<a href="http://www.graphviz.org">GraphViz</a> <em>dot</em>
+program in the executable file path, and a Web browser supporting,
+directly or via a plugin, the display of SVG (scalable vector graphics)
+content.
+<li> Be able to retrieve Web content from the Internet without a proxy<br>
+(The free unsupported version of <em>CScout</em> will `phone home' when run
+on relatively large workspaces, registering the workspace for
+public browsing, while your <em>CScout</em> is running.
+Only file list and source-code browsing facilities are provided to the
+public;
+source modification, option changes, and the resource-hungry
+identifier queries are only allowed when accessing <em>CScout</em>
+from the local host.)
+</ul>
+
+<h2>Installation and Configuration</h2>
+From this point onward we use the term Unix to refer to Unix-like systems
+like GNU/Linux and FreeBSD, and Windows to refer to Microsoft Windows
+systems.
+<p>
+You install <em>CScout</em> in eight steps:
+<ol>
+<li> Unpack the distribution file on your system.
+<p>
+
+<li> Copy the executable files
+<code>cscout</code>, <code>cswc</code> and <code>csmake</code> (under Unix) or
+<code>cscout.exe</code>, <code>cswc.bat</code> and <code>csmake.bat</code> (under Windows)
+from the <code>bin</code> directory
+into a directory that is part of your path.
+Under Unix <code>/usr/local/bin</code> is a common suitable choice.
+Under Windows <code>C:\WINNT\system32</code> is a location
+you could use, if your system is not better organized.
+<p>
+
+<li> Under Windows adjust the second line of the file
+<code>cswc.bat</code> and <code>csmake.bat</code>
+to point to the directory where you installed the corresponding file.
+<p>
+
+<li> Copy the directory <code>etc</code> to the
+final installation place you prefer (renaming it, if you wish),
+and arrange for the environment variable <code>CSCOUT_HOME</code>
+to point to it.
+As an example, under Unix you would probably have the directory
+installed as <code>/usr/local/etc/cscout</code>.
+Under Unix, you can permanently set the <code>CSCOUT_HOME</code>
+environment variable by editing a file named
+<code>.profile</code> (sh and derivative shells)
+or
+<code>.login</code> (csh and derivative shells)
+in your home directory.
+Under Windows (NT, 2000, XP, and later editions),
+you can set environment variables through an option in:
+Control Panel - System - Advanced - Environment Variables.
+<p>
+Alternativelly, the contents of the directory <code>etc</code>
+will be searched in
+<code>$HOME/.cscout</code>,
+<code>%APPDATA%/.cscout</code> (under Windows; it will be something like
+<code>C:\Documents and Settings\Your Name\Application Data</code>),
+and
+the current directory's <code>.cscout</code> directory.
+<p>
+
+<li> Go in the <em>CScout</em> etc directory and copy
+the file pair <code>cscout_incs.PLATFORM</code> and
+<code>cscout_defs.PLATFORM</code>
+(where PLATFORM is the operating system and the compiler
+that most closely resemble your setup)
+as <code>cscout_incs.h</code> and <code>cscout_defs.h</code>.
+<p>
+In most cases you want <em>CScout</em> to process your code using
+the include files of the compiler you are normally using.
+This will allow <em>CScout</em> to handle programs using the libraries
+and facilities available in your environment
+(e.g. Unix system calls or the Windows API).
+If your programs are written in ANSI C and do not use any additional
+include files, you can use the .GENERIC files and rely on the
+include files supplied with the <em>CScout</em> distribution.
+<p>
+
+<li> If you decided to use the <code>.GENERIC</code> files
+copy the <code>include</code> directory to an appropriate location
+(e.g. <code>/usr/local/include/cscout</code> under Unix).
+<p>
+
+<li> Edit the file <code>cscout_incs.h</code> to specify the location
+where your compiler's (or the generic) include files reside.
+<p>
+
+<li> If the compiler you are using does not match any of the
+files supplied, start with the <code>.GENERIC</code> file set and
+add suitable definitions to sidestep the problems caused by the
+extensions your compiler supports.
+As an example,
+if your compiler supports a <code>quad_double</code> type and associated
+keyword with semantics roughly equivalent to <code>double</code>
+you would add a line in <code>cscout_incs</code>:
+<pre>
+#define quad_double double
+</pre>
+Have a look in the existing <code>cscout_defs</code> files to see
+what might be required.
+
+</ol>
+
+Note that
+there is nothing magical about the installation steps described above;
+feel free to follow them in whatever way matches your setup and environment,
+as long as you achieve the desired results.
+</notes>

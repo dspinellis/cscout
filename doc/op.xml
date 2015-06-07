@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<notes>
+The operations <em>CScout</em> provides group together functions
+that globally affect its operation.
+The following sections describe all operations appart from the global
+options.
+
+<h2>Identifier Replacements</h2>
+This operation allows you to review the identifier replacements
+you have specified in identifier pages,
+and modify or selectively deactivate some of them.
+This page, together with the "save and continue" operation and
+the file path substitution option provide
+you a way to test and revoke source code changes, while operating CScout.
+
+<p>
+The following is an example of the identifier replacements page.
+You see all identifiers for which replacements have been specified.
+All specified replacements are originally active.
+If a particular replacement appears to be causing problems
+you can deactivate it from this page.
+In addition, you can change the replaced name of any of the
+replaced identifiers.
+Finally, clicking on an identifier name will lead you to the
+corresponding identifier page.
+
+<table border=1><tr><td>
+<h2>Identifier Replacements</h2>
+<p><form action="xreplacements.html" method="get">
+<table><tr><th>Identifier</th><th>Replacement</th><th>Active</th></tr>
+<tr><td><a href="simul.html">setfile</a></td><td><input type="text" name="r0x8650eb4" value="set_file" size="10" maxlength="256"></td><td><input type="checkbox" name="a0x8650eb4" value="1" checked></td></tr>
+
+<tr><td><a href="simul.html">netsettime</a></td><td><input type="text" name="r0x88d20b4" value="net_set_time" size="10" maxlength="256"></td><td><input type="checkbox" name="a0x88d20b4" value="1" checked></td></tr>
+</table><p><INPUT TYPE="submit" name="repl" value="OK">
+<p><a href="simul.html">Main page</a>
+ - Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout 2.0 - 2004/07/31 12:37:12</font>
+</td></tr></table>
+
+<h2>Select Active Project</h2>
+When using a workspace with multiple projects, you can restrict the 
+results of all identifier and file queries (read-made and those
+you explicitly specify) to refer to a particular project or to all projects.
+The metric results displayed are not affected.
+When a project is delected, all pages end with a remark indicating the fact.
+The following shows our example's project selection page.
+
+<table border=1><tr><td>
+<h3>Select Active Project</h3>
+<ul>
+<li> <a href="simul.html">All projects</a>
+<li> <a href="simul.html">cp</a>
+<li> <a href="simul.html">echo</a>
+<li> <a href="simul.html">date</a>
+
+</ul>
+<p> <b>Project cp is currently selected</b>
+<p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+
+<h2>Save Changes and Continue</h2>
+Through this option you can save changes you have made to the program's
+identifiers, and continue CScout's operation.
+CScout bases its source code display facilities on the source code it
+has analyzed.
+Therefore, this operation can only be executed if a file substitution
+regular expression has been specified as an option.
+
+<h2>Exit - Saving Changes</h2>
+Once you have changed the name of some identifiers by substituting it
+with another name,
+you should exit <em>CScout</em> through this option to commit the changes
+you made to the respective file source code.
+
+<h2>Exit - Ignore Changes</h2>
+You can also exit <em>CScout</em> without committing any changes.
+As this option will trigger millions of object desctructors in large
+workspaces, it may be faster to just terminate <em>CScout</em>
+from its command-line instance by pressing ^C.
+</notes>

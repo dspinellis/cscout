@@ -1,0 +1,117 @@
+<?xml version="1.0" ?>
+<notes>
+To understand identifier queries it is best to refresh our notion of the
+C namespaces.
+The main way we normally reuse identifier names in C programs is
+through scoping: an identifier within a given scope
+such as a block or declared as <code>static</code> within a file
+will not interfere with identifiers outside that scope.
+Thus, the following example will print 3 and not 7.
+<fmtcode ext="c">
+int i = 3;
+
+foo()
+{
+	int i = 7;
+}
+
+main()
+{
+	foo();
+	printf("%d\n", i);
+}
+</fmtcode>
+<em>CScout</em> analyzes and stores each identifier's scope performing
+substitutions accordingly.
+<p>
+
+In addition, C also partitions a program's identifiers into four
+<em>namespaces</em>.
+Identifiers in one namespace, are also considered different from
+identifiers in another.
+The four namespaces are:
+<ol>
+<li> Tags for a <code>struct/union/enum</code>
+<li> Members of <code>struct/union</code>
+(actually a separate namespace is assigned
+to each <code>struct/union</code>)
+<li> Labels
+<li> Ordinary identifiers (termed <em>objects</em> in the C standard)
+</ol>
+Thus in the following example all <code>id</code> identifier instances are
+different:
+<fmtcode ext="c">
+/* structure tag */
+struct id {
+	int id;		/* structure member */
+};
+
+/* Different structure */
+struct id2 {
+	char id;	/* structure member */
+};
+
+/* ordinary identifier */
+id()
+{
+id:	/* label */
+}
+</fmtcode>
+Furthermore, macro names and the names of macro formal arguments also
+live in separate namespaces within the preprocessor.
+<p>
+Normally when you want to locate or change an identifier name,
+you only consider identifiers in the same scope and namespace.
+Sometimes however,
+a C preprocessor macro can semantically unite identifiers
+living in different namespaces, so that changes in one of them
+should be propagated to the others.
+The most common case involves macros that access structure members.
+<fmtcode ext="c">
+struct s1 {
+	int id;
+} a;
+
+struct s2 {
+	char id;
+} b;
+
+#define getid(x) ((x)->id)
+
+main()
+{
+	printf("%d %c", getid(a), getid(b));
+}
+</fmtcode>
+In the above example, a name change in any of the <code>id</code>
+instances should be propagated to all others for the program to
+retain its original meaning.
+<em>CScout</em> understands such changes and will propagate any changes
+you specify accordingly.
+<p>
+Finally, the C preprocessor's token concatenation feature can result
+in identifiers that should be treated for substitution purposes in
+separate parts.
+Consider the following example:
+
+<fmtcode ext="c">
+int xleft, xright;
+int ytop, ybottom;
+
+#define coord(a, b) (a ## b)
+
+main()
+{
+	printf("%d %d %d %d\n",
+		coord(x, left),
+		coord(x, right),
+		coord(y, top),
+		coord(y, bottom));
+}
+</fmtcode>
+In the above example, replacing <code>x</code> in one of the <code>coord</code>
+macro invocations should replace the <code>x</code> part in the
+<code>xleft</code> and <code>xright</code> variables.
+Again <em>CScout</em> will recognize and correctly handle this code.
+
+</notes>

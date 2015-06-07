@@ -1,0 +1,201 @@
+/*
+ * CScout Cascading Style Sheet
+ *
+ * This is converted into css.c and compiled into the code.
+ * It can also be loaded as style.css from a CScout configuration
+ * directory.
+ *
+ * $Id: style.css,v 1.6 2011/10/20 16:06:53 dds Exp $
+ */
+
+/* General style */
+h1 {
+	font-family: tahoma;
+	font-size:1.6em;
+	color:#888888;
+	border-bottom: 4px solid #0066cc;
+	padding:0px 0px 5px 0px;
+}
+
+h2 {
+	font-family: tahoma;
+	font-size:1.3em;
+	color:#003399;
+	border-bottom: 1px dotted #777777;
+	padding: 2px 0px 3px 0px;
+	margin: 20px 0px 5px 0px;
+}
+
+h3 {
+	font-family: tahoma;
+	font-size:1.1em;
+	color:#666666;
+	border-left: 5px solid #666666;
+	padding: 0px 0px 0px 5px;
+	margin: 10px 0px 5px 0px;
+}
+
+p,td,th,body,ul,body {
+	font-family: verdana;
+	line-height:1.2em;
+}
+
+.footer {
+	font-family: verdana;
+	color:#666666;
+	font-size:0.6em;
+	line-height:1.5em;
+}
+
+
+ul {
+	list-style-type: square;
+	color:#242424;
+	line-height:1.4em;
+}
+
+a:link {color:#3366cc;}
+a:visited {color:#3366cc;}
+a:hover {color:#888888;}
+
+/* Used in the manual pages */
+pre {
+	line-height:1.1em;
+	padding:4px;
+	background-color: #eeeeee;
+	border: 1px solid #000080;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+div.code {
+	line-height:1.1em;
+	padding:4px;
+	background-color: #eeeeee;
+	border: 1px solid #000080;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+
+ul, ol, table {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+
+/* Page numbering */
+.pagen {
+	font-family:Trebuchet MS,Helvetica,sans-serif;
+	border:1px solid #ccc;
+	color:#808185;
+	display:inline-block;
+	margin-right:3px;
+	margin-bottom:3px;
+	padding:2px 4px 3px;
+	text-decoration:none
+}
+.pagen:hover {
+	text-decoration:none
+}
+.pagen.next, .pagen.prev, .pagen.all, {
+	border:1px solid #fff
+}
+.pagen.this {
+	background-color:#808185;
+	border:1px solid #808185;
+	color:white;
+	font-weight:bold
+}
+
+/* Main page operation blocks */
+.mainblock {
+	background: #f0f0f0;
+	padding: 0.01em 1em 1em 1em;
+	margin-right: 1em;
+	margin-top: 1em;
+}
+
+/* Metrics tables */
+table.metrics tr th{
+	font-weight: bold;
+	text-align:left;
+	background:#a6caf0;
+}
+
+table.metrics tr td{
+	background:#eeeee0;
+}
+
+
+/* Unused lines */
+.unused  {
+	color: red
+}
+
+/* Heading for options */
+.opthead {
+	font-weight:bold;
+	font-size:large;
+	text-align:left;
+	padding-top:.8em;
+}
+
+/* Graphical elements for the function exploration */
+table.box {
+	border-width: 0px;
+	border-spacing: 2px;
+	border-style: none;
+	border-collapse: separate;
+}
+
+table.box th {
+	border-width: 1px 1px 1px 1px;
+	padding: 0px;
+	border-style: solid;
+	border-color: gray;
+	width: 1em;
+}
+
+table.box td {
+	border-width: 0px;
+	padding-left: 0.5em;
+	border-style: none;
+}
+
+a.plain:link {
+    text-decoration: none;
+}
+a.plain:visited {
+    text-decoration: none;
+}
+
+table.unbox {
+	border-width: 0px;
+	border-spacing: 2px;
+	border-style: none;
+	border-collapse: separate;
+}
+
+table.unbox th {
+	border-width: 1px 1px 1px 1px;
+	padding: 1px;
+	border-style: none;
+	border-color: gray;
+	width: 1em;
+}
+
+table.unbox td {
+	border-width: 0px;
+	padding-left: 0.5em;
+	border-style: none;
+}
+/* Local manual-specific changes. */
+
+.screendump {
+	background: #f8f8f8;
+	padding: 1em 1em 1em 1em;
+	margin-right: 1em;
+	margin-top: 1em;
+	border:1px solid #ccc;
+}

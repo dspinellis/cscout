@@ -1,0 +1,307 @@
+<?xml version="1.0" ?>
+<notes>
+All identifier queries produce identifier lists data as their result.
+Clicking on an identifier in the list will lead you to a page
+like the following.
+
+<table border=1><tr><td>
+<h2>Identifier: copy_file</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<ul>
+<li>Read-only: No
+<li>Tag for struct/union/enum: No
+<li>Member of struct/union: No
+<li>Label: No
+
+<li>Ordinary identifier: Yes
+<li>Macro: No
+<li>Undefined macro: No
+<li>Macro argument: No
+<li>File scope: No
+<li>Project scope: Yes
+<li>Typedef: No
+<li>Enumeration constant: No
+<li>Function: Yes
+<li>Crosses file boundary: Yes
+<li>Unused: No
+<li> Matches 5 occurence(s)
+<li> Appears in project(s): 
+<ul>
+<li>cp
+
+</ul>
+<li> The identifier occurs (wholy or in part) in function name(s): 
+<ol>
+
+<li><a href="simul.html">copy_file</a> - <a href="simul.html">function page</a></ol><br />
+<li> Substitute with: 
+<INPUT TYPE="text" NAME="sname" SIZE=10 MAXLENGTH=256> <INPUT TYPE="submit" NAME="repl" VALUE="Substitute">
+<INPUT TYPE="hidden" NAME="id" VALUE="0x81bc700">
+</ul>
+<h3>Dependent Files (Writable)</h3>
+
+<table><tr><th>Directory</th><th>File</th></tr>
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">cp.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">extern.h</a></td><td><a href="simul.html">marked source</a></td></tr>
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">utils.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+
+</table>
+<h3>Dependent Files (All)</h3>
+<table><tr><th>Directory</th><th>File</th></tr>
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">cp.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">extern.h</a></td><td><a href="simul.html">marked source</a></td></tr>
+<tr><td align="right">/vol/src/bin/cp/
+
+</td>
+<td><a href="simul.html">utils.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+</table>
+</FORM>
+<p><a href="simul.html">Main page</a>
+ - Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout 2.0 - 2004/07/31 12:37:12</font>
+</td></tr></table>
+
+As you see, for each identifier <em>CScout</em> will display:
+<ul>
+<li> If the identifier is read-only (i.e. it appears in at least one
+read-only file)
+<li> The C namespace(s) it appears in (the same identifier can be a member
+of multiple namespaces)
+<li> Whether the identifier is visible at file or project scope
+<li> Whether the identifier is a <code>typedef</code>
+(<code>typedef</code>'s belong to the ``ordinary identifier'' namespace,
+but are obviously important, so <em>CScout</em> will tag them as such).
+<li> Whether the identifier crosses a file boundary, i.e. it appears in
+more than one file
+<li> Whether the identifier is unused i.e. it appears in exactly one location
+<li> The identifier's number of occurences in all the workspace's files
+<li> The projects the identifier appears in
+<li> The function names the identifier forms; the link
+"function page" will provide you more details regarding the function
+<li> An option to substitute the identifier's name with a different name
+</ul>
+
+The substitution will globally replace the identifier (or the
+identifier part) in all namespaces, files, and scopes required for
+the program to retain its original meaning.
+No checks for name collisions are made, so ensure that the name you
+specify is unique for the appropriate scope.
+Performing the substitution operation will not change the identifier's
+name in the current invocation of <em>CScout</em>.
+However, once you have finished your browsing and replacing session,
+you have an option to terminate <em>CScout</em> and write back all
+the subtitutions you made to the respective source files.
+
+<p>
+Finally, the identifier's page will list the writable and all files
+the specific identifier appears in.
+Clicking on the ``marked source'' hyperlink will display the respective
+file's source code with only the given identifier marked as a hyperlink.
+By pressing your browser's <key>tab</key>
+key you can then see where the given identifier is used.
+In our example the <code>cp.c</code> source code 
+with the <code>copy_file</code> identifier marked
+would appear as follows:
+
+<table border=1><tr><td>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;S_IFBLK:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;S_IFCHR:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(Rflag)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(copy_special(curr-&gt;fts_statp,&nbsp;!dne))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;badcp&nbsp;=&nbsp;rval&nbsp;=&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(<a href="simul.html">copy_file</a>(curr,&nbsp;dne))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;badcp&nbsp;=&nbsp;rval&nbsp;=&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;S_IFIFO:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(Rflag)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(copy_fifo(curr-&gt;fts_statp,&nbsp;!dne))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;badcp&nbsp;=&nbsp;rval&nbsp;=&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(<a href="simul.html">copy_file</a>(curr,&nbsp;dne))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;badcp&nbsp;=&nbsp;rval&nbsp;=&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(<a href="simul.html">copy_file</a>(curr,&nbsp;dne))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;badcp&nbsp;=&nbsp;rval&nbsp;=&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</td></tr></table>
+
+<h2>Identifier Metrics </h2>
+The identifier metrics page displays a summary of metrics related to
+identifier use.
+In our example, the metrics are as follows:
+
+<table border=1><tr><td>
+<h2>Identifier Metrics</h2>
+<h3>Writable Identifiers</h3>
+<table class='metrics'><tr><th>Identifier class</th><th>Distinct # ids</th><th>Total # ids</th><th>Avg length</th><th>Min length</th><th>Max length</th></tr>
+
+<tr><td>All identifiers</td><td>1439</td><td>10472</td><td>3.72272</td><td>1</td><td>17</td></tr>
+<tr><td>Tag for struct/union/enum</td><td>10</td><td>24</td><td>4.7</td><td>2</td><td>9</td></tr>
+<tr><td>Member of struct/union</td><td>56</td><td>721</td><td>4.21429</td><td>1</td><td>10</td></tr>
+
+<tr><td>Label</td><td>7</td><td>16</td><td>5.28571</td><td>2</td><td>9</td></tr>
+<tr><td>Ordinary identifier</td><td>1149</td><td>8342</td><td>3.51175</td><td>1</td><td>17</td></tr>
+<tr><td>Macro</td><td>185</td><td>1298</td><td>5.16216</td><td>2</td><td>10</td></tr>
+
+<tr><td>Undefined macro</td><td>2</td><td>2</td><td>8.5</td><td>6</td><td>11</td></tr>
+<tr><td>Macro argument</td><td>30</td><td>69</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>File scope</td><td>159</td><td>1493</td><td>5.47799</td><td>2</td><td>17</td></tr>
+
+<tr><td>Project scope</td><td>277</td><td>2442</td><td>6.28881</td><td>2</td><td>12</td></tr>
+<tr><td>Typedef</td><td>9</td><td>720</td><td>5.22222</td><td>2</td><td>8</td></tr>
+<tr><td>Enumeration constant</td><td>0</td><td>0</td><td>-</td><td>0</td><td>0</td></tr>
+
+<tr><td>Function</td><td>177</td><td>1455</td><td>6.58192</td><td>3</td><td>17</td></tr>
+</table>
+<h3>Read-only Identifiers</h3>
+<table class='metrics'><tr><th>Identifier class</th><th>Distinct # ids</th><th>Total # ids</th><th>Avg length</th><th>Min length</th><th>Max length</th></tr>
+
+<tr><td>All identifiers</td><td>375</td><td>1180</td><td>6.36</td><td>1</td><td>18</td></tr>
+<tr><td>Tag for struct/union/enum</td><td>5</td><td>14</td><td>5.4</td><td>2</td><td>7</td></tr>
+<tr><td>Member of struct/union</td><td>56</td><td>67</td><td>7.80357</td><td>2</td><td>17</td></tr>
+
+<tr><td>Label</td><td>0</td><td>0</td><td>-</td><td>0</td><td>0</td></tr>
+<tr><td>Ordinary identifier</td><td>164</td><td>604</td><td>6.04878</td><td>3</td><td>14</td></tr>
+<tr><td>Macro</td><td>116</td><td>409</td><td>7.47414</td><td>2</td><td>18</td></tr>
+
+<tr><td>Undefined macro</td><td>17</td><td>154</td><td>9</td><td>4</td><td>15</td></tr>
+<tr><td>Macro argument</td><td>33</td><td>83</td><td>1.42424</td><td>1</td><td>4</td></tr>
+<tr><td>File scope</td><td>12</td><td>131</td><td>7.25</td><td>4</td><td>14</td></tr>
+
+<tr><td>Project scope</td><td>152</td><td>473</td><td>5.95395</td><td>3</td><td>13</td></tr>
+<tr><td>Typedef</td><td>12</td><td>131</td><td>7.25</td><td>4</td><td>14</td></tr>
+<tr><td>Enumeration constant</td><td>0</td><td>0</td><td>-</td><td>0</td><td>0</td></tr>
+
+<tr><td>Function</td><td>146</td><td>449</td><td>5.84247</td><td>3</td><td>10</td></tr>
+</table>
+<p><a href="simul.html">Main page</a>
+ - Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout</font>
+</td></tr></table>
+
+<p>
+You can use these metrics to compare characteristics of different
+projects, adherance to coding standards, or to identify identifier
+classes with abnormally short or long names.
+The ratio between the distinct number of identifiers
+and the total number of identifiers is the number of times each
+identifier is used.
+Notice the difference in our case between the read-only identifiers
+(which are mostly declarations) and the writable identifiers (which
+are actually used).
+
+<h2>All identifiers </h2>
+The all identifiers page will list all the identifiers in your project in
+alphabetical sequence.
+In large projects this page will be huge.
+
+<h2>Read-only identifiers </h2>
+The ``read-only identifiers'' page will only list the read-only identifiers
+of your project in alphabetical sequence.
+These typically become part of the project through included header files.
+
+<h2>Writable identifiers </h2>
+The ``writable identifiers'' page will only list the writable identifiers
+of your project in alphabetical sequence.
+These are typically the identifiers your project has defined.
+In large projects this page will be huge.
+
+<h2>File-spanning writable identifiers </h2>
+The ``file-spanning writable identifiers'' page will only list your
+project's identifiers that span a file boundary.
+Refactoring operations and coding standards typically pay higher attention
+to such identifiers, since they tend occupy the project's global namespace.
+In our example, the following page is generated:
+
+<table border=1><tr><td>
+<h3>File-spanning Writable Identifiers</h3>
+<h4>Matching Identifiers</h4>
+<p>
+<a href="simul.html">PATH_T</a><br>
+<a href="simul.html">arg</a><br>
+<a href="simul.html">copy_fifo</a><br>
+<a href="simul.html">copy_file</a><br>
+<a href="simul.html">copy_link</a><br>
+<a href="simul.html">copy_special</a><br>
+<a href="simul.html">fflag</a><br>
+<a href="simul.html">iflag</a><br>
+<a href="simul.html">netsettime</a><br>
+<a href="simul.html">nflag</a><br>
+<a href="simul.html">p_end</a><br>
+<a href="simul.html">p_path</a><br>
+<a href="simul.html">pflag</a><br>
+<a href="simul.html">setfile</a><br>
+<a href="simul.html">target_end</a><br>
+<a href="simul.html">to</a><br>
+<a href="simul.html">usage</a><br>
+<a href="simul.html">vary</a><br>
+<a href="simul.html">vary_append</a><br>
+<a href="simul.html">vary_apply</a><br>
+<a href="simul.html">vary_destroy</a><br>
+<a href="simul.html">vflag</a><br>
+</p>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+
+<h2>Unused project-scoped writable identifiers </h2>
+The unused project-scoped writable identifiers are useful to know,
+since they can pinpoint functions or variables that can be eliminated
+from a workspace.
+
+<h2>Unused file-scoped writable identifiers </h2>
+The unused file-scoped writable identifiers can also 
+pinpoint functions or variables that can be eliminated from a file.
+In our example the following list is generated:
+
+<table border=1><tr><td>
+<h3>Unused File-scoped Writable Identifiers</h3>
+<h4>Matching Identifiers</h4>
+<p>
+<a href="simul.html">copyright</a><br>
+<a href="simul.html">copyright</a><br>
+<a href="simul.html">copyright</a><br>
+<a href="simul.html">rcsid</a><br>
+<a href="simul.html">rcsid</a><br>
+<a href="simul.html">rcsid</a><br>
+<a href="simul.html">rcsid</a><br>
+</p>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+Notice how distinct identifiers appear as separate entries.
+
+<h2>Unused writable macros </h2>
+Finally, the unused writable macros page will list macros that are not used
+within a workspace.
+In our case the list contains an identifier that was probably used in an
+earlier version.
+
+<table border=1><tr><td>
+<h3>Unused Writable Macros</h3>
+<h4>Matching Identifiers</h4>
+<p>
+<a href="simul.html">RETAINBITS</a><br>
+</p>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+<br><hr><font size=-1>CScout 1.6 - 2003/06/04 15:14:51</font>
+</td></tr></table>
+
+</notes>

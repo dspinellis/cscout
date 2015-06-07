@@ -1,0 +1,231 @@
+<?xml version="1.0" ?>
+<notes>
+It is relatively easy to integrate <em>CScout</em> into an existing IDE
+(such as <em>Eclipse</em>) or to provide an alternative method
+for specifying workspaces by directly creating a processing script
+from existing Makefiles.
+A processing script (what results from compiling a workspace file)
+is a C file containing a number of
+<code>#pragma</code> preprocessor directives.
+<em>CScout</em> uses the following pragmas:
+<dl>
+<dt><code>#pragma echo "<em>STRING</em>"</code><dd>
+Will display the <em>STRING</em> on <em>CScout</em>'s standard
+output when that part of the file is reached.
+<p>Example:<br><pre>
+#pragma echo "Processing workspace date\n"
+</pre>
+
+<dt><code>#pragma ro_prefix "<em>STRING</em>"</code><dd>
+Will add <em>STRING</em> to the list of filename prefixes that mark
+read-only files.
+This is a global setting.
+<p>Example:<br><pre>
+#pragma ro_prefix "C:\gcc"
+</pre>
+
+<dt><code>#pragma project "<em>STRING</em>"</code><dd>
+Will set the current project to <em>STRING</em>.
+All identifiers and files processed from then on will belong to the given
+project.
+<p>Example:<br><pre>
+#pragma project "date"
+</pre>
+
+<dt><code>#pragma block_enter</code><dd>
+Will enter a nested scope block.
+Two blocks are supported, the first
+<code>block_enter</code> will enter the project scope
+(linkage unit); the second encountered nested
+<code>block_enter</code> will enter the file scope
+(compilation unit).
+<p>
+
+<dt><code>#pragma block_exit</code><dd>
+Will exit a nested scope block.
+The number  of
+<code>block_enter</code> pragmas should match the number of
+<code>block_exit</code> pragmas and there should never be more
+than two <code>block_enter</code> pragmas in effect.
+
+<p>
+
+<dt><code>#pragma process "<em>STRING</em>"</code><dd>
+Will analyze (<em>CScout</em>'s equivalent to compiling) 
+the C source file named <em>STRING</em>.
+<p>Example:<br><pre>
+#pragma process "date.d"
+</pre>
+
+<dt><code>#pragma pushd "<em>STRING</em>"</code><dd>
+Will set the current directory to <em>STRING</em>, saving the
+previous current directory in a stack.
+From that point onward, all relative file accesses will start from
+the given directory.
+<p>Example:<br><pre>
+#pragma pushd "cp"
+</pre>
+
+<dt><code>#pragma popd </code><dd>
+Will restore the current directory to the one in effect
+before a previously pushed directory.
+The number  of
+<code>pushd</code> pragmas should match the number of
+<code>popd</code> pragmas.
+<p>
+
+<dt><code>#pragma includepath "<em>STRING</em>"</code><dd>
+Will add <em>STRING</em> to the list of directories used for searching
+included files (the include path).
+<p>Example:<br><pre>
+#pragma includepath "/usr/lib/gcc-lib/i386-redhat-linux/2.96/include"
+</pre>
+
+<dt><code>#pragma clear_include </code><dd>
+Will clear the include path, allowing the specification of a new one.
+<p>
+
+<dt><code>#pragma clear_defines </code><dd>
+Will clear all defined macros allowing the specification of new ones.
+Should normally be executed before processing a new file.
+Note that macros can be defined using the normal
+<code>#define</code> C preprocessor directive.
+</dl>
+
+The following is a complete example of a <em>CScout</em> processing
+script.
+<fmtcode ext="c">
+// workspace bin
+#pragma echo "Processing workspace bin\n"
+#pragma ro_prefix "/usr/include"
+#pragma echo "Entering directory /usr/src/bin"
+#pragma pushd "/usr/src/bin"
+// project date
+#pragma echo "Processing project date\n"
+#pragma project "date"
+#pragma block_enter
+#pragma echo "Entering directory date"
+#pragma pushd "date"
+// file date.c
+#pragma echo "Processing file date.c\n"
+#pragma block_enter
+#pragma clear_defines
+#pragma clear_include
+#include "/home/dds/src/cscout/cscout_defs.h"
+#include "/home/dds/src/cscout/cscout_incs.h"
+#pragma process "date.c"
+#pragma block_exit
+#pragma echo "Done processing file date.c\n"
+#pragma echo "Exiting directory date\n"
+#pragma popd
+#pragma block_exit
+#pragma echo "Done processing project date\n"
+#pragma echo "Exiting directory /usr/src/bin\n"
+#pragma popd
+#pragma echo "Done processing workspace bin\n"
+</fmtcode>
+
+<h2>Case Study: Processing the FreeBSD Kernel (the Hard Way)</h2>
+As a further example consider the steps for applying
+<em>CScout</em> on the FreeBSD kernel,
+before the existence of the <em>csmake</em> command.
+<ol>
+<li> Configure a LINT or GENERIC version of each architecture's kernel.<br>
+Example: <code>config LINT</code>
+<li> Go to the compilation directory, update the dependencies
+(<code>make depend</code>)
+and compile
+(<code>make</code>).
+This step is used to create all automatically generated C and header files.
+Also during this step note the include path used, in order to provide
+<em>CScout</em> with the same specification.
+<li> Remove the generated object files to force a <em>make</em> operation
+to rebuild them (<code>rm *.o</code>).
+<li> Replace the C compiler invocation command in the Makefile with an
+appropriate series of shell commands.
+<pre>
+.include "$S/conf/kern.pre.mk"
+The code below was added after the line above
+NORMAL_C= echo '\#pragma echo "Processing file ${.IMPSRC}\n"' >>kernel.cs ;\
+      echo '\#pragma block_enter' >>kernel.cs ;\
+      echo '\#pragma clear_defines' >>kernel.cs ;\
+      echo '\#pragma clear_include' >>kernel.cs ;\
+      echo '\#include "cscout_defs.h"' >>kernel.cs ;\
+      for i in $(INCLUDES) ; \
+      do \
+              case $$i in \
+              -nostdinc) continue ;; \
+              -I-) continue ;; \
+              esac ; \
+              i=`echo $$i | sed 's/-I//'` ; \
+              echo '\#pragma includepath "'$$i'"' >>kernel.cs ; \
+      done ; \
+      echo '\#define _KERNEL 1' >>kernel.cs ;\
+      echo '\#pragma process "opt_global.h"' >>kernel.cs ;\
+      echo '\#pragma process "${.IMPSRC}"' >>kernel.cs ;\
+      echo '\#pragma block_exit' >>kernel.cs ;\
+      echo '\#pragma echo "Done processing file ${.IMPSRC}\n"' >>kernel.cs
+</pre>
+<li> Create a <code>cscout_incs.h</code> file for each different architecture.
+<li> Remove kernel.cs
+The existing file documents the way to do it.
+<li> Run <em>make</em> on the custom Makefile
+<li> Repeat for each different architecture
+<li> Create a top-level <em>CScout</em> file to process all architectures:
+<pre>
+#pragma echo "Processing workspace FreeBSD kernel\n"
+
+#pragma echo "Entering directory sys/i386/compile/LINT\n"
+#pragma pushd "sys/i386/compile/LINT"
+#pragma echo "Processing project i386\n"
+#pragma project "i386"
+#pragma block_enter
+#include "kernel.cs"
+#pragma echo "Exiting directory sys/i386/compile/LINT\n"
+#pragma popd
+#pragma echo "Done processing project i386\n"
+#pragma block_exit
+
+#pragma echo "Entering directory sys/amd64/compile/GENERIC\n"
+// [...]
+// and so on for all architectures
+// [...]
+#pragma echo "Exiting directory sys/sparc64/compile/LINT\n"
+#pragma popd
+#pragma echo "Done processing project sparc64\n"
+#pragma block_exit
+</pre>
+Note that the
+<code>block_enter</code> and
+<code>block_exit</code> pragmas
+are furnished by this top-level file.
+</ol>
+The run of the above specification (2 million unique lines)
+took 330 CPU minutes on a
+Rioworks HDAMA (AMD64) machine 
+(2x1.8GHz Opteron 244 (in UP mode) - AMD 8111/8131 chipset, 8192MB mem)
+and required 1474MB of RAM.
+These are the complete metrics:
+<p>
+<table border=1><tr><td>
+<h2>CScout Home</h2>
+<h3>File Metrics</h3>
+<h4>Writable Files</h4>
+Number of files: 4310<p>
+<table border=1><tr><th>File metric</th><th>Total</th><th>Min</th><th>Max</th><th>Avg</th></tr>
+<tr><td>Number of characters</td><td>62505770</td><td>0</td><td>1008345</td><td>14502</td></tr>
+<tr><td>Comment characters</td><td>15921752</td><td>0</td><td>85059</td><td>3694</td></tr>
+<tr><td>Space characters</td><td>7936401</td><td>0</td><td>73968</td><td>1841</td></tr>
+<tr><td>Number of line comments</td><td>19</td><td>0</td><td>4</td><td>0</td></tr>
+<tr><td>Number of block comments</td><td>176253</td><td>0</td><td>4337</td><td>40</td></tr>
+<tr><td>Number of lines</td><td>2063096</td><td>0</td><td>27336</td><td>478</td></tr>
+<tr><td>Length of longest line</td><td>337049</td><td>0</td><td>1867</td><td>78</td></tr>
+<tr><td>Number of C strings</td><td>132519</td><td>0</td><td>19296</td><td>30</td></tr>
+<tr><td>Number of defined functions</td><td>29584</td><td>0</td><td>333</td><td>6</td></tr>
+<tr><td>Number of preprocessor directives</td><td>267542</td><td>0</td><td>27336</td><td>62</td></tr>
+<tr><td>Number of directly included files</td><td>35408</td><td>0</td><td>1608</td><td>8</td></tr>
+<tr><td>Number of C statements</td><td>679825</td><td>0</td><td>4465</td><td>157</td></tr>
+</table>
+
+</td></tr></table>
+</notes>

@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<notes>
+When the files <em>CScout</em> will modify are under revision control
+you may want to check them out for editing before doing the identifier
+substitutions, and then check them in again.
+<em>CScout</em> provides hooks for this operation.
+Before a file is modified <em>CScout</em> will try to
+execute the command <code>cscout_checkout</code>;
+after the file is modified <em>CScout</em> will try to execute the
+command <code>cscout_checkin</code>.
+Both commands will receive as their argument the full path name of the
+respective file.
+If commands with such names are in your path, they will be executed
+performing whatever action you require.
+<p>
+As an example, for a file under RCS control the following commands could be
+used:
+<h2>cscout_checkout</h2>
+<pre>
+#!/bin/sh
+co -l $1
+</pre>
+<h2>cscout_checkin</h2>
+<pre>
+#!/bin/sh
+co -m 'CScout identifier name refactoring' -u $1
+</pre>
+</notes>

@@ -1,0 +1,146 @@
+<?xml version="1.0" ?>
+<notes>
+Once data has been uploaded onto a SQL database it can be queried in a
+number of different ways.
+Here are some example queries.
+Note that some queries may not run on a particular relational database
+engine.
+<p />
+
+Find identifiers of a given type (typedefs, in this case):
+<fmtcode ext="sql">
+select name from
+ids left join tokens on ids.eid = tokens.eid
+where ids.typedef = true
+</fmtcode>
+<p />
+
+Number of different files that use a given identifier:
+<fmtcode ext="sql">
+select name, count(*) as cf from (
+ select fid, tokens.eid, count(*) as c from
+ tokens
+ group by
+ eid, fid) as cl inner join ids on
+cl.eid = ids.eid
+group by ids.eid, ids.name
+order by cf desc;
+</fmtcode>
+<p />
+
+Number of times an identifier occurs in a single file:
+<fmtcode ext="sql">
+SELECT IDS.NAME AS INAME, FILES.NAME AS FNAME, COUNT(*) AS C FROM TOKENS
+INNER JOIN IDS ON
+IDS.EID = TOKENS.EID
+INNER JOIN FILES ON
+TOKENS.FID = FILES.FID
+GROUP BY IDS.EID, TOKENS.FID
+ORDER BY C DESC;
+</fmtcode>
+<p />
+
+Number of times an identifier occurs in the workspace:
+<fmtcode ext="sql">
+select name, count(*) as c from tokens
+inner join ids on
+ids.eid = tokens.eid
+group by eid
+order by c desc
+</fmtcode>
+<p />
+
+
+Reconstitute the file with fid = 4:
+<fmtcode ext="sql">
+select s from
+(select name as s, foffset  from ids inner join tokens on
+ids.eid = tokens.eid where fid = 4
+union select code as s, foffset from rest where fid = 4
+union select comment as s, foffset from comments where fid = 4
+union select string as s, foffset from strings where fid = 4
+)
+order by foffset
+</fmtcode>
+The result will have newlines in the wrong places.
+Piping the output through a shell script
+like the following can fix this problem.
+<fmtcode ext="sh">
+sed -e '/^[0-9][0-9]* rows/d' |
+tr -d '\n' |
+sed 's/\\u0000d/\
+/g'
+</fmtcode>
+The above script will massage the HSQLDB output removing the trailing
+<code>N rows</code> line and all existing newlines,
+and changing the embedded <code>\u0000d</code> sequences into newlines.
+For the Windows line-end conventions the same script would be:
+<fmtcode ext="sh">
+sed -e '/^[0-9][0-9]* rows/d' |
+tr -d '\n\r' |
+sed 's/\\u0000d\\u0000a/\
+/g'
+</fmtcode>
+<p />
+
+Show the projects each identifier belongs to:
+<fmtcode ext="sql">
+select IDS.NAME, PROJECTS.NAME from IDS
+INNER JOIN IDPROJ ON IDS.EID = IDPROJ.EID
+INNER JOIN PROJECTS ON IDPROJ.PID = PROJECTS.PID
+ORDER BY IDS.NAME;
+</fmtcode>
+<p />
+
+Show the included files required by other files for each
+compilation unit and project.
+<fmtcode ext="sql">
+select
+	projects.name as projname,
+	cufiles.name as cuname,
+	basefiles.name as basename,
+	definefiles.name as defname
+from
+	definers inner join projects on definers.pid = projects.pid
+	inner join files as cufiles on definers.cuid=cufiles.fid
+	inner join  files as basefiles on definers.basefileid=basefiles.fid
+	inner join files as definefiles on definers.definerid = definefiles.fid;
+</fmtcode>
+<p />
+
+Speed-up processing:
+<fmtcode ext="sql">
+create index teid on tokens(eid)
+create index tfid on tokens(fid)
+</fmtcode>
+<p />
+
+Obtain identifiers common between files participating in a define/use relationship:
+<fmtcode ext="sql">
+SELECT
+    tokensa.eid,
+    min(ids.name) as identifier,
+    min(filesb.name) as defined,
+    min(filesa.name) as used
+FROM definers
+INNER JOIN tokens AS tokensa ON definers.basefileid = tokensa.fid
+INNER JOIN tokens AS tokensb ON definers.definerid = tokensb.fid
+INNER JOIN ids ON ids.eid = tokensa.eid
+INNER JOIN files as filesa ON tokensa.fid = filesa.fid
+INNER JOIN files as filesb ON tokensb.fid = filesb.fid
+WHERE tokensa.eid = tokensb.eid
+GROUP BY tokensa.eid, definerid, basefileid
+ORDER BY defined, identifier
+</fmtcode>
+<p />
+
+Create a function and macro call graph:
+<fmtcode ext="sql">
+SELECT source.name AS CallingFunction, dest.name AS CalledFunction
+FROM fcalls
+INNER JOIN functions AS source ON fcalls.sourceid = source.id
+INNER JOIN functions AS dest ON fcalls.destid = dest.id
+</fmtcode>
+<p />
+
+</notes>

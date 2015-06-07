@@ -1,0 +1,33 @@
+#!/usr/local/bin/dot
+#
+
+digraph G {
+	nodesep=.2;
+	ranksep=.5;
+	node [fontname="Helvetica",fontsize=10];
+	edge [fontname="Helvetica",fontsize=10];
+
+	node [shape=box,style=bold];
+	// Active nodes
+	CScout;
+	cswc;
+	csmake;
+	"Web browser"
+	make;
+	"Build\nprocess"
+	node [shape=box,style=solid];
+	// Data sources and sinks
+	csmake -> ps -> CScout;
+	"Source code" -> CScout;
+	CScout -> "Modified\nsource code";
+	CScout -> "SQL script";
+	ps [label="Processing\nscript"];
+	"Makefile(s)" -> make;
+	"Build\nprocess" -> ps;
+	"Workspace\ndefinition" -> cswc -> ps;
+	// Two way communications
+	edge [arrowtail = normal];
+	CScout -> "Web browser";
+	csmake -> make;
+}
+

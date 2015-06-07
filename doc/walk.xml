@@ -1,0 +1,347 @@
+<?xml version="1.0" ?>
+<notes>
+If you are impatient, you can get an immediate feeling of <em>CScout</em>,
+by unpacking its distribution file,
+entering the <code>example</code> directory and typing
+<ul>
+<li><code>../bin/cscout awk.cs</code> (under Unix), or
+<li><code>..\bin\cscout awk.cs</code> (under Windows).
+</ul>
+You will then be able to use <em>CScout</em> and your browser
+to explore the source code of
+the <a href="http://cm.bell-labs.com/who/bwk/index.html">one true awk</a>.
+<p>
+For a more structured walkthrough, read on.
+Consider the following C file, <code>idtest.c</code>
+<fmtcode ext="c">
+#define getval(x) ((x).val)
+
+struct number {
+	int id;
+	double val;
+} n;
+
+struct character {
+	int id;
+	char val;
+} c;
+
+static int val;
+
+main(int argc, char *argv[])
+{
+	int val;
+
+	if (argc > 2)
+		goto val;
+	return getval(n) + getval(c);
+	val: return 0;
+}
+</fmtcode>
+Even though the file forms a contrived example, it will serve us to illustrate
+the basic concepts behind <em>CScout</em>'s operation.
+Consider what would the correct renaming of one of the identifiers
+named <code>val</code> entail.
+<em>CScout</em> will help us to automate this process.
+<p>
+Although, we are dealing with a single file we need to specify its processing
+within the context of a workspace.  
+In a realistic concept a workspace will specify how numerous projects
+consisting of multiple files will be processed; think of a workspace
+as a collection of Makefiles.
+<em>CScout</em> will operate across the many source files and related
+executables in the same way as it operates on our example
+file <code>idtest.c</code>.
+<p>
+A <em>workspace</em> specifies the set of files on which <em>CScout</em>
+will operate.
+Each workspace consists of a number of <em>projects</em>;
+a project is a set rules for linking together C
+files to form an executable.
+The workspace definition file is in our case very simple:
+<pre>
+workspace example {
+	project idtest {
+		file idtest.c
+	}
+}
+</pre>
+Our workspace, named <code>example</code>, consists of a single
+project, named <code>idtest</code>, that consists of a single
+C source file, <code>idtest.c</code>.
+<p>
+Our first step will be to transform the declarative workspace definition file
+into a processing script:
+a file with imperative processing directives that <em>CScout</em> will
+handle.
+<pre>
+prompt> cswc example.csw >example.c
+</pre>
+We then invoke <em>CScout</em> on the processing script
+(the compiled workspace definition file) <code>example.c</code>.
+<pre>
+prompt> cscout example.c
+Processing workspace example
+Processing project idtest
+Processing file idtest.c
+Done processing file idtest.c
+Done processing project idtest
+Done processing workspace example
+Post-processing our_path/example.c
+Post-processing our_path/idtest.c
+Processing identifiers
+100%
+We are now ready to serve you at http://localhost:8081
+</pre>
+The output of <em>CScout</em> is quite verbose;
+when processing a large source code collection, the messages will
+serve to assure us that progress is being made.
+<p>
+The primary interface of <em>CScout</em> is Web-based, so once our files
+have been processed, we fire-up our Web browser and navigate to the
+<em>CScout</em>'s URL.
+We leave the <em>CScout</em> process running; its job from now on
+will be to service the pages we request and perform the operations we
+specify.
+<p>
+Our browser will show us a page like the following:
+<br />
+<table border=1><tr><td>
+<h2><img src="smlogo.png">Scout Main Page</h2>
+<table><tr><td valign="top">
+<div class="mainblock">
+<h3>Files</h3>
+<ul>
+<li> <a href="simul.html">File metrics</a>
+
+<li>
+<a href="simul.html">Browse file tree</a><br /><li> <a href="simul.html">All files</a>
+<li> <a href="simul.html">Read-only files</a>
+<li> <a href="simul.html">Writable files</a>
+<li> <a href="simul.html">Files containing unused project-scoped writable identifiers</a>
+<li> <a href="simul.html">Files containing unused file-scoped writable identifiers</a>
+
+<li> <a href="simul.html">Writable .c files without any statements</a>
+<li> <a href="simul.html">Writable files containing unprocessed lines</a>
+<li> <a href="simul.html">Writable files containing strings</a>
+<li> <a href="simul.html">Writable .h files with #include directives</a>
+<li> <a href="simul.html">Specify new file query</a>
+</ul></div>
+<div class="mainblock">
+
+<h3>File Dependencies</h3><ul>
+<li> File include graph: <a href="simul.html">writable files</a>, <a href="simul.html">all files</a><li> Compile-time dependency graph: <a href="simul.html">writable files</a>, <a href="simul.html">all files</a><li> Control dependency graph (through function calls): <a href="simul.html">writable files</a>, <a href="simul.html">all files</a><li> Data dependency graph (through global variables): <a href="simul.html">writable files</a>, <a href="simul.html">all files</a></ul></div><div class="mainblock">
+
+<h3>Functions and Macros</h3>
+<ul>
+<li> <a href="simul.html">Function metrics</a>
+<li> <a href="simul.html">All functions</a>
+<li> <a href="simul.html">Non-static function call graph</a><li> <a href="simul.html">Function and macro call graph</a><li> <a href="simul.html">Project-scoped writable functions</a>
+<li> <a href="simul.html">File-scoped writable functions</a>
+
+<li> <a href="simul.html">Writable functions that are not directly called</a>
+<li> <a href="simul.html">Writable functions that are called exactly once</a>
+<li> <a href="simul.html">Specify new function query</a>
+</ul></div>
+</td><td valign="top">
+<div class="mainblock">
+<h3>Identifiers</h3>
+<ul>
+<li> <a href="simul.html">Identifier metrics</a>
+
+<li> <a href="simul.html">All identifiers</a>
+<li> <a href="simul.html">Read-only identifiers</a>
+<li> <a href="simul.html">Writable identifiers</a>
+<li> <a href="simul.html">File-spanning writable identifiers</a>
+<li> <a href="simul.html">Unused project-scoped writable identifiers</a>
+<li> <a href="simul.html">Unused file-scoped writable identifiers</a>
+
+<li> <a href="simul.html">Unused writable macros</a>
+<li> <a href="simul.html">Writable variable identifiers that should be made static</a>
+<li> <a href="simul.html">Writable function identifiers that should be made static</a>
+<li> <a href="simul.html">Specify new identifier query</a>
+</ul></div><div class="mainblock">
+<h3>Operations</h3><ul>
+<li> <a href="simul.html">Global options</a>
+
+ &mdash; <a href="simul.html">save global options</a>
+<li> <a href="simul.html">Identifier replacements</a>
+<li> <a href="simul.html">Select active project</a>
+<li> <a href="simul.html">Save changes and continue</a>
+<li> <a href="simul.html">Exit &mdash; saving changes</a>
+
+<li> <a href="simul.html">Exit &mdash; ignore changes</a>
+</ul></div></td></tr></table>
+<p><a href="simul.html">Main page</a>
+ &mdash; Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><div class="footer">CScout</font>
+</td></tr></table>
+<p>
+In our first example we will only rename an identifier, 
+but as is evident from the page's links <em>CScout</em> provides us 
+with many powerfull tools.
+<p>
+By navigating through the links
+<em>All files</em>,
+<em>idtest.c</em>, and
+<em>Source code with identifier hyperlinks</em> we can see the
+source code with each recognised identifier marked as a hyperlink:
+<table border=1><tr><td>
+<h2>Source Code With Identifier Hyperlinks: your_path/idtest.c</h1>
+<p>(Use the tab key to move to each marked element.)<p><hr><code>#define&nbsp;<a href="simul.html">getval</a>(<a href="simul.html">x</a>)&nbsp;((<a href="simul.html">x</a>).<a href="simul.html">val</a>)
+<br>
+
+<br>
+struct&nbsp;<a href="simul.html">number</a>&nbsp;{
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;<a href="simul.html">id</a>;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;<a href="simul.html">val</a>;
+<br>
+}&nbsp;<a href="simul.html">n</a>;
+<br>
+
+<br>
+struct&nbsp;<a href="simul.html">character</a>&nbsp;{
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;<a href="simul.html">id</a>;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;<a href="simul.html">val</a>;
+<br>
+}&nbsp;<a href="simul.html">c</a>;
+<br>
+
+<br>
+static&nbsp;int&nbsp;<a href="simul.html">val</a>;
+<br>
+
+<br>
+<a href="simul.html">main</a>(int&nbsp;<a href="simul.html">argc</a>,&nbsp;char&nbsp;*<a href="simul.html">argv</a>[])
+<br>
+{
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;<a href="simul.html">val</a>;
+<br>
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(<a href="simul.html">argc</a>&nbsp;&gt;&nbsp;2)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goto&nbsp;<a href="simul.html">val</a>;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;<a href="simul.html">getval</a>(<a href="simul.html">n</a>)&nbsp;+&nbsp;<a href="simul.html">getval</a>(<a href="simul.html">c</a>);
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="simul.html">val</a>:&nbsp;return&nbsp;0;
+<br>
+}
+<br>
+<hr></code><p><a href="simul.html">Main page</a>
+</td></tr></table>
+Clicking on the first identifier <code>val</code> (in the macro definition)
+we are taken to a page specifying the identifier's details.
+There we can specify the identifier's new name, e.g. <code>value</code>.
+<table border=1><tr><td>
+<h2>Identifier: val</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<ul>
+<li>Read-only: No
+<li>Tag for struct/union/enum: No
+<li>Member of struct/union: Yes
+<li>Label: No
+<li>Ordinary identifier: No
+<li>Macro: No
+<li>Undefined macro: No
+<li>Macro argument: No
+<li>File scope: No
+<li>Project scope: No
+<li>Typedef: No
+<li>Crosses file boundary: No
+<li>Unused: No
+<li> Matches 3 occurence(s)
+<li> Appears in project(s): 
+<ul>
+<li>idtest
+</ul>
+<li> Substitute with: 
+<INPUT TYPE="text" NAME="sname" SIZE=10 MAXLENGTH=256 VALUE="value"> <INPUT TYPE="submit" NAME="repl" VALUE="Substitute">
+<INPUT TYPE="hidden" NAME="id" VALUE="16849080">
+</ul>
+<h3>Dependent Files (Writable)</h3>
+<ul>
+
+<li><a href="simul.html">your_path/idtest.c</a> - <a href="simul.html">marked source</a></ul>
+<h3>Dependent Files (All)</h3>
+<ul>
+
+<li><a href="simul.html">your_path/idtest.c</a> - <a href="simul.html">marked source</a></ul>
+</FORM>
+<p><a href="simul.html">Main page</a>
+</td></tr></table>
+
+Clicking on the <em>marked source</em> hyperlink,
+<em>CScout</em> will show us again the corresponding source
+code, but with only the identifiers <code>val</code> matches marked as
+hyperlinks:
+
+<table border=1><tr><td>
+<h2>Identifier val: C:\dds\src\Research\cscout\refactor\idtest.c</h2>
+<p>(Use the tab key to move to each marked element.)<p><hr><code>#define&nbsp;getval(x)&nbsp;((x).<a href="simul.html">val</a>)
+<br>
+
+<br>
+struct&nbsp;number&nbsp;{
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;id;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;<a href="simul.html">val</a>;
+<br>
+}&nbsp;n;
+<br>
+
+<br>
+struct&nbsp;character&nbsp;{
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;id;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;<a href="simul.html">val</a>;
+<br>
+}&nbsp;c;
+<br>
+
+<br>
+static&nbsp;int&nbsp;val;
+<br>
+
+<br>
+main(int&nbsp;argc,&nbsp;char&nbsp;*argv[])
+<br>
+{
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;val;
+<br>
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(argc&nbsp;&gt;&nbsp;2)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goto&nbsp;val;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;getval(n)&nbsp;+&nbsp;getval(c);
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val:&nbsp;return&nbsp;0;
+<br>
+}
+<br>
+<hr></code><p><a href="simul.html">Main page</a>
+</td></tr></table>
+
+The marked identifiers will be all the ones and the only ones the replacement
+we specified will affect.
+Similarly we can specify the replacement of the <code>val</code>
+label, the static variable, or the local variable;
+each one will only affect the relevant identifiers.
+<p>
+Selecting the hyperlink
+<em>Exit - saving changes</em> from the 
+<em>CScout</em>'s main page will commit our changes,
+modifying the file <code>idtest.c</code>.
+</notes>

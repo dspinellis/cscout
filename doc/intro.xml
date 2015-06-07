@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<notes>
+<em>CScout</em> is a source code analyzer and refactoring browser for
+collections of C programs.
+It can process workspaces of multiple projects (we define a project
+as a collection of C source files that are linked together)
+mapping the complexity introduced
+by the C preprocessor back into the original C source code files.
+<em>CScout</em> takes advantage of modern hardware advances (fast processors
+and large memory capacities) to analyze C source code beyond the level
+of detail and accuracy provided by  current compilers, linkers, and
+other source code analyzers.
+The analysis CScout performs takes into account the identifier scopes
+introduced by the C preprocessor and the C language proper scopes and
+namespaces.
+<p>
+<em>CScout</em> has already been applied on
+<ul>
+<li> Projects of tens of thousands of lines,
+like the apache web server.
+<li> Projects above a million lines of code,
+like the Linux (4.3MLOC), the FreeBSD (4.7MLOC) and the Windows Research
+(0.9MLOC) kernels
+<li> The complete
+<a href="http://cm.bell-labs.com/who/bwk/index.html">one true awk</a>
+source code (6600 lines - including a yacc grammar),
+without modifying a single byte of the source code.
+</ul>
+<p>
+CScout as a source code analyzer can:
+<ul>
+<li> annotate source code with hyperlinks to each identifier
+<li> list files that would be affected by changing a specific identifier
+<li> determine whether a given identifier belongs to the application
+or to an external library based on the accessibility and location of the
+header files that declare or define it
+<li> locate unused identifiers taking into account inter-project 
+dependencies
+<li> create static call graphs that include the use of function-like macros
+<li> perform queries for identifiers based on their namespace,
+scope, reachability, and regular expressions of their name and the
+filename(s) they are found in,
+<li> perform queries for files, based on their metrics, or properties
+of the identifiers they contain
+<li> perform queries for functions and function like-macros,
+based on their metrics, their type and scope, the names of callers and callees,
+and the files they are declared in
+<li> monitor and report superfluously included header files
+<li> visually identify parts of files that were skipped during
+preprocessing
+<li> provide accurate metrics on functions, identifiers, and files
+</ul>
+
+<p>
+More importantly,
+<em>CScout</em> helps you in refactoring code by
+identifying dead objects to remove, and
+automatically performing accurate global <em>rename identifier</em>
+refactorings,
+and various function argument refactorings.
+<em>CScout</em> will automatically rename identifiers
+<ul>
+<li> taking into account the namespace of each identifier: a renaming of
+a structure tag, member, or a statement label will not affect variables
+with the same name
+<li> respecting the scope of the renamed identifier: a rename can affect
+multiple files, or variables within a single block, exactly matching
+the semantics the C compiler would enforce
+<li> across multiple projects when the same identifier is defined in
+common shared include files
+<li> occuring in macro bodies and <em>parts</em> of other identifiers,
+when these are created through the C preprocessor's token concatenation
+feature
+</ul>
+Furthermore, <em>CScout</em> allows you to refactor the arguments
+of functions and macros, introducing new arguments, deleting existing ones,
+or changing their order.
+</notes>

@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<notes>
+Every function (C function or function like macro) is associated with
+a page like the following.
+<p>
+
+<table border=1><tr><td>
+<h2>Function: format (C function)</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<h3>Details</h3>
+<ul>
+<li> Associated identifier(s): [<a href="simul.html">format</a>]
+
+<li> Declared in file <a href="simul.html">C:\dds\src\Research\cscout\example\awk\proto.h</a> <a href="simul.html">line 166</a><br />(and possibly in other places)
+ &mdash; <a href="simul.html">marked source</a> &mdash; <a href="simul.html">edit</a><li> Defined in file <a href="simul.html">C:\dds\src\Research\cscout\example\awk\run.c</a> <a href="simul.html">line 793</a>
+
+ &mdash; <a href="simul.html">edit</a><li> Calls directly 14 functions<li> <a href="simul.html">Explore directly called functions</a>
+<li> <a href="simul.html">List of all called functions</a>
+<li> <a href="simul.html">Call graph of all called functions</a><li> Called directly by 2 functions<li> <a href="simul.html">Explore direct callers</a>
+
+<li> <a href="simul.html">List of all callers</a>
+<li> <a href="simul.html">Call graph of all callers</a><li> <a href="simul.html">Call graph of all calling and called functions</a> (function in context)<li> Refactor arguments into: 
+<INPUT TYPE="text" NAME="ncall" VALUE="@1, @2, @3, @4" SIZE=40 MAXLENGTH=256> <INPUT TYPE="submit" NAME="repl" VALUE="Save">
+<INPUT TYPE="hidden" NAME="id" VALUE="0125E1B8">
+<INPUT TYPE="hidden" NAME="f" VALUE="00E4D788">
+</ul>
+<h3>Metrics</h3>
+
+<table class='metrics'>
+<tr><th>Metric</th><th>Value</th></tr>
+<tr><td>Number of characters</td><td align='right'>3237</td></tr><tr><td>Number of comment characters</td><td align='right'>204</td></tr><tr><td>Number of space characters</td><td align='right'>767</td></tr><tr><td>Number of line comments</td><td align='right'>0</td></tr><tr><td>Number of block comments</td><td align='right'>7</td></tr><tr><td>Number of lines</td><td align='right'>133</td></tr><tr><td>Maximum number of characters in a line</td><td align='right'>95</td></tr><tr><td>Number of character strings</td><td align='right'>15</td></tr><tr><td>Number of unprocessed lines</td><td align='right'>0</td></tr><tr><td>Number of C preprocessor directives</td><td align='right'>0</td></tr><tr><td>Number of processed C preprocessor conditionals (ifdef, if, elif)</td><td align='right'>0</td></tr><tr><td>Number of defined C preprocessor function-like macros</td><td align='right'>0</td></tr><tr><td>Number of defined C preprocessor object-like macros</td><td align='right'>0</td></tr><tr><td>Number of preprocessed tokens</td><td align='right'>962</td></tr><tr><td>Number of compiled tokens</td><td align='right'>1012</td></tr><tr><td>Number of statements or declarations</td><td align='right'>113</td></tr><tr><td>Number of operators</td><td align='right'>176</td></tr><tr><td>Number of unique operators</td><td align='right'>15</td></tr><tr><td>Number of numeric constants</td><td align='right'>22</td></tr><tr><td>Number of character literals</td><td align='right'>43</td></tr><tr><td>Number of if statements</td><td align='right'>17</td></tr><tr><td>Number of else clauses</td><td align='right'>2</td></tr><tr><td>Number of switch statements</td><td align='right'>2</td></tr><tr><td>Number of case labels</td><td align='right'>19</td></tr><tr><td>Number of default labels</td><td align='right'>2</td></tr><tr><td>Number of break statements</td><td align='right'>14</td></tr><tr><td>Number of for statements</td><td align='right'>2</td></tr><tr><td>Number of while statements</td><td align='right'>1</td></tr><tr><td>Number of do statements</td><td align='right'>0</td></tr><tr><td>Number of continue statements</td><td align='right'>2</td></tr><tr><td>Number of goto statements</td><td align='right'>0</td></tr><tr><td>Number of return statements</td><td align='right'>1</td></tr><tr><td>Number of project-scope identifiers</td><td align='right'>53</td></tr><tr><td>Number of file-scope (static) identifiers</td><td align='right'>2</td></tr><tr><td>Number of macro identifiers</td><td align='right'>9</td></tr><tr><td>Total number of object and object-like identifiers</td><td align='right'>259</td></tr><tr><td>Number of unique project-scope identifiers</td><td align='right'>12</td></tr><tr><td>Number of unique file-scope (static) identifiers</td><td align='right'>2</td></tr><tr><td>Number of unique macro identifiers</td><td align='right'>5</td></tr><tr><td>Number of unique object and object-like identifiers</td><td align='right'>34</td></tr><tr><td>Number of global namespace occupants at function's top</td><td align='right'>1063</td></tr><tr><td>Number of parameters</td><td align='right'>4</td></tr><tr><td>Maximum level of statement nesting</td><td align='right'>4</td></tr><tr><td>Number of goto labels</td><td align='right'>0</td></tr><tr><td>Fan-in (number of calling functions)</td><td align='right'>2</td></tr><tr><td>Fan-out (number of called functions)</td><td align='right'>14</td></tr><tr><td>Cyclomatic complexity (control statements)</td><td align='right'>23</td></tr><tr><td>Extended cyclomatic complexity (includes branching operators)</td><td align='right'>27</td></tr><tr><td>Maximum cyclomatic complexity (includes branching operators and all switch branches)</td><td align='right'>44</td></tr><tr><td>Structure complexity (Henry and Kafura)</td><td align='right'>784</td></tr><tr><td>Halstead complexity</td><td align='right'>3416.45</td></tr><tr><td>Information flow metric (Henry and Selig)</td><td align='right'>18032</td></tr></table>
+
+</FORM>
+<p><a href="simul.html">Main page</a>
+ &mdash; Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><div class="footer">CScout</font>
+</td></tr></table>
+<p>
+From this page you can refactor the function's arguments
+(more on this in the next section) and obtain the following data.
+<ul>
+<li> The identifier or identifiers composing the function name.
+These can be modified (from the corresponding identifier page)
+to change the function's name.</li>
+<li> The function's declaration. This may be an implicit declaration
+(the location of its first use).
+<em>CScout</em> only maintains the location of one declaration for
+each function.
+You can locate additional points of declaration by looking at the
+places where the corresponding identifier is used.
+The "marked source" link allows you to see the declaration as
+a hyperlink in the file where it occurs.
+In many browsers pressing the tab key on that page will lead you
+directly to the function's declaration.</li>
+<li> The function's definition (if a definition was found).
+Library functions obviously will not have a definition associated with them.</li>
+<li> The number of functions this function directly calls.
+These are the functions (C functions and function-like macros)
+that appear inside the function's body.</li>
+<li>
+A list allowing you to explore interactively the tree of called functions.
+The tree will appear in the following form:
+<br /><img src="tree.png" alt="Function call tree" /><br />
+Each plus or minus box will open or close the list of called functions.
+Each function name is a hyperlink to the corresponding function page.
+</li>
+<li> A list of all called functions.
+This list includes all functions that can be called,
+starting from the function we are examining.
+On the right of each function is
+a hyperlink to a call graph of the path(s) leading from
+the function being examined to the function listed.
+</li>
+<li> A call graph of all called functions (explained in a following section).</li>
+<li> A page allowing you to explore interactively all callers.
+These are the functions that directly call the function we are examining.
+The functionality of this page is the same as that of the one for exploring
+the called functions.</li>
+<li> A list of all callers.
+These are all functions that can directly or
+indirectly call the function we are examining.</li>
+<li> A call graph of all callers (explained in a following section).</li>
+<li> A call graph of all the function's callers and called functions
+showing the function in context (explained in a following section).</li>
+<li> A comprehensive set of metrics regarding the function
+(only for defined functions and macros).</li>
+</ul>
+
+<h2>All Functions</h2>
+The all functions page will list all the functions (C functions
+and function-like macros) defined or declared
+in the <em>CScout</em> workspace.
+In moderately sized projects,
+you can use it as a starting point for jumping to a function;
+in larger projects it is probably useful only as a last resort.
+
+<h2>Project-scoped writable functions</h2>
+This page contains all the writable functions that are globaly visible.
+The page does not list function-like macros.
+
+<h2>File-scoped writable functions</h2>
+This page contains all the writable functions that are visible only
+within the context of a single file.
+This include C functions declared as <code>static</code>, and function-like
+macros.
+
+<h2>Writable functions that are not directly called</h2>
+This page will list all writable functions that are never directly
+called.
+The most probable cause is that the corresponding functions are called through
+a pointer,
+but some may be historic leftovers - candidates for removal.
+
+<h2>Writable functions that are called exactly once</h2>
+Functions that are called exactly once may be candidates for inlining.
+
+</notes>

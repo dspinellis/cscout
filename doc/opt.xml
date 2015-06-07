@@ -1,0 +1,603 @@
+<?xml version="1.0" ?>
+<notes>
+<!-- Intro {{{1 -->
+The operations <em>CScout</em> provides group together functions
+that globally affect its operation.
+The global options link leads you to the following page.
+
+<table border=1><tr><td>
+<h2>Global Options</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<table><tr><td class='opthead'>File and Identifier Pages</td></tr>
+<tr><td>Show only true identifier classes (brief view)</td>
+<td><input type="checkbox" name="show_true" value="1" checked></td></tr>
+
+<tr><td>Show associated projects</td>
+<td><input type="checkbox" name="show_projects" value="1" checked></td></tr>
+<tr><td>Show a list of identical files</td>
+<td><input type="checkbox" name="show_identical_files" value="1" checked></td></tr>
+<tr><td class='opthead'>Source Listings</td></tr>
+<tr><td>Show line numbers</td>
+<td><input type="checkbox" name="show_line_number" value="1" ></td></tr>
+<tr><td>Tab width</td>
+<td><input type="text" name="tab_width" size="5" maxlength="5" value="8"></td></tr>
+<tr><td class='opthead'>Refactoring</td></tr>
+<tr><td>Allow the renaming of read-only identifiers</td>
+
+<td><input type="checkbox" name="rename_override_ro" value="1" checked></td></tr>
+<tr><td>Allow the refactoring of function arguments of read-only functions</td>
+<td><input type="checkbox" name="refactor_fun_arg_override_ro" value="1" checked></td></tr>
+<tr><td>Check for renamed identifier clashes when saving refactored code</td>
+<td><input type="checkbox" name="refactor_check_clashes" value="1" checked></td></tr>
+<tr><td class='opthead'>Queries</td></tr>
+<tr><td>Case-insensitive file name regular expression match</td>
+<td><input type="checkbox" name="file_icase" value="1" ></td></tr>
+<tr><td class='opthead'>Query Result Lists</td></tr>
+<tr><td>Number of entries on a page</td>
+<td><input type="text" name="entries_per_page" size="5" maxlength="5" value="20"></td></tr>
+
+<tr><td>Show file lists with file name in context</td>
+<td><input type="checkbox" name="fname_in_context" value="1" checked></td></tr>
+<tr><td>Sort identifiers starting from their last character</td>
+<td><input type="checkbox" name="sort_rev" value="1" ></td></tr>
+<tr><td class='opthead'>Call and File Dependency Graphs</td></tr>
+<tr><td>Graph links should lead to pages of:</td><td><input type="radio" name="cgraph_type" value="d" >dot
+<input type="radio" name="cgraph_type" value="g" >GIF
+<input type="radio" name="cgraph_type" value="h" >HTML
+<input type="radio" name="cgraph_type" value="f" >PDF
+<input type="radio" name="cgraph_type" value="t" >plain text
+<input type="radio" name="cgraph_type" value="p" >PNG
+<input type="radio" name="cgraph_type" value="s" checked>SVG
+</td></tr>
+
+<tr><td>Call graphs should contain:</td><td><input type="radio" name="cgraph_show" value="e" >only edges
+<input type="radio" name="cgraph_show" value="n" checked>function names
+<input type="radio" name="cgraph_show" value="f" >file and function names
+<input type="radio" name="cgraph_show" value="p" >path and function names
+</td></tr>
+<tr><td>File graphs should contain:</td><td><input type="radio" name="fgraph_show" value="e" >only edges
+<input type="radio" name="fgraph_show" value="n" checked>file names
+<input type="radio" name="fgraph_show" value="p" >path and file names
+</td></tr>
+<tr><td>Maximum number of call levels in a call graph</td>
+<td><input type="text" name="cgraph_depth" size="5" maxlength="5" value="5"></td></tr>
+<tr><td>Maximum dependency depth in a file graph</td>
+<td><input type="text" name="fgraph_depth" size="5" maxlength="5" value="5"></td></tr>
+
+<tr><td>Include URLs in dot output</td>
+<td><input type="checkbox" name="cgraph_dot_url" value="1" ></td></tr>
+<tr><td>Graph options</td>
+<td><input type="text" name="dot_graph_options" size="20" maxlength="200" value=""></td></tr>
+<tr><td>Node options</td>
+<td><input type="text" name="dot_node_options" size="20" maxlength="200" value="fontname=&quot;Helvetica&quot;"></td></tr>
+<tr><td>Edge options</td>
+<td><input type="text" name="dot_edge_options" size="20" maxlength="200" value=""></td></tr>
+<tr><td class='opthead'>Saved Files</td></tr>
+<tr><td>When saving modified files replace RE</td>
+<td><input type="text" name="sfile_re_string" size="20" maxlength="200" value=""></td></tr>
+
+<tr><td>... with the string</td>
+<td><input type="text" name="sfile_repl_string" size="20" maxlength="200" value=""></td></tr>
+<tr><td class='opthead'>Editing</td></tr>
+<tr><td>External editor invocation command</td>
+<td><input type="text" name="start_editor_cmd" size="50" maxlength="200" value="start  C:\Progra~1\Vim\vim71\gvim.exe +/&quot;%s&quot; &quot;%s&quot;"></td></tr>
+</table><p><p><INPUT TYPE="submit" NAME="set" VALUE="OK">
+<INPUT TYPE="submit" NAME="set" VALUE="Cancel">
+<INPUT TYPE="submit" NAME="set" VALUE="Apply">
+</FORM>
+<p><a href="simul.html">Main page</a>
+ &mdash; Web: <a href="simul.html">Home</a>
+
+<a href="simul.html">Manual</a>
+<br><hr><div class="footer">CScout</font>
+</td></tr></table>
+
+The meaning of each option is described in the following sections.
+
+<h2>File and Identifier Pages</h2> <!-- {{{1 -->
+<h3> Show Only True Identifier Classes</h3> <!-- {{{2 -->
+Setting the option ``show only true identifier classes (brief view)''
+will remove from each identifier page all identifier properties
+marked as no, resulting in a less verbose page.
+
+<table border=1><tr><td>
+<h2>Identifier: argc</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<ul>
+<li>Ordinary identifier: Yes
+<li> Matches 8 occurence(s)
+<li> Appears in project(s): 
+
+<ul>
+<li>cp
+</ul>
+<li> Substitute with: 
+<INPUT TYPE="text" NAME="sname" SIZE=10 MAXLENGTH=256> <INPUT TYPE="submit" NAME="repl" VALUE="Substitute">
+<INPUT TYPE="hidden" NAME="id" VALUE="0x87ca3c0">
+</ul>
+<h3>Dependent Files (Writable)</h3>
+<table><tr><th>Directory</th><th>File</th></tr>
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">cp.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+
+</table>
+<h3>Dependent Files (All)</h3>
+<table><tr><th>Directory</th><th>File</th></tr>
+<tr><td align="right">/vol/src/bin/cp/
+</td>
+<td><a href="simul.html">cp.c</a></td><td><a href="simul.html">marked source</a></td></tr>
+</table>
+</FORM>
+<p><a href="simul.html">Main page</a>
+ - Web: <a href="simul.html">Home</a>
+
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout 2.0 - 2004/07/31 12:37:12</font>
+</td></tr></table>
+
+<h3> Show Associated Projects </h3> <!-- {{{2 -->
+Normally, each identifier or file page lists the projects in which
+the corresponding identifier or file has appeared during processing.
+When the <em>CScout</em> workspace typically consists only of a single project,
+or consists of hundreds of projects, listing the project membership
+can be useless or result into too volumneous output.
+The corresponding option can be used to control this output.
+
+<h3> Show Lists of Identical Files </h3> <!-- {{{2 -->
+<em>CScout</em> will detect during processing when a file is an exact
+duplicate of another file (typically the result of a copy operation
+during the building process).
+On the file information page it will then list the files that are
+duplicates of the one being listed.
+The corresponding option can be used to control this output.
+
+<h2>Source Listings</h2> <!-- {{{1 -->
+<h3> Show Line Numbers </h3> <!-- {{{2 -->
+The "show line numbers in source listings" option
+allows you to specify whether the source file line numbers will be shown
+in source listings.
+Line numbers can be useful when you are editing or viewing the same 
+file with an editor.
+A file with line numbers shown appears as follows:
+<p>
+<table border=1><tr><td>
+<code>
+&nbsp;&nbsp;&nbsp;78&nbsp;fa&nbsp;*makedfa(const&nbsp;char&nbsp;*s,&nbsp;int&nbsp;anchor)&nbsp;&nbsp;/*&nbsp;returns&nbsp;dfa&nbsp;for&nbsp;reg&nbsp;expr&nbsp;s&nbsp;*/<br>
+&nbsp;&nbsp;&nbsp;79&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;80&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;i,&nbsp;use,&nbsp;nuse;<br>
+&nbsp;&nbsp;&nbsp;81&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fa&nbsp;*pfa;<br>
+&nbsp;&nbsp;&nbsp;82&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;now&nbsp;=&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;83&nbsp;<br>
+&nbsp;&nbsp;&nbsp;84&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(setvec&nbsp;==&nbsp;0)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;first&nbsp;time&nbsp;through&nbsp;any&nbsp;RE&nbsp;*/<br>
+&nbsp;&nbsp;&nbsp;85&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxsetvec&nbsp;=&nbsp;MAXLIN;<br>
+&nbsp;&nbsp;&nbsp;86&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setvec&nbsp;=&nbsp;(int&nbsp;*)&nbsp;malloc(maxsetvec&nbsp;*&nbsp;sizeof(int));<br>
+&nbsp;&nbsp;&nbsp;87&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tmpset&nbsp;=&nbsp;(int&nbsp;*)&nbsp;malloc(maxsetvec&nbsp;*&nbsp;sizeof(int));<br>
+&nbsp;&nbsp;&nbsp;88&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(setvec&nbsp;==&nbsp;0&nbsp;||&nbsp;tmpset&nbsp;==&nbsp;0)<br>
+&nbsp;&nbsp;&nbsp;89&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;overflo("out&nbsp;of&nbsp;space&nbsp;initializing&nbsp;makedfa");<br>
+&nbsp;&nbsp;&nbsp;90&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;91&nbsp;<br>
+&nbsp;&nbsp;&nbsp;92&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(compile_time)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;a&nbsp;constant&nbsp;for&nbsp;sure&nbsp;*/<br>
+&nbsp;&nbsp;&nbsp;93&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;mkdfa(s,&nbsp;anchor);<br>
+&nbsp;&nbsp;&nbsp;94&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;nfatab;&nbsp;i++)&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;is&nbsp;it&nbsp;there&nbsp;already?&nbsp;*/<br>
+&nbsp;&nbsp;&nbsp;95&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(fatab[i]-&gt;anchor&nbsp;==&nbsp;anchor<br>
+&nbsp;&nbsp;&nbsp;96&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;&amp;&nbsp;strcmp((const&nbsp;char&nbsp;*)&nbsp;fatab[i]-&gt;restr,&nbsp;s)&nbsp;==&nbsp;0)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;97&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fatab[i]-&gt;use&nbsp;=&nbsp;now++;<br>
+&nbsp;&nbsp;&nbsp;98&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;fatab[i];<br>
+&nbsp;&nbsp;&nbsp;99&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;100&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pfa&nbsp;=&nbsp;mkdfa(s,&nbsp;anchor);<br>
+&nbsp;&nbsp;101&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(nfatab&nbsp;&lt;&nbsp;NFA)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;room&nbsp;for&nbsp;another&nbsp;*/<br>
+&nbsp;&nbsp;102&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fatab[nfatab]&nbsp;=&nbsp;pfa;<br>
+&nbsp;&nbsp;103&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fatab[nfatab]-&gt;use&nbsp;=&nbsp;now++;<br>
+&nbsp;&nbsp;104&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nfatab++;<br>
+&nbsp;&nbsp;105&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;pfa;<br>
+&nbsp;&nbsp;106&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</code>
+</td></tr></table>
+
+<h3> Tab Width </h3> <!-- {{{2 -->
+The ``code listing tab width'' option allows you to specify
+the tab width to use when listing source files as hypertext
+(8 by default).
+The width should match the width normally used to display the file.
+It does not affect the way the modified file is written;
+tabs and spaces will get written exactly as found in the source code file.
+
+<h2>Refactoring</h2> <!-- {{{1 -->
+<h3>Allow the renaming of read-only identifiers</h3> <!-- {{{2 -->
+Setting this option will present a rename identifier box,
+in an identifier's page, even if that identifier occurs in read-only
+files.
+When <em>CScout</em> exist saving refactoring changes,
+replacements in those files may fail due to file system permissions.
+<h3>Allow the refactoring of function arguments of read-only functions</h3> <!-- {{{2 -->
+Setting this option will present a function argument refactoring template
+input box
+in an function's page, even if that identifier associated with the
+function occurs in read-only files.
+
+<h3>Check for renamed identifier clashes when saving refactored code</h3> <!-- {{{2 -->
+Setting this option will reprocess the complete source code (re-execute
+the processing script) before saving code with renamed identifiers,
+in order to verify that no accidental clashes were introduced.
+Identifier clashes are reported on the command-line console as errors.
+The check is enabled by default.
+For very large projects and if you are sure no clashes were accidentally
+introduced you may disable the check in order to save the additional
+processing time.
+
+
+<h2>Queries</h2> <!-- {{{1 -->
+<h3> Case-insensitive File Name Regular Expression Match </h3> <!-- {{{2 -->
+Some environments, such as Microsoft Windows,
+are matching filenames in a case insensitive manner.
+As a result the same filename may appear with different 
+capitalization (e.g. <code>Windows.h</code>, <code>WINDOWS.h</code>, and
+<code>windows.h</code>).
+The use of the
+``case-insensitive file name regular expression match''
+option makes filename regular expression matches
+ignore letter case thereby matching the operating system's semantics.
+
+<h2>Query Result Lists</h2> <!-- {{{1 -->
+<h3>Number of Entries on a Page</h3> <!-- {{{2 -->
+The number of entries on a page, specifies the number of records
+appearing on each separate page resulting
+from a file, identifier, or function query.
+Too large values of this option (say above 1000) may cause your
+web browser to behave sluggishly, and will also reduce the program's
+responsiveness when operating over low-bandwidth network links.
+
+<h3> Show File Lists With File Name in Context</h3> <!-- {{{2 -->
+Setting the ``Show file lists with file name in context'' option
+will result in file lists showing the file name (the last component
+of the complete path) in the same position,
+as in the following example:
+
+<table border=1><tr><td>
+<h2>Read-only Files</h2>
+<table><tr><th>Directory</th><th>File</th></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">ctype.h</a></td></tr>
+
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">err.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">errno.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">fcntl.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">fts.h</a></td></tr>
+<tr><td align="right">/usr/include/
+
+</td>
+<td><a href="simul.html">limits.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">locale.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">ansi.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">endian.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+
+<td><a href="simul.html">limits.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">param.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">signal.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">trap.h</a></td></tr>
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">types.h</a></td></tr>
+
+<tr><td align="right">/usr/include/machine/
+</td>
+<td><a href="simul.html">ucontext.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">runetype.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">stdio.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">stdlib.h</a></td></tr>
+<tr><td align="right">/usr/include/
+
+</td>
+<td><a href="simul.html">string.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">_posix.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">cdefs.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">inttypes.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+
+<td><a href="simul.html">param.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">signal.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">stat.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">syslimits.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">time.h</a></td></tr>
+
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">types.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">ucontext.h</a></td></tr>
+<tr><td align="right">/usr/include/sys/
+</td>
+<td><a href="simul.html">unistd.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">sysexits.h</a></td></tr>
+<tr><td align="right">/usr/include/
+
+</td>
+<td><a href="simul.html">syslog.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">time.h</a></td></tr>
+<tr><td align="right">/usr/include/
+</td>
+<td><a href="simul.html">unistd.h</a></td></tr>
+</table>
+
+</ul>
+<p>You can bookmark this page to save the respective query<p><p><a href="simul.html">Main page</a>
+
+</td></tr></table>
+
+This results in lists that are easier to read, but that can not 
+be easilly copy-pasted into other tools for further processing.
+
+<h3>Sort Identifiers Starting from their Last character </h3> <!-- {{{2 -->
+Some coding conventions use identifier suffixes for distinguishing the
+use of a given identifier.
+As an example, typedef identifiers often end in <code>_t</code>.
+The following list contains our example's typedefs ordered by the last
+character, making it easy to distinguish typedefs not ending
+in <code>_t</code>
+
+<table border=1><tr><td>
+<table><tr><td width="50%" align="right">
+<a href="simul.html">FILE</a><br>
+<a href="simul.html">FTS</a><br>
+<a href="simul.html">FTSENT</a><br>
+<a href="simul.html">PATH_T</a><br>
+<a href="simul.html">_RuneRange</a><br>
+<a href="simul.html">_RuneLocale</a><br>
+<a href="simul.html">u_long</a><br>
+<a href="simul.html">fd_mask</a><br>
+<a href="simul.html">u_char</a><br>
+<a href="simul.html">physadr</a><br>
+<a href="simul.html">int32_t</a><br>
+<a href="simul.html">__int32_t</a><br>
+<a href="simul.html">u_int32_t</a><br>
+<a href="simul.html">uint32_t</a><br>
+<a href="simul.html">__uint32_t</a><br>
+<a href="simul.html">inthand2_t</a><br>
+<a href="simul.html">ointhand2_t</a><br>
+<a href="simul.html">int64_t</a><br>
+[... 40 lines removed]<br>
+<a href="simul.html">in_addr_t</a><br>
+<a href="simul.html">caddr_t</a><br>
+<a href="simul.html">c_caddr_t</a><br>
+<a href="simul.html">v_caddr_t</a><br>
+<a href="simul.html">daddr_t</a><br>
+<a href="simul.html">ufs_daddr_t</a><br>
+<a href="simul.html">u_daddr_t</a><br>
+<a href="simul.html">qaddr_t</a><br>
+<a href="simul.html">__sighandler_t</a><br>
+<a href="simul.html">__siginfohandler_t</a><br>
+<a href="simul.html">timer_t</a><br>
+<a href="simul.html">register_t</a><br>
+<a href="simul.html">u_register_t</a><br>
+<a href="simul.html">intptr_t</a><br>
+<a href="simul.html">__intptr_t</a><br>
+<a href="simul.html">uintptr_t</a><br>
+<a href="simul.html">__uintptr_t</a><br>
+<a href="simul.html">fpos_t</a><br>
+<a href="simul.html">timecounter_pps_t</a><br>
+<a href="simul.html">timecounter_get_t</a><br>
+<a href="simul.html">vm_offset_t</a><br>
+<a href="simul.html">vm_ooffset_t</a><br>
+<a href="simul.html">sigset_t</a><br>
+<a href="simul.html">osigset_t</a><br>
+<a href="simul.html">fixpt_t</a><br>
+<a href="simul.html">in_port_t</a><br>
+<a href="simul.html">mcontext_t</a><br>
+<a href="simul.html">ucontext_t</a><br>
+<a href="simul.html">dev_t</a><br>
+<a href="simul.html">div_t</a><br>
+<a href="simul.html">ldiv_t</a><br>
+<a href="simul.html">vm_pindex_t</a><br>
+<a href="simul.html">key_t</a><br>
+<a href="simul.html">segsz_t</a><br>
+<a href="simul.html">fd_set</a><br>
+<a href="simul.html">u_int</a><br>
+<a href="simul.html">uint</a><br>
+<a href="simul.html">u_short</a><br>
+<a href="simul.html">ushort</a><br>
+<a href="simul.html">_RuneEntry</a><br>
+</td> <td width="50%"> </td></tr></table>
+</td></tr></table>
+
+<h2>Call and File Dependency Graphs</h2> <!-- {{{1 -->
+<h3>Call Graph Links Should Lead to Pages of</h3> <!-- {{{2 -->
+Function and macro call graphs can appear in four different formats.
+<ul>
+<li> Plain text: suitable for processing with other text tools.
+<li> HTML: suitable for interactive browsing
+<li> dot: suitable for processing with GraphViz dot into different
+graphics formats, like PNG, MIF, VRML, and EPS.
+Dot files can also be processed as graphs using the
+AT&amp;T <em>gpr</em> program
+<li> SVG: suitable for interactively browsing the graphical representation
+of the call graph.
+This option requires your browser to support the rendering of SVG
+(directly or via a plugin, such as
+<a href="http://www.adobe.com/svg/">Adobe's</a>), and the existence of
+the AT&amp;T <a href="http://www.graphviz.org">GraphViz</a> <em>dot</em>
+program in your executable file path.
+<li> GIF: suitable for directly viewing relatively small images.
+</ul>
+
+<h3>Call Graphs Should Contain</h3> <!-- {{{2 -->
+This option allows you to specify the level of detail you wish to see
+in the call graph nodes.
+<ul>
+<li> Only edges, will not display anything on the node.
+This option can be used in the graphics formats (dot, SVG, GIF) to
+provide an overall picture of the program's call structure.</li>
+<li> Function names: only include the function names.
+Functions with the same name will still be separately listed,
+but you will have to follow their hyperlinks to see where they
+are defined.</li>
+<li> File and function names: the name of the file where a function
+is declared will precede the name of the function.</li>
+<li> Path and function names: the complete file path of the file
+where a function
+is declared will precede the name of the function.</li>
+</ul>
+<h3>File Graphs Should Contain</h3> <!-- {{{2 -->
+This option allows you to specify the level of detail you wish to see
+in the file dependency graph nodes.
+<ul>
+<li> Only edges, will not display anything on the node.
+This option can be used in the graphics formats (dot, SVG, GIF) to
+provide an overall picture of the program's file dependency structure.</li>
+<li> File names: only include the file names.
+Files with the same name will still be separately listed,
+but you will have to follow their hyperlinks to see where they
+are defined.</li>
+<li> Path and file names: the complete path of each path will be show.</li>
+</ul>
+<h3>Maximum number of call levels in a graph</h3> <!-- {{{2 -->
+Call graphs can easily grow too large for viewing, printing, or even
+formatting as a graph.
+This option limits the number of functions that will be traversed from a
+specific function when computing a call graph
+or a list of calling or called functions.
+<h3>Maximum dependency depth in a file graph</h3> <!-- {{{2 -->
+File dependency graphs can easily grow too large for viewing, printing, or even
+formatting as a graph.
+This option limits the number of edges that will be traversed from the root
+file when computing a file dependency graph.
+<h3>Include URLs in dot output</h3> <!-- {{{2 -->
+By checking this option
+URLs to <em>CScout</em>'s interface will be included in plain <em>dot</em>
+output.
+In typical cases, URLs outside the context of <em>CScout</em>'s operation
+don't make sense, but there are specialized instances where you might
+want to post-process the output with a tool, and then display
+the graph in a way that will provide you links to <em>CScout</em>.
+<h3>Graph options</h3> <!-- {{{2 -->
+A semicolon-separated list of options that will be passed to <em>dot</em>
+as graph attributes.
+Graph attributes accepted by <em>dot</em> include
+size, page, ration, margin, nodesep, ranksep, ordering, rankdir,
+pagedir, rank, rotate, center, nslimit, mclimit, layers, color,
+href, URL, and stylesheet.
+<h3>Node options</h3> <!-- {{{2 -->
+A comma-separated list of options that will be passed to <em>dot</em>
+as node attributes.
+Node attributes accepted by <em>dot</em> include
+height, shape, fontsize, fontname, color, fillcolor, fontcolor, style, layer,
+regular, peripheries, sides, orientation, distortion, skew, href, URL,
+target, and tooltip.
+Note that node options are ignored, if the option to draw empty nodes is
+set.
+<h3>Edge options</h3> <!-- {{{2 -->
+A comma-separated list of options that will be passed to <em>dot</em>
+as edge attributes.
+Edge attributes accepted by <em>dot</em> include
+minlen, weight, label, fontsize, fontname, fontcolor, style, color,
+dir, tailclip, headclip, href, URL, target, tooltop, arrowhead,
+arrowtail, arrowsize, headlabel, taillabel,
+headref, headURL, headtarget, headtooltip,
+tailref, tailURL, tailtarget, tailtooltip,
+labeldistance, decorate, samehead, sametail, constraint, and layer.
+<p />
+The graph, node, and edge options can be used to fine tune the graph's
+look.
+See the
+<a href="http://www.graphviz.org/doc/info/attrs.html">GraphViz documentation</a>
+for more details.
+For instance, the following diagram
+<br /><img src="fgraph-opt.png" alt="include diagram" /><br />
+was created using<br />
+<table>
+<tr><td>Graph options</td><td> <code>bgcolor=lightblue</code></td></tr>
+<tr><td>Node options</td><td> <code>color=yellow,fontname="Helvetica",fillcolor=yellow,style=filled</code></td></tr>
+<tr><td>Edge options</td><td> <code>arrowtail=odiamond</code></td></tr>
+</table>
+<h2>Saved Files</h2> <!-- {{{1 -->
+<h3>When Saving Modified Files Replace</h3> <!-- {{{2 -->
+When saving files where an identifier has been modified
+it is often useful to use a different directory than the
+one where the original version of the source code resides.
+This allows you to
+<ul>
+<li> continue operating CScout, even after the changes have been saved, and </li>
+<li> easilly back out changes your are not satisfied with. </li>
+</ul>
+To use this option, specify a regular expression that will match
+a path component of the original source code files (often just a fixed
+string), and a corresponding substitution string.
+As an example, if your project files are of the type
+<code>/home/jack/src/foo/filename.c</code>, you could
+specify that <code>/foo/</code> should be changed
+into <code>/../foo.new/</code>.
+<p>
+Note than when this option is specified the existing and new locations
+of the file must reside on the same drive and partition (under Windows)
+or file system (under Unix).
+
+<h2>Editing</h2> <!-- {{{1 -->
+The "External editor invocation command" allows the specification of the
+editor that wil be used for hand-editing files.
+This string can contain two <code>%s</code> placeholders.
+The first is substituted by a regular expression that is associated
+with the identifier for which the file is edited,
+while the second is substituted with the corresponding file name.
+The default string under Unix is
+<fmtcode ext="sh">
+xterm -c "$VISUAL +/'%s' '%s'"
+</fmtcode>
+and under Windows
+<fmtcode ext="bat">
+echo Ignoring search for "%s" & start notepad "%s"
+</fmtcode>
+Under Windows a more sensible default could be something like
+<fmtcode ext="bat">
+start  C:\Progra~1\Vim\vim70\gvim.exe +/"%s" "%s"
+</fmtcode>
+which fires off the VIM editor in a new window.
+</notes>

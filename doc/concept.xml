@@ -1,0 +1,305 @@
+<?xml version="1.0" ?>
+<notes>
+Before we begin our in-depth description of <em>CScout</em>'s operation
+it is important to define the basic concepts we will encounter:
+identifiers, functions, and files.
+Although you may think you know what these elements stand for,
+in the <em>CScout</em> universe they have meanings sligthly different
+from what you may be used to.
+<h2>Identifiers</h2> <!-- {{{1 -->
+A <em>CScout</em> identifier is the longest character sequence that can
+be correctly modified (e.g. renamed) in isolation.
+Identifiers that will have to be renamed in unison to obtain a correct program
+are grouped together and are treated as a single entity.
+Although you may think that, according to our definition,
+<em>CScout</em> identifiers are the same as C identifiers,
+this is the case only in the absence of the C preprocessor.
+<p>
+First of all,
+the preprocessor token concatenation feature can result in
+C identifiers that are composed of multiple <em>CScout</em> identifiers.
+Consider the following example, which uses a macro to define a number
+of different functions.
+(Yes, I am familiar with the C++ templates, this is just an example.)
+<fmtcode ext="c">
+#define typefun(name, type, op) \
+type type ## _ ## name(type a, type b) { return a op b; }
+
+typefun(add, int, +)
+typefun(sub, int, -)
+typefun(mul, int, *)
+typefun(div, int, /)
+typefun(add, double, +)
+typefun(sub, double, -)
+typefun(mul, double, *)
+typefun(div, double, /)
+
+main()
+{
+	printf("%d\n", int_add(5, 4));
+	printf("%g\n", double_mul(3.14, 2.0));
+}
+</fmtcode>
+In the <em>CScout</em> environment the <code>int_add</code> C identifier is
+actually composed of three separate parts:
+<ol>
+<li> <code>int</code> </li>
+<li> <code>_</code> </li>
+<li> <code>add</code> </li>
+</ol>
+Renaming the <code>int</code> identifier into <code>integer</code>
+would change it in five different places: the argument to the four
+<code>typefun</code> macro invocations, and the part of <code>int_add</code>.
+<p>
+In addition, preprocessor macro definitions can confuse the notion of the
+C scope, bringing together scopes that would be considered
+separate in the context of the C language-proper.
+Consider the following (slightly contrived) example:
+<fmtcode ext="c">
+struct foo {
+	int foo;
+};
+
+struct bar {
+	int foo;
+};
+
+#define getpart(tag, name) (((struct tag *)p)->name)
+#define getfoo(var) (var.foo)
+#define get(name) (name(0) + ((struct name *)p)->name)
+#define conditional(x) do {if (!x(0)) goto x; return x(0);} while(0)
+
+int
+foo(void *p)
+{
+	struct foo f;
+	struct bar b;
+
+foo:
+	if (p && getpart(foo, foo))
+		return getpart(bar, foo);
+	else if (getfoo(f))
+		return get(foo);
+	else if (getfoo(b))
+		conditional(foo);
+	else
+		return 0;
+}
+</fmtcode>
+The identifier <code>foo</code> is occuring in a number of different
+scopes:
+<ul>
+<li> as an aggregate (structure) member of two different structures,</li>
+<li> as a structure tag,</li>
+<li> as a statement label, and</li>
+<li> as a function name.</li>
+</ul>
+
+Yet, the preprocessor macros and their use bring all the scopes together.
+If we decide to change one instance of the <code>foo</code> identifier,
+<em>CScout</em> will change all the instances marked below,
+in order to obtain a program that has the same meaning as the original
+one.
+<table border=1><tr><td>
+<h2>Identifier foo: test.c</h2>
+<p>(Use the tab key to move to each marked element.)<p><hr><code><a name="1"></a>struct&nbsp;<a href="simul.html">foo</a>&nbsp;{
+<br>
+<a name="2"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;<a href="simul.html">foo</a>;
+
+<br>
+<a name="3"></a>};
+<br>
+<a name="4"></a>
+<br>
+<a name="5"></a>struct&nbsp;bar&nbsp;{
+<br>
+<a name="6"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;<a href="simul.html">foo</a>;
+<br>
+<a name="7"></a>};
+<br>
+<a name="8"></a>
+<br>
+
+<a name="9"></a>#define&nbsp;getpart(tag,&nbsp;name)&nbsp;(((struct&nbsp;tag&nbsp;*)p)-&gt;name)
+<br>
+<a name="10"></a>#define&nbsp;getfoo(var)&nbsp;(var.<a href="simul.html">foo</a>)
+<br>
+<a name="11"></a>#define&nbsp;get(name)&nbsp;(name(0)&nbsp;+&nbsp;((struct&nbsp;name&nbsp;*)p)-&gt;name)
+
+<br>
+<a name="12"></a>#define&nbsp;conditional(x)&nbsp;do&nbsp;{if&nbsp;(!x(0))&nbsp;goto&nbsp;x;&nbsp;return&nbsp;x(0);}&nbsp;while(0)
+<br>
+<a name="13"></a>
+<br>
+<a name="14"></a>int
+<br>
+<a name="15"></a><a href="simul.html">foo</a>(void&nbsp;*p)
+
+<br>
+<a name="16"></a>{
+<br>
+<a name="17"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;<a href="simul.html">foo</a>&nbsp;f;
+<br>
+<a name="18"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;bar&nbsp;b;
+<br>
+<a name="19"></a>
+<br>
+<a name="20"></a><a href="simul.html">foo</a>:
+<br>
+<a name="21"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(p&nbsp;&amp;&amp;&nbsp;getpart(<a href="simul.html">foo</a>,&nbsp;<a href="simul.html">foo</a>))
+
+<br>
+<a name="22"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;getpart(bar,&nbsp;<a href="simul.html">foo</a>);
+<br>
+<a name="23"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(getfoo(f))
+<br>
+<a name="24"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;get(<a href="simul.html">foo</a>);
+<br>
+<a name="25"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(getfoo(b))
+
+<br>
+<a name="26"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conditional(<a href="simul.html">foo</a>);
+<br>
+<a name="27"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else
+<br>
+<a name="28"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+<br>
+<a name="29"></a>}
+</td></tr></table>
+
+<h2>Functions</h2> <!-- {{{1 -->
+<em>CScout</em>, with its integrated C preprocessor, considers as functions
+both the normal C functions and the function-like macros.
+It can therefore identify:
+<ul>
+<li> Calls from a C function to a C function </li>
+<li> Calls from a a C function to a function-like macro </li>
+<li> Calls from a function-like macro to a C function </li>
+<li> Calls from a function-like to a function-like macro </li>
+</ul>
+The following example illustrates all the above cases.
+<fmtcode ext="c">
+#define macro() middlemacro()
+#define middlemacro() innemacro()
+#define innemacro() function1()
+function1() {}
+function2() {}
+main() {
+	macro();
+	function2();
+	function3();
+	printf("Hello");
+}
+</fmtcode>
+The corresponding call graph is as follows:
+<p>
+<img src="maincall.gif" alt="Calls from the main function" />
+<p>
+Note that in <em>CScout</em> functions are separate entities from identifiers.
+The name of a function can consist of multiple identifiers;
+an identifier can exist in more than one function names.
+
+<p>
+For instance,
+the page for the <code>_</code> (underscore) identifier in the
+<code>typefun</code> macro example we saw earlier
+will appear as follows.
+<table border=1><tr><td>
+<h2>Identifier: _</h2>
+<FORM ACTION="simul.html" METHOD="GET">
+<ul>
+<li>Ordinary identifier: Yes
+<li>Project scope: Yes
+<li>Function: Yes
+<li> Matches 3 occurence(s)
+
+<li> Appears in project(s):
+<ul>
+<li>test
+<li>test2
+</ul>
+<li> The identifier occurs (wholy or in part) in function name(s): 
+<ol>
+
+<li>[<a href="simul.html">int</a>][<a href="simul.html">_</a>][<a href="simul.html">add</a>] - <a href="simul.html">function page</a>
+
+<li>[<a href="simul.html">int</a>][<a href="simul.html">_</a>][<a href="simul.html">sub</a>] - <a href="simul.html">function page</a>
+<li>[<a href="simul.html">int</a>][<a href="simul.html">_</a>][<a href="simul.html">mul</a>] - <a href="simul.html">function page</a>
+
+<li>[<a href="simul.html">int</a>][<a href="simul.html">_</a>][<a href="simul.html">div</a>] - <a href="simul.html">function page</a>
+<li>[<a href="simul.html">double</a>][<a href="simul.html">_</a>][<a href="simul.html">add</a>] - <a href="simul.html">function page</a>
+
+<li>[<a href="simul.html">double</a>][<a href="simul.html">_</a>][<a href="simul.html">sub</a>] - <a href="simul.html">function page</a>
+<li>[<a href="simul.html">double</a>][<a href="simul.html">_</a>][<a href="simul.html">mul</a>] - <a href="simul.html">function page</a>
+
+<li>[<a href="simul.html">double</a>][<a href="simul.html">_</a>][<a href="simul.html">div</a>] - <a href="simul.html">function page</a></ol><br />
+<li> Substitute with: 
+<INPUT TYPE="text" NAME="sname" SIZE=10 MAXLENGTH=256> <INPUT TYPE="submit" NAME="repl" VALUE="Substitute">
+<INPUT TYPE="hidden" NAME="id" VALUE="00F17198">
+</ul>
+</FORM>
+<p><a href="simul.html">Main page</a>
+ - Web: <a href="simul.html">Home</a>
+<a href="simul.html">Manual</a>
+<br><hr><font size=-1>CScout 2.0 - 2004/07/31 12:37:12</font>
+</td></tr></table>
+<p>
+Note how each function name is composed of three separate parts,
+and that this instance of the <code>_</code> identifier occurs in
+8 different function names.
+
+
+<h2>Files</h2> <!-- {{{1 -->
+Given the complexities we discussed above, you may be pleased to know
+that in <em>CScout</em> files are more or less equivalent to the notion
+of file you are familiar with.
+The important thing to keep in mind is that <em>CScout</em> will consider
+all references to the same underlying file as equivalent, no matter
+how the file was named.
+Thus, different paths to the same file,
+or references to the same file via different symbolic links
+will end-up appearing as the same file in <em>CScout</em>.
+<p>
+One important feature of <em>CScout</em> concerning files
+has to do with the handling of files that are exact copies of each
+other.
+These may occur in the building of a large system for the sake of
+convenience; for example, one header file may be copied to various
+parts of the source code tree.
+<em>CScout</em> will locate identical files and group them
+together when reporting a file's details.
+Identifiers occuring in the same position of two identical files
+are considered equivalent; if you change the name of one of them
+the name of the other will also change.
+Moreover, when <em>CScout</em> reports unused identifiers it takes into
+account uses of an identifier from all instances of the identical files,
+not just one of them.
+<h2>Writable and Read-Only Entities</h2> <!-- {{{1 -->
+<em>CScout</em> uses file access permissions
+(or the equivalent <code>readonly</code> and <code>ro_prefix</code> definitions
+provided in workspace definition files)
+to determine which elements of the compiled source code are under
+your control and which elements are part of the development system.
+Often the <em>CScout</em> user-interface allows you to specify whether you are
+interested in writable (i.e. your project's), read-only (i.e. the system's)
+or all elements.
+Therefore,
+all of the files that belong to your project <em>must</em> be writable.
+Any other files used by your project but not belonging to it
+(e.g. header files of third-party libraries or auto-generated code)
+<em>must</em> either be read-only or must be flagged for treatment as
+read-only using the <code>readonly</code> and <code>ro_prefix</code>
+workspace definition commands.
+<p />
+Since <em>CScout</em> is not just a browser, but a refactoring browser,
+you are expected to ensure that every file in your project is
+writable.
+This is how <em>CScout</em> figures out which files are part
+of your project and which are system files (for instance the standard
+library header files).
+System files
+should not be writable; if any system files happen to be writable,
+use the <code>readonly</code> and <code>ro_prefix</code> workspace
+definition commands to tell <em>CScout</em> to treat them as if
+they are not writable.
+</notes>

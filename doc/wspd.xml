@@ -1,0 +1,170 @@
+<?xml version="1.0" ?>
+<notes>
+You can see the complete syntax of <em>CScout</em> workspaces in the
+following BNF grammar.
+<pre>
+WORKSPACE:
+	workspace NAME { WORKSPACE_ELEMENT ... }
+
+WORKSPACE_ELEMENT:
+	SCOPED_COMMAND
+	GLOBAL_COMMAND
+	cd "PATH"
+	PROJECT
+
+SCOPED_COMMAND:
+	ipath "PATH"
+	define MACRO
+	define MACRO VALUE
+
+GLOBAL_COMMAND:
+	ro_prefix "PATH"
+	readonly "FILENAME"
+
+PROJECT:
+	project NAME { PROJECT_ELEMENT ... }
+
+PROJECT_ELEMENT:
+	SCOPED_COMMAND
+	cd "PATH"
+	DIRECTORY
+	FILE
+
+DIRECTORY:
+	directory PATH  { DIRECTORY_ELEMENT ... }
+
+DIRECTORY_ELEMENT:
+	SCOPED_COMMAND
+	FILE
+
+FILE:
+	file FILENAME ...
+	file "FILENAME" { FILESPEC ... }
+
+FILESPEC:
+	SCOPED_COMMAND
+	cd "PATH"
+	readonly
+</pre>
+The above grammar essentially specifies that a workspace consists of 
+projects, which consist of files or files in a directory.
+At the workspace level you can specify files and directories that are
+to be considered read-only using the <code>readonly</code> and
+<code>ro_prefix</code> commands.
+Both commands affect the complete workspace.
+The scoped commands (<code>define</code> and <code>ipath</code>)
+are used to specify macro definitions and the include path.
+Their scope is the block they appear in; when you exit the block
+(project, directory, or file) their definition is lost.
+You can therefore define a macro or an include path for the complete workspace,
+a specific project, files within a directory, or a single file.
+The syntax of the <code>define</code> command is the same as the one
+used in C programs.
+The <code>cd</code> command is also scoped; once you exit the block
+you return to the directory that was in effect in the outside block.
+Within a project you can either specify individual files using
+the <code>file</code> command, or express a grouping of files in
+a directory using the <code>directory</code> command.
+The <code>directory</code> command's name is the directory where a
+group of files resides and serves as an implicit <code>cd</code>
+command for the files it contains.
+Finally, files can be either specified directly as arguments to the
+<code>file</code> command, or <code>file</code> can be used to start
+a separate block.
+In the latter case the argument of <code>file</code> is the file name
+to process; the block can contain additional specifications
+(scoped commands or the <code>readonly</code> command without an
+argument) for processing that file.
+<p>
+The following workspace definition was used for processing the
+<em>apache</em> web server and includes most of the features
+and formulations we discussed.
+<pre>
+workspace apache {
+	cd "/usr/local/src/apache/src"
+
+	ro_prefix "/usr/local/src/apache/src/include/ap_config"
+
+	# Global project definitions
+	define HTTPD_ROOT "/usr/local/apache"
+	define SUEXEC_BIN "/usr/local/apache/bin/suexec"
+	define SHARED_CORE_DIR "/usr/local/apache/libexec"
+	define DEFAULT_PIDLOG "logs/httpd.pid"
+	define DEFAULT_SCOREBOARD "logs/httpd.scoreboard"
+	define DEFAULT_LOCKFILE "logs/httpd.lock"
+	define DEFAULT_XFERLOG "logs/access_log"
+	define DEFAULT_ERRORLOG "logs/error_log"
+	define TYPES_CONFIG_FILE "conf/mime.types"
+	define SERVER_CONFIG_FILE "conf/httpd.conf"
+	define ACCESS_CONFIG_FILE "conf/access.conf"
+	define RESOURCE_CONFIG_FILE "conf/srm.conf"
+
+	define AUX_CFLAGS
+	define LINUX 22 
+	define USE_HSREGEX 
+	define NO_DL_NEEDED
+
+	# Give project-specific directory and include path properties
+	project gen_uri_delims {
+		cd "main"
+		ipath "../os/unix"
+		ipath "../include"
+		file gen_uri_delims.c
+	}
+
+	# Alternative formulation; specify per-file properties
+	project gen_test_char {
+		file gen_test_char.c {
+			cd "main"
+			ipath "../os/unix"
+			ipath "../include"
+		}
+	}
+
+	# httpd executable; specify directory-based properties
+	project httpd {
+		directory main {
+			ipath "../os/unix"
+			ipath "../include"
+ 			file alloc.c buff.c http_config.c http_core.c
+			file http_log.c http_main.c http_protocol.c
+			file http_request.c http_vhost.c util.c util_date.c
+			file util_script.c util_uri.c util_md5.c rfc1413.c
+		}
+		directory regex {
+			ipath "."
+			ipath "../os/unix"
+			ipath "../include"
+			define POSIX_MISTAKE
+			file regcomp.c regexec.c regerror.c regfree.c
+		}
+		directory os/unix {
+			ipath "../../os/unix"
+			ipath "../../include"
+			file os.c os-inline.c
+		}
+		directory ap {
+			ipath "../os/unix"
+			ipath "../include"
+			file ap_cpystrn.c ap_execve.c ap_fnmatch.c ap_getpass.c 
+			file ap_md5c.c ap_signal.c ap_slack.c ap_snprintf.c 
+			file ap_sha1.c ap_checkpass.c ap_base64.c ap_ebcdic.c
+		}
+		directory modules/standard {
+			ipath "../../os/unix"
+			ipath "../../include"
+			file mod_env.c mod_log_config.c mod_mime.c
+			file mod_negotiation.c mod_status.c mod_include.c
+			file mod_autoindex.c mod_dir.c mod_cgi.c mod_asis.c
+			file mod_imap.c mod_actions.c mod_userdir.c
+			file mod_alias.c mod_access.c mod_auth.c mod_setenvif.c
+		}
+		directory . {
+			ipath "./os/unix"
+			ipath "./include"
+			file modules.c buildmark.c
+		}
+	}
+}
+</pre>
+</notes>

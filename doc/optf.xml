@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<notes>
+The link on the right of global options allows you to
+save the <em>CScout</em> global options into a file.
+A directory <code>.cscout</code> will be created in the
+current directory (if it does not already exist),
+and a file named options will be written in it,
+listing the options you specified.
+<p>
+When <em>CScout</em> starts-up it will attempt to load the <code>options</code>
+file by searching in
+<code>$CSCOUT_HOME</code>,
+<code>$HOME/.cscout</code>, or
+<code>.cscout</code> in the current directory.
+<p>
+The  <code>options</code> file is text based and contains key-value pairs.
+The order of the entries is not significant.
+This is an example of an <code>options</code> file.
+<pre>
+show_true: 1
+show_projects: 1
+show_identical_files: 1
+show_line_number: 0
+tab_width: 8
+rename_override_ro: 1
+refactor_fun_arg_override_ro: 1
+file_icase: 0
+entries_per_page: 20
+fname_in_context: 1
+sort_rev: 0
+cgraph_type: s
+cgraph_show: n
+fgraph_show: n
+cgraph_depth: 5
+fgraph_depth: 5
+cgraph_dot_url: 0
+sfile_re_string: sfile_repl_string:
+sfile_repl_string: entries_per_page:
+start_editor_cmd: start  C:\Progra~1\Vim\vim71\gvim.exe +/"%s" "%s"
+</pre>
+</notes>

@@ -1,0 +1,142 @@
+<?xml version="1.0" ?>
+<notes>
+Many C programs include parsing code in the form of <em>yacc</em> source files.
+<em>CScout</em> can directly process those files, allowing you
+to analyze and modify the identifiers used in those files.
+<em>CScout</em> determines whether a file is <em>yacc</em> source or
+plain C, by examining the file's suffix:
+file names ending in a lowercase '<code>y</code>' are considered
+to contain <em>yacc</em> source and processed accordingly.
+<p>
+<em>CScout</em> processes <em>yacc</em> files as follows:
+<ul>
+<li> All terminal and non-terminal names are considered to be
+defined as file-scoped identifiers in a special <em>yacc</em>-only
+namespace.
+<li> All terminal symbols are also marked as an undefined macro.
+Thus, processing the <em>yacc</em>-generated file <code>y.tab.h</code>
+immediately after the grammar (i.e. in the same scope) will
+unify the terminal symbols with the corresponding macro definitions
+throughout the program.
+<li> Members of the <code>%union</code> construct are defined as
+members of the <code>YYSTYPE</code> <code>union</code> <code>typedef</code>.
+These are then considered to be accessed in all
+<code>%type</code> and the precedence specification constructs,
+as well as the
+explicit type specification through the <code>$&lt;tag&gt;#</code> construct.
+<li> No <em>yacc</em>-specific macros (<code>yyerrok</code>,
+<code>YYABORT</code>,
+<code>YYACCEPT</code>, etc)
+are defined.
+Feel free to define anything required to silence <em>CScout</em>
+as a macro in the workspace definition file.
+</ul>
+<p>
+<em>CScout</em> is designed to process well-formed modern-style <em>yacc</em>
+files.
+All rules must be terminated with a semicolon
+(apparently this is optional in the original <em>yacc</em> version).
+The accepted grammar appears below.
+<pre>
+body:
+	defs '%%' rules tail
+	;
+
+tail:
+	/* Empty */
+	| '%%' c_code
+	;
+
+defs:
+	/* Empty */
+	| defs def
+	;
+
+def:
+	'%start' IDENTIFIER
+	| '%union' '{' member_declaration_list  '}' 
+	| '%{' c_code '%}'
+	| rword name_list_declaration
+	;
+
+rword:
+	'%token'
+	| '%left'
+	| '%right'
+	| '%nonassoc'
+	| '%type'
+	;
+
+tag:
+	/* Empty: union tag is optional */
+	| '<' IDENTIFIER '>'
+	;
+
+name_list_declaration:
+	tag name_number
+	| name_list_declaration opt_comma name_number
+	;
+
+opt_comma:
+	/* Empty */
+	| ','
+	;
+
+name_number:
+	name
+	| name INT_CONST
+	;
+
+name:
+	IDENTIFIER
+	| CHAR_LITERAL
+	;
+
+/* rules section */
+
+rules:
+	rule
+	| rules rule
+	;
+
+rule:
+	IDENTIFIER ':'  rule_body_list ';'
+	;
+
+rule_body_list:
+	rule_body
+	| rule_body_list '|' rule_body
+	;
+
+rule_body:
+	id_action_list prec
+	;
+
+id_action_list:
+	/* Empty */
+	| id_action_list name
+        | id_action_list '{' c_code '}' 
+	;
+
+prec:
+	/* Empty */
+	| '%prec' name
+	| '%prec' name  '{' c_code '}'
+	;
+
+variable:
+	'$$'
+	| '$' INT_CONST
+	| '$-' INT_CONST
+		{ $$ = basic(b_int); }
+	| '$<' IDENTIFIER '>' variable_suffix
+		{ $$ = $3; }
+	;
+
+variable_suffix:
+	'$'
+	| INT_CONST
+	| '-' INT_CONST
+	;
+</pre>
+</notes>
