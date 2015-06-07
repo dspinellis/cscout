@@ -8,7 +8,6 @@
  * The type-system structure
  * See also type2.h for derived classes depending on Stab
  *
- * $Id: type.h,v 1.48 2011/10/23 16:22:06 dds Exp $
  */
 
 #ifndef TYPE_

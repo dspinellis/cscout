@@ -9,7 +9,6 @@
  * Needed in order to correctly initialize aggregates containing arrays
  * The constant's value can be various types, but we fudge it to int
  *
- * $Id: ctconst.h,v 1.2 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef CTCONST_

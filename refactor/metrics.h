@@ -19,7 +19,6 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: metrics.h,v 1.33 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef METRICS_

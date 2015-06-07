@@ -19,7 +19,6 @@
  * process_char() or process_id() while going through each file
  * summarize_identifiers() at the end of each function
  *
- * $Id: funmetrics.h,v 1.16 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef FUNMETRICS_

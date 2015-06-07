@@ -3,7 +3,6 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: color.cpp,v 1.11 2006/06/11 21:44:18 dds Exp $
  */
 
 #include <iostream>

@@ -1,7 +1,6 @@
 /*
  * Calculate MD5 hashes.
  *
- * $Id: md5.h,v 1.2 2006/09/20 08:03:48 dds Exp $
  */
 
 #ifndef __MD5_INCLUDE__

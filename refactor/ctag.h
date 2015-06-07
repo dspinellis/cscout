@@ -7,7 +7,6 @@
  *
  * Create a ctags-compatible lookup file
  *
- * $Id: ctag.h,v 1.1 2011/10/23 16:22:34 dds Exp $
  */
 
 #ifndef CTAG_

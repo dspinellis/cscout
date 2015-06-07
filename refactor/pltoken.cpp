@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pltoken.cpp,v 1.18 2010/10/27 20:19:35 dds Exp $
  */
 
 #include <iostream>

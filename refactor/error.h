@@ -12,7 +12,6 @@
  * #include <string>
  * #include "tokid.h"
  *
- * $Id: error.h,v 1.9 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef ERROR_

@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: pdtoken.cpp,v 1.124 2011/10/23 16:22:06 dds Exp $
  */
 
 #include <iostream>

@@ -7,7 +7,6 @@
  *
  * Export the workspace database as an SQL script
  *
- * $Id: workdb.cpp,v 1.53 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>

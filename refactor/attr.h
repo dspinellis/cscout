@@ -7,7 +7,6 @@
  *
  * Equivalence class attributes.  Also used by token and tokid functions.
  *
- * $Id: attr.h,v 1.20 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef ATTR_

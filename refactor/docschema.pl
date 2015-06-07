@@ -2,7 +2,6 @@
 #
 # Document the database schema
 #
-# $Id: docschema.pl,v 1.7 2007/08/25 05:29:29 dds Exp $
 #
 
 sub
@@ -20,7 +19,6 @@ $dir =~ s,\/[^/]+$,/,;
 
 print '<?xml version="1.0" ?>
 <notes>
-<!-- Automatically generated file: $Id: docschema.pl,v 1.7 2007/08/25 05:29:29 dds Exp $ -->
 The following sections describe the
 schema of the database created through the SQL backend.
 ';

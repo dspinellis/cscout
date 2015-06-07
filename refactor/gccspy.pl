@@ -2,7 +2,6 @@
 #
 # Spy on gcc invocations and construct corresponding CScout directives
 #
-# $Id: gccspy.pl,v 1.2 2005/09/25 07:27:44 dds Exp $
 #
 # (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
 #

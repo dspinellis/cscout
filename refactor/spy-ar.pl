@@ -2,7 +2,6 @@
 #
 # Spy on ar invocations and construct corresponding CScout directives
 #
-# $Id: spy-ar.pl,v 1.1 2005/07/18 18:31:18 dds Exp $
 #
 # (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
 #

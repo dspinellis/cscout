@@ -8,7 +8,6 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.cpp,v 1.20 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>

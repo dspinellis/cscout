@@ -13,7 +13,6 @@
 #
 # Compile a project description into a C-file compilation script
 #
-# $Id: cswc.pl,v 1.21 2015/06/06 23:41:28 dds Exp $
 #
 
 # Syntax:

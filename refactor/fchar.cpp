@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fchar.cpp,v 1.44 2010/10/28 09:58:38 dds Exp $
  */
 
 #include <iostream>

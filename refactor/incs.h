@@ -9,7 +9,6 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: incs.h,v 1.3 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifdef __cplusplus

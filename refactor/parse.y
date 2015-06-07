@@ -19,7 +19,6 @@
  *    mechanism
  * 4) To handle typedefs
  *
- * $Id: parse.y,v 1.151 2015/06/06 09:04:06 dds Exp $
  *
  */
 

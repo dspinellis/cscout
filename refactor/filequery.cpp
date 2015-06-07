@@ -3,7 +3,6 @@
  *
  * Encapsulates a (user interface) file query
  *
- * $Id: filequery.cpp,v 1.3 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>

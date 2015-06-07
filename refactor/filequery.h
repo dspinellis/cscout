@@ -7,7 +7,6 @@
  *
  * Encapsulates a (user interface) file query
  *
- * $Id: filequery.h,v 1.5 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef FILEQUERY_

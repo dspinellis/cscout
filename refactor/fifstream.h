@@ -25,7 +25,6 @@
  * user    0m4.409s
  * sys     0m0.041s
  *
- * $Id: fifstream.h,v 1.5 2009/04/10 08:19:57 dds Exp $
  */
 
 #ifndef FIFSTREAM_

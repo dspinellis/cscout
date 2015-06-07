@@ -3,7 +3,6 @@
  *
  * Processing engine driver program
  *
- * $Id: engine.cpp,v 1.6 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <iostream>

@@ -7,7 +7,6 @@
  *
  * HTML utility functions
  *
- * $Id: html.cpp,v 1.9 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>

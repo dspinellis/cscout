@@ -7,7 +7,6 @@
  *
  * A pager for HTML output
  *
- * $Id: pager.h,v 1.4 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef PAGER_

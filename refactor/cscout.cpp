@@ -7,7 +7,6 @@
  *
  * Web-based interface for viewing and processing C code
  *
- * $Id: cscout.cpp,v 1.242 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>

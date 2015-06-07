@@ -7,7 +7,6 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.cpp,v 1.24 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>

@@ -7,7 +7,6 @@
  *
  * Function call graph information
  *
- * $Id: fcall.h,v 1.16 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef FCALL_

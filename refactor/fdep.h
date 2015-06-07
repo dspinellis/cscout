@@ -7,7 +7,6 @@
  *
  * File dependency monitoring
  *
- * $Id: fdep.h,v 1.13 2012/06/18 09:05:08 dds Exp $
  */
 
 #ifndef FDEP_

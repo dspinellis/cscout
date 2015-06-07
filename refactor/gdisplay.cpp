@@ -7,7 +7,6 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.cpp,v 1.5 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>

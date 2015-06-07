@@ -7,7 +7,6 @@
  *
  * A character coming from a token.
  *
- * $Id: tchar.h,v 1.8 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef TCHAR_

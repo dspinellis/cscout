@@ -1,6 +1,5 @@
 /* 
  * CScout ANSI C generic include file 
- * $Id: stddef.h,v 1.2 2003/06/18 17:35:52 dds Exp $
  */
 
 

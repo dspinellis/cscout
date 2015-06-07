@@ -8,7 +8,6 @@
  * A preprocessor lexical token.
  * The getnext() method for these tokens converts characters into tokens.
  *
- * $Id: pltoken.h,v 1.38 2010/10/27 20:19:35 dds Exp $
  */
 
 #ifndef PLTOKEN_

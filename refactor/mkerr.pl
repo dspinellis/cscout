@@ -1,7 +1,6 @@
 #
 # Generate the warning and error message list
 #
-# $Id: mkerr.pl,v 1.3 2003/06/21 16:18:28 dds Exp $
 #
 
 

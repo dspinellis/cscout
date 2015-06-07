@@ -10,7 +10,6 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: wdefs.h,v 1.1 2009/01/15 14:32:57 dds Exp $
  */
 
 #define __DATE__  "Jan 01 1970"

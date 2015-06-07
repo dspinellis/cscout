@@ -9,7 +9,6 @@
  * between the lexical analyzer and the preprocessor expression
  * evaluation parser.
  *
- * $Id: eval.h,v 1.4 2009/01/27 10:22:10 dds Exp $
  *
  */
 

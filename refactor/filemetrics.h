@@ -19,7 +19,6 @@
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
  *
- * $Id: filemetrics.h,v 1.28 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef FILEMETRICS_

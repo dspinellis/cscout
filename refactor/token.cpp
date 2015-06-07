@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: token.cpp,v 1.33 2011/10/23 19:37:33 dds Exp $
  */
 
 #include <iostream>

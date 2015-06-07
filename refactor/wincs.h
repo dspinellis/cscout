@@ -10,7 +10,6 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: wincs.h,v 1.1 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifdef __cplusplus

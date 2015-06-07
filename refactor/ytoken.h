@@ -9,7 +9,6 @@
  * Kept here to keep them in sync between the preprocessor expression
  * and the main grammar.
  *
- * $Id: ytoken.h,v 1.14 2009/01/15 14:32:57 dds Exp $
  */
 
 

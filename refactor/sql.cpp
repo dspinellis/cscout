@@ -7,7 +7,6 @@
  *
  * Portable SQL database abstraction
  *
- * $Id: sql.cpp,v 1.6 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <cstring>

@@ -7,7 +7,6 @@
  *
  * A globally defined/referenced object (variable or function)
  *
- * $Id: globobj.h,v 1.5 2015/06/06 23:41:28 dds Exp $
  *
  */
 

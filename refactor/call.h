@@ -7,7 +7,6 @@
  *
  * Function call graph information
  *
- * $Id: call.h,v 1.29 2015/06/06 23:41:28 dds Exp $
  */
 
 #ifndef CALL_

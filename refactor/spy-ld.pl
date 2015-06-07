@@ -2,7 +2,6 @@
 #
 # Spy on ld invocations and construct corresponding CScout directives
 #
-# $Id: spy-ld.pl,v 1.1 2005/07/18 18:31:18 dds Exp $
 #
 # (C) Copyright 2005 Diomidis Spinellis.  All rights reserved.
 #

@@ -8,7 +8,6 @@
  * Encapsulates an (user interface) identifier query
  * Can be used to evaluate against IdProp elements
  *
- * $Id: idquery.h,v 1.17 2009/03/14 21:34:38 dds Exp $
  */
 
 #ifndef IDQUERY_

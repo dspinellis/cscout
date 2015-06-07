@@ -7,7 +7,6 @@
  *
  * Portable graph display abstraction
  *
- * $Id: gdisplay.h,v 1.20 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef GDISPLAY_

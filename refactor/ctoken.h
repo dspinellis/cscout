@@ -9,7 +9,6 @@
  * The getnext() method for these tokens converts preprocessor tokens to C
  * tokens.
  *
- * $Id: ctoken.h,v 1.7 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef CTOKEN_

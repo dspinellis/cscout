@@ -15,7 +15,6 @@
 # included in this file
 # Create a CScout-compatible make.cs file
 #
-# $Id: csmake.pl,v 1.21 2009/06/18 21:34:12 dds Exp $
 #
 
 use Cwd 'abs_path';
@@ -205,7 +204,6 @@ sub spy
 #
 # Automatically-generated file
 #
-# Source file is $Id: csmake.pl,v 1.21 2009/06/18 21:34:12 dds Exp $
 #
 
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";

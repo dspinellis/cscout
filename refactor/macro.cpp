@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: macro.cpp,v 1.59 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <iostream>

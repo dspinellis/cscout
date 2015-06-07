@@ -19,7 +19,6 @@
  * #include "attr.h"
  * #include "metrics.h"
  *
- * $Id: fileid.h,v 1.44 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef FILEID_

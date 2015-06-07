@@ -9,7 +9,6 @@
  *
  * To create this file look at /usr/lib/gcc-lib/ * / * /specs
  *
- * $Id: mscincs.h,v 1.1 2009/01/15 14:32:57 dds Exp $
  */
 
 #pragma includepath "c:/program files/devstudio/vc/include"

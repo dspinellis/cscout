@@ -8,7 +8,6 @@
  * Based on a specification by Jutta Degener
  * (see older versions of the C grammar file)
  *
- * $Id: eval.y,v 1.19 2015/06/06 09:04:06 dds Exp $
  *
  */
 

@@ -7,7 +7,6 @@
  *
  * A user interface option
  *
- * $Id: option.cpp,v 1.18 2012/06/18 10:44:52 dds Exp $
  */
 
 #include <string>

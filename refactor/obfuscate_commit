@@ -3,7 +3,6 @@
 # Commit the obfuscated files overwriting the original ones
 # Can be tailored to do other things
 #
-# $Id: obfuscate_commit,v 1.2 2002/12/16 09:30:31 dds Exp $
 #
 find . -name '*.obf' -print |
 sed 's/^\(.*\).obf$/mv -f \1.obf \1\

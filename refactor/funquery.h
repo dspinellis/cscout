@@ -7,7 +7,6 @@
  *
  * Encapsulates a (user interface) function query
  *
- * $Id: funquery.h,v 1.19 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef FUNQUERY_

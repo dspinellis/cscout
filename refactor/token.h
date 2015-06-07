@@ -8,7 +8,6 @@
  * A lexical token.
  *
  *
- * $Id: token.h,v 1.25 2011/10/22 08:22:20 dds Exp $
  */
 
 #ifndef TOKEN_

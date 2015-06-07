@@ -5,7 +5,6 @@
 # Source Code License agreement (see License.txt).
 # If you do not agree to the terms, do not use the code.
 #
-# $Id: Makefile,v 1.174 2015/06/06 23:41:28 dds Exp $
 #
 
 # By default a production build is made.

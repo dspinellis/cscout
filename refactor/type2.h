@@ -9,7 +9,6 @@
  * Tsu (struct/union) depends on Stab which depends on Type, so we
  * split the type file into two.
  *
- * $Id: type2.h,v 1.35 2011/10/23 16:22:06 dds Exp $
  */
 
 #ifndef TYPE2_

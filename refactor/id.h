@@ -7,7 +7,6 @@
  *
  * An C identifier as returned by the lexical analyser of parsing phase.
  *
- * $Id: id.h,v 1.4 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef ID_

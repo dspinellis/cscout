@@ -1,7 +1,6 @@
 /*
  * Base-64 encoding and decoding.
  *
- * $Id: base64.c,v 1.2 2005/09/29 09:19:16 dds Exp $
  */
 
 /*
@@ -47,7 +46,6 @@
  */
 
 #if !defined(LINT)
-static const char rcsid[] = "$Id: base64.c,v 1.2 2005/09/29 09:19:16 dds Exp $";
 #endif /* not lint */
 
 #include <sys/types.h>

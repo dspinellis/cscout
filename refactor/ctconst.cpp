@@ -7,7 +7,6 @@
  *
  * Evaluation functions for the compile-time constants
  *
- * $Id: ctconst.cpp,v 1.3 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <string>

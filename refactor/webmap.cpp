@@ -3,7 +3,6 @@
  *
  * Color identifiers by their equivalence classes
  *
- * $Id: webmap.cpp,v 1.23 2006/06/18 19:34:46 dds Exp $
  */
 
 #include <map>
@@ -195,7 +194,6 @@ html_head(ofstream &of, const string fname, const string title)
 	of <<	"<!doctype html public \"-//IETF//DTD HTML//EN\">\n"
 		"<html>\n"
 		"<head>\n"
-		"<meta name=\"GENERATOR\" content=\"$Id: webmap.cpp,v 1.23 2006/06/18 19:34:46 dds Exp $\">\n"
 		"<title>" << title << "</title>\n"
 		"</head>\n"
 		"<body>\n"

@@ -7,7 +7,6 @@
 # If you do not agree to the terms, do not use the code.
 #
 #
-# $Id: runtest.sh,v 1.32 2015/06/06 21:26:24 dds Exp $
 #
 
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints

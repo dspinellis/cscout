@@ -9,7 +9,6 @@
  *
  * Include synopsis: version.h
  *
- * $Id: version.h,v 1.7 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef VERSION_

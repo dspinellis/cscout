@@ -7,7 +7,6 @@
  *
  * A pager for HTML output
  *
- * $Id: pager.cpp,v 1.6 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <string>

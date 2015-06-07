@@ -8,7 +8,6 @@
  * An identifier equivalence class.
  * Contains all tokids that belong to the same class
  *
- * $Id: eclass.h,v 1.25 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef ECLASS_

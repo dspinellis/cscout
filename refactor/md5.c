@@ -1,7 +1,6 @@
 /*
  * Calculate MD5 hashes.
  *
- * $Id: md5.c,v 1.6 2009/03/13 13:21:48 dds Exp $
  */
 
 

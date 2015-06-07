@@ -2,7 +2,6 @@
 #
 # Build the binaries on all supported platforms
 #
-# $Id: build.sh,v 1.3 2008/07/15 18:35:03 dds Exp $
 #
 
 # Windows

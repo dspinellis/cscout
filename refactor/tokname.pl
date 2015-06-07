@@ -8,7 +8,6 @@
 #
 # Create a token name map
 #
-# $Id: tokname.pl,v 1.9 2009/01/15 14:32:57 dds Exp $
 #
 
 open(IN, $ARGV[0]) || die;

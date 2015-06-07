@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: metrics.cpp,v 1.33 2012/05/24 14:07:52 dds Exp $
  */
 
 #include <iostream>

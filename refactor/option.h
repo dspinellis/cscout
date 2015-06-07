@@ -7,7 +7,6 @@
  *
  * A user interface option
  *
- * $Id: option.h,v 1.18 2009/03/14 21:34:38 dds Exp $
  */
 
 #ifndef OPTION_

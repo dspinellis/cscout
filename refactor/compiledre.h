@@ -8,7 +8,6 @@
  * Reference-counted compiled regular expressions
  * See the Handle class in Stroutrup's section 25.7
  *
- * $Id: compiledre.h,v 1.3 2009/01/15 14:32:57 dds Exp $
  *
  */
 

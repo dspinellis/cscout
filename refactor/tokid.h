@@ -20,7 +20,6 @@
  * they remain constant and with the same meaining throughout the program's
  * lifetime.
  *
- * $Id: tokid.h,v 1.28 2012/09/12 09:46:20 dds Exp $
  */
 
 #ifndef TOKID_

@@ -7,7 +7,6 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.h,v 1.13 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef QUERY_

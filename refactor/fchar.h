@@ -8,7 +8,6 @@
  * A character coming from a file.
  * This class also handles trigraphs and newline splicing.
  *
- * $Id: fchar.h,v 1.25 2010/10/28 09:58:38 dds Exp $
  */
 
 #ifndef FCHAR_

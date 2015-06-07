@@ -7,7 +7,6 @@
  *
  * Obfuscation function
  *
- * $Id: obfuscate.h,v 1.3 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef OBFUSCATE_

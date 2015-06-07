@@ -9,7 +9,6 @@
  * The debugpoint() macro should be used to efficiently disable debugging output
  * A debugpoint on a file's 0 line will enable all debugpoints for that file
  *
- * $Id: debug.h,v 1.10 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef DEBUG_

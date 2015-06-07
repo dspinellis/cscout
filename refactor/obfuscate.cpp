@@ -3,7 +3,6 @@
  *
  * Obfuscate a set of C files
  *
- * $Id: obfuscate.cpp,v 1.16 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <map>

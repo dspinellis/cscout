@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: tchar.cpp,v 1.16 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <iostream>

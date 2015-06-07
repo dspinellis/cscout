@@ -2,7 +2,6 @@
 #
 # Compare simple_cpp against cc
 #
-# $Id: cpp-test,v 1.2 2003/08/16 21:38:48 dds Exp $
 #
 
 gcc -ansi -E $1 | grep -v '^#' | grep -v '^[ 	]*$' >cc.out &&

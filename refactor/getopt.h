@@ -1,5 +1,4 @@
 /*
- * $Id: getopt.h,v 1.4 2008/12/04 15:19:06 dds Exp $
  */
 
 #ifndef GETOPT_

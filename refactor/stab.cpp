@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: stab.cpp,v 1.54 2012/09/21 07:56:03 dds Exp $
  */
 
 #include <map>

@@ -7,7 +7,6 @@
  *
  * Encapsulates the common parts of a (user interface) query
  *
- * $Id: query.cpp,v 1.12 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <map>

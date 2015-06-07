@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: ctoken.cpp,v 1.38 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <map>

@@ -82,5 +82,4 @@ any way.
 this license.
 
 
-License Version: $Id: License.txt,v 1.1 2009/01/15 17:13:07 dds Exp $
 

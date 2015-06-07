@@ -7,7 +7,6 @@
  *
  * The C symbol table
  *
- * $Id: stab.h,v 1.31 2009/03/14 21:34:38 dds Exp $
  */
 
 #ifndef STAB_

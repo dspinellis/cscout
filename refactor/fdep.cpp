@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fdep.cpp,v 1.14 2015/06/06 23:41:28 dds Exp $
  */
 
 #include <set>

@@ -8,7 +8,6 @@
  * Encapsulates a (user interface) metrics query part
  * Can be used to evaluate elements referenced through E against M metrics
  *
- * $Id: mquery.h,v 1.7 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef MQUERY_

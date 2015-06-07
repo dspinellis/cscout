@@ -8,7 +8,6 @@
  * Simple preprocessor.
  * Handles trigraphs, line splicing, comments, white space.
  *
- * $Id: simple_cpp.cpp,v 1.18 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <iostream>

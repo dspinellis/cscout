@@ -7,7 +7,6 @@
  *
  * Various CScout utility definitions.
  *
- * $Id: cpp.h,v 1.7 2009/01/15 14:32:57 dds Exp $
  */
 
 #ifndef CPP_H

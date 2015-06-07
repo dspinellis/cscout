@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: funmetrics.cpp,v 1.20 2012/05/24 14:07:52 dds Exp $
  */
 
 #include <iostream>

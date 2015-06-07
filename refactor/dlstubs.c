@@ -4,7 +4,6 @@
  *
  * See http://www.deer-run.com/~hal/sol-static.txt
  *
- * $Id: dlstubs.c,v 1.1 2005/05/18 15:56:28 dds Exp $
  *
  */
 

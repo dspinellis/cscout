@@ -7,7 +7,6 @@
  *
  * For documentation read the corresponding .h file
  *
- * $Id: fcall.cpp,v 1.24 2011/10/23 16:22:06 dds Exp $
  */
 
 #include <map>

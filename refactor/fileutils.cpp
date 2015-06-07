@@ -7,7 +7,6 @@
  *
  * File handling utilities
  *
- * $Id: fileutils.cpp,v 1.2 2009/01/15 14:32:57 dds Exp $
  */
 
 #include <string>

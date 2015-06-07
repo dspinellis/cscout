@@ -9,7 +9,6 @@
  * The getnext() method for these tokens performs preprocessor directives
  * on the lexical tokens.
  *
- * $Id: pdtoken.h,v 1.35 2010/10/27 20:19:35 dds Exp $
  */
 
 #ifndef PDTOKEN_
