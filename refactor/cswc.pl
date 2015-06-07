@@ -1,15 +1,21 @@
 #!/usr/bin/perl
 #
-# (C) Copyright 2003-2008 Diomidis Spinellis
+# (C) Copyright 2003-2015 Diomidis Spinellis
 #
-# This software is distributed under the terms of the CScout Public License
-# The license is available as part of the software documentation, both
-# in the distribution package and online http://www.spinellis.gr/cscout
+# This file is part of CScout.
 #
-# THE SOFTWARE AND ITS DOCUMENTATION ARE PROVIDED ``AS IS'' AND WITHOUT
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION,
-# THE IMPLIED WARRANTIES OF DESIGN, MERCHANTIBILITY, OR FITNESS FOR A
-# PARTICULAR PURPOSE.
+# CScout is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# CScout is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Compile a project description into a C-file compilation script
 #
@@ -55,14 +61,13 @@ if (!getopts('vEd:')) {
 }
 
 if ($opt_v) {
-	my $rel = '$Revision: 1.21 $';
-	$rel =~ s/\$//g;
-	print STDERR "cswc - CScout workspace compiler - $rel\n\n" .
+	print STDERR "cswc - CScout workspace compiler\n\n" .
 	# 80 column terminal width----------------------------------------------------
-	"(C) Copyright 2003-2008 Diomidis Spinelllis.\n\n" .
-	"Unsupported version.  Can be used and distributed under the terms of the\n" .
-	"CScout Public License available in the CScout documentation and online at\n" .
-	"http://www.spinellis.gr/cscout/doc/license.html\n";
+	"(C) Copyright 2003-2015 Diomidis Spinelllis.\n\n" .
+	"CScout is distributed as open source software under the GNU General Public\n" .
+	"License, available in the CScout documentation and online at\n" .
+	"http://www.gnu.org/licenses/.\n" .
+	"Other licensing options and professional support are available on request.\n";
 	exit(0);
 }
 

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2009 Diomidis Spinellis.  All rights reserved.
+ * (C) Copyright 2007-2015 Diomidis Spinellis
  *
  * You may only use this code if you agree to the terms of the CScout
  * Source Code License agreement (see License.txt).

@@ -1,9 +1,21 @@
 /*
- * (C) Copyright 2001-2009 Diomidis Spinellis.  All rights reserved.
+ * (C) Copyright 2001-2015 Diomidis Spinellis
  *
- * You may only use this code if you agree to the terms of the CScout
- * Source Code License agreement (see License.txt).
- * If you do not agree to the terms, do not use the code.
+ * This file is part of CScout.
+ *
+ * CScout is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CScout is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CScout.  If not, see <http://www.gnu.org/licenses/>.
+ *
  *
  * Web-based interface for viewing and processing C code
  *
@@ -2379,18 +2391,12 @@ version_info(bool html)
 	// 80 column terminal width---------------------------------------------------
 	"(c) Copyright 2003-" << (__DATE__ + string(__DATE__).length() - 4) <<
 				 // Current year
-	" Diomidis Spinelllis, Athens, Greece." << end <<
+	" Diomidis Spinelllis." << end <<
 	end <<
 	// C grammar
 	"Portions Copyright (c) 1989, 1990 James A. Roskind." << end <<
-	// Base64
-	"Portions Copyright (c) 1996-1999 by Internet Software Consortium." << end <<
-	"Portions Copyright (c) 1995 by International Business Machines, Inc." << end <<
 	// MD-5
 	"Portions derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm." << end <<
-	// Regex
-	"Portions Copyright (c) 1992 Henry Spencer." << end <<
-	"Portions Copyright (c) 1992, 1993 The Regents of the University of California." << end <<
 
 	"Includes the SWILL (Simple Web Interface Link Library) library written by David" << fold <<
 	"Beazley and Sotiria Lampoudi.  Copyright (c) 1998-2002 University of Chicago." << fold <<
@@ -2398,18 +2404,16 @@ version_info(bool html)
 	"version 2.1 available " <<
 	(html ? "<a href=\"http://www.gnu.org/licenses/lgpl-2.1.html\">online</a>." : "online at http://www.gnu.org/licenses/lgpl-2.1.html.") << end <<
 
-	"Includes code written by " <<
-	"Henry Spencer." <<		// getopt
 	end <<
-	end <<
-
-	"Unsupported version.  Can be used and distributed under the terms of the" << end <<
-	"CScout Public License available in the CScout documentation and ";
+	"CScout is distributed as open source software under the GNU" << fold <<
+	"General Public License, available in the CScout documentation and ";
 	if (html)
-		v << "<a href=\"http://www.spinellis.gr/cscout/doc/license.html\">online</a>.";
+		v << "<a href=\"http://www.gnu.org/licenses/\">online</a>.";
 	else
 		v << "online at" << end <<
-		"http://www.spinellis.gr/cscout/doc/license.html." << end;
+		"http://www.gnu.org/licenses/." << end;
+	v << "Other licensing options and professional support are available"
+		"on request." << end;
 	return v.str();
 }
 

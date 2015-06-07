@@ -1,15 +1,21 @@
 #!/usr/bin/perl
 #
-# (C) Copyright 2006-2009 Diomidis Spinellis
+# (C) Copyright 2006-2015 Diomidis Spinellis
 #
-# This software is distributed under the terms of the CScout Public License
-# The license is available as part of the software documentation, both
-# in the distribution package and online http://www.spinellis.gr/cscout
+# This file is part of CScout.
 #
-# THE SOFTWARE AND ITS DOCUMENTATION ARE PROVIDED ``AS IS'' AND WITHOUT
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION,
-# THE IMPLIED WARRANTIES OF DESIGN, MERCHANTIBILITY, OR FITNESS FOR A
-# PARTICULAR PURPOSE.
+# CScout is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# CScout is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Run make with gcc, cc, ld, ar, mv replaced with spying versions
 # included in this file

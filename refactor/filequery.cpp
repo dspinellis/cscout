@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2003 Diomidis Spinellis.
+ * (C) Copyright 2001-2015 Diomidis Spinellis.
  *
  * Encapsulates a (user interface) file query
  *
