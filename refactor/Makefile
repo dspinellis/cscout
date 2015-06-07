@@ -31,7 +31,7 @@ LDFLAGS=-Llib
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
 ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
 parse.o type.o stab.o attr.o metrics.o version.o \
-getopt.o error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
+error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
 logo.o workdb.o obfuscate.o sql.o md5.o os.o pager.o \
 option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
 dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o timer.o
@@ -64,7 +64,7 @@ DISTSRC=License.txt attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
 	tclfuns.cpp token.cpp token.h tokid.cpp \
 	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
 	type2.h wdefs.h wincs.h workdb.cpp ytab.h ytoken.h \
-	version.h getopt.c getopt.h fdep.cpp \
+	version.h fdep.cpp \
 	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
 	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
 	workdb.h obfuscate.h dlstubs.c sql.cpp sql.h fifstream.h compiledre.h \

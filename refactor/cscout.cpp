@@ -40,10 +40,10 @@
 #include <cstdlib>		// atoi
 #include <cerrno>		// errno
 
-#include "swill.h"
-#include "getopt.h"
-
+#include <getopt.h>
 #include <regex.h>
+
+#include "swill.h"
 
 #include "cpp.h"
 #include "debug.h"
