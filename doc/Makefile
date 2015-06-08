@@ -1,9 +1,6 @@
 #
 # $Id: Makefile,v 1.2 2011/10/23 16:17:57 dds Exp $
 #
-#UXHOST=spiti
-UXHOST=istlab
-#DESTDIR="c:/tmp/cscout"
 DESTDIR="/dds/pubs/web/home/cscout"
 NOTETOOLS=/dds/pubs/courses/tools
 
@@ -36,13 +33,13 @@ all: mancscout.xml mancswc.xml dbschema.xml
 mancscout.xml: ../man/cscout.1
 	echo '<?xml version="1.0" ?>' >mancscout.xml
 	echo '<notes>' >>mancscout.xml
-	plink $(UXHOST) groff -mhtml -Thtml -man <../man/cscout.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancscout.xml
+	groff -mhtml -Thtml -man <../man/cscout.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancscout.xml
 	echo '</notes>' >>mancscout.xml
 
 mancswc.xml: ../man/cswc.1
 	echo '<?xml version="1.0" ?>' >mancswc.xml
 	echo '<notes>' >>mancswc.xml
-	plink $(UXHOST) groff -mhtml -Thtml -man <../man/cswc.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancswc.xml
+	groff -mhtml -Thtml -man <../man/cswc.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancswc.xml
 	echo '</notes>' >>mancswc.xml
 
 dbschema.xml: ../refactor/workdb.cpp ../refactor/metrics.cpp ../refactor/docschema.pl
