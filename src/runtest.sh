@@ -312,9 +312,9 @@ done
 # Set host-dependent variables
 NULL=/dev/null
 TMP=/tmp
+CSCOUT=$(dirname $0)/build/cscout
 case `hostname` in
 macpro)
-	CSCOUT=/cygdrive/c/dds/src/research/cscout/refactor/i386/cscout
 	HSQLDB="java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc"
 	IPATH=/dds/src/research/CScout/include
 	DOTCSCOUT=/dds/src/research/CScout/example/.cscout
@@ -322,7 +322,6 @@ macpro)
 	TMP=.
 	;;
 sense|medusa)
-	CSCOUT=$HOME/src/cscout/sparc/cscout
 	HSQLDB="java -classpath $HOME/lib/hsqldb/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HOME/lib/hsqldb/sqltool.rc"
 	IPATH=$HOME/src/include
 	CPPTESTS=$HOME/src/cscout/test/cpp
@@ -337,7 +336,8 @@ esac
 # See that we are running a version of CScout that supports SQL dumps
 :>$TMP/empty
 $CSCOUT -s hsqldb $CSFILE $TMP/empty 2>$NULL >$NULL || {
-	echo 'CScout is not compiled with DEBUG=1 or LICENSEE=...' 1>&2
+	echo 'CScout HSQLDB execution failed' 1>&2
+	rm -f $TMP/empty
 	exit 1
 }
 rm -f $TMP/empty
