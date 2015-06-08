@@ -21,7 +21,7 @@ NOTETOOLS=/dds/pubs/courses/tools
 
 all: mancscout.xml mancswc.xml dbschema.xml
 	rm -f style.css
-	cp ../refactor/style.css .
+	cp ../src/style.css .
 	chmod 666 style.css
 	cat local.css >>style.css
 	chmod 444 style.css
@@ -42,7 +42,7 @@ mancswc.xml: ../man/cswc.1
 	groff -mhtml -Thtml -man <../man/cswc.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancswc.xml
 	echo '</notes>' >>mancswc.xml
 
-dbschema.xml: ../refactor/workdb.cpp ../refactor/metrics.cpp ../refactor/docschema.pl
-	perl ../refactor/docschema.pl ../refactor/workdb.cpp >dbschema.xml
+dbschema.xml: ../src/workdb.cpp ../src/metrics.cpp ../src/docschema.pl
+	perl ../src/docschema.pl ../src/workdb.cpp >dbschema.xml
 clean:
 	rm ${UH}/${DESTDIR}/*
