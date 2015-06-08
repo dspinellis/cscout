@@ -1,7 +1,6 @@
 <?xml version="1.0" ?>
 <notes>
-The supported version of <em>CScout</em> can convert a workspace into
-an obfuscated version.
+<em>CScout</em> can convert a workspace into an obfuscated version.
 The obfuscated version of the workspace can be distributed instead
 of the original C source, and can be compiled on different processor
 architectures and operating systems,

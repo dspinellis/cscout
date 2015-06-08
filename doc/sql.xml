@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <notes>
-The supported version of <em>CScout</em> can dump the relationships of
+<em>CScout</em> can dump the relationships of
 an entire workspace in the form of a SQL script.
 This can then be uploaded into a relational database for further
 querying and processing.

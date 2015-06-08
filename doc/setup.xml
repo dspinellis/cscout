@@ -20,14 +20,6 @@ program in the executable file path, and a Web browser supporting,
 directly or via a plugin, the display of SVG (scalable vector graphics)
 content.
 <li> Be able to retrieve Web content from the Internet without a proxy<br>
-(The free unsupported version of <em>CScout</em> will `phone home' when run
-on relatively large workspaces, registering the workspace for
-public browsing, while your <em>CScout</em> is running.
-Only file list and source-code browsing facilities are provided to the
-public;
-source modification, option changes, and the resource-hungry
-identifier queries are only allowed when accessing <em>CScout</em>
-from the local host.)
 </ul>
 
 <h2>Installation and Configuration</h2>

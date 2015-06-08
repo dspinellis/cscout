@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <notes>
-The unsupported version of <em>CScout</em> allows any machine
+By default <em>CScout</em> allows any machine
 from the Internet to connect to your server for casual browsing.
 Operations requiring substantial CPU resources, or operations that
 will modify source files or will change the <em>CScout</em> execution
 environment can only be performed from the local host.
 <p>
-The supported version of <em>CScout</em> features an access control list.
+To prevent this <em>CScout</em> features an access control list.
 The list is specified in a file called <code>acl</code> which
 should be located in 
 <code>$CSCOUT_HOME</code>,

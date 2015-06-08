@@ -6,7 +6,6 @@
 <a href="#SYNOPSIS">SYNOPSIS</a><br>
 <a href="#DESCRIPTION">DESCRIPTION</a><br>
 <a href="#OPTIONS">OPTIONS</a><br>
-<a href="#MORE OPTIONS">MORE OPTIONS</a><br>
 <a href="#EXAMPLE">EXAMPLE</a><br>
 <a href="#SEE ALSO">SEE ALSO</a><br>
 <a href="#AUTHOR">AUTHOR</a><br>
@@ -14,15 +13,17 @@
 <hr>
 
 
+<h2>NAME
 <a name="NAME"></a>
-<h2>NAME</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">cscout -
 C code analyzer and refactoring browser</p>
 
+<h2>SYNOPSIS
 <a name="SYNOPSIS"></a>
-<h2>SYNOPSIS</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>cscout</b>
@@ -30,12 +31,11 @@ C code analyzer and refactoring browser</p>
 H</b>] [<b>-l</b> <i>log file</i>] [<b>-p</b>
 <i>port</i>] [<b>-m</b> <i>specification</i>]
 [<b>-o</b> | <b>-s</b> <i>db</i>]
-[<b>-H</b> <i>proxy host</i>] [<b>-P</b>
-<i>proxy host port</i>] [<b>-A</b>
-<i>username</i>:<i>password</i>] <i>file</i></p>
+<i>file</i></p>
 
+<h2>DESCRIPTION
 <a name="DESCRIPTION"></a>
-<h2>DESCRIPTION</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em"><i>CScout</i>
@@ -56,110 +56,106 @@ namespaces.</p>
 <p style="margin-left:11%; margin-top: 1em"><i>CScout</i>
 as a source code analyzer can:</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">annotate source
-code with hyperlinks to each identifier</p></td>
+<p>annotate source code with hyperlinks to each
+identifier</p> </td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">list files that
-would be affected by changing a specific identifier</p></td>
+<p>list files that would be affected by changing a specific
+identifier</p> </td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">determine whether a
-given identifier belongs to the application or to an
-external library based on the accessibility and location of
-the header files that declare or define it</p></td>
+<p>determine whether a given identifier belongs to the
+application or to an external library based on the
+accessibility and location of the header files that declare
+or define it</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">locate unused
-identifiers taking into account inter-project
-dependencies</p> </td>
+<p>locate unused identifiers taking into account
+inter-project dependencies</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">perform queries for
-identifiers based on their namespace, scope, reachability,
-and regular expressions of their name and the filename(s)
-they are found in,</p></td>
+<p>perform queries for identifiers based on their
+namespace, scope, reachability, and regular expressions of
+their name and the filename(s) they are found in,</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">perform queries for
-files, based on their metrics, or properties of the
-identifiers they contain</p></td>
+<p>perform queries for files, based on their metrics, or
+properties of the identifiers they contain</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">monitor and report
-superfluously included header files</p></td>
+<p>monitor and report superfluously included header
+files</p> </td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">provide accurate
-metrics on identifiers and files</p></td>
+<p>provide accurate metrics on identifiers and files</p></td></tr>
 </table>
 
 <p style="margin-left:11%; margin-top: 1em">More
@@ -169,63 +165,61 @@ perform accurate global <i>rename identifier</i>
 refactorings. <i>CScout</i> will automatically rename
 identifiers</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p style="margin-top: 1em">&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">taking into account
-the namespace of each identifier: a renaming of a structure
-tag, member, or a statement label will not affect variables
-with the same name</p></td>
+<p style="margin-top: 1em">taking into account the
+namespace of each identifier: a renaming of a structure tag,
+member, or a statement label will not affect variables with
+the same name</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">respecting the
-scope of the renamed identifier: a rename can affect
-multiple files, or variables within a single block, exactly
-matching the semantics the C compiler would enforce</p></td>
+<p>respecting the scope of the renamed identifier: a rename
+can affect multiple files, or variables within a single
+block, exactly matching the semantics the C compiler would
+enforce</p> </td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">across multiple
-projects when the same identifier is defined in common
-shared include files</p></td>
+<p>across multiple projects when the same identifier is
+defined in common shared include files</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&#8226;</p></td>
+<p>&#8226;</p></td>
 <td width="5%"></td>
 <td width="83%">
 
 
-<p style="margin-top: 1em" valign="top">occuring in macro
-bodies and <i>parts</i> of other identifiers, when these are
-created through the C preprocessor&rsquo;s token
-concatenation feature</p></td>
+<p>occuring in macro bodies and <i>parts</i> of other
+identifiers, when these are created through the C
+preprocessor&rsquo;s token concatenation feature</p></td></tr>
 </table>
 
 <p style="margin-left:11%; margin-top: 1em">This manual
@@ -235,89 +229,81 @@ configuration can be found in the online hypertext
 documentation and at the project&rsquo;s home page
 http://www.spinellis.gr/cscout.</p>
 
+<h2>OPTIONS
 <a name="OPTIONS"></a>
-<h2>OPTIONS</h2>
+</h2>
 
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="6%">
 
 
-
-<p style="margin-top: 1em" valign="top"><b>-C</b></p> </td>
+<p style="margin-top: 1em"><b>-C</b></p></td>
 <td width="5%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Create a
-<i>ctags</i>-compatible tags file. Tens of editors and other
-tools can utilize tags to help you navigate through the
-code. In contrast to other tag generation tools, the file
-that <i>CScout</i> creates also includes information about
-entities dynamically generated through macros.</p></td>
+<p style="margin-top: 1em">Create a <i>ctags</i>-compatible
+tags file. Tens of editors and other tools can utilize tags
+to help you navigate through the code. In contrast to other
+tag generation tools, the file that <i>CScout</i> creates
+also includes information about entities dynamically
+generated through macros.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="6%">
 
 
-
-<p style="margin-top: 1em" valign="top"><b>-c</b></p> </td>
+<p><b>-c</b></p></td>
 <td width="5%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Exit immediately
-after processing the specified files. Useful, when you
-simply want to check the source code for errors or when you
-want to create a <i>tags</i> file.</p></td>
+<p>Exit immediately after processing the specified files.
+Useful, when you simply want to check the source code for
+errors or when you want to create a <i>tags</i> file.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="6%">
 
 
-<p style="margin-top: 1em" valign="top"><b>-d
-D</b></p> </td>
+<p><b>-d D</b></p></td>
 <td width="5%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Display the
-<tt>#define</tt> directives being processed on the standard
-output.</p> </td>
+<p>Display the <tt>#define</tt> directives being processed
+on the standard output.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="6%">
 
 
-<p style="margin-top: 1em" valign="top"><b>-d
-H</b></p> </td>
+<p><b>-d H</b></p></td>
 <td width="5%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Display the (mainly
-header) files being included on the standard output. Each
-line is prefixed by a number of dots indicating the depth of
-the included file stack.</p></td>
+<p>Display the (mainly header) files being included on the
+standard output. Each line is prefixed by a number of dots
+indicating the depth of the included file stack.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="6%">
 
 
-
-<p style="margin-top: 1em" valign="top"><b>-E</b></p> </td>
+<p><b>-E</b></p></td>
 <td width="5%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Preprocess the
-specified file and send the result to the standard output.
-Note that for this option to work correctly, you need to
-also process the workspace definition file with
-<b>-E</b>.</p> </td>
+<p>Preprocess the specified file and send the result to the
+standard output. Note that for this option to work
+correctly, you need to also process the workspace definition
+file with <b>-E</b>.</p></td></tr>
 </table>
 
 <p style="margin-left:11%;"><b>-p</b> <i>port</i></p>
@@ -336,64 +322,60 @@ specification is given using the syntax:
 Y<b>|</b>L<b>|</b>E<b>|</b>T<b>[:</b><i>attr1</i><b>][:</b><i>attr2</i><b>]</b><i>...
 The meaning of the first letter is:</i></p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="3%">
 
 
-<p style="margin-top: 1em" valign="top"><i>Y:</i></p></td>
+<p><i>Y:</i></p></td>
 <td width="3%"></td>
 <td width="62%">
 
 
-<p style="margin-top: 1em" valign="top">Match any of the
-specified attributes</p></td>
+<p>Match any of the specified attributes</p></td>
 <td width="15%">
-</td>
+</td></tr>
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="3%">
 
 
-<p style="margin-top: 1em" valign="top">L:</p></td>
+<p>L:</p></td>
 <td width="3%"></td>
 <td width="62%">
 
 
-<p style="margin-top: 1em" valign="top">Match all of the
-specified attributes</p></td>
+<p>Match all of the specified attributes</p></td>
 <td width="15%">
-</td>
+</td></tr>
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="3%">
 
 
-<p style="margin-top: 1em" valign="top">E:</p></td>
+<p>E:</p></td>
 <td width="3%"></td>
 <td width="62%">
 
 
-<p style="margin-top: 1em" valign="top">Exclude the
-specified attributes matched</p></td>
+<p>Exclude the specified attributes matched</p></td>
 <td width="15%">
-</td>
+</td></tr>
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="3%">
 
 
-<p style="margin-top: 1em" valign="top">T:</p></td>
+<p>T:</p></td>
 <td width="3%"></td>
 <td width="62%">
 
 
-<p style="margin-top: 1em" valign="top">Exact match of the
-specified attributes</p></td>
+<p>Exact match of the specified attributes</p></td>
 <td width="15%">
-</td>
+</td></tr>
 </table>
 
 <p style="margin-left:11%; margin-top: 1em">Allowable
@@ -407,80 +389,76 @@ attribute names and their corresponding meanings are:</p>
 
 <p style="margin-left:28%;">Writable identifier</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="6%">
 
 
-<p style="margin-top: 1em" valign="top">ro:</p></td>
+<p>ro:</p></td>
 <td width="5%"></td>
 <td width="41%">
 
 
-<p style="margin-top: 1em" valign="top">Read-only
-identifier</p> </td>
+<p>Read-only identifier</p></td>
 <td width="31%">
-</td>
+</td></tr>
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="6%">
 
 
-<p style="margin-top: 1em" valign="top">tag:</p></td>
+<p>tag:</p></td>
 <td width="5%"></td>
 <td width="41%">
 
 
-<p style="margin-top: 1em" valign="top">Tag for a
-struct/union/enum</p> </td>
+<p>Tag for a struct/union/enum</p></td>
 <td width="31%">
-</td>
+</td></tr>
 </table>
 
 <p style="margin-left:17%;">member:</p>
 
 <p style="margin-left:28%;">Member of a struct/union</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="9%">
 
 
-<p style="margin-top: 1em" valign="top">label:</p></td>
+<p>label:</p></td>
 <td width="2%"></td>
 <td width="72%">
 
 
-<p style="margin-top: 1em" valign="top">Label</p></td>
+<p>Label</p></td></tr>
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="9%">
 
 
-<p style="margin-top: 1em" valign="top">obj:</p></td>
+<p>obj:</p></td>
 <td width="2%"></td>
 <td width="72%">
 
 
-<p style="margin-top: 1em" valign="top">Ordinary identifier
-(note that enumeration constants and typedefs belong to the
-ordinary identifier namespace)</p></td>
+<p>Ordinary identifier (note that enumeration constants and
+typedefs belong to the ordinary identifier namespace)</p></td></tr>
 <tr valign="top" align="left">
 <td width="17%"></td>
 <td width="9%">
 
 
-<p style="margin-top: 1em" valign="top">macro:</p></td>
+<p>macro:</p></td>
 <td width="2%"></td>
 <td width="72%">
 
 
-<p style="margin-top: 1em" valign="top">Preprocessor
-macro</p> </td>
+<p>Preprocessor macro</p></td></tr>
 </table>
 
 <p style="margin-left:17%;">umacro:</p>
@@ -522,98 +500,65 @@ identifier shared between different files. Since the
 is processed, the locations where an identifier is found may
 be misrepresented.</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="3%">
 
 
-
-<p style="margin-top: 1em" valign="top"><b>-r</b></p> </td>
+<p><b>-r</b></p></td>
 <td width="8%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Report on the
-standard error output warnings about unused and wrongly
-scoped identifiers and unused included files. The error
-message format is compatible with <i>gcc</i> and can
-therefore be automatically processed by editors that
-recognize this format.</p></td>
+<p>Report on the standard error output warnings about
+unused and wrongly scoped identifiers and unused included
+files. The error message format is compatible with
+<i>gcc</i> and can therefore be automatically processed by
+editors that recognize this format.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="3%">
 
 
-
-<p style="margin-top: 1em" valign="top"><b>-v</b></p> </td>
+<p><b>-v</b></p></td>
 <td width="8%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Display the
-<i>CScout</i> version and copyright information and
-exit.</p> </td>
+<p>Display the <i>CScout</i> version and copyright
+information and exit.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="3%">
 
 
-
-<p style="margin-top: 1em" valign="top"><b>-3</b></p> </td>
+<p><b>-3</b></p></td>
 <td width="8%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Implement support
-for trigraph characters.</p></td>
+<p>Implement support for trigraph characters.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p><b>-b</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>Operate in multiuser browse-only mode. In this mode the
+web server can concurrently process multiple requests. All
+web operations that can affect the server&rsquo;s
+functioning (such as setting the various options, renaming
+identifiers, refactoring function arguments, selecting a
+project, editing a file, or terminating the server) are
+prohibited. Call graphs are truncated to 1000 elements
+(nodes or edges).</p></td></tr>
 </table>
-
-<a name="MORE OPTIONS"></a>
-<h2>MORE OPTIONS</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">The following
-options are only available on the version of <i>CScout</i>
-available through a support license.</p>
-
-<table width="100%" border=0 rules="none" frame="void"
-       cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="3%">
-
-
-
-<p style="margin-top: 1em" valign="top"><b>-b</b></p> </td>
-<td width="8%"></td>
-<td width="78%">
-
-
-<p style="margin-top: 1em" valign="top">Operate in
-multiuser browse-only mode. In this mode the web server can
-concurrently process multiple requests. All web operations
-that can affect the server&rsquo;s functioning (such as
-setting the various options, renaming identifiers,
-refactoring function arguments, selecting a project, editing
-a file, or terminating the server) are prohibited. Call
-graphs are truncated to 1000 elements (nodes or edges).</p></td>
-</table>
-
-<p style="margin-left:11%;"><b>-H</b> <i>proxy
-host</i></p>
-
-<p style="margin-left:22%;">Specify a proxy HTTP host for
-connecting to the program&rsquo;s auditing and licensing
-server.</p>
-
-<p style="margin-left:11%;"><b>-P</b> <i>proxy host
-port</i></p>
-
-<p style="margin-left:22%;">Specify the proxy HTTP host
-port for connecting to the program&rsquo;s auditing and
-licensing server. The default port is 80.</p>
 
 <p style="margin-left:11%;"><b>-s</b> <i>database
 dialect</i></p>
@@ -622,38 +567,31 @@ dialect</i></p>
 an SQL script. Specify <i>help</i> as the database dialect
 to obtain a list of supported database back-ends.</p>
 
-<p style="margin-left:11%;"><b>-A</b>
-<i>username</i>:<i>password</i></p>
-
-<p style="margin-left:22%;">Specify a proxy host
-authorization username and password for connecting to the
-program&rsquo;s auditing and licensing server.</p>
-
 <p style="margin-left:11%;"><b>-l</b> <i>log
 file</i></p>
 
 <p style="margin-left:22%;">Specify the location of a file
 where web requests will be logged.</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="3%">
 
 
-
-<p style="margin-top: 1em" valign="top"><b>-o</b></p> </td>
+<p><b>-o</b></p></td>
 <td width="8%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">Create obfuscated
-versions of all the writable files of the workspace.</p></td>
+<p>Create obfuscated versions of all the writable files of
+the workspace.</p></td></tr>
 </table>
 
+<h2>EXAMPLE
 <a name="EXAMPLE"></a>
-<h2>EXAMPLE</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">Assume you want
@@ -727,17 +665,19 @@ Processing identifiers
 We are now ready to serve you at http://localhost:8081</pre>
 
 
+<h2>SEE ALSO
 <a name="SEE ALSO"></a>
-<h2>SEE ALSO</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">cswc(1)</p>
 
+<h2>AUTHOR
 <a name="AUTHOR"></a>
-<h2>AUTHOR</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">(c) Copyright
-2003-2011 Diomidis Spinellis.</p>
+2003-2015 Diomidis Spinellis.</p>
 <hr>
 </notes>

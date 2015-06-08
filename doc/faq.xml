@@ -157,31 +157,5 @@ Finally, note that the International Scout movement's
 rendering of the image includes two stars on the left and right leaves.
 CScout's logo does not contain this distinctive feature.
 
-<!-- ******************************************************* -->
-<a name="crit"> </a><h2>When does <em>CScout</em> phone home?</h2>
-<em>CScout</em> will contact its home base after processing 2MB of source code
-(including headers), or if the processing time exceeds 10s.
-These limits allow you to process the supplied <em>awk</em>
-source code, or experiment with files including windows.h
-
-<!-- ******************************************************* -->
-<a name="det"> </a><h2>What details does <em>CScout</em> send when calling its home base?</h2>
-Your name, address, and credit card number :-)
-<p>
-Seriously, the data sent to our server consists of
-</p>
-<ul>
-<li> your workspace's file metrics</li>
-<li> your workspace's identifier metrics</li>
-<li> up to 10 project names you have specified</li>
-<li> up to 50 names of cross-file identifiers</li>
-<li> the version of <em>CScout</em> you are running</li>
-<li> your host name</li>
-<li> a random number, part of a simple challenge-response authentication.</li>
-</ul>
-<p>
-The authentication system is really a child's toy,
-even an idiot would be able to hack it, so don't bother.
-</p>
 
 </notes>

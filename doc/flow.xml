@@ -9,7 +9,7 @@ the thin-lined objects depict data.
 of a processing script.
 After some user interactions through a web browser <em>CScout</em> can
 write out the modified source code.
-The supported version of <em>CScout</em> can also convert the C source code
+<em>CScout</em> can also convert the C source code
 into an SQL script that can be further analyzed and processesed through
 an RDBMS.
 <p />

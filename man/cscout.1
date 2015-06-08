@@ -23,9 +23,6 @@ cscout \- C code analyzer and refactoring browser
 [\fB\-p\fP \fIport\fP]
 [\fB\-m\fP \fIspecification\fP]
 [\fB\-o\fP | \fB\-s\fP \fIdb\fP]
-[\fB\-H\fP \fIproxy host\fP]
-[\fB\-P\fP \fIproxy host port\fP]
-[\fB\-A\fP \fIusername\fP:\fIpassword\fP]
 \fIfile\fR
 .SH DESCRIPTION
 \fICScout\fP is a source code analyzer and refactoring browser for collections
@@ -195,9 +192,6 @@ format.
 Display  the \fICScout\fP version and copyright information and exit.
 .IP "\fB\-3\fP"
 Implement support for trigraph characters.
-.SH MORE OPTIONS
-The following options are only available on the
-version of \fICScout\fP available through a support license.
 .IP "\fB\-b\fP"
 Operate in multiuser browse-only mode.
 In this mode the web server can concurrently process multiple requests.
@@ -206,20 +200,10 @@ All web operations that can affect the server's functioning
 refactoring function arguments, selecting a project, editing a file,
 or terminating the server) are prohibited.
 Call graphs are truncated to 1000 elements (nodes or edges).
-.IP "\fB\-H\fP \fIproxy host\fP"
-Specify a proxy HTTP host for connecting to the program's
-auditing and licensing server.
-.IP "\fB\-P\fP \fIproxy host port\fP"
-Specify the proxy HTTP host port for connecting to the program's
-auditing and licensing server.
-The default port is 80.
 .IP "\fB\-s\fP \fIdatabase dialect\fP"
 Dump the workspace contents as an SQL script.
 Specify \fIhelp\fP as the database dialect to obtain a list of
 supported database back-ends.
-.IP "\fB\-A\fP \fIusername\fP:\fIpassword\fP"
-Specify a proxy host authorization username and password
-for connecting to the program's auditing and licensing server.
 .IP "\fB\-l\fP \fIlog file\fP"
 Specify the location of a file where web requests will be logged.
 .IP "\fB\-o\fP"

@@ -98,17 +98,10 @@ From that point onward your <em>CScout</em> contact is the Web browser
 interface;
 only fatal errors and progress indicators will appear on <em>CScout</em>'s
 standard output.
-Depending on the version of <em>CScout</em> you have, you may also be
+Depending on the access control list specified, you may also be
 able to perform some operations over the network.
 However, since <em>CScout</em> operates as a single-threaded process,
 you may experience delays when another user sends a complex query.
-<p>
-When <em>CScout</em> processes a large project it will contact our server
-over the Web to say hello.
-The unsupported version will also send us the identifier and file metrics of
-the project it has processed and register your <em>CScout</em>
-project for public browsing over the Web (the unsupported version is licensed
-only for use on free open-source software).
 
 <h2>Preprocessor invocation</h2>
 As an aid for configuring <em>CScout</em> for a different compiler
