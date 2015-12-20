@@ -363,7 +363,7 @@ then
 	FILES=`cd test/cpp; echo *.c`
 	for i in $FILES
 	do
-		makecs_cpp $i
+		makecs_cpp test/cpp/$i
 		runtest_cpp $i . makecs.cs
 	done
 	runtest_cpp include_next test/inext driver.cs
