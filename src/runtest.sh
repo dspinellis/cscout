@@ -44,7 +44,7 @@ end_compare()
 	fi
 	if { test -r test/out/$NAME.err &&
 	     diff -ib test/out/$NAME.out test/nout/$NAME.out &&
-	     diff -ib <(sed "s|[^ ]*$(pwd)||i" test/out/$NAME.err) \
+	     diff -ib test/out/$NAME.err \
 	       <(sed "s|[^ ]*$(pwd)||i" test/nout/$NAME.err) ; } ||
 	   { test -r test/out/$NAME &&
 	     diff -ib test/out/$NAME test/nout/$NAME ; }
@@ -413,6 +413,12 @@ fi
 if [ "$PRIME" = "1" ]
 then
 	cp test/nout/* test/out
+	# Remove absolute path from error files
+	cd test/nout
+	for i in *.err ; do
+	       sed "s|[^ ]*$(cd .. ; pwd)||i" $i >../test/out/$i
+	done
+
 fi
 
 echo "$OK/$NTEST tests passed"
