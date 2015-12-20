@@ -252,8 +252,9 @@ runtest_cpp()
 	NAME=$1
 	DIR=$2
 	CSFILE=$3
+	TOPDIR=$4
 	start_test $DIR $NAME
-	(cd $DIR ; $CSCOUT -3 -E $CSFILE ) >test/nout/$NAME.out 2>test/nout/$NAME.err
+	(cd $DIR ; $TOPDIR/$CSCOUT -3 -E $CSFILE ) >test/nout/$NAME.out 2>test/nout/$NAME.err
 	end_compare $DIR $NAME
 }
 
@@ -364,9 +365,9 @@ then
 	for i in $FILES
 	do
 		makecs_cpp test/cpp/$i
-		runtest_cpp $i . makecs.cs
+		runtest_cpp $i . makecs.cs .
 	done
-	runtest_cpp include_next test/inext driver.cs
+	runtest_cpp include_next test/inext driver.cs ../..
 fi
 
 # Test cases for individual C files
