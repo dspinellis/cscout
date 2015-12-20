@@ -42,12 +42,12 @@ end_compare()
 	then
 		return 0
 	fi
-	if ( test -r test/out/$NAME.err &&
+	if { test -r test/out/$NAME.err &&
 	     diff -ib test/out/$NAME.out test/nout/$NAME.out &&
 	     diff -ib <(sed "s|[^ ]*$(pwd)||i" test/out/$NAME.err) \
-	       <(sed "s|[^ ]*$(pwd)||i" test/nout/$NAME.err) ) ||
-	   ( test -r test/out/$NAME &&
-	     diff -ib test/out/$NAME test/nout/$NAME )
+	       <(sed "s|[^ ]*$(pwd)||i" test/nout/$NAME.err) ; } ||
+	   { test -r test/out/$NAME &&
+	     diff -ib test/out/$NAME test/nout/$NAME ; }
 	then
 		end_test $2 1
 	else
