@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001-2015 Diomidis Spinellis
+# (C) Copyright 2001-2016 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -22,6 +22,8 @@
 # make DEBUG=1
 
 WEBHOME=$(UH)/dds/pubs/web/home/cscout/
+
+.PHONY: test
 
 CC=gcc
 CXX=g++
@@ -217,7 +219,7 @@ version:
 	echo 'char Version::compiled[] = "'$$(date +'%F %T')'";' >>version.cpp
 
 test:
-	sh runtest.sh
+	./runtest.sh
 
 # Used for regenerating the logo
 logo.cpp: logo.png
