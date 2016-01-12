@@ -87,11 +87,12 @@ runtest_c()
 {
 	NAME=$1
 	DIR=$2
-	CSFILE=$3
+	SRCPATH=$3
+	CSFILE=$4
 	start_test $DIR $NAME
 (
 echo '\p Loading database'
-(cd $DIR ; $CSCOUT -s hsqldb $CSFILE)
+(cd $DIR ; $SRCPATH/$CSCOUT -s hsqldb $CSFILE)
 echo '
 \p Fixing EIDs
 
@@ -395,7 +396,7 @@ then
 	for i in ${FILES:=$(cd test/c; echo *.c)}
 	do
 		makecs_c $i
-		runtest_c $i . makecs.cs
+		runtest_c $i . . makecs.cs
 	done
 fi
 
@@ -422,7 +423,7 @@ if [ $TEST_AWK = 1 ]
 then
 	echo 'Running the awk test'
 	echo '--------------------'
-	runtest_c awk.c ../example awk.cs
+	runtest_c awk.c ../example ../src awk.cs
 fi
 
 # Finish priming
