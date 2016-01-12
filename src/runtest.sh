@@ -95,7 +95,7 @@ echo '\p Loading database'
 echo '
 \p Fixing EIDs
 
-SET REFERENTIAL_INTEGRITY FALSE;
+SET DATABASE REFERENTIAL INTEGRITY FALSE;
 
 CREATE TABLE FixedIds(EID integer primary key, fixedid integer);
 
@@ -149,7 +149,7 @@ DestId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.DestId);
 
 DROP TABLE FixedIds;
 
-SET REFERENTIAL_INTEGRITY TRUE;
+SET DATABASE REFERENTIAL INTEGRITY TRUE;
 
 \p Running selections
 SELECT * from Ids ORDER BY Eid;
@@ -316,7 +316,7 @@ TMP=/tmp
 CSCOUT=$(dirname $0)/build/cscout
 case `hostname` in
 macpro)
-	HSQLDB="java -classpath /app/hsqldb/lib/hsqldb.jar org.hsqldb.util.SqlTool --rcfile C:/APP/hsqldb/src/org/hsqldb/sample/sqltool.rc"
+	HSQLDB="java -jar /app/hsqldb/lib/sqltool.jar --rcfile /app/hsqldb/sample/sqltool.rc"
 	IPATH=/dds/src/research/CScout/include
 	DOTCSCOUT=/dds/src/research/CScout/example/.cscout
 	CPPTESTS=/dds/src/research/CScout/refactor/test/cpp

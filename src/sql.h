@@ -58,7 +58,7 @@ public:
 
 class Hsqldb: public Sql {
 public:
-	const char *varchar() { return "VARCHAR"; }
+	const char *varchar() { return "LONGVARCHAR"; }
 	const char * escape(char c);
 };
 
