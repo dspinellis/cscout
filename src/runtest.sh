@@ -404,18 +404,17 @@ if [ $TEST_OBFUSCATION = 1 ]
 then
 	echo 'Running the obfuscation test'
 	echo '----------------------------'
-	(
-		cd ../example.obf
-		sh run.sh
-		cd awk
-		make
-		if [ -r awk.exe ]
-		then
-			end_test obfsucation 1
-		else
-			end_test obfsucation 0
-		fi
-	)
+	cd ../example.obf
+	sh run.sh
+	cd awk
+	make
+	if [ -r awk ]
+	then
+		end_test obfsucation 1
+	else
+		end_test obfsucation 0
+	fi
+	cd ../../src
 fi
 
 # awk
