@@ -1,0 +1,15 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+Outside a
+taken 1
+Outside b
+taken 2
+Outside c
+taken 3a
+nested taken 4
+taken 3b
+Outside d
+nested taken 6
+taken 5
+Outside e

@@ -1,0 +1,3 @@
+/test/cpp/cpp26-linerr.c:1: warning: Processing automatically generated file; #line directive ignored.
+/test/cpp/cpp26-linerr.c:1: warning: (further #line warning messages supressed)
+/test/cpp/cpp26-linerr.c:5: error:  This is an error message bye

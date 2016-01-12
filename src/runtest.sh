@@ -222,22 +222,10 @@ tr -d "\n\r" |
 perl -pe 's/\\u0000d\\u0000a/\n/g' >test/chunk/$NAME
 if diff -b test/c/$NAME test/chunk/$NAME
 then
-	echo "
-Test chunk $NAME finishes correctly
-------------------------------------------
-"
+	end_test $NAME 1
 else
-	echo "
-Test chunk $NAME failed
-(Make sure the input file uses the correct line-end convention.)
-------------------------------------------
-"
-	if [ x"$CONTINUE" != x"1" ]
-	then
-		exit 1
-	else
-		FAILED="$FAILED $2"
-	fi
+	end_test $NAME 0
+	echo "(Make sure the input file uses the correct line-end convention.)"
 fi
 }
 
@@ -353,6 +341,7 @@ sense|medusa)
 esac
 
 chmod 444 ../include/*
+mkdir -p test/nout
 
 # See that we are running a version of CScout that supports SQL dumps
 :>$TMP/empty

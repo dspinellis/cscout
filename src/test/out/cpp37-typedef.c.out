@@ -1,0 +1,17 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+typedef int M;
+main()
+{
+M a;
+struct M {
+M M;
+};
+M k = (M)3.14;
+int M;
+M = 42;
+M:
+printf("%d\n", M);
+goto M;
+}

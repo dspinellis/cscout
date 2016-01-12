@@ -1,0 +1,9 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+typedef int *INT[5];
+foo()
+{
+INT i;
+*i[2] = 4;
+}

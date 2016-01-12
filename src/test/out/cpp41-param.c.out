@@ -1,0 +1,14 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+new2(int a, int *b, void (c)(int k))
+{
+int k;
+k = a = *b;
+}
+old(a, b)
+int a;
+int b;
+{
+a = b;
+}

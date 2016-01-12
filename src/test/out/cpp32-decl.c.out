@@ -1,0 +1,13 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+main()
+{
+(int)0;
+(int *)0;
+(int *[3])0;
+(int (*)[3])0;
+(int *())0;
+(int (*)(void))0;
+(int (*const[])(unsigned int, ...))0;
+}

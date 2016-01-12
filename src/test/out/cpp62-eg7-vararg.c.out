@@ -1,0 +1,7 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+fprintf(stderr, "Flag"); 
+fprintf(stderr, "X = %d\n", x); 
+puts("The first, second, and third items."); 
+((x>y)?puts("x>y"):printf( "x is %d but y is %d", x, y)); 

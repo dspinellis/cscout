@@ -1,0 +1,10 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+taken 1
+taken 2
+taken 3a
+nested taken 4
+taken 3b
+nested taken 6
+taken 5

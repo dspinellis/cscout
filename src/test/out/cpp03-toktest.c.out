@@ -1,0 +1,13 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+hello=a;
+bigid=a;
+main()
+{
+a[x] = b() ? ~c : d, 1;
+a++ += +b;
+a -= b---c->d;
+a &= b && c & d;
+a |= b || c | d;
+}

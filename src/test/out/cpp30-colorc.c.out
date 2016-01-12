@@ -1,0 +1,13 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+main()
+{
+char *s = "(\"hello world\\n\", '\\a')";
+int i, j;
+printf("Test program:\n");
+printf("%s\n", s);
+i = (((2) * (2)) +  ((5) * (5)) + 1);
+j = (x + 2 +  (longname, 3));
+k = ((3) * (3));
+}

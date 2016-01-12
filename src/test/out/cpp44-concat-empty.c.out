@@ -1,0 +1,9 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+G1: 12 :
+G2:1:
+G3:2:
+G4: :
+G5::
+G6::

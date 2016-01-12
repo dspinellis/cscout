@@ -1,0 +1,3 @@
+/test/inext/i1/blaat.h:3: warning:  Dit is i1/blaat.h
+/test/inext/i2/blaat.h:3: warning:  Dit is i2/blaat.h
+/test/inext/i4/blaat.h:3: warning:  Dit is i4/blaat.h

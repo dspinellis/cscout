@@ -1,0 +1,20 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+static void _cscout_dummy2(void) { _cscout_dummy2(); }
+struct a {
+int a, b;
+double c, d;
+} a;
+struct b {
+struct a a, b;
+int i;
+} b;
+main()
+{
+struct b b;
+struct a a;
+struct {int a, b;} i;
+i.a = 1;
+b.a.a = b.b.b = b.a.b = b.b.a = 2;
+a.a = a.b = 4;
+}
