@@ -367,8 +367,7 @@ then
 	echo 'Running reconstitution tests'
 	echo '----------------------------'
 	# Test reconstitution of individual C files (no priming required)
-	FILES=`cd test/c; echo *.c`
-	for i in $FILES
+	for i in ${FILES:=$(cd test/c; echo *.c)}
 	do
 		makecs_c $i
 		runtest_chunk $i . makecs.cs
@@ -380,8 +379,7 @@ then
 	echo 'Running preprocessor tests'
 	echo '--------------------------'
 	# Test cases for C preprocessor files
-	FILES=`cd test/cpp; echo *.c`
-	for i in $FILES
+	for i in ${FILES:=$(cd test/cpp; echo *.c)}
 	do
 		makecs_cpp test/cpp/$i
 		runtest_cpp $i . makecs.cs .
@@ -435,7 +433,7 @@ then
 	# Remove absolute path from error files
 	cd test/nout
 	for i in *.err ; do
-	       sed "s|[^ ]*$(cd .. ; pwd)||i" $i >../test/out/$i
+	       sed "s|[^ ]*$(cd ../.. ; pwd)||i" $i >../../test/out/$i
 	done
 
 fi
