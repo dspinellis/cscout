@@ -152,35 +152,37 @@ DROP TABLE FixedIds;
 SET DATABASE REFERENTIAL INTEGRITY TRUE;
 
 \p Running selections
-\p Ids
+\p Table: Ids
 SELECT * from Ids ORDER BY Eid;
-\p Tokens
+\p Table: Tokens
 SELECT * from Tokens ORDER BY Fid, Foffset;
-\p Rest
+\p Table: Rest
 SELECT * from Rest ORDER BY Fid, Foffset;
-\p Projects
+\p Table: Projects
 SELECT * from Projects ORDER BY Pid;
-\p IdProj
+\p Table: IdProj
 SELECT * from IdProj ORDER BY Pid, Eid;
-\p Files
-SELECT * from Files ORDER BY Fid;
-\p FileProj
+\p Table: Files
+SELECT FID, REGEXP_SUBSTRING(NAME, '\''[^/]*$'\'') as NAME,
+RO, NCHAR, NCCOMMENT, NSPACE, NLCOMMENT, NBCOMMENT, NLINE, MAXLINELEN, NSTRING, NULINE, NPPDIRECTIVE, NPPCOND, NPPFMACRO, NPPOMACRO, NPPTOKEN, NCTOKEN, NCOPIES, NSTATEMENT, NPFUNCTION, NFFUNCTION, NPVAR, NFVAR, NAGGREGATE, NAMEMBER, NENUM, NEMEMBER, NINCFILE
+from Files ORDER BY Fid;
+\p Table: FileProj
 SELECT * from FileProj ORDER BY Pid, Fid;
-\p Definers
+\p Table: Definers
 SELECT * from Definers ORDER BY PID, CUID, BASEFILEID, DEFINERID;
-\p Includers
+\p Table: Includers
 SELECT * from Includers ORDER BY PID, CUID, BASEFILEID, IncluderID;
-\p Providers
+\p Table: Providers
 SELECT * from Providers ORDER BY PID, CUID, Providerid;
-\p IncTriggers
+\p Table: IncTriggers
 SELECT * from IncTriggers ORDER BY PID, CUID, Basefileid, Definerid, FOffset;
-\p Functions
+\p Table: Functions
 SELECT * from Functions ORDER BY ID;
-\p FunctionMetrics
+\p Table: FunctionMetrics
 SELECT * from FunctionMetrics ORDER BY FUNCTIONID;
-\p FunctionId
+\p Table: FunctionId
 SELECT * from FunctionId ORDER BY FUNCTIONID, ORDINAL;
-\p Fcalls
+\p Table: Fcalls
 SELECT * from Fcalls ORDER BY SourceID, DESTID;
 \p Done
 '
@@ -349,6 +351,8 @@ sense|medusa)
 	;;
 esac
 
+chmod 444 ../include/*
+
 # See that we are running a version of CScout that supports SQL dumps
 :>$TMP/empty
 $CSCOUT -s hsqldb $CSFILE $TMP/empty 2>$NULL >$NULL || {
@@ -390,8 +394,7 @@ if [ $TEST_C = 1 ]
 then
 	echo 'Running C tests'
 	echo '---------------'
-	FILES=`cd test/c; echo *.c`
-	for i in $FILES
+	for i in ${FILES:=$(cd test/c; echo *.c)}
 	do
 		makecs_c $i
 		runtest_c $i . makecs.cs
