@@ -152,20 +152,35 @@ DROP TABLE FixedIds;
 SET DATABASE REFERENTIAL INTEGRITY TRUE;
 
 \p Running selections
+\p Ids
 SELECT * from Ids ORDER BY Eid;
+\p Tokens
 SELECT * from Tokens ORDER BY Fid, Foffset;
+\p Rest
 SELECT * from Rest ORDER BY Fid, Foffset;
+\p Projects
 SELECT * from Projects ORDER BY Pid;
+\p IdProj
 SELECT * from IdProj ORDER BY Pid, Eid;
+\p Files
 SELECT * from Files ORDER BY Fid;
+\p FileProj
 SELECT * from FileProj ORDER BY Pid, Fid;
+\p Definers
 SELECT * from Definers ORDER BY PID, CUID, BASEFILEID, DEFINERID;
+\p Includers
 SELECT * from Includers ORDER BY PID, CUID, BASEFILEID, IncluderID;
+\p Providers
 SELECT * from Providers ORDER BY PID, CUID, Providerid;
+\p IncTriggers
 SELECT * from IncTriggers ORDER BY PID, CUID, Basefileid, Definerid, FOffset;
+\p Functions
 SELECT * from Functions ORDER BY ID;
+\p FunctionMetrics
 SELECT * from FunctionMetrics ORDER BY FUNCTIONID;
+\p FunctionId
 SELECT * from FunctionId ORDER BY FUNCTIONID, ORDINAL;
+\p Fcalls
 SELECT * from Fcalls ORDER BY SourceID, DESTID;
 \p Done
 '
