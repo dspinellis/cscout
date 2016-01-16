@@ -1,0 +1,25 @@
+: 
+show_true: 1
+show_projects: 1
+show_identical_files: 1
+: 
+show_line_number: 0
+tab_width: 4
+: 
+rename_override_ro: 1
+refactor_fun_arg_override_ro: 1
+: 
+file_icase: 0
+: 
+entries_per_page: 20
+fname_in_context: 1
+sort_rev: 0
+: 
+cgraph_type: s
+cgraph_show: n
+cgraph_depth: 5
+: 
+sfile_re_string: sfile_repl_string:
+sfile_repl_string: entries_per_page:
+: 
+start_editor_cmd: start  C:\Progra~1\Vim\vim71\gvim.exe +/"%s" "%s"
