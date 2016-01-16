@@ -171,7 +171,7 @@ endif
 
 #all: simple_cpp
 
-build/cscout: build/cscout.o  $(OBJ) version
+build/cscout: build/cscout.o $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o -L${HOME}/lib/build -lswill $(ADDLIBS)
 
 # CCmalloc version
@@ -207,16 +207,18 @@ css.c: style.css
 mkerr:
 	perl mkerr.pl >../doc/error.xml
 
-# Create version info
-version.cpp: version
-
-version:
+ifneq ($(shell sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp), $(shell git log -n 1 --format='%H'))
+version.cpp:
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
 	echo 'char Version::revision[] = "'$$(git log -n 1 --format='%H')'";' >>version.cpp
 	echo 'char Version::date[] = "'$$(git log -n 1 --format='%ci')'";' >>version.cpp
 	echo 'char Version::compiled[] = "'$$(date +'%F %T')'";' >>version.cpp
+
+.PHONY: version.cpp
+endif
+
 
 test:
 	./runtest.sh
