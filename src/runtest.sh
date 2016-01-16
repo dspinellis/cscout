@@ -93,7 +93,7 @@ runtest_c()
 (
 echo '\p Loading database'
 (cd $DIR ; $SRCPATH/$CSCOUT -s hsqldb $CSFILE)
-echo '
+cat <<\EOF
 \p Fixing EIDs
 
 SET DATABASE REFERENTIAL INTEGRITY FALSE;
@@ -154,19 +154,23 @@ SET DATABASE REFERENTIAL INTEGRITY TRUE;
 
 \p Running selections
 \p Table: Ids
-SELECT * from Ids ORDER BY Eid;
+SELECT * from Ids WHERE Name != 'PRJ2' ORDER BY Eid;
 \p Table: Tokens
-SELECT * from Tokens ORDER BY Fid, Foffset;
+SELECT * from Tokens WHERE Fid != 1 ORDER BY Fid, Foffset;
 \p Table: Rest
-SELECT * from Rest ORDER BY Fid, Foffset;
+SELECT * from Rest WHERE Fid != 1 ORDER BY Fid, Foffset;
 \p Table: Projects
 SELECT * from Projects ORDER BY Pid;
 \p Table: IdProj
-SELECT * from IdProj ORDER BY Pid, Eid;
+-- All identifiers but PRJ2, which is at variable offsets and hence EIDs
+SELECT DISTINCT IdProj.* FROM (
+  IdProj LEFT OUTER JOIN (SELECT Eid from Ids WHERE Name = 'PRJ2') X
+  on IdProj.Eid = X.Eid) WHERE X.Eid IS NULL
+ORDER BY IdProj.Pid, IdProj.Eid;
 \p Table: Files
-SELECT FID, REGEXP_SUBSTRING(NAME, '\''[^/]*$'\'') as NAME,
+SELECT FID, REGEXP_SUBSTRING(NAME, '[^/]*$') as NAME,
 RO, NCHAR, NCCOMMENT, NSPACE, NLCOMMENT, NBCOMMENT, NLINE, MAXLINELEN, NSTRING, NULINE, NPPDIRECTIVE, NPPCOND, NPPFMACRO, NPPOMACRO, NPPTOKEN, NCTOKEN, NCOPIES, NSTATEMENT, NPFUNCTION, NFFUNCTION, NPVAR, NFVAR, NAGGREGATE, NAMEMBER, NENUM, NEMEMBER, NINCFILE
-from Files ORDER BY Fid;
+from Files WHERE Fid != 1 ORDER BY Fid;
 \p Table: FileProj
 SELECT * from FileProj ORDER BY Pid, Fid;
 \p Table: Definers
@@ -186,7 +190,7 @@ SELECT * from FunctionId ORDER BY FUNCTIONID, ORDINAL;
 \p Table: Fcalls
 SELECT * from Fcalls ORDER BY SourceID, DESTID;
 \p Done
-'
+EOF
 ) |
 $HSQLDB mem - |
 sed -e '1,/^Running selections/d' >test/nout/$NAME

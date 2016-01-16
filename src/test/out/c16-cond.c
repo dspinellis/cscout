@@ -32,13 +32,9 @@ Table: Ids
  9769  two                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
 10019  s                    FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 11479  three                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
-11763  PRJ2                 TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-16223  PRJ2                 TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 Table: Tokens
 FID  FOFFSET    EID
 ---  -------  -----
-  1     1176  11763
-  1     1622  16223
   2      297   2975
   2      329   3295
   2      357   3575
@@ -119,47 +115,7 @@ FID  FOFFSET    EID
   5       88    891
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ---------------------------------------------------------------------------------------------------------
-  1       20  #pragma echo 
-  1       64  \u0000a
-  1       85  #pragma echo 
-  1      129  \u0000a#pragma echo 
-  1      172  \u0000a#pragma pushd 
-  1      195  \u0000a
-  1      212  #pragma echo 
-  1      252  \u0000a#pragma project 
-  1      275  \u0000a#pragma block_enter\u0000a
-  1      315  #pragma echo 
-  1      358  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1      506  \u0000a#pragma includepath 
-  1      561  \u0000a#include 
-  1      638  \u0000a#pragma process 
-  1      667  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1      736  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1      801  \u0000a
-  1      818  #pragma echo 
-  1      858  \u0000a#pragma project 
-  1      881  \u0000a#pragma block_enter\u0000a
-  1      921  #pragma echo 
-  1      964  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1112  \u0000a#pragma includepath 
-  1     1167  \u0000a#define 
-  1     1180  \u0000a#include 
-  1     1257  \u0000a#pragma process 
-  1     1286  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1355  \u0000a
-  1     1371  #pragma echo 
-  1     1410  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1558  \u0000a#pragma includepath 
-  1     1613  \u0000a#define 
-  1     1626  \u0000a#include 
-  1     1703  \u0000a#pragma process 
-  1     1728  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1793  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1858  \u0000a#pragma echo 
-  1     1900  \u0000a#pragma popd\u0000a#pragma echo 
-  1     1963  \u0000a#pragma echo 
-  1     2013  \u0000a
+---  -------  ------------------------------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -319,12 +275,9 @@ Table: IdProj
  9769   18
 10019   18
 11479   18
-11763   18
-16223   18
 Table: Files
 FID  NAME           RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  -------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  1  makecs.cs      TRUE    2014        104     131          7          0     60          83       31       0            50        0          0          2       178        0        1           0           0           0      0      0           0         0      0         0         3
   2  cscout_defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  cscout_incs.h  TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  c16-cond.c     FALSE   1274        350     190          0          2     57          92        0       0             7        0          5          2       238      368        1           4           1           3      0      0           2         2      0         0         0

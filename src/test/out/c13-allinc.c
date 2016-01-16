@@ -43,10 +43,8 @@ Table: Ids
  46731  sqrt                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
  47991  ceil                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
  49209  fabs                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 49899  PRJ2                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
  50427  floor               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
  51687  fmod                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 68799  PRJ2                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
  83025  _LOCALE_H_          TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
  83057  _STRING_H_          TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
  83071  _STDDEF_H_          TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
@@ -449,8 +447,6 @@ Table: Ids
 Table: Tokens
 FID  FOFFSET     EID
 ---  -------  ------
-  1     1188   49899
-  1     1638   68799
   2      297   12479
   2      329   13823
   2      357   14999
@@ -1101,46 +1097,6 @@ FID  FOFFSET     EID
 Table: Rest
 FID  FOFFSET  CODE
 ---  -------  ----------------------------------------------------------------------------------------------------------------------------------
-  1       20  #pragma echo 
-  1       64  \u0000a
-  1       85  #pragma echo 
-  1      129  \u0000a#pragma echo 
-  1      172  \u0000a#pragma pushd 
-  1      195  \u0000a
-  1      212  #pragma echo 
-  1      252  \u0000a#pragma project 
-  1      275  \u0000a#pragma block_enter\u0000a
-  1      317  #pragma echo 
-  1      362  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1      510  \u0000a#pragma includepath 
-  1      565  \u0000a#include 
-  1      642  \u0000a#pragma process 
-  1      673  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1      744  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1      809  \u0000a
-  1      826  #pragma echo 
-  1      866  \u0000a#pragma project 
-  1      889  \u0000a#pragma block_enter\u0000a
-  1      931  #pragma echo 
-  1      976  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1124  \u0000a#pragma includepath 
-  1     1179  \u0000a#define 
-  1     1192  \u0000a#include 
-  1     1269  \u0000a#pragma process 
-  1     1300  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1371  \u0000a
-  1     1387  #pragma echo 
-  1     1426  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1574  \u0000a#pragma includepath 
-  1     1629  \u0000a#define 
-  1     1642  \u0000a#include 
-  1     1719  \u0000a#pragma process 
-  1     1744  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1809  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1874  \u0000a#pragma echo 
-  1     1916  \u0000a#pragma popd\u0000a#pragma echo 
-  1     1979  \u0000a#pragma echo 
-  1     2029  \u0000a
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -2458,10 +2414,8 @@ Table: IdProj
  46731   18
  47991   18
  49209   18
- 49899   18
  50427   18
  51687   18
- 68799   18
  83025   18
  83057   18
  83071   18
@@ -2864,7 +2818,6 @@ Table: IdProj
 Table: Files
 FID  NAME           RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  -------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  1  makecs.cs      TRUE    2030        108     131          7          0     60          83       31       0            50        0          0          2       178        0        1           0           0           0      0      0           0         0      0         0         3
   2  cscout_defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  cscout_incs.h  TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  c13-allinc.c   FALSE    384          0      62          0          0     21          29        1       0            15        0          0          0        68       24        1           2           1           0      0      0           0         0      0         0        15

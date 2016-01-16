@@ -1,119 +1,75 @@
 Table: Ids
-  EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
------  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
-   49  a               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-   91  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  149  d               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    TRUE    FALSE
-  279  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  331  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  509  e               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  571  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  649  b               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  719  c               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    TRUE    FALSE
-  891  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 2019  xa              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 2089  xa1             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 2159  xa2             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 2229  xa3             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 2749  xb2             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 2889  xb              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 2975  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3259  main2           FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 3295  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3575  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3865  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4055  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 5355  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
-12363  PRJ2            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-17023  PRJ2            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+ EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
+----  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
+  49  a               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+  91  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+ 149  d               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    TRUE    FALSE
+ 279  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+ 331  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
+ 509  e               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+ 571  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
+ 649  b               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+ 719  c               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    TRUE    FALSE
+ 891  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
+2019  xa              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+2089  xa1             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+2159  xa2             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+2229  xa3             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+2749  xb2             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+2889  xb              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+2975  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3259  main2           FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
+3295  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3575  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3865  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+4055  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+5355  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
 Table: Tokens
-FID  FOFFSET    EID
----  -------  -----
-  1     1236  12363
-  1     1702  17023
-  2      297   2975
-  2      329   3295
-  2      357   3575
-  2      386   3865
-  2      405   4055
-  2      471    279
-  2      535   5355
-  2      558   5355
-  4        4     49
-  4       14    149
-  4       27    279
-  4       50    509
-  4       57     49
-  4       64    649
-  4       71    719
-  4       78    649
-  4      105    649
-  4      133    719
-  4      161    149
-  4      189    509
-  4      201   2019
-  4      208   2089
-  4      215   2159
-  4      222   2229
-  4      236   2089
-  4      250   2159
-  4      264   2229
-  4      274   2749
-  4      288   2889
-  4      295   2089
-  4      302   2749
-  4      309   2019
-  4      325   3259
-  4      338   2019
-  4      346   2889
-  5        8     91
-  5       32    331
-  5       43    279
-  5       56    571
-  5       88    891
+FID  FOFFSET   EID
+---  -------  ----
+  2      297  2975
+  2      329  3295
+  2      357  3575
+  2      386  3865
+  2      405  4055
+  2      471   279
+  2      535  5355
+  2      558  5355
+  4        4    49
+  4       14   149
+  4       27   279
+  4       50   509
+  4       57    49
+  4       64   649
+  4       71   719
+  4       78   649
+  4      105   649
+  4      133   719
+  4      161   149
+  4      189   509
+  4      201  2019
+  4      208  2089
+  4      215  2159
+  4      222  2229
+  4      236  2089
+  4      250  2159
+  4      264  2229
+  4      274  2749
+  4      288  2889
+  4      295  2089
+  4      302  2749
+  4      309  2019
+  4      325  3259
+  4      338  2019
+  4      346  2889
+  5        8    91
+  5       32   331
+  5       43   279
+  5       56   571
+  5       88   891
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ---------------------------------------------------------------------------------------------------------
-  1       20  #pragma echo 
-  1       64  \u0000a
-  1       85  #pragma echo 
-  1      129  \u0000a#pragma echo 
-  1      172  \u0000a#pragma pushd 
-  1      195  \u0000a
-  1      212  #pragma echo 
-  1      252  \u0000a#pragma project 
-  1      275  \u0000a#pragma block_enter\u0000a
-  1      325  #pragma echo 
-  1      378  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1      526  \u0000a#pragma includepath 
-  1      581  \u0000a#include 
-  1      658  \u0000a#pragma process 
-  1      697  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1      776  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1      841  \u0000a
-  1      858  #pragma echo 
-  1      898  \u0000a#pragma project 
-  1      921  \u0000a#pragma block_enter\u0000a
-  1      971  #pragma echo 
-  1     1024  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1172  \u0000a#pragma includepath 
-  1     1227  \u0000a#define 
-  1     1240  \u0000a#include 
-  1     1317  \u0000a#pragma process 
-  1     1356  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1435  \u0000a
-  1     1451  #pragma echo 
-  1     1490  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1638  \u0000a#pragma includepath 
-  1     1693  \u0000a#define 
-  1     1706  \u0000a#include 
-  1     1783  \u0000a#pragma process 
-  1     1808  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1873  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1938  \u0000a#pragma echo 
-  1     1980  \u0000a#pragma popd\u0000a#pragma echo 
-  1     2043  \u0000a#pragma echo 
-  1     2093  \u0000a
+---  -------  --------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -174,56 +130,53 @@ PID  NAME
  17  Prj1
  18  Prj2
 Table: IdProj
-  EID  PID
------  ---
-   49   17
-  149   17
-  279   17
-  509   17
-  649   17
-  719   17
- 2019   17
- 2089   17
- 2159   17
- 2229   17
- 2749   17
- 2889   17
- 2975   17
- 3259   17
- 3295   17
- 3575   17
- 3865   17
- 4055   17
- 5355   17
-   49   18
-   91   18
-  149   18
-  279   18
-  331   18
-  509   18
-  571   18
-  649   18
-  719   18
-  891   18
- 2019   18
- 2089   18
- 2159   18
- 2229   18
- 2749   18
- 2889   18
- 2975   18
- 3259   18
- 3295   18
- 3575   18
- 3865   18
- 4055   18
- 5355   18
-12363   18
-17023   18
+ EID  PID
+----  ---
+  49   17
+ 149   17
+ 279   17
+ 509   17
+ 649   17
+ 719   17
+2019   17
+2089   17
+2159   17
+2229   17
+2749   17
+2889   17
+2975   17
+3259   17
+3295   17
+3575   17
+3865   17
+4055   17
+5355   17
+  49   18
+  91   18
+ 149   18
+ 279   18
+ 331   18
+ 509   18
+ 571   18
+ 649   18
+ 719   18
+ 891   18
+2019   18
+2089   18
+2159   18
+2229   18
+2749   18
+2889   18
+2975   18
+3259   18
+3295   18
+3575   18
+3865   18
+4055   18
+5355   18
 Table: Files
 FID  NAME                  RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  --------------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  1  makecs.cs             TRUE    2094        124     131          7          0     60          83       31       0            50        0          0          2       178        0        1           0           0           0      0      0           0         0      0         0         3
   2  cscout_defs.h         TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  cscout_incs.h         TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  c20-implicit-fdecl.c  FALSE    356          0     109          0          0     32          34        0       0             0        0          0          0       149      150        1          16           9           2      0      0           0         0      0         0         0

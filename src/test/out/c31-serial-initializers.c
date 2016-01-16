@@ -30,12 +30,10 @@ Table: Ids
  9289  sb7                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
 10479  sb8                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
 11559  sb10                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-12663  PRJ2                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 13129  sb11                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
 14429  sb12                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
 15259  func1               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
 16419  sb13                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-17423  PRJ2                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 17589  fs_func             FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 17769  error               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 17899  fs_func_p           FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
@@ -50,8 +48,6 @@ Table: Ids
 Table: Tokens
 FID  FOFFSET    EID
 ---  -------  -----
-  1     1266  12663
-  1     1742  17423
   2      297   2975
   2      329   3295
   2      357   3575
@@ -139,47 +135,7 @@ FID  FOFFSET    EID
   5       88    891
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ---------------------------------------------------------------------------------------------------------
-  1       20  #pragma echo 
-  1       64  \u0000a
-  1       85  #pragma echo 
-  1      129  \u0000a#pragma echo 
-  1      172  \u0000a#pragma pushd 
-  1      195  \u0000a
-  1      212  #pragma echo 
-  1      252  \u0000a#pragma project 
-  1      275  \u0000a#pragma block_enter\u0000a
-  1      330  #pragma echo 
-  1      388  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1      536  \u0000a#pragma includepath 
-  1      591  \u0000a#include 
-  1      668  \u0000a#pragma process 
-  1      712  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1      796  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1      861  \u0000a
-  1      878  #pragma echo 
-  1      918  \u0000a#pragma project 
-  1      941  \u0000a#pragma block_enter\u0000a
-  1      996  #pragma echo 
-  1     1054  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1202  \u0000a#pragma includepath 
-  1     1257  \u0000a#define 
-  1     1270  \u0000a#include 
-  1     1347  \u0000a#pragma process 
-  1     1391  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1475  \u0000a
-  1     1491  #pragma echo 
-  1     1530  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1678  \u0000a#pragma includepath 
-  1     1733  \u0000a#define 
-  1     1746  \u0000a#include 
-  1     1823  \u0000a#pragma process 
-  1     1848  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1913  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1978  \u0000a#pragma echo 
-  1     2020  \u0000a#pragma popd\u0000a#pragma echo 
-  1     2083  \u0000a#pragma echo 
-  1     2133  \u0000a
+---  -------  ------------------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -397,12 +353,10 @@ Table: IdProj
  9289   18
 10479   18
 11559   18
-12663   18
 13129   18
 14429   18
 15259   18
 16419   18
-17423   18
 17589   18
 17769   18
 17899   18
@@ -417,7 +371,6 @@ Table: IdProj
 Table: Files
 FID  NAME                       RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  -------------------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  1  makecs.cs                  TRUE    2134        134     131          7          0     60          83       31       0            50        0          0          2       178        0        1           0           0           0      0      0           0         0      0         0         3
   2  cscout_defs.h              TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  cscout_incs.h              TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  c31-serial-initializers.c  FALSE   2032        120     445         27          0    118          76       14       0            13        0          0          0       455      404        1           0           1           1     12      0           4         9      0         0         0

@@ -1,114 +1,70 @@
 Table: Ids
-  EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
------  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
-   91  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  299  x               FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  329  a               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  331  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  441  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  539  y               FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  569  p               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  571  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  769  i               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  829  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 1189  t_op            FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 1469  op_text         FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 1709  op_num          FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 1789  op_type         FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 1969  ops             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 2929  t_wp_op         FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
- 2975  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3049  foobar          FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 3295  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3575  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3865  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4055  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 5355  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
-12003  PRJ2            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-16543  PRJ2            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+ EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
+----  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
+  91  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+ 299  x               FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+ 329  a               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
+ 331  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
+ 441  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+ 539  y               FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+ 569  p               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+ 571  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
+ 769  i               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+ 829  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+1189  t_op            FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+1469  op_text         FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+1709  op_num          FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+1789  op_type         FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+1969  ops             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
+2929  t_wp_op         FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
+2975  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3049  foobar          FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
+3295  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3575  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3865  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+4055  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+5355  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
 Table: Tokens
-FID  FOFFSET    EID
----  -------  -----
-  1     1200  12003
-  1     1654  16543
-  2      297   2975
-  2      329   3295
-  2      357   3575
-  2      386   3865
-  2      405   4055
-  2      471    441
-  2      535   5355
-  2      558   5355
-  4       29    299
-  4       32    329
-  4       43    299
-  4       53    539
-  4       56    569
-  4       69    539
-  4       76    769
-  4       82    829
-  4       97    329
-  4      100    569
-  4      103    769
-  4      118   1189
-  4      146   1469
-  4      170   1709
-  4      178   1789
-  4      196   1969
-  4      271   1189
-  4      292   2929
-  4      304   3049
-  4      329   2929
-  4      340   2929
-  4      349   1789
-  5        8     91
-  5       32    331
-  5       43    441
-  5       56    571
-  5       88    829
+FID  FOFFSET   EID
+---  -------  ----
+  2      297  2975
+  2      329  3295
+  2      357  3575
+  2      386  3865
+  2      405  4055
+  2      471   441
+  2      535  5355
+  2      558  5355
+  4       29   299
+  4       32   329
+  4       43   299
+  4       53   539
+  4       56   569
+  4       69   539
+  4       76   769
+  4       82   829
+  4       97   329
+  4      100   569
+  4      103   769
+  4      118  1189
+  4      146  1469
+  4      170  1709
+  4      178  1789
+  4      196  1969
+  4      271  1189
+  4      292  2929
+  4      304  3049
+  4      329  2929
+  4      340  2929
+  4      349  1789
+  5        8    91
+  5       32   331
+  5       43   441
+  5       56   571
+  5       88   829
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ---------------------------------------------------------------------------------------------------------
-  1       20  #pragma echo 
-  1       64  \u0000a
-  1       85  #pragma echo 
-  1      129  \u0000a#pragma echo 
-  1      172  \u0000a#pragma pushd 
-  1      195  \u0000a
-  1      212  #pragma echo 
-  1      252  \u0000a#pragma project 
-  1      275  \u0000a#pragma block_enter\u0000a
-  1      319  #pragma echo 
-  1      366  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1      514  \u0000a#pragma includepath 
-  1      569  \u0000a#include 
-  1      646  \u0000a#pragma process 
-  1      679  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1      752  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1      817  \u0000a
-  1      834  #pragma echo 
-  1      874  \u0000a#pragma project 
-  1      897  \u0000a#pragma block_enter\u0000a
-  1      941  #pragma echo 
-  1      988  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1136  \u0000a#pragma includepath 
-  1     1191  \u0000a#define 
-  1     1204  \u0000a#include 
-  1     1281  \u0000a#pragma process 
-  1     1314  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1387  \u0000a
-  1     1403  #pragma echo 
-  1     1442  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1590  \u0000a#pragma includepath 
-  1     1645  \u0000a#define 
-  1     1658  \u0000a#include 
-  1     1735  \u0000a#pragma process 
-  1     1760  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1825  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1890  \u0000a#pragma echo 
-  1     1932  \u0000a#pragma popd\u0000a#pragma echo 
-  1     1995  \u0000a#pragma echo 
-  1     2045  \u0000a
+---  -------  -------------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -166,57 +122,54 @@ PID  NAME
  17  Prj1
  18  Prj2
 Table: IdProj
-  EID  PID
------  ---
-  299   17
-  329   17
-  441   17
-  539   17
-  569   17
-  769   17
-  829   17
- 1189   17
- 1469   17
- 1709   17
- 1789   17
- 1969   17
- 2929   17
- 2975   17
- 3049   17
- 3295   17
- 3575   17
- 3865   17
- 4055   17
- 5355   17
-   91   18
-  299   18
-  329   18
-  331   18
-  441   18
-  539   18
-  569   18
-  571   18
-  769   18
-  829   18
- 1189   18
- 1469   18
- 1709   18
- 1789   18
- 1969   18
- 2929   18
- 2975   18
- 3049   18
- 3295   18
- 3575   18
- 3865   18
- 4055   18
- 5355   18
-12003   18
-16543   18
+ EID  PID
+----  ---
+ 299   17
+ 329   17
+ 441   17
+ 539   17
+ 569   17
+ 769   17
+ 829   17
+1189   17
+1469   17
+1709   17
+1789   17
+1969   17
+2929   17
+2975   17
+3049   17
+3295   17
+3575   17
+3865   17
+4055   17
+5355   17
+  91   18
+ 299   18
+ 329   18
+ 331   18
+ 441   18
+ 539   18
+ 569   18
+ 571   18
+ 769   18
+ 829   18
+1189   18
+1469   18
+1709   18
+1789   18
+1969   18
+2929   18
+2975   18
+3049   18
+3295   18
+3575   18
+3865   18
+4055   18
+5355   18
 Table: Files
 FID  NAME            RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  --------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  1  makecs.cs       TRUE    2046        112     131          7          0     60          83       31       0            50        0          0          2       178        0        1           0           0           0      0      0           0         0      0         0         3
   2  cscout_defs.h   TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  cscout_incs.h   TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  c03-ptrtypes.c  FALSE    375         14     130          0          1     24          48        2       0             0        0          0          0        96       97        1           3           2           0      3      0           3         5      0         0         0

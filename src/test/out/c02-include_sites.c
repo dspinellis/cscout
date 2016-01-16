@@ -1,87 +1,43 @@
 Table: Ids
-  EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
------  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
-  107  PRJ2            TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  127  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  165  used            FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  317  FILE            FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  463  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  617  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  799  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 1247  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 4163  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4611  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 5003  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 5409  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 5675  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 7495  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
-23719  PRJ2            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+ EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
+----  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
+ 127  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+ 165  used            FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
+ 317  FILE            FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+ 463  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
+ 617  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
+ 799  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
+1247  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
+4163  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+4611  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+5003  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+5409  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+5675  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+7495  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
 Table: Tokens
-FID  FOFFSET    EID
----  -------  -----
-  1     1230    107
-  1     1694  23719
-  2      297   4163
-  2      329   4611
-  2      357   5003
-  2      386   5409
-  2      405   5675
-  2      471    617
-  2      535   7495
-  2      558   7495
-  4        7    107
-  4       22    317
-  4       55    317
-  4       92    317
-  5       11    165
-  7        8    127
-  7       32    463
-  7       43    617
-  7       56    799
-  7       88   1247
+FID  FOFFSET   EID
+---  -------  ----
+  2      297  4163
+  2      329  4611
+  2      357  5003
+  2      386  5409
+  2      405  5675
+  2      471   617
+  2      535  7495
+  2      558  7495
+  4        7   107
+  4       22   317
+  4       55   317
+  4       92   317
+  5       11   165
+  7        8   127
+  7       32   463
+  7       43   617
+  7       56   799
+  7       88  1247
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ---------------------------------------------------------------------------------------------------------
-  1       20  #pragma echo 
-  1       64  \u0000a
-  1       85  #pragma echo 
-  1      129  \u0000a#pragma echo 
-  1      172  \u0000a#pragma pushd 
-  1      195  \u0000a
-  1      212  #pragma echo 
-  1      252  \u0000a#pragma project 
-  1      275  \u0000a#pragma block_enter\u0000a
-  1      324  #pragma echo 
-  1      376  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1      524  \u0000a#pragma includepath 
-  1      579  \u0000a#include 
-  1      656  \u0000a#pragma process 
-  1      694  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1      772  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1      837  \u0000a
-  1      854  #pragma echo 
-  1      894  \u0000a#pragma project 
-  1      917  \u0000a#pragma block_enter\u0000a
-  1      966  #pragma echo 
-  1     1018  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1166  \u0000a#pragma includepath 
-  1     1221  \u0000a#define 
-  1     1234  \u0000a#include 
-  1     1311  \u0000a#pragma process 
-  1     1349  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1427  \u0000a
-  1     1443  #pragma echo 
-  1     1482  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1630  \u0000a#pragma includepath 
-  1     1685  \u0000a#define 
-  1     1698  \u0000a#include 
-  1     1775  \u0000a#pragma process 
-  1     1800  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1865  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1930  \u0000a#pragma echo 
-  1     1972  \u0000a#pragma popd\u0000a#pragma echo 
-  1     2035  \u0000a#pragma echo 
-  1     2085  \u0000a
+---  -------  --------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -123,36 +79,32 @@ PID  NAME
  17  Prj1
  18  Prj2
 Table: IdProj
-  EID  PID
------  ---
-  107   17
-  165   17
-  317   17
-  617   17
- 4163   17
- 4611   17
- 5003   17
- 5409   17
- 5675   17
- 7495   17
-  107   18
-  127   18
-  317   18
-  463   18
-  617   18
-  799   18
- 1247   18
- 4163   18
- 4611   18
- 5003   18
- 5409   18
- 5675   18
- 7495   18
-23719   18
+ EID  PID
+----  ---
+ 165   17
+ 317   17
+ 617   17
+4163   17
+4611   17
+5003   17
+5409   17
+5675   17
+7495   17
+ 127   18
+ 317   18
+ 463   18
+ 617   18
+ 799   18
+1247   18
+4163   18
+4611   18
+5003   18
+5409   18
+5675   18
+7495   18
 Table: Files
 FID  NAME                 RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  -------------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  1  makecs.cs            TRUE    2086        122     131          7          0     60          83       31       0            50        0          0          2       178        0        1           0           0           0      0      0           0         0      0         0         3
   2  cscout_defs.h        TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  cscout_incs.h        TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  c02-include_sites.c  FALSE    100          0      23          0          0      8          26        2       0             6        1          0          1        19        1        1           0           0           0      0      0           0         0      0         0         1

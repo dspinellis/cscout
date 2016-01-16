@@ -1727,7 +1727,6 @@ Table: Ids
 Table: Tokens
 FID  FOFFSET      EID
 ---  -------  -------
-  1      403    22571
   2      297    16637
   2      329    18429
   2      357    19997
@@ -13382,78 +13381,6 @@ FID  FOFFSET      EID
 Table: Rest
 FID  FOFFSET  CODE
 ---  -------  ----------------------------------------------------------------------------------------------------------------------------------
-  1       18  #pragma echo 
-  1       59  \u0000d\u0000a
-  1       77  #pragma echo 
-  1      116  \u0000d\u0000a#pragma project 
-  1      139  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma echo 
-  1      201  \u0000d\u0000a#pragma pushd 
-  1      222  \u0000d\u0000a
-  1      243  #pragma echo 
-  1      285  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1      393  \u0000d\u0000a#define 
-  1      412  \u0000d\u0000a#include 
-  1      446  \u0000d\u0000a#pragma process 
-  1      475  \u0000d\u0000a#pragma process 
-  1      501  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1      572  \u0000d\u0000a
-  1      587  #pragma echo 
-  1      623  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1      731  \u0000d\u0000a#include 
-  1      765  \u0000d\u0000a#pragma process 
-  1      788  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1      853  \u0000d\u0000a
-  1      870  #pragma echo 
-  1      908  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1     1016  \u0000d\u0000a#include 
-  1     1050  \u0000d\u0000a#pragma process 
-  1     1075  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     1142  \u0000d\u0000a
-  1     1159  #pragma echo 
-  1     1197  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1     1305  \u0000d\u0000a#include 
-  1     1339  \u0000d\u0000a#pragma process 
-  1     1364  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     1431  \u0000d\u0000a
-  1     1449  #pragma echo 
-  1     1488  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1     1596  \u0000d\u0000a#include 
-  1     1630  \u0000d\u0000a#pragma process 
-  1     1656  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     1724  \u0000d\u0000a
-  1     1745  #pragma echo 
-  1     1787  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1     1895  \u0000d\u0000a#include 
-  1     1929  \u0000d\u0000a#pragma process 
-  1     1958  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     2029  \u0000d\u0000a
-  1     2048  #pragma echo 
-  1     2088  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1     2196  \u0000d\u0000a#include 
-  1     2230  \u0000d\u0000a#pragma process 
-  1     2257  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     2326  \u0000d\u0000a
-  1     2347  #pragma echo 
-  1     2389  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1     2497  \u0000d\u0000a#include 
-  1     2531  \u0000d\u0000a#pragma process 
-  1     2560  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     2631  \u0000d\u0000a
-  1     2648  #pragma echo 
-  1     2686  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1     2794  \u0000d\u0000a#include 
-  1     2828  \u0000d\u0000a#pragma process 
-  1     2853  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     2920  \u0000d\u0000a
-  1     2938  #pragma echo 
-  1     2977  \u0000d\u0000a#pragma block_enter\u0000d\u0000a#pragma clear_defines\u0000d\u0000a#pragma clear_pragma process\u0000d\u0000a#include 
-  1     3085  \u0000d\u0000a#include 
-  1     3119  \u0000d\u0000a#pragma process 
-  1     3145  \u0000d\u0000a\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     3213  \u0000d\u0000a#pragma echo 
-  1     3253  \u0000d\u0000a#pragma popd\u0000d\u0000a#pragma block_exit\u0000d\u0000a#pragma echo 
-  1     3333  \u0000d\u0000a#pragma echo 
-  1     3381  \u0000d\u0000a
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -28415,7 +28342,6 @@ Table: IdProj
 Table: Files
 FID  NAME           RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  -------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  1  awk.cs         TRUE    3383        162     378         12          0    125          48       59       0           103        0          0          1       358        0        1           0           0           0      0      0           0         0      0         0        20
   2  cscout_defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37        0        1           0           0           0      0      0           0         0      0         0         0
   3  cscout_incs.h  TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  awkgram.y      FALSE  13892       1405    2856          0         16    486          96       16       0             3        0          0          0      4073     4220        1         211           6           0      6     92           0         4      0         0         3

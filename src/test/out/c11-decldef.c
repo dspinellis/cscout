@@ -29,8 +29,6 @@ Table: Ids
   5469  a                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
   5675  __STDC__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
   7495  _cscout_dummy1      TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
- 16719  PRJ2                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 23047  PRJ2                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
  28837  _STDIO_H_           TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
  29021  _ANSI_H_            TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
  29621  _CSCOUT_SIZE_T_     TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
@@ -172,8 +170,6 @@ Table: Ids
 Table: Tokens
 FID  FOFFSET     EID
 ---  -------  ------
-  1     1194   16719
-  1     1646   23047
   2      297    4163
   2      329    4611
   2      357    5003
@@ -440,47 +436,7 @@ FID  FOFFSET     EID
   7       88    1247
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ---------------------------------------------------------------------------------------------------------
-  1       20  #pragma echo 
-  1       64  \u0000a
-  1       85  #pragma echo 
-  1      129  \u0000a#pragma echo 
-  1      172  \u0000a#pragma pushd 
-  1      195  \u0000a
-  1      212  #pragma echo 
-  1      252  \u0000a#pragma project 
-  1      275  \u0000a#pragma block_enter\u0000a
-  1      318  #pragma echo 
-  1      364  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1      512  \u0000a#pragma includepath 
-  1      567  \u0000a#include 
-  1      644  \u0000a#pragma process 
-  1      676  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1      748  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1      813  \u0000a
-  1      830  #pragma echo 
-  1      870  \u0000a#pragma project 
-  1      893  \u0000a#pragma block_enter\u0000a
-  1      936  #pragma echo 
-  1      982  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1130  \u0000a#pragma includepath 
-  1     1185  \u0000a#define 
-  1     1198  \u0000a#include 
-  1     1275  \u0000a#pragma process 
-  1     1307  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1379  \u0000a
-  1     1395  #pragma echo 
-  1     1434  \u0000a#pragma block_enter\u0000a#pragma clear_defines\u0000a#pragma clear_include\u0000a#pragma process 
-  1     1582  \u0000a#pragma includepath 
-  1     1637  \u0000a#define 
-  1     1650  \u0000a#include 
-  1     1727  \u0000a#pragma process 
-  1     1752  \u0000a\u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1817  \u0000a#pragma block_exit\u0000a#pragma echo 
-  1     1882  \u0000a#pragma echo 
-  1     1924  \u0000a#pragma popd\u0000a#pragma echo 
-  1     1987  \u0000a#pragma echo 
-  1     2037  \u0000a
+---  -------  ------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -1029,8 +985,6 @@ Table: IdProj
   5469   18
   5675   18
   7495   18
- 16719   18
- 23047   18
  28837   18
  29021   18
  29621   18
@@ -1172,7 +1126,6 @@ Table: IdProj
 Table: Files
 FID  NAME           RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  -------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  1  makecs.cs      TRUE    2038        110     131          7          0     60          83       31       0            50        0          0          2       178        0        1           0           0           0      0      0           0         0      0         0         3
   2  cscout_defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  cscout_incs.h  TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  c11-decldef.c  FALSE    400          0     102          0          0     30          34        2       0             2        0          0          1       108      102        1           2           2           0      3      0           0         0      0         0         1
