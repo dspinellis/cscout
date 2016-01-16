@@ -353,7 +353,7 @@ eval()
 	// Process the "defined" operator
 	PtokenSequence::iterator i, arg, last, i2;
 	for (i = eval_tokens.begin();
-	     (i = i2 = find_if(i, eval_tokens.end(), [](Ptoken t) { return t.get_val() == "defined"; })) != eval_tokens.end(); ) {
+	     (i = i2 = find_if(i, eval_tokens.end(), [](const Ptoken &t) { return t.get_val() == "defined"; })) != eval_tokens.end(); ) {
 	     	bool need_bracket = false;
 		i2++;
 		arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
@@ -409,7 +409,7 @@ eval()
 
 	// Change remaining identifiers to 0
 	for (i = eval_tokens.begin();
-	     (i = find_if(i, eval_tokens.end(), [](Ptoken t) { return t.get_code() == IDENTIFIER; })) != eval_tokens.end(); )
+	     (i = find_if(i, eval_tokens.end(), [](const Ptoken &t) { return t.get_code() == IDENTIFIER; })) != eval_tokens.end(); )
 	     	*i = Ptoken(PP_NUMBER, "0");
 	eval_ptr = eval_tokens.begin();
 	if (DP()) {
