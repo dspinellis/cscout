@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 #
 # (C) Copyright 2001-2016 Diomidis Spinellis
 #
@@ -390,7 +390,6 @@ if [ $TEST_OBFUSCATION = 1 ]
 then
 	echo 'Running the obfuscation test'
 	echo '----------------------------'
-	mkdir -p ../example.obf
 	cd ../example.obf
 	sh run.sh
 	cd awk
