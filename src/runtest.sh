@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# (C) Copyright 2001-2015 Diomidis Spinellis
+# (C) Copyright 2001-2016 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -328,11 +328,11 @@ macpro)
 	CPPTESTS=/dds/src/research/CScout/refactor/test/cpp
 	TMP=.
 	;;
-sense|medusa)
-	HSQLDB="java -classpath $HOME/lib/hsqldb/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HOME/lib/hsqldb/sqltool.rc"
-	IPATH=$HOME/src/include
-	CPPTESTS=$HOME/src/cscout/test/cpp
-	DOTCSCOUT=$HOME/src/example/.cscout
+sense|medusa|stereo)
+	HSQLDB="java -classpath $HSQLDB_DIR/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HSQLDB_DIR/sqltool.rc"
+	IPATH=$CSCOUT_DIR/include
+	CPPTESTS=$CSCOUT_DIR/test/cpp
+	DOTCSCOUT=$CSCOUT_DIR/example/.cscout
 	;;
 *)
 	echo Unknown testing environment 1>&2

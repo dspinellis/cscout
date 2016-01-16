@@ -19,7 +19,9 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-HSQLDB_VERSION:=2.3.3
+CSCOUT_DIR:=$(shell pwd)
+HSQLDB_VERSION=2.3.3
+HSQLDB_DIR:=$(CSCOUT_DIR)/hsqldb-$(HSQLDB_VERSION)/hsqldb
 
 .PHONY: src/build/cscout swill/libswill.a btyacc/btyacc
 
@@ -44,3 +46,6 @@ hsqldb-$(HSQLDB_VERSION):  hsqldb-$(HSQLDB_VERSION).zip
 
 hsqldb-$(HSQLDB_VERSION).zip:
 	wget http://hsqldb.org/download/hsqldb-2.3.3.zip
+
+test:
+	cd src && $(MAKE) test
