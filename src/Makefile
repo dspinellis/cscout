@@ -28,7 +28,6 @@ WEBHOME=$(UH)/dds/pubs/web/home/cscout/
 CC=gcc
 CXX=g++
 ADDLIBS+=../swill/libswill.a
-CXXFLAGS+=-std=c++11
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -88,7 +87,7 @@ ALLSRC=$(SRC) logo.png version.cpp
 YACC=../btyacc/btyacc
 #YACC=yacc
 
-CPPFLAGS+=-pipe -Wall -I.
+CPPFLAGS+=-pipe -Wall -I. -std=c++11
 ifdef DEBUG
 # Debug build
 # To get yacc debugging info set YYDEBUG environment variable to 1
