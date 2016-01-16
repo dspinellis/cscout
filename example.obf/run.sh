@@ -3,8 +3,8 @@
 # Create an obfuscated version of the awk source code
 #
 
-mkdir -p awk
-rm awk/*
+rm -rf awk
+mkdir awk
 cp ../example/awk/* awk/
 cd awk
 mv ytabc.bak ytab.c
