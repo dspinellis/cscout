@@ -333,15 +333,11 @@ macpro)
 	CPPTESTS=/dds/src/research/CScout/refactor/test/cpp
 	TMP=.
 	;;
-sense|medusa|stereo)
+*)
 	HSQLDB="java -jar $HSQLDB_DIR/lib/sqltool.jar --rcfile $HSQLDB_DIR/sample/sqltool.rc"
 	IPATH=$CSCOUT_DIR/include
 	CPPTESTS=$CSCOUT_DIR/test/cpp
 	DOTCSCOUT=$CSCOUT_DIR/example/.cscout
-	;;
-*)
-	echo Unknown testing environment 1>&2
-	exit 1
 	;;
 esac
 
