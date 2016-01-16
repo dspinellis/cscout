@@ -321,25 +321,18 @@ while test $# -gt 0; do
 	shift
 done
 
-# Set host-dependent variables
-NULL=/dev/null
-TMP=/tmp
 CSCOUT=$(dirname $0)/build/cscout
-case `hostname` in
-macpro)
-	HSQLDB="java -jar /app/hsqldb/lib/sqltool.jar --rcfile /app/hsqldb/sample/sqltool.rc"
-	IPATH=/dds/src/research/CScout/include
-	DOTCSCOUT=/dds/src/research/CScout/example/.cscout
-	CPPTESTS=/dds/src/research/CScout/refactor/test/cpp
-	TMP=.
-	;;
-*)
-	HSQLDB="java -jar $HSQLDB_DIR/lib/sqltool.jar --rcfile $HSQLDB_DIR/sample/sqltool.rc"
-	IPATH=$CSCOUT_DIR/include
-	CPPTESTS=$CSCOUT_DIR/test/cpp
-	DOTCSCOUT=$CSCOUT_DIR/example/.cscout
-	;;
-esac
+
+# Adjust HSQLDB_DIR for native Windows Java
+if cygpath -a / 2>&1 >/dev/null &&
+  ! java -jar $HSQLDB_DIR/lib/sqltool.jar </dev/null ; then
+    HSQLDB_DIR=$(cygpath -w $HSQLDB_DIR)
+fi
+
+HSQLDB="java -jar $HSQLDB_DIR/lib/sqltool.jar --rcfile $HSQLDB_DIR/sample/sqltool.rc"
+IPATH=$CSCOUT_DIR/include
+CPPTESTS=$CSCOUT_DIR/test/cpp
+DOTCSCOUT=$CSCOUT_DIR/example/.cscout
 
 chmod 444 ../include/* ../example/.cscout/*
 mkdir -p test/nout
