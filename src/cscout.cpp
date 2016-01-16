@@ -2389,7 +2389,7 @@ version_info(bool html)
 	Version::get_revision() << " - " <<
 	Version::get_date() << end << end <<
 	// 80 column terminal width---------------------------------------------------
-	"(c) Copyright 2003-" << (__DATE__ + string(__DATE__).length() - 4) <<
+	"(c) Copyright 2003-" << ((char *)__DATE__ + string(__DATE__).length() - 4) <<
 				 // Current year
 	" Diomidis Spinelllis." << end <<
 	end <<
