@@ -87,15 +87,20 @@ ALLSRC=$(SRC) logo.png version.cpp
 YACC=../btyacc/btyacc
 #YACC=yacc
 
-CPPFLAGS+=-pipe -Wall -I. -std=c++11
+CPPFLAGS+=-pipe -Wall -I.
+CXXFLAGS+=-std=c++11
 ifdef DEBUG
 # Debug build
 # To get yacc debugging info set YYDEBUG environment variable to 1
 # To get stack traces for STL problems use gdb and break _Error_formatter::_M_at
-CPPFLAGS+=-g -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -DDEBUG
+CPPFLAGS+=-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -DDEBUG
+CFLAGS+=-g
+CXXFLAGS+=-g
 # -D_GLIBCXX_CONCEPT_CHECKS
 else
-CPPFLAGS+=-DPRODUCTION -O3
+CPPFLAGS+=-DPRODUCTION
+CFLAGS+=-O3
+CXXFLAGS+=-O3
 endif
 
 # Test coverage analysis
@@ -103,7 +108,8 @@ endif
 # Test with sh runtest.sh
 # Then run gcov token.cpp -o i386
 ifdef TCOV
-CPPFLAGS+=-ftest-coverage -fprofile-arcs
+CFLAGS+=-ftest-coverage -fprofile-arcs
+CXXFLAGS+=-ftest-coverage -fprofile-arcs
 endif
 
 # Local development flag options
@@ -123,7 +129,8 @@ CPPFLAGS += -I.
 endif
 
 ifeq (build,sparc)
-CPPFLAGS += -mcpu=v8
+CFLAGS+=-mcpu=v8
+CXXFLAGS+=-mcpu=v8
 endif
 
 ifdef PICO_QL
@@ -149,7 +156,7 @@ CPPFLAGS+=$(EXTRA_CPPFLAGS)
 
 # Pattern rules for C and C++ files
 build/%.o: %.c
-	$(CC) -c $(CPPFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 build/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
