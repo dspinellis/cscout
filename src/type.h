@@ -226,7 +226,7 @@ public:
 	// Creation functions
 	friend Type basic(enum e_btype t, enum e_sign s,
 			  enum e_storage_class sc, qualifiers_t);
-	friend Type array_of(Type t, CTConst nelem = CTConst());
+	friend Type array_of(Type t, CTConst nelem);
 	friend Type pointer_to(Type t);
 	friend Type function_returning(Type t, int n);
 	friend Type implict_function();

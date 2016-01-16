@@ -457,7 +457,7 @@ constant:
 
 string_literal_list:
                 STRING_LITERAL
-			{ $$ = array_of(basic(b_char)); }
+			{ $$ = array_of(basic(b_char), CTConst()); }
                 | string_literal_list STRING_LITERAL
 			{ $$ = $1; }
                 ;
@@ -2319,7 +2319,7 @@ postfixing_abstract_declarator:
 
 array_abstract_declarator:
         '[' ']'
-		{ $$ = array_of(basic()); }
+		{ $$ = array_of(basic(), CTConst()); }
 	/*
 	 * Could warn in the next two rules if we don't get a
 	 * constant expression, but our compile-time evaluation
