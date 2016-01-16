@@ -206,6 +206,7 @@ runtest_chunk()
 	DIR=$2
 	CSFILE=$3
 	start_test $DIR "Chunk $NAME"
+	mkdir -p test/chunk
 (
 echo '\p Loading database'
 (cd $DIR ; $CSCOUT -s hsqldb $CSFILE)
