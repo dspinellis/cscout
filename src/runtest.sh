@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # (C) Copyright 2001-2016 Diomidis Spinellis
 #
@@ -348,15 +348,6 @@ esac
 chmod 444 ../include/* ../example/.cscout/*
 mkdir -p test/nout
 
-# See that we are running a version of CScout that supports SQL dumps
-:>$TMP/empty
-$CSCOUT -s hsqldb $CSFILE $TMP/empty 2>$NULL >$NULL || {
-	echo 'CScout HSQLDB execution failed' 1>&2
-	rm -f $TMP/empty
-	exit 1
-}
-rm -f $TMP/empty
-
 if [ $TEST_RECONST = 1 ]
 then
 	echo 'Running reconstitution tests'
@@ -399,6 +390,7 @@ if [ $TEST_OBFUSCATION = 1 ]
 then
 	echo 'Running the obfuscation test'
 	echo '----------------------------'
+	mkdir -p ../example.obf
 	cd ../example.obf
 	sh run.sh
 	cd awk
