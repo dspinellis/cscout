@@ -48,5 +48,5 @@ hsqldb-$(HSQLDB_VERSION):  hsqldb-$(HSQLDB_VERSION).zip
 hsqldb-$(HSQLDB_VERSION).zip:
 	wget $(HSQLDB_URL) || curl -O $(HSQLDB_URL)
 
-test:
+test: src/build/cscout
 	cd src && $(MAKE) test
