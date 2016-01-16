@@ -27,7 +27,7 @@ WEBHOME=$(UH)/dds/pubs/web/home/cscout/
 
 CC=gcc
 CXX=g++
-LDFLAGS=-Llib
+LDFLAGS=-L../swill
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -84,7 +84,7 @@ SRC=Makefile $(DISTSRC)
 
 ALLSRC=$(SRC) logo.png version.cpp
 
-YACC=/c/dds/src/port/btyacc/btyacc
+YACC=../btyacc/btyacc
 #YACC=yacc
 
 CPPFLAGS+=-pipe -Wall -I.
