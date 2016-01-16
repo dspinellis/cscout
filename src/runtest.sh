@@ -98,7 +98,7 @@ echo '
 
 SET DATABASE REFERENTIAL INTEGRITY FALSE;
 
-CREATE TABLE FixedIds(EID integer primary key, fixedid integer);
+CREATE TABLE FixedIds(EID BIGINT primary key, fixedid integer);
 
 /*
  * Map points Eids as into numbers as follows:
@@ -130,7 +130,7 @@ UPDATE FunctionId SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = Fun
 
 DROP TABLE FixedIds;
 \p Fixing FUNCTION IDs
-CREATE TABLE FixedIds(FunId integer primary key, FixedId integer);
+CREATE TABLE FixedIds(FunId BIGINT primary key, FixedId integer);
 
 INSERT INTO FixedIds
 SELECT ID, (Fid + foffset * (select max(Fid) from files)) * 2 + 1
@@ -329,7 +329,7 @@ macpro)
 	TMP=.
 	;;
 sense|medusa|stereo)
-	HSQLDB="java -classpath $HSQLDB_DIR/hsqldb.jar org.hsqldb.util.SqlTool --rcfile $HSQLDB_DIR/sqltool.rc"
+	HSQLDB="java -jar $HSQLDB_DIR/lib/sqltool.jar --rcfile $HSQLDB_DIR/sample/sqltool.rc"
 	IPATH=$CSCOUT_DIR/include
 	CPPTESTS=$CSCOUT_DIR/test/cpp
 	DOTCSCOUT=$CSCOUT_DIR/example/.cscout
@@ -340,7 +340,7 @@ sense|medusa|stereo)
 	;;
 esac
 
-chmod 444 ../include/*
+chmod 444 ../include/* ../example/.cscout/*
 mkdir -p test/nout
 
 # See that we are running a version of CScout that supports SQL dumps
@@ -357,7 +357,7 @@ then
 	echo 'Running reconstitution tests'
 	echo '----------------------------'
 	# Test reconstitution of individual C files (no priming required)
-	for i in ${FILES:=$(cd test/c; echo *.c)}
+	for i in ${RCFILES:=$(cd test/c; echo *.c)}
 	do
 		makecs_c $i
 		runtest_chunk $i . makecs.cs
@@ -369,7 +369,7 @@ then
 	echo 'Running preprocessor tests'
 	echo '--------------------------'
 	# Test cases for C preprocessor files
-	for i in ${FILES:=$(cd test/cpp; echo *.c)}
+	for i in ${CPPFILES:=$(cd test/cpp; echo *.c)}
 	do
 		makecs_cpp test/cpp/$i
 		runtest_cpp $i . makecs.cs .
@@ -382,7 +382,7 @@ if [ $TEST_C = 1 ]
 then
 	echo 'Running C tests'
 	echo '---------------'
-	for i in ${FILES:=$(cd test/c; echo *.c)}
+	for i in ${CFILES:=$(cd test/c; echo *.c)}
 	do
 		makecs_c $i
 		runtest_c $i . . makecs.cs

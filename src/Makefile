@@ -221,7 +221,7 @@ endif
 
 
 test:
-	./runtest.sh
+	./runtest.sh $(TEST_FLAGS)
 
 # Used for regenerating the logo
 logo.cpp: logo.png

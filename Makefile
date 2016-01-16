@@ -19,9 +19,9 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-CSCOUT_DIR:=$(shell pwd)
+export CSCOUT_DIR=$(shell pwd)
 HSQLDB_VERSION=2.3.3
-HSQLDB_DIR:=$(CSCOUT_DIR)/hsqldb-$(HSQLDB_VERSION)/hsqldb
+export HSQLDB_DIR=$(CSCOUT_DIR)/hsqldb-$(HSQLDB_VERSION)/hsqldb
 
 .PHONY: src/build/cscout swill/libswill.a btyacc/btyacc
 
