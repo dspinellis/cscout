@@ -27,7 +27,7 @@ WEBHOME=$(UH)/dds/pubs/web/home/cscout/
 
 CC=gcc
 CXX=g++
-LDFLAGS=-L../swill
+ADDLIBS+=../swill/libswill.a
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
@@ -172,7 +172,7 @@ endif
 #all: simple_cpp
 
 build/cscout: build/cscout.o $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o -L${HOME}/lib/build -lswill $(ADDLIBS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o $(ADDLIBS)
 
 # CCmalloc version
 build/cscout-cc: build/cscout.o  $(OBJ)
