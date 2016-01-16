@@ -28,6 +28,7 @@ WEBHOME=$(UH)/dds/pubs/web/home/cscout/
 CC=gcc
 CXX=g++
 ADDLIBS+=../swill/libswill.a
+CXXFLAGS+=-std=c++11
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
