@@ -54,7 +54,7 @@ enum e_attribute {
 	is_typedef,		// Typedef
 	is_enum,		// Enumeration member
 	is_yacc,		// Yacc identifier
-	is_function,		// Function
+	is_cfunction,		// Function
 
 	attr_end,		// From here-on we store projects
 	attr_begin = is_readonly // First user-visible attribute

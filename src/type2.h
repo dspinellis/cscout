@@ -86,7 +86,7 @@ public:
 	Type call() const { return returning; }
 	// Common extension: dereferencing a function yields a function
 	Type deref() const { return clone(); }
-	bool is_function() const { return true; }
+	bool is_cfunction() const { return true; }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { returning.set_storage_class(t); }

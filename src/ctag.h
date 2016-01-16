@@ -59,7 +59,7 @@ public:
 		definition(tok.get_defining_tokid()) {
 		switch (sc) {
 		case c_static:
-			if (typ.is_function())
+			if (typ.is_cfunction())
 				kind = 'f';
 			else
 				kind = 'v';
@@ -72,7 +72,7 @@ public:
 			kind = 'e';
 			break;
 		default:
-			if (typ.is_function())
+			if (typ.is_cfunction())
 				kind = 'f';
 			else
 				kind = 'v';

@@ -162,7 +162,7 @@ obj_define(const Token& tok, Type typ)
 		(Block::param_block.obj).define(tok, typ);
 		return;
 	}
-	if (sc == c_unspecified && typ.is_function())
+	if (sc == c_unspecified && typ.is_cfunction())
 		// If the declaration of an identifier for a function has no
 		// storage-class specifier, its linkage is determined exactly
 		// as if it were declared with the storage class specifier
@@ -183,7 +183,7 @@ obj_define(const Token& tok, Type typ)
 	if (Block::get_scope_level() == Block::cu_block) {
 		// Function *definitions* are added from FCall::set_current_fun
 		// We don't add extern variables
-		if (!typ.is_function() && sc != c_extern)
+		if (!typ.is_cfunction() && sc != c_extern)
 			CTag::add(tok, typ, sc);
 
 		// Special rules for definitions at file scope
@@ -203,7 +203,7 @@ obj_define(const Token& tok, Type typ)
 					Error::error(E_ERR, "conflicting declarations for identifier " + id->get_name());
 				Token::unify(id->get_token(), tok);
 			}
-			if (!typ.is_function())
+			if (!typ.is_cfunction())
 				Fchar::get_fileid().metrics().add_fvar();
 			break;
 		case c_typedef:
@@ -215,13 +215,13 @@ obj_define(const Token& tok, Type typ)
 			tok.set_ec_attribute(is_enum);
 			break;
 		default:
-			if (!typ.is_function())
+			if (!typ.is_cfunction())
 				Fchar::get_fileid().metrics().add_pvar();
 			tok.set_ec_attribute(is_lscope);
 			break;
 		}
 		// A definition contributing data to the current CU
-		if (sc != c_extern && sc != c_typedef && sc != c_enum && !typ.is_function()) {
+		if (sc != c_extern && sc != c_typedef && sc != c_enum && !typ.is_cfunction()) {
 			if (DP())
 				Error::error(E_DEBUG, "Add provider through obj_define");
 			Fdep::add_provider(Fchar::get_fileid());
@@ -241,10 +241,10 @@ obj_define(const Token& tok, Type typ)
 	}
 	// Locate/create the appropriate FCall object
 	FCall *fc = NULL;
-	if (typ.is_function() && !typ.is_typedef()) {
+	if (typ.is_cfunction() && !typ.is_typedef()) {
 		if (DP())
 			cout << "Looking for function " << tok.get_name() << '\n';
-		tok.set_ec_attribute(is_function);
+		tok.set_ec_attribute(is_cfunction);
 		if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
 			// Extern linkage: get it from the lu block which we do not normaly search
 			if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())) != NULL)
@@ -285,7 +285,7 @@ obj_define(const Token& tok, Type typ)
 			 * so that id is correctly initialized with one.  However, we add a def, only if it
 			 * is a definition of a global variable, rather than a declaration.
 			 */
-			if (!typ.is_function()) {
+			if (!typ.is_cfunction()) {
 				if (DP())
 					cout << "Define global variable identifier " << tok.get_name() << endl;
 				// Try to match the global against one in another project
@@ -303,7 +303,7 @@ obj_define(const Token& tok, Type typ)
 		 * We test go, because it might be null if the object is defined as a function in one
 		 * and as a variable in another.
 		 */
-		if (go && !typ.is_function() && sc == c_unspecified && Block::current_block == Block::cu_block)
+		if (go && !typ.is_cfunction() && sc == c_unspecified && Block::current_block == Block::cu_block)
 			go->add_def(Fchar::get_fileid());
 	}
 }
@@ -382,7 +382,7 @@ obj_lookup(const string& name)
 	Id const *id = r.first;
 	if (id) {
 		enum e_storage_class sc = r.first->get_type().get_storage_class();
-		if (!r.first->get_type().is_function() &&
+		if (!r.first->get_type().is_cfunction() &&
 		    (sc == c_extern || (sc == c_unspecified && r.second == Block::cu_block))) {
 			if (DP())
 				cout << "Lookup global variable identifier " << name << endl;

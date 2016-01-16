@@ -100,7 +100,7 @@ protected:
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_array() const { return false; }	// True for arrays
 	virtual bool is_basic() const { return false; }// False for undeclared
-	virtual bool is_function() const { return false; }	// True for functions
+	virtual bool is_cfunction() const { return false; }	// True for functions
 	virtual bool is_identifier() const { return false; }// True only for identifiers
 	virtual bool is_incomplete() const { return false; }	// True incomplete struct/union
 	virtual bool is_padbit() const { return false; }// True for pad bit field
@@ -267,7 +267,7 @@ public:
 	bool is_abstract() const	{ return p->is_abstract(); }
 	bool is_array() const		{ return p->is_array(); }
 	bool is_basic() const		{ return p->is_basic(); }
-	bool is_function() const	{ return p->is_function(); }
+	bool is_cfunction() const	{ return p->is_cfunction(); }
 	bool is_identifier() const	{ return p->is_identifier(); }
 	bool is_incomplete() const	{ return p->is_incomplete(); }
 	bool is_padbit() const		{ return p->is_padbit(); }

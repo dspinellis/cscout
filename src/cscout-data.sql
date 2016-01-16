@@ -81,7 +81,7 @@ CREATE STRUCT VIEW Eclass (
 	isTypedef BOOLEAN FROM get_attribute(is_typedef),			// Typedef
 	isEnum BOOLEAN FROM get_attribute(is_enum),				// Enumeration member
 	isYacc BOOLEAN FROM get_attribute(is_yacc),				// Yacc identifier
-	isFunction BOOLEAN FROM get_attribute(is_function),			// Function
+	isFunction BOOLEAN FROM get_attribute(is_cfunction),			// Function
         FOREIGN KEY(members) FROM get_members() REFERENCES Tokids
 );
 

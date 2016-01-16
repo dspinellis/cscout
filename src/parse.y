@@ -471,7 +471,7 @@ primary_expression:
 				if (id) {
 					Token::unify(id->get_token(), $1.get_token());
 					$$ = id->get_type();
-					if ($$.is_function())
+					if ($$.is_cfunction())
 						FCall::register_call($1.get_token(), id);
 				} else {
 					/*

@@ -261,7 +261,7 @@ file_obfuscate(Fileid fid)
 				else
 					CProcessor::output_id(out, ptr_offset(ec));
 			} else {
-				if ( ec->get_attribute(is_function) &&
+				if ( ec->get_attribute(is_cfunction) &&
 				     ec->get_attribute(is_ordinary) &&
 				     ec->get_attribute(is_lscope) &&
 				     s == "main")

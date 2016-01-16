@@ -1416,7 +1416,7 @@ identifier_page(FILE *fo, void *p)
 	}
 	fprintf(fo, "<li><a href=\"xiquery.html?ec=%p&n=Dependent+Files+for+Identifier+%s&qf=1\">Dependent files</a>", e, id.get_id().c_str());
 	fprintf(fo, "<li><a href=\"xfunquery.html?ec=%p&qi=1&n=Functions+Containing+Identifier+%s\">Associated functions</a>", e, id.get_id().c_str());
-	if (e->get_attribute(is_function) || e->get_attribute(is_macro)) {
+	if (e->get_attribute(is_cfunction) || e->get_attribute(is_macro)) {
 		bool found = false;
 		// Loop through all declared functions
 		for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
@@ -2499,7 +2499,7 @@ index_page(FILE *of, void *data)
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&unused=1&match=L&qi=1&n=Unused+Writable+Macros\">Unused writable macros</a>\n", is_macro);
 	// xfile is implicitly 0
 	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&a%d=1&match=T&ire=&fre=&n=Writable+identifiers+that+should+be+made+static&qi=1\">Writable variable identifiers that should be made static</a>\n", is_ordinary, is_lscope);
-	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&a%d=1&a%d=1&match=T&ire=&fre=&n=Writable+identifiers+that+should+be+made+static&qi=1\">Writable function identifiers that should be made static</a>\n", is_ordinary, is_lscope, is_function);
+	fprintf(of, "<li> <a href=\"xiquery.html?writable=1&a%d=1&a%d=1&a%d=1&match=T&ire=&fre=&n=Writable+identifiers+that+should+be+made+static&qi=1\">Writable function identifiers that should be made static</a>\n", is_ordinary, is_lscope, is_cfunction);
 	fprintf(of,
 		"<li> <a href=\"iquery.html\">Specify new identifier query</a>\n"
 		"</ul></div>"
