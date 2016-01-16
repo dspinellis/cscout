@@ -76,7 +76,7 @@ private:
 	static bool yacc_file;		// True if input file is yacc, not C
 	static StackFcharContext cs;	// Pushed contexts (from push_input())
 	static stackFchar ps;		// Putback stack
-	static stackFchar::size_type stack_lock_size;	// So many elements can not be removed
+	static size_t stack_lock_size;	// So many elements can not be removed
 					// from the push_input stack
 
 	static bool output_headers;	// Debug print of files being processed
