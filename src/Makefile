@@ -230,7 +230,7 @@ logo.cpp: logo.png
 	echo 'const unsigned char Logo::logo_bytes[] = {' >>logo.cpp
 	od -vb logo.png | tr -d "\r" | sed 's/^.......//;s/^ /0/;s/ /,0/g;s/$$/,/;s/^,$$//' >>logo.cpp
 	echo '};' >>logo.cpp
-	echo -n 'int Logo::len = sizeof(Logo::logo_bytes);' >>logo.cpp
+	echo 'int Logo::len = sizeof(Logo::logo_bytes);' >>logo.cpp
 
 wc:
 	wc -l $(SRC)
