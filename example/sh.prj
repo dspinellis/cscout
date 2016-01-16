@@ -1,0 +1,27 @@
+# FreeBSD /bin/sh shell (ash)
+#
+# You must compile the shell before running CScout to obtain a couple of 
+# auto-generated files: nodes.[ch] syntax.[ch] arith_lex.c token.h
+
+workspace sh {
+	cd "/usr/src/bin/sh"
+	project sh {
+		# Auto-generated files
+		readonly arith_lex.c
+		readonly nodes.c
+		readonly syntax.c
+		readonly nodes.h
+		readonly syntax.h
+		readonly token.h
+
+		# Files to process/compile to get the executable
+		file alias.c arith.y arith_lex.c builtins.c cd.c
+		file error.c eval.c exec.c expand.c histedit.c init.c
+		file input.c jobs.c mail.c main.c memalloc.c miscbltin.c
+		file mystring.c nodes.c options.c output.c parser.c redir.c
+		file show.c trap.c var.c syntax.c
+		directory ../test {
+			file test.c
+		}
+	}
+}

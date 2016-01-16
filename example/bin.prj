@@ -1,0 +1,17 @@
+# Some small tools from the FreeBSD bin directory
+workspace bin {
+	ro_prefix "/usr/include"
+	cd "/usr/src/bin"
+	project cp {
+		cd "cp"
+		file cp.c utils.c
+	}
+	project echo {
+		cd "echo"
+		file echo.c
+	}
+	project date {
+		cd "date"
+		file date.c
+	}
+}
