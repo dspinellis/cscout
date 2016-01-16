@@ -1,0 +1,12 @@
+# The one true awk
+workspace awk {
+	project awk {
+		cd "awk"
+		file awkgram.y {
+			define yyclearin
+		}
+		file b.c lex.c lib.c main.c
+		file maketab.c parse.c proctab.c
+		file run.c tran.c
+	}
+}
