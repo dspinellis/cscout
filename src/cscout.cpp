@@ -90,12 +90,6 @@
 using namespace picoQL;
 #endif
 
-#if defined(unix) || defined(__MACH__)
-#define ADD_UNIX_OPTIONS "b"
-#elif defined(WIN32)
-#define ADD_UNIX_OPTIONS ""
-#endif
-
 #include "sql.h"
 #include "workdb.h"
 #include "obfuscate.h"
@@ -3137,7 +3131,7 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3Ccd:rvEp:m:l:os:" ADD_UNIX_OPTIONS PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvEp:m:l:os:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3402,10 +3396,8 @@ main(int argc, char *argv[])
 	// Serve web pages
 	if (!must_exit)
 		cerr << "CScout is now ready to serve you at http://localhost:" << portno << endl;
-#if (!defined(WIN32)) && !defined(__CYGWIN__)
 	if (browse_only)
 		swill_setfork();
-#endif
 	while (!must_exit)
 		swill_serve();
 
