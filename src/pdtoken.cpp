@@ -33,11 +33,6 @@
 #include <set>
 #include <vector>
 #include <algorithm>
-#if __GNUG__ >= 3
-#include <ext/functional>	// compose1
-#else
-#include <functional>		// compose1
-#endif
 #include <cstdlib>		// strtoul
 #include <cstring>		// strerror
 
@@ -69,10 +64,6 @@
 #include "ctag.h"
 #include "type.h"		// stab.h
 #include "stab.h"		// Block::enter()
-
-#if __GNUG__ >= 3
-using __gnu_cxx::compose1;	// STL extensions
-#endif
 
 bool Pdtoken::at_bol = true;
 bool Pdtoken::output_defines = false;
@@ -362,7 +353,7 @@ eval()
 	// Process the "defined" operator
 	PtokenSequence::iterator i, arg, last, i2;
 	for (i = eval_tokens.begin();
-	     (i = i2 = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<string>(),"defined"), mem_fun_ref(&Ptoken::get_val)))) != eval_tokens.end(); ) {
+	     (i = i2 = find_if(i, eval_tokens.end(), [](Ptoken t) { return t.get_val() == "defined"; })) != eval_tokens.end(); ) {
 	     	bool need_bracket = false;
 		i2++;
 		arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
@@ -418,7 +409,7 @@ eval()
 
 	// Change remaining identifiers to 0
 	for (i = eval_tokens.begin();
-	     (i = find_if(i, eval_tokens.end(), compose1(bind2nd(equal_to<int>(),IDENTIFIER), mem_fun_ref(&Ptoken::get_code)))) != eval_tokens.end(); )
+	     (i = find_if(i, eval_tokens.end(), [](Ptoken t) { return t.get_code() == IDENTIFIER; })) != eval_tokens.end(); )
 	     	*i = Ptoken(PP_NUMBER, "0");
 	eval_ptr = eval_tokens.begin();
 	if (DP()) {
