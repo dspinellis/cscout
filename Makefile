@@ -19,9 +19,11 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+HSQLDB_VERSION:=2.3.3
+
 .PHONY: src/build/cscout swill/libswill.a btyacc/btyacc
 
-src/build/cscout: swill/libswill.a btyacc/btyacc
+src/build/cscout: swill/libswill.a btyacc/btyacc hsqldb-2.3.3
 	cd src && $(MAKE)
 
 swill/libswill.a: swill
@@ -36,3 +38,9 @@ btyacc/btyacc: btyacc
 
 btyacc:
 	git clone https://github.com/dspinellis/btyacc
+
+hsqldb-$(HSQLDB_VERSION):  hsqldb-$(HSQLDB_VERSION).zip
+	unzip $< && touch $@
+
+hsqldb-$(HSQLDB_VERSION).zip:
+	wget http://hsqldb.org/download/hsqldb-2.3.3.zip
