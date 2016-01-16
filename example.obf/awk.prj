@@ -1,0 +1,12 @@
+# The one true awk
+workspace awk {
+	project awk {
+		cd "awk"
+		file ytab.c b.c lex.c lib.c main.c
+		file maketab.c parse.c proctab.c
+		file run.c tran.c
+		file extern.h {
+			readonly
+		}
+	}
+}
