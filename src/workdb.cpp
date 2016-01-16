@@ -105,7 +105,7 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 	db->boolval(e->get_attribute(is_sumember)) << ',' <<
 	db->boolval(e->get_attribute(is_label)) << ',' <<
 	db->boolval(e->get_attribute(is_typedef)) << ',' <<
-	db->boolval(e->get_attribute(is_enum)) << ',' <<
+	db->boolval(e->get_attribute(is_enumeration)) << ',' <<
 	db->boolval(e->get_attribute(is_yacc)) << ',' <<
 	db->boolval(e->get_attribute(is_cfunction)) << ',' <<
 	db->boolval(e->get_attribute(is_cscope)) << ',' <<

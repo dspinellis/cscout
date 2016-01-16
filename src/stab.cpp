@@ -212,7 +212,7 @@ obj_define(const Token& tok, Type typ)
 			break;
 		case c_enum:
 			tok.set_ec_attribute(is_cscope);
-			tok.set_ec_attribute(is_enum);
+			tok.set_ec_attribute(is_enumeration);
 			break;
 		default:
 			if (!typ.is_cfunction())

@@ -52,7 +52,7 @@ enum e_attribute {
 				// identifier  (static)
 	is_lscope,		// Linkage-unit scoped identifier
 	is_typedef,		// Typedef
-	is_enum,		// Enumeration member
+	is_enumeration,		// Enumeration member
 	is_yacc,		// Yacc identifier
 	is_cfunction,		// Function
 
