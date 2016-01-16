@@ -1061,8 +1061,8 @@ Pdtoken::process_pragma()
 		Fileid fi = Fileid(t.get_val());
 		fi.set_readonly(true);
 	} else if (t.get_val() == "process") {
-		int parse_parse();
-		void garbage_collect(Fileid fi);
+		extern int parse_parse();
+		extern void garbage_collect(Fileid fi);
 
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
