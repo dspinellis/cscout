@@ -7,3 +7,4 @@ parse.tab.h
 tokname.cpp
 version.cpp
 ytab.h
+makecs.cs
