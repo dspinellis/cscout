@@ -180,7 +180,8 @@ SELECT * from Includers ORDER BY PID, CUID, BASEFILEID, IncluderID;
 \p Table: Providers
 SELECT * from Providers ORDER BY PID, CUID, Providerid;
 \p Table: IncTriggers
-SELECT * from IncTriggers ORDER BY PID, CUID, Basefileid, Definerid, FOffset;
+SELECT * from IncTriggers WHERE Definerid != 1
+ORDER BY PID, CUID, Basefileid, Definerid, FOffset;
 \p Table: Functions
 SELECT * from Functions ORDER BY ID;
 \p Table: FunctionMetrics

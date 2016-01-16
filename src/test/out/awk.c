@@ -28734,7 +28734,6 @@ PID  CUID  PROVIDERID
 Table: IncTriggers
 PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
 ---  ----  ----------  ---------  -------  ---
- 17     4           4          1      403    9
  17     4           4          7     2445    6
  17     4           4          8     1658    4
  17     4           4          8     2194    9

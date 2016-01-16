@@ -153,7 +153,6 @@ PID  CUID  PROVIDERID
 Table: IncTriggers
 PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
 ---  ----  ----------  ---------  -------  ---
- 18     4           4          1     1230    4
  18     7           7          2      471    4
 Table: Functions
   ID  NAME            ISMACRO  DEFINED  DECLARED  FILESCOPED  FID  FOFFSET  FANIN
