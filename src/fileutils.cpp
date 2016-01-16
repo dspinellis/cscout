@@ -28,7 +28,7 @@
 #include <fstream>
 #include <cstdlib>		// getenv
 
-#if defined(unix) || defined(__MACH__)
+#if defined(unix) || defined(__unix__) || defined(__MACH__)
 #include <sys/types.h>		// mkdir
 #include <sys/stat.h>		// mkdir
 #include <unistd.h>		// unlink
@@ -111,7 +111,7 @@ cscout_output_file(const string &basename, ofstream &out, string &fname)
 	}
 	// Then try to create it
 	for (i = dirs.begin(); i != dirs.end(); i++) {
-		#if defined(unix) || defined(__MACH__)
+		#if defined(unix) || defined(__unix__) || defined(__MACH__)
 		(void)mkdir(i->c_str(), 0777);
 		#else
 		(void)mkdir(i->c_str());

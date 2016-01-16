@@ -33,7 +33,7 @@
 #include <cctype>
 #include <vector>
 #include <algorithm>
-#if defined(unix) || defined(__MACH__)
+#if defined(unix) || defined(__unix__) || defined(__MACH__)
 #include <unistd.h>		// access(2)
 #else
 #include <io.h>			// access(2)

@@ -25,8 +25,8 @@ WEBHOME=$(UH)/dds/pubs/web/home/cscout/
 
 .PHONY: test
 
-CC=gcc
-CXX=g++
+CC=cc
+CXX=c++
 ADDLIBS+=../swill/libswill.a
 
 # Common object files

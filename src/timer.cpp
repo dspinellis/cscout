@@ -2,7 +2,7 @@
 
 #include "timer.h"
 
-#if defined(unix) || defined(__MACH__)
+#if defined(unix) || defined(__unix__) || defined(__MACH__)
 
 #include <sys/types.h>
 #include <sys/time.h>

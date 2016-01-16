@@ -7,6 +7,7 @@ rm -rf awk
 mkdir awk
 cp ../example/awk/* awk/
 cd awk
+rm makefile
 mv ytabc.bak ytab.c
 mv ytabh.bak ytab.h
 sed "/LC_MESSAGES/d" ../../example/awk/main.c >main.c
@@ -34,8 +35,6 @@ but remains difficult to reverse-engineer and modify.
 To compile this version of awk under Unix, Linux, FreeBSD, Mac OS X,
 or Cygwin run:
 make
-(Edit the makefile changing gcc to the name of your compiler, if
-you're not using gcc.)
 
 To compile awk under Microsoft's Visual Studio run:
 nmake /f makefile.win
@@ -46,8 +45,8 @@ You can find an up-to-date version of the awk source code at
 Diomidis Spinellis - December 2008
 EOF
 
-cat <<\EOF >makefile
-CC=gcc
+cat <<\EOF >Makefile
+CC=cc
 
 OFILES = b.o lex.o lib.o main.o parse.o proctab.o run.o tran.o ytab.o
 

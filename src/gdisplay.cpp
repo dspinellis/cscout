@@ -74,7 +74,7 @@
 
 #include "gdisplay.h"
 
-#if defined(unix) || defined(__MACH__)
+#if defined(unix) || defined(__unix__) || defined(__MACH__)
 #include <sys/types.h>		// mkdir
 #include <sys/stat.h>		// mkdir
 #include <unistd.h>		// unlink
@@ -102,7 +102,7 @@ GDDot::head(const char *fname, const char *title, bool empty_node) {
 void
 GDDotImage::head(const char *fname, const char *title, bool empty_node)
 {
-	#if defined(unix) || defined(__MACH__)
+	#if defined(unix) || defined(__unix__) || defined(__MACH__)
 	strcpy(img, "/tmp");
 	#elif defined(WIN32)
 	char *tmp = getenv("TEMP");

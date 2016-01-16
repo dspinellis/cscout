@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # (C) Copyright 2001-2016 Diomidis Spinellis
 #
@@ -44,8 +44,8 @@ end_compare()
 	fi
 	if { test -r test/out/$NAME.err &&
 	     diff -ib test/out/$NAME.out test/nout/$NAME.out &&
-	     diff -ib test/out/$NAME.err \
-	       <(sed "s|[^ ]*$(pwd)||i" test/nout/$NAME.err) ; } ||
+	     sed "s|[^ ]*$(pwd)||i" test/nout/$NAME.err |
+	     diff -ib test/out/$NAME.err - ; } ||
 	   { test -r test/out/$NAME &&
 	     diff -ib test/out/$NAME test/nout/$NAME ; }
 	then
@@ -389,7 +389,7 @@ then
 	cd ../example.obf
 	sh run.sh
 	cd awk
-	make
+	MAKEFLAGS= make
 	if [ -r awk ]
 	then
 		end_test obfsucation 1

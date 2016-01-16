@@ -88,7 +88,7 @@ is_absolute_filename(const string &s)
 }
 #endif /* WIN32 */
 
-#if defined(unix) || defined(__MACH__)
+#if defined(unix) || defined(__unix__) || defined(__MACH__)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
