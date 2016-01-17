@@ -43,7 +43,7 @@ if (-d '.cscout') {
 	exit(1);
 }
 
-if (!-r ($f = "$instdir/host-defs.h")) {
+if (!-r ($f = "$instdir/gcc-defs.h")) {
 	print STDERR "Unable to read $f: $!\n";
 	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
 	exit(1);
@@ -112,7 +112,7 @@ while (<IN>) {
 #pragma clear_defines
 #pragma clear_include
 #pragma pushd "$cd"
-#include "$instdir/host-defs.h"
+#include "$instdir/gcc-defs.h"
 } . join("\n", @rules) . qq{
 $process
 #pragma popd

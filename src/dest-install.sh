@@ -66,6 +66,9 @@ static void _cscout_dummy2(void) { _cscout_dummy2(); }
 }' >$TMPFILE
 install -m $HMODE $TMPFILE "$INCLUDE_DIR/host-incs.h"
 
+# GCC definitions for csmake
+install -m $HMODE $INC/template/gcc-defs.h "$INCLUDE_DIR/gcc-defs.h"
+
 # Perl scripts
 for f in cswc.pl csmake.pl ; do
   sed "s|INSTALL_INCLUDE|$INCLUDE_DIR|g" $f >$TMPFILE
