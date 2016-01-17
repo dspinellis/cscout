@@ -1,11 +1,10 @@
 <?xml version="1.0" ?>
 <notes>
 If you are impatient, you can get an immediate feeling of <em>CScout</em>,
-by unpacking its distribution file,
+by building it (<code>make</code>),
 entering the <code>example</code> directory and typing
 <ul>
-<li><code>../bin/cscout awk.cs</code> (under Unix), or
-<li><code>..\bin\cscout awk.cs</code> (under Windows).
+<li><code>../src/build/cscout awk.cs</code>
 </ul>
 You will then be able to use <em>CScout</em> and your browser
 to explore the source code of

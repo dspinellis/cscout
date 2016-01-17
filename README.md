@@ -18,12 +18,13 @@ For more details, examples, and documentation visit the project's
 ## Building
 CScout has been compiled and tested on GNU/Linux (Debian jessie),
 Apple OS X (El Capitan), FreeBSD (11.0), and Cygwin. In order to
-build CScout you need a modern C++ compiler.  To test CScout you
-also need to be able to run Java from the command line, in order to
-use the HSQLDB database.
+build and use CScout you need a Unix (like) system
+with a modern C++ compiler and Perl.
+To test CScout you also need to be able to run Java from the command line,
+in order to use the HSQLDB database.
 
-* To build run `make`.
-* To build and test run `make test`.
+* To build, run `make`.
+* To build and test, run `make test`.
 
 ## Contributing
 * For small-scale improvements and fixes simply submit a GitHub pull request.

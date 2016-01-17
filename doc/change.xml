@@ -1,9 +1,13 @@
 <?xml version="1.0" ?>
 <notes>
-<!--$Id: change.xml,v 1.7 2011/10/23 16:20:18 dds Exp $-->
 <!-- Remember to add extensions to the ext.xml file as well -->
 <dl>
-<dt>Version 2.9 (under development)</dt><dd>
+	<dt>Version 3.1 (under development)</dt><dd></dd>
+<dt>Version 3.0 (2016-01-17)</dt><dd>
+	<ul>
+		<li>Source code, repository, build process, and installation procedures were polished for distribution and released through GitHub licensed under GPL.</li>
+		<li>Changes and features are from now on tracked through the publicly available Git commit log.</li>
+	</ul>
 </dd>
 
 <dt>Version 2.8 (2011-10-23)</dt><dd>

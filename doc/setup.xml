@@ -1,9 +1,12 @@
 <?xml version="1.0" ?>
 <notes>
 <h2>System Requirements</h2>
-To run <em>CScout</em> your system must satisfy the following
+To build run <em>CScout</em> your system must satisfy the following
 requirements:
 <ul>
+	<li>Have a relatively modern C++ compiler that supports
+	the <code>-std=c++11</code> flag.  <em>CScout</em>
+	has been built and tested both with GCC and LLVM.
 <li> Have an installation of the <a href="http://www.perl.org">Perl</a>
 interpreter
 <li> Contain the include files of the compiler your programs use
@@ -19,7 +22,8 @@ Have an installation of the AT&amp;T
 program in the executable file path, and a Web browser supporting,
 directly or via a plugin, the display of SVG (scalable vector graphics)
 content.
-<li> Be able to retrieve Web content from the Internet without a proxy<br>
+<li> Run Java from the command line.
+	(This is required for running HSQLDB during testing.)
 </ul>
 
 <h2>Installation and Configuration</h2>
