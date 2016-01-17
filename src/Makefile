@@ -17,6 +17,8 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+INSTALL_PREFIX:=/usr/local
+
 # By default a production build is made.
 # For a debug build run make as:
 # make DEBUG=1
@@ -87,7 +89,7 @@ ALLSRC=$(SRC) logo.png version.cpp
 YACC=../btyacc/btyacc
 #YACC=yacc
 
-CPPFLAGS+=-pipe -Wall -I.
+CPPFLAGS+=-pipe -Wall -I. -DINSTALL_PREFIX='"$(INSTALL_PREFIX)"'
 CXXFLAGS+=-std=c++11
 ifdef DEBUG
 # Debug build
@@ -262,9 +264,8 @@ obfuscation:
 	)
 
 install: build/cscout
-	install -Ds $< /usr/local/bin/cscout
-	install csmake.pl /usr/local/bin/csmake
-	install cswc.pl /usr/local/bin/cswc
+	install -Ds $< "$(INSTALL_PREFIX)/bin/cscout"
+	./dest-install.sh "$(INSTALL_PREFIX)"
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql

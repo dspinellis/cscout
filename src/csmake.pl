@@ -35,13 +35,15 @@ if (-d '.cscout') {
 	$instdir = $ENV{CSCOUT_HOME};
 } elsif (defined($ENV{HOME}) && -d $ENV{HOME} . '/.cscout') {
 	$instdir = $ENV{HOME} . '/.cscout';
+} elsif (-d 'INSTALL_INCLUDE') {
+	$instdir = 'INSTALL_INCLUDE';
 } else {
 	print STDERR "Unable to identify a cscout installation directory\n";
 	print STDERR 'Create ./.cscout, or $HOME/.cscout, or set the $CSCOUT_HOME variable' . "\n";
 	exit(1);
 }
 
-if (!-r ($f = "$instdir/cscout_defs.h")) {
+if (!-r ($f = "$instdir/host-defs.h")) {
 	print STDERR "Unable to read $f: $!\n";
 	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
 	exit(1);
@@ -110,7 +112,7 @@ while (<IN>) {
 #pragma clear_defines
 #pragma clear_include
 #pragma pushd "$cd"
-#include "$instdir/cscout_defs.h"
+#include "$instdir/host-defs.h"
 } . join("\n", @rules) . qq{
 $process
 #pragma popd

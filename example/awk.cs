@@ -11,9 +11,9 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
+#include ".cscout/host-defs.h"
 #define yyclearin
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-incs.h"
 #pragma process "awkgram.y"
 #pragma process "ytab.h"
 
@@ -24,8 +24,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "b.c"
 
 #pragma block_exit
@@ -35,8 +35,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "lex.c"
 
 #pragma block_exit
@@ -46,8 +46,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "lib.c"
 
 #pragma block_exit
@@ -57,8 +57,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "main.c"
 
 #pragma block_exit
@@ -68,8 +68,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "maketab.c"
 
 #pragma block_exit
@@ -79,8 +79,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "parse.c"
 
 #pragma block_exit
@@ -90,8 +90,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "proctab.c"
 
 #pragma block_exit
@@ -101,8 +101,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "run.c"
 
 #pragma block_exit
@@ -112,8 +112,8 @@
 #pragma block_enter
 #pragma clear_defines
 #pragma clear_pragma process
-#include ".cscout/cscout_defs.h"
-#include ".cscout/cscout_incs.h"
+#include ".cscout/host-defs.h"
+#include ".cscout/host-incs.h"
 #pragma process "tran.c"
 
 #pragma block_exit

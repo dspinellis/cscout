@@ -2,6 +2,7 @@
 workspace awk {
 	project awk {
 		cd "awk"
+		define HAS_ISBLANK 1
 		file awkgram.y {
 			define yyclearin
 		}

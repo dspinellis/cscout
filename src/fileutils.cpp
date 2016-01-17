@@ -51,9 +51,12 @@ cscout_dirs()
 {
 	vector <string> dirs;
 #if !defined(PRODUCTION)
-	dirs.push_back("../refactor");
+	dirs.push_back("../src");
 #endif
 	dirs.push_back(".cscout");
+#if defined(INSTALL_PREFIX)
+	dirs.push_back(INSTALL_PREFIX "/include");
+#endif
 	if (getenv("CSCOUT_HOME"))
 		dirs.push_back(getenv("CSCOUT_HOME"));
 	if (getenv("HOME"))
