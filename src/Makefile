@@ -161,22 +161,7 @@ build/%.o: %.c
 build/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
-ifeq ($(OS),Windows_NT)
-# Windows
-all: build/cscout.exe
-SSH=plink
-SCP=pscp
-FREEFALL=freefall
-else
-# Unix
 all: build/cscout
-SSH=ssh
-SCP=scp
-FREEFALL=freefall.freebsd.org
-endif
-
-
-#all: simple_cpp
 
 build/cscout: build/cscout.o $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o $(ADDLIBS)
@@ -214,6 +199,8 @@ css.c: style.css
 mkerr:
 	perl mkerr.pl >../doc/error.xml
 
+# This ensures that the version.cpp is regenerated iff its SHA doesn't
+# match the current one.
 ifneq ($(shell sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp), $(shell git log -n 1 --format='%H'))
 version.cpp:
 	echo '#include <string>' >version.cpp
@@ -274,21 +261,10 @@ obfuscation:
 	zip -r $(WEBHOME)/awk-obf.zip awk ; \
 	)
 
-distco:
-	co -l $(DISTSRC)
-
-distedit:
-	wi $(DISTSRC)
-
-distci:
-	ci -u $(DISTSRC)
-
-evalsrc:
-	rm -rf cscout-$(BRANCH)-evalsrc
-	mkdir cscout-$(BRANCH)-evalsrc
-	cp $(DISTSRC) cscout-$(BRANCH)-evalsrc
-	tar czvf cscout-$(BRANCH)-evalsrc.tar.gz cscout-$(BRANCH)-evalsrc
-	rm -rf cscout-$(BRANCH)-evalsrc
+install: build/cscout
+	install -Ds $< /usr/local/bin/cscout
+	install csmake.pl /usr/local/bin/csmake
+	install cswc.pl /usr/local/bin/cswc
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql
