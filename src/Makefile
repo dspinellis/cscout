@@ -261,6 +261,11 @@ obfuscation:
 	zip -r $(WEBHOME)/awk-obf.zip awk ; \
 	)
 
+install: build/cscout
+	install -Ds $< /usr/local/bin/cscout
+	install csmake.pl /usr/local/bin/csmake
+	install cswc.pl /usr/local/bin/cswc
+
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql
 	perl picoschema.pl cscout-data.sql >cscout-data.auto
