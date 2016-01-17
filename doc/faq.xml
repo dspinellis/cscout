@@ -20,8 +20,6 @@ To update the table of contents execute the following vim command from a registe
 <li> <a href="#mem">My system appears to be using the hard disk excessively (thrashing).  Why?</a></li>
 <li> <a href="#svgview">Why can't I see SVG call graphs in my browser?</a></li>
 <li> <a href="#logo">Isn't the CScout logo infringing the intellectual property of the International Scout movement?</a></li>
-<li> <a href="#crit">When does <em>CScout</em> phone home?</a></li>
-<li> <a href="#det">What details does <em>CScout</em> send when calling its home base?</a></li>
 </ul>
 
 
