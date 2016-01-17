@@ -44,7 +44,7 @@ end_compare()
 	fi
 	if { test -r test/out/$NAME.err &&
 	     diff -ib test/out/$NAME.out test/nout/$NAME.out &&
-	     sed "s|[^ ]*$(pwd)||" test/nout/$NAME.err |
+	     sed "s|[^ ]*$(/bin/pwd)||" test/nout/$NAME.err |
 	     diff -ib test/out/$NAME.err - ; } ||
 	   { test -r test/out/$NAME &&
 	     diff -ib test/out/$NAME test/nout/$NAME ; }
