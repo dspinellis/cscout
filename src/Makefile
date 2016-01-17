@@ -199,6 +199,8 @@ css.c: style.css
 mkerr:
 	perl mkerr.pl >../doc/error.xml
 
+# This ensures that the version.cpp is regenerated iff its SHA doesn't
+# match the current one.
 ifneq ($(shell sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp), $(shell git log -n 1 --format='%H'))
 version.cpp:
 	echo '#include <string>' >version.cpp
