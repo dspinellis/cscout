@@ -94,8 +94,8 @@ FID  FOFFSET  CODE
   2      549  (void) { 
   2      572  (); }\u0000a
   3      152  \u0000a\u0000a\u0000a#pragma includepath 
-  3      190  \u0000a
-  3      234  \u0000astatic void _cscout_dummy2(void) { _cscout_dummy2(); }\u0000a
+  3      195  \u0000a
+  3      239  \u0000astatic void _cscout_dummy2(void) { _cscout_dummy2(); }\u0000a
   4       17  ()\u0000d\u0000a{\u0000d\u0000a	;\u0000d\u0000a}\u0000d\u0000a\u0000d\u0000a
   4       50  (
   4       56  )\u0000d\u0000a	char *
@@ -204,7 +204,7 @@ Table: Files
 FID  NAME              RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  ----------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
   2  cscout_defs.h     TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
-  3  cscout_incs.h     TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  3  cscout_incs.h     TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  c28-fun-nparam.c  FALSE    477          0     156          0          0     62          30        0       0             0        0          0          0       110      111        1          10          10           0      0      0           0         0      0         0         0
   5  prj2.c            FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj

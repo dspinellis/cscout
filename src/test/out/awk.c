@@ -13393,8 +13393,8 @@ FID  FOFFSET  CODE
   2      466  \u0000aint main();\u0000a
   2      522  \u0000astatic void _cscout_dummy1(void) { _cscout_dummy1(); }\u0000a
   3      152  \u0000a\u0000a\u0000a#pragma includepath 
-  3      190  \u0000a
-  3      234  \u0000astatic void _cscout_dummy2(void) { _cscout_dummy2(); }\u0000a
+  3      195  \u0000a
+  3      239  \u0000astatic void _cscout_dummy2(void) { _cscout_dummy2(); }\u0000a
   4     1160  \u0000a\u0000a%{\u0000a#include <stdio.h>\u0000a#include <string.h>\u0000a#include 
   4     1220  \u0000a\u0000avoid 
   4     1235  (
@@ -28343,7 +28343,7 @@ Table: Files
 FID  NAME           RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  -------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
   2  cscout_defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37        0        1           0           0           0      0      0           0         0      0         0         0
-  3  cscout_incs.h  TRUE     290        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  3  cscout_incs.h  TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
   4  awkgram.y      FALSE  13892       1405    2856          0         16    486          96       16       0             3        0          0          0      4073     4220        1         211           6           0      6     92           0         4      0         0         3
   5  stdio.h        TRUE    9603       5610     760          0         60    275          77        0       0            58        6         13         31      1068      602        1           0           0           0      1      0           3        23      0         0         1
   6  _ansi.h        TRUE    2686       2382      52          0         10     61          84        0       0             9        1          0          7        35        0        1           0           0           0      0      0           0         0      0         0         0
