@@ -265,9 +265,7 @@ obfuscation:
 
 install: build/cscout
 	install -Ds $< "$(INSTALL_PREFIX)/bin/cscout"
-	install csmake.pl "$(INSTALL_PREFIX)/bin/csmake"
-	install cswc.pl "$(INSTALL_PREFIX)/bin/cswc"
-	./inc-install.sh "$(INSTALL_PREFIX)/include"
+	./dest-install.sh "$(INSTALL_PREFIX)"
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql

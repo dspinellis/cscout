@@ -1,4 +1,4 @@
-.cscout/cscout_defs.h.obf
-.cscout/cscout_incs.h.obf
+.cscout/host-defs.h.obf
+.cscout/host-incs.h.obf
 awk.cs
 awk

@@ -16,7 +16,7 @@
 cswc \- CScout workspace compiler
 .SH SYNOPSIS
 \fBcswc\fP 
-[\fB\-vE\fP]
+[\fB\-Egv\fP]
 [\fB\-d\fP \fIdirectory\fP]
 [\fIfile\fR]
 .SH DESCRIPTION
@@ -59,6 +59,11 @@ Note that for this option to work correctly, you need to
 also specify \fB-E\fP in the \fICScout\fP invocation.
 .IP "\fB\-d\fP \fIdirectory\fP"
 Specify the directory to use for locating the \fICScout\fP configuration files.
+.IP "\fB\-g\fP"
+Compile the project as generic rather than host-specific C code.
+This means that the generated files will include CScout's standard-C include
+and macro definition files (\fIstdc-incs.h\fP and \fIstdc-defs.h\fP),
+rather than the host-specific ones (\fIhost-incs.h\fP and \fIhost-defs.h\fP).
 .IP "\fB\-v\fP"
 Display  the \fIcswc\fP version and copyright information and exit.
 .PP

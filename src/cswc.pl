@@ -55,15 +55,15 @@
 #
 
 use Getopt::Std;
-if (!getopts('vEd:')) {
-	print STDERR "usage: $0 [-vE] [-d directory] [file]\n";
+if (!getopts('Ed:gv')) {
+	print STDERR "usage: $0 [-Egv] [-d directory] [file]\n";
 	exit(1);
 }
 
 if ($opt_v) {
 	print STDERR "cswc - CScout workspace compiler\n\n" .
 	# 80 column terminal width----------------------------------------------------
-	"(C) Copyright 2003-2015 Diomidis Spinelllis.\n\n" .
+	"(C) Copyright 2003-2016 Diomidis Spinelllis.\n\n" .
 	"CScout is distributed as open source software under the GNU General Public\n" .
 	"License, available in the CScout documentation and online at\n" .
 	"http://www.gnu.org/licenses/.\n" .
@@ -73,7 +73,8 @@ if ($opt_v) {
 
 # Installation directory:
 # Search order
-# $opt_d, .cscout, $CSCOUT_HOME, and $HOME/.cscout
+# $opt_d, .cscout, $CSCOUT_HOME, $HOME/.cscout, and
+# INSTALL_INCLUDE
 use Cwd 'abs_path';
 
 if (defined($opt_d) && -d $opt_d) {
@@ -84,6 +85,8 @@ if (defined($opt_d) && -d $opt_d) {
 	$instdir = $ENV{CSCOUT_HOME};
 } elsif (defined($ENV{HOME}) && -d $ENV{HOME} . '/.cscout') {
 	$instdir = $ENV{HOME} . '/.cscout';
+} elsif (-d 'INSTALL_INCLUDE') {
+	$instdir = 'INSTALL_INCLUDE';
 } else {
 	print STDERR "Unable to identify a CScout installation directory\n";
 	print STDERR 'Create ./.cscout, or $HOME/.cscout, use -d, or set the $CSCOUT_HOME variable' . "\n";
@@ -91,13 +94,23 @@ if (defined($opt_d) && -d $opt_d) {
 }
 $instdir = abs_path($instdir);
 
-if (!-r ($f = "$instdir/cscout_incs.h")) {
+my ($incs, $defs);
+
+if (defined($opt_g)) {
+	$incs = 'stdc-incs.h';
+	$defs = 'stdc-defs.h';
+} else {
+	$incs = 'host-incs.h';
+	$defs = 'host-defs.h';
+}
+
+if (!-r ($f = "$instdir/$incs")) {
 	print STDERR "Unable to read $f: $!\n";
 	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
 	exit(1);
 }
 
-if (!-r ($f = "$instdir/cscout_defs.h")) {
+if (!-r ($f = "$instdir/$defs")) {
 	print STDERR "Unable to read $f: $!\n";
 	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
 	exit(1);
@@ -162,7 +175,7 @@ sub endunit
 		# Current ones no longer needed
 		pop(@units);
 		pop(@names);
-		print "#include \"$instdir/cscout_incs.h\"\n";
+		print "#include \"$instdir/$incs\"\n";
 		if ($opt_E) {
 			print "#include \"$name\"\n\n";
 		} else {
@@ -204,9 +217,9 @@ sub beginunit
 		print "#pragma clear_defines\n";
 		print "#pragma clear_include\n";
 		if ($opt_E) {
-			print "#include \"$instdir/cscout_defs.h\"\n";
+			print "#include \"$instdir/$defs\"\n";
 		} else {
-			print "#pragma process \"$instdir/cscout_defs.h\"\n";
+			print "#pragma process \"$instdir/$defs\"\n";
 		}
 	}
 }

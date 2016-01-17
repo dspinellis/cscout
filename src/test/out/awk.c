@@ -33,7 +33,7 @@ Table: Ids
   20685  ALL                 FALSE     TRUE        TRUE   FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  TRUE   FALSE  TRUE    FALSE   FALSE
   21621  __LINE__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
   21693  CCL                 FALSE     TRUE        TRUE   FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  TRUE   FALSE  TRUE    FALSE   FALSE
-  22571  yyclearin           TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+  22459  yyclearin           TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
   22685  __STDC__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
   22701  NCCL                FALSE     TRUE        TRUE   FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  TRUE   FALSE  TRUE    FALSE   FALSE
   23765  CHAR                FALSE     TRUE        TRUE   FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  TRUE   FALSE  TRUE    FALSE   FALSE
@@ -1958,7 +1958,7 @@ FID  FOFFSET      EID
   4     3189    72809
   4     3203    73929
   4     3217   180161
-  4     3225    22571
+  4     3225    22459
   4     3236   181225
   4     3250   182009
   4     3279   146113
@@ -2372,7 +2372,7 @@ FID  FOFFSET      EID
   4     8247   129369
   4     8264    82927
   4     8284   180161
-  4     8295    22571
+  4     8295    22459
   4     8306   182009
   4     8341   142641
   4     8348   145553
@@ -26646,7 +26646,7 @@ Table: IdProj
   20685   17
   21621   17
   21693   17
-  22571   17
+  22459   17
   22685   17
   22701   17
   23765   17
@@ -28338,35 +28338,35 @@ Table: IdProj
 2397635   17
 2398475   17
 Table: Files
-FID  NAME           RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
----  -------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  2  cscout_defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37        0        1           0           0           0      0      0           0         0      0         0         0
-  3  cscout_incs.h  TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  awkgram.y      FALSE  13892       1405    2856          0         16    486          96       16       0             3        0          0          0      4073     4220        1         211           6           0      6     92           0         4      0         0         3
-  5  stdio.h        TRUE    9603       5610     760          0         60    275          77        0       0            58        6         13         31      1068      602        1           0           0           0      1      0           3        23      0         0         1
-  6  _ansi.h        TRUE    2686       2382      52          0         10     61          84        0       0             9        1          0          7        35        0        1           0           0           0      0      0           0         0      0         0         0
-  7  string.h       TRUE    3130       1969     209          0          3     80          77        0       5            10        3          0          1       317      285        1           0           0           0      0      0           0         0      0         0         1
-  8  awk.h          FALSE   6429       2737     674          0         58    233          92        2       2            77        1         22         50       953      358        1           0           0           0     36      0           6        32      0         0         1
-  9  proto.h        FALSE   6853       1167     834          0          2    195          84        0       0             0        0          0          0      1740     1740        1           0           0           0      1      0           0         0      0         0         0
- 10  ytab.h         FALSE   1923          0     298          0          0    100          24        0       0            92        0          0         92       393       26        1           0           0           0      1      0           1         4      0         0         0
- 11  b.c            FALSE  22382       4464    4373          0         91    942          93       47       0            20        1          6          6      5959     6649        1         727          26           1     10      5           1         3      0         0         6
- 12  ctype.h        TRUE    3606       2270     192          0          3     91          77        0       0            24        1         13          9       477      110        1           0           0           0      3      0           0         0      0         0         0
- 13  stdlib.h       TRUE    3549       2017     291          0          8    113          77        0       5            17        4          0          5       385      329        1           0           0           0      0      0           2         4      0         0         1
- 14  lex.c          FALSE  12811       2083    2985          0         44    583          77       71       2            12        1          1          1      3282     4326        1         671          11           0     14      0           1         3      0         0         6
- 15  lib.c          FALSE  16671       2991    2986          0         56    689          86       74       0            11        0          0          2      4058     5465        1         505          28           0     18      2           0         0      0         0         9
- 16  errno.h        TRUE     215        106      20          0          2     14          51        0       0             5        1          0          3        20        4        1           0           0           0      1      0           0         0      0         0         0
- 17  stdarg.h       TRUE    2435       2059      56          0          3     58          81        0       0             7        1          4          1       118        5        1           0           0           0      0      0           0         0      0         0         0
- 18  math.h         TRUE    1276        453     124          0          4     52          68        0       0             4        1          0          2       193      174        1           0           0           0      1      0           0         0      0         0         0
- 19  main.c         FALSE   5155       1878     754          0         27    190         107       25       0             9        0          0          1       893      921        1         123           3           0     13      0           0         0      0         0         8
- 20  locale.h       TRUE    2730       1979     119          0          4     82          77        0       2            14        2          0          9       137       88        1           0           0           0      0      0           1        18      0         0         0
- 21  signal.h       TRUE    2675       2125     173          0          9     61          77        0       0            12        1          0         10        90       27        1           0           0           0      0      0           0         0      0         0         0
- 22  maketab.c      FALSE   5129       1371     660          0          4    168          82      154       0             6        0          0          1       977     1001        1          43           1           0      3      0           1         3      0         0         5
- 23  parse.c        FALSE   5185       1548     794          0         15    276          75        8       0             7        0          0          2      1295     1321        1         113          23           0      2      0           0         0      0         0         5
- 24  proctab.c      FALSE   5122       1280     793          0        184    205          39       95       0             3        0          0          0       824      816        1           5           1           0      1      1           0         0      0         0         3
- 25  run.c          FALSE  43298       6307    8735          0        190   1913          95      127       8            24        3          1          3     12189    14020        1        1589          51           0     17      9           2         7      0         0         9
- 26  setjmp.h       TRUE    2423       2282      22          0          3     54          77        0       0             3        1          0          1        29       21        1           0           0           0      0      0           0         0      0         0         0
- 27  time.h         TRUE    3524       2570     157          0         14     98          77        0       5            17        5          0          2       185      134        1           0           0           0      0      0           1        11      0         0         1
- 28  tran.c         FALSE  12420       2921    1965          0         73    452         104       65       0            10        0          0          3      2893     3257        1         306          18           1     27      0           0         0      0         0         7
+FID  NAME         RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
+---  -----------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
+  2  host-defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37        0        1           0           0           0      0      0           0         0      0         0         0
+  3  host-incs.h  TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  4  awkgram.y    FALSE  13892       1405    2856          0         16    486          96       16       0             3        0          0          0      4073     4220        1         211           6           0      6     92           0         4      0         0         3
+  5  stdio.h      TRUE    9603       5610     760          0         60    275          77        0       0            58        6         13         31      1068      602        1           0           0           0      1      0           3        23      0         0         1
+  6  _ansi.h      TRUE    2686       2382      52          0         10     61          84        0       0             9        1          0          7        35        0        1           0           0           0      0      0           0         0      0         0         0
+  7  string.h     TRUE    3130       1969     209          0          3     80          77        0       5            10        3          0          1       317      285        1           0           0           0      0      0           0         0      0         0         1
+  8  awk.h        FALSE   6429       2737     674          0         58    233          92        2       2            77        1         22         50       953      358        1           0           0           0     36      0           6        32      0         0         1
+  9  proto.h      FALSE   6853       1167     834          0          2    195          84        0       0             0        0          0          0      1740     1740        1           0           0           0      1      0           0         0      0         0         0
+ 10  ytab.h       FALSE   1923          0     298          0          0    100          24        0       0            92        0          0         92       393       26        1           0           0           0      1      0           1         4      0         0         0
+ 11  b.c          FALSE  22382       4464    4373          0         91    942          93       47       0            20        1          6          6      5959     6649        1         727          26           1     10      5           1         3      0         0         6
+ 12  ctype.h      TRUE    3606       2270     192          0          3     91          77        0       0            24        1         13          9       477      110        1           0           0           0      3      0           0         0      0         0         0
+ 13  stdlib.h     TRUE    3549       2017     291          0          8    113          77        0       5            17        4          0          5       385      329        1           0           0           0      0      0           2         4      0         0         1
+ 14  lex.c        FALSE  12811       2083    2985          0         44    583          77       71       2            12        1          1          1      3282     4326        1         671          11           0     14      0           1         3      0         0         6
+ 15  lib.c        FALSE  16671       2991    2986          0         56    689          86       74       0            11        0          0          2      4058     5465        1         505          28           0     18      2           0         0      0         0         9
+ 16  errno.h      TRUE     215        106      20          0          2     14          51        0       0             5        1          0          3        20        4        1           0           0           0      1      0           0         0      0         0         0
+ 17  stdarg.h     TRUE    2435       2059      56          0          3     58          81        0       0             7        1          4          1       118        5        1           0           0           0      0      0           0         0      0         0         0
+ 18  math.h       TRUE    1276        453     124          0          4     52          68        0       0             4        1          0          2       193      174        1           0           0           0      1      0           0         0      0         0         0
+ 19  main.c       FALSE   5155       1878     754          0         27    190         107       25       0             9        0          0          1       893      921        1         123           3           0     13      0           0         0      0         0         8
+ 20  locale.h     TRUE    2730       1979     119          0          4     82          77        0       2            14        2          0          9       137       88        1           0           0           0      0      0           1        18      0         0         0
+ 21  signal.h     TRUE    2675       2125     173          0          9     61          77        0       0            12        1          0         10        90       27        1           0           0           0      0      0           0         0      0         0         0
+ 22  maketab.c    FALSE   5129       1371     660          0          4    168          82      154       0             6        0          0          1       977     1001        1          43           1           0      3      0           1         3      0         0         5
+ 23  parse.c      FALSE   5185       1548     794          0         15    276          75        8       0             7        0          0          2      1295     1321        1         113          23           0      2      0           0         0      0         0         5
+ 24  proctab.c    FALSE   5122       1280     793          0        184    205          39       95       0             3        0          0          0       824      816        1           5           1           0      1      1           0         0      0         0         3
+ 25  run.c        FALSE  43298       6307    8735          0        190   1913          95      127       8            24        3          1          3     12189    14020        1        1589          51           0     17      9           2         7      0         0         9
+ 26  setjmp.h     TRUE    2423       2282      22          0          3     54          77        0       0             3        1          0          1        29       21        1           0           0           0      0      0           0         0      0         0         0
+ 27  time.h       TRUE    3524       2570     157          0         14     98          77        0       5            17        5          0          2       185      134        1           0           0           0      0      0           1        11      0         0         1
+ 28  tran.c       FALSE  12420       2921    1965          0         73    452         104       65       0            10        0          0          3      2893     3257        1         306          18           1     27      0           0         0      0         0         7
 Table: FileProj
 FID  PID
 ---  ---

@@ -17,28 +17,29 @@
 # You should have received a copy of the GNU General Public License
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Install the include files required for CScout
+# Install the files required for CScout to the destination directory
 #
 
-PREFIX="${1-/usr/local/include}"
+INSTALL_PREFIX="${1-/usr/local}"
 TMPFILE="/tmp/$0-$$"
 INC=../include
-TARGET="$PREFIX/cscout"
-MODE=644
+INCLUDE_DIR="$INSTALL_PREFIX/include/cscout"
+# Permissions for header files
+HMODE=644
 
 # Generic C definitions
-install -m $MODE -D -t "$TARGET/stdc" $INC/stdc/*.h
+install -m $HMODE -D -t "$INCLUDE_DIR/stdc" $INC/stdc/*.h
 cat $INC/template/cscout-defs.h $INC/template/stdc-defs.h >$TMPFILE
-install -m $MODE $TMPFILE "$TARGET/stdc-defs.h"
+install -m $HMODE $TMPFILE "$INCLUDE_DIR/stdc-defs.h"
 
 # Generic C include path specification
 cat <<EOF >$TMPFILE
-#pragma includepath "$TARGET/stdc"
+#pragma includepath "$INCLUDE_DIR/stdc"
 
 /* Avoid unused include file warnings */
 static void _cscout_dummy2(void) { _cscout_dummy2(); }
 EOF
-install -m $MODE $TMPFILE "$TARGET/stdc-incs.h"
+install -m $HMODE $TMPFILE "$INCLUDE_DIR/stdc-incs.h"
 
 # Host's C definitions
 {
@@ -46,7 +47,7 @@ install -m $MODE $TMPFILE "$TARGET/stdc-incs.h"
   echo "/* Definitions derived from cpp -O -dM on $(date) */"
   cpp -O -dM /dev/null | sort
 } >$TMPFILE
-install -m $MODE $TMPFILE "$TARGET/host-defs.h"
+install -m $HMODE $TMPFILE "$INCLUDE_DIR/host-defs.h"
 
 # Host's C include path specification
 cpp -Wp,-v </dev/null 2>&1 |
@@ -63,4 +64,10 @@ static void _cscout_dummy2(void) { _cscout_dummy2(); }
  s/$/"/
  p
 }' >$TMPFILE
-install -m $MODE $TMPFILE "$TARGET/host-incs.h"
+install -m $HMODE $TMPFILE "$INCLUDE_DIR/host-incs.h"
+
+# Perl scripts
+for f in cswc.pl csmake.pl ; do
+  sed "s|INSTALL_INCLUDE|$INCLUDE_DIR|g" $f >$TMPFILE
+  install $TMPFILE "$INSTALL_PREFIX/bin/$(basename $f .pl)"
+done
