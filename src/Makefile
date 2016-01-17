@@ -161,22 +161,7 @@ build/%.o: %.c
 build/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
-ifeq ($(OS),Windows_NT)
-# Windows
-all: build/cscout.exe
-SSH=plink
-SCP=pscp
-FREEFALL=freefall
-else
-# Unix
 all: build/cscout
-SSH=ssh
-SCP=scp
-FREEFALL=freefall.freebsd.org
-endif
-
-
-#all: simple_cpp
 
 build/cscout: build/cscout.o $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o $(ADDLIBS)
