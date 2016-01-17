@@ -21,14 +21,15 @@ NOTETOOLS=/dds/pubs/courses/tools
 
 all: mancscout.xml mancswc.xml dbschema.xml
 	rm -f style.css
-	cp ../src/style.css .
+	cp -u ../src/style.css .
 	chmod 666 style.css
 	cat local.css >>style.css
 	chmod 444 style.css
 	sh /cygdrive/c$(NOTETOOLS)/coursebib.sh bib
 	echo "The CScout Refactoring Browser" | perl $(NOTETOOLS)/thread.pl -h html -r -p ../index.html index ${DESTDIR}/doc
-	cp simul.html ${UH}/${DESTDIR}/doc
-	cp logo.png ${UH}/${DESTDIR}
+	cp -u simul.html ${UH}/${DESTDIR}/doc
+	cp -u logo.png ${UH}/${DESTDIR}
+	cp -u stock*.png emacs.css ${UH}/${DESTDIR}/doc
 
 mancscout.xml: ../man/cscout.1
 	echo '<?xml version="1.0" ?>' >mancscout.xml

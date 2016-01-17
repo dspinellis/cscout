@@ -13,16 +13,17 @@ respective file.
 If commands with such names are in your path, they will be executed
 performing whatever action you require.
 <p>
-As an example, for a file under RCS control the following commands could be
-used:
+As an example, for a system managed with
+<a href="https://www.perforce.com/">Perforce</a>
+the following commands could be used:
 <h2>cscout_checkout</h2>
 <pre>
 #!/bin/sh
-co -l $1
+p4 edit $1
 </pre>
 <h2>cscout_checkin</h2>
 <pre>
 #!/bin/sh
-co -m 'CScout identifier name refactoring' -u $1
+p4 submit -d 'CScout identifier name refactoring' $1
 </pre>
 </notes>

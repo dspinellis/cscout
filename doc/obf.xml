@@ -42,7 +42,7 @@ The files are not overwritten, providing you with another countermeasure
 against accidentally destroying them.
 To overwrite the original source with the obfuscated one,
 use the following Unix command:
-<fmtcode ext="log">
+<fmtcode ext="sh">
 find . -name '*.obf' |
 sed 's/\\/\//g;s/\(.*\)\.obf$/mv "\1.obf" "\1"/' |
 sh
