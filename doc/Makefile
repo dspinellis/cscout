@@ -1,7 +1,4 @@
-#
-# $Id: Makefile,v 1.2 2011/10/23 16:17:57 dds Exp $
-#
-DESTDIR="/dds/pubs/web/home/cscout"
+DESTDIR=/dds/pubs/web/home/cscout
 NOTETOOLS=/dds/pubs/courses/tools
 
 .SUFFIXES:.java .dot .ps .gif .pic .eps .png
