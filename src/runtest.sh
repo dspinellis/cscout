@@ -335,7 +335,7 @@ IPATH=$CSCOUT_DIR/include
 CPPTESTS=$CSCOUT_DIR/test/cpp
 DOTCSCOUT=$CSCOUT_DIR/example/.cscout
 
-chmod 444 ../include/* ../example/.cscout/*
+chmod 444 ../include/stdc/* ../example/.cscout/*
 mkdir -p test/nout
 
 if [ $TEST_RECONST = 1 ]
