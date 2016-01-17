@@ -17,6 +17,8 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+INSTALL_PREFIX:=/usr/local
+
 # By default a production build is made.
 # For a debug build run make as:
 # make DEBUG=1
@@ -262,9 +264,10 @@ obfuscation:
 	)
 
 install: build/cscout
-	install -Ds $< /usr/local/bin/cscout
-	install csmake.pl /usr/local/bin/csmake
-	install cswc.pl /usr/local/bin/cswc
+	install -Ds $< "$(INSTALL_PREFIX)/bin/cscout"
+	install csmake.pl "$(INSTALL_PREFIX)/bin/csmake"
+	install cswc.pl "$(INSTALL_PREFIX)/bin/cswc"
+	./inc-install.sh "$(INSTALL_PREFIX)/include"
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql

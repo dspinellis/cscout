@@ -28,5 +28,5 @@
 
 /* To make it appear as a read-only identifier */
 int main();
-/* To avoid unused include file warnings */
+/* Avoid unused include file warnings */
 static void _cscout_dummy1(void) { _cscout_dummy1(); }
