@@ -89,7 +89,7 @@ ALLSRC=$(SRC) logo.png version.cpp
 YACC=../btyacc/btyacc
 #YACC=yacc
 
-CPPFLAGS+=-pipe -Wall -I.
+CPPFLAGS+=-pipe -Wall -I. -DINSTALL_PREFIX='"$(INSTALL_PREFIX)"'
 CXXFLAGS+=-std=c++11
 ifdef DEBUG
 # Debug build
