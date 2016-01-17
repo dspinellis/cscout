@@ -274,22 +274,6 @@ obfuscation:
 	zip -r $(WEBHOME)/awk-obf.zip awk ; \
 	)
 
-distco:
-	co -l $(DISTSRC)
-
-distedit:
-	wi $(DISTSRC)
-
-distci:
-	ci -u $(DISTSRC)
-
-evalsrc:
-	rm -rf cscout-$(BRANCH)-evalsrc
-	mkdir cscout-$(BRANCH)-evalsrc
-	cp $(DISTSRC) cscout-$(BRANCH)-evalsrc
-	tar czvf cscout-$(BRANCH)-evalsrc.tar.gz cscout-$(BRANCH)-evalsrc
-	rm -rf cscout-$(BRANCH)-evalsrc
-
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql
 	perl picoschema.pl cscout-data.sql >cscout-data.auto
