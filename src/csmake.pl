@@ -252,8 +252,6 @@ sub ancestor
 # Spy on ar invocations and construct corresponding CScout directives
 #
 
-use Cwd 'abs_path';
-
 $real = which($0);
 
 $origline = "ar " . join(' ', @ARGV);
@@ -282,7 +280,7 @@ $archive = shift @ARGV2;
 if ($#ofiles >= 0) {
 	print RULES "BEGIN AR\n";
 	print RULES "CMDLINE $origline\n";
-	print RULES 'OUTAR ', abs_path($archive), "\n";
+	print RULES 'OUTAR ', robust_abs_path($archive), "\n";
 	for $ofile (@ofiles) {
 		print RULES "INOBJ " . abs_path($ofile) . "\n";
 	}
@@ -305,7 +303,6 @@ exit system(($real, @ARGV)) / 256;
 # Therefore it is easier to let gcc do the work
 #
 
-use Cwd 'abs_path';
 use Data::UUID;
 
 $real = which($0);
@@ -422,12 +419,12 @@ for $cfile (@cfiles) {
 	print RULES "INSRC " . abs_path($cfile) . "\n";
 	if ($compile) {
 		if ($output) {	# cc -c -o foo.o foo.c
-			print RULES "OUTOBJ " . abs_path($output) . "\n";
+			print RULES "OUTOBJ " . robust_abs_path($output) . "\n";
 		} else {	# cc -c foo.c
 			my $coutput= $cfile;
 			$coutput =~ s/\.c$/.o/i;
 			$coutput =~ s,.*/,,;
-			print RULES "OUTOBJ " . abs_path($coutput) . "\n";
+			print RULES "OUTOBJ " . robust_abs_path($coutput) . "\n";
 		}
 	} else {		# cc -o foo foo.c OR cc foo.c
 		my $ug = Data::UUID->new;
@@ -489,8 +486,6 @@ sub abs_if_exists
 # Spy on ld invocations and construct corresponding CScout directives
 #
 
-use Cwd 'abs_path';
-
 $real = which($0);
 
 # Gather input / output files and remove them from the command line
@@ -532,9 +527,9 @@ if ($#ofiles >= 0 || $#afiles >= 0) {
 	print RULES "BEGIN LINK\n";
 	print RULES "CMDLINE $origline\n";
 	if ($output) {
-		print RULES 'OUTEXE ' . abs_path($output) . "\n";
+		print RULES 'OUTEXE ' . robust_abs_path($output) . "\n";
 	} else {
-		print RULES 'OUTEXE ' . abs_path('a.out') . "\n";
+		print RULES 'OUTEXE ' . robust_abs_path('a.out') . "\n";
 	}
 	for $ofile (@ofiles) {
 		print RULES 'INOBJ ' . abs_path($ofile) . "\n";
@@ -564,8 +559,6 @@ exit system(($real, @ARGV)) / 256;
 # Spy on ar invocations and construct corresponding CScout directives
 #
 
-use Cwd 'abs_path';
-
 $real = which($0);
 
 $origline = "mv " . join(' ', @ARGV);
@@ -580,11 +573,11 @@ while ($ARGV2[0] =~ m/^-/) {
 
 print RULES "RENAMELINE $origline\n";
 if ($#ARGV2 == 1) {
-	print RULES 'RENAME ' . abs_path($ARGV2[0]) . ' ' . abs_path($ARGV2[1]) . "\n";
+	print RULES 'RENAME ' . abs_path($ARGV2[0]) . ' ' . robust_abs_path($ARGV2[1]) . "\n";
 } else {
 	$dir = pop(@ARGV2);
 	for $f (@ARGV2) {
-		print RULES 'RENAME ' . abs_path($f) . ' ' . abs_path("$dir/$f") . "\n";
+		print RULES 'RENAME ' . abs_path($f) . ' ' . robust_abs_path("$dir/$f") . "\n";
 	}
 }
 
@@ -597,6 +590,27 @@ exit system(($real, @ARGV)) / 256;
 #
 # Code common to all spy programs
 #
+
+use Cwd 'abs_path';
+
+# Return the absolute path of a file, even if does not exist
+# Under Cygwin Perl, abs_path on missing files aborts the program
+# with an error
+sub
+robust_abs_path
+{
+	my ($file) = @_;
+	if (-r $file) {
+		return abs_path($file);
+	} else {
+		my ($ret);
+		open my $out, '>', $file or die "Unable to create $file: $!\n";
+		close $out;
+		$ret = abs_path($file);
+		unlink($file);
+		return $ret;
+	}
+}
 
 # Return the absolute path for prog, excluding our own path
 sub which
