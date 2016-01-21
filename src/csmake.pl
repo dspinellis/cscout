@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# (C) Copyright 2006-2015 Diomidis Spinellis
+# (C) Copyright 2006-2016 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -22,6 +22,8 @@
 # Create a CScout-compatible make.cs file
 #
 #
+
+$debug = 1;
 
 use Cwd 'abs_path';
 
@@ -191,11 +193,15 @@ $process
 	}
 }
 
-# Clean temporary files
-for $fname (@toclean) {
-	unlink("$ENV{CSCOUT_SPY_TMPDIR}/$fname");
+if ($debug) {
+	print "Leaving temporary files in $ENV{CSCOUT_SPY_TMPDIR}/$fname\n";
+} else {
+	# Clean temporary files
+	for $fname (@toclean) {
+		unlink("$ENV{CSCOUT_SPY_TMPDIR}/$fname");
+	}
+	rmdir($ENV{CSCOUT_SPY_TMPDIR});
 }
-rmdir($ENV{CSCOUT_SPY_TMPDIR});
 
 exit 0;
 
@@ -217,6 +223,7 @@ sub spy
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
 
 ';
+	print OUT "\$debug = $debug;\n";
 	while (<IN>) {
 		print OUT if (/^\#\@BEGIN $spyProgName/../^\#\@END/);
 		print OUT if (/^\#\@BEGIN COMMON/../^\#\@END/);
@@ -301,8 +308,6 @@ exit system(($real, @ARGV)) / 256;
 use Cwd 'abs_path';
 
 $real = which($0);
-
-$debug = 0;
 
 # Gather input / output files and remove them from the command line
 for ($i = 0; $i <= $#ARGV; $i++) {
