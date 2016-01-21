@@ -23,7 +23,7 @@
 #
 #
 
-$debug = 1;
+$debug = 0;
 
 use Cwd 'abs_path';
 
@@ -306,6 +306,7 @@ exit system(($real, @ARGV)) / 256;
 #
 
 use Cwd 'abs_path';
+use Data::UUID;
 
 $real = which($0);
 
@@ -419,20 +420,29 @@ for $cfile (@cfiles) {
 		print RULES "$if\n";
 	}
 	print RULES "INSRC " . abs_path($cfile) . "\n";
-	if ($compile && $output) {
-		$coutput = $output;
-	} else {
-		$coutput= $cfile;
-		$coutput =~ s/\.c$/.o/i;
-		$coutput =~ s,.*/,,;
+	if ($compile) {
+		if ($output) {	# cc -c -o foo.o foo.c
+			print RULES "OUTOBJ " . abs_path($output) . "\n";
+		} else {	# cc -c foo.c
+			my $coutput= $cfile;
+			$coutput =~ s/\.c$/.o/i;
+			$coutput =~ s,.*/,,;
+			print RULES "OUTOBJ " . abs_path($coutput) . "\n";
+		}
+	} else {		# cc -o foo foo.c OR cc foo.c
+		my $ug = Data::UUID->new;
+		# Implicit output file
+		my $ofile = '/tmp/' . $ug->create_str() . '.o';
+		push(@implicit_ofiles, $ofile);
+		print RULES "OUTOBJ $ofile\n";
 	}
-	print RULES "OUTOBJ " . abs_path($coutput) . "\n";
 	print RULES join("\n", @incs), "\n";
 	print RULES join("\n", @defs), "\n";
 	print RULES "END COMPILE\n";
 }
 
-if (!$compile && !depwrite && $#cfiles >= 0 || $#ofiles >= 0) {
+if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0)) {
+
 	print RULES "BEGIN LINK\n";
 	print RULES "CMDLINE $origline\n";
 	if ($output) {
@@ -440,13 +450,11 @@ if (!$compile && !depwrite && $#cfiles >= 0 || $#ofiles >= 0) {
 	} else {
 		print RULES "OUTEXE a.out\n";
 	}
-	for $cfile (@cfiles) {
-		$output= $cfile;
-		$output =~ s/\.c$/.o/i;
-		print RULES "INOBJ " . abs_path($output) . "\n";
-	}
 	for $ofile (@ofiles) {
 		print RULES "INOBJ " . abs_path($ofile) . "\n";
+	}
+	for $ofile (@implicit_ofiles) {
+		print RULES "INOBJ $ofile\n";
 	}
 	for $afile (@afiles) {
 		print RULES "INLIB " . abs_path($afile) . "\n";
