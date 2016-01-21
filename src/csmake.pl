@@ -71,7 +71,7 @@ if ($ARGV[0] eq '-n') {
 	spy('mv', 'spy-mv');
 	system(("make", @ARGV));
 	push(@toclean, 'rules');
-	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\n";
+	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure you have run `make clean' or an equivalent command.\n";
 }
 
 # Read a spy-generated rules file
