@@ -52,13 +52,13 @@ $instdir = abs_path($instdir);
 
 if ($ARGV[0] eq '-n') {
 	# Run on an existing rules file
-	open(IN, $ARGV[1]) || die;
+	open(IN, $ARGV[1]) || die "Unable to open $ARGV[1] for reading: $!\n";
 } else {
 	$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
 	mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
 
 	push(@toclean, 'empty.c');
-	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die;
+	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/empty.c for writing: $!\n";
 	close(OUT);
 	$ENV{PATH} = "$ENV{CSCOUT_SPY_TMPDIR}:$ENV{PATH}";
 
@@ -69,12 +69,12 @@ if ($ARGV[0] eq '-n') {
 	spy('mv', 'spy-mv');
 	system(("make", @ARGV));
 	push(@toclean, 'rules');
-	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die;
+	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\n";
 }
 
 # Read a spy-generated rules file
 # Create a CScout .cs file
-open(OUT, ">make.cs") || die;
+open(OUT, ">make.cs") || die "Unable to open make.cs for writing: $!\n";
 while (<IN>) {
 	chop;
 	if (/^RENAME /) {
@@ -101,8 +101,8 @@ while (<IN>) {
 	}
 	if ($state eq 'COMPILE') {
 		if (/^END COMPILE/) {
-			die "No source" unless defined ($src);
-			die "No object" unless defined ($obj);
+			die "Missing  source in rules file" unless defined ($src);
+			die "Missing object in rules file" unless defined ($obj);
 			# Allow for multiple rules for the same object
 			$cd = $src;
 			$cd =~ s,/[^/]+$,,;
@@ -134,7 +134,7 @@ $process
 		}
 	} elsif ($state eq 'LINK') {
 		if (/^END LINK/) {
-			die "No object" unless defined ($exe);
+			die "Missing object in rules file" unless defined ($exe);
 			if ($exe =~ m/\.[oa]$/) {
 				# Output is a library or combined object file; just remember the rules
 				undef $rule;
@@ -171,7 +171,7 @@ $process
 		}
 	} elsif ($state eq 'AR') {
 		if (/^END AR/) {
-			die "No library" unless defined ($lib);
+			die "Missing library in rules file" unless defined ($lib);
 			# Output is a library; just remember the rules
 			undef $rule;
 			for $o (@obj) {
@@ -205,9 +205,9 @@ exit 0;
 sub spy
 {
 	my($realProgName, $spyProgName) = @_;
-	open(IN, $script_name) || die;
+	open(IN, $script_name) || die "Unable to open $script_name for reading: $!\n";
 	push(@toclean, $realProgName);
-	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die;
+	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/$realProgName for writing: $!\n";
 	print OUT '#!/usr/bin/perl
 #
 # Automatically-generated file
