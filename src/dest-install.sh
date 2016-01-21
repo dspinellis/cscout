@@ -20,6 +20,17 @@
 # Install the files required for CScout to the destination directory
 #
 
+# The following definition files are created:
+#stdc-defs: for compiling Standard C files, with CScout-provided headers
+#host-defs: for compiling host-specific C files through CScout project files
+#csmake-defs: for compiling arbitrary C files through csmake
+#
+# These are the files' contents:
+#		STDC defs	GCC fixes	CScout defs	compiler defs
+#stdc-defs	*				*
+#host-defs			*		*		*
+#csmake-defs			*		*
+
 INSTALL_PREFIX="${1-/usr/local}"
 TMPFILE="/tmp/$0-$$"
 INC=../include
@@ -43,11 +54,15 @@ install -m $HMODE $TMPFILE "$INCLUDE_DIR/stdc-incs.h"
 
 # Host's C definitions
 {
-  cat $INC/template/cscout-defs.h $INC/template/stdc-defs.h
+  cat $INC/template/gcc-defs.h $INC/template/cscout-defs.h
   echo "/* Definitions derived from cpp -O -dM on $(date) */"
   cpp -O -dM /dev/null | sort
 } >$TMPFILE
 install -m $HMODE $TMPFILE "$INCLUDE_DIR/host-defs.h"
+
+# Only CScout and compiler workarounds for csmake-generated projects
+cat $INC/template/gcc-defs.h $INC/template/cscout-defs.h >$TMPFILE
+install -m $HMODE $TMPFILE "$INCLUDE_DIR/csmake-defs.h"
 
 # Host's C include path specification
 cpp -Wp,-v </dev/null 2>&1 |
