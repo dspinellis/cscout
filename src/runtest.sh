@@ -232,12 +232,12 @@ $HSQLDB mem - |
 sed -e '1,/^Starting dump/d;/^[0-9][0-9]* rows/d' |
 tr -d "\n\r" |
 perl -pe 's/\\u0000d\\u0000a/\n/g' >test/chunk/$NAME
-if diff -b test/c/$NAME test/chunk/$NAME >test/err/c/$NAME.diff
+if diff -b test/c/$NAME test/chunk/$NAME >test/err/chunk/$NAME.diff
 then
 	end_test $NAME 1
 else
 	end_test $NAME 0
-	show_error test/err/c/$NAME.diff
+	show_error test/err/chunk/$NAME.diff
 	echo " (Make sure the input file uses the correct line-end convention.)"
 fi
 }
@@ -332,7 +332,7 @@ done
 CSCOUT=$(dirname $0)/build/cscout
 
 # Adjust HSQLDB_DIR for native Windows Java
-if cygpath -a / 2>&1 >/dev/null &&
+if cygpath -a / >/dev/null 2>&1 &&
   ! java -jar $HSQLDB_DIR/lib/sqltool.jar </dev/null 2>/dev/null; then
     HSQLDB_DIR=$(cygpath -w $HSQLDB_DIR)
 fi
