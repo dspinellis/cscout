@@ -39,7 +39,8 @@ INCLUDE_DIR="$INSTALL_PREFIX/include/cscout"
 HMODE=644
 
 # Workarounds for all compilers
-WORKAROUNDS="$INC/template/gcc-defs.h $INC/template/llvm-defs.h $INC/template/cscout-defs.h"
+WORKAROUNDS_PRE="$INC/template/gcc-defs.h $INC/template/llvm-defs.h $INC/template/cscout-defs.h"
+WORKAROUNDS_POST="$INC/template/llvm-undefs.h"
 
 # Create required directories
 install -d "$INCLUDE_DIR/stdc" "$INSTALL_PREFIX/bin"
@@ -60,15 +61,18 @@ install -m $HMODE $TMPFILE "$INCLUDE_DIR/stdc-incs.h"
 
 # Host's C definitions
 {
-  cat $WORKAROUNDS
+  cat $WORKAROUNDS_PRE
   echo "/* Definitions derived from cpp -O -dM on $(date) */"
   cpp -O -dM /dev/null | sort
+  cat $WORKAROUNDS_POST
 } >$TMPFILE
 install -m $HMODE $TMPFILE "$INCLUDE_DIR/host-defs.h"
 
 # Only CScout and compiler workarounds for csmake-generated projects
-cat $WORKAROUNDS >$TMPFILE
-install -m $HMODE $TMPFILE "$INCLUDE_DIR/csmake-defs.h"
+cat $WORKAROUNDS_PRE >$TMPFILE
+install -m $HMODE $TMPFILE "$INCLUDE_DIR/csmake-pre-defs.h"
+cat $WORKAROUNDS_POST >$TMPFILE
+install -m $HMODE $TMPFILE "$INCLUDE_DIR/csmake-post-defs.h"
 
 # Host's C include path specification
 cpp -Wp,-v </dev/null 2>&1 |

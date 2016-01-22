@@ -24,3 +24,5 @@
 #define _Nonnull
 #define _Null_unspecified
 #define _Nullable
+
+#define __has_include_next(x) 0

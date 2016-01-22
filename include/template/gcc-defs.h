@@ -27,6 +27,7 @@
  * Note that CScout has builtin support for __atribute__.
  */
 #define __PRETTY_FUNCTION__ "UNKNOWN"
+#define __builtin_bswap32(x) (unsigned int)(x)
 #define __builtin_constant_p(_x) ((_x), 0)
 #define __builtin_expect(_x, _v) ((_v), (_x))
 #define __builtin_fabs( _x) (double)(_x)

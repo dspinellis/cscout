@@ -45,7 +45,7 @@ if (-d '.cscout') {
 	exit(1);
 }
 
-if (!-r ($f = "$instdir/csmake-defs.h")) {
+if (!-r ($f = "$instdir/csmake-pre-defs.h")) {
 	print STDERR "Unable to read $f: $!\n";
 	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
 	exit(1);
@@ -114,8 +114,9 @@ while (<IN>) {
 #pragma clear_defines
 #pragma clear_include
 #pragma pushd "$cd"
-#include "$instdir/csmake-defs.h"
+#include "$instdir/csmake-pre-defs.h"
 } . join("\n", @rules) . qq{
+#include "$instdir/csmake-post-defs.h"
 $process
 #pragma popd
 #pragma echo "Done processing $src\\n"
