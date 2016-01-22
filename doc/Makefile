@@ -16,7 +16,7 @@ NOTETOOLS=/dds/pubs/courses/tools
 .pic.eps:
 	perl -p -e 'BEGIN {binmode(STDOUT);} s/\r//' $< | $(PIC2PLOT) -Teps >$@
 
-all: mancscout.xml mancswc.xml dbschema.xml
+all: mancscout.xml mancswc.xml mancsmake.xml dbschema.xml
 	rm -f style.css
 	cp -u ../src/style.css .
 	chmod 666 style.css
@@ -39,6 +39,12 @@ mancswc.xml: ../man/cswc.1
 	echo '<notes>' >>mancswc.xml
 	groff -mhtml -Thtml -man <../man/cswc.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancswc.xml
 	echo '</notes>' >>mancswc.xml
+
+mancsmake.xml: ../man/csmake.1
+	echo '<?xml version="1.0" ?>' >mancsmake.xml
+	echo '<notes>' >>mancsmake.xml
+	groff -mhtml -Thtml -man <../man/csmake.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancsmake.xml
+	echo '</notes>' >>mancsmake.xml
 
 dbschema.xml: ../src/workdb.cpp ../src/metrics.cpp ../src/docschema.pl
 	perl ../src/docschema.pl ../src/workdb.cpp >dbschema.xml
