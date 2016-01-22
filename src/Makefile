@@ -218,6 +218,7 @@ endif
 
 test:
 	./runtest.sh $(TEST_FLAGS)
+	cd test/csmake && ./runtest.sh
 
 # Used for regenerating the logo
 logo.cpp: logo.png

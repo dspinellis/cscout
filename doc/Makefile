@@ -1,7 +1,4 @@
-#
-# $Id: Makefile,v 1.2 2011/10/23 16:17:57 dds Exp $
-#
-DESTDIR="/dds/pubs/web/home/cscout"
+DESTDIR=/dds/pubs/web/home/cscout
 NOTETOOLS=/dds/pubs/courses/tools
 
 .SUFFIXES:.java .dot .ps .gif .pic .eps .png
@@ -21,14 +18,15 @@ NOTETOOLS=/dds/pubs/courses/tools
 
 all: mancscout.xml mancswc.xml dbschema.xml
 	rm -f style.css
-	cp ../src/style.css .
+	cp -u ../src/style.css .
 	chmod 666 style.css
 	cat local.css >>style.css
 	chmod 444 style.css
 	sh /cygdrive/c$(NOTETOOLS)/coursebib.sh bib
 	echo "The CScout Refactoring Browser" | perl $(NOTETOOLS)/thread.pl -h html -r -p ../index.html index ${DESTDIR}/doc
-	cp simul.html ${UH}/${DESTDIR}/doc
-	cp logo.png ${UH}/${DESTDIR}
+	cp -u simul.html ${UH}/${DESTDIR}/doc
+	cp -u logo.png ${UH}/${DESTDIR}
+	cp -u stock*.png emacs.css ${UH}/${DESTDIR}/doc
 
 mancscout.xml: ../man/cscout.1
 	echo '<?xml version="1.0" ?>' >mancscout.xml

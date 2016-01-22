@@ -213,9 +213,10 @@ char *argv[])
 </fmtcode>
 Although such a construct is legal C it is not used in practice.
 <p>
-Recently <em>CScout</em> processed a 190KLOC project that is under
+<em>CScout</em> has processed a 190KLOC project that was under
 active development since 1989.
-The project consists of 231 files, containing 5249 include directives.
+The project consisted of 231 files, containing 5249 include directives.
 Following <em>CScout</em>'s analysis 765 include directives from
 178 files were removed, without a single problem.
+</p>
 </notes>

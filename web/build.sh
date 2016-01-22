@@ -1,8 +1,6 @@
 #!/bin/sh
 #
-# $Id: build.sh,v 1.1 2008/08/27 15:57:04 dds Exp $
-#
-# Create the UMLGraph web pages
+# Create the CScout top web pages
 #
 
 # For each file appearing in top.html

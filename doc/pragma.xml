@@ -12,25 +12,28 @@ is a C file containing a number of
 <dt><code>#pragma echo "<em>STRING</em>"</code><dd>
 Will display the <em>STRING</em> on <em>CScout</em>'s standard
 output when that part of the file is reached.
-<p>Example:<br><pre>
+<p>Example:
+<fmtcode ext="c">
 #pragma echo "Processing workspace date\n"
-</pre>
+</fmtcode>
 
 <dt><code>#pragma ro_prefix "<em>STRING</em>"</code><dd>
 Will add <em>STRING</em> to the list of filename prefixes that mark
 read-only files.
 This is a global setting.
-<p>Example:<br><pre>
+<p>Example:
+<fmtcode ext="c">
 #pragma ro_prefix "C:\gcc"
-</pre>
+</fmtcode>
 
 <dt><code>#pragma project "<em>STRING</em>"</code><dd>
 Will set the current project to <em>STRING</em>.
 All identifiers and files processed from then on will belong to the given
 project.
-<p>Example:<br><pre>
+<p>Example:
+<fmtcode ext="c">
 #pragma project "date"
-</pre>
+</fmtcode>
 
 <dt><code>#pragma block_enter</code><dd>
 Will enter a nested scope block.
@@ -53,18 +56,20 @@ than two <code>block_enter</code> pragmas in effect.
 <dt><code>#pragma process "<em>STRING</em>"</code><dd>
 Will analyze (<em>CScout</em>'s equivalent to compiling) 
 the C source file named <em>STRING</em>.
-<p>Example:<br><pre>
+<p>Example:
+<fmtcode ext="c">
 #pragma process "date.d"
-</pre>
+</fmtcode>
 
 <dt><code>#pragma pushd "<em>STRING</em>"</code><dd>
 Will set the current directory to <em>STRING</em>, saving the
 previous current directory in a stack.
 From that point onward, all relative file accesses will start from
 the given directory.
-<p>Example:<br><pre>
+<p>Example:
+<fmtcode ext="c">
 #pragma pushd "cp"
-</pre>
+</fmtcode>
 
 <dt><code>#pragma popd </code><dd>
 Will restore the current directory to the one in effect
@@ -77,9 +82,10 @@ The number  of
 <dt><code>#pragma includepath "<em>STRING</em>"</code><dd>
 Will add <em>STRING</em> to the list of directories used for searching
 included files (the include path).
-<p>Example:<br><pre>
+<p>Example:
+<fmtcode ext="c">
 #pragma includepath "/usr/lib/gcc-lib/i386-redhat-linux/2.96/include"
-</pre>
+</fmtcode>
 
 <dt><code>#pragma clear_include </code><dd>
 Will clear the include path, allowing the specification of a new one.
@@ -172,7 +178,7 @@ The existing file documents the way to do it.
 <li> Run <em>make</em> on the custom Makefile
 <li> Repeat for each different architecture
 <li> Create a top-level <em>CScout</em> file to process all architectures:
-<pre>
+<fmtcode ext="c">
 #pragma echo "Processing workspace FreeBSD kernel\n"
 
 #pragma echo "Entering directory sys/i386/compile/LINT\n"
@@ -194,7 +200,7 @@ The existing file documents the way to do it.
 #pragma popd
 #pragma echo "Done processing project sparc64\n"
 #pragma block_exit
-</pre>
+</fmtcode>
 Note that the
 <code>block_enter</code> and
 <code>block_exit</code> pragmas

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# (C) Copyright 2006-2015 Diomidis Spinellis
+# (C) Copyright 2006-2016 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -23,6 +23,8 @@
 #
 #
 
+$debug = 0;
+
 use Cwd 'abs_path';
 
 # Used for reading the source of the other spy programs
@@ -43,7 +45,7 @@ if (-d '.cscout') {
 	exit(1);
 }
 
-if (!-r ($f = "$instdir/gcc-defs.h")) {
+if (!-r ($f = "$instdir/csmake-defs.h")) {
 	print STDERR "Unable to read $f: $!\n";
 	print STDERR "Create the file in the directory $instdir\nby copying the appropriate compiler-specific file\n";
 	exit(1);
@@ -52,13 +54,13 @@ $instdir = abs_path($instdir);
 
 if ($ARGV[0] eq '-n') {
 	# Run on an existing rules file
-	open(IN, $ARGV[1]) || die;
+	open(IN, $ARGV[1]) || die "Unable to open $ARGV[1] for reading: $!\n";
 } else {
 	$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
 	mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
 
 	push(@toclean, 'empty.c');
-	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die;
+	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/empty.c for writing: $!\n";
 	close(OUT);
 	$ENV{PATH} = "$ENV{CSCOUT_SPY_TMPDIR}:$ENV{PATH}";
 
@@ -69,12 +71,12 @@ if ($ARGV[0] eq '-n') {
 	spy('mv', 'spy-mv');
 	system(("make", @ARGV));
 	push(@toclean, 'rules');
-	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die;
+	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure you have run `make clean' or an equivalent command.\n";
 }
 
 # Read a spy-generated rules file
 # Create a CScout .cs file
-open(OUT, ">make.cs") || die;
+open(OUT, ">make.cs") || die "Unable to open make.cs for writing: $!\n";
 while (<IN>) {
 	chop;
 	if (/^RENAME /) {
@@ -101,8 +103,8 @@ while (<IN>) {
 	}
 	if ($state eq 'COMPILE') {
 		if (/^END COMPILE/) {
-			die "No source" unless defined ($src);
-			die "No object" unless defined ($obj);
+			die "Missing  source in rules file" unless defined ($src);
+			die "Missing object in rules file" unless defined ($obj);
 			# Allow for multiple rules for the same object
 			$cd = $src;
 			$cd =~ s,/[^/]+$,,;
@@ -112,7 +114,7 @@ while (<IN>) {
 #pragma clear_defines
 #pragma clear_include
 #pragma pushd "$cd"
-#include "$instdir/gcc-defs.h"
+#include "$instdir/csmake-defs.h"
 } . join("\n", @rules) . qq{
 $process
 #pragma popd
@@ -134,7 +136,7 @@ $process
 		}
 	} elsif ($state eq 'LINK') {
 		if (/^END LINK/) {
-			die "No object" unless defined ($exe);
+			die "Missing object in rules file" unless defined ($exe);
 			if ($exe =~ m/\.[oa]$/) {
 				# Output is a library or combined object file; just remember the rules
 				undef $rule;
@@ -171,7 +173,7 @@ $process
 		}
 	} elsif ($state eq 'AR') {
 		if (/^END AR/) {
-			die "No library" unless defined ($lib);
+			die "Missing library in rules file" unless defined ($lib);
 			# Output is a library; just remember the rules
 			undef $rule;
 			for $o (@obj) {
@@ -191,11 +193,15 @@ $process
 	}
 }
 
-# Clean temporary files
-for $fname (@toclean) {
-	unlink("$ENV{CSCOUT_SPY_TMPDIR}/$fname");
+if ($debug) {
+	print "Leaving temporary files in $ENV{CSCOUT_SPY_TMPDIR}/$fname\n";
+} else {
+	# Clean temporary files
+	for $fname (@toclean) {
+		unlink("$ENV{CSCOUT_SPY_TMPDIR}/$fname");
+	}
+	rmdir($ENV{CSCOUT_SPY_TMPDIR});
 }
-rmdir($ENV{CSCOUT_SPY_TMPDIR});
 
 exit 0;
 
@@ -205,9 +211,9 @@ exit 0;
 sub spy
 {
 	my($realProgName, $spyProgName) = @_;
-	open(IN, $script_name) || die;
+	open(IN, $script_name) || die "Unable to open $script_name for reading: $!\n";
 	push(@toclean, $realProgName);
-	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die;
+	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/$realProgName for writing: $!\n";
 	print OUT '#!/usr/bin/perl
 #
 # Automatically-generated file
@@ -217,6 +223,7 @@ sub spy
 open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
 
 ';
+	print OUT "\$debug = $debug;\n";
 	while (<IN>) {
 		print OUT if (/^\#\@BEGIN $spyProgName/../^\#\@END/);
 		print OUT if (/^\#\@BEGIN COMMON/../^\#\@END/);
@@ -244,8 +251,6 @@ sub ancestor
 #
 # Spy on ar invocations and construct corresponding CScout directives
 #
-
-use Cwd 'abs_path';
 
 $real = which($0);
 
@@ -275,7 +280,7 @@ $archive = shift @ARGV2;
 if ($#ofiles >= 0) {
 	print RULES "BEGIN AR\n";
 	print RULES "CMDLINE $origline\n";
-	print RULES 'OUTAR ', abs_path($archive), "\n";
+	print RULES 'OUTAR ', robust_abs_path($archive), "\n";
 	for $ofile (@ofiles) {
 		print RULES "INOBJ " . abs_path($ofile) . "\n";
 	}
@@ -298,11 +303,9 @@ exit system(($real, @ARGV)) / 256;
 # Therefore it is easier to let gcc do the work
 #
 
-use Cwd 'abs_path';
+use Data::UUID;
 
 $real = which($0);
-
-$debug = 0;
 
 # Gather input / output files and remove them from the command line
 for ($i = 0; $i <= $#ARGV; $i++) {
@@ -414,20 +417,29 @@ for $cfile (@cfiles) {
 		print RULES "$if\n";
 	}
 	print RULES "INSRC " . abs_path($cfile) . "\n";
-	if ($compile && $output) {
-		$coutput = $output;
-	} else {
-		$coutput= $cfile;
-		$coutput =~ s/\.c$/.o/i;
-		$coutput =~ s,.*/,,;
+	if ($compile) {
+		if ($output) {	# cc -c -o foo.o foo.c
+			print RULES "OUTOBJ " . robust_abs_path($output) . "\n";
+		} else {	# cc -c foo.c
+			my $coutput= $cfile;
+			$coutput =~ s/\.c$/.o/i;
+			$coutput =~ s,.*/,,;
+			print RULES "OUTOBJ " . robust_abs_path($coutput) . "\n";
+		}
+	} else {		# cc -o foo foo.c OR cc foo.c
+		my $ug = Data::UUID->new;
+		# Implicit output file
+		my $ofile = '/tmp/' . $ug->create_str() . '.o';
+		push(@implicit_ofiles, $ofile);
+		print RULES "OUTOBJ $ofile\n";
 	}
-	print RULES "OUTOBJ " . abs_path($coutput) . "\n";
 	print RULES join("\n", @incs), "\n";
 	print RULES join("\n", @defs), "\n";
 	print RULES "END COMPILE\n";
 }
 
-if (!$compile && !depwrite && $#cfiles >= 0 || $#ofiles >= 0) {
+if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0)) {
+
 	print RULES "BEGIN LINK\n";
 	print RULES "CMDLINE $origline\n";
 	if ($output) {
@@ -435,13 +447,11 @@ if (!$compile && !depwrite && $#cfiles >= 0 || $#ofiles >= 0) {
 	} else {
 		print RULES "OUTEXE a.out\n";
 	}
-	for $cfile (@cfiles) {
-		$output= $cfile;
-		$output =~ s/\.c$/.o/i;
-		print RULES "INOBJ " . abs_path($output) . "\n";
-	}
 	for $ofile (@ofiles) {
 		print RULES "INOBJ " . abs_path($ofile) . "\n";
+	}
+	for $ofile (@implicit_ofiles) {
+		print RULES "INOBJ $ofile\n";
 	}
 	for $afile (@afiles) {
 		print RULES "INLIB " . abs_path($afile) . "\n";
@@ -475,8 +485,6 @@ sub abs_if_exists
 #
 # Spy on ld invocations and construct corresponding CScout directives
 #
-
-use Cwd 'abs_path';
 
 $real = which($0);
 
@@ -519,9 +527,9 @@ if ($#ofiles >= 0 || $#afiles >= 0) {
 	print RULES "BEGIN LINK\n";
 	print RULES "CMDLINE $origline\n";
 	if ($output) {
-		print RULES 'OUTEXE ' . abs_path($output) . "\n";
+		print RULES 'OUTEXE ' . robust_abs_path($output) . "\n";
 	} else {
-		print RULES 'OUTEXE ' . abs_path('a.out') . "\n";
+		print RULES 'OUTEXE ' . robust_abs_path('a.out') . "\n";
 	}
 	for $ofile (@ofiles) {
 		print RULES 'INOBJ ' . abs_path($ofile) . "\n";
@@ -551,8 +559,6 @@ exit system(($real, @ARGV)) / 256;
 # Spy on ar invocations and construct corresponding CScout directives
 #
 
-use Cwd 'abs_path';
-
 $real = which($0);
 
 $origline = "mv " . join(' ', @ARGV);
@@ -567,11 +573,11 @@ while ($ARGV2[0] =~ m/^-/) {
 
 print RULES "RENAMELINE $origline\n";
 if ($#ARGV2 == 1) {
-	print RULES 'RENAME ' . abs_path($ARGV2[0]) . ' ' . abs_path($ARGV2[1]) . "\n";
+	print RULES 'RENAME ' . abs_path($ARGV2[0]) . ' ' . robust_abs_path($ARGV2[1]) . "\n";
 } else {
 	$dir = pop(@ARGV2);
 	for $f (@ARGV2) {
-		print RULES 'RENAME ' . abs_path($f) . ' ' . abs_path("$dir/$f") . "\n";
+		print RULES 'RENAME ' . abs_path($f) . ' ' . robust_abs_path("$dir/$f") . "\n";
 	}
 }
 
@@ -584,6 +590,27 @@ exit system(($real, @ARGV)) / 256;
 #
 # Code common to all spy programs
 #
+
+use Cwd 'abs_path';
+
+# Return the absolute path of a file, even if does not exist
+# Under Cygwin Perl, abs_path on missing files aborts the program
+# with an error
+sub
+robust_abs_path
+{
+	my ($file) = @_;
+	if (-r $file) {
+		return abs_path($file);
+	} else {
+		my ($ret);
+		open my $out, '>', $file or die "Unable to create $file: $!\n";
+		close $out;
+		$ret = abs_path($file);
+		unlink($file);
+		return $ret;
+	}
+}
 
 # Return the absolute path for prog, excluding our own path
 sub which

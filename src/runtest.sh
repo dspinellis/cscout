@@ -20,19 +20,27 @@
 #
 #
 
+echo 'TAP version 13'
+
 if [ -r dbpoints ] && grep -q '^[a-z]' dbpoints
 then
-	echo "Debug points may cause the tests to fail.  Comment or remove them." 1>&2
+	echo "Bail out! Debug points may cause the tests to fail.  Comment or remove them."
 	exit 1
 fi
+
 
 # Start a test (arguments directory, name)
 start_test()
 {
-	echo "
-------------------------------------------
-Test $2 begins
-"
+  TEST_NAME="$2"
+}
+
+# Report a test's error output following the TAP convention
+show_error()
+{
+  echo '#---'
+  sed 's/^/#/' "$1"
+  echo '#...'
 }
 
 # End a test (arguments directory, name)
@@ -42,16 +50,18 @@ end_compare()
 	then
 		return 0
 	fi
+	mkdir -p test/err/diff
 	if { test -r test/out/$NAME.err &&
-	     diff -ib test/out/$NAME.out test/nout/$NAME.out &&
+	     diff -ib test/out/$NAME.out test/nout/$NAME.out >test/err/diff/$NAME &&
 	     sed "s|[^ ]*$(/bin/pwd)||" test/nout/$NAME.err |
-	     diff -ib test/out/$NAME.err - ; } ||
+	     diff -ib test/out/$NAME.err - >>test/err/diff/$NAME ; } ||
 	   { test -r test/out/$NAME &&
-	     diff -ib test/out/$NAME test/nout/$NAME ; }
+	     diff -ib test/out/$NAME test/nout/$NAME >test/err/diff/$NAME ; }
 	then
 		end_test $2 1
 	else
 		end_test $2 0
+		show_error test/err/diff/$NAME
 	fi
 }
 
@@ -62,16 +72,10 @@ end_test()
 	if [ "$2" = 1 ]
 	then
 		OK=`expr $OK + 1`
-		echo "
-Test $1 finishes correctly
-------------------------------------------
-"
+		echo "ok $NTEST - $TEST_GROUP $TEST_NAME"
 	else
 		NOK=`expr $NOK + 1`
-		echo "
-Test $1 failed
-------------------------------------------
-"
+		echo "not ok $NTEST - $TEST_GROUP $TEST_NAME"
 		if [ x"$CONTINUE" != x"1" ]
 		then
 			exit 1
@@ -90,9 +94,10 @@ runtest_c()
 	SRCPATH=$3
 	CSFILE=$4
 	start_test $DIR $NAME
+	mkdir -p test/err/chunk
 (
 echo '\p Loading database'
-(cd $DIR ; $SRCPATH/$CSCOUT -s hsqldb $CSFILE)
+(cd $DIR ; $SRCPATH/$CSCOUT -s hsqldb $CSFILE) 2>test/err/chunk/$NAME.cs
 cat <<\EOF
 \p Fixing EIDs
 
@@ -205,11 +210,12 @@ runtest_chunk()
 	NAME=$1
 	DIR=$2
 	CSFILE=$3
-	start_test $DIR "Chunk $NAME"
+	start_test $DIR "chunk $NAME"
 	mkdir -p test/chunk
 (
 echo '\p Loading database'
-(cd $DIR ; $CSCOUT -s hsqldb $CSFILE)
+mkdir -p test/err/chunk
+(cd $DIR ; $CSCOUT -s hsqldb $CSFILE) 2>test/err/chunk/$NAME.cs
 echo '
 \p Starting dump
 select s from
@@ -226,12 +232,13 @@ $HSQLDB mem - |
 sed -e '1,/^Starting dump/d;/^[0-9][0-9]* rows/d' |
 tr -d "\n\r" |
 perl -pe 's/\\u0000d\\u0000a/\n/g' >test/chunk/$NAME
-if diff -b test/c/$NAME test/chunk/$NAME
+if diff -b test/c/$NAME test/chunk/$NAME >test/err/c/$NAME.diff
 then
 	end_test $NAME 1
 else
 	end_test $NAME 0
-	echo "(Make sure the input file uses the correct line-end convention.)"
+	show_error test/err/c/$NAME.diff
+	echo " (Make sure the input file uses the correct line-end convention.)"
 fi
 }
 
@@ -253,7 +260,7 @@ workspace TestWS {
 	}
 }
 " |
-perl cswc.pl -d $DOTCSCOUT >makecs.cs
+perl cswc.pl -d $DOTCSCOUT >makecs.cs 2>/dev/null
 }
 
 
@@ -283,7 +290,7 @@ workspace TestWS {
 	}
 }
 " |
-perl cswc.pl -E -d $DOTCSCOUT >makecs.cs
+perl cswc.pl -E -d $DOTCSCOUT >makecs.cs 2>/dev/null
 }
 
 # Set the test control variables to the passed value
@@ -326,7 +333,7 @@ CSCOUT=$(dirname $0)/build/cscout
 
 # Adjust HSQLDB_DIR for native Windows Java
 if cygpath -a / 2>&1 >/dev/null &&
-  ! java -jar $HSQLDB_DIR/lib/sqltool.jar </dev/null ; then
+  ! java -jar $HSQLDB_DIR/lib/sqltool.jar </dev/null 2>/dev/null; then
     HSQLDB_DIR=$(cygpath -w $HSQLDB_DIR)
 fi
 
@@ -340,8 +347,7 @@ mkdir -p test/nout
 
 if [ $TEST_RECONST = 1 ]
 then
-	echo 'Running reconstitution tests'
-	echo '----------------------------'
+	TEST_GROUP=reconstitution
 	# Test reconstitution of individual C files (no priming required)
 	for i in ${RCFILES:=$(cd test/c; echo *.c)}
 	do
@@ -352,8 +358,7 @@ fi
 
 if [ $TEST_CPP = 1 ]
 then
-	echo 'Running preprocessor tests'
-	echo '--------------------------'
+	TEST_GROUP=preprocessor
 	# Test cases for C preprocessor files
 	for i in ${CPPFILES:=$(cd test/cpp; echo *.c)}
 	do
@@ -366,8 +371,7 @@ fi
 # Test cases for individual C files
 if [ $TEST_C = 1 ]
 then
-	echo 'Running C tests'
-	echo '---------------'
+	TEST_GROUP=C
 	for i in ${CFILES:=$(cd test/c; echo *.c)}
 	do
 		makecs_c $i
@@ -378,26 +382,27 @@ fi
 # Obfuscation
 if [ $TEST_OBFUSCATION = 1 ]
 then
-	echo 'Running the obfuscation test'
-	echo '----------------------------'
+	TEST_GROUP=obfuscation
+	mkdir -p test/err/obfuscation
+	(
 	cd ../example.obf
 	sh run.sh
 	cd awk
 	MAKEFLAGS= make
-	if [ -r awk ]
+	) >test/err/obfuscation/out 2>test/err/obfuscation/err
+	if [ -r ../example.obf/awk/awk ]
 	then
-		end_test obfsucation 1
+		end_test awk 1
 	else
-		end_test obfsucation 0
+		end_test awk 0
+		show_error test/err/obfuscation/err
 	fi
-	cd ../../src
 fi
 
 # awk
 if [ $TEST_AWK = 1 ]
 then
-	echo 'Running the awk test'
-	echo '--------------------'
+	TEST_GROUP=C
 	runtest_c awk.c ../example ../src awk.cs
 fi
 
@@ -413,9 +418,10 @@ then
 
 fi
 
-echo "$OK/$NTEST tests passed"
+echo "1..$NTEST"
+echo "# $OK/$NTEST tests passed"
 if [ ! -z "$FAILED" ]
 then
-	echo "$NOK/$NTEST tests failed"
-	echo "The following test(s) failed: $FAILED"
+	echo "# $NOK/$NTEST tests failed"
+	echo "# The following test(s) failed: $FAILED"
 fi

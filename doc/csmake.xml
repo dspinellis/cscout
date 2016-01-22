@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
 <notes>
+<p>
 In <em>CScout</em> from version 2.2 and onward you can
 you can also use the supplied tool <em>csmake</em> to
 directly generate <em>CScout</em> processing scripts by monitoring a project's
@@ -9,18 +10,20 @@ on a Unix or Unix-like system, and use <em>make</em> and <em>gcc</em>.
 The make process can also invoke <em>ld</em>, <em>ar</em>, and <em>mv</em>.
 Recursive <em>make</em> invocations among different directories are
 also supported.
-<p />
+</p><p>
 The way to use <em>csmake</em> is fairly simple.
 You first arrange for performing a full build, for example by running
+</p>
 <fmtcode ext="sh">
 make clean
 </fmtcode>
+<p>
 Then, instead of running <code>make</code> on the project's top-level
 directory you run <code>csmake</code>.
 When the build process has finished, <em>csmake</em> will leave in
 the directory where you started it a <em>CScout</em> processing script
 named <code>make.cs</code>.
-<p />
+</p><p>
 <em>csmake</em> has been used out-of-the-box to run <em>CScout</em> on
 the Linux kernel version 2.6.11.4 and the Apache httpd version 2.2.3.
 It has also been used to process the FreeBSD 7-CURRENT kernel under
@@ -28,6 +31,7 @@ its three Tier-1 architecture configurations by cross-compiling each
 configuration separately and merging the resulting <em>CScout</em>
 processing scripts.
 This is the shell script that did the job.
+</p>
 <fmtcode ext="sh">
 for a in amd64 i386 sparc64
 do
