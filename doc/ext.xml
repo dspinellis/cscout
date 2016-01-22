@@ -9,6 +9,8 @@ In addition, it supports the following extensions:
 <li> The <code>alignof</code> operator can be used on types (gcc) </li>
 <li> A declaration expression as the first element of a <code>for</code> statement (C99)
 <li> The <code>restrict</code> qualifier and the <code>inline</code> specifier (C99)
+<li> The <code>_Bool</code> type (C99)
+<li> The <code>_Thread_local</code> storage class specifier (C11)
 <li> Initialization designators (C99)
 <li> Array initialization designators can include ranges (gcc) </li>
 <li> ANSI-style function definitions can be nested (gcc) (gcc also allows

@@ -50,7 +50,8 @@ enum e_storage_class {
 	c_static,
 	c_auto,
 	c_register,
-	c_enum
+	c_enum,
+	c_thread_local
 };
 
 enum e_qualifier {

@@ -148,6 +148,9 @@ make_keymap()
 	m["inline"] = INLINE;
 	m["restrict"] = RESTRICT;
 	m["_Bool"] = BOOL;
+	/* C11 */
+	m["_Thread_local"] = THREAD_LOCAL;
+
 	/* Microsoft */
 	m["_asm"] = MSC_ASM;
 	m["__try"] = TRY;

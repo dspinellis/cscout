@@ -1183,6 +1183,7 @@ storage_class:
         | STATIC	{ $$ = basic(b_abstract, s_none, c_static); }
         | AUTO		{ $$ = basic(b_abstract, s_none, c_auto); }
         | REGISTER	{ $$ = basic(b_abstract, s_none, c_register); }
+        | THREAD_LOCAL	{ $$ = basic(b_abstract, s_none, c_thread_local); }
         ;
 
 basic_type_name:

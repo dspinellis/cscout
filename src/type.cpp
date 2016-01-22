@@ -415,6 +415,7 @@ Tstorage::print(ostream &o) const
 	case c_auto: o << "auto "; break;
 	case c_register: o << "register "; break;
 	case c_enum: o << "enum_const "; break;
+	case c_thread_local: o << "_Thread_local "; break;
 	}
 }
 
