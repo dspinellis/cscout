@@ -7,7 +7,7 @@ echo 'TAP version 13'
 echo "1..$(ls *.mk *.mk *.mk | wc -l)"
 
 # Setup a suitable testing environment
-(cd ../.. ; dest-install.sh test/csmake)
+(cd ../.. ; ./dest-install.sh test/csmake)
 export CSCOUT_HOME=./include/cscout
 
 inctest()
