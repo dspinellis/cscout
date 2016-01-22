@@ -53,3 +53,6 @@ test: src/build/cscout
 
 install: src/build/cscout
 	cd src && $(MAKE) install
+
+example: src/build/cscout
+	cd src && $(MAKE) example

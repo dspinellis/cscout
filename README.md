@@ -15,7 +15,7 @@ server.
 For more details, examples, and documentation visit the project's
 [web site](http://www.spinellis.gr/cscout).
 
-## Building
+## Building, Testing, Installing, Using
 CScout has been compiled and tested on GNU/Linux (Debian jessie),
 Apple OS X (El Capitan), FreeBSD (11.0), and Cygwin. In order to
 build and use CScout you need a Unix (like) system
@@ -25,6 +25,8 @@ in order to use the HSQLDB database.
 
 * To build, run `make`.
 * To build and test, run `make test`.
+* To install (typically after building and testing), run `sudo make install`.
+* To see CScout in action run `make example`.
 
 ## Contributing
 * For small-scale improvements and fixes simply submit a GitHub pull request.
