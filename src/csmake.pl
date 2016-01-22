@@ -40,7 +40,7 @@ if (-d '.cscout') {
 } elsif (-d 'INSTALL_INCLUDE') {
 	$instdir = 'INSTALL_INCLUDE';
 } else {
-	print STDERR "Unable to identify a cscout installation directory\n";
+	print STDERR "Unable to identify a CScout installation directory\n";
 	print STDERR 'Create ./.cscout, or $HOME/.cscout, or set the $CSCOUT_HOME variable' . "\n";
 	exit(1);
 }
