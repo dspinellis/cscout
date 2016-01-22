@@ -1,4 +1,5 @@
 hello: hello.o moved.o
+	$(CC) -o $@ $?
 
 verify:
 	grep '^main	.*hello\.c' tags

@@ -1,4 +1,5 @@
 hello: hello.o global.o
+	$(CC) -o $@ $?
 
 verify:
 	grep '^main	.*hello\.c' tags
