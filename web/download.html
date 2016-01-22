@@ -6,16 +6,18 @@ CScout has been compiled and tested on GNU/Linux
 (Debian jessie, and Amazon Linux 2015.09),
 Apple OS X (El Capitan), FreeBSD (11.0), and Cygwin. In order to
 build and use CScout you need a Unix (like) system
-with a modern C++ compiler and Perl.
-To test CScout you also need to be able to run Java from the command line,
+with a modern C++ compiler, GNU make, and Perl.
+To test CScout you need to be able to run Java from the command line,
 because tests use the HSQLDB database.
-To run CScout you also need to have the
+To view CScout's diagrams you must have the
 <a href="http://www.graphviz.org">GraphViz</a> <em>dot</em> command in
 your executable file path.
 <ul>
 	<li>To build, run <code>make</code>.</li>
 	<li>To build and test, run <code>make test</code>.</li>
-	<li>To install, run <code>sudo make install</code>.</li>
+	<li>To install (typically after building and testing),
+	run <code>sudo make install</code>.</li>
+	<li>To see CScout in action run <code>make example</code>.</li>
 </ul>
 You can find complete installation and setup instructions
 <a href="doc/setup.html">here</a>.
