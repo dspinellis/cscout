@@ -85,6 +85,7 @@ install -m $HMODE $TMPFILE "$INCLUDE_DIR/host-incs.h"
 install -m $HMODE $INC/template/gcc-defs.h "$INCLUDE_DIR/gcc-defs.h"
 
 # Perl scripts
+mkdir -p "$INSTALL_PREFIX/bin"
 for f in cswc.pl csmake.pl ; do
   sed "s|INSTALL_INCLUDE|$INCLUDE_DIR|g" $f >$TMPFILE
   install $TMPFILE "$INSTALL_PREFIX/bin/$(basename $f .pl)"
