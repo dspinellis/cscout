@@ -22,7 +22,10 @@
 #define __EXCEPTIONS
 #endif
 
-/* Generic gcc workarounds. */
+/*
+ * Generic gcc workarounds.
+ * Note that CScout has builtin support for __atribute__.
+ */
 #define __PRETTY_FUNCTION__ "UNKNOWN"
 #define __builtin_constant_p(_x) ((_x), 0)
 #define __builtin_expect(_x, _v) ((_v), (_x))
