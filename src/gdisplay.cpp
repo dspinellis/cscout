@@ -103,25 +103,22 @@ void
 GDDotImage::head(const char *fname, const char *title, bool empty_node)
 {
 	#if defined(unix) || defined(__unix__) || defined(__MACH__)
-	strcpy(img, "/tmp");
+	strcpy(dot_dir, "/tmp");
 	#elif defined(WIN32)
 	char *tmp = getenv("TEMP");
-	strcpy(img, tmp ? tmp : ".");
+	strcpy(dot_dir, tmp ? tmp : ".");
 	#else
 	#error "Don't know how to obtain temporary directory"
 	#endif
-	strcpy(dot, img);
-	strcat(dot, "/CSdot-XXXXXX");
-	strcat(img, "/CSimg-XXXXXX");
-	/*
-	 * Using mkstemp here doesn't provide more security,
-	 * because an attacker can switch the files underneath
-	 * dot's execution. The really secure way is to pipe our
-	 * data into dot and pipe dot's results directly from it.
-	 * Also, mkstemp is not available under WIN32.
-	 */
-	mktemp(dot);
-	mktemp(img);
+	strcat(dot_dir, "/CS-XXXXXX");
+	if (mkdtemp(dot_dir) == NULL) {
+		html_perror(fo, "Unable to create temporary directory " + string(dot), true);
+		return;
+	}
+	strcpy(dot, dot_dir);
+	strcat(dot, "/in.dot");
+	strcpy(img, dot_dir);
+	strcat(img, "/out.img");
 	fo = fopen(dot, "w");
 	if (fo == NULL) {
 		html_perror(fo, "Unable to open " + string(dot) + " for writing", true);
@@ -135,7 +132,12 @@ GDDotImage::tail()
 {
 	GDDot::tail();
 	fclose(fo);
-	snprintf(cmd, sizeof(cmd), "dot -T%s \"%s\" \"-o%s\"", format, dot, img);
+	/*
+	 * Changing to the tmp directory overcomes the problem of Cygwin
+	 * differences between CScout and dot file paths
+	 */
+	snprintf(cmd, sizeof(cmd), "cd %s && dot -T%s in.dot -oout.img",
+			dot_dir, format);
 	if (DP())
 		cout << cmd << '\n';
 	if (system(cmd) != 0) {
@@ -156,4 +158,5 @@ GDDotImage::tail()
 	fclose(fimg);
 	(void)unlink(dot);
 	(void)unlink(img);
+	(void)rmdir(dot_dir);
 }
