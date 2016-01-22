@@ -303,8 +303,6 @@ exit system(($real, @ARGV)) / 256;
 # Therefore it is easier to let gcc do the work
 #
 
-use Data::UUID;
-
 $real = which($0);
 
 # Gather input / output files and remove them from the command line
@@ -427,9 +425,11 @@ for $cfile (@cfiles) {
 			print RULES "OUTOBJ " . robust_abs_path($coutput) . "\n";
 		}
 	} else {		# cc -o foo foo.c OR cc foo.c
-		my $ug = Data::UUID->new;
 		# Implicit output file
-		my $ofile = '/tmp/' . $ug->create_str() . '.o';
+		# Obtain a globally unique identifier across all csmake spy
+		# program runs by using the current rules file offset. This
+		# will be always increasing across all programs.
+		my $ofile = '/tmp/csmake-ofile-' . tell(RULES) . '.o';
 		push(@implicit_ofiles, $ofile);
 		print RULES "OUTOBJ $ofile\n";
 	}
