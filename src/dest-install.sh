@@ -96,3 +96,5 @@ for f in cswc.pl csmake.pl ; do
   sed "s|INSTALL_INCLUDE|$INCLUDE_DIR|g" $f >$TMPFILE
   install $TMPFILE "$INSTALL_PREFIX/bin/$(basename $f .pl)"
 done
+
+rm -f $TMPFILE
