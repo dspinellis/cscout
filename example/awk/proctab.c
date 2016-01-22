@@ -178,7 +178,7 @@ Cell *(*proctab[92])(Node **, int) = {
 	nullproc,	/* NUMBER */
 	nullproc,	/* STRING */
 	nullproc,	/* REGEXPR */
-	getline,	/* GETLINE */
+	getlinex,	/* GETLINE */
 	jump,	/* RETURN */
 	split,	/* SPLIT */
 	substr,	/* SUBSTR */
