@@ -3,9 +3,13 @@ code (6600 lines).  The code is almost vanilla ANSI C allowing CScout
 to work with the supplied generic ANSI C headers.  Thus, your machine
 does not need a C compiler installation, nor do you need to configure
 the CScout setup files.  Having entered this directory on the unpacked
-distribution tree just type:
+distribution tree go to CScout's top level directory and type:
 
-../build/cscout awk.cs
+```
+make
+cd example
+../src/build/cscout awk.cs
+```
 
 and you are off.
 
