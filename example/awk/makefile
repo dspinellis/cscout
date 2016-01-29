@@ -24,7 +24,7 @@
 
 CFLAGS = -g
 CFLAGS = -O2
-CFLAGS =
+CFLAGS = -DHAS_ISBLANK
 
 CC = gcc -Wall -g -Wwrite-strings
 CC = gcc -Wall -g
