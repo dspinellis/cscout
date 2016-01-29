@@ -198,7 +198,7 @@ html_tail(FILE *of)
 		"<br><hr><div class=\"footer\">CScout %s &mdash; %s",
 		Version::get_revision().c_str(),
 		Version::get_date().c_str());
-	fprintf(of, " &mdash; Unsupported version; can only be used on open-source software.");
+	fprintf(of, " &mdash; Licensed under the GNU General Public License.");
 	fprintf(of, "</div></body></html>\n");
 }
 
