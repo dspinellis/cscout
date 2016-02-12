@@ -269,7 +269,7 @@ install: build/cscout
 	./dest-install.sh "$(INSTALL_PREFIX)"
 
 example: build/cscout
-	cd ../example && ../src/build/cscout.exe awk.cs
+	cd ../example && ../src/build/cscout awk.cs
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql
