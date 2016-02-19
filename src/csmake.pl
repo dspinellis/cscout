@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # (C) Copyright 2006-2016 Diomidis Spinellis
 #
@@ -215,7 +215,7 @@ sub spy
 	open(IN, $script_name) || die "Unable to open $script_name for reading: $!\n";
 	push(@toclean, $realProgName);
 	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/$realProgName for writing: $!\n";
-	print OUT '#!/usr/bin/perl
+	print OUT '#!/usr/bin/env perl
 #
 # Automatically-generated file
 #

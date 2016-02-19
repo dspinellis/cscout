@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # Process a PicoQL schema file replacing the #schema sections with
 # the actual fields

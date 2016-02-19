@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # (C) Copyright 2001-2015 Diomidis Spinellis.
 #
