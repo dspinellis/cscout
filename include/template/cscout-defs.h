@@ -25,7 +25,6 @@
 #define __FUNCTION__ "UNKNOWN"
 #define __func__ "UNKNOWN"
 #define inline
-#define _Thread_local
 #define _Pragma(x)
 
 /* To make it appear as a read-only identifier */
