@@ -268,6 +268,12 @@ install: build/cscout
 	install -Ds $< "$(INSTALL_PREFIX)/bin/cscout"
 	./dest-install.sh "$(INSTALL_PREFIX)"
 
+uninstall:
+	rm -f "$(INSTALL_PREFIX)/bin/cscout"
+	rm -f "$(INSTALL_PREFIX)/bin/csmake"
+	rm -f "$(INSTALL_PREFIX)/bin/cswc"
+	rm -rf "$(INSTALL_PREFIX)/include/cscout"
+
 example: build/cscout
 	cd ../example && ../src/build/cscout.exe awk.cs
 
