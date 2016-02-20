@@ -33,12 +33,12 @@ ADDLIBS+=../swill/libswill.a
 
 # Common object files
 OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
-ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
-parse.o type.o stab.o attr.o metrics.o version.o \
-error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
-logo.o workdb.o obfuscate.o sql.o md5.o os.o pager.o \
-option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
-dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o timer.o
+  ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
+  parse.o type.o stab.o attr.o metrics.o version.o \
+  error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
+  logo.o workdb.o obfuscate.o sql.o md5.o os.o pager.o \
+  option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
+  dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o timer.o
 
 # monitor.o
 
@@ -55,36 +55,33 @@ OBJ=$(addprefix build/, $(OBJBASE))
 
 .SUFFIXES:.java .dot .ps .png .pic .eps .png .svg
 
-# Source we distribute
-# Do not add Makefile version.cpp here
-DISTSRC=License.txt attr.cpp attr.h cpp.h cscout.cpp ctoken.cpp \
-	ctoken.h debug.cpp debug.h defs.h eclass.cpp \
-	eclass.h error.cpp error.h eval.y fchar.cpp \
-	fchar.h fileid.cpp fileid.h id.h incs.h \
-	macro.cpp macro.h metrics.cpp metrics.h mscdefs.h \
-	mscincs.h obfuscate.cpp parse.y pdtoken.cpp \
-	pdtoken.h pltoken.cpp pltoken.h ptoken.cpp ptoken.h \
-	simple_cpp.cpp stab.cpp stab.h swill.h tchar.cpp tchar.h \
-	tclfuns.cpp token.cpp token.h tokid.cpp \
-	tokid.h tokmap.cpp tokmap.h tokname.pl type.cpp type.h \
-	type2.h wdefs.h wincs.h workdb.cpp ytab.h ytoken.h \
-	version.h fdep.cpp \
-	fdep.h fcall.cpp fcall.h mcall.h call.cpp call.h idquery.cpp idquery.h \
-	query.cpp query.h funquery.cpp funquery.h logo.cpp logo.h ytoken.h \
-	workdb.h obfuscate.h dlstubs.c sql.cpp sql.h fifstream.h compiledre.h \
-	gdisplay.h eval.h md5.h md5.c os.cpp os.h \
-	filequery.cpp filequery.h mquery.h mcall.cpp  filemetrics.h funmetrics.h \
-	pager.h pager.cpp option.cpp option.h  filemetrics.cpp funmetrics.cpp \
-	ctconst.cpp ctconst.h gdisplay.cpp  globobj.cpp globobj.h \
-	html.h html.cpp dirbrowse.h dirbrowse.cpp fileutils.cpp fileutils.h \
-	ctag.cpp ctag.h timer.cpp timer.h \
-	runtest.sh \
-	csmake.pl cswc.pl style.css
+# C/C++ files that are under version control
+# (Not auto-generated, apart from logo.cpp)
+CFILES=md5.c attr.cpp call.cpp cscout.cpp ctag.cpp ctconst.cpp \
+  ctoken.cpp debug.cpp dirbrowse.cpp eclass.cpp error.cpp fcall.cpp \
+  fchar.cpp fdep.cpp fileid.cpp filemetrics.cpp filequery.cpp fileutils.cpp \
+  funmetrics.cpp funquery.cpp gdisplay.cpp globobj.cpp html.cpp idquery.cpp \
+  logo.cpp macro.cpp mcall.cpp metrics.cpp obfuscate.cpp option.cpp os.cpp \
+  pager.cpp pdtoken.cpp pltoken.cpp ptoken.cpp query.cpp simple_cpp.cpp \
+  sql.cpp stab.cpp tchar.cpp timer.cpp token.cpp tokid.cpp \
+  tokmap.cpp type.cpp workdb.cpp
 
-# Sources needed for building
-SRC=Makefile $(DISTSRC)
+HEADERS=attr.h call.h compiledre.h cpp.h ctag.h ctconst.h ctoken.h \
+  debug.h defs.h dirbrowse.h eclass.h error.h eval.h fcall.h fchar.h fdep.h \
+  fifstream.h fileid.h filemetrics.h filequery.h fileutils.h funmetrics.h \
+  funquery.h gdisplay.h globobj.h html.h id.h idquery.h incs.h logo.h \
+  macro.h mcall.h md5.h metrics.h mquery.h mscdefs.h mscincs.h obfuscate.h \
+  option.h os.h pager.h pdtoken.h pltoken.h ptoken.h query.h sql.h stab.h \
+  swill.h tchar.h timer.h token.h tokid.h tokmap.h type.h type2.h version.h \
+  wdefs.h wincs.h workdb.h ytoken.h ytoken.h
 
-ALLSRC=$(SRC) logo.png version.cpp
+OTHERSRC=style.css csmake.pl cswc.pl tokname.pl runtest.sh eval.y parse.y \
+  Makefile
+
+# Auto-generated C files
+AUTOCFILES=css.c eval.cpp logo.cpp parse.cpp tokname.cpp version.cpp
+
+AUTOHEADERS=parse.tab.h ytab.h
 
 YACC=../btyacc/btyacc
 #YACC=yacc
@@ -145,13 +142,6 @@ CPPFLAGS += -I../boost_1_44_0
 LDFLAGS += -ldl -lpthread
 endif
 
-ALLSRC += pico_ql_erb_templates pico_ql_generator.rb picoschema.pl \
-  cscout-data.sql \
-  sqlite3.c sqlite3.h pico_ql_error_page.c pico_ql_interface.c \
-  pico_ql_interface.h pico_ql_logo.c \
-  pico_ql_search.h pico_ql_search_helper.cpp pico_ql_search_helper.h \
-  pico_ql_swill_access_func.h pico_ql_test.c pico_ql_test.h pico_ql_vt.c \
-  pico_ql_vt.h
 endif
 
 CPPFLAGS+=$(EXTRA_CPPFLAGS)
@@ -162,6 +152,21 @@ build/%.o: %.c
 
 build/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
+
+# Dependency generation rules
+dep/%.d: %.cpp
+	@set -e; rm -f $@; \
+	mkdir -p dep ; \
+	$(CXX) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,build/\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+dep/%.d: %.c
+	@set -e; rm -f $@; \
+	mkdir -p dep ; \
+	$(CXX) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,build/\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
 
 all: build/cscout
 
@@ -183,8 +188,6 @@ parse.cpp parse.tab.h: parse.y ytoken.h
 
 ytab.h: parse.tab.h
 	grep 'define ' parse.tab.h >ytab.h
-
-build/cscout.o: cscout.cpp ytab.h
 
 tokname.cpp: ytab.h tokname.pl
 	perl tokname.pl ytab.h tokname.cpp
@@ -227,10 +230,10 @@ logo.cpp: logo.png
 	echo 'int Logo::len = sizeof(Logo::logo_bytes);' >>logo.cpp
 
 wc:
-	wc -l $(SRC)
+	wc -l $(CFILES) $(HEADERS) $(OTHERSRC)
 
 clean:
-	rm -f build/* parse.tab.h parse.cpp ytab.h tokname.cpp eval.cpp
+	rm -f build/* parse.tab.h parse.cpp ytab.h tokname.cpp eval.cpp dep/*
 
 .java.dot:
 	javadoc -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
@@ -239,7 +242,7 @@ clean:
 .dot.png:
 	dot -Tpng -o$@ $<
 
-classdiag.java: $(ALLSRC)
+classdiag.java: $(HEADERS) $(AUTOHEADERS)
 	grep -h ":.*public" *.h | \
 	egrep -v '(struct|binary_func)' | \
 	sed 's/class //;s/://;s/public //;s/{//;s/  */ /g' | \
@@ -273,6 +276,9 @@ uninstall:
 
 example: build/cscout
 	cd ../example && ../src/build/cscout awk.cs
+
+# Include dependencies
+include $(patsubst %.c, dep/%.d, $(patsubst %.cpp, dep/%.d, $(CFILES) $(AUTOCFILES)))
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql
