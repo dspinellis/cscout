@@ -31,7 +31,7 @@
 #include <vector>
 #include <list>
 
-#include "ytab.h"
+#include "parse.tab.h"
 
 #include "cpp.h"
 #include "debug.h"

@@ -41,7 +41,7 @@
 using namespace std;
 
 #include "metrics.h"
-#include "ytab.h"
+#include "parse.tab.h"
 
 class Call;
 class Pltoken;

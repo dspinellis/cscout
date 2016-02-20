@@ -41,7 +41,7 @@
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "debug.h"
 #include "fdep.h"
 #include "idquery.h"

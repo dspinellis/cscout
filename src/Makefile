@@ -81,7 +81,7 @@ OTHERSRC=style.css csmake.pl cswc.pl tokname.pl runtest.sh eval.y parse.y \
 # Auto-generated C files
 AUTOCFILES=css.c eval.cpp logo.cpp parse.cpp tokname.cpp version.cpp
 
-AUTOHEADERS=parse.tab.h ytab.h
+AUTOHEADERS=parse.tab.h
 
 YACC=../btyacc/btyacc
 #YACC=yacc
@@ -154,6 +154,7 @@ build/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 # Dependency generation rules
+# See https://www.gnu.org/software/make/manual/html_node/Automatic-Prerequisites.html
 dep/%.d: %.cpp
 	@set -e; rm -f $@; \
 	mkdir -p dep ; \
@@ -168,7 +169,13 @@ dep/%.d: %.c
 	sed 's,\($*\)\.o[ :]*,build/\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
-all: build/cscout
+# Serialize execution order to ensure the dependencies are built before
+# compiling the object files in make -j invocations
+all:
+	$(MAKE) depend
+	$(MAKE) build/cscout
+
+depend:
 
 build/cscout: build/cscout.o $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o $(ADDLIBS)
@@ -177,20 +184,18 @@ build/cscout: build/cscout.o $(OBJ)
 build/cscout-cc: build/cscout.o  $(OBJ)
 	ccmalloc $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout-cc  $(OBJ) build/cscout.o -L${HOME}/lib/build -lswill
 
-eval.cpp: eval.y
-	$(YACC) -b eval -p eval_ eval.y
-	mv -f eval.tab.c eval.cpp
+# The only way to avoid having the rule beeing executed multiple times
+# under make -j in rules with multiple targets is to define a single
+# pattern rule rather than multiple explicit rules.
+# See "Rules With Multiple Outputs in GNU Make"
+# http://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make?page=0%2C2
+%.cpp %.tab.h: %.y
+	@test $* = parse && echo Expect 3 shift/reduce conflicts || true
+	$(YACC) -d -b $* -p $*_ $*.y
+	mv -f $*.tab.c $*.cpp
 
-parse.cpp parse.tab.h: parse.y ytoken.h
-	@echo Expect 3 shift/reduce conflicts
-	$(YACC) -d -b parse -p parse_ parse.y
-	mv -f parse.tab.c parse.cpp
-
-ytab.h: parse.tab.h
-	grep 'define ' parse.tab.h >ytab.h
-
-tokname.cpp: ytab.h tokname.pl
-	perl tokname.pl ytab.h tokname.cpp
+tokname.cpp: parse.tab.h tokname.pl
+	perl tokname.pl parse.tab.h tokname.cpp
 
 build/html.o: html.cpp css.c
 
@@ -233,7 +238,7 @@ wc:
 	wc -l $(CFILES) $(HEADERS) $(OTHERSRC)
 
 clean:
-	rm -f build/* parse.tab.h parse.cpp ytab.h tokname.cpp eval.cpp dep/*
+	rm -f build/* parse.tab.h parse.cpp tokname.cpp eval.cpp dep/*
 
 .java.dot:
 	javadoc -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
@@ -278,6 +283,7 @@ example: build/cscout
 	cd ../example && ../src/build/cscout awk.cs
 
 # Include dependencies
+# See https://www.gnu.org/software/make/manual/html_node/Automatic-Prerequisites.html
 include $(patsubst %.c, dep/%.d, $(patsubst %.cpp, dep/%.d, $(CFILES) $(AUTOCFILES)))
 
 ifdef PICO_QL

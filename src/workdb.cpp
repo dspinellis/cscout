@@ -39,7 +39,7 @@
 #include "error.h"
 #include "debug.h"
 #include "attr.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "metrics.h"
 #include "funmetrics.h"
 #include "filemetrics.h"

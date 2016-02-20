@@ -27,7 +27,7 @@
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "token.h"
 #include "ptoken.h"
 #include "fchar.h"

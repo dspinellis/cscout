@@ -37,7 +37,7 @@
 #include "metrics.h"
 #include "attr.h"
 #include "error.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"

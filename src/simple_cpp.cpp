@@ -35,7 +35,7 @@
 
 #include "cpp.h"
 #include "error.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"

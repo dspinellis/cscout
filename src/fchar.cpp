@@ -41,12 +41,12 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "token.h"
 #include "ptoken.h"
 #include "macro.h"
 #include "pdtoken.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "fdep.h"
 
 fifstream Fchar::in;

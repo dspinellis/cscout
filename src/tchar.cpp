@@ -38,7 +38,7 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "ptoken.h"
 #include "fchar.h"
 #include "tchar.h"
