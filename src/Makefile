@@ -275,7 +275,11 @@ uninstall:
 	rm -rf "$(INSTALL_PREFIX)/include/cscout"
 
 example: build/cscout
+ifeq ($(OS),Windows_NT))
 	cd ../example && ../src/build/cscout.exe awk.cs
+else
+	cd ../example && ../src/build/cscout awk.cs
+endif
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql
