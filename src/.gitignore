@@ -1,10 +1,11 @@
 *.swp
 css.c
+dep
 eval.cpp
 logo.cpp
+makecs.cs
 parse.cpp
 parse.tab.h
 tokname.cpp
 version.cpp
 ytab.h
-makecs.cs
