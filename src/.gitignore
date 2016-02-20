@@ -2,6 +2,7 @@
 css.c
 dep
 eval.cpp
+eval.tab.h
 logo.cpp
 makecs.cs
 parse.cpp
