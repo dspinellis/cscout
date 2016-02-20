@@ -2407,7 +2407,7 @@ version_info(bool html)
 		v << "online at" << end <<
 		"http://www.gnu.org/licenses/." << end;
 	v << "Other licensing options and professional support are available"
-		"on request." << end;
+		" on request." << end;
 	return v.str();
 }
 
