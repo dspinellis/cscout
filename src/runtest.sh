@@ -18,6 +18,7 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+# Pass -p to prime the test data and -k to continue after failed tests.
 # To run only a series of tests pass one of the following options
 # -TEST_AWK
 # -TEST_RECONST
@@ -361,7 +362,7 @@ CSCOUT=$(dirname $0)/build/cscout
 
 # Adjust HSQLDB_DIR for native Windows Java
 if cygpath -a / >/dev/null 2>&1 &&
-  ! java -jar $HSQLDB_DIR/lib/sqltool.jar </dev/null 2>/dev/null; then
+  ! java -jar $HSQLDB_DIR/lib/sqltool.jar </dev/null >/dev/null 2>&1; then
     HSQLDB_DIR=$(cygpath -w $HSQLDB_DIR)
 fi
 

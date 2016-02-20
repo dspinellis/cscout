@@ -172,9 +172,6 @@ build/cscout: build/cscout.o $(OBJ)
 build/cscout-cc: build/cscout.o  $(OBJ)
 	ccmalloc $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout-cc  $(OBJ) build/cscout.o -L${HOME}/lib/build -lswill
 
-build/cscout.exe: build/cscout.o  $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout  $(OBJ) build/cscout.o -L. -lswill -lws2_32
-
 eval.cpp: eval.y
 	$(YACC) -b eval -p eval_ eval.y
 	mv -f eval.tab.c eval.cpp
@@ -236,7 +233,7 @@ clean:
 	rm -f build/* parse.tab.h parse.cpp ytab.h tokname.cpp eval.cpp
 
 .java.dot:
-	cmd /c javadoc.exe -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
+	javadoc -docletpath /dds/src/research/umlgraph/lib/UmlGraph.jar -doclet org.umlgraph.doclet.UmlGraph -private $<
 	mv graph.dot $@
 
 .dot.png:
@@ -275,7 +272,7 @@ uninstall:
 	rm -rf "$(INSTALL_PREFIX)/include/cscout"
 
 example: build/cscout
-	cd ../example && ../src/build/cscout.exe awk.cs
+	cd ../example && ../src/build/cscout awk.cs
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql

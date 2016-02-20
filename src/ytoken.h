@@ -35,7 +35,7 @@
 %token CONTINUE        FOR             SIGNED          TVOID
 %token DEFAULT         GOTO            SIZEOF          VOLATILE
 %token DO              IF              STATIC          WHILE
-%token RESTRICT        INLINE	       BOOL
+%token RESTRICT        INLINE	       BOOL	       THREAD_LOCAL
 
 /* ANSI Grammar suggestions */
 %token IDENTIFIER         STRING_LITERAL
