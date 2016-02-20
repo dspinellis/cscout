@@ -18,6 +18,7 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+# Pass -p to prime the test data and -k to continue after failed tests.
 # To run only a series of tests pass one of the following options
 # -TEST_AWK
 # -TEST_RECONST
