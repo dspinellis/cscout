@@ -48,7 +48,7 @@
 #include "tokid.h"
 #include "fchar.h"
 #include "token.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "ptoken.h"
 #include "pltoken.h"
 #include "call.h"

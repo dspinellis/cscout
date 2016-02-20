@@ -48,7 +48,7 @@ print '
 #include "tokid.h"
 #include "token.h"
 
-#include "ytab.h"
+#include "parse.tab.h"
 
 
 /*

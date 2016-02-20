@@ -33,7 +33,7 @@
 #include <fstream>
 #include <cstdio>
 
-#include "ytab.h"
+#include "parse.tab.h"
 
 #include "cpp.h"
 #include "debug.h"

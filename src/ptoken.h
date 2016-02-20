@@ -36,7 +36,7 @@ using namespace std;
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
-#include "ytab.h"
+#include "parse.tab.h"
 
 class Ctoken;
 

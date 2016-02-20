@@ -98,7 +98,7 @@ Error::assertion_error(const char *fname, int line, const char *condition)
 
 #include "token.h"
 #include "ptoken.h"
-#include "ytab.h"
+#include "parse.tab.h"
 #include "pltoken.h"
 
 main()
