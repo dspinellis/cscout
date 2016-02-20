@@ -27,11 +27,12 @@ To view CScout's diagrams you must have the
 [GraphViz](http://www.graphviz.org) dot command in
 your executable file path.
 
-* To build, run `make`.
+* To build, run `make`. You can also use the `-j` make option to increase the build's speed.
 * To build and test, run `make test`.
 * To install (typically after building and testing), run `sudo make install`.
 * To see CScout in action run `make example`.
 
+Under FreeBSD use `gmake` rather than `make`.
 ## Contributing
 * For small-scale improvements and fixes simply submit a GitHub pull request.
 Each pull request should cover only a single feature or bug fix.
