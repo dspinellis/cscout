@@ -18,7 +18,19 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+# To run only a series of tests pass one of the following options
+# -TEST_AWK
+# -TEST_RECONST
+# -TEST_CPP
+# -TEST_C
+# -TEST_OBFUSCATION
 #
+# To run a single test set the corresponding environment variable e.g.
+# CFILES=c36-endlabel.c ./runtest.sh -TEST_C
+# RCFILES=c36-endlabel.c ./runtest.sh -TEST_RECONST
+# CPPFILES=cpp63-rescan.c ./runtest.sh -TEST_CPP
+#
+
 
 echo 'TAP version 13'
 
@@ -28,6 +40,22 @@ then
 	exit 1
 fi
 
+if ! [ "$CSCOUT_DIR" ] ; then
+  if [ -r cscout.cpp ] ; then
+    CSCOUT_DIR=..
+  else
+    echo "Bail out! runtest.sh can only be run from the top-level makefile, or within src."
+    exit 1
+  fi
+fi
+
+if ! [ "$HSQLDB_DIR" ] ; then
+  HSQLDB_DIR=$(echo $CSCOUT_DIR/hsqldb-*/hsqldb)
+  if ! [ -r "$HSQLDB_DIR/lib/sqltool.jar" ] ; then
+    echo "Bail out! Unable to find lib/sqltool.jar under $HSQLDB_DIR."
+    exit 1
+  fi
+fi
 
 # Start a test (arguments directory, name)
 start_test()
