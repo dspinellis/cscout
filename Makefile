@@ -21,7 +21,7 @@
 
 export CSCOUT_DIR=$(shell pwd)
 HSQLDB_VERSION=2.3.3
-HSQLDB_URL=http://hsqldb.org/download/hsqldb-$(HSQLDB_VERSION).zip
+HSQLDB_URL=http://downloads.sourceforge.net/project/hsqldb/hsqldb/hsqldb_2_3/hsqldb-$(HSQLDB_VERSION).zip
 export HSQLDB_DIR=$(CSCOUT_DIR)/hsqldb-$(HSQLDB_VERSION)/hsqldb
 
 .PHONY: src/build/cscout swill/libswill.a btyacc/btyacc
