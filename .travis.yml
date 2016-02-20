@@ -18,9 +18,11 @@ env:
     - CLANG_VERSION=3.6
 
 matrix:
-  allow_failures:
-    - compiler: clang
+  include:
     - os: osx
+      compiler: clang
+    - os: linux
+      compiler: gcc
 
 before_install:
   # Prepare compilers
