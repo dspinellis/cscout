@@ -45,7 +45,6 @@ addons:
   coverity_scan:
     project:
       name: "dspinellis/cscout"
-      description: "Build submitted via Travis CI"
     notification_email: dds@aueb.gr
     build_command_prepend: "make clean"
     build_command:   "make -j 4"
