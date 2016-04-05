@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/dspinellis/cscout.svg?branch=master)](https://travis-ci.org/dspinellis/cscout)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/8463/badge.svg)](https://scan.coverity.com/projects/dspinellis-cscout)
+
+
 CScout is a source code analyzer and refactoring browser for collections
 of C programs.  It can process workspaces of multiple projects (a project
 is defined as a collection of C source files that are linked together)
