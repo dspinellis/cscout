@@ -28,6 +28,8 @@ matrix:
       compiler: gcc
 
 before_install:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt-get update -q
   # Prepare compilers
   - if [[ "$CXX" == "g++" || "$CC" == "gcc" ]]; then sh travis/install-gcc.sh; fi
   - if [[ "$CXX" == "clang++" || "$CC" == "clang" ]]; then sh travis/install-clang.sh; fi
