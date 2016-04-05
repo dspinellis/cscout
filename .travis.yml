@@ -16,6 +16,9 @@ env:
   global:
     - LIBSTDC_VERSION=5
     - CLANG_VERSION=3.6
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "bUFwH+hVprc5fs5InUARYPYezUIe4EjRtuhEQOSV6hd2jS1+ZXD7u5sJZFwxSy5Ge/wCCzmqBNeZOpANDCbfayXe05M8JasHPkUd89R0TU1W7DiH6Q7B7ETcnLpgZAtkZrJY+b4+79E5wUGvdOkB2zQAsEXLuije/E6+Qq37gfVqwGFPCH6ZKc1s/IyzIvQhGFESe/VuLYm5dahJbBzqLRGziG3LoKJq3RyGTbDKATnL/vh1zAOzTWV5196sh+BmZbAHvAMCY5+0Io2ve5TvxDcGHFpIVn9VEhcHWjAPdpy7jbSppsKBzDIEYL+mp1UCQQzqyTwYnVU4mtprFKjnVJJBKPvE9EYOjek0PCg0usj9d+xvGEvUgC7E0poJajMyA1aIpr6Gf+SUZKBF4yEntCMLyEf9eH3fIPLWBkrv0MFk4bUX8/ZCAUd+/Gw6FiGcLQHhUJcLg+Wq2RPpfQistlrPTXNCQT9Som/HjOm+uU/YQuzIEfW6ZHYZcImdHpXD/UJWHEFTiKC4A0yCIkScJXANEewaqJDq9VbHwypdXeY+w39Ri9uGEMKfATlhk1+QhRhvzMA0YPqyrPQaQh527hKRdMKGOmMEHWjn6I9aM6FUcec80TcmT0Fmb/cN/VAp8u+h3i6wREzDP4zMn1DhJ0iG0hpJ52xHPxxUO6t5yDk="
 
 matrix:
   exclude:
@@ -37,3 +40,13 @@ before_install:
 
 cache:
   - apt
+
+addons:
+  coverity_scan:
+    project:
+      name: "dspinellis/cscout"
+      description: "Build submitted via Travis CI"
+    notification_email: dds@aueb.gr
+    build_command_prepend: "make clean"
+    build_command:   "make -j 4"
+    branch_pattern: coverity_scan
