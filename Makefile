@@ -51,6 +51,9 @@ hsqldb-$(HSQLDB_VERSION).zip:
 test: src/build/cscout
 	cd src && $(MAKE) test
 
+clean:
+	cd src && $(MAKE) clean
+
 install: src/build/cscout
 	cd src && $(MAKE) install
 
