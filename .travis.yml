@@ -28,6 +28,8 @@ matrix:
       compiler: gcc
 
 before_install:
+  - if [[ "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; fi
+  - if [[ "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get update -q; fi
   # Prepare compilers
   - if [[ "$CXX" == "g++" || "$CC" == "gcc" ]]; then sh travis/install-gcc.sh; fi
   - if [[ "$CXX" == "clang++" || "$CC" == "clang" ]]; then sh travis/install-clang.sh; fi

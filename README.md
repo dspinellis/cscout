@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/dspinellis/cscout.svg?branch=master)](https://travis-ci.org/dspinellis/cscout)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/8463/badge.svg)](https://scan.coverity.com/projects/dspinellis-cscout)
+
+
 CScout is a source code analyzer and refactoring browser for collections
 of C programs.  It can process workspaces of multiple projects (a project
 is defined as a collection of C source files that are linked together)
@@ -16,7 +20,6 @@ For more details, examples, and documentation visit the project's
 [web site](http://www.spinellis.gr/cscout).
 
 ## Building, Testing, Installing, Using
-[![Build Status](https://travis-ci.org/dspinellis/cscout.svg?branch=master)](https://travis-ci.org/dspinellis/cscout)
 CScout has been compiled and tested on GNU/Linux (Debian jessie),
 Apple OS X (El Capitan), FreeBSD (11.0), and Cygwin. In order to
 build and use CScout you need a Unix (like) system
