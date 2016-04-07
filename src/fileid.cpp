@@ -185,10 +185,13 @@ Fileid::set_readonly(bool r)
 
 Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 	name(n),
+	m_garbage_collected(false),
+	m_required(false),
 	m_compilation_unit(false),
 	hash(h),
 	ipath_offset(0),
-	hand_edited(false)
+	hand_edited(false),
+	visited(false)
 {
 	set_readonly(r);
 }

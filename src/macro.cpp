@@ -347,6 +347,7 @@ Macro::register_macro_body(mapMacroBody &map) const
 Macro::Macro( const Ptoken& name, bool id, bool isfun) :
 	name_token(name),
 	is_function(isfun),
+	is_vararg(false),
 	is_defined(id)
 {
 	if (isfun) {

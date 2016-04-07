@@ -76,6 +76,7 @@ bool FunQuery::specified_order::reverse;
 // Construct an object based on URL parameters
 FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :
 	Query(!e, r, true),
+	match_type('Y'),
 	match_fid(false),
 	id_ec(NULL),
 	call(NULL),
