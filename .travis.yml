@@ -47,8 +47,7 @@ addons:
   coverity_scan:
     project:
       name: "dspinellis/cscout"
-      description: "Build submitted via Travis CI"
     notification_email: dds@aueb.gr
-    build_command_prepend: "make clean; make btyacc swill/libswill.a"
+    build_command_prepend: "make btyacc ; make swill/libswill.a"
     build_command:   "make -j 4"
     branch_pattern: coverity_scan
