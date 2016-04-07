@@ -54,6 +54,7 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_nppfmacro,		"NPPFMACRO",		"Number of defined C preprocessor function-like macros"},
 	{ em_nppomacro,		"NPPOMACRO",		"Number of defined C preprocessor object-like macros"},
 // END AUTOSCHEMA Metrics
+	{ metric_max,		"",			""},
 };
 
 // Global metrics

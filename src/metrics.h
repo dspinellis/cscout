@@ -250,7 +250,7 @@ Metrics::get_detail(int n)
 	static const MetricDetails unknown = {0, "UNKNOWN", "UNKNOWN"};
 
 	csassert(n < M::metric_max);
-	for (int i = 0 ; i < M::metric_max; i++)
+	for (int i = 0 ; M::metric_details[i].id != M::metric_max; i++)
 		if (M::metric_details[i].id == n)
 			return (M::metric_details[i]);
 	csassert(0);
