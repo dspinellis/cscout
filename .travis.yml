@@ -2,7 +2,7 @@ sudo: required
 
 language: cpp
 
-script: make && make test
+script: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then make && make test ; fi
 
 os:
   - linux
@@ -48,6 +48,6 @@ addons:
     project:
       name: "dspinellis/cscout"
     notification_email: dds@aueb.gr
-    build_command_prepend: "make clean; make btyacc swill/libswill.a"
+    build_command_prepend: "make btyacc ; make swill/libswill.a"
     build_command:   "make -j 4"
     branch_pattern: coverity_scan
