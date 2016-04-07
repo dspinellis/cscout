@@ -36,7 +36,8 @@ using namespace std;
 // Abstract base class, used for drawing
 class GraphDisplay {
 protected:
-	FILE *fo;
+	FILE *fo;		// HTTP output file
+	FILE *fdot;		// Dot output file
 public:
 	GraphDisplay(FILE *f) : fo(f) {}
 	virtual void head(const char *fname, const char *title, bool empty_node) {};
@@ -117,33 +118,33 @@ public:
 	GDDot(FILE *f) : GraphDisplay(f) {}
 	virtual void head(const char *fname, const char *title, bool empty_node);
 	virtual void node(Call *p) {
-		fprintf(fo, "\t_%p [label=\"%s\"", p, Option::cgraph_show->get() == 'e' ? "" : function_label(p, false).c_str());
+		fprintf(fdot, "\t_%p [label=\"%s\"", p, Option::cgraph_show->get() == 'e' ? "" : function_label(p, false).c_str());
 		if (isHyperlinked())
-			fprintf(fo, ", URL=\"fun.html?f=%p\"", p);
-		fprintf(fo, "];\n");
+			fprintf(fdot, ", URL=\"fun.html?f=%p\"", p);
+		fprintf(fdot, "];\n");
 	}
 
 	virtual void node(Fileid f) {
-		fprintf(fo, "\t_%d [label=\"%s\"", f.get_id(), Option::fgraph_show->get() == 'e' ? "" : file_label(f, false).c_str());
+		fprintf(fdot, "\t_%d [label=\"%s\"", f.get_id(), Option::fgraph_show->get() == 'e' ? "" : file_label(f, false).c_str());
 		if (isHyperlinked())
-			fprintf(fo, ", URL=\"file.html?id=%d\"", f.get_id());
-		fprintf(fo, "];\n");
+			fprintf(fdot, ", URL=\"file.html?id=%d\"", f.get_id());
+		fprintf(fdot, "];\n");
 	}
 
 	virtual void edge(Call *a, Call *b) {
-		fprintf(fo, "\t_%p -> _%p;\n", a, b);
+		fprintf(fdot, "\t_%p -> _%p;\n", a, b);
 	}
 
 	virtual void edge(Fileid a, Fileid b) {
-		fprintf(fo, "\t_%d -> _%d [dir=back];\n", a.get_id(), b.get_id());
+		fprintf(fdot, "\t_%d -> _%d [dir=back];\n", a.get_id(), b.get_id());
 	}
 
 	virtual void error(const char *msg) {
-		fprintf(fo, "\tERROR [label=\"%s\" shape=plaintext];\n", msg);
+		fprintf(fdot, "\tERROR [label=\"%s\" shape=plaintext];\n", msg);
 	}
 
 	virtual void tail() {
-		fprintf(fo, "}\n");
+		fprintf(fdot, "}\n");
 	}
 	virtual bool isHyperlinked() { return Option::cgraph_dot_url->get(); }
 	virtual ~GDDot() {}
