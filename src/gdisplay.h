@@ -39,7 +39,7 @@ protected:
 	FILE *fo;		// HTTP output file
 	FILE *fdot;		// Dot output file
 public:
-	GraphDisplay(FILE *f) : fo(f) {}
+	GraphDisplay(FILE *f) : fo(f), fdot(NULL) {}
 	virtual void head(const char *fname, const char *title, bool empty_node) {};
 	virtual void subhead(const string &text) {};
 	virtual void node(Call *p) {};
