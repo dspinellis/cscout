@@ -573,7 +573,6 @@ Tbasic::merge(Tbasic *b)
 	         (this->type == b_double && b->type == b_long))
 		t = b_ldouble;
 	else if ((this->type == b_long && b->type == b_long) ||
-	         (this->type == b_long && b->type == b_long) ||
 	         (this->type == b_llong && b->type == b_int) ||
 	         (this->type == b_int && b->type == b_llong))
 		t = b_llong;		// Extension to ANSI
