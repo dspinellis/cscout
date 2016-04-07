@@ -300,7 +300,8 @@ again:
 			else {
 				const char *num;
 				char *endptr;
-				num = t.get_val().c_str();
+				string s(t.get_val());
+				num = s.c_str();
 				/*
 				 * Could be more clever here and set
 				 * signed/unsigned based on *endptr,

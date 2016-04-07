@@ -253,8 +253,6 @@ long eval_result;
 int
 eval_lex_real()
 {
-	const char *num;
-	char *endptr;
 	Ptoken t;
 again:
 	if (eval_ptr == eval_tokens.end())
@@ -264,23 +262,29 @@ again:
 	case SPACE:
 		goto again;
 	case PP_NUMBER:
-		num = t.get_val().c_str();
-		eval_lval.v.u = strtoul(num, &endptr, 0);
-		if (*endptr == 0 || *endptr == 'l' || *endptr =='L' ||
-		    *endptr == 'u' || *endptr == 'U') {
-		    	eval_lval.su = e_signed;
-			for (; *endptr; endptr++)
-				if (*endptr == 'u' || *endptr == 'U')
-					eval_lval.su = e_unsigned;
-			if (DP()) {
-				if (eval_lval.su == e_signed)
-					cout << "yylval = (signed)" << eval_lval.v.s << endl;
-				else
-					cout << "yylval = (unsigned)" << eval_lval.v.u << endl;
-			}
-			return (INT_CONST);
-		} else
-			return (FLOAT_CONST);	// Should be flagged as error
+		{
+			const char *num;
+			char *endptr;
+			string s(t.get_val());
+
+			num = s.c_str();
+			eval_lval.v.u = strtoul(num, &endptr, 0);
+			if (*endptr == 0 || *endptr == 'l' || *endptr =='L' ||
+			    *endptr == 'u' || *endptr == 'U') {
+				eval_lval.su = e_signed;
+				for (; *endptr; endptr++)
+					if (*endptr == 'u' || *endptr == 'U')
+						eval_lval.su = e_unsigned;
+				if (DP()) {
+					if (eval_lval.su == e_signed)
+						cout << "yylval = (signed)" << eval_lval.v.s << endl;
+					else
+						cout << "yylval = (unsigned)" << eval_lval.v.u << endl;
+				}
+				return (INT_CONST);
+			} else
+				return (FLOAT_CONST);	// Should be flagged as error
+		}
 	case CHAR_LITERAL:
 		{
 		const string& s = t.get_val();
