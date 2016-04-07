@@ -33,7 +33,8 @@ before_install:
   # Prepare compilers
   - if [[ "$CXX" == "g++" || "$CC" == "gcc" ]]; then sh travis/install-gcc.sh; fi
   - if [[ "$CXX" == "clang++" || "$CC" == "clang" ]]; then sh travis/install-clang.sh; fi
-
+  # Skip Coverity scan on non-GCC builds
+  - if [ "${COVERITY_SCAN_BRANCH}" = 1 -a "$CXX" != 'g++' ]; then exit ; fi
   # Debug information
   - if [[ "$TRAVIS_OS_NAME" = "linux" ]]; then lsb_release -a; fi
   - uname -a
