@@ -53,7 +53,7 @@ public:
 	// Construct it from a CToken
 	Ptoken(const Ctoken &t);
 	// Accessor methods
-	inline bool hideset_contains(Ptoken t) const { return (hideset.find(t) != hideset.end()); }
+	inline bool hideset_contains(const Ptoken &t) const { return (hideset.find(t) != hideset.end()); }
 	inline void hideset_insert(Token t) { hideset.insert(t); }
 	inline void hideset_insert(HideSet::const_iterator b, HideSet::const_iterator e) { hideset.insert(b, e); }
 	inline const HideSet& get_hideset() const { return (hideset); }

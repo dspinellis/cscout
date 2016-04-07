@@ -278,7 +278,7 @@ gather_defined_operator(PtokenSequence& tokens)
 // Return an arg iterator if token is a formal argument
 // otherwise end()
 static inline mapArgval::const_iterator
-find_formal_argument(const mapArgval &args, Ptoken t)
+find_formal_argument(const mapArgval &args, const Ptoken &t)
 {
 	if (DP())
 		cout << "find formal argument: " << t << "\n";
