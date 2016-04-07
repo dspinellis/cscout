@@ -1,0 +1,25 @@
+This directory allows you to run CScout on the "one true awk" source
+code (6600 lines).  The code is almost vanilla ANSI C allowing CScout
+to work with the supplied generic ANSI C headers.  Thus, your machine
+does not need a C compiler installation, nor do you need to configure
+the CScout setup files.  Having entered this directory on the unpacked
+distribution tree just type:
+
+../bin/cscout awk.cs (under Unix)
+
+or
+
+..\bin\cscout awk.cs (under Windows)
+
+and you are off.
+
+Note: If you have already moved the include file directory somewhere
+else, and you have set CSCOUT_HOME accordingly, remove the .cscout
+directory appearing here.
+
+
+
+I downloaded the awk code from Brian Kernighan's home page
+<http://cm.bell-labs.com/who/bwk/index.html>
+
+Diomidis Spinellis - June 2003
