@@ -210,7 +210,7 @@ mkerr:
 # match the current one.
 ifneq ($(shell sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp), $(shell git log -n 1 --format='%H' || sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp))
 version.cpp:
-	./make-version.sh >$@
+	sh make-version.sh >$@
 
 .PHONY: version.cpp
 endif
