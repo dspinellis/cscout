@@ -206,10 +206,14 @@ css.c: style.css
 mkerr:
 	perl mkerr.pl >../doc/error.xml
 
+../.git:
+	@echo 'The project must be build from a Git clone'
+	@false
+
 # This ensures that the version.cpp is regenerated iff its SHA doesn't
 # match the current one.
 ifneq ($(shell sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp), $(shell git log -n 1 --format='%H'))
-version.cpp:
+version.cpp: ../.git
 	echo '#include <string>' >version.cpp
 	echo 'using namespace std;' >>version.cpp
 	echo '#include "version.h"' >>version.cpp
@@ -217,7 +221,7 @@ version.cpp:
 	echo 'char Version::date[] = "'$$(git log -n 1 --format='%ci')'";' >>version.cpp
 	echo 'char Version::compiled[] = "'$$(date +'%F %T')'";' >>version.cpp
 
-.PHONY: version.cpp
+.PHONY: version.cpp ../.git
 endif
 
 
