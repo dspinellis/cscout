@@ -36,7 +36,9 @@ your executable file path.
 * To see CScout in action run `make example`.
 
 Under FreeBSD use `gmake` rather than `make`.
+
 ## Contributing
+* You can contribute to any of the [open issues](https://github.com/dspinellis/cscout/issues) or you can open a new one describing what you want to di.
 * For small-scale improvements and fixes simply submit a GitHub pull request.
 Each pull request should cover only a single feature or bug fix.
 The changed code should follow the code style of the rest of the program.
@@ -45,4 +47,5 @@ If you're submitting a bug fix, open a corresponding GitHub issue,
 and refer to the issue in your commit.
 Avoid gratuitous code changes.
 Ensure that the tests continue to pass after your change.
+If you're fixing a bug or adding a feature related to the language, add a corresponding test case.
 * Before embarking on a large-scale contribution, please open a GitHub issue.
