@@ -38,6 +38,7 @@
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
 #include <cstdlib>		// atoi
+#include <cstring>		// strdup
 #include <cerrno>		// errno
 
 #include <getopt.h>
