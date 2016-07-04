@@ -66,6 +66,8 @@ if ($ARGV[0] eq '-n') {
 
 	spy('gcc', 'spy-gcc');
 	spy('cc', 'spy-gcc');
+	spy('clang', 'spy-gcc');
+	spy($ENV{'CC'}, 'spy-gcc') if defined($ENV{'CC'});
 	spy('ld', 'spy-ld');
 	spy('ar', 'spy-ar');
 	spy('mv', 'spy-mv');

@@ -30,6 +30,7 @@ it will build the system in the same way as \fImake\fP.
 As a side-effect it will monitor the invocations of
 \fIcc(1)\fP,
 \fIgcc(1)\fP,
+\fIclang(1)\fP,
 \fIar(1)\fP,
 \fIld(1)\fP, and
 \fImv(1)\fP commands and record their environment and arguments.
@@ -46,6 +47,18 @@ a typical C project.
 make clean
 csmake
 cscout make.cs
+.ft P
+.fi
+.DE
+.PP
+If you want to use \fIcsmake\fP with another C compiler, prepend
+\fBCC=\fIcompiler-name\fR to the \fIcsmake\fP invocation,
+as shown in the following example.
+.PP
+.DS
+.ft C
+.nf
+CC=x86_64-w64-gcc csmake
 .ft P
 .fi
 .DE
