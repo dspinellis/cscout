@@ -22,7 +22,8 @@
 export CSCOUT_DIR=$(shell pwd)
 HSQLDB_VERSION=2.3.3
 HSQLDB_URL=http://downloads.sourceforge.net/project/hsqldb/hsqldb/hsqldb_2_3/hsqldb-$(HSQLDB_VERSION).zip
-export HSQLDB_DIR?=$(CSCOUT_DIR)/hsqldb-$(HSQLDB_VERSION)/hsqldb
+DEFAULT_HSQLDB_DIR=$(CSCOUT_DIR)/hsqldb-$(HSQLDB_VERSION)/hsqldb
+export HSQLDB_DIR?=$(DEFAULT_HSQLDB_DIR)
 
 .PHONY: src/build/cscout swill/libswill.a btyacc/btyacc
 
@@ -43,7 +44,7 @@ btyacc:
 	git clone https://github.com/dspinellis/btyacc
 
 # Default installation of HSQLDB
-hsqldb-$(HSQLDB_VERSION)/hsqldb:  hsqldb-$(HSQLDB_VERSION).zip
+$(DEFAULT_HSQLDB_DIR):  hsqldb-$(HSQLDB_VERSION).zip
 	unzip $< && touch $@
 
 hsqldb-$(HSQLDB_VERSION).zip:
