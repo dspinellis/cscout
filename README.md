@@ -37,6 +37,13 @@ your executable file path.
 
 Under FreeBSD use `gmake` rather than `make`.
 
+Testing requires an installed version of _HSQLDB_.
+If this is already installed in your system, specify to _make_
+the absolute path of the *hsqldb* directory, e.g.
+`make HSQLDB_DIR=/usr/local/lib/hsqldb-2.3.3/hsqldb`.
+Otherwise, _make_ will automatically download and unpack a local
+copy of _HSQLDB_ in the current directory.
+
 ## Contributing
 * You can contribute to any of the [open issues](https://github.com/dspinellis/cscout/issues) or you can open a new one describing what you want to di.
 * For small-scale improvements and fixes simply submit a GitHub pull request.
