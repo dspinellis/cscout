@@ -93,6 +93,7 @@ is_absolute_filename(const string &s)
 #include <sys/stat.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <limits.h>
 
 char *
 get_uniq_fname_string(const char *name)
@@ -118,12 +119,12 @@ get_uniq_fname_string(const char *name)
 const char *
 get_full_path(const char *name)
 {
-	static char buff[4096];
-	char wd[4096];
+	static char buff[PATH_MAX];
+	char wd[PATH_MAX + NAME_MAX];
 
 	if (name[0] != '/') {
 		// Relative path
-		getcwd(wd, sizeof(wd));
+		(void)getcwd(wd, sizeof(wd));
 		sprintf(buff, "%s/%s", wd, name);
 		return (buff);
 	} else
