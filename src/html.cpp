@@ -269,3 +269,14 @@ html_perror(FILE *of, const string &user_msg, bool svg)
 			"CScout <a href=\"index.html\">main page</a> to retry the operation.</p>", of);
 	}
 }
+
+// Display a non-system error on the HTML output.
+void
+html_error(FILE *of, const string &error_msg)
+{
+	fputs(error_msg.c_str(), stderr);
+	fputs(error_msg.c_str(), of);
+	fputs("</p><p>The operation you requested is incomplete.  "
+		"Please correct the underlying cause, and (if possible) return to the "
+		"CScout <a href=\"index.html\">main page</a> to retry the operation.</p>", of);
+}

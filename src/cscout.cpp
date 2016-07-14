@@ -869,7 +869,10 @@ file_refactor(FILE *of, Fileid fid)
 			string newname(fid.get_path().c_str());
 			newname.replace(be.rm_so, be.rm_eo - be.rm_so, Option::sfile_repl_string->get());
 			string cmd("cscout_checkout " + newname);
-			system(cmd.c_str());
+			if (system(cmd.c_str()) != 0) {
+				html_error(of, "Changes are saved in " + ofname + ", because executing the checkout command cscout_checkout failed");
+				return;
+			}
 			if (unlink(newname) < 0) {
 				html_perror(of, "Changes are saved in " + ofname + ", because deleting the target file " + newname + " failed");
 				return;
@@ -879,11 +882,17 @@ file_refactor(FILE *of, Fileid fid)
 				return;
 			}
 			string cmd2("cscout_checkin " + newname);
-			system(cmd2.c_str());
+			if (system(cmd2.c_str()) != 0) {
+				html_error(of, "Checking in the file " + newname + " failed");
+				return;
+			}
 		}
 	} else {
 		string cmd("cscout_checkout " + fid.get_path());
-		system(cmd.c_str());
+		if (system(cmd.c_str()) != 0) {
+			html_error(of, "Changes are saved in " + ofname + ", because checking out " + fid.get_path() + " failed");
+			return;
+		}
 		if (unlink(fid.get_path()) < 0) {
 			html_perror(of, "Changes are saved in " + ofname + ", because deleting the target file " + fid.get_path() + " failed");
 			return;
@@ -893,7 +902,10 @@ file_refactor(FILE *of, Fileid fid)
 			return;
 		}
 		string cmd2("cscout_checkin " + fid.get_path());
-		system(cmd2.c_str());
+		if (system(cmd2.c_str()) != 0) {
+			html_error(of, "Checking in the file " + fid.get_path() + " failed");
+			return;
+		}
 	}
 	return;
 }
@@ -2649,7 +2661,10 @@ fedit_page(FILE *of, void *p)
 	char buff[4096];
 	snprintf(buff, sizeof(buff), Option::start_editor_cmd ->get().c_str(), (re ? re : "^"), i.get_path().c_str());
 	cerr << "Running " << buff << endl;
-	system(buff);
+	if (system(buff) != 0) {
+		html_error(of, string("Launching ") + buff + " failed");
+		return;
+	}
 	html_head(of, "fedit", "External Editor");
 	fprintf(of, "The editor should have started in a separate window");
 	html_tail(of);
@@ -3319,7 +3334,10 @@ main(int argc, char *argv[])
 #ifdef LINUX_STAT_MONITOR
 		char buff[100];
 		sprintf(buff, "cat /proc/%u/stat >%u.stat", getpid(), getpid());
-		system(buff);
+		if (system(buff) != 0) {
+			fprintf(stderr, "Unable to run %s\n", buff);
+			exit(1);
+		}
 #endif
 		return 0;
 	}
