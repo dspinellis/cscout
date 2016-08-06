@@ -43,7 +43,7 @@ fi
 
 if ! [ "$CSCOUT_DIR" ] ; then
   if [ -r cscout.cpp ] ; then
-    CSCOUT_DIR=..
+    CSCOUT_DIR=$(pwd)/..
   else
     echo "Bail out! runtest.sh can only be run from the top-level makefile, or within src."
     exit 1
@@ -274,6 +274,12 @@ fi
 # Create a CScout analysis project file for the given source code file
 makecs_c()
 {
+	if ! [ -d "$IPATH" ] ; then
+		echo "Bail out! Unable to access $IPATH directory."
+		echo "Working directory is: $(pwd)."
+		exit 1
+	fi
+
 	echo "
 workspace TestWS {
 	ipath \"$IPATH\"
@@ -309,6 +315,12 @@ runtest_cpp()
 # Create a CScout preprocessing project file for the given source code file
 makecs_cpp()
 {
+	if ! [ -d "$IPATH" ] ; then
+		echo "Bail out! Unable to access $IPATH directory."
+		echo "Working directory is: $(pwd)."
+		exit 1
+	fi
+
 	echo "
 workspace TestWS {
 	ipath \"$IPATH\"
@@ -367,8 +379,8 @@ if cygpath -a / >/dev/null 2>&1 &&
 fi
 
 HSQLDB="java -jar $HSQLDB_DIR/lib/sqltool.jar --rcfile $HSQLDB_DIR/sample/sqltool.rc"
-IPATH=$CSCOUT_DIR/include
-CPPTESTS=$CSCOUT_DIR/test/cpp
+IPATH=$CSCOUT_DIR/include/stdc
+CPPTESTS=$CSCOUT_DIR/src/test/cpp
 DOTCSCOUT=$CSCOUT_DIR/example/.cscout
 
 chmod 444 ../include/stdc/* ../example/.cscout/*
