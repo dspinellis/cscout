@@ -46,7 +46,7 @@ public:
 			re = new regex_t(lre);
 	}
 	// Default ctor
-	CompiledRE() :  re(NULL), refcount(new int(1)) {}
+	CompiledRE() :  re(NULL), refcount(new int(1)), ret(0) {}
 	// Copy ctor
 	CompiledRE(const CompiledRE &from) : re(from.re), refcount(from.refcount), ret(from.ret) {
 		(*refcount)++;
