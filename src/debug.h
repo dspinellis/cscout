@@ -33,7 +33,6 @@ using namespace std;
 
 class Debug {
 private:
-	int k;
 	string fname;
 	int line;
 
