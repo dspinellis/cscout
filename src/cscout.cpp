@@ -974,7 +974,7 @@ html_file(FILE *of, Fileid fi)
 	// Split path into dir and fname
 	string s(fi.get_path());
 	string::size_type k = s.find_last_of("/\\");
-	if (k == s.npos)
+	if (k == string::npos)
 		k = 0;
 	else
 		k++;
