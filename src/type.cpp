@@ -802,7 +802,10 @@ Type_node::merge(Tbasic *b)
 		cout << "a=";
 		this->print(cout);
 		cout << "\nb=";
-		b->print(cout);
+		if (b)
+			b->print(cout);
+		else
+			cout << " NULL ";
 		cout << "\n";
 	}
 	return basic();
