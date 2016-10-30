@@ -17,7 +17,7 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-INSTALL_PREFIX:=/usr/local
+INSTALL_PREFIX?=/usr/local
 
 # By default a production build is made.
 # For a debug build run make as:
