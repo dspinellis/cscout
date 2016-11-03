@@ -33,9 +33,6 @@ if [ "$TRAVIS_OS_NAME" = linux -o -z "$TRAVIS_OS_NAME" ]; then
 
 elif [ "$TRAVIS_OS_NAME" = osx ]; then
 
-    # Make sure xcode is setup
-    xcode-select --install
-
     # Update brew
     brew update || echo "suppress failures in order to ignore warnings"
     brew doctor || echo "suppress failures in order to ignore warnings"
