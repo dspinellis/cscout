@@ -37,7 +37,7 @@ elif [ "$TRAVIS_OS_NAME" = osx ]; then
     brew update || echo "suppress failures in order to ignore warnings"
     brew doctor || echo "suppress failures in order to ignore warnings"
     brew list clang || echo "suppress failures in order to ignore warnings"
-    sudo brew uninstall --force clang || "suppress failures in order to ignore warnings"
+    brew uninstall --force clang || echo "suppress failures in order to ignore warnings"
     brew search clang || echo "suppress failures in order to ignore warnings"
 
     # Install clang
