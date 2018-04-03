@@ -1071,6 +1071,8 @@ type_qualifier:
         TCONST		{ $$ = basic(b_abstract, s_none, c_unspecified, q_const); }
         | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, q_volatile); }
         | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, q_restrict); }
+        | COMPLEX   { $$ = basic(b_abstract, s_none, c_unspecified, q_complex);  }
+        | IMAGINARY   { $$ = basic(b_abstract, s_none, c_unspecified, q_imaginary);  }
 	| attribute	{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
 	| function_specifier			/* inline */
         ;
@@ -1197,6 +1199,8 @@ basic_type_name:
         | UNSIGNED	{ $$ = basic(b_abstract, s_unsigned); }
         | TVOID		{ $$ = basic(b_void); }
         | BOOL		{ $$ = basic(b_bool); }
+        | COMPLEX   { $$ = basic(b_complex); }
+        | IMAGINARY { $$ = basic(b_imaginary); }
         ;
 
 elaborated_type_name:

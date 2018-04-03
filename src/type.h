@@ -35,6 +35,8 @@ enum e_btype {
 	b_padbit,
 	b_undeclared,		// Undeclared object
 	b_llong,		// long long
+	b_complex,      // complex
+	b_imaginary,      // imaginary
 };
 
 enum e_sign {
@@ -60,6 +62,8 @@ enum e_qualifier {
 	q_volatile = 	0x02,
 	q_unused =	0x04,	// gcc __attribute__((unused))
 	q_restrict = 	0x08,
+	q_complex = 0x09,
+	q_imaginary = 0x10
 };
 
 
