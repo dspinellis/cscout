@@ -260,7 +260,7 @@ order by foffset;
 $HSQLDB mem - |
 sed -e '1,/^Starting dump/d;/^[0-9][0-9]* rows/d' |
 tr -d "\n\r" |
-perl -pe 's/\\u0000d\\u0000a/\n/g' >test/chunk/$NAME
+perl -pe 's/\\u0000d\\u0000a/\n/g;s/\\u0000a/\n/g' >test/chunk/$NAME
 if diff -b test/c/$NAME test/chunk/$NAME >test/err/chunk/$NAME.diff
 then
 	end_test $NAME 1
