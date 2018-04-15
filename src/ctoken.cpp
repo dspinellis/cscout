@@ -148,6 +148,8 @@ make_keymap()
 	m["inline"] = INLINE;
 	m["restrict"] = RESTRICT;
 	m["_Bool"] = BOOL;
+	m["_Complex"] = COMPLEX;
+	m["_Imaginary"] = IMAGINARY;
 	/* C11 */
 	m["_Thread_local"] = THREAD_LOCAL;
 

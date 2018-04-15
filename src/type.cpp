@@ -454,6 +454,8 @@ Tbasic::print(ostream &o) const
 	case b_ldouble: o << "long double "; break;
 	case b_padbit: o << "padbit "; break;
 	case b_undeclared: o << "UNDECLARED "; break;
+	case b_complex: o << "_Complex"; break;
+	case b_imaginary: o << "_Imaginary"; break;
 	}
 
 	if (value.is_const())
