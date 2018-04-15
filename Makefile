@@ -41,7 +41,7 @@ btyacc/btyacc: btyacc
 	cd btyacc && $(MAKE)
 
 btyacc:
-	git clone https://github.com/dspinellis/btyacc
+	git clone https://github.com/ChrisDodd/btyacc.git
 
 # Default installation of HSQLDB
 $(DEFAULT_HSQLDB_DIR):  hsqldb-$(HSQLDB_VERSION).zip
