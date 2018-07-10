@@ -1938,7 +1938,7 @@ assembly_statement:
 asm_operands_opt:
 	/* Empty */
 	| ':' asm_operand_list
-	| ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt
+	| ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt asm_goto_label_list_opt
 	;
 
 asm_operand_list_opt:
@@ -1962,6 +1962,18 @@ asm_clobber_list_opt:
 asm_clobber_list:
 	STRING_LITERAL
 	| asm_clobber_list ',' STRING_LITERAL
+	;
+
+asm_goto_label_list_opt:
+	/* Empty */
+	| ':' asm_goto_label_list
+	;
+
+asm_goto_label_list:
+        identifier_or_typedef_name
+		{ label_use($1.get_token()); }
+	| asm_goto_label_list ',' identifier_or_typedef_name
+		{ label_use($3.get_token()); }
 	;
 
 /*
