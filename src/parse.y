@@ -1931,7 +1931,8 @@ assembly_decl:
 	;
 
 assembly_statement:
-	GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')' ';'
+	  GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')' ';'
+	| GNUC_ASM GOTO '(' string_literal_list asm_operands_opt ')' ';'
 	;
 
 asm_operands_opt:
