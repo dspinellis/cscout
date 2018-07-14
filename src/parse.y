@@ -1926,7 +1926,11 @@ try_statement:
 
 /* Gcc __asm__  syntax */
 assembly_decl:
-	GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')'
+	  GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ')' ';'
+		{ $$ = $2; }
+	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt ')' ';'
+		{ $$ = $2; }
+	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt ':' asm_clobber_list_opt ')' ';'
 		{ $$ = $2; }
 	;
 
@@ -1935,12 +1939,6 @@ assembly_statement:
 	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt ')' ';'
 	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt ':' asm_clobber_list_opt ')' ';'
 	| GNUC_ASM type_qualifier_list_opt GOTO '(' string_literal_list ':' ':' asm_operand_list_opt ':' asm_clobber_list_opt ':' asm_goto_label_list ')' ';'
-	;
-
-asm_operands_opt:
-	/* Empty */
-	| ':' asm_operand_list
-	| ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt
 	;
 
 asm_operand_list_opt:
