@@ -1931,14 +1931,16 @@ assembly_decl:
 	;
 
 assembly_statement:
-	  GNUC_ASM type_qualifier_list_opt '(' string_literal_list asm_operands_opt ')' ';'
-	| GNUC_ASM GOTO '(' string_literal_list asm_operands_opt ')' ';'
+	  GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ')' ';'
+	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt ')' ';'
+	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt ':' asm_clobber_list_opt ')' ';'
+	| GNUC_ASM type_qualifier_list_opt GOTO '(' string_literal_list ':' ':' asm_operand_list_opt ':' asm_clobber_list_opt ':' asm_goto_label_list ')' ';'
 	;
 
 asm_operands_opt:
 	/* Empty */
 	| ':' asm_operand_list
-	| ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt asm_goto_label_list_opt
+	| ':' asm_operand_list_opt ':' asm_operand_list_opt asm_clobber_list_opt
 	;
 
 asm_operand_list_opt:
@@ -1956,17 +1958,12 @@ asm_operand: operand_name_opt string_literal_list '(' comma_expression ')'
 
 asm_clobber_list_opt:
 	/* Empty */
-	| ':' asm_clobber_list
+	| asm_clobber_list
 	;
 
 asm_clobber_list:
 	STRING_LITERAL
 	| asm_clobber_list ',' STRING_LITERAL
-	;
-
-asm_goto_label_list_opt:
-	/* Empty */
-	| ':' asm_goto_label_list
 	;
 
 asm_goto_label_list:
