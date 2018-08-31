@@ -2,6 +2,7 @@ int foo()
 {
 	int key = 1;
 	int branch = 2;
+	int var __asm__("foo");
 
         __asm volatile("1:" : /* out */ :  /* in */ : /* clobbers */ );
         __asm ("1:" : : );
