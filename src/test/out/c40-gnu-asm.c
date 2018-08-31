@@ -11,8 +11,8 @@ Table: Ids
  571  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
 2975  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 3295  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-3399  a               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   FALSE     TRUE   FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 3575  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3609  a               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   FALSE     TRUE   FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 3865  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 4055  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 5355  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
@@ -31,12 +31,12 @@ FID  FOFFSET   EID
   4       19   199
   4       34   349
   4       52   529
-  4      240   199
-  4      251   349
-  4      316   199
-  4      327   349
-  4      339  3399
-  4      344  3399
+  4      261   199
+  4      272   349
+  4      337   199
+  4      348   349
+  4      360  3609
+  4      365  3609
   5        8    91
   5       32   331
   5       43   441
@@ -72,22 +72,23 @@ FID  FOFFSET  CODE
   4      114   :  
   4      126   : 
   4      143   );\u0000d\u0000a        __asm (
-  4      167   : : );\u0000d\u0000a        __asm (
-  4      195   : );\u0000d\u0000a        __asm volatile(
-  4      229   : :  
-  4      238   (
-  4      243  ), 
-  4      249   (
-  4      257  ) : 
-  4      264  , 
-  4      269  );\u0000d\u0000a        __asm volatile goto(
-  4      305   : :  
-  4      314   (
-  4      319  ), 
-  4      325   (
-  4      333  ) : : 
-  4      340  );\u0000d\u0000a
-  4      345  : ;\u0000d\u0000a}\u0000d\u0000a
+  4      165  );\u0000d\u0000a        __asm (
+  4      188   : : );\u0000d\u0000a        __asm (
+  4      216   : );\u0000d\u0000a        __asm volatile(
+  4      250   : :  
+  4      259   (
+  4      264  ), 
+  4      270   (
+  4      278  ) : 
+  4      285  , 
+  4      290  );\u0000d\u0000a        __asm volatile goto(
+  4      326   : :  
+  4      335   (
+  4      340  ), 
+  4      346   (
+  4      354  ) : : 
+  4      361  );\u0000d\u0000a
+  4      366  : ;\u0000d\u0000a}\u0000d\u0000a
   5        0  #define 
   5       16   11\u0000d\u0000aextern int 
   5       33  ;\u0000d\u0000aextern 
@@ -112,8 +113,8 @@ Table: IdProj
  529   17
 2975   17
 3295   17
-3399   17
 3575   17
+3609   17
 3865   17
 4055   17
 5355   17
@@ -127,8 +128,8 @@ Table: IdProj
  571   18
 2975   18
 3295   18
-3399   18
 3575   18
+3609   18
 3865   18
 4055   18
 5355   18
@@ -137,7 +138,7 @@ FID  NAME           RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE
 ---  -------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
   2  host-defs.h    TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  host-incs.h    TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c40-gnu-asm.c  FALSE    353         19     118          0          3     13          72       12       0             0        0          0          0        90       91        1           7           1           0      0      0           0         0      0         0         0
+  4  c40-gnu-asm.c  FALSE    374         19     129          0          3     14          72       13       0             0        0          0          0        95       96        1           8           1           0      0      0           0         0      0         0         0
   5  prj2.c         FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
@@ -190,7 +191,7 @@ Table: Functions
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC       CHAL  IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
 ----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  ---------  -----  --------  ------------  ------  ----------
-       891    340         19     114          0          3     11          72       12       0             0        0          0          0        85       85      9    2     1        2      0    0      0        0      0         0       0     0       0    0          0      1        0     0     0     0    7      0      0      0     3      16       0        0       1      0       0       1       1       1   0.0E0  28.4346E0  0.0E0         4            12       4         351
+       891    361         19     125          0          3     12          72       13       0             0        0          0          0        90       90     10    2     1        2      0    0      0        0      0         0       0     0       0    0          0      1        0     0     0     0    7      0      0      0     3      16       0        0       1      0       0       1       1       1   0.0E0  28.4346E0  0.0E0         4            12       4         372
       5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1       9       0        0       0      1       1       1       1       1   1.0E0      0.0E0  1.0E0         2           557       2         577
 Table: FunctionId
 FUNCTIONID  ORDINAL   EID

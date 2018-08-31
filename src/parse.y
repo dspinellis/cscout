@@ -1938,6 +1938,7 @@ assembly_decl:
 
 assembly_statement:
 	  GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ')' ';'
+	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ')' ';'
 	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt ')' ';'
 	| GNUC_ASM type_qualifier_list_opt '(' string_literal_list ':' asm_operand_list_opt ':' asm_operand_list_opt ':' asm_clobber_list_opt ')' ';'
 	| GNUC_ASM type_qualifier_list_opt GOTO '(' string_literal_list ':' ':' asm_operand_list_opt ':' asm_clobber_list_opt ':' asm_goto_label_list ')' ';'
