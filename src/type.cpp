@@ -669,6 +669,8 @@ Tsu::merge(Tbasic *b)
 Type
 Tsu::member(int n)
 {
+	if (DP())
+		cout << "Tsu::member(" << n << ") from " << members_by_ordinal.size() << " members" << endl;
 	if (n >= (int)members_by_ordinal.size()) {
 		/*
 		 * @error
