@@ -129,16 +129,19 @@ private:
 	Tstorage sclass;
 	bool is_union;		// True if this is a union
 public:
-	Tsu(const Token &tok, const Type &typ, const Type &spec) : is_union(false) {
+	Tsu(const Token &tok, const Type &typ, const Type &spec) :
+		default_specifier(spec),
+		is_union(false)
+	{
 		tok.set_ec_attribute(is_sumember);
 		members_by_name.define(tok, typ);
 		members_by_ordinal.push_back(Id(tok, typ));
-		default_specifier = spec;
 		if (DP()) {
 			cout << "Added member " << tok << endl;
 			this->print(cout);
 		}
 	}
+	Tsu(Tsu_unnamed dummy, const Type &typ);
 	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc, qualifiers_t q, bool u) :
 			QType_node(q),
 			members_by_name(mbn),
@@ -147,7 +150,7 @@ public:
 			sclass(sc),
 			is_union(u)
 			{}
-	Tsu(const Type &spec) : is_union(false) { default_specifier = spec; }
+	Tsu(const Type &spec) : default_specifier(spec), is_union(false) {}
 	Tsu() : is_union(false) {}
 	virtual ~Tsu() {}
 	// Return number of elements

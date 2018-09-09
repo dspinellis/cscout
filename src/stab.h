@@ -65,6 +65,8 @@ private:
 	GlobObj *glob;			// Corresponding global object
 public:
 	Id(const Token& tok, Type typ, FCall *fc = NULL, GlobObj *go = NULL);
+	// An unnamed identifier (used for unnamed structure members)
+	Id(Type typ) : type(typ) {}
 	Id() : type(basic(b_undeclared)) {}			// Needed for map
 	Type get_type() const { return type; }
 	void set_type(const Type &t) { type = t; }

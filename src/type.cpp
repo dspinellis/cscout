@@ -363,6 +363,12 @@ struct_union(const Token &tok, const Type &typ, const Type &spec)
 }
 
 Type
+struct_union(Tsu_unnamed dummy, const Type &typ)
+{
+	return Type(new Tsu(dummy, typ));
+}
+
+Type
 struct_union(const Type &spec)
 {
 	return Type(new Tsu(spec));
@@ -522,6 +528,31 @@ Tsu::print(ostream &o) const
 	o << '}' << endl;
 }
 
+/*
+ * Construct a struct/union from an unnamed structure member
+ * - Add the structure to members_by_ordinal so that nested
+ *   initializers work as expected.
+ * - Add each structure member to members_by_name so that name
+ *   lookups also work as expected.
+ */
+Tsu::Tsu(Tsu_unnamed a, const Type &typ) :
+		default_specifier(basic(b_undeclared)), is_union(false) {
+
+	members_by_ordinal.push_back(Id(typ));
+
+	csassert(typ.is_su());
+	const Stab &s = typ.get_members_by_name();
+	Stab_element::const_iterator i;
+	for (i = s.begin(); i != s.end(); i++)
+		members_by_name.define(i->second.get_token(), i->second.get_type());
+
+	if (DP()) {
+		cout << "Added unnamed member [" << typ << ']' << endl;
+		cout << "Result:" << endl;
+		this->print(cout);
+	}
+}
+
 void
 Tincomplete::print(ostream &o) const
 {
@@ -669,6 +700,8 @@ Tsu::merge(Tbasic *b)
 Type
 Tsu::member(int n)
 {
+	if (DP())
+		cout << "Tsu::member(" << n << ") from " << members_by_ordinal.size() << " members" << endl;
 	if (n >= (int)members_by_ordinal.size()) {
 		/*
 		 * @error

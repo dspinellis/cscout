@@ -73,6 +73,9 @@ class Type;
 class Stab;
 class Tqualifier;
 
+// Type used to construct unnamed struct/union members
+class Tsu_unnamed {};
+
 class Type_node {
 	friend class Type;
 private:
@@ -238,6 +241,7 @@ public:
 	friend Type enum_tag();
 	friend Type struct_union(const Token &tok, const Type &typ, const Type &spec);
 	friend Type struct_union(const Type &spec);
+	friend Type struct_union(Tsu_unnamed dummy, const Type &typ);
 	friend Type struct_union();
 	friend Type label();
 	friend Type plist(int n);
@@ -250,7 +254,7 @@ public:
 	void declare();
 
 	// Manage use count of underlying Type_node
-	Type(const Type& t) { p = t.p; ++p->use; }	// Copy
+	Type(const Type& t) : p(t.p) { ++p->use; }	// Copy
 	~Type() { if (--p->use == 0) delete p; }
 	Type& operator=(const Type& t);
 

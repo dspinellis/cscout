@@ -320,7 +320,8 @@ tag_define(const Token& tok, const Type& typ)
 	if (typ.is_su() && !typ.is_incomplete()) {
 		const vector <Id>& members = typ.get_members_by_ordinal();
 		for (vector <Id>::const_iterator i = members.begin(); i != members.end(); i++)
-			CTag::add(i->get_token(), typ.ctags_kind(), tok.get_name());
+			if (i->get_token().non_empty())
+				CTag::add(i->get_token(), typ.ctags_kind(), tok.get_name());
 	}
 
 	// Update symbol table
