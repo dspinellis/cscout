@@ -138,23 +138,41 @@ initializer_expect(Type t)
 
 /*
  * Move pos of the initializer's top of stack to the element
- * identifier by id.
+ * identified by id.
+ * Return true if found in the ITOS elements or in an unnamed subelement.
+ * Add elements to the stack if the element is found in a subelement.
  */
-static void
-initializer_move_top_pos(Id const *id)
+static bool
+initializer_move_top_pos_recursive(Id const *id)
 {
 	int count = 0;
 
+	if (DP())
+		cout << "initializer_move_top_pos " << id->get_name() << ": " << ITOS;
 	for (vector <Id>::const_iterator i = ITOS.t.get_members_by_ordinal().begin(); i != ITOS.t.get_members_by_ordinal().end(); i++) {
-		if (id->get_name() == i->get_name()) {
+		if (DP())
+			cout << "pos[" << count << "].name=[" << i->get_name() << ']' << endl;
+		if (i->get_name().length() == 0) {
+			/* Unnamed structure member; apply recursively */
+			initializer_stack.push(Initializer(i->get_type(), false));
+			if (initializer_move_top_pos_recursive(id))
+				return true;
+			initializer_stack.pop(); // Backtrack
+		} else if (id->get_name() == i->get_name()) {
 			ITOS.pos = count;
 			if (DP() && !initializer_stack.empty())
 				cout << "After move_top_pos to " << id->get_name() << ": " << ITOS;
-			return;
+			return true;
 		}
 		count++;
 	}
-	csassert(0);
+	return false;
+}
+
+static void
+initializer_move_top_pos(Id const *id)
+{
+	csassert(initializer_move_top_pos_recursive(id));
 }
 
 // Remove from the stack all slots that can't hold this expression.
@@ -1331,36 +1349,25 @@ member_declaring_list:
 			}
 			$$ = $1;
 		}
-	/* struct {int hi, low;} - gcc/msc extension (anonymous structs) */
+	/* struct {int hi, low;} - gcc/msc extension (unnamed structs) */
         | type_specifier
 	{
 		if (DP())
-			cout << "anon member: " << $1 << "\n";
+			cout << "unnamed member: " << $1 << "\n";
 		if ($1.is_su()) {
-			const Stab &s = $1.get_members_by_name();
-			Stab_element::const_iterator i;
-
-			for (i = s.begin(); i != s.end(); i++)
-				if (i == s.begin())
-					$$ = struct_union(
-						(*i).second.get_token(),
-						(*i).second.get_type(), $1);
-				else
-					$$.add_member(
-						(*i).second.get_token(),
-						(*i).second.get_type());
+			$$ = struct_union(Tsu_unnamed(), $1);
 			if (DP())
 				cout << "(out)member_declaring_list = " << $$ << "\n";
 		} else {
 					/*
 					 * @error
-					 * Anonymous members within a member
+					 * Unnamed members within a member
 					 * declaring list (e.g.
 					 * <code>struct {int x, y;}</code>)
 					 * can only be structures or unions.
 					 * (gcc/Microsoft C extension).
 					 */
-			Error::error(E_ERR, "Only struct/union anonymous elements allowed");
+			Error::error(E_ERR, "Only struct/union unnamed elements allowed");
 			$$ = basic(b_undeclared);
 		}
 	}

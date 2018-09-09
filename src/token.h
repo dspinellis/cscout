@@ -102,6 +102,13 @@ public:
 	inline dequeTpart::size_type get_parts_size() const {
 		return parts.size();
 	}
+	/*
+	 * True unless constructed as an empty token, e.g. for an unnamed
+	 * structure member.
+	 */
+	inline bool non_empty() const {
+		return parts.size() > 0;
+	}
 	// Set the token's equivalence class attribute
 	void set_ec_attribute(enum e_attribute a) const;
 	// Return true if the token's equivalence class(es) contain the attribute

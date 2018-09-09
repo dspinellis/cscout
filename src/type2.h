@@ -139,6 +139,7 @@ public:
 			this->print(cout);
 		}
 	}
+	Tsu(Tsu_unnamed dummy, const Type &typ);
 	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc, qualifiers_t q, bool u) :
 			QType_node(q),
 			members_by_name(mbn),
