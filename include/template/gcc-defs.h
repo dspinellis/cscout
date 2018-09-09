@@ -87,7 +87,7 @@
 #define __builtin_memcpy(_d, _s, _n) (_s, _n, d)
 #define __builtin___memmove_chk(x,y,z,w) 1
 #define __builtin___mempcpy_chk(x,y,z,w) 1
-#define __builtin_memset() 1
+#define __builtin_memset(x,y,z) 1
 #define __builtin___memset_chk(x,y,z,w) 1
 #define __builtin_mul_overflow(x,y,z) 1
 #define __builtin_nand128(x) 1
