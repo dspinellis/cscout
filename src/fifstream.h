@@ -55,10 +55,12 @@ private:
 	long mypos;		// Cached position
 public:
 	fifstream() {}
-	fifstream(const char *s, ios_base::openmode mode = ios_base::out) : i(s, mode) {
+	fifstream(const char *s, ios_base::openmode mode = ios_base::out) :
+		dirty(true),
+		i(s, mode)
+	{
 		// If the file is not binary, this optimization will not work
 		csassert(mode & ios::binary);
-		dirty = true;
 	}
 
 	// fifstream supports a subset of the ifstream methods

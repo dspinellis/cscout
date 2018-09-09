@@ -254,7 +254,7 @@ public:
 	void declare();
 
 	// Manage use count of underlying Type_node
-	Type(const Type& t) { p = t.p; ++p->use; }	// Copy
+	Type(const Type& t) : p(t.p) { ++p->use; }	// Copy
 	~Type() { if (--p->use == 0) delete p; }
 	Type& operator=(const Type& t);
 
