@@ -32,11 +32,11 @@
 #define __builtin_alloca_with_align_and_max (x,y,z) 1
 #define __builtin_alloca_with_align (x,y) 1
 #define __builtin_alloca(x) 1
-#define __builtin_assume_aligned(x,y,...) 1
+#define __builtin_assume_aligned(x,y,...) ((x), (y), 1)
 #define __builtin_bswap16(x) (x)
 #define __builtin_bswap32(x) (x)
 #define __builtin_bswap64(x) (x)
-#define __builtin_call_with_static_chain(x,y) 1
+#define __builtin_call_with_static_chain(x,y) ((x), (y), 0)
 #define __builtin_choose_expr(a,v,c) 1
 #define __builtin_choose_expr(x,y) 1
 #define __builtin___clear_cache(x,y) 1
@@ -46,14 +46,14 @@
 #define __builtin_clz(z) 1
 #define __builtin_complex(x,y) 1
 #define __builtin_constant_p(_x) ((_x), 0)
-#define __builtin_constant(x) 1
-#define __builtin_ctzll(x) 1
-#define __builtin_ctzl(x) 1
-#define __builtin_ctz(z) 1
+#define __builtin_constant(x) ((x), 0)
+#define __builtin_ctzll(x) ((x),1)
+#define __builtin_ctzl(x) ((x),1)
+#define __builtin_ctz(z) ((z),1)
 #define __builtin_expect_with_probability(x,y) 1
 #define __builtin_expect(_x, _v) ((_v), (_x))
 #define __builtin_expect(x,y) 1
-#define __builtin_extend_pointer(x) 1
+#define __builtin_extend_pointer(x) ((x), 1) 
 #define __builtin_fabsf(_x) (float)(_x)
 #define __builtin_fabsl(_x) (long double)(_x)
 #define __builtin_fabs( _x) (double)(_x)
@@ -76,19 +76,17 @@
 #define __builtin_infd32() 1
 #define __builtin_infd64() 1
 #define __builtin_inf()     (double)0
-#define __builtin_inff() 1
 #define __builtin_inff()    (float)0
 #define __builtin_inffnx() 1
-#define __builtin_infl() 1
 #define __builtin_infl()    (long double)0
 #define __builtin_isinf_sign(...) 1
 #define __builtin_LINE() 1
-#define __builtin___memcpy_chk(x,y,z,w) 1
+#define __builtin___memcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
 #define __builtin_memcpy(_d, _s, _n) (_s, _n, d)
 #define __builtin___memmove_chk(x,y,z,w) 1
-#define __builtin___mempcpy_chk(x,y,z,w) 1
+#define __builtin___mempcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
 #define __builtin_memset(x,y,z) 1
-#define __builtin___memset_chk(x,y,z,w) 1
+#define __builtin___memset_chk(x,y,z,w) ((x), (y), (z), (w), 0)
 #define __builtin_mul_overflow(x,y,z) 1
 #define __builtin_nand128(x) 1
 #define __builtin_nand32(x) 1
@@ -113,7 +111,7 @@
 #define __builtin_popcount(x) 1
 #define __builtin_powi(x) 1
 #define __builtin_powl(x) 1
-#define __builtin_prefetch(x,...) 1
+#define __builtin_prefetch(x,...) ((x), 0)
 #define __builtin___printf_chk(x,y,...) 1
 #define __builtin_return_address(x) 1
 #define __builtin___snprintf_chk(x,y,z,w) 1
@@ -129,7 +127,7 @@
 #define __builtin_strlen(x) 1
 #define __builtin___strncat_chk(x,y,z,w) 
 #define __builtin___strncpy_chk(x,y,z,w) 1
-#define __builtin_tgmath(x, y) 1
+#define __builtin_tgmath(x, y) ((x), (y), 0)
 #define __builtin_trap() 1
 #define __builtin_types_compatible_p(x,y) 1
 #define __builtin_types_compatible_p(x,y) 1
