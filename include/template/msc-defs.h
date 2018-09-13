@@ -33,3 +33,4 @@
 #define __int64 long long
 #define __declspec(x) volatile
 #define _declspec(x)
+#define __volatile__ volatile
