@@ -97,4 +97,10 @@ for f in cswc.pl csmake.pl ; do
   install $TMPFILE "$INSTALL_PREFIX/bin/$(basename $f .pl)"
 done
 
+# Shell scripts
+for f in cscc.sh ; do
+  sed "s|INSTALL_INCLUDE|$INCLUDE_DIR|g" $f >$TMPFILE
+  install $TMPFILE "$INSTALL_PREFIX/bin/$(basename $f .sh)"
+done
+
 rm -f $TMPFILE
