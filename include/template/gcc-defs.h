@@ -25,27 +25,27 @@
 #define __EXCEPTIONS
 #endif
 
-/* gcc __builtin_* funtions and misc */ 
+/* GCC __builtin_* funtions and misc */
 #define asm __asm__
-#define __alignof__ sizeof
+#define __alignof__(x) (sizeof(x) & 0xf)
 #define __attribute__(x)
-#define __builtin_add_overflow(x,y,z) 1
-#define __builtin_alloca_with_align_and_max (x,y,z) 1
-#define __builtin_alloca_with_align (x,y) 1
-#define __builtin_alloca(x) 1
+#define __builtin_add_overflow(x,y,z) ((x), (y), (z), 1)
+#define __builtin_alloca_with_align_and_max (x,y,z) ((x), (y), (z), 1)
+#define __builtin_alloca_with_align (x,y) ((x), (y), 1)
+#define __builtin_alloca(x) ((x), 1)
 #define __builtin_assume_aligned(x,y,...) ((x), (y), 1)
 #define __builtin_bswap16(x) (x)
 #define __builtin_bswap32(x) (x)
 #define __builtin_bswap64(x) (x)
 #define __builtin_call_with_static_chain(x,y) ((x), (y), 0)
-#define __builtin_choose_expr(a,v,c) 1
-#define __builtin_choose_expr(x,y) 1
-#define __builtin___clear_cache(x,y) 1
-#define __builtin_clrsbll(x) 1
-#define __builtin_clrsbl(x) 1
-#define __builtin_clrsb(x) 1
-#define __builtin_clz(z) 1
-#define __builtin_complex(x,y) 1
+#define __builtin_choose_expr(a,v,c) ((a) ? (v) : (c))
+#define __builtin_choose_expr(x,y) ((x), (y))
+#define __builtin___clear_cache(x,y) ((x), (y))
+#define __builtin_clrsbll(x) (x)
+#define __builtin_clrsbl(x) (x)
+#define __builtin_clrsb(x) (x)
+#define __builtin_clz(z) (z)
+#define __builtin_complex(x,y) ((x), (y))
 #define __builtin_constant_p(_x) ((_x), 0)
 #define __builtin_constant(x) ((x), 0)
 #define __builtin_ctzll(x) ((x),1)
@@ -53,21 +53,21 @@
 #define __builtin_ctz(z) ((z),1)
 #define __builtin_expect_with_probability(x,y) 1
 #define __builtin_expect(_x, _v) ((_v), (_x))
-#define __builtin_expect(x,y) 1
+#define __builtin_expect(x,y) ((x), (y))
 #define __builtin_extend_pointer(x) ((x), 1) 
 #define __builtin_fabsf(_x) (float)(_x)
 #define __builtin_fabsl(_x) (long double)(_x)
 #define __builtin_fabs( _x) (double)(_x)
-#define __builtin_ffsll(x) 1
-#define __builtin_ffsl(x) 1
-#define __builtin_ffs(x) 1
+#define __builtin_ffsll(x) (x)
+#define __builtin_ffsl(x) (x)
+#define __builtin_ffs(x) (x)
 #define __builtin_FILE() 1
-#define __builtin_fpclassify(x,y,z,w,r, ...) 1
-#define __builtin___fprintf_chk(x,y,z,...) 1
+#define __builtin_fpclassify(x,y,z,w,r, ...)  ((x), (y), (z), (w), (r), 1)
+#define __builtin___fprintf_chk(x,y,z,...) ((x), (y), (z), 1)
 #define __builtin_frame_address(_x) (_x, (void *)0)
 #define __builtin_FUNCTION() 1
-#define __builtin_goacc_parlevel_id(x) 1
-#define __builtin_goacc_parlevel_size(x) 1
+#define __builtin_goacc_parlevel_id(x) (x)
+#define __builtin_goacc_parlevel_size(x) (x)
 #define __builtin_huge_val() 1
 #define __builtin_huge_valf() 1
 #define __builtin_huge_valfn() 1
@@ -84,67 +84,67 @@
 #define __builtin_LINE() 1
 #define __builtin___memcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
 #define __builtin_memcpy(_d, _s, _n) (_s, _n, d)
-#define __builtin___memmove_chk(x,y,z,w) 1
+#define __builtin___memmove_chk(x,y,z,w) ((x), (y), (z), (w), 1)
 #define __builtin___mempcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
-#define __builtin_memset(x,y,z) 1
+#define __builtin_memset(x,y,z) ((x), (y), (z), 1)
 #define __builtin___memset_chk(x,y,z,w) ((x), (y), (z), (w), 0)
-#define __builtin_mul_overflow(x,y,z) 1
-#define __builtin_nand128(x) 1
-#define __builtin_nand32(x) 1
-#define __builtin_nand64(x) 1
-#define __builtin_nanfn(x) 1
-#define __builtin_nanfnx(x) 1
-#define __builtin_nanf(x) 1
-#define __builtin_nanl(x) 1
-#define __builtin_nansfn(x) 1
-#define __builtin_nansfnx(x) 1
-#define __builtin_nansl(x) 1
-#define __builtin_nans(x) 1
-#define __builtin_nan(x) 1
+#define __builtin_mul_overflow(x,y,z) ((x), (y), (z), 1)
+#define __builtin_nand128(x) ((x), 1.)
+#define __builtin_nand32(x) ((x), 1f)
+#define __builtin_nand64(x) ((x), 1.)
+#define __builtin_nanfn(x) ((x), 1.)
+#define __builtin_nanfnx(x) ((x), 1.)
+#define __builtin_nanf(x)  ((x), 1.)
+#define __builtin_nanl(x) ((x), 1)
+#define __builtin_nansfn(x) ((x), 1f)
+#define __builtin_nansfnx(x) ((x), 1)
+#define __builtin_nansl(x) ((x), 1)
+#define __builtin_nans(x) ((x), 1)
+#define __builtin_nan(x) ((x), 1)
 #define __builtin_next_arg(_x) (_x, 0)
-#define __builtin_object_size(x,y) 1
+#define __builtin_object_size(x,y)  ((x), (y), 1)
 #define __builtin_offsetof(_t, _m) (((size_t) &((_t *)0)->_m))
-#define __builtin_parityll(x) 1
-#define __builtin_parityl(x) 1
-#define __builtin_parity(x) 1
-#define __builtin_popcountll(x) 1
-#define __builtin_popcountl(x) 1
-#define __builtin_popcount(x) 1
-#define __builtin_powi(x) 1
-#define __builtin_powl(x) 1
+#define __builtin_parityll(x) ((x), 1ll)
+#define __builtin_parityl(x) ((x), 1l)
+#define __builtin_parity(x) ((x), 1)
+#define __builtin_popcountll(x) ((x), 1ll)
+#define __builtin_popcountl(x) ((x), 1l)
+#define __builtin_popcount(x) ((x), 1)
+#define __builtin_powi(x) ((x), 1)
+#define __builtin_powl(x) ((x), 1l)
 #define __builtin_prefetch(x,...) ((x), 0)
-#define __builtin___printf_chk(x,y,...) 1
-#define __builtin_return_address(x) 1
-#define __builtin___snprintf_chk(x,y,z,w) 1
-#define __builtin_speculation_safe_value(x,y) 1
-#define __builtin___sprintf_chk(x,y,z,w,...) 1
+#define __builtin___printf_chk(x,y,...) ((x), (y), 1)
+#define __builtin_return_address(x) ((x), 0)
+#define __builtin___snprintf_chk(x,y,z,w)  ((x), (y), (z), (w), 1)
+#define __builtin_speculation_safe_value(x,y) ((x), (y), 1)
+#define __builtin___sprintf_chk(x,y,z,w,...) ((x), (y), (z), (w), 1)
 #define __builtin_stdarg_start
-#define __builtin___stpcpy_chk(x,y,z) 1
-#define __builtin___strcat_chk(x,y,z) 1
-#define __builtin_strchr(x,y) 1
-#define __builtin_strcmp(x,y) 1
-#define __builtin___strcpy_chk(x,y,z) 1
-#define __builtin_strcspn(x,y) 1
-#define __builtin_strlen(x) 1
-#define __builtin___strncat_chk(x,y,z,w) 
-#define __builtin___strncpy_chk(x,y,z,w) 1
+#define __builtin___stpcpy_chk(x,y,z) ((x), (y), (z), 0)
+#define __builtin___strcat_chk(x,y,z) ((x), (y), (z), 0)
+#define __builtin_strchr(x,y) ((x), (y), 0)
+#define __builtin_strcmp(x,y) ((x), (y), 0)
+#define __builtin___strcpy_chk(x,y,z) ((x), (y), (z), 0)
+#define __builtin_strcspn(x,y) ((x), (y), 0)
+#define __builtin_strlen(x) ((x), 1)
+#define __builtin___strncat_chk(x,y,z,w) ((x), (y), (z), (w), 1)
+#define __builtin___strncpy_chk(x,y,z,w) ((x), (y), (z), (w), 1)
 #define __builtin_tgmath(x, y) ((x), (y), 0)
 #define __builtin_trap() 1
-#define __builtin_types_compatible_p(x,y) 1
-#define __builtin_types_compatible_p(x,y) 1
+#define __builtin_types_compatible_p(x,y) ((x), (y), (z), 1)
+#define __builtin_types_compatible_p(x,y) ((x), (y), (z), 1)
 #define __builtin_unreachable () 1
 #define __builtin_unreachable() 1
 #define __builtin_va_arg(_ap, _type) (*(_type *)(_ap))
 #define __builtin_va_arg_pack() 1
 #define __builtin_va_arg_pack_len() 1
-#define __builtin_va_copy(_a, _b)
-#define __builtin_va_end(_v)
+#define __builtin_va_copy(_a, _b) ((_a), (_b), 0)
+#define __builtin_va_end(_v) ((void)(_v))
 #define __builtin_va_list void *
 #define __builtin_va_start(_ap, _arg) ((void)(_ap),(void)(_arg))
 #define __builtin_va_start(x,y) 1
-#define __builtin___vprintf_chk(x,y,z) 1
-#define __builtin___vsnprintf_chk(x,y,z,w,r) 1
-#define __builtin___vsprintf_chk(x,y,z,w,r) 1
+#define __builtin___vprintf_chk(x,y,z) ((x), (y), (z), 1)
+#define __builtin___vsnprintf_chk(x,y,z,w,r) ((x), (y), (z), (w), (r), 1)
+#define __builtin___vsprintf_chk(x,y,z,w,r) ((x), (y), (z), (w), (r), 1)
 #define __COUNTER__ 0
 #define __extension
 #define __extension__
@@ -152,4 +152,3 @@
 #define __PRETTY_FUNCTION__ "UNKNOWN"
 #define __restrict
 #define typeof __typeof__
-
