@@ -25,8 +25,9 @@
 #define __EXCEPTIONS
 #endif
 
-/* gcc __builtin_* funtions */ 
+/* gcc __builtin_* funtions and misc */ 
 #define asm __asm__
+#define __alignof__ sizeof
 #define __attribute__(x)
 #define __builtin_add_overflow(x,y,z) 1
 #define __builtin_alloca_with_align_and_max (x,y,z) 1
