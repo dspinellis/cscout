@@ -83,7 +83,7 @@
 #define __builtin_isinf_sign(...) 1
 #define __builtin_LINE() 1
 #define __builtin___memcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
-#define __builtin_memcpy(_d, _s, _n) (_s, _n, d)
+#define __builtin_memcpy(_d, _s, _n) (_s, _n, _d)
 #define __builtin___memmove_chk(x,y,z,w) ((x), (y), (z), (w), 1)
 #define __builtin___mempcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
 #define __builtin_memset(x,y,z) ((x), (y), (z), 1)
