@@ -130,8 +130,7 @@
 #define __builtin___strncpy_chk(x,y,z,w) ((x), (y), (z), (w), 1)
 #define __builtin_tgmath(x, y) ((x), (y), 0)
 #define __builtin_trap() 1
-#define __builtin_types_compatible_p(x,y) ((x), (y), (z), 1)
-#define __builtin_types_compatible_p(x,y) ((x), (y), (z), 1)
+#define __builtin_types_compatible_p(x,y) (1)
 #define __builtin_unreachable () 1
 #define __builtin_unreachable() 1
 #define __builtin_va_arg(_ap, _type) (*(_type *)(_ap))
