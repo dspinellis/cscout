@@ -3099,7 +3099,7 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-C|-c|-d D|-d H|-E|-o|"
+		"-C|-c|-R|-d D|-d H|-E|-o|"
 		"-r|-s db|-v] "
 		"[-l file] "
 
@@ -3116,6 +3116,7 @@ usage(char *fname)
 #endif
 		"\t-C\tCreate a ctags(1)-compatible tags file\n"
 		"\t-c\tProcess the file and exit\n"
+		"\t-R\tMake the specified REST API calls and exit\n"
 		"\t-d D\tOutput the #defines being processed on standard output\n"
 		"\t-d H\tOutput the included files being processed on standard output\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
@@ -3147,7 +3148,7 @@ main(int argc, char *argv[])
 
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvEp:m:l:os:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcRd:rvEp:m:l:os:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3230,6 +3231,10 @@ main(int argc, char *argv[])
 			process_mode = pm_database;
 			db_engine = strdup(optarg);
 			break;
+		case 'R':
+			if (process_mode)
+				usage(argv[0]);
+			process_mode = pm_compile;
 		case '?':
 			usage(argv[0]);
 		}
