@@ -134,6 +134,9 @@ static Fileid input_file_id;
 // Set to true when the user has specified the application to exit
 static bool must_exit = false;
 
+// Set to true when -R call is supplied from the command line
+static bool has_R_option = false;
+
 // Set to true if we operate in browsing mode
 static bool browse_only = false;
 // Maximum number of nodes and edges allowed to browsing-only clients
@@ -2285,8 +2288,21 @@ end:
 static void
 graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
-	GDTxt gd(fo);
-	graph_fun(&gd);
+	// Add output and outfile argument to enable output to outfile
+	int output;
+	char *outfile;
+	if (swill_getargs("i(output)s(outfile)", &output, &outfile) && output && strlen(outfile)) {
+		FILE *ofile = fopen(outfile, "w+");
+		GDTxt gdout(ofile);
+		graph_fun(&gdout);
+		fclose(ofile);
+	}
+
+	if (!has_R_option) {
+		GDTxt gd(fo);
+		graph_fun(&gd);
+	}
+
 }
 
 // Graph: HTML
@@ -3290,6 +3306,8 @@ main(int argc, char *argv[])
 	// Pass 2: Create web pages
 	files = Fileid::files(true);
 
+
+
 	if (process_mode != pm_compile) {
 		swill_handle("sproject.html", select_project_page, 0);
 		swill_handle("replacements.html", replacements_page, 0);
@@ -3348,6 +3366,9 @@ main(int argc, char *argv[])
 	}
 
 	if (process_mode != pm_compile) {
+
+
+
 		swill_handle("src.html", source_page, NULL);
 		swill_handle("qsrc.html", query_source_page, NULL);
 		swill_handle("fedit.html", fedit_page, NULL);
