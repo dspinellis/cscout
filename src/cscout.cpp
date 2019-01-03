@@ -3161,9 +3161,10 @@ main(int argc, char *argv[])
 	bool pico_ql = false;
 #endif
 
+	vector<const char *> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcRd:rvEp:m:l:os:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvEp:m:l:os:R:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3247,9 +3248,10 @@ main(int argc, char *argv[])
 			db_engine = strdup(optarg);
 			break;
 		case 'R':
-			if (process_mode)
+			if (!optarg)
 				usage(argv[0]);
 			process_mode = pm_r_option;
+			call_graphs.push_back(optarg);
 			break;
 		case '?':
 			usage(argv[0]);
@@ -3433,6 +3435,16 @@ main(int argc, char *argv[])
 		return (0);
 	}
 #endif
+
+	if (process_mode == pm_r_option) {
+		cerr << "Producing call graphs" << endl;
+
+		for (const char *d : call_graphs) {
+			cerr << d << endl;
+		}
+
+		return (0);
+	}
 
 	if (process_mode == pm_compile)
 		return (0);
