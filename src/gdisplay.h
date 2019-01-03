@@ -33,6 +33,7 @@ using namespace std;
 #include "version.h"
 #include "option.h"
 
+
 // Abstract base class, used for drawing
 class GraphDisplay {
 protected:
@@ -44,7 +45,7 @@ public:
 	bool only_visited = false;
 	char *gtype = NULL;
 	char *ltype = NULL;
-	
+
 	GraphDisplay(FILE *f) : fo(f), fdot(NULL) {}
 	virtual void head(const char *fname, const char *title, bool empty_node) {};
 	virtual void subhead(const string &text) {};
@@ -203,3 +204,19 @@ public:
 };
 
 #endif // GDISPLAY_
+
+#ifndef GDARGSKEYS_
+#define GDARGSKEYS_
+
+// Static class for GraphDisplay Arguments Keys for parsing
+class GDArgsKeys {
+public:
+	string CGRAPH = "cgraph.txt";
+	string FGRAPH = "fgraph.txt";
+	string ALL = "all";
+	string ONLY_VISITED = "only_visited";
+	string GTYPE = "gtype";
+	string LTYPE = "ltype";
+};
+
+#endif // GDARGSKEYS_

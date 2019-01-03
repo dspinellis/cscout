@@ -2111,8 +2111,15 @@ single_file_function_graph()
 static void
 cgraph_page(GraphDisplay *gd)
 {
-	bool all = !!swill_getvar("all");
-	bool only_visited = (single_function_graph() || single_file_function_graph());
+	bool all, only_visited;
+	if (gd->uses_swill) {
+		all = !!swill_getvar("all");
+		only_visited = (single_function_graph() || single_file_function_graph());
+	}
+	else {
+		all = gd->all;
+		only_visited = gd->only_visited;
+	}
 	gd->head("cgraph", "Call Graph", Option::cgraph_show->get() == 'e');
 	int count = 0;
 	// First generate the node labels
@@ -2153,18 +2160,33 @@ end:
 static void
 fgraph_page(GraphDisplay *gd)
 {
-	char *gtype = swill_getvar("gtype");		// Graph type
-	char *ltype = swill_getvar("n");
+	char *gtype = NULL;
+	char *ltype = NULL;
+	if (gd->uses_swill) {
+		gtype = swill_getvar("gtype");		// Graph type
+		ltype = swill_getvar("n");
+	}
+	else {
+		gtype = gd->gtype;
+		ltype = gd->ltype;
+	}
 	if (!gtype || !*gtype || (*gtype == 'F' && !ltype)) {
 		gd->head("fgraph", "Error", false);
 		gd->error("Missing value");
 		gd->tail();
 		return;
 	}
-	bool all = !!swill_getvar("all");		// Otherwise exclude read-only files
-	bool empty_node = (Option::fgraph_show->get() == 'e');
+	bool all, only_visited;
 	EdgeMatrix edges;
-	bool only_visited = single_file_graph(*gtype, edges);
+	bool empty_node = (Option::fgraph_show->get() == 'e');
+	if (gd->uses_swill) {
+		all = !!swill_getvar("all");		// Otherwise exclude read-only files
+		only_visited = single_file_graph(*gtype, edges);
+	}
+	else {
+		all = gd->all;
+		only_visited = gd->only_visited;
+	}
 	switch (*gtype) {
 	case 'I':		// Include graph
 		gd->head("fgraph", "Include Graph", empty_node);
@@ -2359,6 +2381,7 @@ graph_pdf_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 }
 
 
+// Split a string by delimiter
 vector<string> split_by_delimiter(string &s, char delim) {
 	string buf;                 // Have a buffer string
 	stringstream ss(s);       // Insert the string into a stream
@@ -2372,18 +2395,62 @@ vector<string> split_by_delimiter(string &s, char delim) {
 }
 
 
-
 // Produce call graphs with -R option
 static void produce_call_graphs(const vector <string> &call_graphs)
 {
 	char base_splitter = '?';
+	char opts_splitter = '&';
+	char opt_spltter = '=';
+	GDArgsKeys gdargskeys;
 
 	for (string url: call_graphs) {
 		vector<string> split_base_and_opts = split_by_delimiter(url, base_splitter);
-		for (string z: split_base_and_opts) {
-			cerr << z << endl;
+		if (split_base_and_opts.size() == 0) {
+			cerr << url << "is not a valid url" << endl;
+			continue;
+		}
+		FILE *target = fopen(split_base_and_opts[0].c_str() , "w+");
+		string base = split_base_and_opts[0];
+		GDTxt gd(target);
+		// Disable swill
+		gd.uses_swill = false;
+		vector<string> opts;
+
+		if (split_base_and_opts.size() == 1) goto call_graph_functions;
+
+		opts = split_by_delimiter(split_base_and_opts[1], opts_splitter);
+
+		// Parse opts
+		for (string opt: opts) {
+			vector<string> opt_tmp = split_by_delimiter(opt, opt_spltter);
+			if (opt_tmp.size() < 2) continue;
+
+			// Key-value pairs
+			string key = opt_tmp[0];
+			string val = opt_tmp[1];
+
+			if (!key.compare(gdargskeys.ALL)) {
+				gd.all = (bool) atoi(val.c_str());
+			} else if (!key.compare(gdargskeys.ONLY_VISITED)) {
+				gd.only_visited = (bool) atoi(val.c_str());
+			} else if (!key.compare(gdargskeys.GTYPE)) {
+				gd.gtype = &val[0u];
+			} else if (!key.compare(gdargskeys.LTYPE)) {
+				gd.ltype = &val[0u];
+			}
+
 		}
 
+		call_graph_functions:
+
+		if (!base.compare(gdargskeys.CGRAPH)) {
+			cgraph_page(&gd);
+		}
+		else if (!base.compare(gdargskeys.FGRAPH)) {
+			fgraph_page(&gd);
+		}
+
+		fclose(target);
 	}
 
 
