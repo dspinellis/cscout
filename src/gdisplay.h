@@ -39,6 +39,12 @@ protected:
 	FILE *fo;		// HTTP output file
 	FILE *fdot;		// Dot output file
 public:
+	bool uses_swill = true;
+	bool all = false;
+	bool only_visited = false;
+	char *gtype = NULL;
+	char *ltype = NULL;
+	
 	GraphDisplay(FILE *f) : fo(f), fdot(NULL) {}
 	virtual void head(const char *fname, const char *title, bool empty_node) {};
 	virtual void subhead(const string &text) {};

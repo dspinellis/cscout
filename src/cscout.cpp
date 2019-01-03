@@ -40,9 +40,9 @@
 #include <cstdlib>		// atoi
 #include <cstring>		// strdup
 #include <cerrno>		// errno
+#include <regex.h> // regex
 
 #include <getopt.h>
-#include <regex.h>
 
 #include "swill.h"
 
@@ -2358,10 +2358,33 @@ graph_pdf_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 	graph_fun(&gd);
 }
 
+
+vector<string> split_by_delimiter(string &s, char delim) {
+	string buf;                 // Have a buffer string
+	stringstream ss(s);       // Insert the string into a stream
+
+	vector<string> tokens; // Create vector to hold our words
+
+	while(getline(ss, buf, delim))
+			tokens.push_back(buf);
+
+	return tokens;
+}
+
+
+
 // Produce call graphs with -R option
 static void produce_call_graphs(const vector <string> &call_graphs)
 {
+	char base_splitter = '?';
 
+	for (string url: call_graphs) {
+		vector<string> split_base_and_opts = split_by_delimiter(url, base_splitter);
+		for (string z: split_base_and_opts) {
+			cerr << z << endl;
+		}
+
+	}
 
 
 
