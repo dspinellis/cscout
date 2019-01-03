@@ -2388,8 +2388,8 @@ vector<string> split_by_delimiter(string &s, char delim) {
 
 	vector<string> tokens; // Create vector to hold our words
 
-	while(getline(ss, buf, delim))
-			tokens.push_back(buf);
+	while (getline(ss, buf, delim))
+		tokens.push_back(buf);
 
 	return tokens;
 }
@@ -2416,32 +2416,32 @@ static void produce_call_graphs(const vector <string> &call_graphs)
 		gd.uses_swill = false;
 		vector<string> opts;
 
-		if (split_base_and_opts.size() == 1) goto call_graph_functions;
+		if (!split_base_and_opts.size() == 1) {
 
-		opts = split_by_delimiter(split_base_and_opts[1], opts_splitter);
+			opts = split_by_delimiter(split_base_and_opts[1], opts_splitter);
 
-		// Parse opts
-		for (string opt: opts) {
-			vector<string> opt_tmp = split_by_delimiter(opt, opt_spltter);
-			if (opt_tmp.size() < 2) continue;
+			// Parse opts
+			for (string opt: opts) {
+				vector<string> opt_tmp = split_by_delimiter(opt, opt_spltter);
+				if (opt_tmp.size() < 2) continue;
 
-			// Key-value pairs
-			string key = opt_tmp[0];
-			string val = opt_tmp[1];
+				// Key-value pairs
+				string key = opt_tmp[0];
+				string val = opt_tmp[1];
 
-			if (!key.compare(gdargskeys.ALL)) {
-				gd.all = (bool) atoi(val.c_str());
-			} else if (!key.compare(gdargskeys.ONLY_VISITED)) {
-				gd.only_visited = (bool) atoi(val.c_str());
-			} else if (!key.compare(gdargskeys.GTYPE)) {
-				gd.gtype = &val[0u];
-			} else if (!key.compare(gdargskeys.LTYPE)) {
-				gd.ltype = &val[0u];
+				if (!key.compare(gdargskeys.ALL)) {
+					gd.all = (bool) atoi(val.c_str());
+				} else if (!key.compare(gdargskeys.ONLY_VISITED)) {
+					gd.only_visited = (bool) atoi(val.c_str());
+				} else if (!key.compare(gdargskeys.GTYPE)) {
+					gd.gtype = &val[0u];
+				} else if (!key.compare(gdargskeys.LTYPE)) {
+					gd.ltype = &val[0u];
+				}
+
 			}
 
 		}
-
-		call_graph_functions:
 
 		if (!base.compare(gdargskeys.CGRAPH)) {
 			cgraph_page(&gd);
@@ -3468,9 +3468,6 @@ main(int argc, char *argv[])
 	}
 
 	if (process_mode != pm_compile) {
-
-
-
 		swill_handle("src.html", source_page, NULL);
 		swill_handle("qsrc.html", query_source_page, NULL);
 		swill_handle("fedit.html", fedit_page, NULL);
@@ -3538,7 +3535,7 @@ main(int argc, char *argv[])
 
 	if (process_mode == pm_r_option) {
 		cerr << "Producing call graphs for: ";
-		for (string d : call_graphs) cerr << d;
+		for (string d : call_graphs) cerr << d << " ";
 		cerr << endl;
 		produce_call_graphs(call_graphs);
 
