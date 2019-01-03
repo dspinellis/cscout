@@ -2358,6 +2358,16 @@ graph_pdf_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 	graph_fun(&gd);
 }
 
+// Produce call graphs with -R option
+static void produce_call_graphs(const vector <string> &call_graphs)
+{
+
+
+
+
+}
+
+
 // Setup graph handling for all supported graph output types
 static void
 graph_handle(string name, void (*graph_fun)(GraphDisplay *))
@@ -3161,7 +3171,7 @@ main(int argc, char *argv[])
 	bool pico_ql = false;
 #endif
 
-	vector<const char *> call_graphs;
+	vector<string> call_graphs;
 	Debug::db_read();
 
 	while ((c = getopt(argc, argv, "3bCcd:rvEp:m:l:os:R:" PICO_QL_OPTIONS)) != EOF)
@@ -3251,7 +3261,7 @@ main(int argc, char *argv[])
 			if (!optarg)
 				usage(argv[0]);
 			process_mode = pm_r_option;
-			call_graphs.push_back(optarg);
+			call_graphs.push_back(string(optarg));
 			break;
 		case '?':
 			usage(argv[0]);
@@ -3437,11 +3447,10 @@ main(int argc, char *argv[])
 #endif
 
 	if (process_mode == pm_r_option) {
-		cerr << "Producing call graphs" << endl;
-
-		for (const char *d : call_graphs) {
-			cerr << d << endl;
-		}
+		cerr << "Producing call graphs for: ";
+		for (string d : call_graphs) cerr << d;
+		cerr << endl;
+		produce_call_graphs(call_graphs);
 
 		return (0);
 	}
