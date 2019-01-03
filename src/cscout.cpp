@@ -114,7 +114,8 @@ static enum e_process {
 	pm_compile,			// Compile-only (-c)
 	pm_report,			// Generate a warning report
 	pm_database,
-	pm_obfuscation
+	pm_obfuscation,
+	pm_r_option
 } process_mode;
 static int portno = 8081;		// Port number (-p n)
 static char *db_engine;			// Create SQL output for a specific db_iface
@@ -134,8 +135,6 @@ static Fileid input_file_id;
 // Set to true when the user has specified the application to exit
 static bool must_exit = false;
 
-// Set to true when -R call is supplied from the command line
-static bool has_R_option = false;
 
 // Set to true if we operate in browsing mode
 static bool browse_only = false;
@@ -2298,7 +2297,7 @@ graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 		fclose(ofile);
 	}
 
-	if (!has_R_option) {
+	if (process_mode != pm_r_option) {
 		GDTxt gd(fo);
 		graph_fun(&gd);
 	}
@@ -3250,7 +3249,8 @@ main(int argc, char *argv[])
 		case 'R':
 			if (process_mode)
 				usage(argv[0]);
-			process_mode = pm_compile;
+			process_mode = pm_r_option;
+			break;
 		case '?':
 			usage(argv[0]);
 		}
