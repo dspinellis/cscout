@@ -40,9 +40,9 @@
 #include <cstdlib>		// atoi
 #include <cstring>		// strdup
 #include <cerrno>		// errno
+#include <regex.h> // regex
 
 #include <getopt.h>
-#include <regex.h>
 
 #include "swill.h"
 
@@ -114,7 +114,8 @@ static enum e_process {
 	pm_compile,			// Compile-only (-c)
 	pm_report,			// Generate a warning report
 	pm_database,
-	pm_obfuscation
+	pm_obfuscation,
+	pm_r_option
 } process_mode;
 static int portno = 8081;		// Port number (-p n)
 static char *db_engine;			// Create SQL output for a specific db_iface
@@ -133,6 +134,7 @@ static Fileid input_file_id;
 
 // Set to true when the user has specified the application to exit
 static bool must_exit = false;
+
 
 // Set to true if we operate in browsing mode
 static bool browse_only = false;
@@ -2109,8 +2111,15 @@ single_file_function_graph()
 static void
 cgraph_page(GraphDisplay *gd)
 {
-	bool all = !!swill_getvar("all");
-	bool only_visited = (single_function_graph() || single_file_function_graph());
+	bool all, only_visited;
+	if (gd->uses_swill) {
+		all = !!swill_getvar("all");
+		only_visited = (single_function_graph() || single_file_function_graph());
+	}
+	else {
+		all = gd->all;
+		only_visited = gd->only_visited;
+	}
 	gd->head("cgraph", "Call Graph", Option::cgraph_show->get() == 'e');
 	int count = 0;
 	// First generate the node labels
@@ -2151,18 +2160,33 @@ end:
 static void
 fgraph_page(GraphDisplay *gd)
 {
-	char *gtype = swill_getvar("gtype");		// Graph type
-	char *ltype = swill_getvar("n");
+	char *gtype = NULL;
+	char *ltype = NULL;
+	if (gd->uses_swill) {
+		gtype = swill_getvar("gtype");		// Graph type
+		ltype = swill_getvar("n");
+	}
+	else {
+		gtype = gd->gtype;
+		ltype = gd->ltype;
+	}
 	if (!gtype || !*gtype || (*gtype == 'F' && !ltype)) {
 		gd->head("fgraph", "Error", false);
 		gd->error("Missing value");
 		gd->tail();
 		return;
 	}
-	bool all = !!swill_getvar("all");		// Otherwise exclude read-only files
-	bool empty_node = (Option::fgraph_show->get() == 'e');
+	bool all, only_visited;
 	EdgeMatrix edges;
-	bool only_visited = single_file_graph(*gtype, edges);
+	bool empty_node = (Option::fgraph_show->get() == 'e');
+	if (gd->uses_swill) {
+		all = !!swill_getvar("all");		// Otherwise exclude read-only files
+		only_visited = single_file_graph(*gtype, edges);
+	}
+	else {
+		all = gd->all;
+		only_visited = gd->only_visited;
+	}
 	switch (*gtype) {
 	case 'I':		// Include graph
 		gd->head("fgraph", "Include Graph", empty_node);
@@ -2285,8 +2309,21 @@ end:
 static void
 graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
-	GDTxt gd(fo);
-	graph_fun(&gd);
+	// Add output and outfile argument to enable output to outfile
+	int output;
+	char *outfile;
+	if (swill_getargs("i(output)s(outfile)", &output, &outfile) && output && strlen(outfile)) {
+		FILE *ofile = fopen(outfile, "w+");
+		GDTxt gdout(ofile);
+		graph_fun(&gdout);
+		fclose(ofile);
+	}
+
+	if (process_mode != pm_r_option) {
+		GDTxt gd(fo);
+		graph_fun(&gd);
+	}
+
 }
 
 // Graph: HTML
@@ -2342,6 +2379,84 @@ graph_pdf_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 	GDPdf gd(fo);
 	graph_fun(&gd);
 }
+
+
+// Split a string by delimiter
+vector<string> split_by_delimiter(string &s, char delim) {
+	string buf;                 // Have a buffer string
+	stringstream ss(s);       // Insert the string into a stream
+
+	vector<string> tokens; // Create vector to hold our words
+
+	while (getline(ss, buf, delim))
+		tokens.push_back(buf);
+
+	return tokens;
+}
+
+
+// Produce call graphs with -R option
+static void produce_call_graphs(const vector <string> &call_graphs)
+{
+	char base_splitter = '?';
+	char opts_splitter = '&';
+	char opt_spltter = '=';
+	GDArgsKeys gdargskeys;
+
+	for (string url: call_graphs) {
+		vector<string> split_base_and_opts = split_by_delimiter(url, base_splitter);
+		if (split_base_and_opts.size() == 0) {
+			cerr << url << "is not a valid url" << endl;
+			continue;
+		}
+		FILE *target = fopen(split_base_and_opts[0].c_str() , "w+");
+		string base = split_base_and_opts[0];
+		GDTxt gd(target);
+		// Disable swill
+		gd.uses_swill = false;
+		vector<string> opts;
+
+		if (!split_base_and_opts.size() == 1) {
+
+			opts = split_by_delimiter(split_base_and_opts[1], opts_splitter);
+
+			// Parse opts
+			for (string opt: opts) {
+				vector<string> opt_tmp = split_by_delimiter(opt, opt_spltter);
+				if (opt_tmp.size() < 2) continue;
+
+				// Key-value pairs
+				string key = opt_tmp[0];
+				string val = opt_tmp[1];
+
+				if (!key.compare(gdargskeys.ALL)) {
+					gd.all = (bool) atoi(val.c_str());
+				} else if (!key.compare(gdargskeys.ONLY_VISITED)) {
+					gd.only_visited = (bool) atoi(val.c_str());
+				} else if (!key.compare(gdargskeys.GTYPE)) {
+					gd.gtype = &val[0u];
+				} else if (!key.compare(gdargskeys.LTYPE)) {
+					gd.ltype = &val[0u];
+				}
+
+			}
+
+		}
+
+		if (!base.compare(gdargskeys.CGRAPH)) {
+			cgraph_page(&gd);
+		}
+		else if (!base.compare(gdargskeys.FGRAPH)) {
+			fgraph_page(&gd);
+		}
+
+		fclose(target);
+	}
+
+
+
+}
+
 
 // Setup graph handling for all supported graph output types
 static void
@@ -3099,7 +3214,7 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-C|-c|-d D|-d H|-E|-o|"
+		"-C|-c|-R|-d D|-d H|-E|-o|"
 		"-r|-s db|-v] "
 		"[-l file] "
 
@@ -3116,6 +3231,7 @@ usage(char *fname)
 #endif
 		"\t-C\tCreate a ctags(1)-compatible tags file\n"
 		"\t-c\tProcess the file and exit\n"
+		"\t-R\tMake the specified REST API calls and exit\n"
 		"\t-d D\tOutput the #defines being processed on standard output\n"
 		"\t-d H\tOutput the included files being processed on standard output\n"
 		"\t-E\tPrint preprocessed results on standard output and exit\n"
@@ -3145,9 +3261,10 @@ main(int argc, char *argv[])
 	bool pico_ql = false;
 #endif
 
+	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvEp:m:l:os:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvEp:m:l:os:R:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3230,6 +3347,12 @@ main(int argc, char *argv[])
 			process_mode = pm_database;
 			db_engine = strdup(optarg);
 			break;
+		case 'R':
+			if (!optarg)
+				usage(argv[0]);
+			process_mode = pm_r_option;
+			call_graphs.push_back(string(optarg));
+			break;
 		case '?':
 			usage(argv[0]);
 		}
@@ -3284,6 +3407,8 @@ main(int argc, char *argv[])
 
 	// Pass 2: Create web pages
 	files = Fileid::files(true);
+
+
 
 	if (process_mode != pm_compile) {
 		swill_handle("sproject.html", select_project_page, 0);
@@ -3407,6 +3532,15 @@ main(int argc, char *argv[])
 		return (0);
 	}
 #endif
+
+	if (process_mode == pm_r_option) {
+		cerr << "Producing call graphs for: ";
+		for (string d : call_graphs) cerr << d << " ";
+		cerr << endl;
+		produce_call_graphs(call_graphs);
+
+		return (0);
+	}
 
 	if (process_mode == pm_compile)
 		return (0);
