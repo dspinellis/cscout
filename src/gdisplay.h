@@ -216,7 +216,7 @@ public:
 	string ALL = "all";
 	string ONLY_VISITED = "only_visited";
 	string GTYPE = "gtype";
-	string LTYPE = "ltype";
+	string LTYPE = "n";
 };
 
 #endif // GDARGSKEYS_

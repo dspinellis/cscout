@@ -2160,6 +2160,7 @@ end:
 static void
 fgraph_page(GraphDisplay *gd)
 {
+
 	char *gtype = NULL;
 	char *ltype = NULL;
 	if (gd->uses_swill) {
@@ -2187,6 +2188,7 @@ fgraph_page(GraphDisplay *gd)
 		all = gd->all;
 		only_visited = gd->only_visited;
 	}
+
 	switch (*gtype) {
 	case 'I':		// Include graph
 		gd->head("fgraph", "Include Graph", empty_node);
@@ -2416,7 +2418,7 @@ static void produce_call_graphs(const vector <string> &call_graphs)
 		gd.uses_swill = false;
 		vector<string> opts;
 
-		if (!split_base_and_opts.size() == 1) {
+		if (split_base_and_opts.size() != 1) {
 
 			opts = split_by_delimiter(split_base_and_opts[1], opts_splitter);
 
@@ -2434,9 +2436,9 @@ static void produce_call_graphs(const vector <string> &call_graphs)
 				} else if (!key.compare(gdargskeys.ONLY_VISITED)) {
 					gd.only_visited = (bool) atoi(val.c_str());
 				} else if (!key.compare(gdargskeys.GTYPE)) {
-					gd.gtype = &val[0u];
+					gd.gtype = strdup(val.c_str());
 				} else if (!key.compare(gdargskeys.LTYPE)) {
-					gd.ltype = &val[0u];
+					gd.ltype = strdup(val.c_str());
 				}
 
 			}
