@@ -62,7 +62,7 @@ cscout_dirs()
 	if (getenv("HOME"))
 		dirs.push_back(string(getenv("HOME")) + "/.cscout");
 	if (getenv("APPDATA"))
-		dirs.push_back(string(getenv("HOME")) + "/.cscout");
+		dirs.push_back(string(getenv("APPDATA")) + "/.cscout");
 	return dirs;
 }
 
