@@ -57,7 +57,7 @@ public:
 		Tokid amember(*(e->get_members().begin()));
 		xfile = e->sorted_files().size() > amember.get_fileid().get_identical_files().size();
 	}
-	Identifier() {}
+	Identifier() : xfile(false), replaced(false), active(false) {}
 	string get_id() const { return id; }
 	void set_newid(const string &s) { newid = s; replaced = true; }
 	string get_newid() const { return newid; }
