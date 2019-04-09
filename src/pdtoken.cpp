@@ -959,8 +959,6 @@ Pdtoken::process_pragma()
 		return;
 	Pltoken t;
 
-	if (skiplevel >= 1)
-		return;
 	t.getnext_nospc<Fchar>();
 	if (t.get_code() != IDENTIFIER) {
 		eat_to_eol();
