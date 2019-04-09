@@ -73,6 +73,8 @@ stackbool Pdtoken::iftaken;		// Taken #ifs
 vectorstring Pdtoken::include_path;	// Files in include path
 int Pdtoken::skiplevel = 0;		// Level of enclosing #ifs when skipping
 mapMacroBody Pdtoken::macro_body_tokens;	// Tokens and the macros they belong to
+// Files that must be skipped rather than included (#pragma once)
+set<Fileid> Pdtoken::skipped_includes;
 
 
 void
@@ -670,7 +672,8 @@ Pdtoken::process_include(bool next)
 	// #include <foo.h> and #include "foo.h"
 	if (is_absolute_filename(f.get_val())) {
 		if (can_open(f.get_val())) {
-			Fchar::push_input(f.get_val());
+			if (!Pdtoken::shall_skip(Fileid(f.get_val())))
+				Fchar::push_input(f.get_val());
 			return;
 		}
 	} else {
@@ -689,7 +692,8 @@ Pdtoken::process_include(bool next)
 		if (f.get_code() == ABSFNAME && !next) {
 			string fname(Fchar::get_dir() + "/" + f.get_val());
 			if (can_open(fname)) {
-				Fchar::push_input(fname);
+				if (!Pdtoken::shall_skip(Fileid(fname)))
+					Fchar::push_input(fname);
 				return;
 			}
 		}
@@ -701,7 +705,8 @@ Pdtoken::process_include(bool next)
 			string fname(*i + "/" + f.get_val());
 			if (DP()) cout << "Try open " << fname << "\n";
 			if (can_open(fname)) {
-				Fchar::push_input(fname);
+				if (!Pdtoken::shall_skip(Fileid(fname)))
+					Fchar::push_input(fname);
 				Fchar::get_fileid().set_ipath_offset(i - include_path.begin());
 				return;
 			}
@@ -998,6 +1003,11 @@ Pdtoken::process_pragma()
 		// XXX now do the work
 	} else if (t.get_val() == "nosync") {
 		// XXX now do the work
+	} else if (t.get_val() == "once") {
+		// Mark the file for skipping next time it is included.
+		Fileid fid(Fchar::get_fileid());
+		csassert(!Pdtoken::shall_skip(fid));
+		Pdtoken::set_skip(fid);
 	} else if (t.get_val() == "includepath") {
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
@@ -1131,9 +1141,10 @@ Pdtoken::process_pragma()
 		if (chdir(dirstack.top().c_str()) != 0)
 			Error::error(E_FATAL, "popd: " + dirstack.top() + ": " + string(strerror(errno)));
 		dirstack.pop();
-	} else if (t.get_val() == "clear_include")
+	} else if (t.get_val() == "clear_include") {
 		Pdtoken::clear_include();
-	else if (t.get_val() == "clear_defines")
+		Pdtoken::clear_skipped();
+	} else if (t.get_val() == "clear_defines")
 		Pdtoken::macros_clear();
 	else if (t.get_val() == "ro_prefix") {
 		t.getnext_nospc<Fchar>();

@@ -38,6 +38,7 @@ using namespace std;
 
 #include "ptoken.h"
 #include "macro.h"
+#include "fileid.h"
 
 class Pdtoken;
 
@@ -82,6 +83,24 @@ private:
 	static void process_error(enum e_error_level e);
 						// Handle a #error #warning
 	static void process_pragma();		// Handle a #pragma
+
+	// #pragma once support
+	// Files that must be skipped rather than included
+	static set<Fileid> skipped_includes;	// For #pragma once
+
+	// Clear the list of files that shall not be included.
+	// (At the start of a new compilation unit processing.)
+	static void clear_skipped() { skipped_includes.clear(); }
+
+	// Return true if the specified file shall not be included.
+	// (After it has been processed with #pragma once.)
+	static bool shall_skip(Fileid fid) {
+		return skipped_includes.find(fid) != skipped_includes.end();
+	}
+
+	// Add a file to the list of files that shall not be included.
+	// (After encountering a #pragma once directive.)
+	static void set_skip(Fileid fid) { skipped_includes.insert(fid); }
 public:
 	// Constructors
 	Pdtoken(const Ptoken &pt) : Ptoken(pt) {};
