@@ -50,6 +50,7 @@ typedef set<string> setstring;
 typedef map<string, PtokenSequence> mapArgval;
 typedef stack<bool> stackbool;
 typedef vector<string> vectorstring;
+typedef vector<Pdtoken> vectorPdtoken;
 
 
 class Macro;
@@ -68,6 +69,7 @@ private:
 	static bool output_defines;		// Output #defines on stdout
 
 	static vectorstring include_path;	// Include file path
+	static vectorPdtoken current_line;	// Currently read line
 
 	static void process_directive();	// Handle a cpp directive
 	static void eat_to_eol();		// Consume input including \n
@@ -99,10 +101,13 @@ private:
 	// Add a file to the list of files that shall not be included.
 	// (After encountering a #pragma once directive.)
 	static void set_skip(Fileid fid) { skipped_includes.insert(fid); }
+	// Get the next expanded token
+	void getnext_expand();
 public:
 	// Constructors
 	Pdtoken(const Ptoken &pt) : Ptoken(pt) {};
 	Pdtoken() {};
+	// Get the next expanded token, maintainint the current line's contents
 	void getnext();
 	/*
 	 * Get next token, while processing cpp directives, but without expanding macro
@@ -147,8 +152,13 @@ public:
 	static bool skipping() { return skiplevel != 0; }
 	// Call this to output the #define code on stdout
 	static void set_output_defines() { output_defines = true; }
+	// Return currently read line
+	static const vectorPdtoken& get_current_line() {
+		return current_line;
+	}
 };
 
 ostream& operator<<(ostream& o,const dequePtoken &dp);
+ostream& operator<<(ostream& o,const vectorPdtoken &dp);
 
 #endif // PDTOKEN

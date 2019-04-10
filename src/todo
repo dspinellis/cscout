@@ -234,7 +234,6 @@ those comments or use them to improve CScout if you like:
 4) I think it would be an an improvement to allow cswc project | cscout
 and would like a control to cause a browser to open automatically in
 Windows.
-5) I had to edit cswc to correct the directory to pick up perl.
 7) My comments on the generated html are obviously first impressions:
 a) I would like to see context information such as date and command in
 "CScout Main Page".
@@ -251,6 +250,5 @@ use...'
 9) I think the html can be optimised so that links which produce no
 results are not made or are rendered in a different way. Example: I have
 no "Writable .c Files Without Any Statments". (sic in result!)
-2) "syntax error" should show current and next symbols.
 
 include command in cswc

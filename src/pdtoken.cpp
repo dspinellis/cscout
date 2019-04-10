@@ -75,6 +75,7 @@ int Pdtoken::skiplevel = 0;		// Level of enclosing #ifs when skipping
 mapMacroBody Pdtoken::macro_body_tokens;	// Tokens and the macros they belong to
 // Files that must be skipped rather than included (#pragma once)
 set<Fileid> Pdtoken::skipped_includes;
+vectorPdtoken Pdtoken::current_line;	// Currently read line
 
 bool
 Pdtoken::shall_skip(Fileid fid)
@@ -87,6 +88,16 @@ Pdtoken::shall_skip(Fileid fid)
 
 void
 Pdtoken::getnext()
+{
+	getnext_expand();
+	if (get_code() == '\n')
+		current_line.clear();
+	else
+		current_line.push_back(*this);
+}
+
+void
+Pdtoken::getnext_expand()
 {
 	Pltoken t;
 
@@ -1263,6 +1274,15 @@ operator<<(ostream& o,const dequePtoken &dp)
 		o << *i;
 	return (o);
 }
+
+ostream&
+operator<<(ostream& o,const vectorPdtoken &dp)
+{
+	for (auto i = dp.begin(); i != dp.end(); i++)
+		o << i->get_c_val();
+	return (o);
+}
+
 
 #ifdef UNIT_TEST
 

@@ -40,6 +40,7 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
+#include "Pdtoken.h"
 
 int Error::num_errors;
 int Error::num_warnings;
@@ -78,6 +79,11 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
 	case E_FATAL: exit(1);
 	}
+
+	const vectorPdtoken& line = Pdtoken::get_current_line();
+	if (showloc && line.size() > 0)
+		cerr << "The text leading to this error is: [" <<
+			Pdtoken::get_current_line() << "]\n";
 }
 
 void
