@@ -76,6 +76,14 @@ mapMacroBody Pdtoken::macro_body_tokens;	// Tokens and the macros they belong to
 // Files that must be skipped rather than included (#pragma once)
 set<Fileid> Pdtoken::skipped_includes;
 
+bool
+Pdtoken::shall_skip(Fileid fid)
+{
+	bool ret = skipped_includes.find(fid) != skipped_includes.end();
+	if (DP())
+		cout << "shall_skip(" << fid.get_path() << " = " << ret << '\n';
+	return ret;
+}
 
 void
 Pdtoken::getnext()
@@ -1006,7 +1014,7 @@ Pdtoken::process_pragma()
 	} else if (t.get_val() == "once") {
 		// Mark the file for skipping next time it is included.
 		Fileid fid(Fchar::get_fileid());
-		csassert(!Pdtoken::shall_skip(fid));
+		if (DP()) cout << "Pragma once on " << fid.get_path() << "\n";
 		Pdtoken::set_skip(fid);
 	} else if (t.get_val() == "includepath") {
 		t.getnext_nospc<Fchar>();

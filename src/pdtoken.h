@@ -94,9 +94,7 @@ private:
 
 	// Return true if the specified file shall not be included.
 	// (After it has been processed with #pragma once.)
-	static bool shall_skip(Fileid fid) {
-		return skipped_includes.find(fid) != skipped_includes.end();
-	}
+	static bool shall_skip(Fileid fid);
 
 	// Add a file to the list of files that shall not be included.
 	// (After encountering a #pragma once directive.)

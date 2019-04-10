@@ -130,6 +130,8 @@ Fileid::Fileid(const string &name)
 
 		identical_files[hash].insert(*this);
 	}
+	if (DP())
+		cout << "Fileid(" << name << ") = " << id << "\n";
 }
 
 // User for initialization and testing; not for real files
