@@ -143,5 +143,6 @@
 #define __extension
 #define __extension__
 #define __int128 long
+#define __float128 double
 #define __PRETTY_FUNCTION__ "UNKNOWN"
 #define typeof __typeof__
