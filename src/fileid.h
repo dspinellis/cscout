@@ -126,7 +126,10 @@ public:
 	bool compilation_unit() const { return m_compilation_unit; }
 	void set_compilation_unit(bool r) { m_compilation_unit = r; }
 	void process_line(bool processed);
-	bool is_processed(int line) const { return processed_lines[line - 1]; };
+	bool is_processed(unsigned line) const {
+		return line <= processed_lines.size() &&
+			processed_lines[line - 1];
+	};
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered
 	void add_line_end(streampos p) { line_ends.push_back(p); }
