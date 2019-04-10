@@ -337,6 +337,7 @@ yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 %type <t> typeof_argument
 %type <t> declaration_qualifier
 %type <t> type_qualifier
+%type <t> simple_type_qualifier
 %type <t> function_specifier
 %type <t> basic_declaration_specifier
 %type <t> basic_type_specifier
@@ -386,6 +387,8 @@ yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 %type <t> attribute
 %type <t> attribute_list
 %type <t> attribute_list_opt
+%type <t> simple_type_qualifier_list
+%type <t> simple_type_qualifier_list_opt
 %type <t> assembly_decl
 %type <t> asm_or_attribute_list
 
@@ -1085,13 +1088,17 @@ declaration_qualifier:
         | type_qualifier			/* const, volatile, restrict */
         ; /* default rules */
 
-type_qualifier:
+simple_type_qualifier:
         TCONST		{ $$ = basic(b_abstract, s_none, c_unspecified, q_const); }
         | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, q_volatile); }
         | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, q_restrict); }
         | COMPLEX   { $$ = basic(b_abstract, s_none, c_unspecified, q_complex);  }
         | IMAGINARY   { $$ = basic(b_abstract, s_none, c_unspecified, q_imaginary);  }
-	| attribute	{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
+	| attribute
+        ;
+
+type_qualifier:
+        simple_type_qualifier
 	| function_specifier			/* inline */
         ;
 
@@ -1278,9 +1285,9 @@ aggregate_name:
 
 /* We overload plist to return a value from this rule */
 aggregate_key:
-        STRUCT attribute_list_opt
+        STRUCT simple_type_qualifier_list_opt
 		{ $$ = plist(0); }
-        | UNION attribute_list_opt
+        | UNION simple_type_qualifier_list_opt
 		{ $$ = plist(1); }
         ;
 
@@ -1408,17 +1415,17 @@ bit_field_size:
         ;
 
 enum_name:
-        ENUM attribute_list_opt '{' enumerator_list comma_opt '}'
+        ENUM simple_type_qualifier_list_opt '{' enumerator_list comma_opt '}'
 		{
 			Fchar::get_fileid().metrics().add_enum();
 			$$ = enum_tag();
 		}
-        | ENUM attribute_list_opt identifier_or_typedef_name '{' enumerator_list comma_opt '}'
+        | ENUM simple_type_qualifier_list_opt identifier_or_typedef_name '{' enumerator_list comma_opt '}'
 		{
 			Fchar::get_fileid().metrics().add_enum();
 			tag_define($3.get_token(), $$ = enum_tag());
 		}
-        | ENUM attribute_list_opt identifier_or_typedef_name
+        | ENUM simple_type_qualifier_list_opt identifier_or_typedef_name
 		{
 			Id const *id = tag_lookup($3.get_name());
 			if (id) {
@@ -2172,6 +2179,20 @@ declarator:
 		}
         ;
 
+simple_type_qualifier_list_opt:
+	/* Empty */
+		{ $$ = basic(); }
+	| simple_type_qualifier_list
+		{ $$ = $1; }
+	;
+
+simple_type_qualifier_list:
+	simple_type_qualifier
+		{ $$ = $1; }
+	| simple_type_qualifier_list attribute
+		{ $$ = merge($1, $2); }
+	;
+
 attribute_list_opt:
 	/* Empty */
 		{ $$ = basic(); }
@@ -2188,6 +2209,8 @@ attribute_list:
 
 attribute:
 	/*
+	 * Result of a gcc __attribute(...). This is handled lexically
+	 * and may return UNUSED.
 	 * register u_int64_t a0 @ __asm__("$16") = pfn; (alpha code)
 	 * int enter(void) __asm__("enter");
 	 */
