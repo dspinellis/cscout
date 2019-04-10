@@ -35,9 +35,14 @@
 #define _cdecl
 #define __stdcall
 #define _stdcall
+#define __fastcall
+#define _fastcall
 #define __inline
 #define _inline
 #define __asm _asm
 #define __int64 long long
 #define __declspec(x)
 #define _declspec(x)
+#define __pragma(x)
+#define __ptr64
+#define __forceinline
