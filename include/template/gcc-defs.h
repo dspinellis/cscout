@@ -39,7 +39,6 @@
 #define __builtin_bswap64(x) (x)
 #define __builtin_call_with_static_chain(x,y) ((x), (y), 0)
 #define __builtin_choose_expr(a,v,c) ((a) ? (v) : (c))
-#define __builtin_choose_expr(x,y) ((x), (y))
 #define __builtin___clear_cache(x,y) ((x), (y))
 #define __builtin_clrsbll(x) (x)
 #define __builtin_clrsbl(x) (x)
@@ -53,7 +52,6 @@
 #define __builtin_ctz(z) ((z),1)
 #define __builtin_expect_with_probability(x,y) 1
 #define __builtin_expect(_x, _v) ((_v), (_x))
-#define __builtin_expect(x,y) ((x), (y))
 #define __builtin_extend_pointer(x) ((x), 1) 
 #define __builtin_fabsf(_x) (float)(_x)
 #define __builtin_fabsl(_x) (long double)(_x)
@@ -73,7 +71,6 @@
 #define __builtin_huge_valfn() 1
 #define __builtin_huge_valfnx() 1
 #define __builtin_huge_vall() 1
-#define __builtin_inf() 1
 #define __builtin_infd32() 1
 #define __builtin_infd64() 1
 #define __builtin_inf()     (double)0
@@ -131,7 +128,6 @@
 #define __builtin_tgmath(x, y) ((x), (y), 0)
 #define __builtin_trap() 1
 #define __builtin_types_compatible_p(x,y) (1)
-#define __builtin_unreachable () 1
 #define __builtin_unreachable() 1
 #define __builtin_va_arg(_ap, _type) (*(_type *)(_ap))
 #define __builtin_va_arg_pack() 1
@@ -140,7 +136,6 @@
 #define __builtin_va_end(_v) ((void)(_v))
 #define __builtin_va_list void *
 #define __builtin_va_start(_ap, _arg) ((void)(_ap),(void)(_arg))
-#define __builtin_va_start(x,y) 1
 #define __builtin___vprintf_chk(x,y,z) ((x), (y), (z), 1)
 #define __builtin___vsnprintf_chk(x,y,z,w,r) ((x), (y), (z), (w), (r), 1)
 #define __builtin___vsprintf_chk(x,y,z,w,r) ((x), (y), (z), (w), (r), 1)
@@ -149,5 +144,4 @@
 #define __extension__
 #define __int128 long
 #define __PRETTY_FUNCTION__ "UNKNOWN"
-#define __restrict
 #define typeof __typeof__

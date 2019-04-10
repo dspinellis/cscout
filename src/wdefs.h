@@ -57,7 +57,6 @@
 #define __extension__
 #define __attribute(_x) __attribute__(_x)
 #define __const const
-#define __restrict
 #define __builtin_va_list void *
 #define __builtin_stdarg_start
 #define __builtin_va_end
