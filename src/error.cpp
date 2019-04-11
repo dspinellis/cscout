@@ -40,7 +40,7 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "fchar.h"
-#include "Pdtoken.h"
+#include "pdtoken.h"
 
 int Error::num_errors;
 int Error::num_warnings;
