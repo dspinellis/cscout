@@ -81,7 +81,7 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	}
 
 	const vectorPdtoken& line = Pdtoken::get_current_line();
-	if (showloc && line.size() > 0)
+	if (showloc && line.size() > 0 && line[0].get_code() != EOF)
 		cerr << "The text leading to this error is: [" <<
 			Pdtoken::get_current_line() << "]\n";
 }
