@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2019 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -76,6 +76,8 @@ mapMacroBody Pdtoken::macro_body_tokens;	// Tokens and the macros they belong to
 // Files that must be skipped rather than included (#pragma once)
 set<Fileid> Pdtoken::skipped_includes;
 vectorPdtoken Pdtoken::current_line;	// Currently read line
+
+CompiledRE Pdtoken::preprocessed_output_spec;	// Files to preprocess
 
 bool
 Pdtoken::shall_skip(Fileid fid)
@@ -974,6 +976,23 @@ Pdtoken::process_error(enum e_error_level e)
 		Error::error(e, msg);
 }
 
+// Preprocess specified file to the standard output
+static void
+preprocess_to_output(const string& s)
+{
+	Fchar::push_input(s);
+	Fchar::lock_stack();
+	for (;;) {
+		Pdtoken t;
+
+		t.getnext();
+		if (t.get_code() == EOF)
+			break;
+		cout << t.get_c_val();
+	}
+	Fchar::unlock_stack();
+}
+
 void
 Pdtoken::process_pragma()
 {
@@ -1057,9 +1076,12 @@ Pdtoken::process_pragma()
 			eat_to_eol();
 			return;
 		}
-		string s = t.get_val();
-		for (string::const_iterator i = s.begin(); i != s.end();)
-			cerr << unescape_char(s, i);
+		// Echo unless we're preprocessing to stdout
+		if (!preprocessed_output_spec.isSet()) {
+			string s = t.get_val();
+			for (string::const_iterator i = s.begin(); i != s.end();)
+				cerr << unescape_char(s, i);
+		}
 	} else if (t.get_val() == "project") {
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
@@ -1092,9 +1114,6 @@ Pdtoken::process_pragma()
 		Fileid fi = Fileid(t.get_val());
 		fi.set_readonly(true);
 	} else if (t.get_val() == "process") {
-		extern int parse_parse();
-		extern void garbage_collect(Fileid fi);
-
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != STRING_LITERAL) {
 			/*
@@ -1108,12 +1127,24 @@ Pdtoken::process_pragma()
 			eat_to_eol();
 			return;
 		}
-		Fchar::push_input(t.get_val());
-		Fchar::lock_stack();
-		if (parse_parse() != 0)
-			exit(1);
-		garbage_collect(Fileid(t.get_val()));
-		Fchar::unlock_stack();
+		if (preprocessed_output_spec.isSet()) {
+			// Skip or enable preprocessed output
+			if (preprocessed_output_spec.exec( t.get_val().c_str(),
+						0, NULL, 0) != REG_NOMATCH)
+				preprocess_to_output(t.get_val());
+		}
+		if (!preprocessed_output_spec.isSet()) {
+			// Normal processing
+			extern int parse_parse();
+			extern void garbage_collect(Fileid fi);
+
+			Fchar::push_input(t.get_val());
+			Fchar::lock_stack();
+			if (parse_parse() != 0)
+				exit(1);
+			garbage_collect(Fileid(t.get_val()));
+			Fchar::unlock_stack();
+		}
 	} else if (t.get_val() == "pushd") {
 		char buff[4096];
 

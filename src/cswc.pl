@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# (C) Copyright 2003-2015 Diomidis Spinellis
+# (C) Copyright 2003-2019 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -55,15 +55,15 @@
 #
 
 use Getopt::Std;
-if (!getopts('Ed:gv')) {
-	print STDERR "usage: $0 [-Egv] [-d directory] [file]\n";
+if (!getopts('d:gv')) {
+	print STDERR "usage: $0 [-gv] [-d directory] [file]\n";
 	exit(1);
 }
 
 if ($opt_v) {
 	print STDERR "cswc - CScout workspace compiler\n\n" .
 	# 80 column terminal width----------------------------------------------------
-	"(C) Copyright 2003-2016 Diomidis Spinelllis.\n\n" .
+	"(C) Copyright 2003-2019 Diomidis Spinelllis.\n\n" .
 	"CScout is distributed as open source software under the GNU General Public\n" .
 	"License, available in the CScout documentation and online at\n" .
 	"http://www.gnu.org/licenses/.\n" .
@@ -176,18 +176,14 @@ sub endunit
 		pop(@units);
 		pop(@names);
 		print "#include \"$instdir/$incs\"\n";
-		if ($opt_E) {
-			print "#include \"$name\"\n\n";
-		} else {
-			print "#pragma process \"$name\"\n\n";
-		}
+		print "#pragma process \"$name\"\n\n";
 	}
 	if (defined($dir{$unit})) {
-		print "#pragma echo \"Exiting directory $dir{$unit}\\n\"\n" unless ($opt_E);
+		print "#pragma echo \"Exiting directory $dir{$unit}\\n\"\n";
 		print "#pragma popd\n";
 	}
 	print "#pragma block_exit\n" unless($unit eq 'workspace' || $unit eq 'directory');
-	print "#pragma echo \"Done processing $unit $name\\n\"\n" unless ($opt_E);
+	print "#pragma echo \"Done processing $unit $name\\n\"\n";
 	$unit = pop(@units);
 	$name = pop(@names);
 	$readonly{$unit . $name} = pop(@readonlys);
@@ -206,7 +202,7 @@ sub beginunit
 	undef $ipaths{$unit . $name};
 	undef $readonly{$unit . $name};
 	print "// $unit $name\n";
-	print "#pragma echo \"Processing $unit $name\\n\"\n" unless ($opt_E);
+	print "#pragma echo \"Processing $unit $name\\n\"\n";
 	if ($unit eq 'project') {
 		print "#pragma project \"$name\"\n";
 		print "#pragma block_enter\n";
@@ -216,11 +212,7 @@ sub beginunit
 		print "#pragma block_enter\n";
 		print "#pragma clear_defines\n";
 		print "#pragma clear_include\n";
-		if ($opt_E) {
-			print "#include \"$instdir/$defs\"\n";
-		} else {
-			print "#pragma process \"$instdir/$defs\"\n";
-		}
+		print "#pragma process \"$instdir/$defs\"\n";
 	}
 }
 
@@ -228,6 +220,6 @@ sub directory
 {
 	my($dir) = @_;
 	$dir{$unit} = $dir;
-	print "#pragma echo \"Entering directory $dir\\n\"\n" unless ($opt_E);
+	print "#pragma echo \"Entering directory $dir\\n\"\n";
 	print "#pragma pushd \"$dir\"\n";
 }

@@ -1,4 +1,4 @@
 /test/cpp/cpp23-iferr.c:2: error: Unbalanced #endif
 /test/cpp/cpp23-iferr.c:4: error: Unbalanced #else
 /test/cpp/cpp23-iferr.c:6: error: Unbalanced #elif
-/makecs.cs:20: error: EOF while processing #if directive
+/test/cpp/cpp23-iferr.c:8: error: EOF while processing #if directive

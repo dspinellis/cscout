@@ -14,7 +14,6 @@ To update the table of contents execute the following vim command from a registe
 <li> <a href="#auto">How can I handle automatically generated files?</a></li>
 <li> <a href="#save">How can I save an identifier or file query?</a></li>
 <li> <a href="#cgfmt">Why aren't my call graphs appearing in the form I specified?</a></li>
-<li> <a href="#mancpp">How can I manually convert a CScout project to obtain its preprocessed output with cscout -E?</a></li>
 <li> <a href="#syntax">How can I locate and fix a syntax error?</a></li>
 <li> <a href="#win32fname">Why is my read-only prefix pragma not working under Windows?</a></li>
 <li> <a href="#mem">My system appears to be using the hard disk excessively (thrashing).  Why?</a></li>
@@ -64,24 +63,6 @@ This is the only instance where the use of the back button will
 surprise you.
 
 <!-- ******************************************************* -->
-<a name="mancpp"> </a><h2>How can I manually convert a CScout project to obtain its preprocessed output with cscout -E?</h2>
-<ul>
-<li> Isolate from the cscout build script the commands for the specific file.
-These are delimited by the innermost <code>#pragma block_enter</code>
-and <code>#pragma block_exit</code> commands.</li>
-<li> Save the fragment to a separate CScout script file, say problem.cs.</li>
-<li> Change in problem.cs the
-<code>#pragma process </code><em>filename</em>
-sequence with
-<code>#include </code><em>filename</em>.</li>
-<li> Run
-<pre>
-cscout -E problem.cs >preprocessed.c
-</pre>
-</li>
-</ul>
-
-<!-- ******************************************************* -->
 <a name="syntax"> </a><h2>How can I locate and fix a syntax error?</h2>
 Most syntax errors occur due to compiler extensions or incorrect
 definitions of macros.
@@ -91,8 +72,8 @@ the corresponding compiler extension, like the following.
 #define __declspec(x)
 </pre>
 If the problem isn't obvious from the source code, you might need
-<a href="#mancpp">preprocess the file</a> and look at the preprocessed
-code.
+preprocess the file by using the <code>-E</code> option,
+and look at the preprocessed code.
 To do this search in the preprocessed code for an (ideally unique)
 occurrence of non-macro code near the problem spot.
 

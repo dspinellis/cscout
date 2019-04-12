@@ -1,6 +1,5 @@
 int main();
 static void _cscout_dummy1(void) { _cscout_dummy1(); }
-static void _cscout_dummy2(void) { _cscout_dummy2(); }
 [ -  "hello" - ] A B C D E 
 [2 -  "hello" - ] A B C D E 
 [2 -  "hello" -  1] A B C D E 

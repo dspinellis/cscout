@@ -1,6 +1,5 @@
 int main();
 static void _cscout_dummy1(void) { _cscout_dummy1(); }
-static void _cscout_dummy2(void) { _cscout_dummy2(); }
 void __assert (const char *, int, const char *);
 extern const unsigned char *_ctype_;
 extern const short *_tolower_tab_;

@@ -1,6 +1,6 @@
-.TH CSCOUT 1 "23 October 2011"
+.TH CSCOUT 1 "11 April 2019"
 .\"
-.\" (C) Copyright 2003-2015 Diomidis Spinellis
+.\" (C) Copyright 2003-2019 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -21,8 +21,9 @@
 cscout \- C code analyzer and refactoring browser
 .SH SYNOPSIS
 \fBcscout\fP
-[\fB\-bCcErv3\fP]
+[\fB\-bCcrv3\fP]
 [\fB\-d D\fP]
+[\fB\-E\fP \fIfile specification\fP]
 [\fB\-d H\fP]
 [\fB\-l\fP \fIlog file\fP]
 [\fB\-p\fP \fIport\fP]
@@ -118,11 +119,9 @@ output.
 Display the (mainly header) files being included on the standard output.
 Each line is prefixed by a number of dots indicating the depth
 of the included file stack.
-.IP "\fB\-E\fP"
-Preprocess the specified file and send the result to the standard
-output.
-Note that for this option to work correctly, you need to
-also process the workspace definition file with \fB-E\fP.
+.IP "\fB\-E\fP \fIfile specification\fP"
+Preprocess the file specified with the regular expression given as the
+option's argument and send the result to the standard output.
 .IP "\fB\-p\fP \fIport\fP"
 The web server will listen for requests on the TCP port number specified.
 By default the \fICScout\fP server will listen at port 8081.

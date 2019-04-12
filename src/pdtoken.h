@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2019 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -39,6 +39,7 @@ using namespace std;
 #include "ptoken.h"
 #include "macro.h"
 #include "fileid.h"
+#include "compiledre.h"
 
 class Pdtoken;
 
@@ -70,6 +71,7 @@ private:
 
 	static vectorstring include_path;	// Include file path
 	static vectorPdtoken current_line;	// Currently read line
+	static CompiledRE preprocessed_output_spec;// Files to preprocess
 
 	static void process_directive();	// Handle a cpp directive
 	static void eat_to_eol();		// Consume input including \n
@@ -155,6 +157,10 @@ public:
 	// Return currently read line
 	static const vectorPdtoken& get_current_line() {
 		return current_line;
+	}
+	// Set the RE on which to output preprocessed elements
+	static void set_preprocessed_output(CompiledRE cre) {
+		preprocessed_output_spec = cre;
 	}
 };
 

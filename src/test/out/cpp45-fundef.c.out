@@ -1,6 +1,5 @@
 int main();
 static void _cscout_dummy1(void) { _cscout_dummy1(); }
-static void _cscout_dummy2(void) { _cscout_dummy2(); }
 static int new_fun(double size)
 {
 return new_fun(2 + size);

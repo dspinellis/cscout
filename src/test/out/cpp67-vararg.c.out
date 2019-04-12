@@ -1,4 +1,3 @@
 int main();
 static void _cscout_dummy1(void) { _cscout_dummy1(); }
-static void _cscout_dummy2(void) { _cscout_dummy2(); }
 snd_printk(KERN_ERR "ERROR (%s) (called from %p)\n", __ASTRING__(uinfo->type != SNDRV_CTL_ELEM_TYPE_BOOLEAN || uinfo->value.integer.min != 0 || uinfo->value.integer.max != 1), __builtin_return_address(0));  goto __unalloc;; 

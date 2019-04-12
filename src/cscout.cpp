@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2019 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -3086,22 +3086,6 @@ parse_acl()
 	}
 }
 
-// Process the input as a C preprocessor
-// Fchar should already have its input set
-static int
-simple_cpp()
-{
-	for (;;) {
-		Pdtoken t;
-
-		t.getnext();
-		if (t.get_code() == EOF)
-			break;
-		cout << t.get_c_val();
-	}
-	return(0);
-}
-
 // Included file site information
 // See warning_report
 class SiteInfo {
@@ -3216,7 +3200,7 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-C|-c|-R|-d D|-d H|-E|-o|"
+		"-C|-c|-R|-d D|-d H|-E RE|-o|"
 		"-r|-s db|-v] "
 		"[-l file] "
 
@@ -3236,8 +3220,8 @@ usage(char *fname)
 		"\t-R\tMake the specified REST API calls and exit\n"
 		"\t-d D\tOutput the #defines being processed on standard output\n"
 		"\t-d H\tOutput the included files being processed on standard output\n"
-		"\t-E\tPrint preprocessed results on standard output and exit\n"
-		"\t\t(the workspace file must have also been processed with -E)\n"
+		"\t-E RE\tPrint preprocessed results on standard output and exit\n"
+		"\t\t(Will process file(s) matched by the regular expression)\n"
 		"\t-l file\tSpecify access log file\n"
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
 		"\t-o\tCreate obfuscated versions of the processed files\n"
@@ -3259,6 +3243,7 @@ main(int argc, char *argv[])
 {
 	Pdtoken t;
 	int c;
+	CompiledRE pre;
 #ifdef PICO_QL
 	bool pico_ql = false;
 #endif
@@ -3266,14 +3251,22 @@ main(int argc, char *argv[])
 	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvEp:m:l:os:R:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvE:p:m:l:os:R:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
 			break;
 		case 'E':
-			if (process_mode)
+			if (!optarg || process_mode)
 				usage(argv[0]);
+			// Preprocess the specified file
+			pre = CompiledRE(optarg, REG_EXTENDED | REG_NOSUB);
+			if (!pre.isCorrect()) {
+				cerr << "Filename regular expression error:" <<
+					pre.getError() << '\n';
+				exit(1);
+			}
+			Pdtoken::set_preprocessed_output(pre);
 			process_mode = pm_preprocess;
 			break;
 		case 'C':
@@ -3364,21 +3357,17 @@ main(int argc, char *argv[])
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
 		usage(argv[0]);
 
-	if (process_mode == pm_preprocess) {
-		Project::set_current_project("unspecified");
-		Fchar::set_input(argv[optind]);
-		Error::set_parsing(true);
-		return simple_cpp();
+	if (process_mode != pm_compile && process_mode != pm_preprocess) {
+		if (!swill_init(portno)) {
+			cerr << "Couldn't initialize our web server on port " << portno << endl;
+			exit(1);
+		}
+
+		Option::initialize();
+		options_load();
+		parse_acl();
 	}
 
-	if (process_mode != pm_compile && !swill_init(portno)) {
-		cerr << "Couldn't initialize our web server on port " << portno << endl;
-		exit(1);
-	}
-
-	Option::initialize();
-	options_load();
-	parse_acl();
 	if (db_engine) {
 		if (!Sql::setEngine(db_engine))
 			return 1;
@@ -3399,6 +3388,9 @@ main(int argc, char *argv[])
 		t.getnext();
 	while (t.get_code() != EOF);
 	Error::set_parsing(false);
+
+	if (process_mode == pm_preprocess)
+		return 0;
 
 	input_file_id = Fileid(argv[optind]);
 

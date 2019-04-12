@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# (C) Copyright 2001-2016 Diomidis Spinellis
+# (C) Copyright 2001-2019 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -308,7 +308,7 @@ runtest_cpp()
 	CSFILE=$3
 	TOPDIR=$4
 	start_test $DIR $NAME
-	(cd $DIR ; $TOPDIR/$CSCOUT -3 -E $CSFILE ) >test/nout/$NAME.out 2>test/nout/$NAME.err
+	(cd $DIR ; $TOPDIR/$CSCOUT -3 -E . $CSFILE ) >test/nout/$NAME.out 2>test/nout/$NAME.err
 	end_compare $DIR $NAME
 }
 
@@ -325,13 +325,13 @@ makecs_cpp()
 workspace TestWS {
 	ipath \"$IPATH\"
 	ipath \"$CPPTESTS\"
-	directory test/cpp {
+	directory . {
 	project Prj1 {
 		file $*
 	}
 }
 " |
-perl cswc.pl -E -d $DOTCSCOUT >makecs.cs 2>/dev/null
+perl cswc.pl -d $DOTCSCOUT >makecs.cs 2>/dev/null
 }
 
 # Set the test control variables to the passed value

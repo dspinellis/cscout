@@ -105,12 +105,13 @@ you may experience delays when another user sends a complex query.
 
 <h2>Preprocessor invocation</h2>
 As an aid for configuring <em>CScout</em> for a different compiler
-you can run <em>CScout</em> and the workspace compiler with the optional
+you can run <em>CScout</em> with the optional
 <code>-E</code> command-line argument.
-The <code>-E</code> option will orchestrate both programs to act as
-a simple C preprocessor.
-The workspace definition file you should use in such a case should only
-specify a single file.
+The <code>-E</code> option will orchestrate <em>CScout</em> to act as
+a simple C preprocessor for the file(s) specified through a regular
+expression as the option's argument.
+(Typically the name of the file, and in some cases a few distinguishing
+elements of its path should be enough.)
 The corresponding output of <em>CScout</em> will be the file with all 
 preprocessor commands evaluated.
 If <em>CScout</em> reports an error in a place where a macro is invoked,

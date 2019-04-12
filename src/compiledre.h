@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2019 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -78,6 +78,16 @@ public:
 	}
 	bool isCorrect() const {
 		return re != NULL;
+	}
+	bool isSet() const {
+		return re != NULL;
+	}
+	void clear() {
+		if (re) {
+			regfree(re);
+			delete re;
+		}
+		re = NULL;
 	}
 	string getError() const {
 		char buff[1024];

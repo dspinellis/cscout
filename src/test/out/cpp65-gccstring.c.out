@@ -1,6 +1,5 @@
 int main();
 static void _cscout_dummy1(void) { _cscout_dummy1(); }
-static void _cscout_dummy2(void) { _cscout_dummy2(); }
 typedef struct { unsigned char __arr[2]; } __attribute__ ((__packed__)) __STRING2_COPY_ARR2; 
 typedef struct { unsigned char __arr[3]; } __attribute__ ((__packed__)) __STRING2_COPY_ARR3; 
 typedef struct { unsigned char __arr[4]; } __attribute__ ((__packed__)) __STRING2_COPY_ARR4; 

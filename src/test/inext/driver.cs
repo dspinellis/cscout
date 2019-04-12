@@ -3,5 +3,5 @@
 #pragma includepath "i3"
 #pragma includepath "i4"
 #pragma block_enter
-#include "x.c"
+#pragma process "x.c"
 #pragma block_exit

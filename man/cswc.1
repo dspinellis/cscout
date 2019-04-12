@@ -1,6 +1,6 @@
-.TH CSWC 1 "7 July 2003"
+.TH CSWC 1 "11 April 2019"
 .\"
-.\" (C) Copyright 2003 Diomidis Spinellis
+.\" (C) Copyright 2003-2019 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -21,7 +21,7 @@
 cswc \- CScout workspace compiler
 .SH SYNOPSIS
 \fBcswc\fP 
-[\fB\-Egv\fP]
+[\fB\-gv\fP]
 [\fB\-d\fP \fIdirectory\fP]
 [\fIfile\fR]
 .SH DESCRIPTION
@@ -56,12 +56,6 @@ found in the online hypertext documentation and at the project's home page
 http://www.spinellis.gr/cscout.
 .PP
 .SH OPTIONS
-.IP "\fB\-E\fP"
-Generate a modified \fICScout\fP script that will be used by \fICScout\fP
-to preprocess the specified file and send the result to the standard
-output.
-Note that for this option to work correctly, you need to 
-also specify \fB-E\fP in the \fICScout\fP invocation.
 .IP "\fB\-d\fP \fIdirectory\fP"
 Specify the directory to use for locating the \fICScout\fP configuration files.
 .IP "\fB\-g\fP"

@@ -1,6 +1,5 @@
 int main();
 static void _cscout_dummy1(void) { _cscout_dummy1(); }
-static void _cscout_dummy2(void) { _cscout_dummy2(); }
 printf("x" "1" "= %d, x" "2" "=%s", x1, x2)
 fputs("strcmp(\"abc\\0d\", \"abc\", '\\4') == 0" ": @\n", s);
 include "vers2.h"
