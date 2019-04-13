@@ -268,6 +268,7 @@ install: build/cscout
 	./dest-install.sh "$(INSTALL_PREFIX)"
 
 uninstall:
+	rm -f "$(INSTALL_PREFIX)/bin/cscc"
 	rm -f "$(INSTALL_PREFIX)/bin/cscout"
 	rm -f "$(INSTALL_PREFIX)/bin/csmake"
 	rm -f "$(INSTALL_PREFIX)/bin/cswc"

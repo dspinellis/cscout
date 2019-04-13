@@ -1,6 +1,7 @@
 *.err
 dbschema.xml
 fmtcache
+mancscc.xml
 mancscout.xml
 mancsmake.xml
 mancswc.xml

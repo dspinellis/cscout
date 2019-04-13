@@ -1,0 +1,66 @@
+.TH CSCC 1 "13 April 2019"
+.\"
+.\" (C) Copyright 2016-2019 Diomidis Spinellis
+.\"
+.\" This file is part of CScout.
+.\"
+.\" CScout is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" CScout is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with CScout.  If not, see <http://www.gnu.org/licenses/>.
+.\"
+.SH NAME
+cscc \- CScout C compiler front end
+.SH SYNOPSIS
+\fBcscc\fP
+[\fIgcc(1) options\fP]
+.SH DESCRIPTION
+\fIcscc\fP is a wrapper around \fIgcc\fP.
+commands.
+When invoked instead of \fIgcc\fP,
+it will compile the specified file(s) in the same way as \fIgcc\fP
+would do.
+As a side-effect it will monitor the invocation of
+\fIgcc(1)\fP
+and record its environment and arguments.
+With those data it will generate a \fICScout\fP project specification
+that can be used to process the file(s) that were compiled.
+The project specification is saved into a file named \fImake.cs\fP.
+.SH EXAMPLE
+The following commands are often the only ones required to process
+a few C files.
+.PP
+.DS
+.ft C
+.nf
+cscc example.c
+cscout make.cs
+.ft P
+.fi
+.DE
+.PP
+If you want to use \fIcscc\fP with another C compiler, prepend
+\fBCC=\fIcompiler-name\fR to the \fIcscc\fP invocation,
+as shown in the following example.
+.PP
+.DS
+.ft C
+.nf
+CC=x86_64-w64-gcc cscc
+.ft P
+.fi
+.DE
+.PP
+.SH "SEE ALSO"
+cscout(1),
+csmake(1)
+.SH AUTHOR
+(C) Copyright 2006-2019 Diomidis Spinellis.

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# (C) Copyright 2006-2016 Diomidis Spinellis
+# (C) Copyright 2006-2019 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -18,7 +18,8 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Run make with gcc, cc, ld, ar, mv replaced with spying versions
-# included in this file
+# included in this file.
+# Also, when invoked as cscc, run cc replaced with its spying version.
 # Create a CScout-compatible make.cs file
 #
 #
@@ -52,18 +53,19 @@ if (!-r ($f = "$instdir/csmake-pre-defs.h")) {
 }
 $instdir = abs_path($instdir);
 
-if ($ARGV[0] eq '-n') {
+
+if ($0 =~ m/\bcscc$/) {
+	# Run as a C compiler invocation
+	prepare_spy_environment();
+	spy('gcc', 'spy-gcc');
+	system(("gcc", @ARGV));
+	push(@toclean, 'rules');
+	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure you have specified appropriate compiler options.\n";
+} elsif ($ARGV[0] eq '-n') {
 	# Run on an existing rules file
 	open(IN, $ARGV[1]) || die "Unable to open $ARGV[1] for reading: $!\n";
 } else {
-	$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
-	mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
-
-	push(@toclean, 'empty.c');
-	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/empty.c for writing: $!\n";
-	close(OUT);
-	$ENV{PATH} = "$ENV{CSCOUT_SPY_TMPDIR}:$ENV{PATH}";
-
+	prepare_spy_environment();
 	spy('gcc', 'spy-gcc');
 	spy('cc', 'spy-gcc');
 	spy('clang', 'spy-gcc');
@@ -207,6 +209,19 @@ if ($debug) {
 }
 
 exit 0;
+
+# Prepare an environment for spying on command invocations
+sub
+prepare_spy_environment
+{
+	$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
+	mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
+
+	push(@toclean, 'empty.c');
+	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/empty.c for writing: $!\n";
+	close(OUT);
+	$ENV{PATH} = "$ENV{CSCOUT_SPY_TMPDIR}:$ENV{PATH}";
+}
 
 # Setup the environment to call spyProgName, instead of realProgName
 # realProgName should be in the path

@@ -48,4 +48,10 @@ cat make.*.cs >all.cs
 sed -n 's/#pragma process "\(.*hack.c\)"/\1/p' all.cs | xargs touch
 cscout all.cs
 </fmtcode>
+
+<p>
+	Finally, for processing a couple of C files, you can create a
+	project file by invoking the <em>cscc</em> tool with the
+	arguments you would pass to the C compiler.
+</p>
 </notes>

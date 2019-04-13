@@ -91,16 +91,12 @@ static void _cscout_dummy2(void) { _cscout_dummy2(); }
 }' >$TMPFILE
 install -m $HMODE $TMPFILE "$INCLUDE_DIR/host-incs.h"
 
-# Perl scripts
+# Perl scripts (keep csmake.pl in the end)
 for f in cswc.pl csmake.pl ; do
   sed "s|INSTALL_INCLUDE|$INCLUDE_DIR|g" $f >$TMPFILE
   install $TMPFILE "$INSTALL_PREFIX/bin/$(basename $f .pl)"
 done
-
-# Shell scripts
-for f in cscc.sh ; do
-  sed "s|INSTALL_INCLUDE|$INCLUDE_DIR|g" $f >$TMPFILE
-  install $TMPFILE "$INSTALL_PREFIX/bin/$(basename $f .sh)"
-done
+# Install as cscc
+install $TMPFILE "$INSTALL_PREFIX/bin/cscc"
 
 rm -f $TMPFILE

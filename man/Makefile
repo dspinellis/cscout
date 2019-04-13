@@ -1,4 +1,4 @@
-all: cscout.pdf cswc.pdf csmake.pdf
+all: cscout.pdf cswc.pdf csmake.pdf cscc.pdf
 
 %.pdf: %.1
 	groff -Tps -man <$< >$$.ps
