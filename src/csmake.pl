@@ -75,7 +75,10 @@ if ($0 =~ m/\bcscc$/) {
 	spy('mv', 'spy-mv');
 	system(("make", @ARGV));
 	push(@toclean, 'rules');
-	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure you have run `make clean' or an equivalent command.\n";
+	if (!open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules")) {
+		print STDERR "Warning: Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure a make command that creates an executable will precede or follow\nthis run.\n";
+		exit 0;
+	}
 }
 
 # Read a spy-generated rules file
@@ -214,8 +217,12 @@ exit 0;
 sub
 prepare_spy_environment
 {
-	$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
-	mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
+	if (-d '/var/run/csmake-spy') {
+		$ENV{CSCOUT_SPY_TMPDIR} = '/var/run/csmake-spy';
+	} else {
+		$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
+		mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
+	}
 
 	push(@toclean, 'empty.c');
 	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/empty.c") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/empty.c for writing: $!\n";
