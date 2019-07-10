@@ -45,7 +45,7 @@ Otherwise, _make_ will automatically download and unpack a local
 copy of _HSQLDB_ in the current directory.
 
 ## Contributing
-* You can contribute to any of the [open issues](https://github.com/dspinellis/cscout/issues) or you can open a new one describing what you want to di.
+* You can contribute to any of the [open issues](https://github.com/dspinellis/cscout/issues) or you can open a new one describing what you want to do.
 * For small-scale improvements and fixes simply submit a GitHub pull request.
 Each pull request should cover only a single feature or bug fix.
 The changed code should follow the code style of the rest of the program.
