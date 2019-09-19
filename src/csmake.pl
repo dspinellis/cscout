@@ -53,6 +53,18 @@ if (!-r ($f = "$instdir/csmake-pre-defs.h")) {
 }
 $instdir = abs_path($instdir);
 
+my $extract_targets = 0;
+
+# Check CSMAKEFLAGS environment variable
+if ($ENV{'CSMAKEFLAGS'}) {
+	@ARGV = (split(/\s+/, $ENV{'CSMAKEFLAGS'}), @ARGV);
+}
+
+# Parse arguments
+if (@ARGV > 0 && $ARGV[0] eq "-t") {
+	$extract_targets = 1;
+	shift @ARGV;
+}
 
 if ($0 =~ m/\bcscc$/) {
 	# Run as a C compiler invocation
@@ -73,6 +85,7 @@ if ($0 =~ m/\bcscc$/) {
 	spy('ld', 'spy-ld');
 	spy('ar', 'spy-ar');
 	spy('mv', 'spy-mv');
+	spy('install', 'spy-install');
 	system(("make", @ARGV));
 	push(@toclean, 'rules');
 	if (!open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules")) {
@@ -84,9 +97,28 @@ if ($0 =~ m/\bcscc$/) {
 # Read a spy-generated rules file
 # Create a CScout .cs file
 open(OUT, ">make.cs") || die "Unable to open make.cs for writing: $!\n";
+# Create a Directory to save CScout .cs files for each project
+my $directory = "cscout_projects";
+if ($extract_targets) {
+	if (! -e $directory) {
+		unless(mkdir $directory) {
+			die "Unable to create $directory\n";
+		}
+	}
+}
+# Hash for install rules
+my %irules;
 while (<IN>) {
 	chop;
-	if (/^RENAME /) {
+	if (/^INSTALL /) {
+		($dummy, $excecutable, $path) = split;
+		if (exists $irules{$excecutable}) {
+			push @{ $irules{$excecutable} }, $path;
+		} else {
+			$irules{$excecutable} = [ $path ];
+		}
+		next;
+	} elsif (/^RENAME /) {
 		($dummy, $old, $new) = split;
 		$old{$new} =$old;
 		next;
@@ -156,20 +188,37 @@ $process
 				$rules{$exe} = $rule;
 			} else {
 				# Output is a real executable; start a project
-				print OUT qq{
+				my $install_paths = "";
+				if (exists $irules{$exe}) {
+					@paths = @{ $irules{$exe} };
+					foreach (@paths) {
+						$install_paths .= "\n#pragma install \"$_\"";
+					}
+				}	
+				# Create a CScout .cs file for current project
+				my $filename = can_filename($exe);
+				if ($extract_targets) {
+					open(PROJ_OUT, ">$directory/$filename.cs") || die "Unable to open $directory/$filename.cs for writing: $!\n";
+				}
+				my $pragma_project_begin = qq{
 #pragma echo "Processing project $exe\\n"
 #pragma project "$exe"
-#pragma block_enter
+#pragma block_enter$install_paths
 };
+				$extract_targets ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
 				for $o (@obj) {
 					$o = ancestor($o);
 					print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
-					print OUT $rules{$o};
+					$extract_targets ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
 				}
-				print OUT qq{
+				my $pragma_project_end = qq{
 #pragma block_exit
 #pragma echo "Done processing project $exe\\n\\n"
 };
+				$extract_targets ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
+				if ($extract_targets) {
+					close PROJ_OUT;
+				}
 			}
 			undef $state;
 		} elsif (/^CMDLINE/) {
@@ -201,7 +250,7 @@ $process
 	}
 }
 
-if ($debug) {
+if ($debug || $ENV{CSCOUT_SPY_TMPDIR} eq '/tmp/csmake-spy') {
 	print "Leaving temporary files in $ENV{CSCOUT_SPY_TMPDIR}/$fname\n";
 } else {
 	# Clean temporary files
@@ -213,12 +262,35 @@ if ($debug) {
 
 exit 0;
 
+# Print to many filehandles
+sub
+print_to_many
+{
+	my @args = @_;
+	my $output = pop @args;
+	foreach (@args) {
+		print $_ $output;
+	}
+}
+
+# Canonicalize filename
+# Replace '/' or '\' with '#'
+sub 
+can_filename
+{
+	my ($filename) = @_;
+	$filename =~ tr/\//\#/;
+	$filename =~ tr/\\/\#/;
+	return ($filename);
+}
+
+
 # Prepare an environment for spying on command invocations
 sub
 prepare_spy_environment
 {
-	if (-d '/var/run/csmake-spy') {
-		$ENV{CSCOUT_SPY_TMPDIR} = '/var/run/csmake-spy';
+	if (-d '/tmp/csmake-spy') {
+		$ENV{CSCOUT_SPY_TMPDIR} = '/tmp/csmake-spy';
 	} else {
 		$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
 		mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
@@ -611,6 +683,62 @@ print STDERR "Finally run ($real @ARGV))\n" if ($debug);
 exit system(($real, @ARGV)) / 256;
 #@END
 
+#@BEGIN spy-install
+#
+# Spy on install invocations and construct corresponding CScout directives
+#
+
+$real = which($0);
+
+$origline = "install " . join(' ', @ARGV);
+$origline =~ s/\n/ /g;
+
+@ARGV2 = @ARGV;
+
+my @excecutables = ();
+my $dest;
+my $length = @ARGV2;
+my $counter = 0;
+
+while (my $i = shift @ARGV2) {
+	$counter++;
+	# If -d option is used skip this command
+	if ($i eq "-d") {
+		last;
+	}
+	# If -t save next argument to directory
+	if ($i eq "-t") {
+		$dest = shift @ARGV2;
+		$counter++;
+	}
+	if ($counter == $length) {
+		if (length $dest) {
+			if (-x $i && ! -d $i) {
+				push(@excecutables, $i);
+			}
+		} else {
+			$dest = $i;
+		}
+		last;
+	}
+	# If file is a real executable add it to array
+	if (-x $i && ! -d $i) {
+		push(@excecutables, $i);
+	}
+}
+
+if (@excecutables) {
+	close RULES;
+	foreach (@excecutables) {
+		prepend_rules("INSTALL $_ $dest\n");
+	}
+}
+
+# Finally, execute the real install
+print STDERR "Finally run ($real @ARGV))\n" if ($debug);
+exit system(($real, @ARGV)) / 256;
+#@END
+
 #@BEGIN COMMON
 #
 # Code common to all spy programs
@@ -648,6 +776,22 @@ sub which
 		return "$d/$prog" if (-x "$d/$prog");
 	}
 	die "Unable to locate $prog in PATH $ENV{PATH}\n";
+}
+
+# Insert a line to the beginning of rules file
+sub prepend_rules
+{
+	my ($line) = @_;
+	open(my $in, $rulesfile = "<$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
+	open(my $out, $rulestempfile = ">$ENV{CSCOUT_SPY_TMPDIR}/rules_temp") || die "Unable to open $rulestempfile: $!\n";
+	print $out $line;
+	while( <$in> ) {
+		print $out $_;
+	}
+	close $out;
+	close $in;
+	unlink "$ENV{CSCOUT_SPY_TMPDIR}/rules";
+	rename "$ENV{CSCOUT_SPY_TMPDIR}/rules_temp", "$ENV{CSCOUT_SPY_TMPDIR}/rules";
 }
 
 #@END

@@ -21,6 +21,8 @@
 csmake \- CScout make
 .SH SYNOPSIS
 \fBcsmake\fP
+[\fB\-t\fP]
+[\fB\-n\fP \fIrules_file\fP]
 [\fImake(1) options\fP]
 .SH DESCRIPTION
 \fIcsmake\fP is a wrapper around \fImake\fP and typical C compilation
@@ -37,11 +39,23 @@ As a side-effect it will monitor the invocations of
 With those data it will generate a \fICScout\fP project specification
 that can be used to process the project that was compiled.
 The project specification is saved into a file named \fImake.cs\fP.
+Moreover, a separate CScout .cs file is generated for each excecutable
+in cscout_projects directory.
 .PP
 To allow \fIcsmake\fP to be used as a drop in replacement in
 build sequences that execute multiple \fImake\fP commands,
-you can create a \fC/var/run/csmake-spy\fP, which will be used
+you can create a \fC/tmp/csmake-spy\fP, which will be used
 to create rules for the superset of all \fImake\fP-generated executables.
+.PP
+\fIcsmake\fP boolean options can be passed through \fICSMAKEFLAGS\fP environment variable.
+.PP
+.SH OPTIONS
+.IP "\fB\-n\fP \fIrules_file\fP"
+Run on an existing rules file.
+.IP "\fB\-t\fP"
+Create a separate cscout .cs file for each real excecutable.
+Save them into cscout_projects directory.
+.PP
 .SH EXAMPLE
 The following commands are often the only ones required to process
 a typical C project.
