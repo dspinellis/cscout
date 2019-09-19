@@ -24,7 +24,7 @@
 #
 #
 
-$debug = 0;
+$debug = 1;
 
 use Cwd 'abs_path';
 
@@ -73,6 +73,7 @@ if ($0 =~ m/\bcscc$/) {
 	spy('ld', 'spy-ld');
 	spy('ar', 'spy-ar');
 	spy('mv', 'spy-mv');
+    spy('install', 'spy-install');
 	system(("make", @ARGV));
 	push(@toclean, 'rules');
 	if (!open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules")) {
@@ -217,8 +218,8 @@ exit 0;
 sub
 prepare_spy_environment
 {
-	if (-d '/var/run/csmake-spy') {
-		$ENV{CSCOUT_SPY_TMPDIR} = '/var/run/csmake-spy';
+	if (-d '/tmp/csmake-spy') {
+		$ENV{CSCOUT_SPY_TMPDIR} = '/tmp/csmake-spy';
 	} else {
 		$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
 		mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
@@ -607,6 +608,60 @@ if ($#ARGV2 == 1) {
 }
 
 # Finally, execute the real mv
+print STDERR "Finally run ($real @ARGV))\n" if ($debug);
+exit system(($real, @ARGV)) / 256;
+#@END
+
+#@BEGIN spy-install
+#
+# Spy on install invocations and construct corresponding CScout directives
+#
+
+$real = which($0);
+
+$origline = "install " . join(' ', @ARGV);
+$origline =~ s/\n/ /g;
+
+@ARGV2 = @ARGV;
+
+my @excecutables = ();
+my $dest;
+my $length = @ARGV2;
+my $counter = 0;
+
+while (my $i = shift @ARGV2) {
+    $counter++;
+    # If -d option is used skip this command
+    if ($i eq "-d") {
+        last;
+    }
+    # If -t save next argument to directory
+    if ($i eq "-t") {
+        $dest = shift @ARGV2;
+        $counter++;
+    }
+    if ($counter == $length) {
+        if (length $dest) {
+            if (-x $i && ! -d $i) {
+                push(@excecutables, $i);
+            }
+        } else {
+            $dest = $i;
+        }
+        last;
+    }
+    # If file is a real executable add it to array
+    if (-x $i && ! -d $i) {
+        push(@excecutables, $i);
+    }
+}
+
+if (@excecutables) {
+    print STDERR "install @excecutables $dest\n" if ($debug);
+	print RULES 'INSTALL ' . "@excecutables" . ' ' . $dest . "\n";
+}
+
+# Finally, execute the real install
 print STDERR "Finally run ($real @ARGV))\n" if ($debug);
 exit system(($real, @ARGV)) / 256;
 #@END
