@@ -24,7 +24,7 @@
 #
 #
 
-$debug = 1;
+$debug = 0;
 
 use Cwd 'abs_path';
 
@@ -85,7 +85,14 @@ if ($0 =~ m/\bcscc$/) {
 # Read a spy-generated rules file
 # Create a CScout .cs file
 open(OUT, ">make.cs") || die "Unable to open make.cs for writing: $!\n";
-# Hash for installation rules
+# Create a Directory to save CScout .cs files for each project
+my $directory = "cscout_projects";
+if (! -e $directory) {
+	unless(mkdir $directory) {
+		die "Unable to create $directory\n";
+	}
+}
+# Hash for install rules
 my %irules;
 while (<IN>) {
 	chop;
@@ -174,20 +181,24 @@ $process
 						$install_paths .= "\n#pragma install \"$_\"";
 					}
 				}	
-				print OUT qq{
+				# Create a CScout .cs file for current project
+				my $filename = can_filename($exe);
+				open(PROJ_OUT, ">$directory/$filename.cs") || die "Unable to open make.cs for writing: $!\n";
+				print_to_many(OUT, PROJ_OUT, qq{
 #pragma echo "Processing project $exe\\n"
 #pragma project "$exe"
 #pragma block_enter$install_paths
-};
+});
 				for $o (@obj) {
 					$o = ancestor($o);
 					print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
-					print OUT $rules{$o};
+					print_to_many(OUT, PROJ_OUT, $rules{$o});
 				}
-				print OUT qq{
+				print_to_many(OUT, PROJ_OUT, qq{
 #pragma block_exit
 #pragma echo "Done processing project $exe\\n\\n"
-};
+});
+				close PROJ_OUT;
 			}
 			undef $state;
 		} elsif (/^CMDLINE/) {
@@ -230,6 +241,29 @@ if ($debug) {
 }
 
 exit 0;
+
+# Print to many filehandles
+sub
+print_to_many
+{
+	my @args = @_;
+	my $output = pop @args;
+	foreach (@args) {
+		print $_ $output;
+	}
+}
+
+# Canonicalize filename
+# Replace '/' or '\' with '#'
+sub 
+can_filename
+{
+	my ($filename) = @_;
+	$filename =~ tr/\//\#/;
+	$filename =~ tr/\\/\#/;
+	return ($filename);
+}
+
 
 # Prepare an environment for spying on command invocations
 sub

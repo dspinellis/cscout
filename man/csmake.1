@@ -37,10 +37,12 @@ As a side-effect it will monitor the invocations of
 With those data it will generate a \fICScout\fP project specification
 that can be used to process the project that was compiled.
 The project specification is saved into a file named \fImake.cs\fP.
+Moreover, a separate CScout .cs file is generated for each excecutable
+in cscout_projects directory.
 .PP
 To allow \fIcsmake\fP to be used as a drop in replacement in
 build sequences that execute multiple \fImake\fP commands,
-you can create a \fC/var/run/csmake-spy\fP, which will be used
+you can create a \fC/tmp/csmake-spy\fP, which will be used
 to create rules for the superset of all \fImake\fP-generated executables.
 .SH EXAMPLE
 The following commands are often the only ones required to process
