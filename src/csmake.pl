@@ -85,9 +85,19 @@ if ($0 =~ m/\bcscc$/) {
 # Read a spy-generated rules file
 # Create a CScout .cs file
 open(OUT, ">make.cs") || die "Unable to open make.cs for writing: $!\n";
+# Hash for installation rules
+my %irules;
 while (<IN>) {
 	chop;
-	if (/^RENAME /) {
+	if (/^INSTALL /) {
+		($dummy, $excecutable, $path) = split;
+		if (exists $irules{$excecutable}) {
+			push @{ $irules{$excecutable} }, $path;
+		} else {
+			$irules{$excecutable} = [ $path ];
+		}
+		next;
+	} elsif (/^RENAME /) {
 		($dummy, $old, $new) = split;
 		$old{$new} =$old;
 		next;
@@ -157,10 +167,17 @@ $process
 				$rules{$exe} = $rule;
 			} else {
 				# Output is a real executable; start a project
+				my $install_paths = "";
+				if (exists $irules{$exe}) {
+					@paths = @{ $irules{$exe} };
+					foreach (@paths) {
+						$install_paths .= "\n#pragma install \"$_\"";
+					}
+				}	
 				print OUT qq{
 #pragma echo "Processing project $exe\\n"
 #pragma project "$exe"
-#pragma block_enter
+#pragma block_enter$install_paths
 };
 				for $o (@obj) {
 					$o = ancestor($o);
@@ -713,7 +730,7 @@ sub prepend_rules
 	my ($line) = @_;
 	open(my $in, $rulesfile = "<$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
 	open(my $out, $rulestempfile = ">$ENV{CSCOUT_SPY_TMPDIR}/rules_temp") || die "Unable to open $rulestempfile: $!\n";
-	print $out 'INSTALL ' . "@excecutables" . ' ' . $dest . "\n";
+	print $out $line;
 	while( <$in> ) {
 		print $out $_;
 	}
