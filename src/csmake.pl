@@ -73,7 +73,7 @@ if ($0 =~ m/\bcscc$/) {
 	spy('ld', 'spy-ld');
 	spy('ar', 'spy-ar');
 	spy('mv', 'spy-mv');
-    spy('install', 'spy-install');
+	spy('install', 'spy-install');
 	system(("make", @ARGV));
 	push(@toclean, 'rules');
 	if (!open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules")) {
@@ -658,8 +658,9 @@ while (my $i = shift @ARGV2) {
 
 if (@excecutables) {
 	close RULES;
-	my $line = 'INSTALL ' . "@excecutables" . ' ' . $dest . "\n";
-	prepend_rules($line);
+	foreach (@excecutables) {
+		prepend_rules("INSTALL $_ $dest\n");
+	}
 }
 
 # Finally, execute the real install
