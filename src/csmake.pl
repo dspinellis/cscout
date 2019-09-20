@@ -630,35 +630,36 @@ my $length = @ARGV2;
 my $counter = 0;
 
 while (my $i = shift @ARGV2) {
-    $counter++;
-    # If -d option is used skip this command
-    if ($i eq "-d") {
-        last;
-    }
-    # If -t save next argument to directory
-    if ($i eq "-t") {
-        $dest = shift @ARGV2;
-        $counter++;
-    }
-    if ($counter == $length) {
-        if (length $dest) {
-            if (-x $i && ! -d $i) {
-                push(@excecutables, $i);
-            }
-        } else {
-            $dest = $i;
-        }
-        last;
-    }
-    # If file is a real executable add it to array
-    if (-x $i && ! -d $i) {
-        push(@excecutables, $i);
-    }
+	$counter++;
+	# If -d option is used skip this command
+	if ($i eq "-d") {
+		last;
+	}
+	# If -t save next argument to directory
+	if ($i eq "-t") {
+		$dest = shift @ARGV2;
+		$counter++;
+	}
+	if ($counter == $length) {
+		if (length $dest) {
+			if (-x $i && ! -d $i) {
+				push(@excecutables, $i);
+			}
+		} else {
+			$dest = $i;
+		}
+		last;
+	}
+	# If file is a real executable add it to array
+	if (-x $i && ! -d $i) {
+		push(@excecutables, $i);
+	}
 }
 
 if (@excecutables) {
-    print STDERR "install @excecutables $dest\n" if ($debug);
-	print RULES 'INSTALL ' . "@excecutables" . ' ' . $dest . "\n";
+	close RULES;
+	my $line = 'INSTALL ' . "@excecutables" . ' ' . $dest . "\n";
+	prepend_rules($line);
 }
 
 # Finally, execute the real install
@@ -703,6 +704,22 @@ sub which
 		return "$d/$prog" if (-x "$d/$prog");
 	}
 	die "Unable to locate $prog in PATH $ENV{PATH}\n";
+}
+
+# Insert a line to the beginning of rules file
+sub prepend_rules
+{
+	my ($line) = @_;
+	open(my $in, $rulesfile = "<$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
+	open(my $out, $rulestempfile = ">$ENV{CSCOUT_SPY_TMPDIR}/rules_temp") || die "Unable to open $rulestempfile: $!\n";
+	print $out 'INSTALL ' . "@excecutables" . ' ' . $dest . "\n";
+	while( <$in> ) {
+		print $out $_;
+	}
+	close $out;
+	close $in;
+	unlink "$ENV{CSCOUT_SPY_TMPDIR}/rules";
+	rename "$ENV{CSCOUT_SPY_TMPDIR}/rules_temp", "$ENV{CSCOUT_SPY_TMPDIR}/rules";
 }
 
 #@END
