@@ -53,10 +53,10 @@ to create rules for the superset of all \fImake\fP-generated executables.
 .IP "\fB\-N\fP \fIrules_file\fP"
 Run on an existing rules file.
 .IP "\fB\-T\fP \fIspy_directory\fP"
-Create a separate cscout .cs file for each real executable.
+Create a separate CScout .cs file for each real executable.
 Use \fIspy_directory\fP as spy directory,
 remember to clear it if you use it multiple times.
-Save them into \fIcscout_projects\fP in the current directory.
+Save the .cs files into \fIcscout_projects\fP in the current directory.
 .PP
 .SH EXAMPLE
 The following commands are often the only ones required to process
@@ -90,7 +90,7 @@ The following commands can be used to run csmake for a Debian package using dpkg
 .DS
 .ft C
 .nf
-mkdir -p tmp_dir
+rm -rf tmp_dir && mkdir -p tmp_dir
 CSMAKEFLAGS='-T tmp_dir' MAKE=/usr/local/bin/csmake dpkg-buildpackage -b
 .ft P
 .fi
