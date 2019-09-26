@@ -1,4 +1,4 @@
-.TH CSMAKE 1 "10 June 2019"
+.TH CSMAKE 1 "26 September 2019"
 .\"
 .\" (C) Copyright 2019 Diomidis Spinellis
 .\"
@@ -21,8 +21,8 @@
 csmake \- CScout make
 .SH SYNOPSIS
 \fBcsmake\fP
-[\fB\-t\fP]
-[\fB\-n\fP \fIrules_file\fP]
+[\fB\-T\fP \fIspy_directory\fP]
+[\fB\-N\fP \fIrules_file\fP]
 [\fImake(1) options\fP]
 .SH DESCRIPTION
 \fIcsmake\fP is a wrapper around \fImake\fP and typical C compilation
@@ -39,7 +39,7 @@ As a side-effect it will monitor the invocations of
 With those data it will generate a \fICScout\fP project specification
 that can be used to process the project that was compiled.
 The project specification is saved into a file named \fImake.cs\fP.
-Moreover, a separate CScout .cs file is generated for each excecutable
+Moreover, a separate CScout .cs file is generated for each executable
 in cscout_projects directory.
 .PP
 To allow \fIcsmake\fP to be used as a drop in replacement in
@@ -47,14 +47,16 @@ build sequences that execute multiple \fImake\fP commands,
 you can create a \fC/tmp/csmake-spy\fP, which will be used
 to create rules for the superset of all \fImake\fP-generated executables.
 .PP
-\fIcsmake\fP boolean options can be passed through \fICSMAKEFLAGS\fP environment variable.
+\fIcsmake\fP options can be passed through \fICSMAKEFLAGS\fP environment variable.
 .PP
 .SH OPTIONS
-.IP "\fB\-n\fP \fIrules_file\fP"
+.IP "\fB\-N\fP \fIrules_file\fP"
 Run on an existing rules file.
-.IP "\fB\-t\fP"
-Create a separate cscout .cs file for each real excecutable.
-Save them into cscout_projects directory.
+.IP "\fB\-T\fP \fIspy_directory\fP"
+Create a separate cscout .cs file for each real executable.
+Use \fIspy_directory\fP as spy directory,
+remember to clear it if you use it multiple times.
+Save them into \fIcscout_projects\fP in the current directory.
 .PP
 .SH EXAMPLE
 The following commands are often the only ones required to process
@@ -78,6 +80,18 @@ as shown in the following example.
 .ft C
 .nf
 CC=x86_64-w64-gcc csmake
+.ft P
+.fi
+.DE
+.PP
+.SH EXAMPLE: DEBIAN PACKAGE
+The following commands can be used to run csmake for a Debian package using dpkg-buildpackage.
+.PP
+.DS
+.ft C
+.nf
+mkdir -p tmp_dir
+CSMAKEFLAGS='-T tmp_dir' MAKE=/usr/local/bin/csmake dpkg-buildpackage -b
 .ft P
 .fi
 .DE
