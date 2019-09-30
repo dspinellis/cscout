@@ -83,7 +83,7 @@ if ($0 =~ m/\bcscc$/) {
 	# Run as a C compiler invocation
 	prepare_spy_environment($options{T});
 	spy('gcc', 'spy-gcc');
-	system(("gcc", @ARGV));
+	system(("gcc", @MAKEARGS));
 	push(@toclean, 'rules');
 	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure you have specified appropriate compiler options.\n";
 } elsif (defined $options{N}) {
