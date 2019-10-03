@@ -64,6 +64,7 @@ if ($ENV{'CSMAKEFLAGS'}) {
 
 # Parse arguments
 my %options=();  # csmake options
+# Supress getopt's warnings triggered from Make's arguments 
 {
     local $SIG{__WARN__} = sub { };  # Supress warnings
     getopts("hN:T:", \%options);
