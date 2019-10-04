@@ -339,7 +339,17 @@ sub spy
 #
 #
 
-open(RULES, $rulesfile = ">>$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $rulesfile: $!\n";
+my $rulesfile = "$ENV{CSCOUT_SPY_TMPDIR}/rules";
+open(RULES, '>>', $rulesfile) || die "Unable to open $rulesfile: $!\n";
+
+# Disable buffering to avoid (for POSIX-compliant filesystems) garbled output
+# from concurrent spy executions
+my $ofh = select RULES;
+$| = 1;
+select $ofh;
+
+# String to accumulate rules, so that they can be written with an atomic write
+my $rules;
 
 ';
 	print OUT "\$debug = $debug;\n";
@@ -397,14 +407,17 @@ $archive = shift @ARGV2;
 @ofiles = @ARGV2;
 
 if ($#ofiles >= 0) {
-	print RULES "BEGIN AR\n";
-	print RULES "CMDLINE $origline\n";
-	print RULES 'OUTAR ', robust_abs_path($archive), "\n";
+	$rules .= "BEGIN AR\n";
+	$rules .= "CMDLINE $origline\n";
+	$rules .= 'OUTAR ', robust_abs_path($archive), "\n";
 	for $ofile (@ofiles) {
-		print RULES "INOBJ " . abs_path($ofile) . "\n";
+		$rules .= "INOBJ " . abs_path($ofile) . "\n";
 	}
-	print RULES "END AR\n";
+	$rules .= "END AR\n";
 }
+
+print RULES $rules;
+close(RULES);
 
 # Finally, execute the real ar
 print STDERR "Finally run ($real @ARGV))\n" if ($debug);
@@ -528,20 +541,20 @@ $origline =~ s/\n/ /g;
 
 # Output compilation rules
 for $cfile (@cfiles) {
-	print RULES "BEGIN COMPILE\n";
-	print RULES "CMDLINE $origline\n";
+	$rules .= "BEGIN COMPILE\n";
+	$rules .= "CMDLINE $origline\n";
 	for $if (@incfiles) {
-		print RULES "$if\n";
+		$rules .= "$if\n";
 	}
-	print RULES "INSRC " . abs_path($cfile) . "\n";
+	$rules .= "INSRC " . abs_path($cfile) . "\n";
 	if ($compile) {
 		if ($output) {	# cc -c -o foo.o foo.c
-			print RULES "OUTOBJ " . robust_abs_path($output) . "\n";
+			$rules .= "OUTOBJ " . robust_abs_path($output) . "\n";
 		} else {	# cc -c foo.c
 			my $coutput= $cfile;
 			$coutput =~ s/\.c$/.o/i;
 			$coutput =~ s,.*/,,;
-			print RULES "OUTOBJ " . robust_abs_path($coutput) . "\n";
+			$rules .= "OUTOBJ " . robust_abs_path($coutput) . "\n";
 		}
 	} else {		# cc -o foo foo.c OR cc foo.c
 		# Implicit output file
@@ -550,41 +563,44 @@ for $cfile (@cfiles) {
 		# will be always increasing across all programs.
 		my $ofile = '/tmp/csmake-ofile-' . tell(RULES) . '.o';
 		push(@implicit_ofiles, $ofile);
-		print RULES "OUTOBJ $ofile\n";
+		$rules .= "OUTOBJ $ofile\n";
 	}
-	print RULES join("\n", @incs), "\n";
-	print RULES join("\n", @defs), "\n";
-	print RULES "END COMPILE\n";
+	$rules .= join("\n", @incs), "\n";
+	$rules .= join("\n", @defs), "\n";
+	$rules .= "END COMPILE\n";
 }
 
 if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0)) {
 
-	print RULES "BEGIN LINK\n";
-	print RULES "CMDLINE $origline\n";
+	$rules .= "BEGIN LINK\n";
+	$rules .= "CMDLINE $origline\n";
 	if ($output) {
-		print RULES "OUTEXE $output\n";
+		$rules .= "OUTEXE $output\n";
 	} else {
-		print RULES "OUTEXE a.out\n";
+		$rules .= "OUTEXE a.out\n";
 	}
 	for $ofile (@ofiles) {
-		print RULES "INOBJ " . abs_path($ofile) . "\n";
+		$rules .= "INOBJ " . abs_path($ofile) . "\n";
 	}
 	for $ofile (@implicit_ofiles) {
-		print RULES "INOBJ $ofile\n";
+		$rules .= "INOBJ $ofile\n";
 	}
 	for $afile (@afiles) {
-		print RULES "INLIB " . abs_path($afile) . "\n";
+		$rules .= "INLIB " . abs_path($afile) . "\n";
 	}
 	for $libfile (@libs) {
 		for $ldir (@ldirs) {
 			if (-r ($try = "$ldir/lib$libfile.a")) {
-				print RULES "INLIB " . abs_path($try) . "\n";
+				$rules .= "INLIB " . abs_path($try) . "\n";
 				last;
 			}
 		}
 	}
-	print RULES "END LINK\n";
+	$rules .= "END LINK\n";
 }
+
+print RULES $rules;
+close(RULES);
 
 # Finally, execute the real gcc
 print STDERR "Finally run ($real @ARGV))\n" if ($debug);
@@ -643,29 +659,32 @@ $origline =~ s/\n/ /g;
 
 
 if ($#ofiles >= 0 || $#afiles >= 0) {
-	print RULES "BEGIN LINK\n";
-	print RULES "CMDLINE $origline\n";
+	$rules .= "BEGIN LINK\n";
+	$rules .= "CMDLINE $origline\n";
 	if ($output) {
-		print RULES 'OUTEXE ' . robust_abs_path($output) . "\n";
+		$rules .= 'OUTEXE ' . robust_abs_path($output) . "\n";
 	} else {
-		print RULES 'OUTEXE ' . robust_abs_path('a.out') . "\n";
+		$rules .= 'OUTEXE ' . robust_abs_path('a.out') . "\n";
 	}
 	for $ofile (@ofiles) {
-		print RULES 'INOBJ ' . abs_path($ofile) . "\n";
+		$rules .= 'INOBJ ' . abs_path($ofile) . "\n";
 	}
 	for $afile (@afiles) {
-		print RULES 'INLIB ' . abs_path($afile) . "\n";
+		$rules .= 'INLIB ' . abs_path($afile) . "\n";
 	}
 	for $libfile (@libs) {
 		for $ldir (@ldirs) {
 			if (-r ($try = "$ldir/lib$libfile.a")) {
-				print RULES "INLIB " . abs_path($try) . "\n";
+				$rules .= "INLIB " . abs_path($try) . "\n";
 				last;
 			}
 		}
 	}
-	print RULES "END LINK\n";
+	$rules .= "END LINK\n";
 }
+
+print RULES $rules;
+close(RULES);
 
 # Finally, execute the real ld
 print STDERR "Finally run ($real @ARGV))\n" if ($debug);
@@ -690,15 +709,18 @@ while ($ARGV2[0] =~ m/^-/) {
 	shift @ARGV2;
 }
 
-print RULES "RENAMELINE $origline\n";
+$rules .= "RENAMELINE $origline\n";
 if ($#ARGV2 == 1) {
-	print RULES 'RENAME ' . abs_path($ARGV2[0]) . ' ' . robust_abs_path($ARGV2[1]) . "\n";
+	$rules .= 'RENAME ' . abs_path($ARGV2[0]) . ' ' . robust_abs_path($ARGV2[1]) . "\n";
 } else {
 	$dir = pop(@ARGV2);
 	for $f (@ARGV2) {
-		print RULES 'RENAME ' . abs_path($f) . ' ' . robust_abs_path("$dir/$f") . "\n";
+		$rules .= 'RENAME ' . abs_path($f) . ' ' . robust_abs_path("$dir/$f") . "\n";
 	}
 }
+
+print RULES $rules;
+close(RULES);
 
 # Finally, execute the real mv
 print STDERR "Finally run ($real @ARGV))\n" if ($debug);
@@ -752,9 +774,12 @@ while (my $i = shift @ARGV2) {
 
 if (@excecutables) {
 	foreach (@excecutables) {
-		print RULES "INSTALL $_ $dest\n";
+		$rules .= "INSTALL $_ $dest\n";
 	}
 }
+
+print RULES $rules;
+close(RULES);
 
 # Finally, execute the real install
 print STDERR "Finally run ($real @ARGV))\n" if ($debug);
