@@ -340,7 +340,7 @@ sub spy
 #
 
 my $rulesfile = "$ENV{CSCOUT_SPY_TMPDIR}/rules";
-open(RULES, '>>', $rulesfile) || die "Unable to open $rulesfile: $!\n";
+open(RULES, ">>", $rulesfile) || die "Unable to open $rulesfile: $!\n";
 
 # Disable buffering to avoid (for POSIX-compliant filesystems) garbled output
 # from concurrent spy executions
@@ -409,7 +409,7 @@ $archive = shift @ARGV2;
 if ($#ofiles >= 0) {
 	$rules .= "BEGIN AR\n";
 	$rules .= "CMDLINE $origline\n";
-	$rules .= 'OUTAR ', robust_abs_path($archive), "\n";
+	$rules .= 'OUTAR ' . robust_abs_path($archive) . "\n";
 	for $ofile (@ofiles) {
 		$rules .= "INOBJ " . abs_path($ofile) . "\n";
 	}
@@ -565,8 +565,8 @@ for $cfile (@cfiles) {
 		push(@implicit_ofiles, $ofile);
 		$rules .= "OUTOBJ $ofile\n";
 	}
-	$rules .= join("\n", @incs), "\n";
-	$rules .= join("\n", @defs), "\n";
+	$rules .= join("\n", @incs) . "\n";
+	$rules .= join("\n", @defs) . "\n";
 	$rules .= "END COMPILE\n";
 }
 
