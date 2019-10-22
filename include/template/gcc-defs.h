@@ -28,6 +28,7 @@
 /* GCC __builtin_* funtions and misc */
 #define asm __asm__
 #define __alignof__(x) (sizeof(x) & 0xf)
+#define _Alignof(x) (sizeof(x) & 0xf)
 #define __attribute__(x)
 #define __builtin_add_overflow(x,y,z) ((x), (y), (z), 1)
 #define __builtin_alloca_with_align_and_max (x,y,z) ((x), (y), (z), 1)
@@ -143,6 +144,13 @@
 #define __extension
 #define __extension__
 #define __int128 long
+#define _Float32 double
+#define _Float32x double
+#define _Float64 double
+#define _Float64x double
 #define __float128 double
+#define _Float128 double
 #define __PRETTY_FUNCTION__ "UNKNOWN"
+#define __restrict
+#define _Static_assert(x)
 #define typeof __typeof__
