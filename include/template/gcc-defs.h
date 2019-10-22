@@ -144,8 +144,8 @@
 #define __extension
 #define __extension__
 #define __int128 long
-#define _Float32 double
-#define _Float32x double
+#define _Float32 float
+#define _Float32x float
 #define _Float64 double
 #define _Float64x double
 #define __float128 double
