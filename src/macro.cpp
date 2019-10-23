@@ -344,9 +344,10 @@ Macro::register_macro_body(mapMacroBody &map) const
 }
 
 // Constructor
-Macro::Macro( const Ptoken& name, bool id, bool isfun) :
+Macro::Macro( const Ptoken& name, bool id, bool isfun, bool ishard) :
 	name_token(name),
 	is_function(isfun),
+	is_hard(ishard),
 	is_vararg(false),
 	is_defined(id)
 {
