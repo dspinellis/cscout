@@ -741,7 +741,7 @@ Pdtoken::process_include(bool next)
 }
 
 void
-Pdtoken::process_define(bool is_hard)
+Pdtoken::process_define(bool is_immutable)
 {
 	string name;
 	typedef map <string, Token> mapToken;	// To unify args with body
@@ -774,7 +774,7 @@ Pdtoken::process_define(bool is_hard)
 	name = t.get_val();
 	t.getnext<Fchar>();	// Space is significant: a(x) vs a (x)
 	bool is_function = (t.get_code() == '(');
-	Macro m(nametok, true, is_function, is_hard);
+	Macro m(nametok, true, is_function, is_immutable);
 	if (is_function) {
 		// Function-like macro
 		Metrics::call_metrics(&Metrics::add_ppfmacro);
@@ -928,7 +928,7 @@ Pdtoken::process_undef()
 	mapMacro::iterator mi;
 	if ((mi = Pdtoken::macros.find(t.get_val())) != Pdtoken::macros.end()) {
 		Token::unify((*mi).second.get_name_token(), t);
-		if (!(*mi).second.get_is_hard())
+		if (!(*mi).second.get_is_immutable())
 			Pdtoken::macros.erase(mi);
 	}
 	eat_to_eol();
@@ -1216,7 +1216,7 @@ Pdtoken::process_pragma()
 		Block::enter();
 	else if (t.get_val() == "block_exit")
 		Block::exit();
-	else if (t.get_val() == "hard_defined") {
+	else if (t.get_val() == "define_immutable") {
 		process_define(true);
 	}
 	eat_to_eol();

@@ -57,19 +57,19 @@ private:
 	bool is_vararg;			// True if the function has variable # of arguments (gcc)
 	bool is_defined;		// True if the macro has been defined
 					// Can be false through ifdef/ifndef/defined()
-	bool is_hard;			// Hard-defined macro that annot be undef'd
+	bool is_immutable;		// Immutably-defined macro
 	dequePtoken formal_args;	// Formal arguments (names)
 	dequePtoken value;		// Macro value
 	MCall *mcall;			// Function call info
 public:
-	Macro( const Ptoken& name, bool id, bool is_function, bool is_hard);
+	Macro( const Ptoken& name, bool id, bool is_function, bool is_immutable);
 	// Accessor functions
 	const Ptoken& get_name_token() const {return name_token; };
 	void set_is_function(bool v) { is_function = v; };
 	void set_is_vararg(bool v) { is_vararg = v; };
 	bool get_is_defined() const { return is_defined; };
 	bool get_is_vararg() const { return is_vararg; };
-	bool get_is_hard() const { return is_hard; };
+	bool get_is_immutable() const { return is_immutable; };
 	// Return the number of formal arguments
 	int get_num_args() const { return formal_args.size(); }
 	void form_args_push_back(Ptoken& t) { formal_args.push_back(t); };
