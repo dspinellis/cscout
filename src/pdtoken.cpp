@@ -904,7 +904,7 @@ Pdtoken::process_define(bool is_immutable)
 	mapMacro::iterator mi = macros.find(name);
 	if (mi == macros.end())
 		macros.insert(mapMacro::value_type(name, m));
-	else
+	else if (!mi->second.get_is_immutable())
 		mi->second = m;
 	if (is_function)
 		m.register_macro_body(macro_body_tokens);
