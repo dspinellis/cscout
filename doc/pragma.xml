@@ -26,6 +26,12 @@ This is a global setting.
 #pragma ro_prefix "C:\gcc"
 </fmtcode>
 
+<dt><code>#pragma define_immutable <em>macro definition</em></code><dd>
+Will define a macro similarly to a <code>#define</code> command, but
+mark the definition as one that cannot be later be undefined or redefined.
+This is useful for defining macros that handle compiler extensions
+so that code cannot change them.
+
 <dt><code>#pragma project "<em>STRING</em>"</code><dd>
 Will set the current project to <em>STRING</em>.
 All identifiers and files processed from then on will belong to the given
