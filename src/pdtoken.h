@@ -76,7 +76,7 @@ private:
 	static void process_directive();	// Handle a cpp directive
 	static void eat_to_eol();		// Consume input including \n
 	static void process_include(bool next);	// Handle a #include
-	static void process_define();		// Handle a #define
+	static void process_define(bool ishard);// Handle a #define
 	static void process_undef();		// Handle a #undef
 	static void process_if();		// Handle #if
 	static void process_ifdef(bool isndef);	// Handle #ifdef/ndef

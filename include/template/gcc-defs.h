@@ -142,7 +142,7 @@
 #define __builtin___vsprintf_chk(x,y,z,w,r) ((x), (y), (z), (w), (r), 1)
 #define __COUNTER__ 0
 #define __extension
-#define __extension__
+#pragma hard_defined __extension__
 #define __int128 long
 #define _Float32 float
 #define _Float32x float

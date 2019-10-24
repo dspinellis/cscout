@@ -493,7 +493,7 @@ void
 Pdtoken::create_undefined_macro(const Ptoken &name)
 {
 	name.set_ec_attribute(is_undefined_macro);
-	mapMacro::value_type v(name.get_val(), Macro(name, false, false));
+	mapMacro::value_type v(name.get_val(), Macro(name, false, false, false));
 	// XXX Passing the above value directly causes a crash with
 	// gcc version 3.2
 	macros.insert(v);
@@ -741,7 +741,7 @@ Pdtoken::process_include(bool next)
 }
 
 void
-Pdtoken::process_define()
+Pdtoken::process_define(bool is_hard)
 {
 	string name;
 	typedef map <string, Token> mapToken;	// To unify args with body
@@ -774,7 +774,7 @@ Pdtoken::process_define()
 	name = t.get_val();
 	t.getnext<Fchar>();	// Space is significant: a(x) vs a (x)
 	bool is_function = (t.get_code() == '(');
-	Macro m(nametok, true, is_function);
+	Macro m(nametok, true, is_function, is_hard);
 	if (is_function) {
 		// Function-like macro
 		Metrics::call_metrics(&Metrics::add_ppfmacro);
@@ -928,7 +928,8 @@ Pdtoken::process_undef()
 	mapMacro::iterator mi;
 	if ((mi = Pdtoken::macros.find(t.get_val())) != Pdtoken::macros.end()) {
 		Token::unify((*mi).second.get_name_token(), t);
-		Pdtoken::macros.erase(mi);
+		if (!(*mi).second.get_is_hard())
+			Pdtoken::macros.erase(mi);
 	}
 	eat_to_eol();
 }
@@ -1215,6 +1216,9 @@ Pdtoken::process_pragma()
 		Block::enter();
 	else if (t.get_val() == "block_exit")
 		Block::exit();
+	else if (t.get_val() == "hard_defined") {
+		process_define(true);
+	}
 	eat_to_eol();
 }
 
@@ -1240,7 +1244,7 @@ Pdtoken::process_directive()
 		return;
 	}
 	if (t.get_val() == "define")
-		process_define();
+		process_define(false);
 	else if (t.get_val() == "include_next") // GCC extension
 		process_include(true);
 	else if (t.get_val() == "include")
