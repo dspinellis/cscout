@@ -151,6 +151,6 @@
 #define __float128 double
 #define _Float128 double
 #define __PRETTY_FUNCTION__ "UNKNOWN"
-#define __restrict
 #define _Static_assert(x)
 #define typeof __typeof__
+#pragma define_immutable __restrict
