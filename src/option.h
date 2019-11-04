@@ -90,6 +90,7 @@ public:
 	static TextOption *dot_graph_options;		// Graph options passed to dot
 	static TextOption *dot_node_options;		// Node options passed to dot
 	static TextOption *dot_edge_options;		// Edge options passed to dot
+	static BoolOption *show_function_type;		// Show function type (static or public)
 	static SelectionOption *cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 	static SelectionOption *cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
 	static SelectionOption *fgraph_show;		// File graph show e(dge n(ame p(ath
@@ -117,6 +118,10 @@ public:
 	void load(ifstream &ifs) { ifs >> v; }
 	// Set from a submitted page
 	void set() { v = !!swill_getvar(short_name); }
+	// Set from command line: option -R
+	void set_hard(bool m) {
+		v = m;
+	}
 	// Set from a submitted page
 	bool get() { return v; }
 	// Display on a web page
@@ -159,6 +164,10 @@ public:
 
 		if ((m = swill_getvar(short_name)))
 			v = *m;
+	}
+	// Set from command line: option -R
+	void set_hard(const char* m) {
+		v = *m;
 	}
 	// Return the value
 	char get() { return v; }

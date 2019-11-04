@@ -58,6 +58,7 @@ IntegerOption *Option::tab_width;		// Tab width for code output
 TextOption *Option::dot_graph_options;		// Graph options passed to dot
 TextOption *Option::dot_node_options;		// Node options passed to dot
 TextOption *Option::dot_edge_options;		// Edge options passed to dot
+BoolOption *Option::show_function_type;		// Show function type (static or public)
 SelectionOption *Option::cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 SelectionOption *Option::cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
 SelectionOption *Option::fgraph_show;		// File graph show e)dge n(ame p(ath
@@ -233,6 +234,7 @@ Option::initialize()
 	Option::add(sort_rev = new BoolOption("sort_rev", "Sort identifiers starting from their last character"));
 
 	Option::add(new TitleOption("Call and File Dependency Graphs"));
+	Option::add(show_function_type = new BoolOption("show_function_type", "Show function type (static or public)"));
 	Option::add(cgraph_type = new SelectionOption("cgraph_type", "Graph links should lead to pages of:", 's',
 		"d:dot",
 		"g:GIF",

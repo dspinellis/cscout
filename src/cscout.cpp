@@ -2439,6 +2439,9 @@ static void produce_call_graphs(const vector <string> &call_graphs)
 					gd.gtype = strdup(val.c_str());
 				} else if (!key.compare(gdargskeys.LTYPE)) {
 					gd.ltype = strdup(val.c_str());
+					Option::cgraph_show->set_hard(val.c_str());
+				} else if (!key.compare("type")) {
+					Option::show_function_type->set_hard((bool) atoi(val.c_str()));
 				}
 
 			}
