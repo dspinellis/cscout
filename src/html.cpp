@@ -240,6 +240,12 @@ function_label(Call *f, bool hyperlink)
 		snprintf(buff, sizeof(buff), "<a href=\"fun.html?f=%p\">", f);
 		result = buff;
 	}
+	if (Option::show_function_type->get()) {
+		if (f->is_file_scoped())
+			result += "static:";	
+		else
+			result += "public:";	
+	}
 	if (Option::cgraph_show->get() == 'f')		// Show files
 		result += f->get_site().get_fileid().get_fname() + ":";
 	else if (Option::cgraph_show->get() == 'p')	// Show paths

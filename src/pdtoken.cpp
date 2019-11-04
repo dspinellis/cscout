@@ -864,7 +864,7 @@ Pdtoken::process_define(bool is_immutable)
 		if (lead && t.is_space()) {
 			if (t.get_code() == SPACE)
 				t.getnext<Fchar>();
-			if (t.get_code() == '\n')
+			if (t.get_code() == '\n') 
 				break;
 			continue;
 		}
