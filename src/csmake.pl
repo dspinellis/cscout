@@ -197,7 +197,11 @@ $process
 	} elsif ($state eq 'LINK') {
 		if (/^END LINK/) {
 			die "Missing object in rules file" unless defined ($exe);
-			if ($exe =~ m/\.[oa]$/) {
+			my $exclude = "oa";
+			if (defined $options{T}) {
+				$exclude = "o";
+			}
+			if ($exe =~ m/\.[\Q${exclude}\E]$/) {
 				# Output is a library or combined object file; just remember the rules
 				undef $rule;
 				for $o (@obj) {
