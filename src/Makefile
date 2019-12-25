@@ -187,7 +187,7 @@ build/cscout-cc: build/cscout.o  $(OBJ)
 # pattern rule rather than multiple explicit rules.
 # See "Rules With Multiple Outputs in GNU Make"
 # http://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make?page=0%2C2
-%.cpp %.tab.h: %.y
+%.cpp %.tab.h: %.y ytoken.h
 	@test $* = parse && echo Expect 3 shift/reduce conflicts || true
 	echo Expect 3 shift/reduce conflicts, 64 reduce/reduce conflicts
 	$(YACC) -d -b $* -p $*_ $*.y
