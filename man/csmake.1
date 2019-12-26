@@ -21,6 +21,7 @@
 csmake \- CScout make
 .SH SYNOPSIS
 \fBcsmake\fP
+[\fB\-A\fP]
 [\fB\-T\fP \fIspy_directory\fP]
 [\fB\-N\fP \fIrules_file\fP]
 [\fImake(1) options\fP]
@@ -50,6 +51,8 @@ to create rules for the superset of all \fImake\fP-generated executables.
 \fIcsmake\fP options can be passed through \fICSMAKEFLAGS\fP environment variable.
 .PP
 .SH OPTIONS
+.IP "\fB\-A\fP"
+Generate cs projects for static libraries.
 .IP "\fB\-N\fP \fIrules_file\fP"
 Run on an existing rules file.
 .IP "\fB\-T\fP \fIspy_directory\fP"
