@@ -19,7 +19,7 @@ mkdir -p test.out
 n=0
 for i in *.mk ; do
   out="test.out/$(basename $i .mk)"
-  rm -f make.cs tags
+  rm -f make.cs tags *.o *.a *.so
   if inctest && bin/csmake -f $i >$out.m.out 2>$out.m.err ; then
     echo "ok $n - csmake $i"
   else
