@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# (C) Copyright 2006-2019 Diomidis Spinellis
+# (C) Copyright 2006-2020 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -311,7 +311,7 @@ prepare_spy_environment
     my ($option_T) = @_;
 	if (defined $option_T) {
         if (! -d $option_T) {
-            die "$option_T directory doesn't exists\n";
+            die "$option_T directory doesn't exist\n";
         }
 		$ENV{CSCOUT_SPY_TMPDIR} = $option_T;
 	} else {
