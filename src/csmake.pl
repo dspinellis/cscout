@@ -67,13 +67,16 @@ my %options=();  # csmake options
 # Supress getopt's warnings triggered from Make's arguments 
 {
     local $SIG{__WARN__} = sub { };  # Supress warnings
-    getopts("hN:T:", \%options);
+    getopts("hAN:T:", \%options);
     # Remove csmake options from MAKEARGS
     my $i=0;
     for my $arg (@MAKEARGS) {
         if (grep{$_ eq $arg} "-T", "-N") {
             undef $MAKEARGS[$i];
             undef $MAKEARGS[$i+1];
+        }
+        if (grep{$_ eq $arg} "-A") {
+            undef $MAKEARGS[$i];
         }
         $i++;
     }
@@ -208,37 +211,7 @@ $process
 				$rules{$exe} = $rule;
 			} else {
 				# Output is a real executable; start a project
-				my $install_paths = "";
-				if (exists $irules{$exe}) {
-					@paths = @{ $irules{$exe} };
-					foreach (@paths) {
-						$install_paths .= "\n#pragma install \"$_\"";
-					}
-				}
-				# Create a CScout .cs file for current project
-				my $filename = can_filename($exe);
-				if (defined $options{T}) {
-					open(PROJ_OUT, ">$directory/$filename.cs") || die "Unable to open $directory/$filename.cs for writing: $!\n";
-				}
-				my $pragma_project_begin = qq{
-#pragma echo "Processing project $exe\\n"
-#pragma project "$exe"
-#pragma block_enter$install_paths
-};
-				defined $options{T} ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
-				for $o (@obj) {
-					$o = ancestor($o);
-					print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
-					defined $options{T} ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
-				}
-				my $pragma_project_end = qq{
-#pragma block_exit
-#pragma echo "Done processing project $exe\\n\\n"
-};
-				defined $options{T} ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
-				if (defined $options{T}) {
-					close PROJ_OUT;
-				}
+				create_project($exe);
 			}
 			undef $state;
 		} elsif (/^CMDLINE/) {
@@ -259,6 +232,9 @@ $process
 				$rule .= $rules{$o};
 			}
 			$rules{$lib} = $rule;
+			if (defined $options{A}) {
+				create_project($lib);
+			}
 			undef $state;
 		} elsif (/^CMDLINE/) {
 			;
@@ -374,6 +350,45 @@ sub ancestor
 	}
 	return ($name);
 }
+
+# Generate a CScout project.
+sub
+create_project
+{
+    my($name) = @_;
+    my $install_paths = "";
+    if (exists $irules{$name}) {
+        @paths = @{ $irules{$name} };
+        foreach (@paths) {
+            $install_paths .= "\n#pragma install \"$_\"";
+        }
+    }
+    # Create a CScout .cs file for current project
+    my $filename = can_filename($name);
+    if (defined $options{T}) {
+        open(PROJ_OUT, ">$directory/$filename.cs") || die "Unable to open $directory/$filename.cs for writing: $!\n";
+    }
+    my $pragma_project_begin = qq{
+#pragma echo "Processing project $name\\n"
+#pragma project "$name"
+#pragma block_enter$install_paths
+};
+    defined $options{T} ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
+    for $o (@obj) {
+        $o = ancestor($o);
+        print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
+        defined $options{T} ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
+    }
+    my $pragma_project_end = qq{
+#pragma block_exit
+#pragma echo "Done processing project $name\\n\\n"
+};
+    defined $options{T} ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
+    if (defined $options{T}) {
+        close PROJ_OUT;
+    }
+}
+
 
 #@END
 
