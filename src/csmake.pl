@@ -571,7 +571,7 @@ for $cfile (@cfiles) {
 	$rules .= "END COMPILE\n";
 }
 
-if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0)) {
+if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0 || $#afiles >= 0)) {
 
 	$rules .= "BEGIN LINK\n";
 	$rules .= "CMDLINE $origline\n";
