@@ -470,7 +470,7 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg =~ m/\.(o|obj)$/i) {
 		push(@ofiles, $arg);
 		next;
-	} elsif ($arg =~ m/\.a$/i) {
+	} elsif ($arg =~ m/\.(a|so)$/i) {
 		push(@afiles, $arg);
 		next;
 	} elsif ($arg =~ m/^\-M[TF]$/) {
@@ -647,7 +647,7 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg eq '-l' || $arg eq '--library') {
 		push(@libs, $ARGV[++$i]);
 		next;
-	} elsif ($arg =~ m/\.a$/i) {
+	} elsif ($arg =~ m/\.(a|so)$/i) {
 		push(@afiles, $arg);
 		next;
 	} else {
