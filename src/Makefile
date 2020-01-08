@@ -71,7 +71,7 @@ HEADERS=attr.h call.h compiledre.h cpp.h ctag.h ctconst.h ctoken.h \
   macro.h mcall.h md5.h metrics.h mquery.h mscdefs.h mscincs.h obfuscate.h \
   option.h os.h pager.h pdtoken.h pltoken.h ptoken.h query.h sql.h stab.h \
   swill.h tchar.h timer.h token.h tokid.h tokmap.h type.h type2.h version.h \
-  wdefs.h wincs.h workdb.h ytoken.h ytoken.h
+  wdefs.h wincs.h workdb.h ytoken.h
 
 OTHERSRC=style.css csmake.pl cswc.pl tokname.pl runtest.sh eval.y parse.y \
   Makefile
@@ -187,7 +187,7 @@ build/cscout-cc: build/cscout.o  $(OBJ)
 # pattern rule rather than multiple explicit rules.
 # See "Rules With Multiple Outputs in GNU Make"
 # http://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make?page=0%2C2
-%.cpp %.tab.h: %.y
+%.cpp %.tab.h: %.y ytoken.h
 	@test $* = parse && echo Expect 3 shift/reduce conflicts || true
 	echo Expect 3 shift/reduce conflicts, 64 reduce/reduce conflicts
 	$(YACC) -d -b $* -p $*_ $*.y

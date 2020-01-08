@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# (C) Copyright 2006-2019 Diomidis Spinellis
+# (C) Copyright 2006-2020 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -287,7 +287,7 @@ prepare_spy_environment
     my ($option_T) = @_;
 	if (defined $option_T) {
         if (! -d $option_T) {
-            die "$option_T directory doesn't exists\n";
+            die "$option_T directory doesn't exist\n";
         }
 		$ENV{CSCOUT_SPY_TMPDIR} = $option_T;
 	} else {
@@ -485,7 +485,7 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg =~ m/\.(o|obj)$/i) {
 		push(@ofiles, $arg);
 		next;
-	} elsif ($arg =~ m/\.a$/i) {
+	} elsif ($arg =~ m/\.(a|so)$/i) {
 		push(@afiles, $arg);
 		next;
 	} elsif ($arg =~ m/^\-M[TF]$/) {
@@ -586,7 +586,7 @@ for $cfile (@cfiles) {
 	$rules .= "END COMPILE\n";
 }
 
-if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0)) {
+if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0 || $#afiles >= 0)) {
 
 	$rules .= "BEGIN LINK\n";
 	$rules .= "CMDLINE $origline\n";
@@ -662,7 +662,7 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg eq '-l' || $arg eq '--library') {
 		push(@libs, $ARGV[++$i]);
 		next;
-	} elsif ($arg =~ m/\.a$/i) {
+	} elsif ($arg =~ m/\.(a|so)$/i) {
 		push(@afiles, $arg);
 		next;
 	} else {
