@@ -1,6 +1,6 @@
-.TH CSMAKE 1 "26 September 2019"
+.TH CSMAKE 1 "9 January 2020"
 .\"
-.\" (C) Copyright 2019 Diomidis Spinellis
+.\" (C) Copyright 2020 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -21,8 +21,12 @@
 csmake \- CScout make
 .SH SYNOPSIS
 \fBcsmake\fP
+[
+[\fB\-A\fP]
 [\fB\-T\fP \fIspy_directory\fP]
 [\fB\-N\fP \fIrules_file\fP]
+--
+]
 [\fImake(1) options\fP]
 .SH DESCRIPTION
 \fIcsmake\fP is a wrapper around \fImake\fP and typical C compilation
@@ -50,6 +54,8 @@ to create rules for the superset of all \fImake\fP-generated executables.
 \fIcsmake\fP options can be passed through \fICSMAKEFLAGS\fP environment variable.
 .PP
 .SH OPTIONS
+.IP "\fB\-A\fP"
+Generate cs projects for static libraries.
 .IP "\fB\-N\fP \fIrules_file\fP"
 Run on an existing rules file.
 .IP "\fB\-T\fP \fIspy_directory\fP"
