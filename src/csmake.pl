@@ -54,33 +54,39 @@ if (!-r ($f = "$instdir/csmake-pre-defs.h")) {
 }
 $instdir = abs_path($instdir);
 
-# Copy arguments into MAKEARGS to use them with real make
-my @MAKEARGS = @ARGV;
-
-# Expand command-line arguments to include the CSMAKEFLAGS environment variable
+# Copy arguments into TEMP_ARGV to use them with real make
+my @TEMP_ARGV = @ARGV;
+# Parse CSMAKEFLAGS
 if ($ENV{'CSMAKEFLAGS'}) {
-	@ARGV = (split(/\s+/, $ENV{'CSMAKEFLAGS'}), @ARGV);
+	@ARGV = split(/\s+/, $ENV{'CSMAKEFLAGS'});
 }
-
-# Parse arguments
 my %options=();  # csmake options
-# Supress getopt's warnings triggered from Make's arguments 
-{
-    local $SIG{__WARN__} = sub { };  # Supress warnings
-    getopts("hAN:T:", \%options);
-    # Remove csmake options from MAKEARGS
-    my $i=0;
-    for my $arg (@MAKEARGS) {
-        if (grep{$_ eq $arg} "-T", "-N") {
-            undef $MAKEARGS[$i];
-            undef $MAKEARGS[$i+1];
+my $csmake_opts = "hAN:T:";
+getopts($csmake_opts, \%options);
+
+my ($index) = grep { $TEMP_ARGV[$_] eq '--' } (0 .. @TEMP_ARGV-1);
+my @MAKEARGS;
+
+# Parse command line arguments and separate them into csmake arguments and make arguments.
+if ($index > 0) {
+    foreach my $i (0 .. $#TEMP_ARGV) {
+        if ($i < $index) {
+            push(@ARGV, $TEMP_ARGV[$i]);
+        } elsif ($i > $index) {
+            push(@MAKEARGS, $TEMP_ARGV[$i]);
         }
-        if (grep{$_ eq $arg} "-A") {
-            undef $MAKEARGS[$i];
-        }
-        $i++;
     }
-    @MAKEARGS = grep{ defined }@MAKEARGS;
+}
+getopts($csmake_opts, \%options);
+
+if (defined $options{h}) {
+print <<HELP;
+usage: csmake [ [-A] [-T spy_directory] [-N rules_file] [-h] -- ] [make(1) options]
+    -A                      Generate cs projects for static libraries.
+    -N rules_file           Run on an existing rules file.
+    -T spy_directory        Create a separate CScout .cs file for each real executable.
+HELP
+exit();
 }
 
 if ($0 =~ m/\bcscc$/) {
