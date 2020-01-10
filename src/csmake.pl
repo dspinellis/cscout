@@ -85,6 +85,7 @@ usage: csmake [ [-A] [-T spy_directory] [-N rules_file] [-h] -- ] [make(1) optio
     -A                      Generate cs projects for static libraries.
     -N rules_file           Run on an existing rules file.
     -T spy_directory        Create a separate CScout .cs file for each real executable.
+    -h                      Prints help message
 HELP
 exit();
 }
