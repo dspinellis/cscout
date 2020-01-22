@@ -54,33 +54,47 @@ if (!-r ($f = "$instdir/csmake-pre-defs.h")) {
 }
 $instdir = abs_path($instdir);
 
-# Copy arguments into MAKEARGS to use them with real make
-my @MAKEARGS = @ARGV;
-
-# Expand command-line arguments to include the CSMAKEFLAGS environment variable
+# Copy arguments into TEMP_ARGV to use them with real make
+my @TEMP_ARGV = @ARGV;
+# Parse CSMAKEFLAGS
 if ($ENV{'CSMAKEFLAGS'}) {
-	@ARGV = (split(/\s+/, $ENV{'CSMAKEFLAGS'}), @ARGV);
+	@ARGV = split(/\s+/, $ENV{'CSMAKEFLAGS'});
+}
+my %options=();  # csmake options
+my $csmake_opts = "hdkAs:N:T:";
+getopts($csmake_opts, \%options);
+
+my ($index) = grep { $TEMP_ARGV[$_] eq '--' } (0 .. @TEMP_ARGV-1);
+my @MAKEARGS;
+
+# Parse command line arguments and separate them into csmake arguments and make arguments.
+if ($index > 0) {
+    foreach my $i (0 .. $#TEMP_ARGV) {
+        if ($i < $index) {
+            push(@ARGV, $TEMP_ARGV[$i]);
+        } elsif ($i > $index) {
+            push(@MAKEARGS, $TEMP_ARGV[$i]);
+        }
+    }
+}
+getopts($csmake_opts, \%options);
+
+if (defined $options{d}) {
+	$debug = 1;
 }
 
-# Parse arguments
-my %options=();  # csmake options
-# Supress getopt's warnings triggered from Make's arguments 
-{
-    local $SIG{__WARN__} = sub { };  # Supress warnings
-    getopts("hAN:T:", \%options);
-    # Remove csmake options from MAKEARGS
-    my $i=0;
-    for my $arg (@MAKEARGS) {
-        if (grep{$_ eq $arg} "-T", "-N") {
-            undef $MAKEARGS[$i];
-            undef $MAKEARGS[$i+1];
-        }
-        if (grep{$_ eq $arg} "-A") {
-            undef $MAKEARGS[$i];
-        }
-        $i++;
-    }
-    @MAKEARGS = grep{ defined }@MAKEARGS;
+if (defined $options{h}) {
+print <<HELP;
+usage: csmake [ [-A] [-d] [-k] [-s cs_files_directory] [-T temporary_directory ] [-N rules_file] [-h] -- ] [make(1) options]
+    -d                      Run debug mode (it also keeps spy directory in place).
+    -h                      Prints help message.
+    -k                      Keep temporary directory in place.
+    -s cs_files_directory   Create a separate CScout .cs file for each real executable.
+    -A                      Generate cs projects for static libraries.
+    -N rules_file           Run on an existing rules file.
+    -T temporary_directory  Set tempory directory.
+HELP
+exit();
 }
 
 if ($0 =~ m/\bcscc$/) {
@@ -115,8 +129,9 @@ if ($0 =~ m/\bcscc$/) {
 # Create a CScout .cs file
 open(OUT, ">make.cs") || die "Unable to open make.cs for writing: $!\n";
 # Create a Directory to save CScout .cs files for each project
-my $directory = "cscout_projects";
-if (defined $options{T}) {
+my $directory = "";
+if (defined $options{s}) {
+	$directory = $options{s};
 	if (! -e $directory) {
 		unless(mkdir $directory) {
 			die "Unable to create $directory\n";
@@ -246,7 +261,7 @@ $process
 	}
 }
 
-if ($debug || defined $options{T}) {
+if ($debug || defined $options{k}) {
 	print "Leaving temporary files in $ENV{CSCOUT_SPY_TMPDIR}/$fname\n";
 } else {
 	# Clean temporary files
@@ -365,7 +380,7 @@ create_project
     }
     # Create a CScout .cs file for current project
     my $filename = can_filename($name);
-    if (defined $options{T}) {
+    if (defined $options{s}) {
         open(PROJ_OUT, ">$directory/$filename.cs") || die "Unable to open $directory/$filename.cs for writing: $!\n";
     }
     my $pragma_project_begin = qq{
@@ -373,18 +388,18 @@ create_project
 #pragma project "$name"
 #pragma block_enter$install_paths
 };
-    defined $options{T} ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
+    defined $options{s} ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
     for $o (@obj) {
         $o = ancestor($o);
         print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
-        defined $options{T} ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
+        defined $options{s} ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
     }
     my $pragma_project_end = qq{
 #pragma block_exit
 #pragma echo "Done processing project $name\\n\\n"
 };
-    defined $options{T} ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
-    if (defined $options{T}) {
+    defined $options{s} ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
+    if (defined $options{s}) {
         close PROJ_OUT;
     }
 }
