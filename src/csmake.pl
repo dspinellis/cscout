@@ -56,19 +56,21 @@ $instdir = abs_path($instdir);
 
 # Copy arguments into TEMP_ARGV to use them with real make
 my @TEMP_ARGV = @ARGV;
+@ARGV = ();
 # Parse CSMAKEFLAGS
 if ($ENV{'CSMAKEFLAGS'}) {
 	@ARGV = split(/\s+/, $ENV{'CSMAKEFLAGS'});
 }
 my %options=();  # csmake options
 my $csmake_opts = "hdkAs:N:T:";
+# Parse options from CSMAKEFLAGS
 getopts($csmake_opts, \%options);
 
 my ($index) = grep { $TEMP_ARGV[$_] eq '--' } (0 .. @TEMP_ARGV-1);
 my @MAKEARGS;
 
-# Parse command line arguments and separate them into csmake arguments and make arguments.
-if ($index > 0) {
+if (defined $index) {
+    # Parse command line arguments and separate them into csmake arguments and make arguments.
     foreach my $i (0 .. $#TEMP_ARGV) {
         if ($i < $index) {
             push(@ARGV, $TEMP_ARGV[$i]);
@@ -76,8 +78,10 @@ if ($index > 0) {
             push(@MAKEARGS, $TEMP_ARGV[$i]);
         }
     }
+    getopts($csmake_opts, \%options);
+} else {
+    @MAKEARGS = @TEMP_ARGV;
 }
-getopts($csmake_opts, \%options);
 
 if (defined $options{d}) {
 	$debug = 1;
