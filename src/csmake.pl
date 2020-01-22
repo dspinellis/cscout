@@ -85,14 +85,14 @@ if (defined $options{d}) {
 
 if (defined $options{h}) {
 print <<HELP;
-usage: csmake [ [-A] [-d] [-k] [-s cs_files_directory] [-T spy_directory] [-N rules_file] [-h] -- ] [make(1) options]
+usage: csmake [ [-A] [-d] [-k] [-s cs_files_directory] [-T temporary_directory ] [-N rules_file] [-h] -- ] [make(1) options]
     -d                      Run debug mode (it also keeps spy directory in place).
     -h                      Prints help message.
     -k                      Keep temporary directory in place.
     -s cs_files_directory   Create a separate CScout .cs file for each real executable.
     -A                      Generate cs projects for static libraries.
     -N rules_file           Run on an existing rules file.
-    -T spy_directory        Set spy directory.
+    -T temporary_directory  Set tempory directory.
 HELP
 exit();
 }
