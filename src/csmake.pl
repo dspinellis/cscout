@@ -679,7 +679,7 @@ $real = which($0);
 # Gather input / output files and remove them from the command line
 for ($i = 0; $i <= $#ARGV; $i++) {
 	$arg = $ARGV[$i];
-	if ($arg =~ m/\.o$/i) {
+	if ($arg =~ m/\.(o|lo)$/i) {
 		push(@ofiles, $arg);
 	} elsif ($arg =~ m/^-o(.+)$/ || $arg =~ m/^--output=(.*)/) {
 		$output = $1;
