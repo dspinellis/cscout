@@ -56,19 +56,21 @@ $instdir = abs_path($instdir);
 
 # Copy arguments into TEMP_ARGV to use them with real make
 my @TEMP_ARGV = @ARGV;
+@ARGV = ();
 # Parse CSMAKEFLAGS
 if ($ENV{'CSMAKEFLAGS'}) {
 	@ARGV = split(/\s+/, $ENV{'CSMAKEFLAGS'});
 }
 my %options=();  # csmake options
 my $csmake_opts = "hdkAs:N:T:";
+# Parse options from CSMAKEFLAGS
 getopts($csmake_opts, \%options);
 
 my ($index) = grep { $TEMP_ARGV[$_] eq '--' } (0 .. @TEMP_ARGV-1);
 my @MAKEARGS;
 
-# Parse command line arguments and separate them into csmake arguments and make arguments.
-if ($index > 0) {
+if (defined $index) {
+    # Parse command line arguments and separate them into csmake arguments and make arguments.
     foreach my $i (0 .. $#TEMP_ARGV) {
         if ($i < $index) {
             push(@ARGV, $TEMP_ARGV[$i]);
@@ -76,8 +78,10 @@ if ($index > 0) {
             push(@MAKEARGS, $TEMP_ARGV[$i]);
         }
     }
+    getopts($csmake_opts, \%options);
+} else {
+    @MAKEARGS = @TEMP_ARGV;
 }
-getopts($csmake_opts, \%options);
 
 if (defined $options{d}) {
 	$debug = 1;
@@ -177,7 +181,9 @@ while (<IN>) {
 		undef $lib;
 		undef @obj;
 		next;
-	}
+    } elsif (/^CMDLINE (.*)/) {
+        $cmdline = $1;
+    }
 	if ($state eq 'COMPILE') {
 		if (/^END COMPILE/) {
 			die "Missing  source in rules file" unless defined ($src);
@@ -215,7 +221,7 @@ $process
 	} elsif ($state eq 'LINK') {
 		if (/^END LINK/) {
 			die "Missing object in rules file" unless defined ($exe);
-			if ($exe =~ m/\.[oa]$/) {
+			if ($exe =~ m/\.(o|a|so)$/) {
 				# Output is a library or combined object file; just remember the rules
 				undef $rule;
 				for $o (@obj) {
@@ -224,6 +230,9 @@ $process
 					$rule .= $rules{$o};
 				}
 				$rules{$exe} = $rule;
+				if ($exe =~ m/\.so$/) {
+					create_project($exe);
+				}
 			} else {
 				# Output is a real executable; start a project
 				create_project($exe);
@@ -378,29 +387,42 @@ create_project
             $install_paths .= "\n#pragma install \"$_\"";
         }
     }
-    # Create a CScout .cs file for current project
-    my $filename = can_filename($name);
-    if (defined $options{s}) {
-        open(PROJ_OUT, ">$directory/$filename.cs") || die "Unable to open $directory/$filename.cs for writing: $!\n";
+    my @new_obj = ();
+    for $o (@obj) {
+        $o = ancestor($o);
+        if (defined ($rules{$o})) {
+            push @new_obj, $o;
+        }
     }
-    my $pragma_project_begin = qq{
+    if (@new_obj) {
+        # Create a CScout .cs file for current project
+        my $filename = can_filename($name);
+        if (defined $options{s}) {
+            open(PROJ_OUT, ">$directory/$filename.cs") || die "Unable to open $directory/$filename.cs for writing: $!\n";
+        }
+        my $pragma_project_begin = qq{
 #pragma echo "Processing project $name\\n"
+#pramge echo "CMD $cmdline\\n"
 #pragma project "$name"
 #pragma block_enter$install_paths
 };
-    defined $options{s} ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
-    for $o (@obj) {
-        $o = ancestor($o);
-        print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
-        defined $options{s} ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
-    }
-    my $pragma_project_end = qq{
+        defined $options{s} ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
+        for $o (@new_obj) {
+            $o = ancestor($o);
+            print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
+            defined $options{s} ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
+        }
+        my $pragma_project_end = qq{
 #pragma block_exit
 #pragma echo "Done processing project $name\\n\\n"
 };
-    defined $options{s} ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
-    if (defined $options{s}) {
-        close PROJ_OUT;
+        defined $options{s} ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
+        if (defined $options{s}) {
+            close PROJ_OUT;
+        }
+    } else {
+        print STDERR "Warning: No compilation rule for project $name\n";
+        print STDERR "CMD: $cmdline\n" if ($debug);
     }
 }
 
@@ -657,7 +679,7 @@ $real = which($0);
 # Gather input / output files and remove them from the command line
 for ($i = 0; $i <= $#ARGV; $i++) {
 	$arg = $ARGV[$i];
-	if ($arg =~ m/\.o$/i) {
+	if ($arg =~ m/\.(o|lo)$/i) {
 		push(@ofiles, $arg);
 	} elsif ($arg =~ m/^-o(.+)$/ || $arg =~ m/^--output=(.*)/) {
 		$output = $1;
