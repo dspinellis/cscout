@@ -22,10 +22,13 @@ csmake \- CScout make
 .SH SYNOPSIS
 \fBcsmake\fP
 [
+[\fB\-d\fP]
+[\fB\-h\fP]
+[\fB\-k\fP]
+[\fB\-s\fP \fIcs_files_directory\fP]
 [\fB\-A\fP]
 [\fB\-T\fP \fIspy_directory\fP]
 [\fB\-N\fP \fIrules_file\fP]
-[\fB\-h\fP]
 --
 ]
 [\fImake(1) options\fP]
@@ -55,15 +58,23 @@ to create rules for the superset of all \fImake\fP-generated executables.
 \fIcsmake\fP options can be passed through \fICSMAKEFLAGS\fP environment variable.
 .PP
 .SH OPTIONS
+.IP "\fB\-d\fP"
+Run debug mode (it also keeps spy directory in place).
+.IP "\fB\-h\fP"
+Prints help message.
+.IP "\fB\-k\fP"
+Keep temporary directory in place.
+.IP "\fB\-s\fP \fIcs_files_directory\fP"
+Create a separate CScout .cs file for each real executable.
+Save the .cs files into \fIcs_files_directory\fP in the current directory.
 .IP "\fB\-A\fP"
 Generate cs projects for static libraries.
 .IP "\fB\-N\fP \fIrules_file\fP"
 Run on an existing rules file.
 .IP "\fB\-T\fP \fIspy_directory\fP"
-Create a separate CScout .cs file for each real executable.
+Set spy directory.
 Use \fIspy_directory\fP as spy directory,
 remember to clear it if you use it multiple times.
-Save the .cs files into \fIcscout_projects\fP in the current directory.
 .PP
 .SH EXAMPLE
 The following commands are often the only ones required to process
@@ -98,7 +109,7 @@ The following commands can be used to run csmake for a Debian package using dpkg
 .ft C
 .nf
 rm -rf tmp_dir && mkdir -p tmp_dir
-CSMAKEFLAGS='-T tmp_dir' MAKE=/usr/local/bin/csmake dpkg-buildpackage -b
+CSMAKEFLAGS='-T tmp_dir -A -s cscout_projects -k' MAKE=/usr/local/bin/csmake dpkg-buildpackage -b
 .ft P
 .fi
 .DE

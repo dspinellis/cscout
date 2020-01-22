@@ -61,7 +61,7 @@ if ($ENV{'CSMAKEFLAGS'}) {
 	@ARGV = split(/\s+/, $ENV{'CSMAKEFLAGS'});
 }
 my %options=();  # csmake options
-my $csmake_opts = "hAN:T:";
+my $csmake_opts = "hdkAs:N:T:";
 getopts($csmake_opts, \%options);
 
 my ($index) = grep { $TEMP_ARGV[$_] eq '--' } (0 .. @TEMP_ARGV-1);
@@ -79,12 +79,20 @@ if ($index > 0) {
 }
 getopts($csmake_opts, \%options);
 
+if (defined $options{d}) {
+	$debug = 1;
+}
+
 if (defined $options{h}) {
 print <<HELP;
-usage: csmake [ [-A] [-T spy_directory] [-N rules_file] [-h] -- ] [make(1) options]
+usage: csmake [ [-A] [-d] [-k] [-s cs_files_directory] [-T spy_directory] [-N rules_file] [-h] -- ] [make(1) options]
+    -d                      Run debug mode (it also keeps spy directory in place).
+    -h                      Prints help message.
+    -k                      Keep temporary directory in place.
+    -s cs_files_directory   Create a separate CScout .cs file for each real executable.
     -A                      Generate cs projects for static libraries.
     -N rules_file           Run on an existing rules file.
-    -T spy_directory        Create a separate CScout .cs file for each real executable.
+    -T spy_directory        Set spy directory.
 HELP
 exit();
 }
@@ -121,8 +129,9 @@ if ($0 =~ m/\bcscc$/) {
 # Create a CScout .cs file
 open(OUT, ">make.cs") || die "Unable to open make.cs for writing: $!\n";
 # Create a Directory to save CScout .cs files for each project
-my $directory = "cscout_projects";
-if (defined $options{T}) {
+my $directory = "";
+if (defined $options{s}) {
+	$directory = $options{s};
 	if (! -e $directory) {
 		unless(mkdir $directory) {
 			die "Unable to create $directory\n";
@@ -252,7 +261,7 @@ $process
 	}
 }
 
-if ($debug || defined $options{T}) {
+if ($debug || defined $options{k}) {
 	print "Leaving temporary files in $ENV{CSCOUT_SPY_TMPDIR}/$fname\n";
 } else {
 	# Clean temporary files
@@ -371,7 +380,7 @@ create_project
     }
     # Create a CScout .cs file for current project
     my $filename = can_filename($name);
-    if (defined $options{T}) {
+    if (defined $options{s}) {
         open(PROJ_OUT, ">$directory/$filename.cs") || die "Unable to open $directory/$filename.cs for writing: $!\n";
     }
     my $pragma_project_begin = qq{
@@ -379,18 +388,18 @@ create_project
 #pragma project "$name"
 #pragma block_enter$install_paths
 };
-    defined $options{T} ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
+    defined $options{s} ? print_to_many(OUT, PROJ_OUT, $pragma_project_begin) : print OUT $pragma_project_begin;
     for $o (@obj) {
         $o = ancestor($o);
         print STDERR "Warning: No compilation rule for $o\n" unless defined ($rules{$o});
-        defined $options{T} ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
+        defined $options{s} ? print_to_many(OUT, PROJ_OUT, $rules{$o}) : print OUT $rules{$o};
     }
     my $pragma_project_end = qq{
 #pragma block_exit
 #pragma echo "Done processing project $name\\n\\n"
 };
-    defined $options{T} ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
-    if (defined $options{T}) {
+    defined $options{s} ? print_to_many(OUT, PROJ_OUT, $pragma_project_end) : print OUT $pragma_project_end;
+    if (defined $options{s}) {
         close PROJ_OUT;
     }
 }
