@@ -246,6 +246,12 @@ function_label(Call *f, bool hyperlink)
 		else
 			result += "public:";	
 	}
+	if (Option::is_defined->get()) {
+		if (f->is_defined())
+			result += "1:";	
+		else
+			result += "0:";	
+	}
 	if (Option::cgraph_show->get() == 'f')		// Show files
 		result += f->get_site().get_fileid().get_fname() + ":";
 	else if (Option::cgraph_show->get() == 'p')	// Show paths
