@@ -2444,6 +2444,8 @@ static void produce_call_graphs(const vector <string> &call_graphs)
 					Option::show_function_type->set_hard((bool) atoi(val.c_str()));
 				} else if (!key.compare("defined")) {
 					Option::is_defined->set_hard((bool) atoi(val.c_str()));
+				} else if (!key.compare("nodes")) {
+					Option::print_nodes->set_hard((bool) atoi(val.c_str()));
 				}
 
 			}
