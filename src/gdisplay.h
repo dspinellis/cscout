@@ -100,6 +100,11 @@ public:
 class GDTxt: public GraphDisplay {
 public:
 	GDTxt(FILE *f) : GraphDisplay(f) {}
+       virtual void node(Call *p) {
+               if (Option::print_nodes->get() && p->is_defined()) {
+                       fprintf(fo, "%s\n", function_label(p, false).c_str());
+               }
+       }
 	virtual void edge(Call *a, Call *b) {
 		fprintf(fo, "%s %s\n",
 		    function_label(a, false).c_str(),
