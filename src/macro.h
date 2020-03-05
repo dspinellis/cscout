@@ -54,10 +54,10 @@ class Macro {
 private:
 	Ptoken name_token;		// Name (used for unification)
 	bool is_function;		// True if it is a function-macro
+	bool is_immutable;		// Immutably-defined macro
 	bool is_vararg;			// True if the function has variable # of arguments (gcc)
 	bool is_defined;		// True if the macro has been defined
 					// Can be false through ifdef/ifndef/defined()
-	bool is_immutable;		// Immutably-defined macro
 	dequePtoken formal_args;	// Formal arguments (names)
 	dequePtoken value;		// Macro value
 	MCall *mcall;			// Function call info
