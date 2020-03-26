@@ -388,8 +388,12 @@ create_project
         }
     }
     my @new_obj = ();
+    my @static_libs = ();
     for $o (@obj) {
         $o = ancestor($o);
+        if ($o=~ m/\.a$/ and not grep( /$o/, @static_libs )) {
+            push @static_libs, $o;
+        }
         if (defined ($rules{$o})) {
             push @new_obj, $o;
         }
@@ -403,6 +407,7 @@ create_project
         my $pragma_project_begin = qq{
 #pragma echo "Processing project $name\\n"
 #pramge echo "CMD $cmdline\\n"
+#pramge echo "LIBRARIES @static_libs\\n"
 #pragma project "$name"
 #pragma block_enter$install_paths
 };
