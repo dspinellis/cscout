@@ -221,7 +221,7 @@ $process
 	} elsif ($state eq 'LINK') {
 		if (/^END LINK/) {
 			die "Missing object in rules file" unless defined ($exe);
-			if ($exe =~ m/\.(o|a|so)$/) {
+			if ($exe =~ m/\.(o|a|so|opic)$/) {
 				# Output is a library or combined object file; just remember the rules
 				undef $rule;
 				for $o (@obj) {
@@ -524,7 +524,7 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg eq '-imacros' || $arg eq '--imacros') {
 		push(@incfiles, 'INMACRO ' . abs_if_exists($ARGV[++$i]));
 		next;
-	} elsif ($arg =~ m/\.(o|obj)$/i) {
+	} elsif ($arg =~ m/\.(o|obj|opic)$/i) {
 		push(@ofiles, $arg);
 		next;
 	} elsif ($arg =~ m/\.(a|so)$/i) {
