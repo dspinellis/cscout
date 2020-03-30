@@ -221,7 +221,7 @@ $process
 	} elsif ($state eq 'LINK') {
 		if (/^END LINK/) {
 			die "Missing object in rules file" unless defined ($exe);
-			if ($exe =~ m/\.(o|a|so)$/) {
+			if ($exe =~ m/\.(o|a|so|opic)$/) {
 				# Output is a library or combined object file; just remember the rules
 				undef $rule;
 				for $o (@obj) {
@@ -388,8 +388,12 @@ create_project
         }
     }
     my @new_obj = ();
+    my @static_libs = ();
     for $o (@obj) {
         $o = ancestor($o);
+        if ($o=~ m/\.a$/ and not grep( /$o/, @static_libs )) {
+            push @static_libs, $o;
+        }
         if (defined ($rules{$o})) {
             push @new_obj, $o;
         }
@@ -403,6 +407,7 @@ create_project
         my $pragma_project_begin = qq{
 #pragma echo "Processing project $name\\n"
 #pramge echo "CMD $cmdline\\n"
+#pramge echo "LIBRARIES @static_libs\\n"
 #pragma project "$name"
 #pragma block_enter$install_paths
 };
@@ -519,7 +524,7 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg eq '-imacros' || $arg eq '--imacros') {
 		push(@incfiles, 'INMACRO ' . abs_if_exists($ARGV[++$i]));
 		next;
-	} elsif ($arg =~ m/\.(o|obj)$/i) {
+	} elsif ($arg =~ m/\.(o|obj|opic)$/i) {
 		push(@ofiles, $arg);
 		next;
 	} elsif ($arg =~ m/\.(a|so)$/i) {
