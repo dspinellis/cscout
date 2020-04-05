@@ -406,8 +406,8 @@ create_project
         }
         my $pragma_project_begin = qq{
 #pragma echo "Processing project $name\\n"
-#pramge echo "CMD $cmdline\\n"
-#pramge echo "LIBRARIES @static_libs\\n"
+#pragma echo "CMD $cmdline\\n"
+#pragma echo "LIBRARIES @static_libs\\n"
 #pragma project "$name"
 #pragma block_enter$install_paths
 };
