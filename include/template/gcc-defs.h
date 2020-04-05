@@ -53,7 +53,7 @@
 #define __builtin_ctz(z) ((z),1)
 #define __builtin_expect_with_probability(x,y) 1
 #define __builtin_expect(_x, _v) ((_v), (_x))
-#define __builtin_extend_pointer(x) ((x), 1) 
+#define __builtin_extend_pointer(x) ((x), 1)
 #define __builtin_fabsf(_x) (float)(_x)
 #define __builtin_fabsl(_x) (long double)(_x)
 #define __builtin_fabs( _x) (double)(_x)
@@ -144,6 +144,7 @@
 #define __extension
 #pragma define_immutable __extension__
 #define __int128 long
+#define __int128_t long
 #define _Float32 float
 #define _Float32x float
 #define _Float64 double
