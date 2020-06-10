@@ -92,6 +92,7 @@ public:
 	static TextOption *dot_edge_options;		// Edge options passed to dot
 	static BoolOption *show_function_type;		// Show function type (static or public)
 	static BoolOption *is_defined;				// Show if a function is defined or not (0: for not define, 1: for defined)
+	static BoolOption *line_num;				// Show the first and the last line of a function
 	static BoolOption *print_nodes;				// Print defined nodes (as edges with only one node) in the begin
 	static SelectionOption *cgraph_type;		// Call graph type t(text h(tml d(ot s(vg g(if
 	static SelectionOption *cgraph_show;		// Call graph show e(dge n(ame f(ile p(ath
