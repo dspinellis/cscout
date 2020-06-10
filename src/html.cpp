@@ -242,15 +242,26 @@ function_label(Call *f, bool hyperlink)
 	}
 	if (Option::show_function_type->get()) {
 		if (f->is_file_scoped())
-			result += "static:";	
+			result += "static:";
 		else
-			result += "public:";	
+			result += "public:";
 	}
 	if (Option::is_defined->get()) {
 		if (f->is_defined())
-			result += "1:";	
+			result += "1:";
 		else
-			result += "0:";	
+			result += "0:";
+	}
+	if (Option::line_num->get()) {
+        Tokid t;
+		if (f->is_defined()) {
+            t = f->get_definition();
+        } else {
+            t = f->get_tokid();
+        }
+        int first = t.get_fileid().line_number(t.get_streampos());
+        int last = first + f->metrics().get_metric(Metrics::em_nline);
+        result += to_string(first) + ";" + to_string(last) + ":";
 	}
 	if (Option::cgraph_show->get() == 'f')		// Show files
 		result += f->get_site().get_fileid().get_fname() + ":";
