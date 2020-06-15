@@ -31,6 +31,7 @@
 #define _Alignof(x) (sizeof(x) & 0xf)
 #define __attribute__(x)
 #define __builtin_add_overflow(x,y,z) ((x), (y), (z), 1)
+#define __builtin_add_overflow_p(x,y,z) ((x), (y), 1)
 #define __builtin_alloca_with_align_and_max (x,y,z) ((x), (y), (z), 1)
 #define __builtin_alloca_with_align (x,y) ((x), (y), 1)
 #define __builtin_alloca(x) ((x), 1)
@@ -87,6 +88,7 @@
 #define __builtin_memset(x,y,z) ((x), (y), (z), 1)
 #define __builtin___memset_chk(x,y,z,w) ((x), (y), (z), (w), 0)
 #define __builtin_mul_overflow(x,y,z) ((x), (y), (z), 1)
+#define __builtin_mul_overflow_p(x,y,z) ((x), (y), 1)
 #define __builtin_nand128(x) ((x), 1.)
 #define __builtin_nand32(x) ((x), 1f)
 #define __builtin_nand64(x) ((x), 1.)
@@ -126,6 +128,8 @@
 #define __builtin_strlen(x) ((x), 1)
 #define __builtin___strncat_chk(x,y,z,w) ((x), (y), (z), (w), 1)
 #define __builtin___strncpy_chk(x,y,z,w) ((x), (y), (z), (w), 1)
+#define __builtin_sub_overflow(x,y,z) ((x), (y), (z), 1)
+#define __builtin_sub_overflow_p(x,y,z) ((x), (y), 1)
 #define __builtin_tgmath(x, y) ((x), (y), 0)
 #define __builtin_trap() 1
 #define __builtin_types_compatible_p(x,y) (1)
@@ -152,6 +156,7 @@
 #define __float128 double
 #define _Float128 double
 #define __PRETTY_FUNCTION__ "UNKNOWN"
-#define _Static_assert(x)
 #define typeof __typeof__
 #pragma define_immutable __restrict
+
+#pragma define_immutable _Static_assert(x)
