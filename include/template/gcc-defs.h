@@ -30,10 +30,10 @@
 #define __alignof__(x) (sizeof(x) & 0xf)
 #define _Alignof(x) (sizeof(x) & 0xf)
 #define _Atomic
-#define __atomic_fetch_add(x,y) *x+=y
-#define __atomic_fetch_add_explicit(x,y,z) *x+=y
-#define __atomic_fetch_sub(x,y) *x-=y
-#define __atomic_fetch_sub_explicit(x,y,z) *x-=y
+#define __atomic_fetch_add(x,y) (*(x)+=(y))
+#define __atomic_fetch_add_explicit(x,y,z) (*(x)+=(y))
+#define __atomic_fetch_sub(x,y) (*(x)-=(y))
+#define __atomic_fetch_sub_explicit(x,y,z) (*(x)-=(y))
 #define __atomic_thread_fence(x)
 #define __attribute__(x)
 #define __auto_type auto
