@@ -29,7 +29,14 @@
 #define asm __asm__
 #define __alignof__(x) (sizeof(x) & 0xf)
 #define _Alignof(x) (sizeof(x) & 0xf)
+#define _Atomic
+#define __atomic_fetch_add(x,y) *x+=y
+#define __atomic_fetch_add_explicit(x,y,z) *x+=y
+#define __atomic_fetch_sub(x,y) *x-=y
+#define __atomic_fetch_sub_explicit(x,y,z) *x-=y
+#define __atomic_thread_fence(x)
 #define __attribute__(x)
+#define __auto_type auto
 #define __builtin_add_overflow(x,y,z) ((x), (y), (z), 1)
 #define __builtin_add_overflow_p(x,y,z) ((x), (y), 1)
 #define __builtin_alloca_with_align_and_max (x,y,z) ((x), (y), (z), 1)
@@ -149,12 +156,14 @@
 #pragma define_immutable __extension__
 #define __int128 long
 #define __int128_t long
+#define __uint128_t long
 #define _Float32 float
 #define _Float32x float
 #define _Float64 double
 #define _Float64x double
 #define __float128 double
 #define _Float128 double
+#define _Noreturn
 #define __PRETTY_FUNCTION__ "UNKNOWN"
 #define typeof __typeof__
 #pragma define_immutable __restrict
