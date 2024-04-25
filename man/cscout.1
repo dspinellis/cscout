@@ -1,6 +1,6 @@
-.TH CSCOUT 1 "11 April 2019"
+.TH CSCOUT 1 "25 April 2024"
 .\"
-.\" (C) Copyright 2003-2019 Diomidis Spinellis
+.\" (C) Copyright 2003-2024 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -27,6 +27,7 @@ cscout \- C code analyzer and refactoring browser
 [\fB\-d H\fP]
 [\fB\-l\fP \fIlog file\fP]
 [\fB\-p\fP \fIport\fP]
+[\fB\-R\fP \fIspecification\fP]
 [\fB\-m\fP \fIspecification\fP]
 [\fB\-o\fP | \fB\-s\fP \fIdb\fP]
 \fIfile\fR
@@ -210,10 +211,33 @@ Specify \fIhelp\fP as the database dialect to obtain a list of
 supported database back-ends.
 .IP "\fB\-l\fP \fIlog file\fP"
 Specify the location of a file where web requests will be logged.
-.IP "\fB\-R\fP"
+.IP "\fB\-R\fP  \fIspecification\fP"
 Generate call graphs and exit.
+The option can be specified multiple times.
+The specification is the type of desired graph
+(\fIfgraph.txt\fP for a file dependency graph or
+\fIcgraph.txt\fP for a function and macro call graph),
+optionally followed by parameters appearing in the corresponding
+URL of the \fICScout\fP web interface.
+The generated text file contains one space-delimited relationship per line.
+It can be further processed by tools such sas \fIawk\fP and \fIdot\fP
+to produce graphical output as shown in the following examples.
 
-EXAMPLE cscout -R cgraph.txt -R fgraph.txt?gtype=C.
+.DS
+.nf
+.ft C
+# Create a function call graph and a compile-time file dependency graph
+cscout -R cgraph.txt -R fgraph.txt?gtype=C.
+
+# Convert the generated call graph into an SVG diagram
+awk '
+ BEGIN { print "digraph G {" }
+ {print $1 "->" $2}
+ END { print "}" }' cgraph.txt |
+dot -Tsvg >cgraph.svg
+.ft P
+.fi
+.DE
 
 .IP "\fB\-o\fP"
 Create obfuscated versions of all the writable files of the workspace.
