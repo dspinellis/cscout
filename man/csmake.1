@@ -1,6 +1,6 @@
-.TH CSMAKE 1 "9 January 2020"
+.TH CSMAKE 1 "2 May 2024"
 .\"
-.\" (C) Copyright 2020 Diomidis Spinellis
+.\" (C) Copyright 2020-2024 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -47,8 +47,9 @@ As a side-effect it will monitor the invocations of
 With those data it will generate a \fICScout\fP project specification
 that can be used to process the project that was compiled.
 The project specification is saved into a file named \fImake.cs\fP.
-Moreover, a separate CScout .cs file is generated for each executable
-in cscout_projects directory.
+Moreover, a separate CScout .cs file can be generated for each executable
+in a specified
+.I cs_files_directory.
 .PP
 To allow \fIcsmake\fP to be used as a drop in replacement in
 build sequences that execute multiple \fImake\fP commands,
@@ -76,7 +77,7 @@ Set temporary directory.
 Use \fItemporary_directory\fP as temporary directory,
 remember to clear it if you use it multiple times.
 .PP
-.SH EXAMPLE
+.SH EXAMPLES
 The following commands are often the only ones required to process
 a typical C project.
 .PP
@@ -102,14 +103,34 @@ CC=x86_64-w64-gcc csmake
 .fi
 .DE
 .PP
-.SH EXAMPLE: DEBIAN PACKAGE
-The following commands can be used to run csmake for a Debian package using dpkg-buildpackage.
+The following commands create an inspectable \fCrules\fP file,
+and then use that to creat the final \fCmake.cs\fP file.
+(Note the obligatory \fC--\fP sequence used to terminate the \fIcsmake\fP
+arguments.)
+.PP
+.DS
+.ft C
+.nf
+mkdir csmake-tmp
+csmake -k -T csmake-tmp  --
+csmake -N csmake-tmp/rules  --
+.ft P
+.fi
+.DE
+.PP
+.PP
+The following commands can be used to run
+.I csmake
+for a Debian package using the
+.C dpkg-buildpackage
+command.
 .PP
 .DS
 .ft C
 .nf
 rm -rf tmp_dir && mkdir -p tmp_dir
-CSMAKEFLAGS='-T tmp_dir -A -s cscout_projects -k' MAKE=/usr/local/bin/csmake dpkg-buildpackage -b
+CSMAKEFLAGS='-T tmp_dir -A -s cscout_projects -k --' \\
+  MAKE=/usr/local/bin/csmake dpkg-buildpackage -b
 .ft P
 .fi
 .DE
@@ -117,4 +138,4 @@ CSMAKEFLAGS='-T tmp_dir -A -s cscout_projects -k' MAKE=/usr/local/bin/csmake dpk
 .SH "SEE ALSO"
 cscout(1)
 .SH AUTHOR
-(C) Copyright 2006-2016 Diomidis Spinellis.
+(C) Copyright 2006-2024 Diomidis Spinellis.
