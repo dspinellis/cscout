@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: CScout
+message: >-
+  If you use this software, please cite, using the metadata from this file,
+  both the article from preferred-citation and the software itself.
+preferred-citation:
+  date-released: "2010-04-01"
+  doi: "10.1016/j.scico.2009.09.003"
+  title: "CScout: A Refactoring Browser for C"
+  authors:
+    - family-names: "Spinellis"
+      given-names: "Diomidis"
+  type: "article"
+  volume: 75
+  issue: 4
+  journal: "Science of Computer Programming"
+  start: 216
+  end: 231
+type: software
+authors:
+  - given-names: Diomidis
+    family-names: Spinellis
+    email: dds@aueb.gr
+    affiliation: Athens University of Economics and Business
+    orcid: 'https://orcid.org/0000-0003-4231-1897'
+repository-code: 'https://github.com/dspinellis/cscout'
+keywords:
+  - refactoring
+  - C
+  - preprocessor
+license: GPL-3.0
