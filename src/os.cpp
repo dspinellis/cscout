@@ -119,7 +119,7 @@ get_uniq_fname_string(const char *name)
 const char *
 get_full_path(const char *name)
 {
-	static char buff[PATH_MAX];
+	static char buff[PATH_MAX + NAME_MAX + 2];
 	char wd[PATH_MAX + NAME_MAX];
 
 	if (name[0] != '/') {
