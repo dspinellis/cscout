@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  build-and-test:
+  build-and-test-ubuntu:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,6 +20,30 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential make perl default-jre
+
+      - name: Verify installations
+        run: |
+          make --version
+          perl --version
+          java -version
+
+      - name: Compile the project
+        run: make
+
+      - name: Run tests
+        run: make test
+  build-and-test-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+
+      - name: Install dependencies
+        run: |
+          brew install make
+          brew install perl
+          brew install openjdk
 
       - name: Verify installations
         run: |
