@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dspinellis/cscout.svg?branch=master)](https://travis-ci.org/dspinellis/cscout)
+![Build and Test](https://github.com/dspinellis/cscout/actions/workflows/ci.yml/badge.svg)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/8463/badge.svg)](https://scan.coverity.com/projects/dspinellis-cscout)
 
 
