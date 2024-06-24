@@ -35,7 +35,6 @@
 #define __atomic_fetch_sub(x,y) (*(x)-=(y))
 #define __atomic_fetch_sub_explicit(x,y,z) (*(x)-=(y))
 #define __atomic_thread_fence(x)
-#define __attribute__(x)
 #define __auto_type auto
 #define __builtin_add_overflow(x,y,z) ((x), (y), (z), 1)
 #define __builtin_add_overflow_p(x,y,z) ((x), (y), 1)
@@ -154,6 +153,7 @@
 #define __COUNTER__ 0
 #define __extension
 #pragma define_immutable __extension__
+#define __has_attribute(x) 1
 #define __int128 long
 #define __int128_t long
 #define __uint128_t long

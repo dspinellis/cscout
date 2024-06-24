@@ -52,7 +52,6 @@
 #endif
 
 #define __extension__
-#define __attribute__(x)
 #define __const const
 #define __builtin_va_list void *
 #define __builtin_stdarg_start
