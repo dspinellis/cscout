@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2019 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -1218,6 +1218,7 @@ Pdtoken::process_pragma()
 		Block::exit();
 	else if (t.get_val() == "define_immutable") {
 		process_define(true);
+		return;
 	}
 	eat_to_eol();
 }
