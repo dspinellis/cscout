@@ -1141,6 +1141,7 @@ Pdtoken::process_pragma()
 
 			Fchar::push_input(t.get_val());
 			Fchar::lock_stack();
+			Block::param_clear();
 			if (parse_parse() != 0)
 				exit(1);
 			garbage_collect(Fileid(t.get_val()));

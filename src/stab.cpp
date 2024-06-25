@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -58,10 +58,12 @@
 
 
 int Block::current_block = -1;
+int Block::param_block_nesting = -1;
 vectorBlock Block::scope_block;
 Stab Function::label;
 Block Block::param_block;	// Function parameter declarations
-bool Block::use_param;		// Declare in param_block when true
+bool Block::param_use;		// Declare types in param_block when true
+bool Block::param_seen;		// Don't set param_block on scope exit when true
 
 Id::Id(const Token& tok, Type typ, FCall *fc, GlobObj *go) :
 	token(tok), type(typ), fcall(fc), glob(go)
@@ -76,15 +78,19 @@ Block::enter()
 	current_block++;
 }
 
-// Called when entering a function block statement
+/*
+ * Called when entering a function-level block statement
+ * Add a scope block with the function's parameters.
+ */
 void
-Block::param_enter()
+Block::fn_body_enter()
 {
 	if (DP())
-		cout << "On param_enter " << param_block.obj << "\n";
+		cout << "On fn_body_enter " << param_block.obj << "\n";
 	scope_block.push_back(param_block);
 	current_block++;
-	use_param = false;
+	param_use = false;
+	param_clear();
 }
 
 void
@@ -92,16 +98,27 @@ Block::exit()
 {
 	scope_block.pop_back();
 	current_block--;
+	param_clear();
 }
 
 // Called when exiting a function parameter list
 void
 Block::param_exit()
 {
-	// Do not clobber parameter block when exiting function pointer
-	// arguments appearing in old-style argument declarations
-	if (!use_param)
+	if (DP())
+		cout << "On param_exit current_block: " << current_block
+			<< " param_block_nesting: " << param_block_nesting
+			<< ", param_seen: " << param_seen << "\n";
+	/*
+	 * 1. Do not clobber parameter block when exiting function pointer
+	 *    arguments appearing in old-style argument declarations.
+	 * 2. Ignore parameter blocks of function return types.
+	 * 3. Ignore nested function pointer argument parameter blocks.
+	 */
+	if (!param_use && !param_seen && param_block_nesting == current_block - 1) {
 		param_block = scope_block.back();
+		param_seen = true;
+	}
 	scope_block.pop_back();
 	current_block--;
 	if (DP())
@@ -123,14 +140,11 @@ Block::param_clear(void)
 {
 	param_block.obj.clear();
 	param_block.tag.clear();
-}
-
-void
-Block::clear()
-{
-	param_clear();
-	scope_block.clear();
-	current_block = -1;
+	param_seen = false;
+	param_block_nesting = current_block;
+	if (DP())
+		cout << "After param_clear param_block_nesting, current_block: "
+			<< param_block_nesting << "\n";
 }
 
 /*
@@ -145,7 +159,7 @@ obj_define(const Token& tok, Type typ)
 
 	if (DP())
 		cout << "Define object [" << tok.get_name() << "]: " << typ << "\n";
-	if (Block::use_param && Block::current_block == Block::cu_block) {
+	if (Block::param_use && Block::current_block == Block::cu_block) {
 		// Old-style function definition declarations
 		// No checking
 		if ((id = Block::param_block.obj.lookup(tok.get_name())))
@@ -331,7 +345,7 @@ tag_define(const Token& tok, const Type& typ)
 
 	if (DP())
 		cout << "Define tag [" << tok.get_name() << "]: " << typ << "\n";
-	if (Block::use_param && Block::current_block == Block::cu_block)
+	if (Block::param_use && Block::current_block == Block::cu_block)
 		(Block::param_block.tag).define(tok, typ);
 	else if ((id = Block::scope_block[Block::current_block].tag.lookup(tok.get_name())) &&
 		 !id->get_type().is_incomplete())

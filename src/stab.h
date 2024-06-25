@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -122,19 +122,29 @@ void label_use(const Token& tok);
 void label_define(const Token& tok);
 void label_use(const Token& tok);
 
+// A scoped block
 class Block {
 private:
 	static int current_block;	// Current block: >= 1
 	static vectorBlock scope_block;
 	static Block param_block;	// Function parameter declarations
-	static bool use_param;		// Declare in param_block when true
+	static bool param_use;		// Declare in param_block when true
+	/*
+	 * When dealing with functions returning pointers to functions,
+	 * the parameters of the returned function type, which appear later on
+	 * in the declaration are not the defined function's parameters.
+	 * To handle this set param_seen after seeing the first parameter
+	 * block and avoid setting further ones.
+	 */
+	static bool param_seen;
+	static int param_block_nesting;	// Nesting level of defined params
 
 	static void define(Stab Block::*table, const Token& tok, const Type& t, FCall *fc = NULL, GlobObj *go = NULL);
 	static pair <Id const *, int> lookup(const Stab Block::*table, const string& name);
 public:
 	// Should be private appart from taking member address
 	Stab obj;		// Objects (variables...)
-	Stab tag;		// Aggregate tags
+	Stab tag;		// Aggregate (struct, union) tags
 	Stab local_label;	// Local labels; gcc extension
 
 	static int get_scope_level() { return current_block; }
@@ -158,39 +168,48 @@ public:
 	 * to define a new scope.  However, they are exited with
 	 * Block::param_exit() which saves a copy of the block in param_block.
 	 * (Note that nested scopes are correctly ignored).
-	 * The function block starts with Block::param_enter() which copies
-	 * the last saved param_block into the current block.
+	 * The function block starts with Block::fn_body_enter() which copies
+	 * the last saved param_block into the current block and calls
+	 * Block::param_clear().
 	 * All definitions and declarations call Block::param_clear() to keep
-	 * the, possibly contaminated, param_blockfresh for new function
+	 * the, possibly contaminated, param_block fresh for new function
 	 * definitions.
 	 * Old-style function parameter declarations occur outside the function
 	 * parameter list and would therefore be defined at file scope.
-	 * Calling Block::param_use() instructs the symbol table to add all
+	 * Calling Block::param_use_begin() instructs the symbol table to add all
 	 * definitions in param_block instead. This special state is
 	 * automatically cleared when entering the function body with
-	 * Block::param_enter().
+	 * Block::fn_body_enter().
 	 *
 	 * The following diagram depicts where each function is called:
-	 * *
+	 *
 	 * int newfun(@enter@int i, void (bar)(@enter@void@param_exit@)@param_exit@)
-	 * {@param_enter@
+	 * {@fn_body_enter@
 	 * 	return i;
 	 * }@exit,param_clear@
 	 *
 	 * oldfun(@enter@a, b@param_exit@)
-	 * 	@param_use@
+	 * 	@param_use_begin@
 	 * 	int a;
 	 * 	double b;
 	 * 	@param_use_end@
-	 * {@param_enter@
+	 * {@fn_body_enter@
 	 * 	return i;
 	 * }@exit,param_clear@
+	 *
+	 * Furthermore, do not use as parameters those of nested
+	 * function argument declarations and the declared arguments 
+	 * of returned function pointers.
+	 * Nested arguments are ignored through param_block_nesting.
+	 * Arguments of returned function pointers are ignored through
+	 * param_seen, because they always appear later in the definition.
+	 * See test/c/c42-funargptr.c
 	 */
-	static void param_enter();
+	static void fn_body_enter();
 	static void param_exit();
 	static void param_clear(void);
-	static void param_use(void) { use_param = true; }
-	static void param_use_end(void) { use_param = false; }
+	static void param_use_begin(void) { param_use = true; }
+	static void param_use_end(void) { param_use = false; }
 
 	static int get_cur_block() { return current_block; }
 

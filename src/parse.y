@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -1833,7 +1833,7 @@ labeled_statement:
 
 function_brace_begin: '{'
 		{
-			Block::param_enter();
+			Block::fn_body_enter();
 		}
 	;
 
@@ -2099,7 +2099,7 @@ typed_function_definition:
 
 	/* foo(a, b) @ int a; int b; @ { } */
         | declaration_specifier      old_function_declarator
-		{ Block::param_use(); } declaration_list
+		{ Block::param_use_begin(); } declaration_list
 		{
 			Block::param_use_end();
 			$2.set_abstract($1);
@@ -2108,7 +2108,7 @@ typed_function_definition:
 		}
 					function_body
         | type_specifier             old_function_declarator
-		{ Block::param_use(); } declaration_list
+		{ Block::param_use_begin(); } declaration_list
 		{
 			Block::param_use_end();
 			$2.set_abstract($1);
@@ -2117,7 +2117,7 @@ typed_function_definition:
 		}
 					function_body
         | declaration_qualifier_list old_function_declarator
-		{ Block::param_use(); } declaration_list
+		{ Block::param_use_begin(); } declaration_list
 		{
 			Block::param_use_end();
 			$2.set_abstract($1);
@@ -2126,7 +2126,7 @@ typed_function_definition:
 		}
 					function_body
         | type_qualifier_list        old_function_declarator
-		{ Block::param_use(); } declaration_list
+		{ Block::param_use_begin(); } declaration_list
 		{
 			Block::param_use_end();
 			$2.declare();
@@ -2154,7 +2154,7 @@ untyped_function_definition:
 					function_body
 	/* foo(a, b) @ int a; int b; @ { } */
         |                            old_function_declarator
-		{ Block::param_use(); } declaration_list
+		{ Block::param_use_begin(); } declaration_list
 		{
 			Block::param_use_end();
 			$1.declare();
