@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -152,6 +152,7 @@ make_keymap()
 	m["_Imaginary"] = IMAGINARY;
 	/* C11 */
 	m["_Thread_local"] = THREAD_LOCAL;
+	m["_Generic"] = GENERIC;
 
 	/* Microsoft */
 	m["_asm"] = MSC_ASM;

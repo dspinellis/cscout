@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -36,6 +36,7 @@
 %token DEFAULT         GOTO            SIZEOF          VOLATILE
 %token DO              IF              STATIC          WHILE
 %token RESTRICT        INLINE	       BOOL	       THREAD_LOCAL
+%token GENERIC
 
 /* ANSI Grammar suggestions */
 %token IDENTIFIER         STRING_LITERAL

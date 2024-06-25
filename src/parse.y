@@ -328,6 +328,9 @@ yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 %type <t> assignment_expression
 %type <t> string_literal_list
 %type <t> comma_expression
+%type <t> generic_selection
+%type <t> generic_assoc_list
+%type <t> generic_association
 
 %type <t> basic_type_name
 %type <t> storage_class
@@ -542,6 +545,7 @@ primary_expression:
 	| '(' compound_statement ')'
 			{ $$ = $2; }
 
+	| generic_selection
         ;
 
 postfix_expression:
@@ -924,6 +928,31 @@ comma_expression_opt:
         | comma_expression
 		{ $$ = $1; }
         ;
+
+generic_selection:
+	/*
+	 * For an example see test/c/c43-generic.c
+	 * XXX Here we should select the list element with the
+	 * compatible type and return the type of its value.
+	 * Implementing the full type compatibility specification
+	 * (C11 6.2.7, 6.7.3, 6.7.6) may not be worth the effort.
+	 * So fudge it and return the type of first value.
+	 */
+        GENERIC '(' assignment_expression ',' generic_assoc_list ')'
+		{ $$ = $5; }
+	;
+
+generic_assoc_list:
+	  generic_association
+	| generic_assoc_list ',' generic_association
+        ;
+
+generic_association:
+	  type_name ':' assignment_expression
+	  	{ $$ = $3; }
+	| DEFAULT ':' assignment_expression
+	  	{ $$ = $3; }
+	;
 
 
 /******************************* DECLARATIONS *********************************/
