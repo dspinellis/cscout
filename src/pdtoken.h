@@ -72,6 +72,7 @@ private:
 	static vectorstring include_path;	// Include file path
 	static vectorPdtoken current_line;	// Currently read line
 	static CompiledRE preprocessed_output_spec;// Files to preprocess
+	static CompiledRE processed_files_spec; // Files to process
 
 	static void process_directive();	// Handle a cpp directive
 	static void eat_to_eol();		// Consume input including \n
@@ -161,6 +162,10 @@ public:
 	// Set the RE on which to output preprocessed elements
 	static void set_preprocessed_output(CompiledRE cre) {
 		preprocessed_output_spec = cre;
+	}
+	// Set the RE of files to process
+	static void set_processed_files(CompiledRE cre) {
+		processed_files_spec = cre;
 	}
 };
 

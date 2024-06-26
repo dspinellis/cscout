@@ -3247,6 +3247,21 @@ usage(char *fname)
 	exit(1);
 }
 
+
+// Return a compiled RE for the string s, verifying its correctness
+static CompiledRE
+verified_compiled_re(const char *s)
+{
+	CompiledRE pre(optarg, REG_EXTENDED | REG_NOSUB);
+
+	if (!pre.isCorrect()) {
+		cerr << "Filename regular expression error:" <<
+			pre.getError() << '\n';
+		exit(1);
+	}
+	return pre;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -3260,7 +3275,7 @@ main(int argc, char *argv[])
 	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvE:p:m:l:os:R:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:m:l:os:R:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3269,13 +3284,7 @@ main(int argc, char *argv[])
 			if (!optarg || process_mode)
 				usage(argv[0]);
 			// Preprocess the specified file
-			pre = CompiledRE(optarg, REG_EXTENDED | REG_NOSUB);
-			if (!pre.isCorrect()) {
-				cerr << "Filename regular expression error:" <<
-					pre.getError() << '\n';
-				exit(1);
-			}
-			Pdtoken::set_preprocessed_output(pre);
+			Pdtoken::set_preprocessed_output(verified_compiled_re(optarg));
 			process_mode = pm_preprocess;
 			break;
 		case 'C':
@@ -3342,6 +3351,12 @@ main(int argc, char *argv[])
 			if (process_mode)
 				usage(argv[0]);
 			process_mode = pm_obfuscation;
+			break;
+		case 'P':
+			if (!optarg)
+				usage(argv[0]);
+			// Process the specified file(s)
+			Pdtoken::set_processed_files(verified_compiled_re(optarg));
 			break;
 		case 's':
 			if (process_mode)

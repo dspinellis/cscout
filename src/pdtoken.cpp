@@ -78,6 +78,7 @@ set<Fileid> Pdtoken::skipped_includes;
 vectorPdtoken Pdtoken::current_line;	// Currently read line
 
 CompiledRE Pdtoken::preprocessed_output_spec;	// Files to preprocess
+CompiledRE Pdtoken::processed_files_spec;	// Files to process
 
 bool
 Pdtoken::shall_skip(Fileid fid)
@@ -1133,12 +1134,13 @@ Pdtoken::process_pragma()
 		}
 		if (preprocessed_output_spec.isSet()) {
 			// Skip or enable preprocessed output
-			if (preprocessed_output_spec.exec( t.get_val().c_str(),
+			if (preprocessed_output_spec.exec(t.get_val().c_str(),
 						0, NULL, 0) != REG_NOMATCH)
 				preprocess_to_output(t.get_val());
-		}
-		if (!preprocessed_output_spec.isSet()) {
-			// Normal processing
+		} else if (!processed_files_spec.isSet()
+		    || processed_files_spec.exec(t.get_val().c_str(),
+			    0, NULL, 0) != REG_NOMATCH) {
+			// Normal processing if RE not set or RE match
 			extern int parse_parse();
 			extern void garbage_collect(Fileid fi);
 
