@@ -52,6 +52,8 @@
 #define __builtin_clrsbl(x) (x)
 #define __builtin_clrsb(x) (x)
 #define __builtin_clz(z) (z)
+#define __builtin_clzl(z) ((z),1)
+#define __builtin_clzll(z) ((z),1)
 #define __builtin_complex(x,y) ((x), (y))
 #define __builtin_constant_p(_x) ((_x), 0)
 #define __builtin_constant(x) ((x), 0)
