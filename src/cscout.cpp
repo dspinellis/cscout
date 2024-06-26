@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2019 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -115,7 +115,7 @@ static enum e_process {
 	pm_report,			// Generate a warning report
 	pm_database,
 	pm_obfuscation,
-	pm_r_option
+	pm_call_graph
 } process_mode;
 static int portno = 8081;		// Port number (-p n)
 static char *db_engine;			// Create SQL output for a specific db_iface
@@ -2321,7 +2321,7 @@ graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 		fclose(ofile);
 	}
 
-	if (process_mode != pm_r_option) {
+	if (process_mode != pm_call_graph) {
 		GDTxt gd(fo);
 		graph_fun(&gd);
 	}
@@ -3209,8 +3209,8 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-C|-c|-R|-d D|-d H|-E RE|-o|"
-		"-r|-s db|-v] "
+		"-C|-c|-d D|-d H|-E RE|-o|"
+		"[-R URL]|-r|-s db|-v] "
 		"[-l file] "
 
 #ifdef PICO_QL
@@ -3226,7 +3226,7 @@ usage(char *fname)
 #endif
 		"\t-C\tCreate a ctags(1)-compatible tags file\n"
 		"\t-c\tProcess the file and exit\n"
-		"\t-R\tMake the specified REST API calls and exit\n"
+		"\t-R URL\tOutput the call graphs specified by the URLs exit\n"
 		"\t-d D\tOutput the #defines being processed on standard output\n"
 		"\t-d H\tOutput the included files being processed on standard output\n"
 		"\t-E RE\tPrint preprocessed results on standard output and exit\n"
@@ -3354,7 +3354,7 @@ main(int argc, char *argv[])
 		case 'R':
 			if (!optarg)
 				usage(argv[0]);
-			process_mode = pm_r_option;
+			process_mode = pm_call_graph;
 			call_graphs.push_back(string(optarg));
 			break;
 		case '?':
@@ -3536,7 +3536,7 @@ main(int argc, char *argv[])
 	}
 #endif
 
-	if (process_mode == pm_r_option) {
+	if (process_mode == pm_call_graph) {
 		cerr << "Producing call graphs for: ";
 		for (string d : call_graphs) cerr << d << " ";
 		cerr << endl;
