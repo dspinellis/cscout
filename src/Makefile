@@ -25,7 +25,7 @@ INSTALL_PREFIX?=/usr/local
 
 WEBHOME=$(UH)/dds/pubs/web/home/cscout/
 
-.PHONY: test
+.PHONY: test tags
 
 ADDLIBS+=../swill/libswill.a
 
@@ -218,6 +218,9 @@ endif
 test:
 	./runtest.sh $(TEST_FLAGS)
 	cd test/csmake && ./runtest.sh
+
+tags:
+	ctags *.cpp *.h *.y
 
 # Used for regenerating the logo
 logo.cpp: logo.png
