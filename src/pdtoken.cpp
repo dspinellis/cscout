@@ -885,14 +885,17 @@ Pdtoken::process_define(bool is_immutable)
 	// Check that the new macro is undefined or not different from an older definition
 	mapMacro::const_iterator i = macros.find(name);
 	if (i != macros.end()) {
-		if ((*i).second.get_is_defined() && (*i).second != m) {
+		if ((*i).second.get_is_defined() && i->second != m) {
 			/*
 			 * @error
 			 * A defined macro can be redefined only if the
 			 * two definitions are exactly the same
 			 */
 			Error::error(E_WARN, "Duplicate (different) macro definition of macro " + name);
-			if (DP()) cout << (*i).second;
+			if (DP()) {
+				cerr << "First: " << m;
+				cerr << "Second: " << i->second;
+			}
 		} else
 			Token::unify((*i).second.get_name_token(), nametok);
 	}
