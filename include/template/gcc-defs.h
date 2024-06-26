@@ -166,6 +166,8 @@
 #define __float128 double
 #define _Float128 double
 #define _Noreturn
+#define __seg_fs
+#define __seg_gs
 #define __PRETTY_FUNCTION__ "UNKNOWN"
 #define typeof __typeof__
 #pragma define_immutable __restrict
