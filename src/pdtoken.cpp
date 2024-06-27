@@ -1236,6 +1236,37 @@ Pdtoken::process_pragma()
 	else if (t.get_val() == "define_immutable") {
 		process_define(true);
 		return;
+	} else if (t.get_val() == "set_dp") {
+		t.getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			/*
+			 * @error
+			 * The
+			 * <code>#pragma set_dp</code>
+			 * CScout-specific directive was not followed by a
+			 * string
+			 */
+			Error::error(E_ERR, "#pragma set_dp: file name expected");
+			eat_to_eol();
+			return;
+		}
+		string filename(t.get_val());
+
+		t.getnext_nospc<Fchar>();
+		if (t.get_code() != PP_NUMBER) {
+			/*
+			 * @error
+			 * The file name in the
+			 * <code>#pragma set_dp</code>
+			 * CScout-specific directive was not followed by a
+			 * line number
+			 */
+			Error::error(E_ERR, "#pragma set_dp: line number expected");
+			eat_to_eol();
+			return;
+		}
+		int line = stoi(t.get_val());
+		Debug::db_set(filename, line);
 	}
 	eat_to_eol();
 }

@@ -85,6 +85,19 @@ The number  of
 <code>popd</code> pragmas.
 <p>
 
+<dt><code>#pragma set_dp "<em>STRING</em> <em>INTEGER</em></code><dd>
+Enable the debug point for the file named <em>STRING</em>
+at line <em>INTEGER</em>.
+This can be used for targetted troubleshooting and debugging:
+rather than enabling a debug point globally using the
+<code>dbpoints</code> file, it is enabled at a particular
+code instance using the <code>#pragma set_dp</code>.
+<p>Example:
+<fmtcode ext="c">
+#pragma set_dp "macro.cpp" 486
+</fmtcode>
+
+
 <dt><code>#pragma includepath "<em>STRING</em>"</code><dd>
 Will add <em>STRING</em> to the list of directories used for searching
 included files (the include path).
