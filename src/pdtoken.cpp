@@ -343,6 +343,71 @@ eval_lex()
 }
 
 /*
+ * Process the defined() operator, substituting 1 or 0 depending
+ * on whether the identifier is defined or not.
+ * Return false on error.
+ */
+static bool
+process_defined()
+{
+	PtokenSequence::iterator arg, last, i2;
+	for (auto i = eval_tokens.begin();
+	     (i = i2 = find_if(i, eval_tokens.end(), [](const Ptoken &t) { return t.get_val() == "defined"; })) != eval_tokens.end(); ) {
+	     	bool need_bracket = false;
+		i2++;
+		arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+		if (arg != eval_tokens.end() && (*arg).get_code() == '(') {
+			i2++;
+			arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+			need_bracket = true;
+		}
+		if (arg == eval_tokens.end() || (*arg).get_code() != IDENTIFIER) {
+			/*
+			 * @error
+			 * The
+			 * <code>defined</code> operator was not followed
+			 * by an identifier
+			 */
+			Error::error(E_ERR, "No identifier following defined operator");
+			return false;
+		}
+		if (need_bracket) {
+			i2++;
+			last = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+			if (last == eval_tokens.end() || (*last).get_code() != ')') {
+					/*
+					 * @error
+					 * The identifier of a
+					 * <code>defined</code> operator was not
+					 * followed by a closing bracket
+					 */
+					Error::error(E_ERR, "Missing close bracket in defined operator");
+					return false;
+			}
+		} else
+			last = arg;
+		last++;
+		// We are about to erase it
+		string val = (*arg).get_val();
+		if (DP()) cout << "val:" << val << "\n";
+		mapMacro::const_iterator mi = Pdtoken::macros_find(val);
+		if (mi != Pdtoken::macros_end())
+			Token::unify((*mi).second.get_name_token(), *arg);
+		else
+			Pdtoken::create_undefined_macro(*arg);
+		eval_tokens.erase(i, last);
+		eval_tokens.insert(last, Ptoken(PP_NUMBER, Pdtoken::macro_is_defined(mi) ? "1" : "0"));
+		i = last;
+	}
+
+	if (DP()) {
+		cout << "Tokens after defined:\n";
+		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
+	}
+	return true;
+}
+
+/*
  * Read tokens comprising a cpp expression up to the newline and return
  * its value.
  * Algorithm:
@@ -370,7 +435,7 @@ eval()
 		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
 	}
 
-	// Macro replace
+	// Macro replace, skipping identifiers for defined operator
 	eval_tokens = macro_expand(eval_tokens, false, true);
 
 	if (DP()) {
@@ -378,65 +443,11 @@ eval()
 		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
 	}
 
-	// Process the "defined" operator
-	PtokenSequence::iterator i, arg, last, i2;
-	for (i = eval_tokens.begin();
-	     (i = i2 = find_if(i, eval_tokens.end(), [](const Ptoken &t) { return t.get_val() == "defined"; })) != eval_tokens.end(); ) {
-	     	bool need_bracket = false;
-		i2++;
-		arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
-		if (arg != eval_tokens.end() && (*arg).get_code() == '(') {
-			i2++;
-			arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
-			need_bracket = true;
-		}
-		if (arg == eval_tokens.end() || (*arg).get_code() != IDENTIFIER) {
-			/*
-			 * @error
-			 * The
-			 * <code>defined</code> operator was not followed
-			 * by an identifier
-			 */
-			Error::error(E_ERR, "No identifier following defined operator");
-			return 1;
-		}
-		if (need_bracket) {
-			i2++;
-			last = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
-			if (last == eval_tokens.end() || (*last).get_code() != ')') {
-					/*
-					 * @error
-					 * The identifier of a
-					 * <code>defined</code> operator was not
-					 * followed by a closing bracket
-					 */
-					Error::error(E_ERR, "Missing close bracket in defined operator");
-					return 1;
-			}
-		} else
-			last = arg;
-		last++;
-		// We are about to erase it
-		string val = (*arg).get_val();
-		if (DP()) cout << "val:" << val << "\n";
-		mapMacro::const_iterator mi = Pdtoken::macros_find(val);
-		if (mi != Pdtoken::macros_end())
-			Token::unify((*mi).second.get_name_token(), *arg);
-		else
-			Pdtoken::create_undefined_macro(*arg);
-		eval_tokens.erase(i, last);
-		eval_tokens.insert(last, Ptoken(PP_NUMBER, Pdtoken::macro_is_defined(mi) ? "1" : "0"));
-		i = last;
-	}
-
-	if (DP()) {
-		cout << "Tokens after defined:\n";
-		copy(eval_tokens.begin(), eval_tokens.end(), ostream_iterator<Ptoken>(cout));
-	}
-
-
+	// Process defined operator
+	if (!process_defined())
+		return 1;
 	// Change remaining identifiers to 0
-	for (i = eval_tokens.begin();
+	for (auto i = eval_tokens.begin();
 	     (i = find_if(i, eval_tokens.end(), [](const Ptoken &t) { return t.get_code() == IDENTIFIER; })) != eval_tokens.end(); )
 	     	*i = Ptoken(PP_NUMBER, "0");
 	eval_ptr = eval_tokens.begin();
