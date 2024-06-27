@@ -281,7 +281,7 @@ Filedetails::process_line(bool processed)
 	int lnum = Fchar::get_line_num() - 1;
 	int s = processed_lines.size();
 	if (DP())
-		cout << "Process line " << name << ':' << lnum << "\n";
+		cout << "Process line " << name << ':' << lnum << endl;
 	if (s == lnum)
 		// New line processed
 		processed_lines.push_back(processed);
@@ -353,6 +353,7 @@ unify_file_identifiers(const set<Fileid> &fs)
 	set <Fileid>::const_iterator fsi = fs.begin();
 	for (fsi++; fsi != fs.end(); fsi++) {
 		if (DP())
+			// endl ensures flushing
 			cout << "Merging identifiers of " << fi.get_path() << " and " << fsi->get_path() << endl;
 		read_file(fsi->get_path(), ftn);
 		csassert(ft0.size() == ftn.size());
