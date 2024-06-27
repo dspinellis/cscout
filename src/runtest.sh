@@ -450,13 +450,20 @@ fi
 # Finish priming
 if [ "$PRIME" = "1" ]
 then
-	cp test/nout/* test/out
 	# Remove absolute path from error files
 	cd test/nout
 	for i in *.err ; do
-	       sed "s|[^ ]*$(cd ../.. ; pwd)||i" $i >../../test/out/$i
+	       sed -i "s|[^ ]*$(cd ../.. ; pwd)||i" $i
 	done
+        cd ../..
 
+        # Copy files that were changed in more than whitespace
+	for nout in test/nout/* ; do
+          out=test/out/$(basename $nout)
+          if ! diff -qib $out $nout ; then
+            cp $nout $out
+          fi
+        done
 fi
 
 echo "1..$NTEST"
