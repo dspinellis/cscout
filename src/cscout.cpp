@@ -3210,7 +3210,7 @@ usage(char *fname)
 		"-b|"	// browse-only
 #endif
 		"-C|-c|-d D|-d H|-E RE|-o|"
-		"[-R URL]|-r|-s db|-v] "
+		"-R URL|-r|-s db|-v] "
 		"[-l file] "
 
 #ifdef PICO_QL
@@ -3220,7 +3220,7 @@ usage(char *fname)
 #define PICO_QL_OPTIONS ""
 #endif
 
-		"[-p port] [-m spec] file\n"
+		"[-P RE] [-p port] [-m spec] file\n"
 #ifndef WIN32
 		"\t-b\tRun in multiuser browse-only mode\n"
 #endif
@@ -3234,6 +3234,7 @@ usage(char *fname)
 		"\t-l file\tSpecify access log file\n"
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
 		"\t-o\tCreate obfuscated versions of the processed files\n"
+		"\t-P RE\tProcess only file(s) matched by the regular expression\n"
 		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
 		"\t\t(the port number must be in the range 1024-32767)\n"
 #ifdef PICO_QL
