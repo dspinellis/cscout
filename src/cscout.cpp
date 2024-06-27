@@ -3382,7 +3382,9 @@ main(int argc, char *argv[])
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
 		usage(argv[0]);
 
-	if (process_mode != pm_compile && process_mode != pm_preprocess) {
+	if (process_mode != pm_compile
+	    && process_mode != pm_database
+	    && process_mode != pm_preprocess) {
 		if (!swill_init(portno)) {
 			cerr << "Couldn't initialize our web server on port " << portno << endl;
 			exit(1);
