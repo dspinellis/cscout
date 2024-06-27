@@ -9,29 +9,29 @@ Table: Ids
  891  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
  919  i               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 1129  k               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-2069  i               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-2379  ES              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-2469  k2              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+2579  i               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
 2975  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3279  ES              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 3295  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+3369  k2              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 3575  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-3859  point           FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 3865  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-3979  x               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-4009  y               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 4055  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-4059  p2              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-4099  p               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+4759  point           FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+4879  x               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+4909  y               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+4959  p2              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+4999  p               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 5355  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
-6309  color           FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-6419  r               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-6449  g               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-6479  b               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-6629  rectangle       FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-6909  tl              FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-6949  br              FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-7149  c               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-7219  r               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+7209  color           FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+7319  r               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+7349  g               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+7379  b               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+7529  rectangle       FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+7809  tl              FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+7849  br              FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+8049  c               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+8119  r               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
 Table: Tokens
 FID  FOFFSET   EID
 ---  -------  ----
@@ -50,99 +50,99 @@ FID  FOFFSET   EID
   4      112  1129
   4      146  1129
   4      158   799
-  4      206  2069
-  4      237  2379
-  4      243  2379
-  4      246  2469
-  4      282  2469
-  4      288  2379
-  4      385  3859
-  4      397  3979
-  4      400  4009
-  4      405  4059
-  4      409  4099
-  4      415  4009
-  4      423  3979
-  4      433  4099
-  4      445  3859
-  4      453  3979
-  4      461  4009
-  4      471  4059
-  4      485  3859
-  4      493  3979
-  4      502  4009
-  4      513  4059
-  4      527  3859
-  4      535  4009
-  4      630  6309
-  4      641  6419
-  4      644  6449
-  4      647  6479
-  4      662  6629
-  4      684  3859
-  4      690  6909
-  4      694  6949
-  4      708  6309
-  4      714  7149
-  4      721  7219
-  4      731  6949
-  4      739  4009
-  4      747  3979
-  4      760  7149
-  4      767  6419
-  4      775  6479
-  4      783  6449
-  4      796  6909
-  4      804  3979
-  4      812  4009
-  4      830  7219
-  4      842  6629
-  4      858  6949
-  4      866  4009
-  4      874  3979
-  4      887  7149
-  4      894  6419
-  4      902  6479
-  4      910  6449
-  4      923  6909
-  4      931  3979
-  4      939  4009
-  4      954  7219
-  4      966  6629
-  4      984  4009
-  4      992  3979
-  4     1007  3979
-  4     1015  4009
-  4     1030  6419
-  4     1038  6479
-  4     1046  6449
-  4     1064  7219
-  4     1076  6629
-  4     1092  6949
-  4     1105  3859
-  4     1114  4009
-  4     1122  3979
-  4     1135  7149
-  4     1147  6309
-  4     1156  6419
-  4     1164  6479
-  4     1172  6449
-  4     1185  6909
-  4     1198  3859
-  4     1207  3979
-  4     1215  4009
-  4     1232  7219
-  4     1244  6629
-  4     1260  6909
-  4     1268  3979
-  4     1276  4009
-  4     1289  6949
-  4     1302  3859
-  4     1311  4009
-  4     1319  3979
-  4     1334  6419
-  4     1342  6479
-  4     1350  6449
+  4      257  2579
+  4      327  3279
+  4      333  3279
+  4      336  3369
+  4      372  3369
+  4      378  3279
+  4      475  4759
+  4      487  4879
+  4      490  4909
+  4      495  4959
+  4      499  4999
+  4      505  4909
+  4      513  4879
+  4      523  4999
+  4      535  4759
+  4      543  4879
+  4      551  4909
+  4      561  4959
+  4      575  4759
+  4      583  4879
+  4      592  4909
+  4      603  4959
+  4      617  4759
+  4      625  4909
+  4      720  7209
+  4      731  7319
+  4      734  7349
+  4      737  7379
+  4      752  7529
+  4      774  4759
+  4      780  7809
+  4      784  7849
+  4      798  7209
+  4      804  8049
+  4      811  8119
+  4      821  7849
+  4      829  4909
+  4      837  4879
+  4      850  8049
+  4      857  7319
+  4      865  7379
+  4      873  7349
+  4      886  7809
+  4      894  4879
+  4      902  4909
+  4      920  8119
+  4      932  7529
+  4      948  7849
+  4      956  4909
+  4      964  4879
+  4      977  8049
+  4      984  7319
+  4      992  7379
+  4     1000  7349
+  4     1013  7809
+  4     1021  4879
+  4     1029  4909
+  4     1044  8119
+  4     1056  7529
+  4     1074  4909
+  4     1082  4879
+  4     1097  4879
+  4     1105  4909
+  4     1120  7319
+  4     1128  7379
+  4     1136  7349
+  4     1154  8119
+  4     1166  7529
+  4     1182  7849
+  4     1195  4759
+  4     1204  4909
+  4     1212  4879
+  4     1225  8049
+  4     1237  7209
+  4     1246  7319
+  4     1254  7379
+  4     1262  7349
+  4     1275  7809
+  4     1288  4759
+  4     1297  4879
+  4     1305  4909
+  4     1322  8119
+  4     1334  7529
+  4     1350  7809
+  4     1358  4879
+  4     1366  4909
+  4     1379  7849
+  4     1392  4759
+  4     1401  4909
+  4     1409  4879
+  4     1424  7319
+  4     1432  7379
+  4     1440  7349
   5        8    91
   5       32   331
   5       43    59
@@ -150,7 +150,7 @@ FID  FOFFSET   EID
   5       88   891
 Table: Rest
 FID  FOFFSET  CODE
----  -------  --------------------------------------------------------------------
+---  -------  ---------------------------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -178,105 +178,106 @@ FID  FOFFSET  CODE
   4      143  \u0000d\u0000a	
   4      147   = (struct 
   4      164  ){};	
-  4      197  \u0000d\u0000a\u0000d\u0000a	int 
-  4      207  ;\u0000d\u0000a\u0000d\u0000a	typedef struct empty {} 
-  4      239  ;\u0000d\u0000a	
-  4      245   
-  4      248   = {};		
-  4      279  \u0000d\u0000a	
-  4      284   = (
-  4      290  ){};		
-  4      324  \u0000d\u0000a\u0000d\u0000a	
-  4      375  \u0000d\u0000a	struct 
-  4      390   { int 
-  4      398  , 
-  4      401  ;} *
-  4      407  , 
-  4      410   = {.
-  4      416   = 1, .
-  4      424   = 2};\u0000d\u0000a	
-  4      434   = (struct 
-  4      450  ){.
-  4      454   = 4, .
-  4      462   = 8};\u0000d\u0000a	
-  4      473   = &(struct 
-  4      490  ){.
-  4      494   = 14, .
-  4      503   = 18};\u0000d\u0000a	
-  4      515   = &(struct 
-  4      532  ){.
-  4      536   = 14, 18};	
-  4      569  \u0000d\u0000a\u0000d\u0000a	
-  4      620  \u0000d\u0000a	struct 
-  4      635   {int 
-  4      642  , 
-  4      645  , 
-  4      648  ; };\u0000d\u0000a	struct 
-  4      671   {\u0000d\u0000a		struct 
-  4      689   
-  4      692  , 
-  4      696  ;\u0000d\u0000a		struct 
-  4      713   
-  4      715  ;\u0000d\u0000a	} 
-  4      722   = {\u0000d\u0000a		.
-  4      733   = { .
-  4      740   = 4, .
-  4      748   = 8 },\u0000d\u0000a		.
-  4      761   = { .
-  4      768   = 4, .
-  4      776   = 1, .
-  4      784   = 12},\u0000d\u0000a		.
-  4      798   = { .
-  4      805   = 1, .
-  4      813   = 2 },\u0000d\u0000a	};\u0000d\u0000a\u0000d\u0000a	
-  4      831   = (struct 
-  4      851  ){\u0000d\u0000a		.
-  4      860   = { .
-  4      867   = 4, .
-  4      875   = 8 },\u0000d\u0000a		.
+  4      197  \u0000d\u0000a\u0000d\u0000a	
+  4      252  	int 
+  4      258   = ((const int[]){ 64, 64, 64, 63 })[2];\u0000d\u0000a\u0000d\u0000a	typedef struct empty {} 
+  4      329  ;\u0000d\u0000a	
+  4      335   
+  4      338   = {};		
+  4      369  \u0000d\u0000a	
+  4      374   = (
+  4      380  ){};		
+  4      414  \u0000d\u0000a\u0000d\u0000a	
+  4      465  \u0000d\u0000a	struct 
+  4      480   { int 
+  4      488  , 
+  4      491  ;} *
+  4      497  , 
+  4      500   = {.
+  4      506   = 1, .
+  4      514   = 2};\u0000d\u0000a	
+  4      524   = (struct 
+  4      540  ){.
+  4      544   = 4, .
+  4      552   = 8};\u0000d\u0000a	
+  4      563   = &(struct 
+  4      580  ){.
+  4      584   = 14, .
+  4      593   = 18};\u0000d\u0000a	
+  4      605   = &(struct 
+  4      622  ){.
+  4      626   = 14, 18};	
+  4      659  \u0000d\u0000a\u0000d\u0000a	
+  4      710  \u0000d\u0000a	struct 
+  4      725   {int 
+  4      732  , 
+  4      735  , 
+  4      738  ; };\u0000d\u0000a	struct 
+  4      761   {\u0000d\u0000a		struct 
+  4      779   
+  4      782  , 
+  4      786  ;\u0000d\u0000a		struct 
+  4      803   
+  4      805  ;\u0000d\u0000a	} 
+  4      812   = {\u0000d\u0000a		.
+  4      823   = { .
+  4      830   = 4, .
+  4      838   = 8 },\u0000d\u0000a		.
+  4      851   = { .
+  4      858   = 4, .
+  4      866   = 1, .
+  4      874   = 12},\u0000d\u0000a		.
   4      888   = { .
-  4      895   = 4, .
-  4      903   = 1, .
-  4      911   = 12},\u0000d\u0000a		.
-  4      925   = { .
-  4      932   = 1, .
-  4      940   = 2 }\u0000d\u0000a	};\u0000d\u0000a	
-  4      955   = (struct 
-  4      975  ){\u0000d\u0000a		{ .
+  4      895   = 1, .
+  4      903   = 2 },\u0000d\u0000a	};\u0000d\u0000a\u0000d\u0000a	
+  4      921   = (struct 
+  4      941  ){\u0000d\u0000a		.
+  4      950   = { .
+  4      957   = 4, .
+  4      965   = 8 },\u0000d\u0000a		.
+  4      978   = { .
   4      985   = 4, .
-  4      993   = 8 },\u0000d\u0000a		{ .
-  4     1008   = 1, .
-  4     1016   = 2 },\u0000d\u0000a		{ .
-  4     1031   = 4, .
-  4     1039   = 1, .
-  4     1047   = 12},\u0000d\u0000a	};\u0000d\u0000a\u0000d\u0000a	
-  4     1065   = (struct 
-  4     1085  ){\u0000d\u0000a		.
-  4     1094   = (struct 
-  4     1110  ){ .
-  4     1115   = 4, .
-  4     1123   = 8 },\u0000d\u0000a		.
-  4     1136   = (struct 
-  4     1152  ){ .
-  4     1157   = 4, .
-  4     1165   = 1, .
-  4     1173   = 12},\u0000d\u0000a		.
-  4     1187   = (struct 
-  4     1203  ){ .
-  4     1208   = 1, .
-  4     1216   = 2 }\u0000d\u0000a	};\u0000d\u0000a\u0000d\u0000a	
-  4     1233   = (struct 
-  4     1253  ){\u0000d\u0000a		.
-  4     1262   = { .
-  4     1269   = 1, .
-  4     1277   = 2 },\u0000d\u0000a		.
-  4     1291   = (struct 
-  4     1307  ){ .
-  4     1312   = 4, .
-  4     1320   = 8 },\u0000d\u0000a		{ .
-  4     1335   = 4, .
-  4     1343   = 1, .
-  4     1351   = 12},\u0000d\u0000a	};\u0000d\u0000a}\u0000d\u0000a
+  4      993   = 1, .
+  4     1001   = 12},\u0000d\u0000a		.
+  4     1015   = { .
+  4     1022   = 1, .
+  4     1030   = 2 }\u0000d\u0000a	};\u0000d\u0000a	
+  4     1045   = (struct 
+  4     1065  ){\u0000d\u0000a		{ .
+  4     1075   = 4, .
+  4     1083   = 8 },\u0000d\u0000a		{ .
+  4     1098   = 1, .
+  4     1106   = 2 },\u0000d\u0000a		{ .
+  4     1121   = 4, .
+  4     1129   = 1, .
+  4     1137   = 12},\u0000d\u0000a	};\u0000d\u0000a\u0000d\u0000a	
+  4     1155   = (struct 
+  4     1175  ){\u0000d\u0000a		.
+  4     1184   = (struct 
+  4     1200  ){ .
+  4     1205   = 4, .
+  4     1213   = 8 },\u0000d\u0000a		.
+  4     1226   = (struct 
+  4     1242  ){ .
+  4     1247   = 4, .
+  4     1255   = 1, .
+  4     1263   = 12},\u0000d\u0000a		.
+  4     1277   = (struct 
+  4     1293  ){ .
+  4     1298   = 1, .
+  4     1306   = 2 }\u0000d\u0000a	};\u0000d\u0000a\u0000d\u0000a	
+  4     1323   = (struct 
+  4     1343  ){\u0000d\u0000a		.
+  4     1352   = { .
+  4     1359   = 1, .
+  4     1367   = 2 },\u0000d\u0000a		.
+  4     1381   = (struct 
+  4     1397  ){ .
+  4     1402   = 4, .
+  4     1410   = 8 },\u0000d\u0000a		{ .
+  4     1425   = 4, .
+  4     1433   = 1, .
+  4     1441   = 12},\u0000d\u0000a	};\u0000d\u0000a}\u0000d\u0000a
   5        0  #define 
   5       16   11\u0000d\u0000aextern int 
   5       33  ;\u0000d\u0000aextern 
@@ -298,29 +299,29 @@ Table: IdProj
  799   17
  919   17
 1129   17
-2069   17
-2379   17
-2469   17
+2579   17
 2975   17
+3279   17
 3295   17
+3369   17
 3575   17
-3859   17
 3865   17
-3979   17
-4009   17
 4055   17
-4059   17
-4099   17
+4759   17
+4879   17
+4909   17
+4959   17
+4999   17
 5355   17
-6309   17
-6419   17
-6449   17
-6479   17
-6629   17
-6909   17
-6949   17
-7149   17
-7219   17
+7209   17
+7319   17
+7349   17
+7379   17
+7529   17
+7809   17
+7849   17
+8049   17
+8119   17
   59   18
   91   18
  331   18
@@ -329,35 +330,35 @@ Table: IdProj
  891   18
  919   18
 1129   18
-2069   18
-2379   18
-2469   18
+2579   18
 2975   18
+3279   18
 3295   18
+3369   18
 3575   18
-3859   18
 3865   18
-3979   18
-4009   18
 4055   18
-4059   18
-4099   18
+4759   18
+4879   18
+4909   18
+4959   18
+4999   18
 5355   18
-6309   18
-6419   18
-6449   18
-6479   18
-6629   18
-6909   18
-6949   18
-7149   18
-7219   18
+7209   18
+7319   18
+7349   18
+7379   18
+7529   18
+7809   18
+7849   18
+8049   18
+8119   18
 Table: Files
 FID  NAME                RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  ------------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
   2  host-defs.h         TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  host-incs.h         TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c19-initializers.c  FALSE   1368        235     400          0          8     54          58        0       0             0        0          0          0       452      453        1           9           1           0      0      0           5         9      0         0         0
+  4  c19-initializers.c  FALSE   1458        282     409          1          8     55          58        0       0             0        0          0          0       473      474        1           9           1           0      0      0           5         9      0         0         0
   5  prj2.c              FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
@@ -412,7 +413,7 @@ Table: Functions
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC       CHAL  IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
 ----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  ---------  -----  --------  ------------  ------  ----------
-        59   1353        235     395          0          8     51          58        0       0             0        0          0          0       447      447     22  122     4       43      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0   18      0      0      0     7       9       0        0       0      0       0       1       1       1   0.0E0  1053.14E0  0.0E0         4            14       4        1366
+        59   1443        282     404          1          8     52          58        0       0             0        0          0          0       468      468     22  123     4       48      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0   18      0      0      0     7       9       0        0       0      0       0       1       1       1   0.0E0  1111.82E0  0.0E0         4            14       4        1456
        891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      16       0        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5            95       5         117
       5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1       8       0        0       0      1       1       1       1       1   1.0E0      0.0E0  1.0E0         2           557       2         577
 Table: FunctionId

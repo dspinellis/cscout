@@ -6,7 +6,8 @@ main()
 	struct empty2 k = {};	/* Empty initializer */
 	k = (struct empty2){};	/* Empty compound literal */
 
-	int i;
+	// Compound literal used as a primary expression
+	int i = ((const int[]){ 64, 64, 64, 63 })[2];
 
 	typedef struct empty {} ES;
 	ES k2 = {};		/* Empty initializer */

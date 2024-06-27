@@ -545,6 +545,17 @@ primary_expression:
 	| '(' compound_statement ')'
 			{ $$ = $2; }
 
+	/* Compound literal; C99 feature */
+        | '(' type_name ')' { saved_initializer_stacks.push(initializer_stack); initializer_stack = InitializerStack(); initializer_expect($2); } braced_initializer
+		{
+			if (DP()) {
+				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
+				cout << "Type of compound literal " << $2 << "\n";
+			}
+			$$ = $2;
+			initializer_stack = saved_initializer_stacks.top();
+			saved_initializer_stacks.pop();
+		}
 	| generic_selection
         ;
 
@@ -666,17 +677,6 @@ cast_expression:
 			$$.set_value($4.get_value());
 			if (DP())
 				cout << "cast to " << $2 << "\n";
-		}
-	/* Compound literal; C99 feature */
-        | '(' type_name ')' { saved_initializer_stacks.push(initializer_stack); initializer_stack = InitializerStack(); initializer_expect($2); } braced_initializer
-		{
-			if (DP()) {
-				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
-				cout << "Type of compound literal " << $2 << "\n";
-			}
-			$$ = $2;
-			initializer_stack = saved_initializer_stacks.top();
-			saved_initializer_stacks.pop();
 		}
         ;
 
