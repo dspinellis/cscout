@@ -358,6 +358,7 @@ while test $# -gt 0; do
         case $1 in
 	-p)	PRIME=1
 		echo "Priming test data"
+                rm test/nout/*
 		;;
 	-k)	CONTINUE=1
 		;;
