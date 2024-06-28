@@ -495,6 +495,8 @@ primary_expression:
 				if (id) {
 					Token::unify(id->get_token(), $1.get_token());
 					$$ = id->get_type();
+					if (DP())
+						cout << "Lookup " << $1.get_name() << " is " << $$ << "\n";
 					if ($$.is_cfunction())
 						FCall::register_call($1.get_token(), id);
 				} else {
@@ -1478,7 +1480,7 @@ enumerator_list:
 				$$ = $2;
 				if (!$$.get_value().is_const())
 					$$.set_value(0);
-				obj_define($1.get_token(), $$);
+				obj_define($1.get_token(), $$.clone());
 				if (DP())
 					cout << $1.get_token() << " = " << $$ << endl;
 				Fchar::get_fileid().metrics().add_emember();
@@ -1491,7 +1493,7 @@ enumerator_list:
 					$$ = $1;
 					$$.set_value($1.get_value() + 1);
 				}
-				obj_define($3.get_token(), $$);
+				obj_define($3.get_token(), $$.clone());
 				if (DP())
 					cout << $3.get_token() << " = " << $$ << endl;
 				Fchar::get_fileid().metrics().add_emember();

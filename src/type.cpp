@@ -968,7 +968,7 @@ Type::declare()
 Type
 Tbasic::clone() const
 {
-	return Type(new Tbasic(type, sign, sclass.get_storage_class(), get_qualifiers()));
+	return Type(new Tbasic(type, sign, sclass.get_storage_class(), get_qualifiers(), value));
 }
 
 void

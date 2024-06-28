@@ -200,8 +200,9 @@ private:
 	CTConst value;		// Value of a compile-time constant
 public:
 	Tbasic(enum e_btype t = b_abstract, enum e_sign s = s_none,
-		enum e_storage_class sc = c_unspecified, qualifiers_t q = q_none) :
-		QType_node(q), type(t), sign(s), sclass(sc) {}
+		enum e_storage_class sc = c_unspecified,
+		qualifiers_t q = q_none, CTConst v = CTConst()) :
+		QType_node(q), type(t), sign(s), sclass(sc), value(v) {}
 	Type clone() const;
 	bool is_valid() const { return type != b_undeclared && type != b_padbit; }
 	bool is_abstract() const { return type == b_abstract; }
