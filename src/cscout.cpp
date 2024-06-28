@@ -3384,6 +3384,7 @@ main(int argc, char *argv[])
 
 	if (process_mode != pm_compile
 	    && process_mode != pm_database
+	    && process_mode != pm_obfuscation
 	    && process_mode != pm_preprocess) {
 		if (!swill_init(portno)) {
 			cerr << "Couldn't initialize our web server on port " << portno << endl;
