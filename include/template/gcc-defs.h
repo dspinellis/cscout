@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2016 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -89,8 +89,11 @@
 #define __builtin_infl()    (long double)0
 #define __builtin_isinf_sign(...) 1
 #define __builtin_LINE() 1
+#define __builtin_memchr(_s, _c, _n) ((_n), (_c), (_s))
+#define __builtin_memcmp(_s1, _s2, _n) ((_s1), (_s2), (_n), 0)
 #define __builtin___memcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
 #define __builtin_memcpy(_d, _s, _n) (_s, _n, _d)
+#define __builtin_memmove(_d, _s, _n) ((_s), (_n), (_d))
 #define __builtin___memmove_chk(x,y,z,w) ((x), (y), (z), (w), 1)
 #define __builtin___mempcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
 #define __builtin_memset(x,y,z) ((x), (y), (z), 1)
@@ -131,9 +134,12 @@
 #define __builtin___strcat_chk(x,y,z) ((x), (y), (z), 0)
 #define __builtin_strchr(x,y) ((x), (y), 0)
 #define __builtin_strcmp(x,y) ((x), (y), 0)
+#define __builtin_strcpy(_d, _s) ((_s), (_d))
 #define __builtin___strcpy_chk(x,y,z) ((x), (y), (z), 0)
 #define __builtin_strcspn(x,y) ((x), (y), 0)
 #define __builtin_strlen(x) ((x), 1)
+#define __builtin_strncat(_d, _s, _n) ((_s), (_n), (_d))
+#define __builtin_strncpy(_d, _s, _n) ((_s), (_n), (_d))
 #define __builtin___strncat_chk(x,y,z,w) ((x), (y), (z), (w), 1)
 #define __builtin___strncpy_chk(x,y,z,w) ((x), (y), (z), (w), 1)
 #define __builtin_sub_overflow(x,y,z) ((x), (y), (z), 1)
