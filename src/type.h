@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -116,6 +116,7 @@ protected:
 	virtual bool is_ptr() const { return false; }// True for ptr arithmetic types
 	virtual bool is_su() const { return false; }// True for struct/union
 	virtual bool is_valid() const { return true; }// False for undeclared
+	virtual bool is_undeclared() const { return false; }// True for undeclared
 	virtual bool is_void() const { return false; }// True only for the void basic type
 	virtual char ctags_kind() const { return 'X'; }		// The ctags kind of the corresponding type (ctags --list-kinds)
 	virtual bool qualified_const() const { return false; }// True for constructs containing the const attribute
@@ -205,6 +206,7 @@ public:
 		QType_node(q), type(t), sign(s), sclass(sc), value(v) {}
 	Type clone() const;
 	bool is_valid() const { return type != b_undeclared && type != b_padbit; }
+	bool is_undeclared() const { return type == b_undeclared; }
 	bool is_abstract() const { return type == b_abstract; }
 	bool is_basic() const { return true; }// False for undeclared
 	bool is_void() const { return type == b_void; }
@@ -287,6 +289,7 @@ public:
 	bool is_su() const		{ return p->is_su(); }
 	bool is_typedef() const		{ return p->is_typedef(); }
 	bool is_valid() const		{ return p->is_valid(); }
+	bool is_undeclared() const	{ return p->is_undeclared(); }
 	bool is_void() const		{ return p->is_void(); }
 	char ctags_kind() const		{ return p->ctags_kind(); }
 	bool qualified_const() const	{ return p->qualified_const(); }

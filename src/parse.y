@@ -1268,7 +1268,8 @@ aggregate_name:
         aggregate_key '{'  member_declaration_list '}'
 		{
 			Fchar::get_fileid().metrics().add_aggregate();
-			$3.set_union((bool)$1.get_nparam());
+			if (!$3.is_undeclared())
+				$3.set_union((bool)$1.get_nparam());
 			$$ = $3;
 
 		}
@@ -1277,7 +1278,8 @@ aggregate_name:
 			Id const *id = tag_lookup($2.get_name());
 			if (id)
 				Token::unify(id->get_token(), $2.get_token());
-			$4.set_union((bool)$1.get_nparam());
+			if (!$4.is_undeclared())
+				$4.set_union((bool)$1.get_nparam());
 			tag_define($2.get_token(), $4);
 			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = $4;
@@ -1292,7 +1294,8 @@ aggregate_name:
 					cout << "lookup returns " << $$ << "\n";
 			} else {
 				$$ = incomplete($2.get_token(), Block::get_scope_level());
-				$$.set_union((bool)$1.get_nparam());
+				if (!$$.is_undeclared())
+					$$.set_union((bool)$1.get_nparam());
 				tag_define($2.get_token(), $$);
 			}
 		}
@@ -1304,13 +1307,15 @@ aggregate_name:
 				Token::unify(id->get_token(), $2.get_token());
 			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = struct_union();
-			$$.set_union((bool)$1.get_nparam());
+			if (!$$.is_undeclared())
+				$$.set_union((bool)$1.get_nparam());
 		}
         | aggregate_key '{'  /* EMPTY member_declaration_list */ '}'
 		{
 			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = struct_union();
-			$$.set_union((bool)$1.get_nparam());
+			if (!$$.is_undeclared())
+				$$.set_union((bool)$1.get_nparam());
 		}
         ;
 
