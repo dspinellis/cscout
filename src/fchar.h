@@ -73,6 +73,7 @@ private:
 	static fifstream in;		// Stream we are reading from
 	static Fileid fi;		// and its Fileid
 	static int line_number;		// Current line number
+	static long total_lines;	// Total lines processed
 	static bool yacc_file;		// True if input file is yacc, not C
 	static StackFcharContext cs;	// Pushed contexts (from push_input())
 	static stackFchar ps;		// Putback stack
@@ -122,6 +123,8 @@ public:
 	inline Tokid get_tokid() const { return (ti); };
 	// Return the current line number
 	static int get_line_num() { return line_number; }
+	// Return the total lines processed
+	static long get_total_lines() { return total_lines; }
 	static string  get_path() { return fi.get_path(); }
 	static string  get_fname() { return fi.get_fname(); }
 	static string  get_dir() { return fi.get_dir(); }

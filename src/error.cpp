@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -68,13 +68,13 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	case E_WARN: num_warnings++; break;
 	case E_ERR:
 		num_errors++;
-		if (num_errors > 1000)
+		if (num_errors > Fchar::get_total_lines() / 10)
 			/*
 			 * @error
-			 * To avoid cascading errors only the first 1000 errors
-			 * are reported
+			 * To avoid cascading errors, the processing terminates
+			 * when errors exceed 10% of processed lines
 			 */
-			Error::error(E_FATAL, "error count exceeds 1000; exiting", false);
+			Error::error(E_FATAL, "error count exceeds 10%; exiting", false);
 		break;
 	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
 	case E_FATAL: exit(1);

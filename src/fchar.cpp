@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -54,6 +54,7 @@ Fileid Fchar::fi;
 StackFcharContext Fchar::cs;		// Pushed contexts (from push_input())
 stackFchar Fchar::ps;			// Putback Fchars (from putback())
 int Fchar::line_number;			// Current line number
+long Fchar::total_lines;		// Total lines processed
 bool Fchar::yacc_file;			// True input comes from .y
 stackFchar::size_type Fchar::stack_lock_size;	// Locked elements in file stack
 bool Fchar::trigraphs_enabled;		// True if we handle trigraphs
@@ -191,6 +192,7 @@ Fchar::getnext()
 		if (val != EOF)
 			oval = val;
 		if (val == EOF) {
+			total_lines += line_number;
 			fi.metrics().done_processing();
 			fi.set_attribute(Project::get_current_projid());
 			if (DP())
