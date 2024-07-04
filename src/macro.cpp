@@ -518,24 +518,24 @@ subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool sk
 			if (ti != is.end() && ti->get_code() == CPP_CONCAT) {
 				/*
 				 * Implement the following gcc extension:
-				 *  "`##' before a
-				 *   rest argument that is empty discards the preceding sequence of
-				 *   non-whitespace characters from the macro definition.  (If another macro
-				 *   argument precedes, none of it is discarded.)"
-				 * Otherwise, break to process a non-formal argument in the default way
+				 * "`##' before a rest argument that is empty
+				 * discards the preceding "," token from
+				 *  the macro definition.
+				 * Otherwise, break to process a non-formal
+				 * argument in the default way
 				 */
-				if ((ai = find_formal_argument(args, head)) == args.end()) {
-					if (m.get_is_vararg()) {
-						ti2 = find_nonspace(ti + 1, is.end());
-						if (ti2 != is.end() && (ai = find_formal_argument(args, *ti2)) != args.end() && ai->second.size() == 0) {
-							// All conditions satisfied; discard elements:
-							// <non-formal> <##> <empty-formal>
-							is.erase(is.begin(), ++ti2);
-							continue;
-						}
+				if (head.get_code() == ','
+				    && m.get_is_vararg()) {
+					ti2 = find_nonspace(ti + 1, is.end());
+					if (ti2 != is.end() && (ai = find_formal_argument(args, *ti2)) != args.end() && ai->second.size() == 0) {
+						// All conditions satisfied; discard elements:
+						// <non-formal> <##> <empty-formal>
+						is.erase(is.begin(), ++ti2);
+						continue;
 					}
-					break;	// Non-formal arguments don't deserve special treatment
 				}
+				if ((ai = find_formal_argument(args, head)) == args.end())
+					break;	// Non-formal arguments don't deserve special treatment
 				// Paste but not expand LHS, RHS
 				if (ai->second.size() == 0) {	// Only if actuals can be empty
 					is.erase(is.begin(), ++ti);	// Erase including ##
