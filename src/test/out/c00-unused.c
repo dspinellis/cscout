@@ -36,6 +36,10 @@ Table: Ids
 5589  h_type               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
 5849  h                    FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
 6519  i                    FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
+6709  pu1                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
+6849  pu2                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
+6949  su1                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
+7089  su2                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
 Table: Tokens
 FID  FOFFSET   EID
 ---  -------  ----
@@ -92,6 +96,14 @@ FID  FOFFSET   EID
   4      628  1319
   4      644  4809
   4      651  6519
+  4      661  1319
+  4      670  6709
+  4      675  1319
+  4      684  6849
+  4      694  6949
+  4      698  1319
+  4      708  7089
+  4      712  1319
   5        8    91
   5       32   331
   5       43   441
@@ -163,7 +175,15 @@ FID  FOFFSET  CODE
   4      585  ;		
   4      636   struct 
   4      649   *
-  4      652  ;\u0000d\u0000a\u0000d\u0000a
+  4      652  ;\u0000d\u0000a\u0000d\u0000aint 
+  4      669   
+  4      673  , 
+  4      683   
+  4      687  ;\u0000d\u0000aint 
+  4      697   
+  4      706  , 
+  4      711   
+  4      720  ;\u0000d\u0000a
   5        0  #define 
   5       16   11\u0000d\u0000aextern int 
   5       33  ;\u0000d\u0000aextern 
@@ -212,6 +232,10 @@ Table: IdProj
 5589   17
 5849   17
 6519   17
+6709   17
+6849   17
+6949   17
+7089   17
   49   18
   91   18
  279   18
@@ -247,12 +271,16 @@ Table: IdProj
 5589   18
 5849   18
 6519   18
+6709   18
+6849   18
+6949   18
+7089   18
 Table: Files
 FID  NAME          RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
 ---  ------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
   2  host-defs.h   TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
   3  host-incs.h   TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c00-unused.c  FALSE    657         54     140          2          0     28          67        0       0             1        0          0          1       137      120        1           0           1           0     14      0           1         2      0         0         0
+  4  c00-unused.c  FALSE    723         54     152          2          0     30          67        0       0             1        0          0          1       151      134        1           0           1           0     18      0           1         2      0         0         0
   5  prj2.c        FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
@@ -305,9 +333,9 @@ Table: Functions
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC   CHAL  IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
 ----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  -----  -----  --------  ------------  ------  ----------
-       891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      32       0        0       0      0       0       1       1       1   0.0E0  0.0E0  0.0E0         5            95       5         117
+       891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      36       0        0       0      0       0       1       1       1   0.0E0  0.0E0  0.0E0         5            95       5         117
       4279     24          0      10          0          0      2          18        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     1    2      0      0      1     2      36       0        0       0      0       0       1       1       1   0.0E0  2.0E0  0.0E0         4           448       4         471
-      5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      24       0        0       0      1       1       1       1       1   1.0E0  0.0E0  1.0E0         2           557       2         577
+      5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      28       0        0       0      1       1       1       1       1   1.0E0  0.0E0  1.0E0         2           557       2         577
 Table: FunctionId
 FUNCTIONID  ORDINAL   EID
 ----------  -------  ----

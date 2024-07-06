@@ -382,6 +382,7 @@ yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 %type <t> postfix_identifier_declarator
 %type <t> unary_identifier_declarator
 %type <t> identifier_declarator
+%type <t> attributed_identifier_declarator
 %type <t> aggregate_key
 %type <t> range_expression
 %type <t> enumerator_value_opt
@@ -1003,32 +1004,32 @@ declaration:
 
 default_declaring_list:  /* Can't  redeclare typedef names */
 	/* static volatile @ a[3] @ = { 1, 2, 3} */
-        declaration_qualifier_list identifier_declarator asm_or_attribute_list
+        declaration_qualifier_list attributed_identifier_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
 			initializer_expect($2);
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
 	/* volatile @ a[3] @ = { 1, 2, 3} */
-        | type_qualifier_list identifier_declarator asm_or_attribute_list
+        | type_qualifier_list attributed_identifier_declarator
 		{
 			$2.declare();
 			initializer_expect($2);
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
 		{ $$ = $1; /* Pass-on qualifier */ }
-        | default_declaring_list ',' identifier_declarator asm_or_attribute_list
+        | default_declaring_list ',' attributed_identifier_declarator
 		{
 			$3.set_abstract($1);
 			$3.declare();
 			initializer_expect($3);
-			if ($1.qualified_unused() || $3.qualified_unused() || $4.qualified_unused())
+			if ($1.qualified_unused() || $3.qualified_unused())
 				$3.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
@@ -1431,7 +1432,7 @@ member_declarator:
 
 member_identifier_declarator:
 	/* a[3]; also typedef names */
-        identifier_declarator asm_or_attribute_list bit_field_size_opt
+        attributed_identifier_declarator bit_field_size_opt
 		{
 			Fchar::get_fileid().metrics().add_amember();
 			$$ = $1;
@@ -1545,11 +1546,11 @@ parameter_declaration:
         | declaration_specifier abstract_declarator
 		{ $2.set_abstract($1); $$ = $2; }
 	/* int i[2] */
-        | declaration_specifier identifier_declarator asm_or_attribute_list
+        | declaration_specifier attributed_identifier_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 			$$ = $2;
 		}
@@ -1568,11 +1569,11 @@ parameter_declaration:
         | declaration_qualifier_list abstract_declarator
 		{ $2.set_abstract($1); $$ = $2; }
 	/* volatile int a */
-        | declaration_qualifier_list identifier_declarator asm_or_attribute_list
+        | declaration_qualifier_list attributed_identifier_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 			$2.set_abstract($1);
 			$$ = $2;
@@ -1581,11 +1582,11 @@ parameter_declaration:
         | type_specifier
         | type_specifier abstract_declarator
 		{ $2.set_abstract($1); $$ = $2; }
-        | type_specifier identifier_declarator asm_or_attribute_list
+        | type_specifier attributed_identifier_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 			$$ = $2;
 		}
@@ -1600,10 +1601,10 @@ parameter_declaration:
         | type_qualifier_list
         | type_qualifier_list abstract_declarator
 		{ $$ = merge($1, $2); }
-        | type_qualifier_list identifier_declarator asm_or_attribute_list
+        | type_qualifier_list attributed_identifier_declarator
 		{
 			$2.declare();
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 			$2.set_abstract($1);
 			$$ = $2;
@@ -2068,44 +2069,44 @@ function_definition:
  */
 typed_function_definition:
 	/* foo(int a, int b) @ { } (and many illegal constructs) */
-        declaration_specifier      identifier_declarator asm_or_attribute_list
+        declaration_specifier attributed_identifier_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($1.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 			FCall::set_current_fun($2);
 		}
 					function_body
-        | type_specifier             identifier_declarator asm_or_attribute_list
+        | type_specifier attributed_identifier_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 			FCall::set_current_fun($2);
 		}
 					function_body
-        | declaration_qualifier_list identifier_declarator asm_or_attribute_list
+        | declaration_qualifier_list attributed_identifier_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 			FCall::set_current_fun($2);
 		}
 					function_body
-        | type_qualifier_list        identifier_declarator asm_or_attribute_list
+        | type_qualifier_list attributed_identifier_declarator
 		{
 			$2.declare();
-			if ($1.qualified_unused() || $2.qualified_unused() || $3.qualified_unused())
+			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 			FCall::set_current_fun($2);
 		}
 					function_body
 
 	/* foo(a, b) @ { } */
-        | declaration_specifier      old_function_declarator
+        | declaration_specifier old_function_declarator
 		{
 			$2.set_abstract($1);
 			$2.declare();
@@ -2173,14 +2174,14 @@ typed_function_definition:
 
 untyped_function_definition:
 	/* foo(int a, int b) @ { } (and many illegal constructs) */
-                                     identifier_declarator asm_or_attribute_list
+	  attributed_identifier_declarator
 		{
 			$1.declare();
-			if ($1.qualified_unused() || $2.qualified_unused())
+			if ($1.qualified_unused())
 				$1.get_token().set_ec_attribute(is_declared_unused);
 			FCall::set_current_fun($1);
 		}
-					function_body
+		function_body
 	/* foo(a, b) @ { } */
         |                            old_function_declarator
 		{
@@ -2201,12 +2202,13 @@ untyped_function_definition:
 
 declarator:
 	/* *a[3] */
-        identifier_declarator asm_or_attribute_list
+	  attributed_identifier_declarator
 		{
 			$$ = $1;
-			if ($1.qualified_unused() || $2.qualified_unused())
+			if ($1.qualified_unused())
 				$1.get_token().set_ec_attribute(is_declared_unused);
 		}
+        | typedef_declarator
         | typedef_declarator asm_or_attribute_list
 		{
 			$$ = $1;
@@ -2255,8 +2257,8 @@ attribute:
 	;
 
 asm_or_attribute_list:
-	/* EMPTY */
-		{ $$ = basic(b_undeclared); }
+	  attribute
+	| assembly_decl
 	| asm_or_attribute_list attribute
 		{ $$ = merge($1, $2); }
 	| asm_or_attribute_list assembly_decl
@@ -2323,6 +2325,30 @@ simple_paren_typedef_declarator:
         | '(' simple_paren_typedef_declarator ')'
 		{ $$ = $2; }
         ;
+
+attributed_identifier_declarator:
+	  identifier_declarator
+	| asm_or_attribute_list identifier_declarator asm_or_attribute_list
+		{
+			if ($1.qualified_unused()
+			    || $2.qualified_unused()
+			    || $3.qualified_unused())
+				$2.get_token().set_ec_attribute(is_declared_unused);
+			$$ = $2;
+		}
+	| asm_or_attribute_list identifier_declarator
+		{
+			if ($1.qualified_unused() || $2.qualified_unused())
+				$2.get_token().set_ec_attribute(is_declared_unused);
+			$$ = $2;
+		}
+	| identifier_declarator asm_or_attribute_list
+		{
+			if ($1.qualified_unused() || $2.qualified_unused())
+				$1.get_token().set_ec_attribute(is_declared_unused);
+			$$ = $1;
+		}
+	;
 
 identifier_declarator:
         unary_identifier_declarator

@@ -26,3 +26,5 @@ typedef int h_type __unused;
 h_type h;		// This isn't yet recognised as unused
 __unused struct sname *i;
 
+int __unused pu1, __unused pu2;
+int su1 __unused, su2 __unused;

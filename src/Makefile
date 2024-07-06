@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001-2016 Diomidis Spinellis
+# (C) Copyright 2001-2024 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -189,7 +189,7 @@ build/cscout-cc: build/cscout.o  $(OBJ)
 # http://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make?page=0%2C2
 %.cpp %.tab.h: %.y ytoken.h
 	@test $* = parse && echo Expect 3 shift/reduce conflicts || true
-	echo Expect 3 shift/reduce conflicts, 64 reduce/reduce conflicts
+	echo Expect 14 shift/reduce conflicts, 71 reduce/reduce conflicts
 	$(YACC) -d -b $* -p $*_ $*.y
 	mv -f $*.tab.c $*.cpp
 
