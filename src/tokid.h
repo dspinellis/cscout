@@ -62,8 +62,8 @@ public:
 private:
 #endif
 	static mapTokidEclass tm;	// Map from tokens to their equivalence
-private:
 					// classes
+private:
 	Fileid fi;			// File
 	cs_offset_t offs;		// Offset
 public:
