@@ -1266,6 +1266,7 @@ elaborated_type_name:
         ; /* Default rules */
 
 aggregate_name:
+	/* struct { int x, y; } */
         aggregate_key '{'  member_declaration_list '}'
 		{
 			Fchar::get_fileid().metrics().add_aggregate();
@@ -1274,6 +1275,7 @@ aggregate_name:
 			$$ = $3;
 
 		}
+	/* struct Point { int x, y; } */
         | aggregate_key identifier_or_typedef_name '{'  member_declaration_list '}'
 		{
 			Id const *id = tag_lookup($2.get_name());
@@ -1285,6 +1287,7 @@ aggregate_name:
 			Fchar::get_fileid().metrics().add_aggregate();
 			$$ = $4;
 		}
+	/* struct Point */
         | aggregate_key identifier_or_typedef_name
 		{
 			Id const *id = tag_lookup($2.get_name());
@@ -2242,7 +2245,12 @@ attribute_list:
 	attribute
 		{ $$ = $1; }
 	| attribute_list attribute
-		{ $$ = merge($1, $2); }
+		{
+			if ($2.qualified_unused())
+				$$ = $2;
+			else
+				$$ = $1;
+		}
 	;
 
 attribute:
@@ -2260,7 +2268,12 @@ asm_or_attribute_list:
 	  attribute
 	| assembly_decl
 	| asm_or_attribute_list attribute
-		{ $$ = merge($1, $2); }
+		{
+			if ($2.qualified_unused())
+				$$ = $2;
+			else
+				$$ = $1;
+		}
 	| asm_or_attribute_list assembly_decl
 		{ $$ = $1; }
 	;
