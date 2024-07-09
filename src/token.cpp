@@ -167,43 +167,80 @@ Token::contains(Eclass *ec) const
 	return (false);
 }
 
+/*
+ * Advance iterating through token parts via i ending at end,
+ * taking into account and adjusting the characters used so far.
+ * Set e to the equivalence associated with the token part, also
+ * taking into account the used characters.
+ */
+static inline void
+advance_tpart_iter(dequeTpart::const_iterator &i,
+		dequeTpart::const_iterator end, int &used_chars, Eclass * &e)
+{
+	if (used_chars == i->get_len()) {
+		// All characters used, advance iterator; update e, used_chars
+		i++;
+		if (i != end) {
+			e = i->get_tokid().get_ec();
+			used_chars = 0;
+		}
+	} else if (used_chars < i->get_len())
+		// Some chars remaning; adjust e to point at them
+		e = (i->get_tokid() + used_chars).get_ec();
+	else
+		// Equivalence class spans a token part
+		csassert(false);
+}
+
 /* Given two Tokid sequences corresponding to two tokens
  * make these correspond to equivalence classes of same lengths.
  * Getting the Token constituents again will return Tokids that
  * satisfy the above postcondition.
- * The operation only modifies the underlying equivalence classes
+ * The operation only modifies the underlying equivalence classes.
  */
 void
 Tpart::homogenize(const dequeTpart &a, const dequeTpart &b)
 {
 	dequeTpart::const_iterator ai = a.begin();
 	dequeTpart::const_iterator bi = b.begin();
-	Eclass *ae = (*ai).get_tokid().get_ec();
-	Eclass *be = (*bi).get_tokid().get_ec();
-	int alen, blen;
+
+	Eclass *ae = ai->get_tokid().get_ec();
+	Eclass *be = bi->get_tokid().get_ec();
+
+	/*
+	 * In most cases used_chars will advance to cover the complete
+	 * token part and its 1-1 corresponding equivalence class.
+	 * However, there are cases (see c46-double-split.c) where
+	 * equivalence classes split during homogenization, are encountered
+	 * again.  At that point they only cover part of the token part.
+	 * To handle this we count the characters used, advancing them
+	 * by the equivalence class length, and only advance the token part
+	 * iterator, when the complete token part has been processed.
+	 */
+	int a_used_chars = 0;
+	int b_used_chars = 0;
 
 	if (DP()) cout << "Homogenize a:" << a << " b: " << b << "\n";
 	while (ai != a.end() && bi != b.end()) {
-		alen = ae->get_len();
-		blen = be->get_len();
-		if (DP()) cout << "alen=" << alen << " blen=" << blen << "\n";
-		if (blen < alen) {
-			ae = ae->split(blen - 1);
-			bi++;
-			if (bi != b.end())
-				be = (*bi).get_tokid().get_ec();
-		} else if (alen < blen) {
-			be = be->split(alen - 1);
-			ai++;
-			if (ai != a.end())
-				ae = (*ai).get_tokid().get_ec();
-		} else if (alen == blen) {
-			ai++;
-			if (ai != a.end())
-				ae = (*ai).get_tokid().get_ec();
-			bi++;
-			if (bi != b.end())
-				be = (*bi).get_tokid().get_ec();
+		if (DP()) {
+			cout << "ai=" << *ai << " bi=" << *bi << "\n";
+			cout << "ae=" << *ae << " be=" << *be << "\n";
+		}
+		if (ae->get_len() == be->get_len()) {
+			a_used_chars += ae->get_len();
+			b_used_chars += be->get_len();
+			advance_tpart_iter(bi, b.end(), b_used_chars, be);
+			advance_tpart_iter(ai, a.end(), a_used_chars, ae);
+		} else if (be->get_len() < ae->get_len()) {
+			ae = ae->split(be->get_len());
+			a_used_chars += be->get_len();
+			b_used_chars += be->get_len();
+			advance_tpart_iter(bi, b.end(), b_used_chars, be);
+		} else if (ae->get_len() < be->get_len()) {
+			be = be->split(ae->get_len());
+			a_used_chars += ae->get_len();
+			b_used_chars += ae->get_len();
+			advance_tpart_iter(ai, a.end(), a_used_chars, ae);
 		}
 	}
 }

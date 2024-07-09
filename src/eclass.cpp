@@ -84,12 +84,12 @@ merge(Eclass *a, Eclass *b)
 	return (large);
 }
 
-// Split an equivalence class after the (0-based) character position
-// pos returning the new EC receiving the split Tokids
+// Split an equivalence class starting at the (0-based) character position
+// pos returning the new EC receiving the Tokids split off at the end.
 Eclass *
 Eclass::split(int pos)
 {
-	int oldchars = pos + 1;		// Characters to retain in the old EC
+	int oldchars = pos;		// Characters to retain in the old EC
 	if (DP())
 		cout << "Split " << this << " pos=" << pos << *this;
 	csassert(oldchars < len);
@@ -204,9 +204,9 @@ main()
 	Eclass *enew = merge(e1, e2);
 	cout << "merged:\n" << *enew;
 
-	Eclass *es = enew->split(2);
+	Eclass *es = enew->split(3);
 	cout << "split 0:\n" << *enew << "\n";
-	cout << "split 2:\n" << *es << "\n";
+	cout << "split 3:\n" << *es << "\n";
 
 	return (0);
 }
