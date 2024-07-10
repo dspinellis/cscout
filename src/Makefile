@@ -189,7 +189,7 @@ build/cscout-cc: build/cscout.o  $(OBJ)
 # http://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make?page=0%2C2
 %.cpp %.tab.h: %.y ytoken.h
 	@test $* = parse && echo Expect 3 shift/reduce conflicts || true
-	echo Expect 14 shift/reduce conflicts, 71 reduce/reduce conflicts
+	echo Expect 18 shift/reduce conflicts, 71 reduce/reduce conflicts
 	$(YACC) -d -b $* -p $*_ $*.y
 	mv -f $*.tab.c $*.cpp
 

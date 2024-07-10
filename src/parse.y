@@ -325,6 +325,7 @@ yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 %type <t> logical_or_expression
 %type <t> conditional_expression
 %type <t> constant_expression
+%type <t> constant_expression_opt
 %type <t> assignment_expression
 %type <t> string_literal_list
 %type <t> comma_expression
@@ -374,6 +375,7 @@ yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 %type <t> paren_postfix_typedef_declarator
 %type <t> simple_paren_typedef_declarator
 %type <t> paren_identifier_declarator
+%type <t> array_qualifier
 %type <t> array_abstract_declarator
 %type <t> postfixing_abstract_declarator
 %type <t> unary_abstract_declarator
@@ -2438,17 +2440,32 @@ postfixing_abstract_declarator:
 		{ $$ = function_returning(basic(), $3.get_nparam()); }
         ;
 
+constant_expression_opt:
+	  /* EMPTY */
+		{ $$ = basic(); }
+	| constant_expression
+	;
+
+array_qualifier:
+	  type_qualifier_list_opt constant_expression_opt
+		{ $$ = $2; }
+	| STATIC type_qualifier_list_opt constant_expression_opt
+		{ $$ = $3; }
+	| type_qualifier_list_opt STATIC constant_expression_opt
+		{ $$ = $3; }
+	| '*'
+		{ $$ = basic(); }
+	;
+
 array_abstract_declarator:
-        '[' ']'
-		{ $$ = array_of(basic(), CTConst()); }
 	/*
 	 * Could warn in the next two rules if we don't get a
 	 * constant expression, but our compile-time evaluation
 	 * isn't yet robust enough for this.
 	 */
-        | '[' constant_expression ']'
+          '[' array_qualifier ']'
 		{ $$ = array_of(basic(), $2.get_value()); }
-        | array_abstract_declarator '[' constant_expression ']'
+        | array_abstract_declarator '[' array_qualifier ']'
 		{
 			$1.set_abstract(array_of(basic(), $3.get_value()));
 			$$ = $1;
