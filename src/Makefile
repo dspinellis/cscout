@@ -253,7 +253,7 @@ classdiag.java: $(HEADERS) $(AUTOHEADERS)
 classdiag.png: classdiag.java
 
 dbdump:
-	for db in mysql hsqldb postgres;\
+	for db in mysql hsqldb postgres sqlite;\
 	do \
 		(cd ../example ; \
 		../refactor/i386/cscout -s $$db awk.cs | gzip -c > $(WEBHOME)/awk-$$db.sql.gz) ;\

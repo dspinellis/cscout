@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -78,10 +78,34 @@ Sql::setEngine(const char *dbengine)
 		instance = new Hsqldb();
 	else if (strcmp(dbengine, "postgres") == 0)
 		instance = new Postgres();
+	else if (strcmp(dbengine, "sqlite") == 0)
+		instance = new Sqlite();
 	else {
 		cerr << "Unknown database engine " << dbengine << "\n";
-		cerr << "Supported database engine types are: mysql postgres hsqldb\n";
+		cerr << "Supported database engine types are: hsqldb mysql postgres sqlite\n";
 		return false;
 	}
 	return true;
 }
+
+/*
+ * Implement very fast database inserts at the risk of
+ * possible data corruption in case of a crash.
+ * We don't really care, because we assume the database is
+ * populated in one go from empty, and if it gets corrupted
+ * the process can be repeated.
+ * This increases speed in awk.cs from
+ * 0m1.59 user 0m13.31 system 1m9.63 elapsed
+ * to
+ * 0.28 user 0.14 system 0:00.63 elapsed
+ * See https://stackoverflow.com/a/58547438/20520 for
+ * measurements behind this approach.
+ */
+const char *
+Sqlite::begin_commands()
+{
+	return "PRAGMA synchronous = OFF;\n"
+		"PRAGMA journal_mode = OFF;\n"
+		"PRAGMA locking_mode = EXCLUSIVE;\n\n";
+
+};
