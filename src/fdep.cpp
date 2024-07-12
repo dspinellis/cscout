@@ -37,7 +37,9 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "fdep.h"
+#include "workdb.h"
 #include "sql.h"
+#include "workdb.h"
 
 /*
  * These are serially set for each processed file, and
@@ -105,37 +107,41 @@ Fdep::reset()
 void
 Fdep::dumpSql(Sql *db, Fileid cu)
 {
-	for (FSFMap::const_iterator di = definers.begin(); di != definers.end(); di++) {
-		const set <Fileid> &defs = di->second;
-		for (set <Fileid>::const_iterator i = defs.begin(); i != defs.end(); i++)
-			cout << "INSERT INTO DEFINERS VALUES(" <<
-			Project::get_current_projid() << ',' <<
-			cu.get_id() << ',' <<
-			di->first.get_id() << ',' <<
-			i->get_id() << ");\n";
-	}
-	for (FSFMap::const_iterator ii = includers.begin(); ii != includers.end(); ii++) {
-		const set <Fileid> &incs = ii->second;
-		for (set <Fileid>::const_iterator i = incs.begin(); i != incs.end(); i++)
-			cout << "INSERT INTO INCLUDERS VALUES(" <<
-			Project::get_current_projid() << ',' <<
-			cu.get_id() << ',' <<
-			ii->first.get_id() << ',' <<
-			i->get_id() << ");\n";
-	}
-	for (set <Fileid>::const_iterator i = providers.begin(); i != providers.end(); i++)
-		cout << "INSERT INTO PROVIDERS VALUES(" <<
-		Project::get_current_projid() << ',' <<
-		cu.get_id() << ',' <<
-		i->get_id() << ");\n";
-	for (ITMap::const_iterator i = include_triggers.begin(); i != include_triggers.end(); i++)
-		for (include_trigger_value::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
-			cout << "INSERT INTO INCTRIGGERS VALUES(" <<
-			Project::get_current_projid() << ',' <<
-			cu.get_id() << ',' <<
-			i->first.second.get_id() << ',' <<
-			i->first.first.get_id() << ',' <<
-			(unsigned)(j->first) << ',' <<
-			j->second << ");\n";
+	if (table_is_enabled(t_definers))
+		for (FSFMap::const_iterator di = definers.begin(); di != definers.end(); di++) {
+			const set <Fileid> &defs = di->second;
+			for (set <Fileid>::const_iterator i = defs.begin(); i != defs.end(); i++)
+				cout << "INSERT INTO DEFINERS VALUES(" <<
+				Project::get_current_projid() << ',' <<
+				cu.get_id() << ',' <<
+				di->first.get_id() << ',' <<
+				i->get_id() << ");\n";
 		}
+	if (table_is_enabled(t_includers))
+		for (FSFMap::const_iterator ii = includers.begin(); ii != includers.end(); ii++) {
+			const set <Fileid> &incs = ii->second;
+			for (set <Fileid>::const_iterator i = incs.begin(); i != incs.end(); i++)
+				cout << "INSERT INTO INCLUDERS VALUES(" <<
+				Project::get_current_projid() << ',' <<
+				cu.get_id() << ',' <<
+				ii->first.get_id() << ',' <<
+				i->get_id() << ");\n";
+		}
+	if (table_is_enabled(t_providers))
+		for (set <Fileid>::const_iterator i = providers.begin(); i != providers.end(); i++)
+			cout << "INSERT INTO PROVIDERS VALUES(" <<
+			Project::get_current_projid() << ',' <<
+			cu.get_id() << ',' <<
+			i->get_id() << ");\n";
+	if (table_is_enabled(t_inctriggers))
+		for (ITMap::const_iterator i = include_triggers.begin(); i != include_triggers.end(); i++)
+			for (include_trigger_value::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
+				cout << "INSERT INTO INCTRIGGERS VALUES(" <<
+				Project::get_current_projid() << ',' <<
+				cu.get_id() << ',' <<
+				i->first.second.get_id() << ',' <<
+				i->first.first.get_id() << ',' <<
+				(unsigned)(j->first) << ',' <<
+				j->second << ");\n";
+			}
 }

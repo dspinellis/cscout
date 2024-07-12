@@ -1,4 +1,4 @@
-.TH CSCOUT 1 "25 April 2024"
+.TH CSCOUT 1 "12 July 2024"
 .\"
 .\" (C) Copyright 2003-2024 Diomidis Spinellis
 .\"
@@ -29,6 +29,7 @@ cscout \- C code analyzer and refactoring browser
 [\fB\-p\fP \fIport\fP]
 [\fB\-R\fP \fIspecification\fP]
 [\fB\-m\fP \fIspecification\fP]
+[\fB\-t\fP \fIsname\fP]
 [\fB\-o\fP | \fB\-s\fP \fIdb\fP]
 \fIfile\fR
 .SH DESCRIPTION
@@ -239,6 +240,15 @@ dot -Tsvg >cgraph.svg
 .fi
 .DE
 
+.IP "\fB\-t\fP  \fIname\fP"
+Generate SQL output for the named table.
+By default SQL output for all tables is generated.
+If this option is provided, then output only for the specified tables
+will be generated.
+It is the user's responsibility to list the tables required to avoid
+breaking integrity constraints.
+The option can be specified multiple times.
+
 .IP "\fB\-o\fP"
 Create obfuscated versions of all the writable files of the workspace.
 .PP
@@ -325,4 +335,4 @@ We are now ready to serve you at http://localhost:8081
 .SH "SEE ALSO"
 cswc(1)
 .SH AUTHOR
-(c) Copyright 2003-2015 Diomidis Spinellis.
+(c) Copyright 2003-2024 Diomidis Spinellis.

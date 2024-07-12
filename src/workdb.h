@@ -30,7 +30,40 @@ using namespace std;
 
 #include "sql.h"
 
+// Keep this in sync with table_enable in workdb.cpp
+enum e_table {
+	t_ids,
+	t_files,
+	t_tokens,
+	t_comments,
+	t_strings,
+	t_rest,
+	t_linepos,
+	t_projects,
+	t_idproj,
+	t_fileproj,
+	t_definers,
+	t_includers,
+	t_providers,
+	t_inctriggers,
+	t_functions,
+	t_functionmetrics,
+	t_functionid,
+	t_fcalls,
+	t_filecopies,
+	table_max
+};
+
+// Enable output of the specified table
+void table_enable(const char *name);
+
+// Return true if the specified table is enabled
+bool table_is_enabled(enum e_table t);
+
+// Output the database schema
 void workdb_schema(Sql *db, ostream &of);
+
+// Output database data
 void workdb_rest(Sql *db, ostream &of);
 
 #endif // WORKDB_

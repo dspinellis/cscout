@@ -3276,7 +3276,7 @@ main(int argc, char *argv[])
 	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:m:l:os:R:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:m:l:oR:s:t:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3367,6 +3367,11 @@ main(int argc, char *argv[])
 			process_mode = pm_database;
 			db_engine = strdup(optarg);
 			break;
+		case 't':
+			if (!optarg)
+				usage(argv[0]);
+			table_enable(optarg);
+			break;
 		case 'R':
 			if (!optarg)
 				usage(argv[0]);
@@ -3396,7 +3401,7 @@ main(int argc, char *argv[])
 		parse_acl();
 	}
 
-	if (db_engine) {
+	if (process_mode == pm_database) {
 		if (!Sql::setEngine(db_engine))
 			return 1;
 		cout << Sql::getInterface()->begin_commands();
@@ -3474,7 +3479,7 @@ main(int argc, char *argv[])
 	if (DP())
 		cout << "Size " << file_msum.get_total(Metrics::em_nchar) << endl;
 
-	if (Sql::getInterface()) {
+	if (process_mode == pm_database) {
 		workdb_rest(Sql::getInterface(), cout);
 		Call::dumpSql(Sql::getInterface(), cout);
 		cout << Sql::getInterface()->end_commands();
@@ -3660,7 +3665,7 @@ garbage_collect(Fileid root)
 	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
 		if (*i != root && *i != input_file_id)
 			root.includes(*i, /* directly included (conservatively) */ false, i->required());
-	if (Sql::getInterface())
+	if (process_mode == pm_database)
 		Fdep::dumpSql(Sql::getInterface(), root);
 	Fdep::reset();
 

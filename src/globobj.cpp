@@ -118,19 +118,20 @@ GlobObj::dumpSql(Sql *db, ostream &of)
 	for (const_fmap_iterator_type i = fbegin(); i != fend(); i++) {
 		Call *fun = i->second;
 		Tokid t = fun->get_site();
-		of << "INSERT INTO FUNCTIONS VALUES(" <<
-		ptr_offset(fun) << ", '" <<
-		fun->name << "', " <<
-		db->boolval(fun->is_macro()) << ',' <<
-		db->boolval(fun->is_defined()) << ',' <<
-		db->boolval(fun->is_declared()) << ',' <<
-		db->boolval(fun->is_file_scoped()) << ',' <<
-		t.get_fileid().get_id() << ',' <<
-		(unsigned)(t.get_streampos()) << ',' <<
-		fun->get_num_caller();
-		of << ");\n";
+		if (table_is_enabled(t_functions))
+			of << "INSERT INTO FUNCTIONS VALUES(" <<
+			ptr_offset(fun) << ", '" <<
+			fun->name << "', " <<
+			db->boolval(fun->is_macro()) << ',' <<
+			db->boolval(fun->is_defined()) << ',' <<
+			db->boolval(fun->is_declared()) << ',' <<
+			db->boolval(fun->is_file_scoped()) << ',' <<
+			t.get_fileid().get_id() << ',' <<
+			(unsigned)(t.get_streampos()) << ',' <<
+			fun->get_num_caller();
+			of << ");\n";
 
-		if (fun->is_defined()) {
+		if (fun->is_defined() && table_is_enabled(t_functionmetrics)) {
 			of << "INSERT INTO FUNCTIONMETRICS VALUES(" << ptr_offset(fun);
 			for (int j = 0; j < FunMetrics::metric_max; j++)
 				if (!Metrics::is_internal<FunMetrics>(j))
@@ -149,10 +150,11 @@ GlobObj::dumpSql(Sql *db, ostream &of)
 			int pos = 0;
 			while (pos < len) {
 				Eclass *ec = t2.get_ec();
-				of << "INSERT INTO FUNCTIONID VALUES(" <<
-				ptr_offset(fun) << ',' <<
-				ord << ',' <<
-				ptr_offset(ec) << ");\n";
+				if (table_is_enabled(t_functionid))
+					of << "INSERT INTO FUNCTIONID VALUES(" <<
+					ptr_offset(fun) << ',' <<
+					ord << ',' <<
+					ptr_offset(ec) << ");\n";
 				pos += ec->get_len();
 				t2 += ec->get_len();
 				ord++;
@@ -162,12 +164,13 @@ GlobObj::dumpSql(Sql *db, ostream &of)
 	}
 
 	// Then their calls to satisfy integrity constraints
-	for (const_fmap_iterator_type i = fbegin(); i != fend(); i++) {
-		Call *fun = i->second;
-		for (Call::const_fiterator_type dest = fun->call_begin(); dest != fun->call_end(); dest++)
-			of << "INSERT INTO FCALLS VALUES(" <<
-			    ptr_offset(fun) << ',' <<
-			    ptr_offset(*dest) << ");\n";
-	}
+	if (table_is_enabled(t_fcalls))
+		for (const_fmap_iterator_type i = fbegin(); i != fend(); i++) {
+			Call *fun = i->second;
+			for (Call::const_fiterator_type dest = fun->call_begin(); dest != fun->call_end(); dest++)
+				of << "INSERT INTO FCALLS VALUES(" <<
+				    ptr_offset(fun) << ',' <<
+				    ptr_offset(*dest) << ");\n";
+		}
 }
 #endif /* TODO */
