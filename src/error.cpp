@@ -68,13 +68,14 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 	case E_WARN: num_warnings++; break;
 	case E_ERR:
 		num_errors++;
-		if (num_errors > Fchar::get_total_lines() / 10)
+		if (num_errors > 100
+				&& num_errors > Fchar::get_total_lines() / 10)
 			/*
 			 * @error
 			 * To avoid cascading errors, the processing terminates
-			 * when errors exceed 10% of processed lines
+			 * when errors exceed 100 and 10% of processed lines
 			 */
-			Error::error(E_FATAL, "error count exceeds 10%; exiting", false);
+			Error::error(E_FATAL, "error count exceeds 100 and 10%; exiting", false);
 		break;
 	case E_INTERNAL: num_errors++; break;	// Should have an assertion before
 	case E_FATAL: exit(1);
