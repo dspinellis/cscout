@@ -1,7 +1,7 @@
 /*
  * 6.7.5.3/7 in C99:
- *  A declaration of a parameter as ‘‘array of type’’ shall be
- *  adjusted to ‘‘qualified pointer to type’’, where the type
+ *  A declaration of a parameter as "array of type" shall be
+ *  adjusted to "qualified pointer to type", where the type
  *  qualifiers (if any) are those specified within the [ and ] of the
  *  array type derivation. If the keyword static also appears within
  *  the [ and ] of the array type derivation, then for each call to
