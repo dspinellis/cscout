@@ -182,7 +182,7 @@ build/cscout: build/cscout.o $(OBJ)
 build/cscout-cc: build/cscout.o  $(OBJ)
 	ccmalloc $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o build/cscout-cc  $(OBJ) build/cscout.o -L${HOME}/lib/build -lswill
 
-# The only way to avoid having the rule beeing executed multiple times
+# The only way to avoid having the rule being executed multiple times
 # under make -j in rules with multiple targets is to define a single
 # pattern rule rather than multiple explicit rules.
 # See "Rules With Multiple Outputs in GNU Make"
