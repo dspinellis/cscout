@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# (C) Copyright 2001-2019 Diomidis Spinellis
+# (C) Copyright 2001-2024 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -50,14 +50,6 @@ if ! [ "$CSCOUT_DIR" ] ; then
   fi
 fi
 
-if ! [ "$HSQLDB_DIR" ] ; then
-  HSQLDB_DIR=$(echo $CSCOUT_DIR/hsqldb-*/hsqldb)
-  if ! [ -r "$HSQLDB_DIR/lib/sqltool.jar" ] ; then
-    echo "Bail out! Unable to find lib/sqltool.jar under $HSQLDB_DIR."
-    exit 1
-  fi
-fi
-
 # Start a test (arguments directory, name)
 start_test()
 {
@@ -81,11 +73,11 @@ end_compare()
 	fi
 	mkdir -p test/err/diff
 	if { test -r test/out/$NAME.err &&
-	     diff -ib test/out/$NAME.out test/nout/$NAME.out >test/err/diff/$NAME &&
+	     diff -iw test/out/$NAME.out test/nout/$NAME.out >test/err/diff/$NAME &&
 	     sed "s|[^ ]*$(/bin/pwd)||" test/nout/$NAME.err |
-	     diff -ib test/out/$NAME.err - >>test/err/diff/$NAME ; } ||
+	     diff -iw test/out/$NAME.err - >>test/err/diff/$NAME ; } ||
 	   { test -r test/out/$NAME &&
-	     diff -ib test/out/$NAME test/nout/$NAME >test/err/diff/$NAME ; }
+	     diff -iw test/out/$NAME test/nout/$NAME >test/err/diff/$NAME ; }
 	then
 		end_test $2 1
 	else
@@ -125,12 +117,17 @@ runtest_c()
 	start_test $DIR $NAME
 	mkdir -p test/err/chunk
 (
-echo '\p Loading database'
-(cd $DIR ; $SRCPATH/$CSCOUT -s hsqldb $CSFILE) 2>test/err/chunk/$NAME.cs
+echo '.print "Loading database"'
+(cd $DIR ; $SRCPATH/$CSCOUT -s sqlite $CSFILE) 2>test/err/chunk/$NAME.cs
 cat <<\EOF
-\p Fixing EIDs
+PRAGMA synchronous = OFF;
+PRAGMA journal_mode = OFF;
+PRAGMA locking_mode = EXCLUSIVE;
 
-SET DATABASE REFERENTIAL INTEGRITY FALSE;
+.separator "\t"
+.headers on
+
+.print "Fixing EIDs"
 
 CREATE TABLE FixedIds(EID BIGINT primary key, fixedid integer);
 
@@ -163,7 +160,7 @@ UPDATE IdProj SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = IdProj.
 UPDATE FunctionId SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = FunctionId.Eid);
 
 DROP TABLE FixedIds;
-\p Fixing FUNCTION IDs
+.print "Fixing FUNCTION IDs"
 CREATE TABLE FixedIds(FunId BIGINT primary key, FixedId integer);
 
 INSERT INTO FixedIds
@@ -184,50 +181,52 @@ DestId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.DestId);
 
 DROP TABLE FixedIds;
 
-SET DATABASE REFERENTIAL INTEGRITY TRUE;
-
-\p Running selections
-\p Table: Ids
+.print "Running selections"
+.print "Table: Ids"
 SELECT * from Ids WHERE Name != 'PRJ2' ORDER BY Eid;
-\p Table: Tokens
+.print "Table: Tokens"
 SELECT * from Tokens WHERE Fid != 1 ORDER BY Fid, Foffset;
-\p Table: Rest
+.print "Table: Rest"
 SELECT * from Rest WHERE Fid != 1 ORDER BY Fid, Foffset;
-\p Table: Projects
+.print "Table: Projects"
 SELECT * from Projects ORDER BY Pid;
-\p Table: IdProj
+.print "Table: IdProj"
 -- All identifiers but PRJ2, which is at variable offsets and hence EIDs
 SELECT DISTINCT IdProj.* FROM (
   IdProj LEFT OUTER JOIN (SELECT Eid from Ids WHERE Name = 'PRJ2') X
   on IdProj.Eid = X.Eid) WHERE X.Eid IS NULL
 ORDER BY IdProj.Pid, IdProj.Eid;
-\p Table: Files
-SELECT FID, REGEXP_SUBSTRING(NAME, '[^/]*$') as NAME,
-RO, NCHAR, NCCOMMENT, NSPACE, NLCOMMENT, NBCOMMENT, NLINE, MAXLINELEN, NSTRING, NULINE, NPPDIRECTIVE, NPPCOND, NPPFMACRO, NPPOMACRO, NPPTOKEN, NCTOKEN, NCOPIES, NSTATEMENT, NPFUNCTION, NFFUNCTION, NPVAR, NFVAR, NAGGREGATE, NAMEMBER, NENUM, NEMEMBER, NINCFILE
+.print "Table: Files"
+SELECT FID,
+  -- HSQLDB:
+  -- REGEXP_SUBSTRING(NAME, '[^/]*$') as NAME,
+  -- SQLite: (see https://stackoverflow.com/a/38330814/20520)
+  Replace(name, rtrim(name, replace(name, '/', '')), '') AS NAME,
+  RO, NCHAR, NCCOMMENT, NSPACE, NLCOMMENT, NBCOMMENT, NLINE, MAXLINELEN, NSTRING, NULINE, NPPDIRECTIVE, NPPCOND, NPPFMACRO, NPPOMACRO, NPPTOKEN, NCTOKEN, NCOPIES, NSTATEMENT, NPFUNCTION, NFFUNCTION, NPVAR, NFVAR, NAGGREGATE, NAMEMBER, NENUM, NEMEMBER, NINCFILE
 from Files WHERE Fid != 1 ORDER BY Fid;
-\p Table: FileProj
+.print "Table: FileProj"
 SELECT * from FileProj ORDER BY Pid, Fid;
-\p Table: Definers
+.print "Table: Definers"
 SELECT * from Definers ORDER BY PID, CUID, BASEFILEID, DEFINERID;
-\p Table: Includers
+.print "Table: Includers"
 SELECT * from Includers ORDER BY PID, CUID, BASEFILEID, IncluderID;
-\p Table: Providers
+.print "Table: Providers"
 SELECT * from Providers ORDER BY PID, CUID, Providerid;
-\p Table: IncTriggers
+.print "Table: IncTriggers"
 SELECT * from IncTriggers WHERE Definerid != 1
 ORDER BY PID, CUID, Basefileid, Definerid, FOffset;
-\p Table: Functions
+.print "Table: Functions"
 SELECT * from Functions ORDER BY ID;
-\p Table: FunctionMetrics
+.print "Table: FunctionMetrics"
 SELECT * from FunctionMetrics ORDER BY FUNCTIONID;
-\p Table: FunctionId
+.print "Table: FunctionId"
 SELECT * from FunctionId ORDER BY FUNCTIONID, ORDINAL;
-\p Table: Fcalls
+.print "Table: Fcalls"
 SELECT * from Fcalls ORDER BY SourceID, DESTID;
-\p Done
+.print "Done"
 EOF
 ) |
-$HSQLDB mem - |
+sqlite3 |
 sed -e '1,/^Running selections/d' >test/nout/$NAME
 	end_compare $DIR $NAME
 }
@@ -242,11 +241,12 @@ runtest_chunk()
 	start_test $DIR "chunk $NAME"
 	mkdir -p test/chunk
 (
-echo '\p Loading database'
+echo '.print "Loading database"'
 mkdir -p test/err/chunk
-(cd $DIR ; $CSCOUT -s hsqldb $CSFILE) 2>test/err/chunk/$NAME.cs
+(cd $DIR ; $CSCOUT -s sqlite $CSFILE) 2>test/err/chunk/$NAME.cs
 echo '
-\p Starting dump
+.print "Starting dump"
+
 select s from
 (select name as s, foffset  from ids inner join tokens on
 ids.eid = tokens.eid where fid = 4
@@ -257,7 +257,7 @@ union select string as s, foffset from strings where fid = 4
 order by foffset;
 '
 ) |
-$HSQLDB mem - |
+sqlite3 |
 sed -e '1,/^Starting dump/d;/^[0-9][0-9]* rows/d' |
 tr -d "\n\r" |
 perl -pe 's/\\u0000d\\u0000a/\n/g;s/\\u0000a/\n/g' >test/chunk/$NAME
@@ -373,13 +373,6 @@ done
 
 CSCOUT=$(dirname $0)/build/cscout
 
-# Adjust HSQLDB_DIR for native Windows Java
-if cygpath -a / >/dev/null 2>&1 &&
-  ! java -jar $HSQLDB_DIR/lib/sqltool.jar </dev/null >/dev/null 2>&1; then
-    HSQLDB_DIR=$(cygpath -w $HSQLDB_DIR)
-fi
-
-HSQLDB="java -jar $HSQLDB_DIR/lib/sqltool.jar --rcfile $HSQLDB_DIR/sample/sqltool.rc"
 IPATH=$CSCOUT_DIR/include/stdc
 CPPTESTS=$CSCOUT_DIR/src/test/cpp
 DOTCSCOUT=$CSCOUT_DIR/example/.cscout

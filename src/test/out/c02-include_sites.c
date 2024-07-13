@@ -1,22 +1,20 @@
 Table: Ids
  EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
-----  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
- 127  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 165  used            FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 317  FILE            FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 463  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 617  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 799  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-1247  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-4163  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-4611  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-5003  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-5409  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-5675  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-7495  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
+ 127  MAXDIGIT        0     0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 165  used            0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 317  FILE            0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 463  x               0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 617  main            1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+ 799  qqq             0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+1247  foo             0     0       0  0     1      0   0     0  0    0  0  1   0   1    1
+4163  __DATE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+4611  __TIME__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+5003  __FILE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+5409  __LINE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+5675  __STDC__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+7495  _cscout_dummy1  1      0       0  0     1      0   0     0  0    0  0  1   1    0   0
 Table: Tokens
 FID  FOFFSET   EID
----  -------  ----
   2      297  4163
   2      329  4611
   2      357  5003
@@ -37,7 +35,6 @@ FID  FOFFSET   EID
   7       88  1247
 Table: Rest
 FID  FOFFSET  CODE
----  -------  --------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -74,13 +71,11 @@ FID  FOFFSET  CODE
   7      116  }\u0000d\u0000a\u0000d\u0000a
 Table: Projects
 PID  NAME
----  -----------
  16  unspecified
  17  Prj1
  18  Prj2
 Table: IdProj
  EID  PID
-----  ---
  165   17
  317   17
  617   17
@@ -104,16 +99,14 @@ Table: IdProj
 7495   18
 Table: Files
 FID  NAME                 RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
----  -------------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  2  host-defs.h          TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
-  3  host-incs.h          TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c02-include_sites.c  FALSE    100          0      23          0          0      8          26        2       0             6        1          0          1        19        1        1           0           0           0      0      0           0         0      0         0         1
-  5  unused2.h            FALSE     18          0       4          0          0      1          17        0       0             0        0          0          0         4        4        1           0           0           0      1      0           0         0      0         0         0
-  6  unused1.h            FALSE      0          0       0          0          0      0           0        0       0             0        0          0          0         0        0        1           0           0           0      0      0           0         0      0         0         0
-  7  prj2.c               FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
+  2  host-defs.h          1     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
+  3  host-incs.h          1     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  4  c02-include_sites.c  0    100          0      23          0          0      8          26        2       0             6        1          0          1        19        1        1           0           0           0      0      0           0         0      0         0         1
+  5  unused2.h            0     18          0       4          0          0      1          17        0       0             0        0          0          0         4        4        1           0           0           0      1      0           0         0      0         0         0
+  6  unused1.h            0      0          0       0          0          0      0           0        0       0             0        0          0          0         0        0        1           0           0           0      0      0           0         0      0         0         0
+  7  prj2.c               0    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
----  ---
   2   17
   3   17
   4   17
@@ -126,12 +119,10 @@ FID  PID
   7   18
 Table: Definers
 PID  CUID  BASEFILEID  DEFINERID
----  ----  ----------  ---------
  18     4           4          1
  18     7           7          2
 Table: Includers
 PID  CUID  BASEFILEID  INCLUDERID
----  ----  ----------  ----------
  17     2           2           1
  17     4           3           1
  17     4           4           1
@@ -145,34 +136,28 @@ PID  CUID  BASEFILEID  INCLUDERID
  18     7           7           1
 Table: Providers
 PID  CUID  PROVIDERID
----  ----  ----------
  17     2           2
  18     2           2
  18     2           2
  18     7           7
 Table: IncTriggers
 PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
----  ----  ----------  ---------  -------  ---
  18     7           7          2      471    4
 Table: Functions
   ID  NAME            ISMACRO  DEFINED  DECLARED  FILESCOPED  FID  FOFFSET  FANIN
-----  --------------  -------  -------  --------  ----------  ---  -------  -----
-1247  foo             FALSE    TRUE     TRUE      FALSE         7       88      0
-6599  main            FALSE    FALSE    TRUE      FALSE         2      471      0
-7495  _cscout_dummy1  FALSE    TRUE     TRUE      TRUE          2      535      1
+1247  foo             0    1     1      0         7       88      0
+6599  main            0    0    1      0         2      471      0
+7495  _cscout_dummy1  0    1     1      1          2      535      1
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC   CHAL  IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
-----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  -----  -----  --------  ------------  ------  ----------
-      1247     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      16       0        0       0      0       0       1       1       1   0.0E0  0.0E0  0.0E0         7            95       7         117
-      7495     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1       8       0        0       0      1       1       1       1       1   1.0E0  0.0E0  1.0E0         2           557       2         577
+      1247     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      16       0        0       0      0       0       1       1       1   0.0  0.0  0.0         7            95       7         117
+      7495     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1       8       0        0       0      1       1       1       1       1   1.0  0.0  1.0         2           557       2         577
 Table: FunctionId
 FUNCTIONID  ORDINAL   EID
-----------  -------  ----
       1247        0  1247
       6599        0   617
       7495        0  7495
 Table: Fcalls
 SOURCEID  DESTID
---------  ------
     7495    7495
 Done

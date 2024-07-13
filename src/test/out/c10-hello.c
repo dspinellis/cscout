@@ -1,205 +1,203 @@
 Table: Ids
    EID  NAME                READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
-------  ------------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
-   163  MAXDIGIT            FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-   595  x                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-   793  main                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  1027  qqq                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  1431  NDEBUG              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  1603  foo                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-  2115  __TIME__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  2385  time                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  3123  i                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  TRUE    FALSE   TRUE
-  3393  argc                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  3609  argv                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  3915  i                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  4689  strlen              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  5175  printf              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  5351  __DATE__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  5931  putchar             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  6309  assert              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  6431  __FILE__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  6831  foo                 FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  6953  __LINE__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  7295  __STDC__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  7731  x                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  7749  left                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  7857  x                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  7875  right               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  8091  y                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  8109  top                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  8199  y                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  8217  bottom              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  8559  coord               FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  8667  a                   FALSE     FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  8721  b                   FALSE     FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  9635  _cscout_dummy1      TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
- 34647  _STRING_H_          TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 35691  _CSCOUT_SIZE_T_     TRUE      TRUE        FALSE  FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 36137  _STDIO_H_           TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 36373  _ANSI_H_            TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 37145  _CSCOUT_SIZE_T_     TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 37257  NULL                TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 37865  size_t              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
- 37869  memchr              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 38607  memcmp              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 39485  __sfpos             TRUE      FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 39525  memcpy              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 39863  _pos                TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 40335  memmove             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 40691  fpos_t              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
- 41163  memset              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 41737  _CSCOUT_PTRDIFF_T_  TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 41811  strcat              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 42477  strchr              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 43071  strcmp              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 43271  e                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 43627  _CSCOUT_CLOCK_T_    TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 43827  strcoll             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 44599  _CSCOUT_TIME_T_     TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 44619  strcpy              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 44777  __sbuf              TRUE      FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 45089  __assert            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 45227  _base               TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 45321  strcspn             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 45443  _size               TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 45463  _CSCOUT_WCHAR_T_    TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 46113  strerror            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 46273  _CSCOUT_VA_LIST_    TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 47067  strncat             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 47877  strncmp             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 48813  strncpy             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 49641  strpbrk             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 50433  strrchr             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 51099  strspn              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 51873  strstr              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 52647  strtok              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 53313  strtok_r            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 54213  strxfrm             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 63083  __sFILE             TRUE      FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 63551  _p                  TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 64433  _r                  TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 65207  _w                  TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 66035  _flags              TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 67097  _file               TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 68267  _bf                 TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 69257  _lbfsize            TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 70607  _cookie             TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 71543  _close              TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 71993  _read               TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 72731  _seek               TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 73415  _write              TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 75341  _ub                 TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 76079  _up                 TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 77051  _ur                 TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 79517  _ubuf               TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 80597  _nbuf               TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 82901  _lb                 TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 84773  _blksize            TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 85889  _offset             TRUE      FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 86573  FILE                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
- 86915  __sF                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
- 87221  __SLBF              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 87995  __SNBF              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 88715  __SRD               TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 89417  __SWR               TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 91055  __SRW               TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 92045  __SEOF              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 92747  __SERR              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 93485  __SMBF              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 94367  __SAPP              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 95357  __SSTR              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 96509  __SOPT              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 97463  __SNPT              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 98543  __SOFF              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 99695  __SMOD              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-107741  _IOFBF              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-108785  _IOLBF              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-109811  _IONBF              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-110801  BUFSIZ              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-111827  EOF                 TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-116183  FOPEN_MAX           TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-117353  FILENAME_MAX        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-120017  L_tmpnam            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-120953  TMP_MAX             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-121457  SEEK_SET            TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-122807  SEEK_CUR            TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-124391  SEEK_END            TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-125921  stdin               TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-126371  stdout              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-126839  stderr              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-128153  clearerr            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-128585  fclose              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-128981  feof                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-129341  ferror              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-129737  fflush              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-130133  fgetc               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-130511  fgetpos             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-131123  fgets               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-131753  fopen               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-132491  fprintf             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-133247  fputc               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-133715  fputs               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-134399  fread               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-135227  freopen             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-136145  fscanf              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-136883  fseek               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-137459  fsetpos             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-138179  ftell               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-138611  fwrite              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-139547  getc                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-139907  getchar             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-140303  gets                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-140681  perror              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-141779  putc                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-142229  putchar             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-142589  puts                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-143057  remove              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-143561  rename              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-144353  rewind              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-144749  scanf               TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-145343  setbuf              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-145883  setvbuf             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-146675  sprintf             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-147431  sscanf              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-148295  tmpfile             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-148691  tmpnam              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-149087  ungetc              TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-149573  vfprintf            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-150581  vprintf             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-151427  vsprintf            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-153389  __srget             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-153785  __svfscanf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-154811  __swbuf             TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-157169  __sgetc             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-157313  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-159833  __sputc             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-159977  c                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-160031  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-164009  __sfeof             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-164153  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-164891  __sferror           TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-165071  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-165809  __sclearerr         TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-166025  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-166979  __sfileno           TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-167159  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-167609  feof                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-167699  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-168113  ferror              TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-168239  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-168671  clearerr            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-168833  p                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-169319  getc                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-169409  fp                  TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-169841  putc                TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-169931  x                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-169985  fp                  TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-170489  getchar             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-171173  x                   TRUE      FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
+   163  MAXDIGIT            0     0       1   0     0     0   0     0  0    0  0  0  0   0   1
+   595  x                   0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+   793  main                1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+  1027  qqq                 0     0       0  0     1      0   0     0  0    0  0  1   0   1    0
+  1431  NDEBUG              1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+  1603  foo                 0     0       0  0     1      0   0     0  0    0  0  1   0   1    1
+  2115  __TIME__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+  2385  time                0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+  3123  i                   0     0       0  0     1      0   0     0  0    0  0  0  1    0   1
+  3393  argc                0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+  3609  argv                0     0       0  0     1      0   0     0  0    0  0  0  0   0   0
+  3915  i                   0     0       0  0     1      0   0     0  0    0  0  0  0   0   0
+  4689  strlen              1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+  5175  printf              1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+  5351  __DATE__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+  5931  putchar             1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+  6309  assert              1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+  6431  __FILE__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+  6831  foo                 0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+  6953  __LINE__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+  7295  __STDC__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+  7731  x                   0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  7749  left                0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  7857  x                   0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  7875  right               0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  8091  y                   0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  8109  top                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  8199  y                   0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  8217  bottom              0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  8559  coord               0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+  8667  a                   0     0       0  1      0     0   0     0  0    0  0  0  0   0   0
+  8721  b                   0     0       0  1      0     0   0     0  0    0  0  0  0   0   0
+  9635  _cscout_dummy1      1      0       0  0     1      0   0     0  0    0  0  1   1    0   0
+ 34647  _STRING_H_          1      1        1   0     0     0   0     0  0    0  0  0  0   0   0
+ 35691  _CSCOUT_SIZE_T_     1      1        0  0     0     0   0     0  0    0  0  0  0   0   1
+ 36137  _STDIO_H_           1      1        1   0     0     0   0     0  0    0  0  0  0   0   0
+ 36373  _ANSI_H_            1      1        1   0     0     0   0     0  0    0  0  0  0   0   0
+ 37145  _CSCOUT_SIZE_T_     1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 37257  NULL                1      1        1   0     0     0   0     0  0    0  0  0  0   0   0
+ 37865  size_t              1      0       0  0     1      0   0     0  1     0  0  0  1    0   0
+ 37869  memchr              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 38607  memcmp              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 39485  __sfpos             1      0       0  0     0     1    0     0  0    0  0  0  0   0   1
+ 39525  memcpy              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 39863  _pos                1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 40335  memmove             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 40691  fpos_t              1      0       0  0     1      0   0     0  1     0  0  0  1    0   0
+ 41163  memset              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 41737  _CSCOUT_PTRDIFF_T_  1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 41811  strcat              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 42477  strchr              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 43071  strcmp              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 43271  e                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   1
+ 43627  _CSCOUT_CLOCK_T_    1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 43827  strcoll             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 44599  _CSCOUT_TIME_T_     1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 44619  strcpy              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 44777  __sbuf              1      0       0  0     0     1    0     0  0    0  0  0  0   0   0
+ 45089  __assert            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 45227  _base               1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 45321  strcspn             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 45443  _size               1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 45463  _CSCOUT_WCHAR_T_    1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 46113  strerror            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 46273  _CSCOUT_VA_LIST_    1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 47067  strncat             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 47877  strncmp             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 48813  strncpy             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 49641  strpbrk             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 50433  strrchr             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 51099  strspn              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 51873  strstr              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 52647  strtok              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 53313  strtok_r            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 54213  strxfrm             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 63083  __sFILE             1      0       0  0     0     1    0     0  0    0  0  0  0   0   1
+ 63551  _p                  1      0       0  0     0     0   1      0  0    0  0  0  0   0   0
+ 64433  _r                  1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 65207  _w                  1      0       0  0     0     0   1      0  0    0  0  0  0   0   0
+ 66035  _flags              1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 67097  _file               1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 68267  _bf                 1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 69257  _lbfsize            1      0       0  0     0     0   1      0  0    0  0  0  0   0   0
+ 70607  _cookie             1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 71543  _close              1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 71993  _read               1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 72731  _seek               1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 73415  _write              1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 75341  _ub                 1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 76079  _up                 1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 77051  _ur                 1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 79517  _ubuf               1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 80597  _nbuf               1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 82901  _lb                 1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 84773  _blksize            1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 85889  _offset             1      0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 86573  FILE                1      0       0  0     1      0   0     0  1     0  0  0  1    0   0
+ 86915  __sF                1      0       0  0     1      0   0     0  0    0  0  0  0   1    0
+ 87221  __SLBF              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 87995  __SNBF              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 88715  __SRD               1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 89417  __SWR               1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 91055  __SRW               1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 92045  __SEOF              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 92747  __SERR              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 93485  __SMBF              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 94367  __SAPP              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 95357  __SSTR              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 96509  __SOPT              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 97463  __SNPT              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 98543  __SOFF              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 99695  __SMOD              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+107741  _IOFBF              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+108785  _IOLBF              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+109811  _IONBF              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+110801  BUFSIZ              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+111827  EOF                 1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+116183  FOPEN_MAX           1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+117353  FILENAME_MAX        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+120017  L_tmpnam            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+120953  TMP_MAX             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+121457  SEEK_SET            1      1        1   0     0     0   0     0  0    0  0  0  0   0   0
+122807  SEEK_CUR            1      1        1   0     0     0   0     0  0    0  0  0  0   0   0
+124391  SEEK_END            1      1        1   0     0     0   0     0  0    0  0  0  0   0   0
+125921  stdin               1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+126371  stdout              1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+126839  stderr              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+128153  clearerr            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+128585  fclose              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+128981  feof                1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+129341  ferror              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+129737  fflush              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+130133  fgetc               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+130511  fgetpos             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+131123  fgets               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+131753  fopen               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+132491  fprintf             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+133247  fputc               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+133715  fputs               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+134399  fread               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+135227  freopen             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+136145  fscanf              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+136883  fseek               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+137459  fsetpos             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+138179  ftell               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+138611  fwrite              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+139547  getc                1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+139907  getchar             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+140303  gets                1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+140681  perror              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+141779  putc                1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+142229  putchar             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+142589  puts                1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+143057  remove              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+143561  rename              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+144353  rewind              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+144749  scanf               1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+145343  setbuf              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+145883  setvbuf             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+146675  sprintf             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+147431  sscanf              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+148295  tmpfile             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+148691  tmpnam              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+149087  ungetc              1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+149573  vfprintf            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+150581  vprintf             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+151427  vsprintf            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+153389  __srget             1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+153785  __svfscanf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+154811  __swbuf             1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+157169  __sgetc             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+157313  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+159833  __sputc             1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+159977  c                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+160031  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+164009  __sfeof             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+164153  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+164891  __sferror           1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+165071  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+165809  __sclearerr         1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+166025  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+166979  __sfileno           1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+167159  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+167609  feof                1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+167699  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+168113  ferror              1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+168239  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+168671  clearerr            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+168833  p                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+169319  getc                1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+169409  fp                  1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+169841  putc                1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+169931  x                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+169985  fp                  1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
+170489  getchar             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+171173  x                   1      0       0  1      0     0   0     0  0    0  0  0  0   0   0
 Table: Tokens
 FID  FOFFSET     EID
----  -------  ------
   2      297    5351
   2      329    2115
   2      357    6431
@@ -547,7 +545,6 @@ FID  FOFFSET     EID
   9       88    1603
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ----------------------------------------------------------------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -985,13 +982,11 @@ FID  FOFFSET  CODE
   9      116  }\u0000d\u0000a\u0000d\u0000a
 Table: Projects
 PID  NAME
----  -----------
  16  unspecified
  17  Prj1
  18  Prj2
 Table: IdProj
    EID  PID
-------  ---
    595   17
    793   17
   1431   17
@@ -1383,18 +1378,16 @@ Table: IdProj
 171173   18
 Table: Files
 FID  NAME         RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
----  -----------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  2  host-defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
-  3  host-incs.h  TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c10-hello.c  FALSE    638         50     141          3          1     42          41        2       0            10        2          1          2       164      234        1           5           1           0      6      1           0         0      0         0         3
-  5  stdio.h      TRUE    9551       5558     760          0         60    274          77        0       0            58        6         13         31      1068      602        1           0           0           0      1      0           3        23      0         0         1
-  6  _ansi.h      TRUE    2634       2330      52          0         10     60          84        0       0             9        1          0          7        35        0        1           0           0           0      0      0           0         0      0         0         0
-  7  string.h     TRUE    3077       1916     209          0          3     79          77        0       5            10        3          0          1       317      285        1           0           0           0      0      0           0         0      0         0         1
-  8  assert.h     TRUE    2548       2341      35          0          3     58          77        0       2             6        1          1          0        62       14        1           0           0           0      0      0           0         0      0         0         0
-  9  prj2.c       FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
+  2  host-defs.h  1     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
+  3  host-incs.h  1     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  4  c10-hello.c  0    638         50     141          3          1     42          41        2       0            10        2          1          2       164      234        1           5           1           0      6      1           0         0      0         0         3
+  5  stdio.h      1    9551       5558     760          0         60    274          77        0       0            58        6         13         31      1068      602        1           0           0           0      1      0           3        23      0         0         1
+  6  _ansi.h      1    2634       2330      52          0         10     60          84        0       0             9        1          0          7        35        0        1           0           0           0      0      0           0         0      0         0         0
+  7  string.h     1    3077       1916     209          0          3     79          77        0       5            10        3          0          1       317      285        1           0           0           0      0      0           0         0      0         0         1
+  8  assert.h     1    2548       2341      35          0          3     58          77        0       2             6        1          1          0        62       14        1           0           0           0      0      0           0         0      0         0         0
+  9  prj2.c       0    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
----  ---
   2   17
   3   17
   4   17
@@ -1413,7 +1406,6 @@ FID  PID
   9   18
 Table: Definers
 PID  CUID  BASEFILEID  DEFINERID
----  ----  ----------  ---------
  17     4           4          2
  17     4           4          5
  17     4           4          7
@@ -1433,7 +1425,6 @@ PID  CUID  BASEFILEID  DEFINERID
  18     9           9          4
 Table: Includers
 PID  CUID  BASEFILEID  INCLUDERID
----  ----  ----------  ----------
  17     2           2           1
  17     4           3           1
  17     4           4           1
@@ -1455,7 +1446,6 @@ PID  CUID  BASEFILEID  INCLUDERID
  18     9           9           1
 Table: Providers
 PID  CUID  PROVIDERID
----  ----  ----------
  17     2           2
  17     4           4
  18     2           2
@@ -1464,7 +1454,6 @@ PID  CUID  PROVIDERID
  18     9           9
 Table: IncTriggers
 PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
----  ----  ----------  ---------  -------  ---
  17     4           4          2      329    8
  17     4           4          2      471    4
  17     4           4          5     7843    6
@@ -1492,119 +1481,116 @@ PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
  18     9           9          4      512    3
 Table: Functions
     ID  NAME            ISMACRO  DEFINED  DECLARED  FILESCOPED  FID  FOFFSET  FANIN
-------  --------------  -------  -------  --------  ----------  ---  -------  -----
-  1603  foo             FALSE    TRUE     TRUE      FALSE         9       88      0
-  3231  main            FALSE    TRUE     TRUE      FALSE         4      179      0
-  8559  coord           TRUE     TRUE     FALSE     TRUE          4      475      1
-  9225  qqq             FALSE    TRUE     TRUE      FALSE         4      512      0
-  9635  _cscout_dummy1  FALSE    TRUE     TRUE      TRUE          2      535      1
- 37869  memchr          FALSE    FALSE    TRUE      FALSE         7     2103      0
- 38607  memcmp          FALSE    FALSE    TRUE      FALSE         7     2144      0
- 39525  memcpy          FALSE    FALSE    TRUE      FALSE         7     2195      0
- 40335  memmove         FALSE    FALSE    TRUE      FALSE         7     2240      0
- 41163  memset          FALSE    FALSE    TRUE      FALSE         7     2286      0
- 41811  strcat          FALSE    FALSE    TRUE      FALSE         7     2322      0
- 42477  strchr          FALSE    FALSE    TRUE      FALSE         7     2359      0
- 43071  strcmp          FALSE    FALSE    TRUE      FALSE         7     2392      0
- 43145  assert          TRUE     TRUE     FALSE     TRUE          8     2396      1
- 43827  strcoll         FALSE    FALSE    TRUE      FALSE         7     2434      0
- 44619  strcpy          FALSE    FALSE    TRUE      FALSE         7     2478      0
- 45089  __assert        FALSE    FALSE    TRUE      FALSE         8     2504      0
- 45321  strcspn         FALSE    FALSE    TRUE      FALSE         7     2517      0
- 46113  strerror        FALSE    FALSE    TRUE      FALSE         7     2561      0
- 46545  strlen          FALSE    FALSE    TRUE      FALSE         7     2585      1
- 47067  strncat         FALSE    FALSE    TRUE      FALSE         7     2614      0
- 47877  strncmp         FALSE    FALSE    TRUE      FALSE         7     2659      0
- 48813  strncpy         FALSE    FALSE    TRUE      FALSE         7     2711      0
- 49641  strpbrk         FALSE    FALSE    TRUE      FALSE         7     2757      0
- 50433  strrchr         FALSE    FALSE    TRUE      FALSE         7     2801      0
- 51099  strspn          FALSE    FALSE    TRUE      FALSE         7     2838      0
- 51873  strstr          FALSE    FALSE    TRUE      FALSE         7     2881      0
- 52647  strtok          FALSE    FALSE    TRUE      FALSE         7     2924      0
- 53313  strtok_r        FALSE    FALSE    TRUE      FALSE         7     2961      0
- 54213  strxfrm         FALSE    FALSE    TRUE      FALSE         7     3011      0
-128153  clearerr        FALSE    FALSE    TRUE      FALSE         5     7119      0
-128585  fclose          FALSE    FALSE    TRUE      FALSE         5     7143      0
-128981  feof            FALSE    FALSE    TRUE      FALSE         5     7165      0
-129341  ferror          FALSE    FALSE    TRUE      FALSE         5     7185      0
-129737  fflush          FALSE    FALSE    TRUE      FALSE         5     7207      0
-130133  fgetc           FALSE    FALSE    TRUE      FALSE         5     7229      0
-130511  fgetpos         FALSE    FALSE    TRUE      FALSE         5     7250      0
-131123  fgets           FALSE    FALSE    TRUE      FALSE         5     7284      0
-131753  fopen           FALSE    FALSE    TRUE      FALSE         5     7319      0
-132491  fprintf         FALSE    FALSE    TRUE      FALSE         5     7360      0
-133247  fputc           FALSE    FALSE    TRUE      FALSE         5     7402      0
-133715  fputs           FALSE    FALSE    TRUE      FALSE         5     7428      0
-134399  fread           FALSE    FALSE    TRUE      FALSE         5     7466      0
-135227  freopen         FALSE    FALSE    TRUE      FALSE         5     7512      0
-136145  fscanf          FALSE    FALSE    TRUE      FALSE         5     7563      0
-136883  fseek           FALSE    FALSE    TRUE      FALSE         5     7604      0
-137459  fsetpos         FALSE    FALSE    TRUE      FALSE         5     7636      0
-138179  ftell           FALSE    FALSE    TRUE      FALSE         5     7676      0
-138611  fwrite          FALSE    FALSE    TRUE      FALSE         5     7700      0
-139547  getc            FALSE    FALSE    TRUE      FALSE         5     7752      0
-139907  getchar         FALSE    FALSE    TRUE      FALSE         5     7772      0
-140303  gets            FALSE    FALSE    TRUE      FALSE         5     7794      0
-140681  perror          FALSE    FALSE    TRUE      FALSE         5     7815      0
-141185  printf          FALSE    FALSE    TRUE      FALSE         5     7843      2
-141779  putc            FALSE    FALSE    TRUE      FALSE         5     7876      0
-142229  putchar         FALSE    FALSE    TRUE      FALSE         5     7901      0
-142589  puts            FALSE    FALSE    TRUE      FALSE         5     7921      0
-143057  remove          FALSE    FALSE    TRUE      FALSE         5     7947      0
-143561  rename          FALSE    FALSE    TRUE      FALSE         5     7975      0
-144353  rewind          FALSE    FALSE    TRUE      FALSE         5     8019      0
-144749  scanf           FALSE    FALSE    TRUE      FALSE         5     8041      0
-145343  setbuf          FALSE    FALSE    TRUE      FALSE         5     8074      0
-145883  setvbuf         FALSE    FALSE    TRUE      FALSE         5     8104      0
-146675  sprintf         FALSE    FALSE    TRUE      FALSE         5     8148      0
-147431  sscanf          FALSE    FALSE    TRUE      FALSE         5     8190      0
-148295  tmpfile         FALSE    FALSE    TRUE      FALSE         5     8238      0
-148691  tmpnam          FALSE    FALSE    TRUE      FALSE         5     8260      0
-149087  ungetc          FALSE    FALSE    TRUE      FALSE         5     8282      0
-149573  vfprintf        FALSE    FALSE    TRUE      FALSE         5     8309      0
-150581  vprintf         FALSE    FALSE    TRUE      FALSE         5     8365      0
-151427  vsprintf        FALSE    FALSE    TRUE      FALSE         5     8412      0
-153389  __srget         FALSE    FALSE    TRUE      FALSE         5     8521      0
-153785  __svfscanf      FALSE    FALSE    TRUE      FALSE         5     8543      0
-154811  __swbuf         FALSE    FALSE    TRUE      FALSE         5     8600      1
-157169  __sgetc         TRUE     TRUE     FALSE     TRUE          5     8731      0
-159833  __sputc         TRUE     TRUE     FALSE     TRUE          5     8879      1
-164009  __sfeof         TRUE     TRUE     FALSE     TRUE          5     9111      0
-164891  __sferror       TRUE     TRUE     FALSE     TRUE          5     9160      0
-165809  __sclearerr     TRUE     TRUE     FALSE     TRUE          5     9211      0
-166979  __sfileno       TRUE     TRUE     FALSE     TRUE          5     9276      0
-167609  feof            TRUE     TRUE     FALSE     TRUE          5     9311      0
-168113  ferror          TRUE     TRUE     FALSE     TRUE          5     9339      0
-168671  clearerr        TRUE     TRUE     FALSE     TRUE          5     9370      0
-169319  getc            TRUE     TRUE     FALSE     TRUE          5     9406      0
-169841  putc            TRUE     TRUE     FALSE     TRUE          5     9435      1
-170489  getchar         TRUE     TRUE     FALSE     TRUE          5     9471      0
-171029  putchar         TRUE     TRUE     FALSE     TRUE          5     9501      1
+  1603  foo             0    1     1      0         9       88      0
+  3231  main            0    1     1      0         4      179      0
+  8559  coord           1     1     0     1          4      475      1
+  9225  qqq             0    1     1      0         4      512      0
+  9635  _cscout_dummy1  0    1     1      1          2      535      1
+ 37869  memchr          0    0    1      0         7     2103      0
+ 38607  memcmp          0    0    1      0         7     2144      0
+ 39525  memcpy          0    0    1      0         7     2195      0
+ 40335  memmove         0    0    1      0         7     2240      0
+ 41163  memset          0    0    1      0         7     2286      0
+ 41811  strcat          0    0    1      0         7     2322      0
+ 42477  strchr          0    0    1      0         7     2359      0
+ 43071  strcmp          0    0    1      0         7     2392      0
+ 43145  assert          1     1     0     1          8     2396      1
+ 43827  strcoll         0    0    1      0         7     2434      0
+ 44619  strcpy          0    0    1      0         7     2478      0
+ 45089  __assert        0    0    1      0         8     2504      0
+ 45321  strcspn         0    0    1      0         7     2517      0
+ 46113  strerror        0    0    1      0         7     2561      0
+ 46545  strlen          0    0    1      0         7     2585      1
+ 47067  strncat         0    0    1      0         7     2614      0
+ 47877  strncmp         0    0    1      0         7     2659      0
+ 48813  strncpy         0    0    1      0         7     2711      0
+ 49641  strpbrk         0    0    1      0         7     2757      0
+ 50433  strrchr         0    0    1      0         7     2801      0
+ 51099  strspn          0    0    1      0         7     2838      0
+ 51873  strstr          0    0    1      0         7     2881      0
+ 52647  strtok          0    0    1      0         7     2924      0
+ 53313  strtok_r        0    0    1      0         7     2961      0
+ 54213  strxfrm         0    0    1      0         7     3011      0
+128153  clearerr        0    0    1      0         5     7119      0
+128585  fclose          0    0    1      0         5     7143      0
+128981  feof            0    0    1      0         5     7165      0
+129341  ferror          0    0    1      0         5     7185      0
+129737  fflush          0    0    1      0         5     7207      0
+130133  fgetc           0    0    1      0         5     7229      0
+130511  fgetpos         0    0    1      0         5     7250      0
+131123  fgets           0    0    1      0         5     7284      0
+131753  fopen           0    0    1      0         5     7319      0
+132491  fprintf         0    0    1      0         5     7360      0
+133247  fputc           0    0    1      0         5     7402      0
+133715  fputs           0    0    1      0         5     7428      0
+134399  fread           0    0    1      0         5     7466      0
+135227  freopen         0    0    1      0         5     7512      0
+136145  fscanf          0    0    1      0         5     7563      0
+136883  fseek           0    0    1      0         5     7604      0
+137459  fsetpos         0    0    1      0         5     7636      0
+138179  ftell           0    0    1      0         5     7676      0
+138611  fwrite          0    0    1      0         5     7700      0
+139547  getc            0    0    1      0         5     7752      0
+139907  getchar         0    0    1      0         5     7772      0
+140303  gets            0    0    1      0         5     7794      0
+140681  perror          0    0    1      0         5     7815      0
+141185  printf          0    0    1      0         5     7843      2
+141779  putc            0    0    1      0         5     7876      0
+142229  putchar         0    0    1      0         5     7901      0
+142589  puts            0    0    1      0         5     7921      0
+143057  remove          0    0    1      0         5     7947      0
+143561  rename          0    0    1      0         5     7975      0
+144353  rewind          0    0    1      0         5     8019      0
+144749  scanf           0    0    1      0         5     8041      0
+145343  setbuf          0    0    1      0         5     8074      0
+145883  setvbuf         0    0    1      0         5     8104      0
+146675  sprintf         0    0    1      0         5     8148      0
+147431  sscanf          0    0    1      0         5     8190      0
+148295  tmpfile         0    0    1      0         5     8238      0
+148691  tmpnam          0    0    1      0         5     8260      0
+149087  ungetc          0    0    1      0         5     8282      0
+149573  vfprintf        0    0    1      0         5     8309      0
+150581  vprintf         0    0    1      0         5     8365      0
+151427  vsprintf        0    0    1      0         5     8412      0
+153389  __srget         0    0    1      0         5     8521      0
+153785  __svfscanf      0    0    1      0         5     8543      0
+154811  __swbuf         0    0    1      0         5     8600      1
+157169  __sgetc         1     1     0     1          5     8731      0
+159833  __sputc         1     1     0     1          5     8879      1
+164009  __sfeof         1     1     0     1          5     9111      0
+164891  __sferror       1     1     0     1          5     9160      0
+165809  __sclearerr     1     1     0     1          5     9211      0
+166979  __sfileno       1     1     0     1          5     9276      0
+167609  feof            1     1     0     1          5     9311      0
+168113  ferror          1     1     0     1          5     9339      0
+168671  clearerr        1     1     0     1          5     9370      0
+169319  getc            1     1     0     1          5     9406      0
+169841  putc            1     1     0     1          5     9435      1
+170489  getchar         1     1     0     1          5     9471      0
+171029  putchar         1     1     0     1          5     9501      1
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC       CHAL  IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
-----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  ---------  -----  --------  ------------  ------  ----------
-      1603     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      90       0        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         9            95       9         117
-      3231    159         16      36          1          0      9          41        1       0             0        0          0          0        42      196      5    4     4        3      1    0      0        0      0         0       0     1       0    0          0      0        0     2     0     2    9      2      0      2     6     207       0        1       0      0       4       2       2       2   0.0E0   64.725E0  0.0E0         4           210       4         368
-      8559     12          0       6          0          0      1          10        0       0             0        0          0          0         5        0      0    1     1        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       2        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         4           486       4         497
-      9225    109          0      26          0          0      6          25        1       0             0        0          0          0        42       22      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     9     0     4   13      9      0      1    10     221       0        0       0      0       2       1       1       1   0.0E0  43.1851E0  0.0E0         4           520       4         628
-      9635     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      84       0        0       0      1       1       1       1       1   1.0E0      0.0E0  1.0E0         2           557       2         577
-     43145     12          0       2          0          0      1          10        0       0             0        0          0          0         6        0      0    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         8          2405       8        2416
-    157169     51          0       8          0          0      1          49        0       0             0        0          0          0        28        0      0    7     6        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       2       2   0.0E0  22.4588E0  0.0E0         5          8741       5        8791
-    159833    211          0      55          0          0      9          41        0       0             0        0          0          0        98        0      0   24     9        1      2    0      0        0      0         0       0     0       0    0          0      0        0     2     0     0    2      1      0      0     1       0       2        0       0      1       1       1       4       4   1.0E0  107.313E0  1.0E0         5          8892       5        9102
-    164009     32          0       6          0          0      1          30        0       0             0        0          0          0        13        0      0    3     3        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0E0      8.0E0  0.0E0         5          9121       5        9152
-    164891     32          0       6          0          0      1          30        0       0             0        0          0          0        13        0      0    3     3        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0E0      8.0E0  0.0E0         5          9172       5        9203
-    165809     44          0       4          0          0      1          42        0       0             0        0          0          0        19        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0E0      8.0E0  0.0E0         5          9225       5        9268
-    166979     15          0       3          0          0      2          13        0       0             0        0          0          0         7        0      0    1     1        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5          9288       5        9302
-    167609     14          0       3          0          0      1          12        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5          9318       5        9331
-    168113     15          0       2          0          0      1          13        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5          9348       5        9362
-    168671     17          0       3          0          0      2          15        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5          9381       5        9397
-    169319     14          0       2          0          0      1          12        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5          9414       5        9427
-    169841     17          0       4          0          0      2          15        0       0             0        0          0          0         6        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     1    1      0      0      1     1       0       2        0       0      1       1       1       1       1   1.0E0      0.0E0  1.0E0         5          9446       5        9462
-    170489     14          0       2          0          0      1          12        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       0        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5          9480       5        9493
-    171029     18          0       3          0          0      1          16        0       0             0        0          0          0         6        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     2    2      0      0      2     2       0       1        0       0      1       1       1       1       1   1.0E0      2.0E0  1.0E0         5          9511       5        9528
+      1603     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      90       0        0       0      0       0       1       1       1   0.0      0.0  0.0         9            95       9         117
+      3231    159         16      36          1          0      9          41        1       0             0        0          0          0        42      196      5    4     4        3      1    0      0        0      0         0       0     1       0    0          0      0        0     2     0     2    9      2      0      2     6     207       0        1       0      0       4       2       2       2   0.0   64.725  0.0         4           210       4         368
+      8559     12          0       6          0          0      1          10        0       0             0        0          0          0         5        0      0    1     1        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       2        0       0      1       0       1       1       1   0.0      0.0  0.0         4           486       4         497
+      9225    109          0      26          0          0      6          25        1       0             0        0          0          0        42       22      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     9     0     4   13      9      0      1    10     221       0        0       0      0       2       1       1       1   0.0  43.1851  0.0         4           520       4         628
+      9635     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      84       0        0       0      1       1       1       1       1   1.0      0.0  1.0         2           557       2         577
+     43145     12          0       2          0          0      1          10        0       0             0        0          0          0         6        0      0    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      1       0       1       1       1   0.0      0.0  0.0         8          2405       8        2416
+    157169     51          0       8          0          0      1          49        0       0             0        0          0          0        28        0      0    7     6        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       2       2   0.0  22.4588  0.0         5          8741       5        8791
+    159833    211          0      55          0          0      9          41        0       0             0        0          0          0        98        0      0   24     9        1      2    0      0        0      0         0       0     0       0    0          0      0        0     2     0     0    2      1      0      0     1       0       2        0       0      1       1       1       4       4   1.0  107.313  1.0         5          8892       5        9102
+    164009     32          0       6          0          0      1          30        0       0             0        0          0          0        13        0      0    3     3        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0      8.0  0.0         5          9121       5        9152
+    164891     32          0       6          0          0      1          30        0       0             0        0          0          0        13        0      0    3     3        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0      8.0  0.0         5          9172       5        9203
+    165809     44          0       4          0          0      1          42        0       0             0        0          0          0        19        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0      8.0  0.0         5          9225       5        9268
+    166979     15          0       3          0          0      2          13        0       0             0        0          0          0         7        0      0    1     1        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0      0.0  0.0         5          9288       5        9302
+    167609     14          0       3          0          0      1          12        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0      0.0  0.0         5          9318       5        9331
+    168113     15          0       2          0          0      1          13        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0      0.0  0.0         5          9348       5        9362
+    168671     17          0       3          0          0      2          15        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0      0.0  0.0         5          9381       5        9397
+    169319     14          0       2          0          0      1          12        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       1        0       0      0       0       1       1       1   0.0      0.0  0.0         5          9414       5        9427
+    169841     17          0       4          0          0      2          15        0       0             0        0          0          0         6        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     1    1      0      0      1     1       0       2        0       0      1       1       1       1       1   1.0      0.0  1.0         5          9446       5        9462
+    170489     14          0       2          0          0      1          12        0       0             0        0          0          0         4        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0       0       0        0       0      0       0       1       1       1   0.0      0.0  0.0         5          9480       5        9493
+    171029     18          0       3          0          0      1          16        0       0             0        0          0          0         6        0      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     2    2      0      0      2     2       0       1        0       0      1       1       1       1       1   1.0      2.0  1.0         5          9511       5        9528
 Table: FunctionId
 FUNCTIONID  ORDINAL     EID
-----------  -------  ------
       1603        0    1603
       3231        0     793
       8559        0    8559
@@ -1694,7 +1680,6 @@ FUNCTIONID  ORDINAL     EID
     171029        0    5931
 Table: Fcalls
 SOURCEID  DESTID
---------  ------
     3231   43145
     3231   46545
     3231  141185

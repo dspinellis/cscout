@@ -1,102 +1,100 @@
 Table: Ids
   EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
------  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
-  109  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  397  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  529  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  685  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  945  complex         TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 1041  c1              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 1069  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 1209  c2              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 1449  c3              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 1653  _Complex_I      TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 1821  imaginary       TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 1941  c4              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 2133  c5              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 2397  c7              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 2673  c8              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 2733  _Imaginary_I    TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 3117  c9              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3537  c10             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3569  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3609  I               TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 3953  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4289  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4637  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4865  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 5517  ca              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 5577  cabs            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 6425  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
- 9347  _COMPLEX_H      TRUE      TRUE        TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-12071  cabsf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-12587  cabsl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-13175  cacos           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-13703  cacosf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-14231  cacosh          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-14771  cacoshf         TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-15311  cacoshl         TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-15923  cacosl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-16523  carg            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-17039  cargf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-17555  cargl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-18143  casin           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-18671  casinf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-19199  casinh          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-19739  casinhf         TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-20279  casinhl         TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-20891  casinl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-21491  catan           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-22019  catanf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-22547  catanh          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-23087  catanhf         TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-23627  catanhl         TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-24239  catanl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-24839  ccos            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-25355  ccosf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-25871  ccosh           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-26399  ccoshf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-26927  ccoshl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-27527  ccosl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-28115  cexp            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-28631  cexpf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-29147  cexpl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-29735  cimag           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-30263  cimagf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-30791  cimagl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-31391  clog            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-31907  clogf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-32423  clogl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-33011  conj            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-33527  conjf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-34043  conjl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-34631  cpow            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-35339  cpowf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-36035  cpowl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-36875  cproj           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-37403  cprojf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-37931  cprojl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-38531  creal           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-39059  crealf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-39587  creall          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-40187  csin            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-40703  csinf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-41219  csinh           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-41747  csinhf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-42275  csinhl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-42875  csinl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-43463  csqrt           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-43991  csqrtf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-44519  csqrtl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-45119  ctan            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-45635  ctanf           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-46151  ctanh           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-46679  ctanhf          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-47207  ctanhl          TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-47807  ctanl           TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
+  109  MAXDIGIT        0     0       1   0     0     0   0     0  0    0  0  0  0   0   1
+  397  x               0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+  529  main            1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+  685  qqq             0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+  945  complex         1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 1041  c1              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 1069  foo             0     0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 1209  c2              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 1449  c3              0     0       0  0     1      0   0     0  0    0  0  0  0   0   0
+ 1653  _Complex_I      1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 1821  imaginary       1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 1941  c4              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 2133  c5              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 2397  c7              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 2673  c8              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 2733  _Imaginary_I    1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 3117  c9              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 3537  c10             0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 3569  __DATE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 3609  I               1      0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 3953  __TIME__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 4289  __FILE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 4637  __LINE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 4865  __STDC__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 5517  ca              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+ 5577  cabs            1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+ 6425  _cscout_dummy1  1      0       0  0     1      0   0     0  0    0  0  1   1    0   0
+ 9347  _COMPLEX_H      1      1        1   0     0     0   0     0  0    0  0  0  0   0   0
+12071  cabsf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+12587  cabsl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+13175  cacos           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+13703  cacosf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+14231  cacosh          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+14771  cacoshf         1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+15311  cacoshl         1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+15923  cacosl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+16523  carg            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+17039  cargf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+17555  cargl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+18143  casin           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+18671  casinf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+19199  casinh          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+19739  casinhf         1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+20279  casinhl         1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+20891  casinl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+21491  catan           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+22019  catanf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+22547  catanh          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+23087  catanhf         1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+23627  catanhl         1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+24239  catanl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+24839  ccos            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+25355  ccosf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+25871  ccosh           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+26399  ccoshf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+26927  ccoshl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+27527  ccosl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+28115  cexp            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+28631  cexpf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+29147  cexpl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+29735  cimag           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+30263  cimagf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+30791  cimagl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+31391  clog            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+31907  clogf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+32423  clogl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+33011  conj            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+33527  conjf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+34043  conjl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+34631  cpow            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+35339  cpowf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+36035  cpowl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+36875  cproj           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+37403  cprojf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+37931  cprojl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+38531  creal           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+39059  crealf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+39587  creall          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+40187  csin            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+40703  csinf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+41219  csinh           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+41747  csinhf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+42275  csinhl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+42875  csinl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+43463  csqrt           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+43991  csqrtf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+44519  csqrtl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+45119  ctan            1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+45635  ctanf           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+46151  ctanh           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+46679  ctanhf          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+47207  ctanhl          1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
+47807  ctanl           1      0       0  0     1      0   0     0  0    0  0  1   0   1    1
 Table: Tokens
 FID  FOFFSET    EID
----  -------  -----
   2      297   3569
   2      329   3953
   2      357   4289
@@ -328,7 +326,6 @@ FID  FOFFSET    EID
   6       88   1069
 Table: Rest
 FID  FOFFSET  CODE
----  -------  --------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -577,13 +574,11 @@ FID  FOFFSET  CODE
   6      116  }\u0000d\u0000a\u0000d\u0000a
 Table: Projects
 PID  NAME
----  -----------
  16  unspecified
  17  Prj1
  18  Prj2
 Table: IdProj
   EID  PID
------  ---
   529   17
   945   17
  1041   17
@@ -768,15 +763,13 @@ Table: IdProj
 47807   18
 Table: Files
 FID  NAME           RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
----  -------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  2  host-defs.h    TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
-  3  host-incs.h    TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c39-complex.c  FALSE    487        177      64          0          2     24          76        0       0             1        0          0          0        64       66        1           1           1           0      0      0           0         0      0         0         1
-  5  complex.h      TRUE    4036        769     741          0          3    103          71        0       0             8        1          0          6       601      570        1           0           0           0      0      0           0         0      0         0         0
-  6  prj2.c         FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
+  2  host-defs.h    1     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
+  3  host-incs.h    1     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  4  c39-complex.c  0    487        177      64          0          2     24          76        0       0             1        0          0          0        64       66        1           1           1           0      0      0           0         0      0         0         1
+  5  complex.h      1    4036        769     741          0          3    103          71        0       0             8        1          0          6       601      570        1           0           0           0      0      0           0         0      0         0         0
+  6  prj2.c         0    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
----  ---
   2   17
   3   17
   4   17
@@ -789,7 +782,6 @@ FID  PID
   6   18
 Table: Definers
 PID  CUID  BASEFILEID  DEFINERID
----  ----  ----------  ---------
  17     4           4          2
  17     4           4          5
  18     4           4          2
@@ -797,7 +789,6 @@ PID  CUID  BASEFILEID  DEFINERID
  18     6           6          2
 Table: Includers
 PID  CUID  BASEFILEID  INCLUDERID
----  ----  ----------  ----------
  17     2           2           1
  17     4           3           1
  17     4           4           1
@@ -811,7 +802,6 @@ PID  CUID  BASEFILEID  INCLUDERID
  18     6           6           1
 Table: Providers
 PID  CUID  PROVIDERID
----  ----  ----------
  17     2           2
  17     4           4
  18     2           2
@@ -820,7 +810,6 @@ PID  CUID  PROVIDERID
  18     6           6
 Table: IncTriggers
 PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
----  ----  ----------  ---------  -------  ---
  17     4           4          2      471    4
  17     4           4          5      821    7
  17     4           4          5      846    9
@@ -838,85 +827,82 @@ PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
  18     6           6          2      471    4
 Table: Functions
    ID  NAME            ISMACRO  DEFINED  DECLARED  FILESCOPED  FID  FOFFSET  FANIN
------  --------------  -------  -------  --------  ----------  ---  -------  -----
-  825  main            FALSE    TRUE     TRUE      FALSE         4       68      0
- 1069  foo             FALSE    TRUE     TRUE      FALSE         6       88      0
- 6425  _cscout_dummy1  FALSE    TRUE     TRUE      TRUE          2      535      1
-11555  cabs            FALSE    FALSE    TRUE      FALSE         5      962      1
-12071  cabsf           FALSE    FALSE    TRUE      FALSE         5     1005      0
-12587  cabsl           FALSE    FALSE    TRUE      FALSE         5     1048      0
-13175  cacos           FALSE    FALSE    TRUE      FALSE         5     1097      0
-13703  cacosf          FALSE    FALSE    TRUE      FALSE         5     1141      0
-14231  cacosh          FALSE    FALSE    TRUE      FALSE         5     1185      0
-14771  cacoshf         FALSE    FALSE    TRUE      FALSE         5     1230      0
-15311  cacoshl         FALSE    FALSE    TRUE      FALSE         5     1275      0
-15923  cacosl          FALSE    FALSE    TRUE      FALSE         5     1326      0
-16523  carg            FALSE    FALSE    TRUE      FALSE         5     1376      0
-17039  cargf           FALSE    FALSE    TRUE      FALSE         5     1419      0
-17555  cargl           FALSE    FALSE    TRUE      FALSE         5     1462      0
-18143  casin           FALSE    FALSE    TRUE      FALSE         5     1511      0
-18671  casinf          FALSE    FALSE    TRUE      FALSE         5     1555      0
-19199  casinh          FALSE    FALSE    TRUE      FALSE         5     1599      0
-19739  casinhf         FALSE    FALSE    TRUE      FALSE         5     1644      0
-20279  casinhl         FALSE    FALSE    TRUE      FALSE         5     1689      0
-20891  casinl          FALSE    FALSE    TRUE      FALSE         5     1740      0
-21491  catan           FALSE    FALSE    TRUE      FALSE         5     1790      0
-22019  catanf          FALSE    FALSE    TRUE      FALSE         5     1834      0
-22547  catanh          FALSE    FALSE    TRUE      FALSE         5     1878      0
-23087  catanhf         FALSE    FALSE    TRUE      FALSE         5     1923      0
-23627  catanhl         FALSE    FALSE    TRUE      FALSE         5     1968      0
-24239  catanl          FALSE    FALSE    TRUE      FALSE         5     2019      0
-24839  ccos            FALSE    FALSE    TRUE      FALSE         5     2069      0
-25355  ccosf           FALSE    FALSE    TRUE      FALSE         5     2112      0
-25871  ccosh           FALSE    FALSE    TRUE      FALSE         5     2155      0
-26399  ccoshf          FALSE    FALSE    TRUE      FALSE         5     2199      0
-26927  ccoshl          FALSE    FALSE    TRUE      FALSE         5     2243      0
-27527  ccosl           FALSE    FALSE    TRUE      FALSE         5     2293      0
-28115  cexp            FALSE    FALSE    TRUE      FALSE         5     2342      0
-28631  cexpf           FALSE    FALSE    TRUE      FALSE         5     2385      0
-29147  cexpl           FALSE    FALSE    TRUE      FALSE         5     2428      0
-29735  cimag           FALSE    FALSE    TRUE      FALSE         5     2477      0
-30263  cimagf          FALSE    FALSE    TRUE      FALSE         5     2521      0
-30791  cimagl          FALSE    FALSE    TRUE      FALSE         5     2565      0
-31391  clog            FALSE    FALSE    TRUE      FALSE         5     2615      0
-31907  clogf           FALSE    FALSE    TRUE      FALSE         5     2658      0
-32423  clogl           FALSE    FALSE    TRUE      FALSE         5     2701      0
-33011  conj            FALSE    FALSE    TRUE      FALSE         5     2750      0
-33527  conjf           FALSE    FALSE    TRUE      FALSE         5     2793      0
-34043  conjl           FALSE    FALSE    TRUE      FALSE         5     2836      0
-34631  cpow            FALSE    FALSE    TRUE      FALSE         5     2885      0
-35339  cpowf           FALSE    FALSE    TRUE      FALSE         5     2944      0
-36035  cpowl           FALSE    FALSE    TRUE      FALSE         5     3002      0
-36875  cproj           FALSE    FALSE    TRUE      FALSE         5     3072      0
-37403  cprojf          FALSE    FALSE    TRUE      FALSE         5     3116      0
-37931  cprojl          FALSE    FALSE    TRUE      FALSE         5     3160      0
-38531  creal           FALSE    FALSE    TRUE      FALSE         5     3210      0
-39059  crealf          FALSE    FALSE    TRUE      FALSE         5     3254      0
-39587  creall          FALSE    FALSE    TRUE      FALSE         5     3298      0
-40187  csin            FALSE    FALSE    TRUE      FALSE         5     3348      0
-40703  csinf           FALSE    FALSE    TRUE      FALSE         5     3391      0
-41219  csinh           FALSE    FALSE    TRUE      FALSE         5     3434      0
-41747  csinhf          FALSE    FALSE    TRUE      FALSE         5     3478      0
-42275  csinhl          FALSE    FALSE    TRUE      FALSE         5     3522      0
-42875  csinl           FALSE    FALSE    TRUE      FALSE         5     3572      0
-43463  csqrt           FALSE    FALSE    TRUE      FALSE         5     3621      0
-43991  csqrtf          FALSE    FALSE    TRUE      FALSE         5     3665      0
-44519  csqrtl          FALSE    FALSE    TRUE      FALSE         5     3709      0
-45119  ctan            FALSE    FALSE    TRUE      FALSE         5     3759      0
-45635  ctanf           FALSE    FALSE    TRUE      FALSE         5     3802      0
-46151  ctanh           FALSE    FALSE    TRUE      FALSE         5     3845      0
-46679  ctanhf          FALSE    FALSE    TRUE      FALSE         5     3889      0
-47207  ctanhl          FALSE    FALSE    TRUE      FALSE         5     3933      0
-47807  ctanl           FALSE    FALSE    TRUE      FALSE         5     3983      0
+  825  main            0    1     1      0         4       68      0
+ 1069  foo             0    1     1      0         6       88      0
+ 6425  _cscout_dummy1  0    1     1      1          2      535      1
+11555  cabs            0    0    1      0         5      962      1
+12071  cabsf           0    0    1      0         5     1005      0
+12587  cabsl           0    0    1      0         5     1048      0
+13175  cacos           0    0    1      0         5     1097      0
+13703  cacosf          0    0    1      0         5     1141      0
+14231  cacosh          0    0    1      0         5     1185      0
+14771  cacoshf         0    0    1      0         5     1230      0
+15311  cacoshl         0    0    1      0         5     1275      0
+15923  cacosl          0    0    1      0         5     1326      0
+16523  carg            0    0    1      0         5     1376      0
+17039  cargf           0    0    1      0         5     1419      0
+17555  cargl           0    0    1      0         5     1462      0
+18143  casin           0    0    1      0         5     1511      0
+18671  casinf          0    0    1      0         5     1555      0
+19199  casinh          0    0    1      0         5     1599      0
+19739  casinhf         0    0    1      0         5     1644      0
+20279  casinhl         0    0    1      0         5     1689      0
+20891  casinl          0    0    1      0         5     1740      0
+21491  catan           0    0    1      0         5     1790      0
+22019  catanf          0    0    1      0         5     1834      0
+22547  catanh          0    0    1      0         5     1878      0
+23087  catanhf         0    0    1      0         5     1923      0
+23627  catanhl         0    0    1      0         5     1968      0
+24239  catanl          0    0    1      0         5     2019      0
+24839  ccos            0    0    1      0         5     2069      0
+25355  ccosf           0    0    1      0         5     2112      0
+25871  ccosh           0    0    1      0         5     2155      0
+26399  ccoshf          0    0    1      0         5     2199      0
+26927  ccoshl          0    0    1      0         5     2243      0
+27527  ccosl           0    0    1      0         5     2293      0
+28115  cexp            0    0    1      0         5     2342      0
+28631  cexpf           0    0    1      0         5     2385      0
+29147  cexpl           0    0    1      0         5     2428      0
+29735  cimag           0    0    1      0         5     2477      0
+30263  cimagf          0    0    1      0         5     2521      0
+30791  cimagl          0    0    1      0         5     2565      0
+31391  clog            0    0    1      0         5     2615      0
+31907  clogf           0    0    1      0         5     2658      0
+32423  clogl           0    0    1      0         5     2701      0
+33011  conj            0    0    1      0         5     2750      0
+33527  conjf           0    0    1      0         5     2793      0
+34043  conjl           0    0    1      0         5     2836      0
+34631  cpow            0    0    1      0         5     2885      0
+35339  cpowf           0    0    1      0         5     2944      0
+36035  cpowl           0    0    1      0         5     3002      0
+36875  cproj           0    0    1      0         5     3072      0
+37403  cprojf          0    0    1      0         5     3116      0
+37931  cprojl          0    0    1      0         5     3160      0
+38531  creal           0    0    1      0         5     3210      0
+39059  crealf          0    0    1      0         5     3254      0
+39587  creall          0    0    1      0         5     3298      0
+40187  csin            0    0    1      0         5     3348      0
+40703  csinf           0    0    1      0         5     3391      0
+41219  csinh           0    0    1      0         5     3434      0
+41747  csinhf          0    0    1      0         5     3478      0
+42275  csinhl          0    0    1      0         5     3522      0
+42875  csinl           0    0    1      0         5     3572      0
+43463  csqrt           0    0    1      0         5     3621      0
+43991  csqrtf          0    0    1      0         5     3665      0
+44519  csqrtl          0    0    1      0         5     3709      0
+45119  ctan            0    0    1      0         5     3759      0
+45635  ctanf           0    0    1      0         5     3802      0
+46151  ctanh           0    0    1      0         5     3845      0
+46679  ctanhf          0    0    1      0         5     3889      0
+47207  ctanhl          0    0    1      0         5     3933      0
+47807  ctanl           0    0    1      0         5     3983      0
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC       CHAL  IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
-----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  ---------  -----  --------  ------------  ------  ----------
-       825    411        141      57          0          1     20          76        0       0             0        0          0          0        56       60     11    7     3        3      0    0      0        0      0         0       0     0       0    0          0      0        1     1     0     6   18      1      0      5    16     147       0        0       0      0       1       1       1       1   0.0E0  124.864E0  0.0E0         4            76       4         486
-      1069     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      82       0        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         6            95       6         117
-      6425     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      74       0        0       0      1       1       1       1       1   1.0E0      0.0E0  1.0E0         2           557       2         577
+       825    411        141      57          0          1     20          76        0       0             0        0          0          0        56       60     11    7     3        3      0    0      0        0      0         0       0     0       0    0          0      0        1     1     0     6   18      1      0      5    16     147       0        0       0      0       1       1       1       1   0.0  124.864  0.0         4            76       4         486
+      1069     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      82       0        0       0      0       0       1       1       1   0.0      0.0  0.0         6            95       6         117
+      6425     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      74       0        0       0      1       1       1       1       1   1.0      0.0  1.0         2           557       2         577
 Table: FunctionId
 FUNCTIONID  ORDINAL    EID
-----------  -------  -----
        825        0    529
       1069        0   1069
       6425        0   6425
@@ -988,7 +974,6 @@ FUNCTIONID  ORDINAL    EID
      47807        0  47807
 Table: Fcalls
 SOURCEID  DESTID
---------  ------
      825   11555
     6425    6425
 Done

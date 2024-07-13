@@ -19,13 +19,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential make perl default-jre
+          sudo apt-get install -y build-essential make perl sqlite3
 
       - name: Verify installations
         run: |
           make --version
           perl --version
-          java -version
+          sqlite3 -version
 
       - name: Compile the project
         run: make
@@ -43,13 +43,13 @@ jobs:
         run: |
           brew install make
           brew install perl
-          brew install openjdk
+          brew install sqlite
 
       - name: Verify installations
         run: |
           make --version
           perl --version
-          java -version
+          sqlite3 -version
 
       - name: Compile the project
         run: make

@@ -22,8 +22,8 @@ Have an installation of the AT&amp;T
 program in the executable file path, and a Web browser supporting,
 directly or via a plugin, the display of SVG (scalable vector graphics)
 content.
-<li> Run Java from the command line.
-	(This is required for running HSQLDB during testing.)
+<li> Have SQLite installed.
+	(This is required for testing.)
 </ul>
 
 <h2>Installation and Configuration</h2>

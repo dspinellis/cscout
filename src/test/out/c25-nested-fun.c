@@ -1,38 +1,36 @@
 Table: Ids
  EID  NAME            READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
-----  --------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
-  49  aca             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  91  MAXDIGIT        FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 329  ad              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 331  x               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 441  main            TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 571  qqq             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 629  ae              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 809  af              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
- 891  foo             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 989  ag              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-1169  ah              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-1369  a               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-1499  i               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-1719  aba             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   FALSE   FALSE
-1799  a               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-1869  b               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-2659  ab              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   FALSE   FALSE
-2729  a               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-2809  b               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-2899  i               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-2975  __DATE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-3295  __TIME__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-3575  __FILE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-3729  ac              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   FALSE   FALSE
-3799  a               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-3865  __LINE__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-3869  b               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-4055  __STDC__        TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-5355  _cscout_dummy1  TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
+  49  aca             0     0       0  0     1      0   0     0  0    0  0  1   0   1    0
+  91  MAXDIGIT        0     0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 329  ad              0     0       0  0     1      0   0     0  0    0  0  1   0   1    0
+ 331  x               0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 441  main            1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+ 571  qqq             0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 629  ae              0     0       0  0     1      0   0     0  0    0  0  1   0   1    0
+ 809  af              0     0       0  0     1      0   0     0  0    0  0  1   0   1    0
+ 891  foo             0     0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 989  ag              0     0       0  0     1      0   0     0  0    0  0  1   0   1    0
+1169  ah              0     0       0  0     1      0   0     0  0    0  0  1   0   1    0
+1369  a               0     0       0  0     1      0   0     0  0    0  0  1   0   1    1
+1499  i               0     0       0  0     1      0   0     0  0    0  0  0  0   0   0
+1719  aba             0     0       0  0     1      0   0     0  0    0  0  1   0   0   0
+1799  a               0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+1869  b               0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+2659  ab              0     0       0  0     1      0   0     0  0    0  0  1   0   0   0
+2729  a               0     0       0  0     1      0   0     0  0    0  0  0  0   0   0
+2809  b               0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+2899  i               0     0       0  0     1      0   0     0  0    0  0  0  0   0   0
+2975  __DATE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+3295  __TIME__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+3575  __FILE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+3729  ac              0     0       0  0     1      0   0     0  0    0  0  1   0   0   0
+3799  a               0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+3865  __LINE__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+3869  b               0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+4055  __STDC__        1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+5355  _cscout_dummy1  1      0       0  0     1      0   0     0  0    0  0  1   1    0   0
 Table: Tokens
 FID  FOFFSET   EID
----  -------  ----
   2      297  2975
   2      329  3295
   2      357  3575
@@ -79,7 +77,6 @@ FID  FOFFSET   EID
   5       88   891
 Table: Rest
 FID  FOFFSET  CODE
----  -------  --------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -141,13 +138,11 @@ FID  FOFFSET  CODE
   5      116  }\u0000d\u0000a\u0000d\u0000a
 Table: Projects
 PID  NAME
----  -----------
  16  unspecified
  17  Prj1
  18  Prj2
 Table: IdProj
  EID  PID
-----  ---
   49   17
  329   17
  441   17
@@ -204,14 +199,12 @@ Table: IdProj
 5355   18
 Table: Files
 FID  NAME              RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
----  ----------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  2  host-defs.h       TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
-  3  host-incs.h       TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c25-nested-fun.c  FALSE    460         87     107          2          0     24          52        0       0             0        0          0          0       146      147        1          13           7           0      0      0           0         0      0         0         0
-  5  prj2.c            FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
+  2  host-defs.h       1     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
+  3  host-incs.h       1     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  4  c25-nested-fun.c  0    460         87     107          2          0     24          52        0       0             0        0          0          0       146      147        1          13           7           0      0      0           0         0      0         0         0
+  5  prj2.c            0    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
----  ---
   2   17
   3   17
   4   17
@@ -222,11 +215,9 @@ FID  PID
   5   18
 Table: Definers
 PID  CUID  BASEFILEID  DEFINERID
----  ----  ----------  ---------
  18     5           5          2
 Table: Includers
 PID  CUID  BASEFILEID  INCLUDERID
----  ----  ----------  ----------
  17     2           2           1
  17     4           3           1
  17     4           4           1
@@ -238,7 +229,6 @@ PID  CUID  BASEFILEID  INCLUDERID
  18     5           5           1
 Table: Providers
 PID  CUID  PROVIDERID
----  ----  ----------
  17     2           2
  17     4           4
  18     2           2
@@ -247,42 +237,38 @@ PID  CUID  PROVIDERID
  18     5           5
 Table: IncTriggers
 PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
----  ----  ----------  ---------  -------  ---
  18     5           5          2      471    4
 Table: Functions
   ID  NAME            ISMACRO  DEFINED  DECLARED  FILESCOPED  FID  FOFFSET  FANIN
-----  --------------  -------  -------  --------  ----------  ---  -------  -----
-  49  aca             FALSE    TRUE     TRUE      FALSE         4        4      1
- 329  ad              FALSE    TRUE     TRUE      FALSE         4       32      1
- 629  ae              FALSE    TRUE     TRUE      FALSE         4       62      1
- 809  af              FALSE    TRUE     TRUE      FALSE         4       80      1
- 891  foo             FALSE    TRUE     TRUE      FALSE         5       88      0
- 989  ag              FALSE    TRUE     TRUE      FALSE         4       98      1
-1169  ah              FALSE    TRUE     TRUE      FALSE         4      116      1
-1369  a               FALSE    TRUE     TRUE      FALSE         4      136      0
-1719  aba             FALSE    TRUE     TRUE      TRUE          4      171      1
-2659  ab              FALSE    TRUE     TRUE      FALSE         4      265      1
-3729  ac              FALSE    TRUE     TRUE      FALSE         4      372      1
-4715  main            FALSE    FALSE    TRUE      FALSE         2      471      0
-5355  _cscout_dummy1  FALSE    TRUE     TRUE      TRUE          2      535      1
+  49  aca             0    1     1      0         4        4      1
+ 329  ad              0    1     1      0         4       32      1
+ 629  ae              0    1     1      0         4       62      1
+ 809  af              0    1     1      0         4       80      1
+ 891  foo             0    1     1      0         5       88      0
+ 989  ag              0    1     1      0         4       98      1
+1169  ah              0    1     1      0         4      116      1
+1369  a               0    1     1      0         4      136      0
+1719  aba             0    1     1      1          4      171      1
+2659  ab              0    1     1      0         4      265      1
+3729  ac              0    1     1      0         4      372      1
+4715  main            0    0    1      0         2      471      0
+5355  _cscout_dummy1  0    1     1      1          2      535      1
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC       CHAL  IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
-----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  ---------  -----  --------  ------------  ------  ----------
-        49     12          0       3          0          0      0           0        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      11       0        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         4            15       4          26
-       329     12          0       3          0          0      0           0        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      13       0        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         4            42       4          53
-       629      2          0       1          0          0      0           0        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      15       0        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         4            72       4          73
-       809      2          0       1          0          0      0           0        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      17       0        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         4            90       4          91
-       891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      25       0        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5            95       5         117
-       989      2          0       1          0          0      0           0        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      19       0        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         4           108       4         109
-      1169      2          0       1          0          0      0           0        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      21       0        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         4           126       4         127
-      1369    255         87      53          2          0     13          48        0       0             0        0          0          0        69       69      6    2     1        3      0    0      0        0      0         0       0     0       0    0          0      0        1     5     0     0   18      5      0      0    15      23       0        0       0      0       7       1       1       1   0.0E0  97.7023E0  0.0E0         4           142       4         458
-      1719     13          0       4          0          0      0           0        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      23       2        0       0      1       0       1       1       1   0.0E0      0.0E0  0.0E0         4           189       4         201
-      2659     28          0       7          0          0      0           0        0       0             0        0          0          0        12       12      2    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    4      0      0      0     3      24       2        0       0      1       1       1       1       1   1.0E0  6.33985E0  1.0E0         4           284       4         311
-      3729     21          0       6          0          0      0           0        0       0             0        0          0          0         8        8      1    1     1        0      0    0      0        0      0         0       0     0       0    0          0      0        1     1     0     0    2      1      0      0     2      25       2        0       0      1       1       1       1       1   1.0E0  4.75489E0  1.0E0         4           390       4         410
-      5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      17       0        0       0      1       1       1       1       1   1.0E0      0.0E0  1.0E0         2           557       2         577
+        49     12          0       3          0          0      0           0        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      11       0        0       0      1       0       1       1       1   0.0      0.0  0.0         4            15       4          26
+       329     12          0       3          0          0      0           0        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      13       0        0       0      1       0       1       1       1   0.0      0.0  0.0         4            42       4          53
+       629      2          0       1          0          0      0           0        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      15       0        0       0      1       0       1       1       1   0.0      0.0  0.0         4            72       4          73
+       809      2          0       1          0          0      0           0        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      17       0        0       0      1       0       1       1       1   0.0      0.0  0.0         4            90       4          91
+       891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      25       0        0       0      0       0       1       1       1   0.0      0.0  0.0         5            95       5         117
+       989      2          0       1          0          0      0           0        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      19       0        0       0      1       0       1       1       1   0.0      0.0  0.0         4           108       4         109
+      1169      2          0       1          0          0      0           0        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      21       0        0       0      1       0       1       1       1   0.0      0.0  0.0         4           126       4         127
+      1369    255         87      53          2          0     13          48        0       0             0        0          0          0        69       69      6    2     1        3      0    0      0        0      0         0       0     0       0    0          0      0        1     5     0     0   18      5      0      0    15      23       0        0       0      0       7       1       1       1   0.0  97.7023  0.0         4           142       4         458
+      1719     13          0       4          0          0      0           0        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      23       2        0       0      1       0       1       1       1   0.0      0.0  0.0         4           189       4         201
+      2659     28          0       7          0          0      0           0        0       0             0        0          0          0        12       12      2    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    4      0      0      0     3      24       2        0       0      1       1       1       1       1   1.0  6.33985  1.0         4           284       4         311
+      3729     21          0       6          0          0      0           0        0       0             0        0          0          0         8        8      1    1     1        0      0    0      0        0      0         0       0     0       0    0          0      0        1     1     0     0    2      1      0      0     2      25       2        0       0      1       1       1       1       1   1.0  4.75489  1.0         4           390       4         410
+      5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      17       0        0       0      1       1       1       1       1   1.0      0.0  1.0         2           557       2         577
 Table: FunctionId
 FUNCTIONID  ORDINAL   EID
-----------  -------  ----
         49        0    49
        329        0   329
        629        0   629
@@ -298,7 +284,6 @@ FUNCTIONID  ORDINAL   EID
       5355        0  5355
 Table: Fcalls
 SOURCEID  DESTID
---------  ------
     1369     329
     1369     629
     1369     809

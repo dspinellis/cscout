@@ -71,7 +71,7 @@ tr -d '\n' |
 sed 's/\\u0000d/\
 /g'
 </fmtcode>
-The above script will massage the HSQLDB output removing the trailing
+The above script will massage the SQLite HSQLDB output removing the trailing
 <code>N rows</code> line and all existing newlines,
 and changing the embedded <code>\u0000d</code> sequences into newlines.
 For the Windows line-end conventions the same script would be:

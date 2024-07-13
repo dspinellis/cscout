@@ -69,6 +69,7 @@ public:
 class Sqlite: public Sql {
 public:
 	const char *begin_commands();
+	const char * escape(char c);
 };
 
 

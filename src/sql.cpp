@@ -59,6 +59,21 @@ Hsqldb::escape(char c)
 	}
 }
 
+const char *
+Sqlite::escape(char c)
+{
+	static char str[2];
+
+	switch (c) {
+	case '\'': return "''";
+	case '\n': return "\\u0000a";
+	case '\r': return "\\u0000d";
+	default:
+		str[0] = c;
+		return str;
+	}
+}
+
 string
 Sql::escape(string s)
 {
