@@ -14,6 +14,11 @@ allowing you to directly pipe the results into the database's
 client.
 For example, say the database you would want to create for your project
 was called <code>myproj</code>.<br />
+For SQLite you would write:
+<fmtcode ext="sh">
+rm -f myproj.db
+cscout -s sqlite myproj.cs | sqlite3 myproj.db
+</fmtcode>
 For MySQL you would write:
 <fmtcode ext="sh">
 (

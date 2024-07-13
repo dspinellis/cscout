@@ -1,53 +1,51 @@
 Table: Ids
   EID  NAME                READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
------  ------------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
-   79  sa                  FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-   91  MAXDIGIT            FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  189  a1                  FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  229  a2                  FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  299  a                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    FALSE
-  331  x                   FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  429  sb                  FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  441  main                TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  539  b1                  FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  571  qqq                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  729  b2                  FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  889  b3                  FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-  891  foo                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-  989  b4                  FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 1719  sb1                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 2869  sb2                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 2975  __DATE__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3295  __TIME__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3575  __FILE__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3865  __LINE__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4055  __STDC__            TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4269  sb3                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 5355  _cscout_dummy1      TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
- 5429  sb4                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 6679  sb5                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 8169  sb6                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
- 9289  sb7                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-10479  sb8                 FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-11559  sb10                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-13129  sb11                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-14429  sb12                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-15259  func1               FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
-16419  sb13                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-17589  fs_func             FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-17769  error               FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-17899  fs_func_p           FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
-18189  fs_operation_def    FALSE     FALSE       FALSE  FALSE     FALSE     TRUE    FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-18459  name                FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-18639  func                FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-18729  fs_operation_def_t  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
-19079  devinit             FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   TRUE
-19199  fstype              FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-19339  name                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-19759  dev_vfsops_tbl      FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
+   79  sa                  0     0       0  0     0     1    0     0  0    0  0  0  0   0   0
+   91  MAXDIGIT            0     0       1   0     0     0   0     0  0    0  0  0  0   0   1
+  189  a1                  0     0       0  0     0     0   1      0  0    0  0  0  0   0   0
+  229  a2                  0     0       0  0     0     0   1      0  0    0  0  0  0   0   0
+  299  a                   0     0       0  0     1      0   0     0  0    0  0  0  0   1    0
+  331  x                   0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+  429  sb                  0     0       0  0     0     1    0     0  0    0  0  0  0   0   0
+  441  main                1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+  539  b1                  0     0       0  0     0     0   1      0  0    0  0  0  0   0   0
+  571  qqq                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+  729  b2                  0     0       0  0     0     0   1      0  0    0  0  0  0   0   0
+  889  b3                  0     0       0  0     0     0   1      0  0    0  0  0  0   0   0
+  891  foo                 0     0       0  0     1      0   0     0  0    0  0  1   0   1    1
+  989  b4                  0     0       0  0     0     0   1      0  0    0  0  0  0   0   1
+ 1719  sb1                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 2869  sb2                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 2975  __DATE__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 3295  __TIME__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 3575  __FILE__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 3865  __LINE__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 4055  __STDC__            1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 4269  sb3                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 5355  _cscout_dummy1      1      0       0  0     1      0   0     0  0    0  0  1   1    0   0
+ 5429  sb4                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 6679  sb5                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 8169  sb6                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+ 9289  sb7                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+10479  sb8                 0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+11559  sb10                0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+13129  sb11                0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+14429  sb12                0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+15259  func1               0     0       0  0     1      0   0     0  0    0  0  1   0   1    1
+16419  sb13                0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+17589  fs_func             0     0       0  0     0     1    0     0  0    0  0  0  0   0   1
+17769  error               0     0       0  0     0     0   1      0  0    0  0  0  0   0   0
+17899  fs_func_p           0     0       0  0     1      0   0     0  1     0  0  0  1    0   0
+18189  fs_operation_def    0     0       0  0     0     1    0     0  0    0  0  0  0   0   1
+18459  name                0     0       0  0     0     0   1      0  0    0  0  0  0   0   1
+18639  func                0     0       0  0     0     0   1      0  0    0  0  0  0   0   1
+18729  fs_operation_def_t  0     0       0  0     1      0   0     0  1     0  0  0  1    0   0
+19079  devinit             0     0       0  0     1      0   0     0  0    0  0  1   1    0   1
+19199  fstype              0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+19339  name                0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
+19759  dev_vfsops_tbl      0     0       0  0     1      0   0     0  0    0  0  0  0   0   1
 Table: Tokens
 FID  FOFFSET    EID
----  -------  -----
   2      297   2975
   2      329   3295
   2      357   3575
@@ -135,7 +133,6 @@ FID  FOFFSET    EID
   5       88    891
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ------------------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -277,13 +274,11 @@ FID  FOFFSET  CODE
   5      116  }\u0000d\u0000a\u0000d\u0000a
 Table: Projects
 PID  NAME
----  -----------
  16  unspecified
  17  Prj1
  18  Prj2
 Table: IdProj
   EID  PID
------  ---
    79   17
   189   17
   229   17
@@ -370,14 +365,12 @@ Table: IdProj
 19759   18
 Table: Files
 FID  NAME                       RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
----  -------------------------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  2  host-defs.h                TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
-  3  host-incs.h                TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c31-serial-initializers.c  FALSE   2032        120     445         27          0    118          76       14       0            13        0          0          0       455      404        1           0           1           1     12      0           4         9      0         0         0
-  5  prj2.c                     FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
+  2  host-defs.h                1     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
+  3  host-incs.h                1     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  4  c31-serial-initializers.c  0   2032        120     445         27          0    118          76       14       0            13        0          0          0       455      404        1           0           1           1     12      0           4         9      0         0         0
+  5  prj2.c                     0    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
----  ---
   2   17
   3   17
   4   17
@@ -388,11 +381,9 @@ FID  PID
   5   18
 Table: Definers
 PID  CUID  BASEFILEID  DEFINERID
----  ----  ----------  ---------
  18     5           5          2
 Table: Includers
 PID  CUID  BASEFILEID  INCLUDERID
----  ----  ----------  ----------
  17     2           2           1
  17     4           3           1
  17     4           4           1
@@ -404,7 +395,6 @@ PID  CUID  BASEFILEID  INCLUDERID
  18     5           5           1
 Table: Providers
 PID  CUID  PROVIDERID
----  ----  ----------
  17     2           2
  17     4           4
  18     2           2
@@ -413,26 +403,22 @@ PID  CUID  PROVIDERID
  18     5           5
 Table: IncTriggers
 PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
----  ----  ----------  ---------  -------  ---
  18     5           5          2      471    4
 Table: Functions
    ID  NAME            ISMACRO  DEFINED  DECLARED  FILESCOPED  FID  FOFFSET  FANIN
------  --------------  -------  -------  --------  ----------  ---  -------  -----
-  891  foo             FALSE    TRUE     TRUE      FALSE         5       88      0
- 4715  main            FALSE    FALSE    TRUE      FALSE         2      471      0
- 5355  _cscout_dummy1  FALSE    TRUE     TRUE      TRUE          2      535      1
-15259  func1           FALSE    TRUE     TRUE      FALSE         4     1525      0
-19079  devinit         FALSE    TRUE     TRUE      TRUE          4     1907      0
+  891  foo             0    1     1      0         5       88      0
+ 4715  main            0    0    1      0         2      471      0
+ 5355  _cscout_dummy1  0    1     1      1          2      535      1
+15259  func1           0    1     1      0         4     1525      0
+19079  devinit         0    1     1      1          4     1907      0
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC       CHAL  IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
-----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  ---------  -----  --------  ------------  ------  ----------
-       891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      29       0        0       0      0       0       1       1       1   0.0E0      0.0E0  0.0E0         5            95       5         117
-      5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      21       0        0       0      1       1       1       1       1   1.0E0      0.0E0  1.0E0         2           557       2         577
-     15259    168         28      33          4          0      8          68        1       0             1        0          0          0        25       21      1    3     2        2      0    0      0        0      0         0       0     0       0    0          0      0        0     1     0     0    2      1      0      0     2      35       0        0       0      0       0       1       1       1   0.0E0  18.0947E0  0.0E0         4          1539       4        1706
-     19079     88          0      19          0          0      4          53        1       0             0        0          0          0        20       20      1    3     2        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    2      0      1      0     2      38       2        0       0      0       0       1       1       1   0.0E0  13.9316E0  0.0E0         4          1941       4        2028
+       891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      29       0        0       0      0       0       1       1       1   0.0      0.0  0.0         5            95       5         117
+      5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1      21       0        0       0      1       1       1       1       1   1.0      0.0  1.0         2           557       2         577
+     15259    168         28      33          4          0      8          68        1       0             1        0          0          0        25       21      1    3     2        2      0    0      0        0      0         0       0     0       0    0          0      0        0     1     0     0    2      1      0      0     2      35       0        0       0      0       0       1       1       1   0.0  18.0947  0.0         4          1539       4        1706
+     19079     88          0      19          0          0      4          53        1       0             0        0          0          0        20       20      1    3     2        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    2      0      1      0     2      38       2        0       0      0       0       1       1       1   0.0  13.9316  0.0         4          1941       4        2028
 Table: FunctionId
 FUNCTIONID  ORDINAL    EID
-----------  -------  -----
        891        0    891
       4715        0    441
       5355        0   5355
@@ -440,6 +426,5 @@ FUNCTIONID  ORDINAL    EID
      19079        0  19079
 Table: Fcalls
 SOURCEID  DESTID
---------  ------
     5355    5355
 Done

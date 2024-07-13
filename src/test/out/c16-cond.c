@@ -1,40 +1,38 @@
 Table: Ids
   EID  NAME                 READONLY  UNDEFMACRO  MACRO  MACROARG  ORDINARY  SUETAG  SUMEMBER  LABEL  TYPEDEF  ENUM   YACC   FUN    CSCOPE  LSCOPE  UNUSED
------  -------------------  --------  ----------  -----  --------  --------  ------  --------  -----  -------  -----  -----  -----  ------  ------  ------
-   91  MAXDIGIT             FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
-  331  x                    FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  441  main                 TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    FALSE
-  571  qqq                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   TRUE    TRUE
-  891  foo                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   FALSE   TRUE    TRUE
- 1699  a                    FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 1759  substruct            FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
- 2189  b                    FALSE     FALSE       FALSE  FALSE     FALSE     FALSE   TRUE      FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 2249  mainstruct           FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  TRUE     FALSE  FALSE  FALSE  TRUE    FALSE   FALSE
- 2509  one                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
- 2975  __DATE__             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3149  NULL                 FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 3295  __TIME__             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3439  SUBSTRUCT_PTR_A      FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 3575  __FILE__             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 3599  _p                   FALSE     FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 3865  __LINE__             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4049  MAINSTRUCT_PTR_B_A1  FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 4055  __STDC__             TRUE      FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   TRUE
- 4249  _p                   FALSE     FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 4859  MAINSTRUCT_PTR_B_A2  FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 5059  _p                   FALSE     FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 5355  _cscout_dummy1       TRUE      FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
- 5689  NULL2                FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 5879  MAINSTRUCT_PTR_B_A3  FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 6079  _p                   FALSE     FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 6699  MAINSTRUCT_PTR_B_A4  FALSE     FALSE       TRUE   FALSE     FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 6899  _p                   FALSE     FALSE       FALSE  TRUE      FALSE     FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
- 9769  two                  FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
-10019  s                    FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  FALSE  FALSE   FALSE   FALSE
-11479  three                FALSE     FALSE       FALSE  FALSE     TRUE      FALSE   FALSE     FALSE  FALSE    FALSE  FALSE  TRUE   TRUE    FALSE   FALSE
+   91  MAXDIGIT             0     0       1   0     0     0   0     0  0    0  0  0  0   0   1
+  331  x                    0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+  441  main                 1      0       0  0     1      0   0     0  0    0  0  1   0   1    0
+  571  qqq                  0     0       0  0     1      0   0     0  0    0  0  0  0   1    1
+  891  foo                  0     0       0  0     1      0   0     0  0    0  0  1   0   1    1
+ 1699  a                    0     0       0  0     0     0   1      0  0    0  0  0  0   0   0
+ 1759  substruct            0     0       0  0     1      0   0     0  1     0  0  0  1    0   0
+ 2189  b                    0     0       0  0     0     0   1      0  0    0  0  0  0   0   0
+ 2249  mainstruct           0     0       0  0     1      0   0     0  1     0  0  0  1    0   0
+ 2509  one                  0     0       0  0     1      0   0     0  0    0  0  1   1    0   0
+ 2975  __DATE__             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 3149  NULL                 0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 3295  __TIME__             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 3439  SUBSTRUCT_PTR_A      0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 3575  __FILE__             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 3599  _p                   0     0       0  1      0     0   0     0  0    0  0  0  0   0   0
+ 3865  __LINE__             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 4049  MAINSTRUCT_PTR_B_A1  0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 4055  __STDC__             1      0       1   0     0     0   0     0  0    0  0  0  0   0   1
+ 4249  _p                   0     0       0  1      0     0   0     0  0    0  0  0  0   0   0
+ 4859  MAINSTRUCT_PTR_B_A2  0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 5059  _p                   0     0       0  1      0     0   0     0  0    0  0  0  0   0   0
+ 5355  _cscout_dummy1       1      0       0  0     1      0   0     0  0    0  0  1   1    0   0
+ 5689  NULL2                0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 5879  MAINSTRUCT_PTR_B_A3  0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 6079  _p                   0     0       0  1      0     0   0     0  0    0  0  0  0   0   0
+ 6699  MAINSTRUCT_PTR_B_A4  0     0       1   0     0     0   0     0  0    0  0  0  0   0   0
+ 6899  _p                   0     0       0  1      0     0   0     0  0    0  0  0  0   0   0
+ 9769  two                  0     0       0  0     1      0   0     0  0    0  0  1   1    0   0
+10019  s                    0     0       0  0     1      0   0     0  0    0  0  0  0   0   0
+11479  three                0     0       0  0     1      0   0     0  0    0  0  1   1    0   0
 Table: Tokens
 FID  FOFFSET    EID
----  -------  -----
   2      297   2975
   2      329   3295
   2      357   3575
@@ -115,7 +113,6 @@ FID  FOFFSET    EID
   5       88    891
 Table: Rest
 FID  FOFFSET  CODE
----  -------  ------------------------------------------------------------------------------------------------
   2      287  \u0000a\u0000a#define 
   2      305    
   2      320  \u0000a#define 
@@ -210,13 +207,11 @@ FID  FOFFSET  CODE
   5      116  }\u0000d\u0000a\u0000d\u0000a
 Table: Projects
 PID  NAME
----  -----------
  16  unspecified
  17  Prj1
  18  Prj2
 Table: IdProj
   EID  PID
------  ---
   441   17
  1699   17
  1759   17
@@ -277,14 +272,12 @@ Table: IdProj
 11479   18
 Table: Files
 FID  NAME         RO     NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NCOPIES  NSTATEMENT  NPFUNCTION  NFFUNCTION  NPVAR  NFVAR  NAGGREGATE  NAMEMBER  NENUM  NEMEMBER  NINCFILE
----  -----------  -----  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -------  ----------  ----------  ----------  -----  -----  ----------  --------  -----  --------  --------
-  2  host-defs.h  TRUE     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
-  3  host-incs.h  TRUE     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
-  4  c16-cond.c   FALSE   1274        350     190          0          2     57          92        0       0             7        0          5          2       238      368        1           4           1           3      0      0           2         2      0         0         0
-  5  prj2.c       FALSE    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
+  2  host-defs.h  1     578        367      29          0          3     22          61        3       0             5        0          0          5        37       18        1           1           0           1      0      0           0         0      0         0         0
+  3  host-incs.h  1     295        187      13          0          2     13          54        1       0             1        0          0          0        16        0        1           0           0           0      0      0           0         0      0         0         0
+  4  c16-cond.c   0   1274        350     190          0          2     57          92        0       0             7        0          5          2       238      368        1           4           1           3      0      0           2         2      0         0         0
+  5  prj2.c       0    121         34      26          2          0     11          21        0       0             1        0          0          1        21       18        1           0           1           0      2      0           0         0      0         0         0
 Table: FileProj
 FID  PID
----  ---
   2   17
   3   17
   4   17
@@ -295,13 +288,11 @@ FID  PID
   5   18
 Table: Definers
 PID  CUID  BASEFILEID  DEFINERID
----  ----  ----------  ---------
  17     4           4          2
  18     4           4          2
  18     5           5          2
 Table: Includers
 PID  CUID  BASEFILEID  INCLUDERID
----  ----  ----------  ----------
  17     2           2           1
  17     4           3           1
  17     4           4           1
@@ -313,7 +304,6 @@ PID  CUID  BASEFILEID  INCLUDERID
  18     5           5           1
 Table: Providers
 PID  CUID  PROVIDERID
----  ----  ----------
  17     2           2
  17     4           4
  18     2           2
@@ -322,41 +312,37 @@ PID  CUID  PROVIDERID
  18     5           5
 Table: IncTriggers
 PID  CUID  BASEFILEID  DEFINERID  FOFFSET  LEN
----  ----  ----------  ---------  -------  ---
  17     4           4          2      471    4
  18     4           4          2      471    4
  18     5           5          2      471    4
 Table: Functions
    ID  NAME                 ISMACRO  DEFINED  DECLARED  FILESCOPED  FID  FOFFSET  FANIN
------  -------------------  -------  -------  --------  ----------  ---  -------  -----
-  891  foo                  FALSE    TRUE     TRUE      FALSE         5       88      0
- 2759  one                  FALSE    TRUE     TRUE      TRUE          4      275      1
- 3439  SUBSTRUCT_PTR_A      TRUE     TRUE     FALSE     TRUE          4      343      4
- 4049  MAINSTRUCT_PTR_B_A1  TRUE     TRUE     FALSE     TRUE          4      404      1
- 4859  MAINSTRUCT_PTR_B_A2  TRUE     TRUE     FALSE     TRUE          4      485      1
- 5355  _cscout_dummy1       FALSE    TRUE     TRUE      TRUE          2      535      1
- 5879  MAINSTRUCT_PTR_B_A3  TRUE     TRUE     FALSE     TRUE          4      587      1
- 6699  MAINSTRUCT_PTR_B_A4  TRUE     TRUE     FALSE     TRUE          4      669      1
- 9769  two                  FALSE    TRUE     TRUE      TRUE          4      976      1
-11819  three                FALSE    TRUE     TRUE      TRUE          4     1181      1
-12189  main                 FALSE    TRUE     TRUE      FALSE         4     1218      0
+  891  foo                  0    1     1      0         5       88      0
+ 2759  one                  0    1     1      1          4      275      1
+ 3439  SUBSTRUCT_PTR_A      1     1     0     1          4      343      4
+ 4049  MAINSTRUCT_PTR_B_A1  1     1     0     1          4      404      1
+ 4859  MAINSTRUCT_PTR_B_A2  1     1     0     1          4      485      1
+ 5355  _cscout_dummy1       0    1     1      1          2      535      1
+ 5879  MAINSTRUCT_PTR_B_A3  1     1     0     1          4      587      1
+ 6699  MAINSTRUCT_PTR_B_A4  1     1     0     1          4      669      1
+ 9769  two                  0    1     1      1          4      976      1
+11819  three                0    1     1      1          4     1181      1
+12189  main                 0    1     1      0         4     1218      0
 Table: FunctionMetrics
 FUNCTIONID  NCHAR  NCCOMMENT  NSPACE  NLCOMMENT  NBCOMMENT  NLINE  MAXLINELEN  NSTRING  NULINE  NPPDIRECTIVE  NPPCOND  NPPFMACRO  NPPOMACRO  NPPTOKEN  NCTOKEN  NSTMT  NOP  NUOP  NNCONST  NCLIT  NIF  NELSE  NSWITCH  NCASE  NDEFAULT  NBREAK  NFOR  NWHILE  NDO  NCONTINUE  NGOTO  NRETURN  NPID  NFID  NMID  NID  NUPID  NUFID  NUMID  NUID  NGNSOC  NPARAM  MAXNEST  NLABEL  FANIN  FANOUT  CCYCL1  CCYCL2  CCYCL3  CSTRUC       CHAL   IFLOW  FIDBEGIN  FOFFSETBEGIN  FIDEND  FOFFSETEND
-----------  -----  ---------  ------  ---------  ---------  -----  ----------  -------  ------  ------------  -------  ---------  ---------  --------  -------  -----  ---  ----  -------  -----  ---  -----  -------  -----  --------  ------  ----  ------  ---  ---------  -----  -------  ----  ----  ----  ---  -----  -----  -----  ----  ------  ------  -------  ------  -----  ------  ------  ------  ------  ------  ---------  ------  --------  ------------  ------  ----------
-       891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      16       0        0       0      0       0       1       1       1   0.0E0      0.0E0   0.0E0         5            95       5         117
-      2759     16          0       7          0          0      2          11        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      12       0        0       0      1       0       1       1       1   0.0E0      0.0E0   0.0E0         4           287       4         302
-      3439     33          0      11          0          0      1          31        0       0             0        0          0          0        15        0      0    3     3        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     1    1      0      0      1     1       0       1        0       0      4       0       1       2       2   0.0E0  11.6096E0   0.0E0         4           362       4         394
-      4049     51          0       9          0          0      1          49        0       0             0        0          0          0        17        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     3    3      0      0      2     2       0       1        0       0      1       1       1       2       2   1.0E0  18.0947E0   1.0E0         4           427       4         477
-      4859     51          0      10          0          0      1          49        0       0             0        0          0          0        17        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     3    3      0      0      2     2       0       1        0       0      1       1       1       2       2   1.0E0  18.0947E0   1.0E0         4           508       4         558
-      5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1       8       0        0       0      1       1       1       1       1   1.0E0      0.0E0   1.0E0         2           557       2         577
-      5879     52          0       9          0          0      1          50        0       0             0        0          0          0        17        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     3    3      0      0      3     3       0       1        0       0      1       1       1       2       2   1.0E0  19.6515E0   1.0E0         4           610       4         661
-      6699     52          0      10          0          0      1          50        0       0             0        0          0          0        17        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     3    3      0      0      3     3       0       1        0       0      1       1       1       2       2   1.0E0  19.6515E0   1.0E0         4           692       4         743
-      9769    120          0      21          0          0      6          26        0       0             0        0          0          0        22      274      1    3     1        0      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     4    8      0      0      4     5      20       1        0       0      1       4       1       1       1  16.0E0  28.4346E0  16.0E0         4          1006       4        1125
-     11819     16          0       7          0          0      2          11        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      21       0        0       0      1       0       1       1       1   0.0E0      0.0E0   0.0E0         4          1195       4        1210
-     12189     42          0      11          0          0      2          37        0       0             0        0          0          0        15       21      1    2     1        0      0    0      0        0      0         0       0     0       0    0          0      0        1     0     3     1    4      0      3      1     4      21       0        0       0      0       3       1       1       1   0.0E0  13.9316E0   0.0E0         4          1231       4        1272
+       891     23         15       4          1          0      2          18        0       0             0        0          0          0         1        1      0    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     0    0      0      0      0     0      16       0        0       0      0       0       1       1       1   0.0      0.0   0.0         5            95       5         117
+      2759     16          0       7          0          0      2          11        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      12       0        0       0      1       0       1       1       1   0.0      0.0   0.0         4           287       4         302
+      3439     33          0      11          0          0      1          31        0       0             0        0          0          0        15        0      0    3     3        1      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     1    1      0      0      1     1       0       1        0       0      4       0       1       2       2   0.0  11.6096   0.0         4           362       4         394
+      4049     51          0       9          0          0      1          49        0       0             0        0          0          0        17        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     3    3      0      0      2     2       0       1        0       0      1       1       1       2       2   1.0  18.0947   1.0         4           427       4         477
+      4859     51          0      10          0          0      1          49        0       0             0        0          0          0        17        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     3    3      0      0      2     2       0       1        0       0      1       1       1       2       2   1.0  18.0947   1.0         4           508       4         558
+      5355     21          0       3          0          0      1          20        0       0             0        0          0          0         5        5      1    0     0        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     1     0    1      0      1      0     1       8       0        0       0      1       1       1       1       1   1.0      0.0   1.0         2           557       2         577
+      5879     52          0       9          0          0      1          50        0       0             0        0          0          0        17        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     3    3      0      0      3     3       0       1        0       0      1       1       1       2       2   1.0  19.6515   1.0         4           610       4         661
+      6699     52          0      10          0          0      1          50        0       0             0        0          0          0        17        0      0    4     4        0      0    0      0        0      0         0       0     0       0    0          0      0        0     0     0     3    3      0      0      3     3       0       1        0       0      1       1       1       2       2   1.0  19.6515   1.0         4           692       4         743
+      9769    120          0      21          0          0      6          26        0       0             0        0          0          0        22      274      1    3     1        0      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     4    8      0      0      4     5      20       1        0       0      1       4       1       1       1  16.0  28.4346  16.0         4          1006       4        1125
+     11819     16          0       7          0          0      2          11        0       0             0        0          0          0         4        4      1    0     0        1      0    0      0        0      0         0       0     0       0    0          0      0        1     0     0     0    0      0      0      0     0      21       0        0       0      1       0       1       1       1   0.0      0.0   0.0         4          1195       4        1210
+     12189     42          0      11          0          0      2          37        0       0             0        0          0          0        15       21      1    2     1        0      0    0      0        0      0         0       0     0       0    0          0      0        1     0     3     1    4      0      3      1     4      21       0        0       0      0       3       1       1       1   0.0  13.9316   0.0         4          1231       4        1272
 Table: FunctionId
 FUNCTIONID  ORDINAL    EID
-----------  -------  -----
        891        0    891
       2759        0   2509
       3439        0   3439
@@ -370,7 +356,6 @@ FUNCTIONID  ORDINAL    EID
      12189        0    441
 Table: Fcalls
 SOURCEID  DESTID
---------  ------
     4049    3439
     4859    3439
     5355    5355

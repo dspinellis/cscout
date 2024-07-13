@@ -24,8 +24,7 @@ CScout has been compiled and tested on GNU/Linux (Debian jessie),
 Apple OS X (El Capitan), FreeBSD (11.0), and Cygwin. In order to
 build and use CScout you need a Unix (like) system
 with a modern C++ compiler, GNU make, and Perl.
-To test CScout you also need to be able to run Java from the command line,
-in order to use the HSQLDB database.
+To test CScout you also need to be able to have SQLite installed.
 To view CScout's diagrams you must have the
 [GraphViz](http://www.graphviz.org) dot command in
 your executable file path.
@@ -37,12 +36,7 @@ your executable file path.
 
 Under FreeBSD use `gmake` rather than `make`.
 
-Testing requires an installed version of _HSQLDB_.
-If this is already installed in your system, specify to _make_
-the absolute path of the *hsqldb* directory, e.g.
-`make HSQLDB_DIR=/usr/local/lib/hsqldb-2.3.3/hsqldb`.
-Otherwise, _make_ will automatically download and unpack a local
-copy of _HSQLDB_ in the current directory.
+Testing requires an installed version of _SQLite_.
 
 ## Contributing
 * You can contribute to any of the [open issues](https://github.com/dspinellis/cscout/issues) or you can open a new one describing what you want to do.
