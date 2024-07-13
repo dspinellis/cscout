@@ -97,7 +97,10 @@ public:
 		em_nnconst,	// Number of numeric constants
 		em_nclit,	// Number of character literals
 		em_ncc2op,	// (INT) Number of operators contributing to cc2: &&, ||, ?:
-		// Keywords counted during identifier processing
+		/*
+		 * Keywords counted during identifier processing that takes
+		 * place when each file is post-processed.
+		 */
 		em_nif,		// Number of if statements
 		em_nelse,	// Number of else clauses
 		em_nswitch,	// Number of switch statements
@@ -110,7 +113,11 @@ public:
 		em_ncontinue,	// Number of continue statements
 		em_ngoto,	// Number of goto statements
 		em_nreturn,	// Number of return statements
-		// Identifiers categorized during identifier processing
+		/*
+		 * Identifiers (total and unique) categorized during
+		 * identifier processing that takes place when each
+		 * file is post-processed.
+		 */
 		// The following four lines must match the next four
 		em_npid,	// Number of project-scope identifiers
 		em_nfid,	// Number of file-scope (static) identifiers
