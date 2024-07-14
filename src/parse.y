@@ -2447,6 +2447,11 @@ constant_expression_opt:
 	;
 
 array_qualifier:
+	/*
+	 * Could warn in the next three rules if we don't get a
+	 * constant expression, but our compile-time evaluation
+	 * isn't yet robust enough for this.
+	 */
 	  type_qualifier_list_opt constant_expression_opt
 		{ $$ = $2; }
 	| STATIC type_qualifier_list_opt constant_expression_opt
@@ -2458,11 +2463,6 @@ array_qualifier:
 	;
 
 array_abstract_declarator:
-	/*
-	 * Could warn in the next two rules if we don't get a
-	 * constant expression, but our compile-time evaluation
-	 * isn't yet robust enough for this.
-	 */
           '[' array_qualifier ']'
 		{ $$ = array_of(basic(), $2.get_value()); }
         | array_abstract_declarator '[' array_qualifier ']'
