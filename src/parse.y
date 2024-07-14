@@ -618,6 +618,16 @@ postfix_expression:
 			{ $$ = $1; }
         | postfix_expression DEC_OP
 			{ $$ = $1; }
+	/*
+	 * gcc extension: __builtin_choose_expr
+	 * This cannot be handled by a macro, because there are cases
+	 * where macros are used to expand a single argument into two
+	 * and pass these two to __builtin_choose_expr.
+	 * Dynamically constructed arguments work after preprocessing,
+	 * but not as part of preprocessing.
+	 */
+        | CHOOSE_EXPR '(' assignment_expression ',' assignment_expression ',' assignment_expression ')'
+			{ $$ = $5; }
         ;
 
 member_name:
@@ -916,6 +926,18 @@ constant_expression:
 				cout << $1 << endl;
 			$$ = $1;
 		}
+	/*
+	 * gcc extension: __builtin_choose_expr
+	 * This cannot be handled by a macro, because there are cases
+	 * where macros are used to expand a single argument into two
+	 * and pass these two to __builtin_choose_expr.
+	 * Dynamically constructed arguments work after preprocessing,
+	 * but not as part of preprocessing.
+	 * Depending on its arguments it can yield a constant expression,
+	 * so it appears here as well as in postfix_expression/
+	 */
+        | CHOOSE_EXPR '(' assignment_expression ',' assignment_expression ',' assignment_expression ')'
+			{ $$ = $5; }
         ;
 
 range_expression:

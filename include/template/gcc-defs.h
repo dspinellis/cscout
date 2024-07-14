@@ -46,7 +46,6 @@
 #define __builtin_bswap32(x) (x)
 #define __builtin_bswap64(x) (x)
 #define __builtin_call_with_static_chain(x,y) ((x), (y), 0)
-#define __builtin_choose_expr(a,v,c) ((a) ? (v) : (c))
 #define __builtin___clear_cache(x,y) ((x), (y))
 #define __builtin_clrsbll(x) (x)
 #define __builtin_clrsbl(x) (x)

@@ -36,7 +36,7 @@
 %token DEFAULT         GOTO            SIZEOF          VOLATILE
 %token DO              IF              STATIC          WHILE
 %token RESTRICT        INLINE	       BOOL	       THREAD_LOCAL
-%token GENERIC
+%token GENERIC	       COMPLEX         IMAGINARY
 
 /* ANSI Grammar suggestions */
 %token IDENTIFIER         STRING_LITERAL
@@ -78,6 +78,8 @@
 %token ALIGNOF
 /* __label__ declaration */
 %token LABEL
+/* __builtin_choose_expr */
+%token CHOOSE_EXPR
 
 /* The result of a __attribute__(__unused__) sequence */
 %token UNUSED
