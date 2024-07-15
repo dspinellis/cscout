@@ -70,7 +70,7 @@ Fchar::set_input(const string& s)
 	if (in.fail())
 		Error::error(E_FATAL, s + ": " + string(strerror(errno)), false);
 	fi = Fileid(s);
-	fi.set_gc(false);	// Mark the file for garbage collection
+	Filedetails::set_gc(fi, false);	// Mark the file for garbage collection
 	if (DP())
 		cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;
@@ -121,14 +121,14 @@ again:
 	case '\\':			// \newline splicing
 		c2 = in.get();
 		if (c2 == '\n') {
-			Fchar::get_fileid().process_line(!Pdtoken::skipping());
+			Filedetails::set_line_processed(Fchar::get_fileid(), !Pdtoken::skipping());
 			line_number++;
 			goto again;
 		} else if (c2 == '\r') {
 			// DOS/WIN32 cr-lf EOL
 			c3 = in.get();
 			if (c3 == '\n') {
-				Fchar::get_fileid().process_line(!Pdtoken::skipping());
+				Filedetails::set_line_processed(Fchar::get_fileid(), !Pdtoken::skipping());
 				line_number++;
 				goto again;
 			}
@@ -158,7 +158,7 @@ again:
 		default: in.putback(c3); in.putback(c2); return;
 		}
 	case '\n':
-		Fchar::get_fileid().process_line(!Pdtoken::skipping());
+		Filedetails::set_line_processed(Fchar::get_fileid(), !Pdtoken::skipping());
 		line_number++;
 		break;
 	}
@@ -193,8 +193,9 @@ Fchar::getnext()
 			oval = val;
 		if (val == EOF) {
 			total_lines += line_number;
-			fi.metrics().done_processing();
-			fi.set_attribute(Project::get_current_projid());
+			Filedetails::get_pre_cpp_metrics(fi).done_processing();
+			Filedetails::get_post_cpp_metrics(fi).done_processing();
+			Filedetails::set_attribute(fi, Project::get_current_projid());
 			if (DP())
 				cout << "Set projid for " << fi.get_path() << " = " << Project::get_current_projid() << "\n";
 		}

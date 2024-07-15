@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2015 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -155,8 +155,13 @@ public:
 	virtual double get_metric(int i) const;
 	virtual ~FunMetrics() {}
 
-	// Process a single token read from a file
-	void process_token(const Pltoken &t);
+	/*
+	 * Process a single token read from a file.
+	 * This is templated, so that it can be called with
+	 * Pltoken before the preprocessor and Ctoken after the preprocessor
+	 */
+	template <typename TokenType> void process_token(const TokenType &t);
+
 	// Called for every identifier (override Metrics method)
 	void process_id(const string &s, Eclass *ec);
 	// Summarize the operators collected by process_token
@@ -168,6 +173,63 @@ public:
 
 	template <class M> friend const MetricDetails &Metrics::get_detail(int n);
 };
+
+
+template <typename TokenType> void
+FunMetrics::process_token(const TokenType &t)
+{
+	csassert(!processed);
+	int code = t.get_code();
+	int em;
+	switch (code) {
+	case IDENTIFIER:
+		em = keyword_metric(t.get_val());
+		if (em != -1)
+			count[em]++;
+		switch (em) {
+		case em_nwhile:
+		case em_nswitch:
+		case em_nif:
+			/*
+			 * while (x) y; and the rest are two statements
+			 * We count one through the ";", we must count the
+			 * other through the keyword.
+			 */
+			count[em_nstmt]++;
+			break;
+		case em_ndo:
+			count[em_nstmt]++;
+			// Don't count the "while" associated with a "do"
+			count[em_nwhile]--;
+			break;
+		case em_nfor:
+			count[em_nstmt]++;
+			// Don't count the semicolons in for statements
+			count[em_nstmt] -= 2;
+			break;
+		}
+		break;
+	case ';':
+		count[em_nstmt]++;
+		break;
+	case PP_NUMBER:
+		count[em_nnconst]++;
+		break;
+	case CHAR_LITERAL:
+		count[em_nclit]++;
+		break;
+	case AND_OP:
+	case OR_OP:
+	case '?':
+		count[em_ncc2op]++;
+		break;
+	}
+	if (is_operator(code)) {
+		count[em_nop]++;
+		operators.insert(code);
+	}
+}
+
 
 // This can be kept per project and globally
 class FunMetricsSummary {

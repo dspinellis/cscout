@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2015 Diomidis Spinellis
+ * (C) Copyright 2008-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -259,8 +259,8 @@ function_label(Call *f, bool hyperlink)
         } else {
             t = f->get_tokid();
         }
-        int first = t.get_fileid().line_number(t.get_streampos());
-        int last = first + f->metrics().get_metric(Metrics::em_nline);
+        int first = Filedetails::get_line_number(t.get_fileid(), t.get_streampos());
+        int last = first + f->get_pre_cpp_metrics().get_metric(Metrics::em_nline);
         result += to_string(first) + ";" + to_string(last) + ":";
 	}
 	if (Option::cgraph_show->get() == 'f')		// Show files

@@ -43,6 +43,7 @@
 #include "eclass.h"
 #include "token.h"
 #include "ptoken.h"
+#include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"
 #include "ctoken.h"

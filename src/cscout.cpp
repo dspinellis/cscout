@@ -286,7 +286,7 @@ file_analyze(Fileid fi)
 	const string &fname = fi.get_path();
 	int line_number = 0;
 
-	FCallSet &fc = fi.get_functions();	// File's functions
+	FCallSet &fc = Filedetails::get_functions(fi);	// File's functions
 	FCallSet::iterator fci = fc.begin();	// Iterator through them
 	Call *cfun = NULL;			// Current function
 	stack <Call *> fun_nesting;
@@ -308,7 +308,7 @@ file_analyze(Fileid fi)
 
 		// Update current_function
 		if (cfun && ti > cfun->get_end().get_tokid()) {
-			cfun->metrics().summarize_identifiers();
+			cfun->get_pre_cpp_metrics().summarize_identifiers();
 			if (fun_nesting.empty())
 				cfun = NULL;
 			else {
@@ -325,7 +325,7 @@ file_analyze(Fileid fi)
 
 		char c = (char)val;
 		mapTokidEclass::iterator ei;
-		enum e_cfile_state cstate = fi.metrics().get_state();
+		enum e_cfile_state cstate = Filedetails::get_pre_cpp_metrics(fi).get_state();
 		if (cstate != s_block_comment &&
 		    cstate != s_string &&
 		    cstate != s_cpp_comment &&
@@ -350,9 +350,9 @@ file_analyze(Fileid fi)
 				int len = ec->get_len();
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
-				fi.metrics().process_id(s, ec);
+				Filedetails::get_pre_cpp_metrics(fi).process_id(s, ec);
 				if (cfun)
-					cfun->metrics().process_id(s, ec);
+					cfun->get_pre_cpp_metrics().process_id(s, ec);
 				/*
 				 * ids[ec] = Identifier(ec, s);
 				 * Efficiently add s to ids, if needed.
@@ -377,20 +377,20 @@ file_analyze(Fileid fi)
 				delete ec;
 			}
 		}
-		fi.metrics().process_char((char)val);
+		Filedetails::get_pre_cpp_metrics(fi).process_char((char)val);
 		if (cfun)
-			cfun->metrics().process_char((char)val);
+			cfun->get_pre_cpp_metrics().process_char((char)val);
 		if (c == '\n') {
-			fi.add_line_end(ti.get_streampos());
-			if (!fi.is_processed(++line_number))
-				fi.metrics().add_unprocessed();
+			Filedetails::add_line_end(fi, ti.get_streampos());
+			if (!Filedetails::is_line_processed(fi, ++line_number))
+				Filedetails::get_pre_cpp_metrics(fi).add_unprocessed();
 		}
 	}
 	if (cfun)
-		cfun->metrics().summarize_identifiers();
-	fi.metrics().set_ncopies(fi.get_identical_files().size());
+		cfun->get_pre_cpp_metrics().summarize_identifiers();
+	Filedetails::get_pre_cpp_metrics(fi).set_ncopies(Filedetails::get_identical_files(fi).size());
 	if (DP())
-		cout << "nchar = " << fi.metrics().get_metric(Metrics::em_nchar) << endl;
+		cout << "nchar = " << Filedetails::get_pre_cpp_metrics(fi).get_metric(Metrics::em_nchar) << endl;
 	in.close();
 	return has_unused;
 }
@@ -430,8 +430,8 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 
 	if (DP())
 		cout << "Write to " << fname << endl;
-	if (fi.is_hand_edited()) {
-		in = new istringstream(fi.get_original_contents());
+	if (Filedetails::is_hand_edited(fi)) {
+		in = new istringstream(Filedetails::get_original_contents(fi));
 		fputs("<p>This file has been edited by hand. The following code reflects the contents before the first CScout-invoked hand edit.</p>", of);
 	} else {
 		in = new ifstream(fname.c_str(), ios::binary);
@@ -452,7 +452,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			break;
 		if (at_bol) {
 			fprintf(of,"<a name=\"%d\"></a>", line_number);
-			if (mark_unprocessed && !fi.is_processed(line_number))
+			if (mark_unprocessed && !Filedetails::is_line_processed(fi, line_number))
 				fprintf(of, "<span class=\"unused\">");
 			if (Option::show_line_number->get()) {
 				char buff[50];
@@ -502,7 +502,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		fprintf(of, "%s", html((char)val));
 		if ((char)val == '\n') {
 			at_bol = true;
-			if (mark_unprocessed && !fi.is_processed(line_number))
+			if (mark_unprocessed && !Filedetails::is_line_processed(fi, line_number))
 				fprintf(of, "</span>");
 			line_number++;
 		}
@@ -1048,7 +1048,7 @@ xfilequery_page(FILE *of,  void *p)
 	html_file_set_begin(of);
 	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
-		if (current_project && !f.get_attribute(current_project))
+		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
 			html_file(of, *i);
@@ -1056,7 +1056,7 @@ xfilequery_page(FILE *of,  void *p)
 				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
 				i->get_id());
 			if (query.get_sort_order() != -1)
-				fprintf(of, "<td align=\"right\">%g</td>", i->const_metrics().get_metric(query.get_sort_order()));
+				fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
 			html_file_record_end(of);
 		}
 	}
@@ -1115,7 +1115,7 @@ display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &so
 			fputs("<tr><td witdh='50%'>", of);
 			html(of, **i);
 			fprintf(of, "</td><td witdh='50%%' align='right'>%g</td></tr>\n",
-			    (*i)->const_metrics().get_metric(query.get_sort_order()));
+			    (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
 		}
 	}
 	fputs("</table>\n", of);
@@ -1258,7 +1258,7 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qf=1", query.bookmarkable());
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
-		if (current_project && !f.get_attribute(current_project))
+		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
 			html_file(of, *i);
@@ -1501,7 +1501,7 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "\n<li> Declared in file <a href=\"file.html?id=%u\">%s</a>",
 			t.get_fileid().get_id(),
 			t.get_fileid().get_path().c_str());
-		int lnum = t.get_fileid().line_number(t.get_streampos());
+		int lnum = Filedetails::get_line_number(t.get_fileid(), t.get_streampos());
 		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a><br />(and possibly in other places)\n",
 			t.get_fileid().get_id(), lnum, lnum);
 			fprintf(fo, " &mdash; <a href=\"qsrc.html?qt=fun&id=%u&match=Y&call=%p&n=Declaration+of+%s\">marked source</a>",
@@ -1516,7 +1516,7 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<li> Defined in file <a href=\"file.html?id=%u\">%s</a>",
 			t.get_fileid().get_id(),
 			t.get_fileid().get_path().c_str());
-		int lnum = t.get_fileid().line_number(t.get_streampos());
+		int lnum = Filedetails::get_line_number(t.get_fileid(), t.get_streampos());
 		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a>\n",
 			t.get_fileid().get_id(), lnum, lnum);
 		if (modification_state != ms_subst && !browse_only)
@@ -1555,9 +1555,9 @@ function_page(FILE *fo, void *p)
 		    	if ((rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end())
 				repl_temp << html(rfc->second.get_replacement());
 			else if (f->is_defined())
-				for (int i = 0; i < f->metrics().get_metric(FunMetrics::em_nparam); i++) {
+				for (int i = 0; i < f->get_pre_cpp_metrics().get_metric(FunMetrics::em_nparam); i++) {
 					repl_temp << '@' << i + 1;
-					if (i + 1 < f->metrics().get_metric(FunMetrics::em_nparam))
+					if (i + 1 < f->get_pre_cpp_metrics().get_metric(FunMetrics::em_nparam))
 						repl_temp << ", ";
 				}
 			fprintf(fo, "<li> Refactor arguments into: \n"
@@ -1575,7 +1575,7 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 		for (int j = 0; j < FunMetrics::metric_max; j++)
 			if (!Metrics::is_internal<FunMetrics>(j))
-				fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
+				fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->get_pre_cpp_metrics().get_metric(j));
 		fprintf(fo, "</table>\n");
 	}
 	fprintf(fo, "</FORM>\n");
@@ -1621,13 +1621,13 @@ visit_functions(FILE *fo, const char *call_path, Call *f,
 /*
  * Visit all files associated with a includes/included relationship with f
  * The method to obtain the relationship container is passed through
- * the get_map method pointer.
+ * the get_map function pointer.
  * The method to check if a file should be included in the visit is passed through the
  * the is_ok method pointer.
  * Set the visited flag for all nodes visited.
  */
 static void
-visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
+visit_include_files(Fileid f, const FileIncMap & (*get_map)(Fileid fi),
     bool (IncDetails::*is_ok)() const, int level)
 {
 	if (level == 0)
@@ -1635,10 +1635,10 @@ visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
 
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
-	f.set_visited();
-	const FileIncMap &m = (f.*get_map)();
+	Filedetails::set_visited(f);
+	const FileIncMap &m = get_map(f);
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
-		if (!i->first.is_visited() && (i->second.*is_ok)())
+		if (!Filedetails::is_visited(i->first) && (i->second.*is_ok)())
 			visit_include_files(i->first, get_map, is_ok, level - 1);
 	}
 }
@@ -1646,22 +1646,23 @@ visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
 /*
  * Visit all files associated with a global variable def/ref relationship with f
  * The method to obtain the relationship container is passed through
- * the get_set method pointer.
+ * the get_fileid_set method pointer.
  * Set the visited flag for all nodes visited.
  */
 static void
-visit_globobj_files(Fileid f, const Fileidset & (Fileid::*get_set)() const, int level)
+visit_globobj_files(Fileid f, const Fileidset & (*get_fileid_set)(Fileid fi),
+		int level)
 {
 	if (level == 0)
 		return;
 
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
-	f.set_visited();
-	const Fileidset &s = (f.*get_set)();
+	Filedetails::set_visited(f);
+	const Fileidset &s = get_fileid_set(f);
 	for (Fileidset::const_iterator i = s.begin(); i != s.end(); i++) {
-		if (!i->is_visited())
-			visit_globobj_files(*i, get_set, level - 1);
+		if (!Filedetails::is_visited(*i))
+			visit_globobj_files(*i, get_fileid_set, level - 1);
 	}
 }
 
@@ -1681,20 +1682,20 @@ visit_fcall_files(Fileid f, Call::const_fiterator_type (Call::*abegin)() const, 
 
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
-	f.set_visited();
+	Filedetails::set_visited(f);
 	/*
 	 * For every function in this file:
 	 * for every function associated with this function
 	 * set the edge and visit the corresponding files.
 	 */
-	for (FCallSet::const_iterator filefun = f.get_functions().begin(); filefun != f.get_functions().end(); filefun++) {
+	for (FCallSet::const_iterator filefun = Filedetails::get_functions(f).begin(); filefun != Filedetails::get_functions(f).end(); filefun++) {
 		if (!(*filefun)->is_cfun())
 			continue;
 		for (Call::const_fiterator_type afun = ((*filefun)->*abegin)(); afun != ((*filefun)->*aend)(); afun++)
 			if ((*afun)->is_defined() && (*afun)->is_cfun()) {
 				Fileid f2((*afun)->get_definition().get_fileid());
 				edges[f.get_id()][f2.get_id()] = true;
-				if (!f2.is_visited())
+				if (!Filedetails::is_visited(f2))
 					visit_fcall_files(f2, abegin, aend, level - 1, edges);
 			}
 	}
@@ -2038,36 +2039,36 @@ single_file_graph(char gtype, EdgeMatrix &edges)
 	if (!swill_getargs("i(f)", &id) || !ltype)
 		return false;
 	Fileid fileid(id);
-	Fileid::clear_all_visited();
+	Filedetails::clear_all_visited();
 	// No output, just set the visited flag
 	switch (gtype) {
 	case 'I':		// Include graph
 		switch (*ltype) {
 		case 'D':
-			visit_include_files(fileid, &Fileid::get_includers, &IncDetails::is_directly_included, Option::cgraph_depth->get());
+			visit_include_files(fileid, &Filedetails::get_includers, &IncDetails::is_directly_included, Option::cgraph_depth->get());
 			break;
 		case 'U':
-			visit_include_files(fileid, &Fileid::get_includes, &IncDetails::is_directly_included, Option::cgraph_depth->get());
+			visit_include_files(fileid, &Filedetails::get_includes, &IncDetails::is_directly_included, Option::cgraph_depth->get());
 			break;
 		}
 		break;
 	case 'C':		// Compile-time dependency graph
 		switch (*ltype) {
 		case 'D':
-			visit_include_files(fileid, &Fileid::get_includers, &IncDetails::is_required, Option::cgraph_depth->get());
+			visit_include_files(fileid, &Filedetails::get_includers, &IncDetails::is_required, Option::cgraph_depth->get());
 			break;
 		case 'U':
-			visit_include_files(fileid, &Fileid::get_includes, &IncDetails::is_required, Option::cgraph_depth->get());
+			visit_include_files(fileid, &Filedetails::get_includes, &IncDetails::is_required, Option::cgraph_depth->get());
 			break;
 		}
 		break;
 	case 'G':		// Global object def/ref graph (data dependency)
 		switch (*ltype) {
 		case 'D':
-			visit_globobj_files(fileid, &Fileid::glob_uses, Option::cgraph_depth->get());
+			visit_globobj_files(fileid, &Filedetails::get_glob_uses, Option::cgraph_depth->get());
 			break;
 		case 'U':
-			visit_globobj_files(fileid, &Fileid::glob_used_by, Option::cgraph_depth->get());
+			visit_globobj_files(fileid, &Filedetails::get_glob_used_by, Option::cgraph_depth->get());
 			break;
 		}
 		break;
@@ -2205,9 +2206,9 @@ fgraph_page(GraphDisplay *gd)
 			int size = Fileid::max_id() + 1;
 			edges.insert(edges.begin(), size, vector<bool>(size, 0));
 			// Fill the edges for all files
-			Fileid::clear_all_visited();
+			Filedetails::clear_all_visited();
 			for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-				if (i->is_visited())
+				if (Filedetails::is_visited(*i))
 					continue;
 				if (!all && i->get_readonly())
 					continue;
@@ -2233,7 +2234,7 @@ fgraph_page(GraphDisplay *gd)
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (!all && i->get_readonly())
 			continue;
-		if (only_visited && !i->is_visited())
+		if (only_visited && !Filedetails::is_visited(*i))
 			continue;
 		gd->node(*i);
 		if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
@@ -2243,12 +2244,12 @@ fgraph_page(GraphDisplay *gd)
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (!all && i->get_readonly())
 			continue;
-		if (only_visited && !i->is_visited())
+		if (only_visited && !Filedetails::is_visited(*i))
 			continue;
 		switch (*gtype) {
 		case 'C':		// Compile-time dependency graph
 		case 'I': {		// Include graph
-			const FileIncMap &m(i->get_includes());
+			const FileIncMap &m(Filedetails::get_includes(*i));
 			for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
 				if (*gtype == 'I' && !j->second.is_directly_included())
 					continue;
@@ -2256,7 +2257,7 @@ fgraph_page(GraphDisplay *gd)
 					continue;
 				if (!all && j->first.get_readonly())
 					continue;
-				if (only_visited && !j->first.is_visited())
+				if (only_visited && !Filedetails::is_visited(j->first))
 					continue;
 				gd->edge(j->first, *i);
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
@@ -2268,7 +2269,7 @@ fgraph_page(GraphDisplay *gd)
 			for (vector <Fileid>::iterator j = files.begin(); j != files.end(); j++) {
 				if (!all && j->get_readonly())
 					continue;
-				if (only_visited && !j->is_visited())
+				if (only_visited && !Filedetails::is_visited(*j))
 					continue;
 				if (*i == *j)
 					continue;
@@ -2288,10 +2289,10 @@ fgraph_page(GraphDisplay *gd)
 			}
 			break;
 		case 'G':		// Global object def/ref graph (data dependency)
-			for (Fileidset::const_iterator j = i->glob_uses().begin(); j != i->glob_uses().end(); j++) {
+			for (Fileidset::const_iterator j = Filedetails::get_glob_uses(*i).begin(); j != Filedetails::get_glob_uses(*i).end(); j++) {
 				if (!all && j->get_readonly())
 					continue;
-				if (only_visited && !j->is_visited())
+				if (only_visited && !Filedetails::is_visited(*j))
 					continue;
 				gd->edge(*j, *i);
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
@@ -2674,12 +2675,12 @@ file_page(FILE *of, void *p)
 	if (Option::show_projects->get()) {
 		fprintf(of, "\n<li> Used in project(s): \n<ul>");
 		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
-			if (i.get_attribute(j))
+			if (Filedetails::get_attribute(i, j))
 				fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 		fprintf(of, "</ul>\n");
 	}
 	if (Option::show_identical_files->get()) {
-		const set <Fileid> &copies(i.get_identical_files());
+		const set <Fileid> &copies(Filedetails::get_identical_files(i));
 		fprintf(of, "<li>Other exact copies:%s\n", copies.size() > 1 ? "<ul>\n" : " (none)");
 		for (set <Fileid>::const_iterator j = copies.begin(); j != copies.end(); j++) {
 			if (*j != i) {
@@ -2690,7 +2691,7 @@ file_page(FILE *of, void *p)
 		if (copies.size() > 1)
 			fprintf(of, "</ul>\n");
 	}
-	if (i.is_hand_edited())
+	if (Filedetails::is_hand_edited(i))
 		fprintf(of, "<li>Hand edited\n");
 	fprintf(of, "<li> <a href=\"dir.html?dir=%p\">File's directory</a>", dir_add_file(i));
 
@@ -2746,7 +2747,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "</ul>\n");
 	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
+		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), Filedetails::get_pre_cpp_metrics(i).get_metric(j));
 	fprintf(of, "</table>\n");
 	html_tail(of);
 }
@@ -2782,7 +2783,7 @@ fedit_page(FILE *of, void *p)
 		return;
 	}
 	Fileid i(id);
-	i.hand_edit();
+	Filedetails::set_hand_edited(i);
 	char *re = swill_getvar("re");
 	char buff[4096];
 	snprintf(buff, sizeof(buff), Option::start_editor_cmd ->get().c_str(), (re ? re : "^"), i.get_path().c_str());
@@ -2837,7 +2838,7 @@ query_include_page(FILE *of, void *p)
 	bool unused = !!swill_getvar("unused");
 	bool used = !!swill_getvar("used");
 	bool includes = !!swill_getvar("includes");
-	const FileIncMap &m = includes ? f.get_includes() : f.get_includers();
+	const FileIncMap &m = includes ? Filedetails::get_includes(f) : Filedetails::get_includers(f);
 	html_file_begin(of);
 	html_file_set_begin(of);
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
@@ -3142,7 +3143,7 @@ warning_report()
 			const Tokid t = *((*j).first->get_members().begin());
 			const string &id = (*j).second.get_id();
 			cerr << t.get_path() << ':' <<
-				t.get_fileid().line_number(t.get_streampos()) << ": " <<
+				Filedetails::get_line_number(t.get_fileid(), t.get_streampos()) << ": " <<
 				id << ": " << reports[i].message << endl;
 		}
 	}
@@ -3161,12 +3162,12 @@ warning_report()
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (i->get_readonly() ||		// Don't report on RO files
-		    !i->compilation_unit() ||		// Algorithm only works for CUs
+		    !Filedetails::is_compilation_unit(*i) ||		// Algorithm only works for CUs
 		    *i == input_file_id ||		// Don't report on main file
-		    i->get_includers().size() > 1)	// For files that are both CUs and included
+		    Filedetails::get_includers(*i).size() > 1)	// For files that are both CUs and included
 							// by others all bets are off
 			continue;
-		const FileIncMap &m = i->get_includes();
+		const FileIncMap &m = Filedetails::get_includes(*i);
 		// Find the status of our include sites
 		include_sites.clear();
 		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
@@ -3192,7 +3193,7 @@ warning_report()
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
 					cerr << i->get_path() << ':' <<
 						line << ": " <<
-						"(" << i->const_metrics().get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
+						"(" << Filedetails::get_pre_cpp_const_metrics(*i).get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
 						" unused included file " <<
 						fi->get_path() <<
 						endl;
@@ -3427,7 +3428,7 @@ main(int argc, char *argv[])
 
 	input_file_id = Fileid(argv[optind]);
 
-	Fileid::unify_identical_files();
+	Filedetails::unify_identical_files();
 
 	if (process_mode == pm_obfuscation)
 		return obfuscate();
@@ -3601,7 +3602,7 @@ garbage_collect(Fileid root)
 	int count = 0;
 	int sum = 0;
 
-	root.set_compilation_unit(true);
+	Filedetails::set_compilation_unit(root, true);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		Fileid fi = (*i);
 
@@ -3611,14 +3612,14 @@ garbage_collect(Fileid root)
 		 * our parsing touched are marked as dirty
 		 * (and will be marked clean again at the end of this loop)
 		 */
-		if (fi.garbage_collected())
+		if (Filedetails::is_garbage_collected(fi))
 			continue;
 
-		fi.set_required(false);	// Mark the file as not being required
+		Filedetails::set_required(fi, false);	// Mark the file as not being required
 		touched_files.insert(fi);
 
 		if (!monitor.is_valid()) {
-			fi.set_gc(true);	// Mark the file as garbage collected
+			Filedetails::set_gc(fi, true);	// Mark the file as garbage collected
 			continue;
 		}
 
@@ -3651,7 +3652,7 @@ garbage_collect(Fileid root)
 			}
 		}
 		in.close();
-		fi.set_gc(true);	// Mark the file as garbage collected
+		Filedetails::set_gc(fi, true);	// Mark the file as garbage collected
 	}
 	if (DP())
 		cout << "Garbage collected " << count << " out of " << sum << " ECs" << endl;
@@ -3664,7 +3665,7 @@ garbage_collect(Fileid root)
 	// Store them in a set to calculate set difference
 	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
 		if (*i != root && *i != input_file_id)
-			root.includes(*i, /* directly included (conservatively) */ false, i->required());
+			Filedetails::set_includes(root, *i, /* directly included (conservatively) */ false, Filedetails::is_required(*i));
 	if (process_mode == pm_database)
 		Fdep::dumpSql(Sql::getInterface(), root);
 	Fdep::reset();

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -43,12 +43,14 @@
 #include "debug.h"
 #include "error.h"
 #include "attr.h"
-#include "metrics.h"
 #include "fileid.h"
+#include "filedetails.h"
+#include "metrics.h"
 #include "tokid.h"
 #include "fchar.h"
 #include "token.h"
 #include "parse.tab.h"
+#include "ctoken.h"
 #include "ptoken.h"
 #include "pltoken.h"
 #include "call.h"
@@ -57,19 +59,8 @@
 
 int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
-FI_id_to_details Fileid::i2d;	// From id to file details
-FI_hash_to_ids Fileid::identical_files;// Files that are exact duplicates
 Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
 list <string> Fileid::ro_prefix;	// Read-only prefix
-
-// Clear the maps
-void
-Fileid::clear()
-{
-	u2i.clear();
-	i2d.clear();
-	Fileid::anonymous = Fileid("ANONYMOUS", 0);
-}
 
 #ifdef WIN32
 // Return the canonical representation of a WIN32 filename character
@@ -126,9 +117,9 @@ Fileid::Fileid(const string &name)
 		FileHash hash(h, h + 16);
 
 		u2i[sid] = id = counter++;
-		i2d.push_back(Filedetails(fpath, is_readonly(name.c_str()), hash));
+		Filedetails::add_instance(fpath, is_readonly(name.c_str()), hash);
 
-		identical_files[hash].insert(*this);
+		Filedetails::add_identical_file(hash, *this);
 	}
 	if (DP())
 		cout << "Fileid(" << name << ") = " << id << "\n";
@@ -138,23 +129,22 @@ Fileid::Fileid(const string &name)
 Fileid::Fileid(const string &name, int i)
 {
 	u2i[name] = i;
-	i2d.resize(i + 1);
-	i2d[i] = Filedetails(name, true, FileHash());
+	Filedetails::add_instance(name, true, FileHash());
 	id = i;
-	identical_files[FileHash()].insert(*this);
+	Filedetails::add_identical_file(FileHash(), *this);
 	counter = i + 1;
 }
 
 const string&
 Fileid::get_path() const
 {
-	return i2d[id].get_name();
+	return Filedetails::get_instance(id).get_name();
 }
 
 const string
 Fileid::get_fname() const
 {
-	const string &path = i2d[id].get_name();
+	const string &path = Filedetails::get_instance(id).get_name();
 	string::size_type slash = path.find_last_of("/\\");
 	if (slash == string::npos)
 		return string(path);
@@ -165,7 +155,7 @@ Fileid::get_fname() const
 const string
 Fileid::get_dir() const
 {
-	const string &path = i2d[id].get_name();
+	const string &path = Filedetails::get_instance(id).get_name();
 	string::size_type slash = path.find_last_of("/\\");
 	if (slash == string::npos)
 		return string(path);
@@ -176,90 +166,21 @@ Fileid::get_dir() const
 bool
 Fileid::get_readonly() const
 {
-	return i2d[id].get_readonly();
+	return Filedetails::get_instance(id).get_readonly();
 }
 
 void
 Fileid::set_readonly(bool r)
 {
-	i2d[id].set_readonly(r);
+	Filedetails::get_instance(id).set_readonly(r);
 }
 
-Filedetails::Filedetails(string n, bool r, const FileHash &h) :
-	name(n),
-	m_garbage_collected(false),
-	m_required(false),
-	m_compilation_unit(false),
-	hash(h),
-	ipath_offset(0),
-	hand_edited(false),
-	visited(false)
-{
-	set_readonly(r);
-}
-
-Filedetails::Filedetails() :
-	m_compilation_unit(false),
-	ipath_offset(0),
-	hand_edited(false)
-{
-}
-
-int
-Filedetails::line_number(streampos p) const
-{
-	return (upper_bound(line_ends.begin(), line_ends.end(), p) - line_ends.begin()) + 1;
-}
-
-// Update the specified map
-void
-Filedetails::include_update(const Fileid f, FileIncMap Filedetails::*map, bool directly, bool required, int line)
-{
-	FileIncMap::iterator i;
-
-	if ((i = (this->*map).find(f)) == (this->*map).end()) {
-		pair<FileIncMap::iterator, bool> result = (this->*map).insert(
-			FileIncMap::value_type(f, IncDetails(directly, required)));
-		i = result.first;
-	} else
-		i->second.update(directly, required);
-	if (line != -1)
-		i->second.add_line(line);
-}
-
-/*
- * Update maps when we include included
- * A false value in the Boolean flags can simply mean "don't know" and
- * can be later upgraded to true.
- */
-void
-Filedetails::include_update_included(const Fileid included, bool directly, bool required, int line)
-{
-	if (DP())
-		cout << "File " << this->get_name() << " includes " << included.get_path() <<
-			(directly ? " directly " : " indirectly ") <<
-			(required ? " required " : " non required ") <<
-			" line " << line << "\n";
-	include_update(included, &Filedetails::includes, directly, required, line);
-}
-
-// Update maps when we are included by includer
-void
-Filedetails::include_update_includer(const Fileid includer, bool directly, bool required, int line)
-{
-	if (DP())
-		cout << "File " << includer.get_path() << " included " <<
-			(directly ? " directly " : " indirectly ") <<
-			(required ? " required " : " non required ") <<
-			" line " << line << "\n";
-	include_update(includer, &Filedetails::includers, directly, required, line);
-}
-
-// Return a sorted list of all filenames used
+// Return an (optionally sorted) list of all filenames used
 vector <Fileid>
 Fileid::files(bool sorted)
 {
-	vector <Fileid> r(i2d.size() - 1);
+	// Exclude the anonymous entry
+	vector <Fileid> r(Filedetails::get_i2d_map_size() - 1);
 
 	for (vector <Fileid>::size_type i = 0; i < r.size(); i++)
 		r[i] = Fileid(i + 1);
@@ -268,108 +189,16 @@ Fileid::files(bool sorted)
 	return (r);
 }
 
-void
-Fileid::clear_all_visited()
+FileMetrics &
+Fileid::get_pre_cpp_metrics()
 {
-	for (FI_id_to_details::iterator i = i2d.begin(); i != i2d.end(); i++)
-		i->clear_visited();
+	return Filedetails::get_pre_cpp_metrics(id);
 }
 
-void
-Filedetails::process_line(bool processed)
+FileMetrics &
+Fileid::get_post_cpp_metrics()
 {
-	int lnum = Fchar::get_line_num() - 1;
-	int s = processed_lines.size();
-	if (DP())
-		cout << "Process line " << name << ':' << lnum << endl;
-	if (s == lnum)
-		// New line processed
-		processed_lines.push_back(processed);
-	else if (s > lnum)
-		processed_lines[lnum] = (processed_lines[lnum] || processed);
-	else {
-		// We somehow missed a line
-		if (DP()) {
-			cout << "Line number = " << lnum << "\n";
-			cout << "Vector size = " << s << "\n";
-		}
-		csassert(0);
-	}
-}
-
-int
-Filedetails::hand_edit()
-{
-	ifstream in;
-
-	if (hand_edited)
-		return 0;
-	in.open(get_name().c_str(), ios::binary);
-	if (in.fail())
-		return -1;
-
-	int val;
-	while ((val = in.get()) != EOF)
-		contents.push_back((char)val);
-	if (DP())
-		cout << '[' << contents << ']' << endl;
-	hand_edited = true;
-	return 0;
-}
-
-// Read identifier tokens from file fname into tkov
-static void
-read_file(const string &fname, vector <Pltoken> &tokv)
-{
-	Fchar::set_input(fname);
-	Pltoken t;
-
-	for (;;) {
-		t.getnext<Fchar>();
-		switch (t.get_code()) {
-		case IDENTIFIER:
-			tokv.push_back(t);
-			break;
-		case EOF:
-			return;
-		}
-	}
-}
-
-/*
- * Unify all identifiers in the files of fs
- * The corresponding files should be exact duplicates
- */
-static void
-unify_file_identifiers(const set<Fileid> &fs)
-{
-	csassert(fs.size() > 1);
-	Fileid fi = *(fs.begin());
-	fifstream in;
-	vector <Pltoken> ft0, ftn;	// The tokens to unify
-
-	read_file(fi.get_path(), ft0);
-
-	set <Fileid>::const_iterator fsi = fs.begin();
-	for (fsi++; fsi != fs.end(); fsi++) {
-		if (DP())
-			// endl ensures flushing
-			cout << "Merging identifiers of " << fi.get_path() << " and " << fsi->get_path() << endl;
-		read_file(fsi->get_path(), ftn);
-		csassert(ft0.size() == ftn.size());
-		vector <Pltoken>::iterator ti0, tin;
-		for (ti0 = ft0.begin(), tin = ftn.begin(); ti0 != ft0.end(); ti0++, tin++)
-			Token::unify(*ti0, *tin);
-		ftn.clear();
-	}
-}
-
-void
-Fileid::unify_identical_files(void)
-{
-	for (FI_hash_to_ids::const_iterator i = identical_files.begin(); i != identical_files.end(); i++)
-		if (i->second.size() > 1)
-			unify_file_identifiers(i->second);
+	return Filedetails::get_post_cpp_metrics(id);
 }
 
 bool 

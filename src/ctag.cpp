@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2011 Diomidis Spinellis
+ * (C) Copyright 2011-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -41,10 +41,12 @@
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
+#include "filedetails.h"
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"
 #include "ptoken.h"
+#include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"
 #include "ctoken.h"
@@ -98,7 +100,7 @@ CTag::save()
 		out <<
 			i->name << '\t' <<						// Identifier
 			i->definition.get_path() << '\t' <<				// File
-			i->definition.get_fileid().line_number(i->definition.get_streampos()) << '\t' <<// Line number
+			Filedetails::get_line_number(i->definition.get_fileid(), i->definition.get_streampos()) << '\t' <<// Line number
 			"\t;\"";							// Extended information
 
 		/*
@@ -130,7 +132,7 @@ CTag::save()
 				out << "\tfile:";
 			break;
 		default:
-			if (i->definition.get_fileid().get_includers().size() == 0)
+			if (Filedetails::get_includers(i->definition.get_fileid()).size() == 0)
 				out << "\tfile:";
 			break;
 		}

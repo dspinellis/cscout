@@ -30,7 +30,7 @@ WEBHOME=$(UH)/dds/pubs/web/home/cscout/
 ADDLIBS+=../swill/libswill.a
 
 # Common object files
-OBJBASE=eclass.o fchar.o fileid.o pdtoken.o pltoken.o debug.o \
+OBJBASE=eclass.o fchar.o filedetails.o fileid.o pdtoken.o pltoken.o debug.o \
   ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
   parse.o type.o stab.o attr.o metrics.o version.o \
   error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
@@ -57,7 +57,8 @@ OBJ=$(addprefix build/, $(OBJBASE))
 # (Not auto-generated, apart from logo.cpp)
 CFILES=md5.c attr.cpp call.cpp cscout.cpp ctag.cpp ctconst.cpp \
   ctoken.cpp debug.cpp dirbrowse.cpp eclass.cpp error.cpp fcall.cpp \
-  fchar.cpp fdep.cpp fileid.cpp filemetrics.cpp filequery.cpp fileutils.cpp \
+  fchar.cpp fdep.cpp filedetails.cpp fileid.cpp filemetrics.cpp filequery.cpp \
+  fileutils.cpp \
   funmetrics.cpp funquery.cpp gdisplay.cpp globobj.cpp html.cpp idquery.cpp \
   logo.cpp macro.cpp mcall.cpp metrics.cpp obfuscate.cpp option.cpp os.cpp \
   pager.cpp pdtoken.cpp pltoken.cpp ptoken.cpp query.cpp simple_cpp.cpp \
@@ -66,7 +67,8 @@ CFILES=md5.c attr.cpp call.cpp cscout.cpp ctag.cpp ctconst.cpp \
 
 HEADERS=attr.h call.h compiledre.h cpp.h ctag.h ctconst.h ctoken.h \
   debug.h defs.h dirbrowse.h eclass.h error.h eval.h fcall.h fchar.h fdep.h \
-  fifstream.h fileid.h filemetrics.h filequery.h fileutils.h funmetrics.h \
+  fifstream.h filedetails.h fileid.h filemetrics.h filequery.h fileutils.h \
+  funmetrics.h \
   funquery.h gdisplay.h globobj.h html.h id.h idquery.h incs.h logo.h \
   macro.h mcall.h md5.h metrics.h mquery.h mscdefs.h mscincs.h obfuscate.h \
   option.h os.h pager.h pdtoken.h pltoken.h ptoken.h query.h sql.h stab.h \

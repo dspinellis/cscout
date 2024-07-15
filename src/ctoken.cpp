@@ -282,7 +282,7 @@ parse_lex_real()
 	extern YYSTYPE parse_lval;
 	extern bool parse_yacc_defs;
 
-	Metrics::call_metrics(&Metrics::add_ctoken);
+	Metrics::call_post_cpp_metrics(&Metrics::add_ctoken);
 	for (;;) {
 		Pdtoken t;
 		t.getnext();

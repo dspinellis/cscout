@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2015 Diomidis Spinellis
+ * (C) Copyright 2003-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -76,7 +76,7 @@ FCall::set_current_fun(const Id *id)
 	csassert(current_fun);
 	current_fun->mark_begin();
 	cfun->definition = Tokid();
-	cfun->metrics().set_metric(FunMetrics::em_ngnsoc,
+	cfun->get_pre_cpp_metrics().set_metric(FunMetrics::em_ngnsoc,
 	    Block::global_namespace_occupants_size() +
 	    Pdtoken::macros_size());
 	nesting.push(current_fun);
@@ -109,11 +109,11 @@ FCall::set_current_fun(const Type &t)
 		cout << "Current function " << id->get_name() << "\n";
 		cout << "Type: " << t << "\n";
 	}
-	cfun->metrics().set_metric(FunMetrics::em_ngnsoc,
+	cfun->get_pre_cpp_metrics().set_metric(FunMetrics::em_ngnsoc,
 	    Block::global_namespace_occupants_size() +
 	    Pdtoken::macros_size());
 	nesting.push(cfun);
 	if (nesting.size() == 1)
-		Fchar::get_fileid().metrics().add_function(t.is_static());
+		Filedetails::get_pre_cpp_metrics(Fchar::get_fileid()).add_function(t.is_static());
 }
 

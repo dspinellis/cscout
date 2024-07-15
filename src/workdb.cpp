@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -45,8 +45,10 @@
 #include "filemetrics.h"
 #include "attr.h"
 #include "fileid.h"
+#include "filedetails.h"
 #include "tokid.h"
 #include "token.h"
+#include "ctoken.h"
 #include "ptoken.h"
 #include "fchar.h"
 #include "pltoken.h"
@@ -266,7 +268,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
 			insert_eclass(db, of, ec, s);
-			fid.metrics().process_id(s, ec);
+			Filedetails::get_pre_cpp_metrics(fid).process_id(s, ec);
 			chunker.flush();
 			if (table_is_enabled(t_tokens))
 				of << "INSERT INTO TOKENS VALUES("
@@ -274,7 +276,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 				    << (unsigned)ti.get_streampos() << ","
 				    << ptr_offset(ec) << ");\n";
 		} else {
-			fid.metrics().process_char(c);
+			Filedetails::get_pre_cpp_metrics(fid).process_char(c);
 			if (c == '\n') {
 				at_bol = true;
 				bol = in.tellg();
@@ -637,19 +639,19 @@ workdb_rest(Sql *db, ostream &of)
 			    << db->boolval(i->get_readonly());
 			for (int j = 0; j < FileMetrics::metric_max; j++)
 				if (!Metrics::is_internal<FileMetrics>(j))
-					cout << ',' << i->metrics().get_metric(j);
+					cout << ',' << Filedetails::get_pre_cpp_metrics(*i).get_metric(j);
 			cout << ");\n";
 		}
 		// This invalidates the file's metrics
 		file_dump(db, cout, *i);
 		// The projects this file belongs to
 		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
-			if (i->get_attribute(j) && table_is_enabled(t_fileproj))
+			if (Filedetails::get_attribute(*i, j) && table_is_enabled(t_fileproj))
 				cout << "INSERT INTO FILEPROJ VALUES("
 				     << i->get_id() << ',' << j << ");\n";
 
 		// Copies of the file
-		const set <Fileid> &copies(i->get_identical_files());
+		const set <Fileid> &copies(Filedetails::get_identical_files(*i));
 		if (copies.size() > 1
 		    && table_is_enabled(t_filecopies)
 		    && copies.begin()->get_id() == i->get_id()) {

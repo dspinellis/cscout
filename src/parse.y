@@ -65,6 +65,7 @@
 #include "ptoken.h"
 #include "macro.h"
 #include "pdtoken.h"
+#include "pltoken.h"
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
@@ -1293,7 +1294,7 @@ aggregate_name:
 	/* struct { int x, y; } */
         aggregate_key '{'  member_declaration_list '}'
 		{
-			Fchar::get_fileid().metrics().add_aggregate();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_aggregate();
 			if (!$3.is_undeclared())
 				$3.set_union((bool)$1.get_nparam());
 			$$ = $3;
@@ -1308,7 +1309,7 @@ aggregate_name:
 			if (!$4.is_undeclared())
 				$4.set_union((bool)$1.get_nparam());
 			tag_define($2.get_token(), $4);
-			Fchar::get_fileid().metrics().add_aggregate();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_aggregate();
 			$$ = $4;
 		}
 	/* struct Point */
@@ -1333,14 +1334,14 @@ aggregate_name:
 			Id const *id = tag_lookup($2.get_name());
 			if (id)
 				Token::unify(id->get_token(), $2.get_token());
-			Fchar::get_fileid().metrics().add_aggregate();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_aggregate();
 			$$ = struct_union();
 			if (!$$.is_undeclared())
 				$$.set_union((bool)$1.get_nparam());
 		}
         | aggregate_key '{'  /* EMPTY member_declaration_list */ '}'
 		{
-			Fchar::get_fileid().metrics().add_aggregate();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_aggregate();
 			$$ = struct_union();
 			if (!$$.is_undeclared())
 				$$.set_union((bool)$1.get_nparam());
@@ -1449,7 +1450,7 @@ member_declarator:
 	/* a : 5 */
         declarator bit_field_size_opt
 		{
-			Fchar::get_fileid().metrics().add_amember();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_amember();
 			$$ = $1;
 		}
         | bit_field_size
@@ -1461,7 +1462,7 @@ member_identifier_declarator:
 	/* a[3]; also typedef names */
         attributed_identifier_declarator bit_field_size_opt
 		{
-			Fchar::get_fileid().metrics().add_amember();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_amember();
 			$$ = $1;
 		}
         | bit_field_size
@@ -1481,12 +1482,12 @@ bit_field_size:
 enum_name:
         ENUM simple_type_qualifier_list_opt '{' enumerator_list comma_opt '}'
 		{
-			Fchar::get_fileid().metrics().add_enum();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_enum();
 			$$ = enum_tag();
 		}
         | ENUM simple_type_qualifier_list_opt identifier_or_typedef_name '{' enumerator_list comma_opt '}'
 		{
-			Fchar::get_fileid().metrics().add_enum();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_enum();
 			tag_define($3.get_token(), $$ = enum_tag());
 		}
         | ENUM simple_type_qualifier_list_opt identifier_or_typedef_name
@@ -1516,7 +1517,7 @@ enumerator_list:
 				obj_define($1.get_token(), $$.clone());
 				if (DP())
 					cout << $1.get_token() << " = " << $$ << endl;
-				Fchar::get_fileid().metrics().add_emember();
+				Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_emember();
 			}
         | enumerator_list ',' identifier_or_typedef_name enumerator_value_opt
 			{
@@ -1529,7 +1530,7 @@ enumerator_list:
 				obj_define($3.get_token(), $$.clone());
 				if (DP())
 					cout << $3.get_token() << " = " << $$ << endl;
-				Fchar::get_fileid().metrics().add_emember();
+				Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_emember();
 			}
         ;
 
@@ -1864,7 +1865,7 @@ designator:
 statement:
 	any_statement
 		{
-			Fchar::get_fileid().metrics().add_statement();
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_statement();
 			Fdep::add_provider(Fchar::get_fileid());
 			if (DP())
 				Error::error(E_DEBUG, "Add provider for any_statement -> statement");

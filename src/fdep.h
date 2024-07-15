@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2015 Diomidis Spinellis
+ * (C) Copyright 2003-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -36,6 +36,7 @@ using namespace std;
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
+#include "filedetails.h"
 
 class Sql;
 
@@ -66,7 +67,7 @@ public:
 	// File includer includes the file included
 	static void add_include(Fileid includer, Fileid included, int lnum) {
 		includers[included].insert(includer);
-		includer.includes(included, /* directly included = */ true, /* used = */ false, lnum);
+		Filedetails::set_includes(includer, included, /* directly included = */ true, /* used = */ false, lnum);
 	}
 
 	// File f provides code or data

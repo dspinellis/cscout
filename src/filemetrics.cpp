@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2015 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -44,6 +44,7 @@
 #include "tokmap.h"
 #include "eclass.h"
 #include "fchar.h"
+#include "filedetails.h"
 
 MetricDetails FileMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FileMetrics
@@ -70,9 +71,9 @@ FileMetricsSummary::summarize_files()
 {
 	vector <Fileid> files = Fileid::files(false);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		rw[(*i).get_attribute(is_readonly)].total.add((*i), plus<double>());
-		rw[(*i).get_attribute(is_readonly)].min.add((*i), get_min());
-		rw[(*i).get_attribute(is_readonly)].max.add((*i), get_max());
+		rw[Filedetails::get_attribute(*i, is_readonly)].total.add((*i), plus<double>());
+		rw[Filedetails::get_attribute(*i, is_readonly)].min.add((*i), get_min());
+		rw[Filedetails::get_attribute(*i, is_readonly)].max.add((*i), get_max());
 	}
 }
 

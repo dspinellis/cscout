@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -559,10 +559,10 @@ Pltoken::getnext_analyze()
 	default:
 		val = (char)(code = c0.get_char());
 	}
-	Call::process_token(*this);
+	Call::process_pre_cpp_token(*this);
 	// For metric counting filter out whitespace
 	if (code != SPACE && code != '\n')
-		Metrics::call_metrics(&Metrics::add_pptoken);
+		Metrics::call_pre_cpp_metrics(&Metrics::add_pptoken);
 	if (DP()) cout << "getnext returns: " << *this << "\n";
 }
 

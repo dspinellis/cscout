@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2015 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -50,7 +50,7 @@
 #include "call.h"
 #include "parse.tab.h"
 #include "tokid.h"
-#include "token.h"
+#include "ctoken.h"
 #include "ptoken.h"
 #include "pltoken.h"
 
@@ -253,62 +253,6 @@ FunMetrics::make_keyword_map()
 	km.insert(KeywordMap::value_type("return", em_nreturn));
 
 	return (km);
-}
-
-// Process a single token read from a file
-void
-FunMetrics::process_token(const Pltoken &t)
-{
-	csassert(!processed);
-	int code = t.get_code();
-	int em;
-	switch (code) {
-	case IDENTIFIER:
-		em = keyword_metric(t.get_val());
-		if (em != -1)
-			count[em]++;
-		switch (em) {
-		case em_nwhile:
-		case em_nswitch:
-		case em_nif:
-			/*
-			 * while (x) y; and the rest are two statements
-			 * We count one through the ";", we must count the
-			 * other through the keyword.
-			 */
-			count[em_nstmt]++;
-			break;
-		case em_ndo:
-			count[em_nstmt]++;
-			// Don't count the "while" associated with a "do"
-			count[em_nwhile]--;
-			break;
-		case em_nfor:
-			count[em_nstmt]++;
-			// Don't count the semicolons in for statements
-			count[em_nstmt] -= 2;
-			break;
-		}
-		break;
-	case ';':
-		count[em_nstmt]++;
-		break;
-	case PP_NUMBER:
-		count[em_nnconst]++;
-		break;
-	case CHAR_LITERAL:
-		count[em_nclit]++;
-		break;
-	case AND_OP:
-	case OR_OP:
-	case '?':
-		count[em_ncc2op]++;
-		break;
-	}
-	if (is_operator(code)) {
-		count[em_nop]++;
-		operators.insert(code);
-	}
 }
 
 // Called for every identifier

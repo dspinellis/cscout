@@ -29,6 +29,7 @@
 #include "tokid.h"
 #include "parse.tab.h"
 #include "token.h"
+#include "ctoken.h"
 #include "ptoken.h"
 #include "fchar.h"
 #include "pltoken.h"

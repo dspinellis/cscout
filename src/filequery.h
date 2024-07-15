@@ -74,7 +74,7 @@ public:
 				// Order by name
 				val = (a.get_path() < b.get_path());
 			else
-				val = (a.const_metrics().get_metric(order) < b.const_metrics().get_metric(order));
+				val = (Filedetails::get_pre_cpp_const_metrics(a).get_metric(order) < Filedetails::get_pre_cpp_const_metrics(b).get_metric(order));
 			return reverse ? !val : val;
 		}
 	};

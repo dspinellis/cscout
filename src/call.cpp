@@ -125,7 +125,8 @@ Call::register_call(Call *from, Call *to)
 // ctor; never call it if the call for t already exists
 Call::Call(const string &s, const Token &t) :
 		name(s),
-		m(this),
+		pre_cpp_metrics(this),
+		post_cpp_metrics(this),
 		curr_stmt_nesting(0),
 		token(t)
 {
@@ -212,9 +213,9 @@ Call::mark_end()
 		return;
 	end = Fchar::get_context();
 	if (is_span_valid())
-		end.get_tokid().get_fileid().add_function(this);
-	m.summarize_operators();
-	m.done_processing();
+		Filedetails::add_function(end.get_tokid().get_fileid(), this);
+	pre_cpp_metrics.summarize_operators();
+	pre_cpp_metrics.done_processing();
 }
 
 // Return true if the span represents a file region
@@ -242,7 +243,7 @@ Call::unset_current_fun()
 void
 Call::check_macro_nesting(const Ctoken &t)
 {
-	if (current_fun && !current_fun->m.is_processed() &&
+	if (current_fun && !current_fun->pre_cpp_metrics.is_processed() &&
 	    t.has_ec_attribute(is_macro_token))
 		macro_nesting++;
 }
@@ -271,7 +272,7 @@ Call::dumpSql(Sql *db, ostream &of)
 			of << "INSERT INTO FUNCTIONMETRICS VALUES(" << ptr_offset(fun);
 			for (int j = 0; j < FunMetrics::metric_max; j++)
 				if (!Metrics::is_internal<FunMetrics>(j))
-					cout << ',' << fun->metrics().get_metric(j);
+					cout << ',' << fun->get_pre_cpp_metrics().get_metric(j);
 			of << ',' << fun->get_begin().get_tokid().get_fileid().get_id() <<
 			',' << (unsigned)(fun->get_begin().get_tokid().get_streampos()) <<
 			',' << fun->get_end().get_tokid().get_fileid().get_id() <<

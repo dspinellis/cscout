@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2015 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * You may only use this code if you agree to the terms of the CScout
  * Source Code License agreement (see License.txt).
@@ -28,11 +28,14 @@
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
+#include "filedetails.h"
 #include "tokid.h"
 #include "tokmap.h"
 #include "eclass.h"
 #include "fchar.h"
 #include "token.h"
+#include "ctoken.h"
+#include "pltoken.h"
 #include "call.h"
 
 MetricDetails Metrics::metric_details[] = {
@@ -224,9 +227,19 @@ avg(double v, double n)
 }
 
 // Call the specified metrics function for the current file and function
+// to tally metrics before the C preprocessor processing.
 void
-Metrics::call_metrics(void (Metrics::*fun)())
+Metrics::call_pre_cpp_metrics(void (Metrics::*fun)())
 {
-	(Fchar::get_fileid().metrics().*fun)();
-	Call::call_metrics(fun);
+	(Filedetails::get_pre_cpp_metrics(Fchar::get_fileid()).*fun)();
+	Call::call_pre_cpp_metrics(fun);
+}
+
+// Call the specified metrics function for the current file and function
+// to tally metrics after the C preprocessor processing.
+void
+Metrics::call_post_cpp_metrics(void (Metrics::*fun)())
+{
+	(Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).*fun)();
+	Call::call_post_cpp_metrics(fun);
 }
