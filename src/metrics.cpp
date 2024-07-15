@@ -224,9 +224,19 @@ avg(double v, double n)
 }
 
 // Call the specified metrics function for the current file and function
+// to tally metrics before the C preprocessor processing.
 void
-Metrics::call_metrics(void (Metrics::*fun)())
+Metrics::call_pre_cpp_metrics(void (Metrics::*fun)())
 {
-	(Fchar::get_fileid().metrics().*fun)();
-	Call::call_metrics(fun);
+	(Fchar::get_fileid().get_pre_cpp_metrics().*fun)();
+	Call::call_pre_cpp_metrics(fun);
+}
+
+// Call the specified metrics function for the current file and function
+// to tally metrics after the C preprocessor processing.
+void
+Metrics::call_post_cpp_metrics(void (Metrics::*fun)())
+{
+	(Fchar::get_fileid().get_post_cpp_metrics().*fun)();
+	Call::call_post_cpp_metrics(fun);
 }

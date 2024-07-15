@@ -266,7 +266,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
 			insert_eclass(db, of, ec, s);
-			fid.metrics().process_id(s, ec);
+			fid.get_pre_cpp_metrics().process_id(s, ec);
 			chunker.flush();
 			if (table_is_enabled(t_tokens))
 				of << "INSERT INTO TOKENS VALUES("
@@ -274,7 +274,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 				    << (unsigned)ti.get_streampos() << ","
 				    << ptr_offset(ec) << ");\n";
 		} else {
-			fid.metrics().process_char(c);
+			fid.get_pre_cpp_metrics().process_char(c);
 			if (c == '\n') {
 				at_bol = true;
 				bol = in.tellg();
@@ -637,7 +637,7 @@ workdb_rest(Sql *db, ostream &of)
 			    << db->boolval(i->get_readonly());
 			for (int j = 0; j < FileMetrics::metric_max; j++)
 				if (!Metrics::is_internal<FileMetrics>(j))
-					cout << ',' << i->metrics().get_metric(j);
+					cout << ',' << i->get_pre_cpp_metrics().get_metric(j);
 			cout << ");\n";
 		}
 		// This invalidates the file's metrics

@@ -494,7 +494,7 @@ Pdtoken::process_if()
 	if (skiplevel)
 		skiplevel++;
 	else {
-		Metrics::call_metrics(&Metrics::add_ppcond);
+		Metrics::call_pre_cpp_metrics(&Metrics::add_ppcond);
 		bool eval_res = eval();
 		iftaken.push(eval_res);
 		skiplevel = eval_res ? 0 : 1;
@@ -519,7 +519,7 @@ Pdtoken::process_ifdef(bool isndef)
 	else {
 		Pltoken t;
 
-		Metrics::call_metrics(&Metrics::add_ppcond);
+		Metrics::call_pre_cpp_metrics(&Metrics::add_ppcond);
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != IDENTIFIER)
 			/*
@@ -561,7 +561,7 @@ Pdtoken::process_elif()
 	}
 	if (skiplevel > 1)
 		return;
-	Metrics::call_metrics(&Metrics::add_ppcond);
+	Metrics::call_pre_cpp_metrics(&Metrics::add_ppcond);
 	if (iftaken.top())
 		skiplevel = 1;
 	else {
@@ -644,7 +644,7 @@ Pdtoken::process_include(bool next)
 
 	if (skiplevel >= 1)
 		return;
-	Fchar::get_fileid().metrics().add_incfile();
+	Fchar::get_fileid().get_pre_cpp_metrics().add_incfile();
 	// Get tokens till end of line
 	Pltoken::set_context(cpp_include);
 	do {
@@ -789,7 +789,7 @@ Pdtoken::process_define(bool is_immutable)
 	Macro m(nametok, true, is_function, is_immutable);
 	if (is_function) {
 		// Function-like macro
-		Metrics::call_metrics(&Metrics::add_ppfmacro);
+		Metrics::call_pre_cpp_metrics(&Metrics::add_ppfmacro);
 		m.set_is_vararg(false);
 		t.getnext_nospc<Fchar>();
 		if (t.get_code() != ')') {
@@ -868,7 +868,7 @@ Pdtoken::process_define(bool is_immutable)
 		}
 		MCall::set_num_args(m.get_num_args());
 	} else
-		Metrics::call_metrics(&Metrics::add_ppomacro);
+		Metrics::call_pre_cpp_metrics(&Metrics::add_ppomacro);
 	if (DP()) cout << "Body starts with " << t;
 	// Continue gathering macro body
 	for (bool lead = true; t.get_code() != '\n';) {
@@ -1276,7 +1276,7 @@ Pdtoken::process_directive()
 {
 	Pltoken t;
 
-	Metrics::call_metrics(&Metrics::add_ppdirective);
+	Metrics::call_pre_cpp_metrics(&Metrics::add_ppdirective);
 	t.getnext_nospc<Fchar>();
 	if (t.get_code() == '\n')		// Empty directive
 		return;

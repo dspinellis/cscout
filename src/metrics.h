@@ -135,7 +135,9 @@ public:
 	void set_metric(int n, int val) { count[n] = val; }
 
 	// Call the specified metrics function for the current file and function
-	static void call_metrics(void (Metrics::*fun)());
+	// before or after the C preprocessor processing
+	static void call_pre_cpp_metrics(void (Metrics::*fun)());
+	static void call_post_cpp_metrics(void (Metrics::*fun)());
 
 	// Return true if the specified metric shall not appear in the UI/RDBMS
 	template <class M>
@@ -299,8 +301,10 @@ public:
 	// Update metrics summary
 	void add(E &fi, BinaryFunction f) {
 		nelement++;
-		for (int i = 0; i < M::metric_max; i++)
-			count[i] = f(fi.metrics().get_metric(i), count[i]);
+		for (int i = 0; i < M::metric_max; i++) {
+			count[i] = f(fi.get_pre_cpp_metrics().get_metric(i), count[i]);
+			count[i] = f(fi.get_post_cpp_metrics().get_metric(i), count[i]);
+		}
 	}
 	int get_nelement() const { return nelement; }
 	template <class MM, class EE>

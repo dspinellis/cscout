@@ -225,7 +225,7 @@ obj_define(const Token& tok, Type typ)
 				Token::unify(id->get_token(), tok);
 			}
 			if (!typ.is_cfunction())
-				Fchar::get_fileid().metrics().add_fvar();
+				Fchar::get_fileid().get_post_cpp_metrics().add_fvar();
 			break;
 		case c_typedef:
 			tok.set_ec_attribute(is_cscope);
@@ -237,7 +237,7 @@ obj_define(const Token& tok, Type typ)
 			break;
 		default:
 			if (!typ.is_cfunction())
-				Fchar::get_fileid().metrics().add_pvar();
+				Fchar::get_fileid().get_post_cpp_metrics().add_pvar();
 			tok.set_ec_attribute(is_lscope);
 			break;
 		}
@@ -285,7 +285,7 @@ obj_define(const Token& tok, Type typ)
 				fc = new FCall(utok, typ, tok.get_name());
 			}
 		}
-		fc->metrics().set_metric(FunMetrics::em_nparam, typ.get_nparam());
+		fc->get_pre_cpp_metrics().set_metric(FunMetrics::em_nparam, typ.get_nparam());
 	}
 
 	static Stab Block::*objptr = &Block::obj;

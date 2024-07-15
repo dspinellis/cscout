@@ -308,7 +308,7 @@ file_analyze(Fileid fi)
 
 		// Update current_function
 		if (cfun && ti > cfun->get_end().get_tokid()) {
-			cfun->metrics().summarize_identifiers();
+			cfun->get_pre_cpp_metrics().summarize_identifiers();
 			if (fun_nesting.empty())
 				cfun = NULL;
 			else {
@@ -325,7 +325,7 @@ file_analyze(Fileid fi)
 
 		char c = (char)val;
 		mapTokidEclass::iterator ei;
-		enum e_cfile_state cstate = fi.metrics().get_state();
+		enum e_cfile_state cstate = fi.get_pre_cpp_metrics().get_state();
 		if (cstate != s_block_comment &&
 		    cstate != s_string &&
 		    cstate != s_cpp_comment &&
@@ -350,9 +350,9 @@ file_analyze(Fileid fi)
 				int len = ec->get_len();
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
-				fi.metrics().process_id(s, ec);
+				fi.get_pre_cpp_metrics().process_id(s, ec);
 				if (cfun)
-					cfun->metrics().process_id(s, ec);
+					cfun->get_pre_cpp_metrics().process_id(s, ec);
 				/*
 				 * ids[ec] = Identifier(ec, s);
 				 * Efficiently add s to ids, if needed.
@@ -377,20 +377,20 @@ file_analyze(Fileid fi)
 				delete ec;
 			}
 		}
-		fi.metrics().process_char((char)val);
+		fi.get_pre_cpp_metrics().process_char((char)val);
 		if (cfun)
-			cfun->metrics().process_char((char)val);
+			cfun->get_pre_cpp_metrics().process_char((char)val);
 		if (c == '\n') {
 			fi.add_line_end(ti.get_streampos());
 			if (!fi.is_processed(++line_number))
-				fi.metrics().add_unprocessed();
+				fi.get_pre_cpp_metrics().add_unprocessed();
 		}
 	}
 	if (cfun)
-		cfun->metrics().summarize_identifiers();
-	fi.metrics().set_ncopies(fi.get_identical_files().size());
+		cfun->get_pre_cpp_metrics().summarize_identifiers();
+	fi.get_pre_cpp_metrics().set_ncopies(fi.get_identical_files().size());
 	if (DP())
-		cout << "nchar = " << fi.metrics().get_metric(Metrics::em_nchar) << endl;
+		cout << "nchar = " << fi.get_pre_cpp_metrics().get_metric(Metrics::em_nchar) << endl;
 	in.close();
 	return has_unused;
 }
@@ -1056,7 +1056,7 @@ xfilequery_page(FILE *of,  void *p)
 				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
 				i->get_id());
 			if (query.get_sort_order() != -1)
-				fprintf(of, "<td align=\"right\">%g</td>", i->const_metrics().get_metric(query.get_sort_order()));
+				fprintf(of, "<td align=\"right\">%g</td>", i->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
 			html_file_record_end(of);
 		}
 	}
@@ -1115,7 +1115,7 @@ display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &so
 			fputs("<tr><td witdh='50%'>", of);
 			html(of, **i);
 			fprintf(of, "</td><td witdh='50%%' align='right'>%g</td></tr>\n",
-			    (*i)->const_metrics().get_metric(query.get_sort_order()));
+			    (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
 		}
 	}
 	fputs("</table>\n", of);
@@ -1555,9 +1555,9 @@ function_page(FILE *fo, void *p)
 		    	if ((rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end())
 				repl_temp << html(rfc->second.get_replacement());
 			else if (f->is_defined())
-				for (int i = 0; i < f->metrics().get_metric(FunMetrics::em_nparam); i++) {
+				for (int i = 0; i < f->get_pre_cpp_metrics().get_metric(FunMetrics::em_nparam); i++) {
 					repl_temp << '@' << i + 1;
-					if (i + 1 < f->metrics().get_metric(FunMetrics::em_nparam))
+					if (i + 1 < f->get_pre_cpp_metrics().get_metric(FunMetrics::em_nparam))
 						repl_temp << ", ";
 				}
 			fprintf(fo, "<li> Refactor arguments into: \n"
@@ -1575,7 +1575,7 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 		for (int j = 0; j < FunMetrics::metric_max; j++)
 			if (!Metrics::is_internal<FunMetrics>(j))
-				fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->metrics().get_metric(j));
+				fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->get_pre_cpp_metrics().get_metric(j));
 		fprintf(fo, "</table>\n");
 	}
 	fprintf(fo, "</FORM>\n");
@@ -2746,7 +2746,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "</ul>\n");
 	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), i.metrics().get_metric(j));
+		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), i.get_pre_cpp_metrics().get_metric(j));
 	fprintf(of, "</table>\n");
 	html_tail(of);
 }
@@ -3192,7 +3192,7 @@ warning_report()
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
 					cerr << i->get_path() << ':' <<
 						line << ": " <<
-						"(" << i->const_metrics().get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
+						"(" << i->get_pre_cpp_const_metrics().get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
 						" unused included file " <<
 						fi->get_path() <<
 						endl;

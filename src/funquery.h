@@ -115,7 +115,7 @@ public:
 				// Order by name
 				val = Query::string_bi_compare(a->get_name(), b->get_name());
 			else
-				val = (a->const_metrics().get_metric(order) < b->const_metrics().get_metric(order));
+				val = (a->get_pre_cpp_const_metrics().get_metric(order) < b->get_pre_cpp_const_metrics().get_metric(order));
 			return reverse ? !val : val;
 		}
 	};

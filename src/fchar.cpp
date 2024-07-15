@@ -193,7 +193,8 @@ Fchar::getnext()
 			oval = val;
 		if (val == EOF) {
 			total_lines += line_number;
-			fi.metrics().done_processing();
+			fi.get_pre_cpp_metrics().done_processing();
+			fi.get_post_cpp_metrics().done_processing();
 			fi.set_attribute(Project::get_current_projid());
 			if (DP())
 				cout << "Set projid for " << fi.get_path() << " = " << Project::get_current_projid() << "\n";

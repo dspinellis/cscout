@@ -76,7 +76,7 @@ FCall::set_current_fun(const Id *id)
 	csassert(current_fun);
 	current_fun->mark_begin();
 	cfun->definition = Tokid();
-	cfun->metrics().set_metric(FunMetrics::em_ngnsoc,
+	cfun->get_pre_cpp_metrics().set_metric(FunMetrics::em_ngnsoc,
 	    Block::global_namespace_occupants_size() +
 	    Pdtoken::macros_size());
 	nesting.push(current_fun);
@@ -109,11 +109,11 @@ FCall::set_current_fun(const Type &t)
 		cout << "Current function " << id->get_name() << "\n";
 		cout << "Type: " << t << "\n";
 	}
-	cfun->metrics().set_metric(FunMetrics::em_ngnsoc,
+	cfun->get_pre_cpp_metrics().set_metric(FunMetrics::em_ngnsoc,
 	    Block::global_namespace_occupants_size() +
 	    Pdtoken::macros_size());
 	nesting.push(cfun);
 	if (nesting.size() == 1)
-		Fchar::get_fileid().metrics().add_function(t.is_static());
+		Fchar::get_fileid().get_pre_cpp_metrics().add_function(t.is_static());
 }
 

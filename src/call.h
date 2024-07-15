@@ -80,7 +80,8 @@ private:
 	unsigned char visited;		// For calculating transitive closures (bit mask or boolean)
 	bool printed;			// For printing a graph's nodes
 	FcharContext begin, end;	// Span of definition
-	FunMetrics m;			// Metrics for this function
+	FunMetrics pre_cpp_metrics;	// Metrics for this function, before cpp
+	FunMetrics post_cpp_metrics;	// Metrics for this function, after cpp
 	int curr_stmt_nesting;		// Current level of nesting
 	static int macro_nesting;	// Level of nesting through macro tokens
 
@@ -166,10 +167,16 @@ public:
 	FcharContext get_end() const { return end; }
 	// Return true if the span represents a file region
 	bool is_span_valid() const;
-	// Return a reference to the Metrics class
-	FunMetrics &metrics() { return m; }
-	// Return a reference to the Metrics class
-	const FunMetrics &const_metrics() const { return m; }
+
+	// Return a reference to the pre-cpp Metrics class
+	FunMetrics &get_pre_cpp_metrics() { return pre_cpp_metrics; }
+	// Return a reference to the pre-cpp Metrics class
+	const FunMetrics &get_pre_cpp_const_metrics() const { return pre_cpp_metrics; }
+
+	// Return a reference to the post-cpp Metrics class
+	FunMetrics &get_post_cpp_metrics() { return post_cpp_metrics; }
+	// Return a reference to the post-cpp Metrics class
+	const FunMetrics &get_post_cpp_const_metrics() const { return post_cpp_metrics; }
 
 	// Return a token for the given object
 	const Token &get_token() const {return token; }
@@ -200,20 +207,26 @@ public:
 
 	// Set number of arguments
 	static inline void set_num_args(int n) {
-		if (current_fun && !current_fun->m.is_processed())
-			current_fun->m.set_metric(FunMetrics::em_nparam, n);
+		if (current_fun && !current_fun->pre_cpp_metrics.is_processed())
+			current_fun->pre_cpp_metrics.set_metric(FunMetrics::em_nparam, n);
 	}
 
 	// Process a token destined for preprocessing
 	static inline void process_token(const Pltoken &t) {
-		if (current_fun && !current_fun->m.is_processed())
-			current_fun->m.process_token(t);
+		if (current_fun && !current_fun->pre_cpp_metrics.is_processed())
+			current_fun->pre_cpp_metrics.process_token(t);
 	}
 
 	// Call the specified metrics function for the current function
-	static inline void call_metrics(void (Metrics::*fun)()) {
+	static inline void call_pre_cpp_metrics(void (Metrics::*fun)()) {
 		if (current_fun)
-			(current_fun->m.*fun)();
+			(current_fun->pre_cpp_metrics.*fun)();
+	}
+
+	// Call the specified metrics function for the current function
+	static inline void call_post_cpp_metrics(void (Metrics::*fun)()) {
+		if (current_fun)
+			(current_fun->post_cpp_metrics.*fun)();
 	}
 
 	// The following three methods must always be called as a group
@@ -222,14 +235,14 @@ public:
 
 	// Increase the current function's level of nesting
 	static inline void increase_nesting() {
-		if (current_fun && !current_fun->m.is_processed() &&
+		if (current_fun && !current_fun->pre_cpp_metrics.is_processed() &&
 		    !macro_nesting)
-			current_fun->m.update_nesting(++(current_fun->curr_stmt_nesting));
+			current_fun->pre_cpp_metrics.update_nesting(++(current_fun->curr_stmt_nesting));
 	}
 
 	// Decrease the current function's level of nesting
 	static inline void decrease_nesting() {
-		if (!current_fun || current_fun->m.is_processed())
+		if (!current_fun || current_fun->pre_cpp_metrics.is_processed())
 			return;
 		if (macro_nesting)
 			macro_nesting--;

@@ -111,7 +111,9 @@ private:
 	bool visited;                   // For calculating transitive closures
 public:
 	Attributes attr;		// The projects this file participates in
-	FileMetrics m;			// File's metrics
+	FileMetrics pre_cpp_metrics;	// File's metrics before cpp
+	FileMetrics post_cpp_metrics;	// File's metrics after cpp
+
 	FCallSet df;			// Functions defined in this file
 	Filedetails(string n, bool r, const FileHash &h);
 	Filedetails();
@@ -224,10 +226,22 @@ public:
 	static int max_id() { return counter - 1; }
 	// Clear the visited flag for all fileids
 	static void clear_all_visited();
-	// Return a reference to the Metrics class
-	FileMetrics &metrics() { return i2d[id].m; }
-	// Return a reference to the Metrics class
-	const FileMetrics &const_metrics() const { return i2d[id].m; }
+
+	// Return a reference to the Metrics class before cpp
+	FileMetrics &get_pre_cpp_metrics() { return i2d[id].pre_cpp_metrics; }
+	// Return a const reference to the Metrics class before cpp
+	const FileMetrics &get_pre_cpp_const_metrics() const {
+		return i2d[id].pre_cpp_metrics;
+	}
+
+
+	// Return a reference to the Metrics class after cpp
+	FileMetrics &get_post_cpp_metrics() { return i2d[id].post_cpp_metrics; }
+	// Return a const reference to the Metrics class after cpp
+	const FileMetrics &get_post_cpp_const_metrics() const {
+		return i2d[id].post_cpp_metrics;
+	}
+
 	// Return the set of the file's functions
 	FCallSet &get_functions() const { return i2d[id].df; }
 	void add_function(Call *f) { i2d[id].df.insert(f); }

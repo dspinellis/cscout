@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2015 Diomidis Spinellis
+ * (C) Copyright 2007-2024 Diomidis Spinellis
  *
  * You may only use this code if you agree to the terms of the CScout
  * Source Code License agreement (see License.txt).
@@ -80,7 +80,7 @@ public:
 		case 'Y':	// anY match
 			add = false;
 			for (int j = 0; j < M::metric_max; j++)
-				if (op[j] && Query::apply(op[j], e.metrics().get_metric(j), n[j])) {
+				if (op[j] && Query::apply(op[j], e.get_pre_cpp_metrics().get_metric(j), n[j])) {
 					add = true;
 					break;
 				}
@@ -89,7 +89,7 @@ public:
 		case 'T':	// exactT match
 			add = true;
 			for (int j = 0; j < M::metric_max; j++)
-				if (op[j] && !Query::apply(op[j], e.metrics().get_metric(j), n[j])) {
+				if (op[j] && !Query::apply(op[j], e.get_pre_cpp_metrics().get_metric(j), n[j])) {
 					add = false;
 					break;
 				}
@@ -97,7 +97,7 @@ public:
 		case 'E':	// excludE match
 			add = true;
 			for (int j = 0; j < M::metric_max; j++)
-				if (op[j] && Query::apply(op[j], e.metrics().get_metric(j), n[j])) {
+				if (op[j] && Query::apply(op[j], e.get_pre_cpp_metrics().get_metric(j), n[j])) {
 					add = false;
 					break;
 				}
