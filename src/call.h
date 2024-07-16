@@ -33,6 +33,7 @@ class FCall;
 class Sql;
 class Id;
 class Ctoken;
+class Pltoken;
 
 /*
  * Generic call information of a called/calling entity.

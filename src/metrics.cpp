@@ -33,6 +33,7 @@
 #include "eclass.h"
 #include "fchar.h"
 #include "token.h"
+#include "pltoken.h"
 #include "call.h"
 
 MetricDetails Metrics::metric_details[] = {

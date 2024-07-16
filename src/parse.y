@@ -65,6 +65,7 @@
 #include "ptoken.h"
 #include "macro.h"
 #include "pdtoken.h"
+#include "pltoken.h"
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"

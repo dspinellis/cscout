@@ -49,6 +49,7 @@
 #include "tokid.h"
 #include "token.h"
 #include "ptoken.h"
+#include "pltoken.h"
 #include "fchar.h"
 #include "pltoken.h"
 #include "macro.h"
