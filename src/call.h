@@ -213,9 +213,15 @@ public:
 	}
 
 	// Process a token destined for preprocessing
-	static inline void process_token(const Pltoken &t) {
+	static inline void process_pre_cpp_token(const Pltoken &t) {
 		if (current_fun && !current_fun->pre_cpp_metrics.is_processed())
 			current_fun->pre_cpp_metrics.process_token(t);
+	}
+
+	// Process a token destined for C-proper parsing
+	static inline void process_post_cpp_token(const Ctoken &t) {
+		if (current_fun && !current_fun->post_cpp_metrics.is_processed())
+			current_fun->post_cpp_metrics.process_token(t);
 	}
 
 	// Call the specified metrics function for the current function

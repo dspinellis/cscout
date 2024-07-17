@@ -49,6 +49,7 @@
 #include "fchar.h"
 #include "token.h"
 #include "parse.tab.h"
+#include "ctoken.h"
 #include "ptoken.h"
 #include "pltoken.h"
 #include "call.h"

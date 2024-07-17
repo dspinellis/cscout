@@ -50,7 +50,7 @@
 #include "call.h"
 #include "parse.tab.h"
 #include "tokid.h"
-#include "token.h"
+#include "ctoken.h"
 #include "ptoken.h"
 #include "pltoken.h"
 

@@ -47,6 +47,7 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "token.h"
+#include "ctoken.h"
 #include "ptoken.h"
 #include "fchar.h"
 #include "pltoken.h"

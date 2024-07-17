@@ -559,7 +559,7 @@ Pltoken::getnext_analyze()
 	default:
 		val = (char)(code = c0.get_char());
 	}
-	Call::process_token(*this);
+	Call::process_pre_cpp_token(*this);
 	// For metric counting filter out whitespace
 	if (code != SPACE && code != '\n')
 		Metrics::call_pre_cpp_metrics(&Metrics::add_pptoken);
