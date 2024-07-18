@@ -1056,7 +1056,7 @@ xfilequery_page(FILE *of,  void *p)
 				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
 				i->get_id());
 			if (query.get_sort_order() != -1)
-				fprintf(of, "<td align=\"right\">%g</td>", i->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+				fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
 			html_file_record_end(of);
 		}
 	}
@@ -3192,7 +3192,7 @@ warning_report()
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
 					cerr << i->get_path() << ':' <<
 						line << ": " <<
-						"(" << i->get_pre_cpp_const_metrics().get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
+						"(" << Filetails::get_pre_cpp_const_metrics(*i).get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
 						" unused included file " <<
 						fi->get_path() <<
 						endl;
