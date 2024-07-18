@@ -742,7 +742,7 @@ Pdtoken::process_include(bool next)
 			if (can_open(fname)) {
 				if (!Pdtoken::shall_skip(Fileid(fname)))
 					Fchar::push_input(fname);
-				Fchar::get_fileid().set_ipath_offset(i - include_path.begin());
+				Filedetails::set_ipath_offset(Fchar::get_fileid(), i - include_path.begin());
 				return;
 			}
 		}
