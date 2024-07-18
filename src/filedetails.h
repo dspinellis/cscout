@@ -194,7 +194,7 @@ public:
 	bool get_attribute(int v) { return get_instance(id).attr.get_attribute(v); }
 	// Get/set the garbage collected property
 	static void set_gc(Fileid id, bool v) { get_instance(id).set_gc(v); }
-	static bool garbage_collected(Fileid id) const { return get_instance(id).garbage_collected(); }
+	static bool is_garbage_collected(Fileid id) const { return get_instance(id).garbage_collected(); }
 	// Get/set required property (for include files)
 	static void set_required(Fileid id, bool v) { get_instance(id).set_required(v); }
 	static bool required(Fileid id) const { return get_instance(id).required(); }

@@ -3611,7 +3611,7 @@ garbage_collect(Fileid root)
 		 * our parsing touched are marked as dirty
 		 * (and will be marked clean again at the end of this loop)
 		 */
-		if (fi.garbage_collected())
+		if (Filedetails::is_garbage_collected(fi))
 			continue;
 
 		fi.set_required(false);	// Mark the file as not being required
