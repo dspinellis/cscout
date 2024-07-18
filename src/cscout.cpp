@@ -381,7 +381,7 @@ file_analyze(Fileid fi)
 		if (cfun)
 			cfun->get_pre_cpp_metrics().process_char((char)val);
 		if (c == '\n') {
-			fi.add_line_end(ti.get_streampos());
+			Filedetails::add_line_end(fi, ti.get_streampos());
 			if (!Filedetails::is_processed(fi, ++line_number))
 				Filedetails::get_pre_cpp_metrics(fi).add_unprocessed();
 		}
