@@ -430,7 +430,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 
 	if (DP())
 		cout << "Write to " << fname << endl;
-	if (fi.is_hand_edited()) {
+	if (Filedetails::is_hand_edited(fi)) {
 		in = new istringstream(Filedetails::get_original_contents(fi));
 		fputs("<p>This file has been edited by hand. The following code reflects the contents before the first CScout-invoked hand edit.</p>", of);
 	} else {
@@ -2690,7 +2690,7 @@ file_page(FILE *of, void *p)
 		if (copies.size() > 1)
 			fprintf(of, "</ul>\n");
 	}
-	if (i.is_hand_edited())
+	if (Filedetails::is_hand_edited(i))
 		fprintf(of, "<li>Hand edited\n");
 	fprintf(of, "<li> <a href=\"dir.html?dir=%p\">File's directory</a>", dir_add_file(i));
 
