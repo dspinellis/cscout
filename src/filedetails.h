@@ -151,7 +151,7 @@ public:
 	const FileIncMap& get_includes() const { return includes; }
 	const FileIncMap& get_includers() const { return includers; }
 	// Should be called before hand-editing
-	int hand_edit();
+	int set_hand_edited();
 	// True if file has been hand-edited
 	bool is_hand_edited() const { return hand_edited; }
 	// Return the file's original contents
@@ -247,7 +247,7 @@ public:
 	// Return the file's original contents
 	static const string &get_original_contents(Fileid id) { return get_instance(id).get_original_contents(); }
 	// Should be called before hand-editing.  Return 0 if OK, !0 on error.
-	static int hand_edit(Fileid id) { return get_instance(id).hand_edit(); }
+	static int set_hand_edited(Fileid id) { return get_instance(id).set_hand_edited(); }
 };
 
 // Add file that this file uses at runtime

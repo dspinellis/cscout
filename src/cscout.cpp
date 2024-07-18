@@ -2782,7 +2782,7 @@ fedit_page(FILE *of, void *p)
 		return;
 	}
 	Fileid i(id);
-	i.hand_edit();
+	Filedetails::set_hand_edited(i);
 	char *re = swill_getvar("re");
 	char buff[4096];
 	snprintf(buff, sizeof(buff), Option::start_editor_cmd ->get().c_str(), (re ? re : "^"), i.get_path().c_str());

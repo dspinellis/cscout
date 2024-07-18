@@ -152,7 +152,7 @@ Filedetails::process_line(bool processed)
 }
 
 int
-Filedetails::hand_edit()
+Filedetails::sed_hand_edited()
 {
 	ifstream in;
 
