@@ -259,7 +259,7 @@ function_label(Call *f, bool hyperlink)
         } else {
             t = f->get_tokid();
         }
-        int first = t.get_fileid().line_number(t.get_streampos());
+        int first = Filedetails::line_number(t.get_fileid(), t.get_streampos());
         int last = first + f->get_pre_cpp_metrics().get_metric(Metrics::em_nline);
         result += to_string(first) + ";" + to_string(last) + ":";
 	}

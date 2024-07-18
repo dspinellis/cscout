@@ -1501,7 +1501,7 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "\n<li> Declared in file <a href=\"file.html?id=%u\">%s</a>",
 			t.get_fileid().get_id(),
 			t.get_fileid().get_path().c_str());
-		int lnum = t.get_fileid().line_number(t.get_streampos());
+		int lnum = Filedetails::get_line_number(t.get_fileid(), t.get_streampos());
 		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a><br />(and possibly in other places)\n",
 			t.get_fileid().get_id(), lnum, lnum);
 			fprintf(fo, " &mdash; <a href=\"qsrc.html?qt=fun&id=%u&match=Y&call=%p&n=Declaration+of+%s\">marked source</a>",
@@ -1516,7 +1516,7 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<li> Defined in file <a href=\"file.html?id=%u\">%s</a>",
 			t.get_fileid().get_id(),
 			t.get_fileid().get_path().c_str());
-		int lnum = t.get_fileid().line_number(t.get_streampos());
+		int lnum = Filedetails::get_line_number(t.get_fileid(), t.get_streampos());
 		fprintf(fo, " <a href=\"src.html?id=%u#%d\">line %d</a>\n",
 			t.get_fileid().get_id(), lnum, lnum);
 		if (modification_state != ms_subst && !browse_only)
@@ -3142,7 +3142,7 @@ warning_report()
 			const Tokid t = *((*j).first->get_members().begin());
 			const string &id = (*j).second.get_id();
 			cerr << t.get_path() << ':' <<
-				t.get_fileid().line_number(t.get_streampos()) << ": " <<
+				Filedetails::get_line_number(t.get_fileid(), t.get_streampos()) << ": " <<
 				id << ": " << reports[i].message << endl;
 		}
 	}
