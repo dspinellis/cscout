@@ -217,9 +217,9 @@ Tokid::unique() const
 {
 	if (DP()) {
 		cout << "unique input:  " << *this << endl;
-		cout << "unique output: " << Tokid(*(fi.get_identical_files().begin()), offs) << endl;
+		cout << "unique output: " << Tokid(*(Filedetails::get_identical_files(fi).begin()), offs) << endl;
 	}
-	return Tokid(*(fi.get_identical_files().begin()), offs);
+	return Tokid(*(Filedetails::get_identical_files(fi).begin()), offs);
 }
 #ifdef UNIT_TEST
 // cl -GX -DWIN32 -c eclass.cpp fileid.cpp

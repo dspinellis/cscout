@@ -388,7 +388,7 @@ file_analyze(Fileid fi)
 	}
 	if (cfun)
 		cfun->get_pre_cpp_metrics().summarize_identifiers();
-	Filedetails::get_pre_cpp_metrics(fi).set_ncopies(fi.get_identical_files().size());
+	Filedetails::get_pre_cpp_metrics(fi).set_ncopies(Filedetails::get_identical_files(fi).size());
 	if (DP())
 		cout << "nchar = " << Filedetails::get_pre_cpp_metrics(fi).get_metric(Metrics::em_nchar) << endl;
 	in.close();
@@ -2679,7 +2679,7 @@ file_page(FILE *of, void *p)
 		fprintf(of, "</ul>\n");
 	}
 	if (Option::show_identical_files->get()) {
-		const set <Fileid> &copies(i.get_identical_files());
+		const set <Fileid> &copies(Filedetails::get_identical_files(i));
 		fprintf(of, "<li>Other exact copies:%s\n", copies.size() > 1 ? "<ul>\n" : " (none)");
 		for (set <Fileid>::const_iterator j = copies.begin(); j != copies.end(); j++) {
 			if (*j != i) {
