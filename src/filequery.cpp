@@ -131,7 +131,7 @@ FileQuery::eval(Fileid &f)
 	if (lazy)
 		return return_val;
 
-	if (current_project && !f.get_attribute(current_project))
+	if (current_project && !Filedetails::get_attribute(f, current_project))
 		return false;
 
 	bool add = mquery.eval(f);

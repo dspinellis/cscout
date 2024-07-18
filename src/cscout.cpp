@@ -1048,7 +1048,7 @@ xfilequery_page(FILE *of,  void *p)
 	html_file_set_begin(of);
 	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
-		if (current_project && !f.get_attribute(current_project))
+		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
 			html_file(of, *i);
@@ -1258,7 +1258,7 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qf=1", query.bookmarkable());
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
-		if (current_project && !f.get_attribute(current_project))
+		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
 			html_file(of, *i);
@@ -2674,7 +2674,7 @@ file_page(FILE *of, void *p)
 	if (Option::show_projects->get()) {
 		fprintf(of, "\n<li> Used in project(s): \n<ul>");
 		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
-			if (i.get_attribute(j))
+			if (Filedetails::get_attribute(i, j))
 				fprintf(of, "<li>%s\n", Project::get_projname(j).c_str());
 		fprintf(of, "</ul>\n");
 	}

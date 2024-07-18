@@ -645,7 +645,7 @@ workdb_rest(Sql *db, ostream &of)
 		file_dump(db, cout, *i);
 		// The projects this file belongs to
 		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
-			if (i->get_attribute(j) && table_is_enabled(t_fileproj))
+			if (Filedetails::get_attribute(*i, j) && table_is_enabled(t_fileproj))
 				cout << "INSERT INTO FILEPROJ VALUES("
 				     << i->get_id() << ',' << j << ");\n";
 
