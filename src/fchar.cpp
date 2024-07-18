@@ -70,7 +70,7 @@ Fchar::set_input(const string& s)
 	if (in.fail())
 		Error::error(E_FATAL, s + ": " + string(strerror(errno)), false);
 	fi = Fileid(s);
-	fi.set_gc(false);	// Mark the file for garbage collection
+	Filedetails::set_gc(fi, false);	// Mark the file for garbage collection
 	if (DP())
 		cout << "set input " << s << " fi: " << fi.get_path() << "\n";
 	line_number = 1;
