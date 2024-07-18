@@ -286,7 +286,7 @@ file_analyze(Fileid fi)
 	const string &fname = fi.get_path();
 	int line_number = 0;
 
-	FCallSet &fc = fi.get_functions();	// File's functions
+	FCallSet &fc = Filedetails::get_functions(fi);	// File's functions
 	FCallSet::iterator fci = fc.begin();	// Iterator through them
 	Call *cfun = NULL;			// Current function
 	stack <Call *> fun_nesting;
@@ -1687,7 +1687,7 @@ visit_fcall_files(Fileid f, Call::const_fiterator_type (Call::*abegin)() const, 
 	 * for every function associated with this function
 	 * set the edge and visit the corresponding files.
 	 */
-	for (FCallSet::const_iterator filefun = f.get_functions().begin(); filefun != f.get_functions().end(); filefun++) {
+	for (FCallSet::const_iterator filefun = Filedetails::get_functions(f).begin(); filefun != Filedetails::get_functions(f).end(); filefun++) {
 		if (!(*filefun)->is_cfun())
 			continue;
 		for (Call::const_fiterator_type afun = ((*filefun)->*abegin)(); afun != ((*filefun)->*aend)(); afun++)
