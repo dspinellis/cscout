@@ -3614,7 +3614,7 @@ garbage_collect(Fileid root)
 		if (Filedetails::is_garbage_collected(fi))
 			continue;
 
-		fi.set_required(false);	// Mark the file as not being required
+		Filedetails::set_required(fi, false);	// Mark the file as not being required
 		touched_files.insert(fi);
 
 		if (!monitor.is_valid()) {

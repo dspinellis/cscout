@@ -63,7 +63,7 @@ Fdep::mark_required_transitive(Fileid f)
 {
 	if (Filedetails::is_required(f))
 		return;
-	f.set_required(true);
+	Filedetails::set_required(f, true);
 	const set <Fileid> &defs = definers[f];
 	for (set <Fileid>::const_iterator i = defs.begin(); i != defs.end(); i++)
 		mark_required_transitive(*i);
