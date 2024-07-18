@@ -107,7 +107,9 @@ private:
 	string contents;	// Original contents, if hand-edited
 	bool visited;                   // For calculating transitive closures
 
-	static FI_id_to_details i2d;	// From id to file details
+	// Get map from id to file details
+	static FI_id_to_details& get_i2d();
+
 	// Return map of files that are exact duplicates
 	static FI_hash_to_ids& get_identical_files();
 public:
@@ -121,16 +123,16 @@ public:
 
 	// Return the instance associated with the specified id
 	static Filedetails &get_instance(Fileid fi) {
-		return i2d[fi.get_id()];
+		return get_i2d()[fi.get_id()];
 	}
 
 	static FI_id_to_details::size_type get_i2d_map_size() {
-		return i2d.size();
+		return get_i2d().size();
 	}
 
 	// Add a new instance with the specified ctor values
 	static void add_instance(string n, bool r, const FileHash &hash) {
-		i2d.emplace_back(n, r, hash);
+		get_i2d().emplace_back(n, r, hash);
 	}
 
 	// Unify identifiers of files that are exact copies
