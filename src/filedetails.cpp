@@ -57,7 +57,16 @@
 #include "md5.h"
 #include "os.h"
 
-FI_id_to_details Filedetails::i2d;	// From id to file details
+/*
+ * Return the map from file id to file details, controlling the order of its
+ * construction through the "Construct on First Use" idiom.
+ */
+FI_id_to_details &
+Filedetails::get_i2d()
+{
+	static FI_id_to_details i2d;
+	return i2d;
+}
 
 /*
  * Return a map of files that are exact duplicates, controlling the order
@@ -185,7 +194,7 @@ Filedetails::set_hand_edited()
 void
 Filedetails::clear_all_visited()
 {
-	for (FI_id_to_details::iterator i = i2d.begin(); i != i2d.end(); i++)
+	for (FI_id_to_details::iterator i = get_i2d().begin(); i != get_i2d().end(); i++)
 		i->clear_visited();
 }
 
