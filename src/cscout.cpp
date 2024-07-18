@@ -1638,7 +1638,7 @@ visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
 	f.set_visited();
 	const FileIncMap &m = (f.*get_map)();
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
-		if (!i->first.is_visited() && (i->second.*is_ok)())
+		if (!Filedetails::is_visited(i->first) && (i->second.*is_ok)())
 			visit_include_files(i->first, get_map, is_ok, level - 1);
 	}
 }
@@ -1694,7 +1694,7 @@ visit_fcall_files(Fileid f, Call::const_fiterator_type (Call::*abegin)() const, 
 			if ((*afun)->is_defined() && (*afun)->is_cfun()) {
 				Fileid f2((*afun)->get_definition().get_fileid());
 				edges[f.get_id()][f2.get_id()] = true;
-				if (!f2.is_visited())
+				if (!Filedetails::is_visited(f2))
 					visit_fcall_files(f2, abegin, aend, level - 1, edges);
 			}
 	}
@@ -2207,7 +2207,7 @@ fgraph_page(GraphDisplay *gd)
 			// Fill the edges for all files
 			Filedetails::clear_all_visited();
 			for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-				if (i->is_visited())
+				if (Filedetails::is_visited(*i))
 					continue;
 				if (!all && i->get_readonly())
 					continue;
@@ -2233,7 +2233,7 @@ fgraph_page(GraphDisplay *gd)
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (!all && i->get_readonly())
 			continue;
-		if (only_visited && !i->is_visited())
+		if (only_visited && !Filedetails::is_visited(*i))
 			continue;
 		gd->node(*i);
 		if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
@@ -2243,7 +2243,7 @@ fgraph_page(GraphDisplay *gd)
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (!all && i->get_readonly())
 			continue;
-		if (only_visited && !i->is_visited())
+		if (only_visited && !Filedetails::is_visited(*i))
 			continue;
 		switch (*gtype) {
 		case 'C':		// Compile-time dependency graph
@@ -2256,7 +2256,7 @@ fgraph_page(GraphDisplay *gd)
 					continue;
 				if (!all && j->first.get_readonly())
 					continue;
-				if (only_visited && !j->first.is_visited())
+				if (only_visited && !Filedetails::is_visited(j->first))
 					continue;
 				gd->edge(j->first, *i);
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
@@ -2268,7 +2268,7 @@ fgraph_page(GraphDisplay *gd)
 			for (vector <Fileid>::iterator j = files.begin(); j != files.end(); j++) {
 				if (!all && j->get_readonly())
 					continue;
-				if (only_visited && !j->is_visited())
+				if (only_visited && !Filedetails::is_visited(*j))
 					continue;
 				if (*i == *j)
 					continue;
@@ -2291,7 +2291,7 @@ fgraph_page(GraphDisplay *gd)
 			for (Fileidset::const_iterator j = Filedetails::glob_uses(*i).begin(); j != Filedetails::glob_uses(*i).end(); j++) {
 				if (!all && j->get_readonly())
 					continue;
-				if (only_visited && !j->is_visited())
+				if (only_visited && !Filedetails::is_visited(*j))
 					continue;
 				gd->edge(*j, *i);
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
