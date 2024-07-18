@@ -3601,7 +3601,7 @@ garbage_collect(Fileid root)
 	int count = 0;
 	int sum = 0;
 
-	root.set_compilation_unit(true);
+	Filedetails::set_compilation_unit(root, true);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		Fileid fi = (*i);
 
