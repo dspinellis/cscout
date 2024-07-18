@@ -129,7 +129,7 @@ public:
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
 	bool garbage_collected() const { return m_garbage_collected; }
 	void set_gc(bool r) { m_garbage_collected = r; }
-	bool required() const { return m_required; }
+	bool is_required() const { return m_required; }
 	void set_required(bool r) { m_required = r; }
 	bool compilation_unit() const { return m_compilation_unit; }
 	void set_compilation_unit(bool r) { m_compilation_unit = r; }
@@ -197,7 +197,7 @@ public:
 	static bool is_garbage_collected(Fileid id) const { return get_instance(id).garbage_collected(); }
 	// Get/set required property (for include files)
 	static void set_required(Fileid id, bool v) { get_instance(id).set_required(v); }
-	static bool required(Fileid id) const { return get_instance(id).required(); }
+	static bool is_required(Fileid id) const { return get_instance(id).required(); }
 	// Get/set compilation_unit property (for include files)
 	static void set_compilation_unit(Fileid id, bool v) { get_instance(id).set_compilation_unit(v); }
 	static bool is_compilation_unit(Fileid id) const { return get_instance(id).compilation_unit(); }

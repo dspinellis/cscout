@@ -61,7 +61,7 @@ map <Fdep::include_trigger_domain, Fdep::include_trigger_value> Fdep::include_tr
 void
 Fdep::mark_required_transitive(Fileid f)
 {
-	if (f.required())
+	if (Filedetails::is_required(f))
 		return;
 	f.set_required(true);
 	const set <Fileid> &defs = definers[f];
