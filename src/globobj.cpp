@@ -64,8 +64,8 @@ GlobObj::glob_map GlobObj::all;
 static void
 mark_runtime_use(Fileid def, Fileid ref)
 {
-	ref.glob_uses(def);
-	def.glob_used_by(ref);
+	Filedetails::glob_uses(ref, def);
+	Filedetails::glob_used_by(def, ref);
 }
 
 void

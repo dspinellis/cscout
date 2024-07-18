@@ -1650,17 +1650,17 @@ visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
  * Set the visited flag for all nodes visited.
  */
 static void
-visit_globobj_files(Fileid f, const Fileidset & (Fileid::*get_set)() const, int level)
+visit_globobj_files(Fileid f, const Fileidset & (*get_set)() const, int level)
 {
 	if (level == 0)
 		return;
 
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
-	f.set_visited();
-	const Fileidset &s = (f.*get_set)();
+	Filedetails::set_visited(f);
+	const Fileidset &s = get_set(f);
 	for (Fileidset::const_iterator i = s.begin(); i != s.end(); i++) {
-		if (!i->is_visited())
+		if (!Filedetails::is_visited(*i))
 			visit_globobj_files(*i, get_set, level - 1);
 	}
 }
@@ -2064,10 +2064,10 @@ single_file_graph(char gtype, EdgeMatrix &edges)
 	case 'G':		// Global object def/ref graph (data dependency)
 		switch (*ltype) {
 		case 'D':
-			visit_globobj_files(fileid, &Fileid::glob_uses, Option::cgraph_depth->get());
+			visit_globobj_files(fileid, &Filedetails::glob_uses, Option::cgraph_depth->get());
 			break;
 		case 'U':
-			visit_globobj_files(fileid, &Fileid::glob_used_by, Option::cgraph_depth->get());
+			visit_globobj_files(fileid, &Filedetails::glob_used_by, Option::cgraph_depth->get());
 			break;
 		}
 		break;
@@ -2288,7 +2288,7 @@ fgraph_page(GraphDisplay *gd)
 			}
 			break;
 		case 'G':		// Global object def/ref graph (data dependency)
-			for (Fileidset::const_iterator j = i->glob_uses().begin(); j != i->glob_uses().end(); j++) {
+			for (Fileidset::const_iterator j = Filedetails::glob_uses(*i).begin(); j != Filedetails::glob_uses(*i).end(); j++) {
 				if (!all && j->get_readonly())
 					continue;
 				if (only_visited && !j->is_visited())
