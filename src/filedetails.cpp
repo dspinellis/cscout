@@ -175,5 +175,5 @@ void
 Filedetails::clear_all_visited()
 {
 	for (FI_id_to_details::iterator i = i2d.begin(); i != i2d.end(); i++)
-		i->clear_visited();
+		Filedetails::clear_visited(*i);
 }
