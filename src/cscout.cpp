@@ -1635,7 +1635,7 @@ visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
 
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
-	f.set_visited();
+	Filedetails::set_visited(f);
 	const FileIncMap &m = (f.*get_map)();
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
 		if (!Filedetails::is_visited(i->first) && (i->second.*is_ok)())
@@ -1681,7 +1681,7 @@ visit_fcall_files(Fileid f, Call::const_fiterator_type (Call::*abegin)() const, 
 
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
-	f.set_visited();
+	Filedetails::set_visited(f);
 	/*
 	 * For every function in this file:
 	 * for every function associated with this function
