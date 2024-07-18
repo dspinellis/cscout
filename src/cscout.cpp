@@ -2837,7 +2837,7 @@ query_include_page(FILE *of, void *p)
 	bool unused = !!swill_getvar("unused");
 	bool used = !!swill_getvar("used");
 	bool includes = !!swill_getvar("includes");
-	const FileIncMap &m = includes ? f.get_includes() : Filedetails::get_includers(f);
+	const FileIncMap &m = includes ? Filedetails::get_includes(f) : Filedetails::get_includers(f);
 	html_file_begin(of);
 	html_file_set_begin(of);
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
