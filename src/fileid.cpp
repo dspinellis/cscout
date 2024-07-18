@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -43,8 +43,9 @@
 #include "debug.h"
 #include "error.h"
 #include "attr.h"
-#include "metrics.h"
 #include "fileid.h"
+#include "filedetails.h"
+#include "metrics.h"
 #include "tokid.h"
 #include "fchar.h"
 #include "token.h"
@@ -58,7 +59,6 @@
 
 int Fileid::counter;		// To generate ids
 FI_uname_to_id Fileid::u2i;	// From unique name to id
-FI_hash_to_ids Fileid::identical_files;// Files that are exact duplicates
 Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
 list <string> Fileid::ro_prefix;	// Read-only prefix
 
@@ -119,7 +119,7 @@ Fileid::Fileid(const string &name)
 		u2i[sid] = id = counter++;
 		Filedetails::add_instance(fpath, is_readonly(name.c_str()), hash);
 
-		identical_files[hash].insert(*this);
+		Filedetails::add_identical_file(hash, *this);
 	}
 	if (DP())
 		cout << "Fileid(" << name << ") = " << id << "\n";
@@ -131,7 +131,7 @@ Fileid::Fileid(const string &name, int i)
 	u2i[name] = i;
 	Filedetails::add_instance(name, true, FileHash());
 	id = i;
-	identical_files[FileHash()].insert(*this);
+	Filedetails::add_identical_file(FileHash(), *this);
 	counter = i + 1;
 }
 
@@ -189,59 +189,16 @@ Fileid::files(bool sorted)
 	return (r);
 }
 
-// Read identifier tokens from file fname into tkov
-static void
-read_file(const string &fname, vector <Pltoken> &tokv)
+FileMetrics &
+Fileid::get_pre_cpp_metrics()
 {
-	Fchar::set_input(fname);
-	Pltoken t;
-
-	for (;;) {
-		t.getnext<Fchar>();
-		switch (t.get_code()) {
-		case IDENTIFIER:
-			tokv.push_back(t);
-			break;
-		case EOF:
-			return;
-		}
-	}
+	return Filedetails::get_pre_cpp_metrics(id);
 }
 
-/*
- * Unify all identifiers in the files of fs
- * The corresponding files should be exact duplicates
- */
-static void
-unify_file_identifiers(const set<Fileid> &fs)
+FileMetrics &
+Fileid::get_post_cpp_metrics()
 {
-	csassert(fs.size() > 1);
-	Fileid fi = *(fs.begin());
-	fifstream in;
-	vector <Pltoken> ft0, ftn;	// The tokens to unify
-
-	read_file(fi.get_path(), ft0);
-
-	set <Fileid>::const_iterator fsi = fs.begin();
-	for (fsi++; fsi != fs.end(); fsi++) {
-		if (DP())
-			// endl ensures flushing
-			cout << "Merging identifiers of " << fi.get_path() << " and " << fsi->get_path() << endl;
-		read_file(fsi->get_path(), ftn);
-		csassert(ft0.size() == ftn.size());
-		vector <Pltoken>::iterator ti0, tin;
-		for (ti0 = ft0.begin(), tin = ftn.begin(); ti0 != ft0.end(); ti0++, tin++)
-			Token::unify(*ti0, *tin);
-		ftn.clear();
-	}
-}
-
-void
-Fileid::unify_identical_files(void)
-{
-	for (FI_hash_to_ids::const_iterator i = identical_files.begin(); i != identical_files.end(); i++)
-		if (i->second.size() > 1)
-			unify_file_identifiers(i->second);
+	return Filedetails::get_post_cpp_metrics(id);
 }
 
 bool 

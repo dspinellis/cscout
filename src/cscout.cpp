@@ -382,7 +382,7 @@ file_analyze(Fileid fi)
 			cfun->get_pre_cpp_metrics().process_char((char)val);
 		if (c == '\n') {
 			Filedetails::add_line_end(fi, ti.get_streampos());
-			if (!Filedetails::is_processed(fi, ++line_number))
+			if (!Filedetails::is_line_processed(fi, ++line_number))
 				Filedetails::get_pre_cpp_metrics(fi).add_unprocessed();
 		}
 	}
@@ -452,7 +452,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			break;
 		if (at_bol) {
 			fprintf(of,"<a name=\"%d\"></a>", line_number);
-			if (mark_unprocessed && !Filedetails::is_processed(fi, line_number))
+			if (mark_unprocessed && !Filedetails::is_line_processed(fi, line_number))
 				fprintf(of, "<span class=\"unused\">");
 			if (Option::show_line_number->get()) {
 				char buff[50];
@@ -502,7 +502,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		fprintf(of, "%s", html((char)val));
 		if ((char)val == '\n') {
 			at_bol = true;
-			if (mark_unprocessed && !Filedetails::is_processed(fi, line_number))
+			if (mark_unprocessed && !Filedetails::is_line_processed(fi, line_number))
 				fprintf(of, "</span>");
 			line_number++;
 		}
@@ -1621,13 +1621,13 @@ visit_functions(FILE *fo, const char *call_path, Call *f,
 /*
  * Visit all files associated with a includes/included relationship with f
  * The method to obtain the relationship container is passed through
- * the get_map method pointer.
+ * the get_map function pointer.
  * The method to check if a file should be included in the visit is passed through the
  * the is_ok method pointer.
  * Set the visited flag for all nodes visited.
  */
 static void
-visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
+visit_include_files(Fileid f, const FileIncMap & (*get_map)(Fileid fi),
     bool (IncDetails::*is_ok)() const, int level)
 {
 	if (level == 0)
@@ -1636,7 +1636,7 @@ visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
 	Filedetails::set_visited(f);
-	const FileIncMap &m = (f.*get_map)();
+	const FileIncMap &m = get_map(f);
 	for (FileIncMap::const_iterator i = m.begin(); i != m.end(); i++) {
 		if (!Filedetails::is_visited(i->first) && (i->second.*is_ok)())
 			visit_include_files(i->first, get_map, is_ok, level - 1);
@@ -1646,11 +1646,12 @@ visit_include_files(Fileid f, const FileIncMap & (Fileid::*get_map)() const,
 /*
  * Visit all files associated with a global variable def/ref relationship with f
  * The method to obtain the relationship container is passed through
- * the get_set method pointer.
+ * the get_fileid_set method pointer.
  * Set the visited flag for all nodes visited.
  */
 static void
-visit_globobj_files(Fileid f, const Fileidset & (*get_set)() const, int level)
+visit_globobj_files(Fileid f, const Fileidset & (*get_fileid_set)(Fileid fi),
+		int level)
 {
 	if (level == 0)
 		return;
@@ -1658,10 +1659,10 @@ visit_globobj_files(Fileid f, const Fileidset & (*get_set)() const, int level)
 	if (DP())
 		cout << "Visiting " << f.get_fname() << endl;
 	Filedetails::set_visited(f);
-	const Fileidset &s = get_set(f);
+	const Fileidset &s = get_fileid_set(f);
 	for (Fileidset::const_iterator i = s.begin(); i != s.end(); i++) {
 		if (!Filedetails::is_visited(*i))
-			visit_globobj_files(*i, get_set, level - 1);
+			visit_globobj_files(*i, get_fileid_set, level - 1);
 	}
 }
 
@@ -2044,30 +2045,30 @@ single_file_graph(char gtype, EdgeMatrix &edges)
 	case 'I':		// Include graph
 		switch (*ltype) {
 		case 'D':
-			visit_include_files(fileid, &Fileid::get_includers, &IncDetails::is_directly_included, Option::cgraph_depth->get());
+			visit_include_files(fileid, &Filedetails::get_includers, &IncDetails::is_directly_included, Option::cgraph_depth->get());
 			break;
 		case 'U':
-			visit_include_files(fileid, &Fileid::get_includes, &IncDetails::is_directly_included, Option::cgraph_depth->get());
+			visit_include_files(fileid, &Filedetails::get_includes, &IncDetails::is_directly_included, Option::cgraph_depth->get());
 			break;
 		}
 		break;
 	case 'C':		// Compile-time dependency graph
 		switch (*ltype) {
 		case 'D':
-			visit_include_files(fileid, &Fileid::get_includers, &IncDetails::is_required, Option::cgraph_depth->get());
+			visit_include_files(fileid, &Filedetails::get_includers, &IncDetails::is_required, Option::cgraph_depth->get());
 			break;
 		case 'U':
-			visit_include_files(fileid, &Fileid::get_includes, &IncDetails::is_required, Option::cgraph_depth->get());
+			visit_include_files(fileid, &Filedetails::get_includes, &IncDetails::is_required, Option::cgraph_depth->get());
 			break;
 		}
 		break;
 	case 'G':		// Global object def/ref graph (data dependency)
 		switch (*ltype) {
 		case 'D':
-			visit_globobj_files(fileid, &Filedetails::glob_uses, Option::cgraph_depth->get());
+			visit_globobj_files(fileid, &Filedetails::get_glob_uses, Option::cgraph_depth->get());
 			break;
 		case 'U':
-			visit_globobj_files(fileid, &Filedetails::glob_used_by, Option::cgraph_depth->get());
+			visit_globobj_files(fileid, &Filedetails::get_glob_used_by, Option::cgraph_depth->get());
 			break;
 		}
 		break;
@@ -2248,7 +2249,7 @@ fgraph_page(GraphDisplay *gd)
 		switch (*gtype) {
 		case 'C':		// Compile-time dependency graph
 		case 'I': {		// Include graph
-			const FileIncMap &m(i->get_includes());
+			const FileIncMap &m(Filedetails::get_includes(*i));
 			for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
 				if (*gtype == 'I' && !j->second.is_directly_included())
 					continue;
@@ -2288,7 +2289,7 @@ fgraph_page(GraphDisplay *gd)
 			}
 			break;
 		case 'G':		// Global object def/ref graph (data dependency)
-			for (Fileidset::const_iterator j = Filedetails::glob_uses(*i).begin(); j != Filedetails::glob_uses(*i).end(); j++) {
+			for (Fileidset::const_iterator j = Filedetails::get_glob_uses(*i).begin(); j != Filedetails::get_glob_uses(*i).end(); j++) {
 				if (!all && j->get_readonly())
 					continue;
 				if (only_visited && !Filedetails::is_visited(*j))
@@ -3163,10 +3164,10 @@ warning_report()
 		if (i->get_readonly() ||		// Don't report on RO files
 		    !Filedetails::is_compilation_unit(*i) ||		// Algorithm only works for CUs
 		    *i == input_file_id ||		// Don't report on main file
-		    i->get_includers().size() > 1)	// For files that are both CUs and included
+		    Filedetails::get_includers(*i).size() > 1)	// For files that are both CUs and included
 							// by others all bets are off
 			continue;
-		const FileIncMap &m = i->get_includes();
+		const FileIncMap &m = Filedetails::get_includes(*i);
 		// Find the status of our include sites
 		include_sites.clear();
 		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
@@ -3192,7 +3193,7 @@ warning_report()
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
 					cerr << i->get_path() << ':' <<
 						line << ": " <<
-						"(" << Filetails::get_pre_cpp_const_metrics(*i).get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
+						"(" << Filedetails::get_pre_cpp_const_metrics(*i).get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
 						" unused included file " <<
 						fi->get_path() <<
 						endl;
@@ -3427,7 +3428,7 @@ main(int argc, char *argv[])
 
 	input_file_id = Fileid(argv[optind]);
 
-	Fileid::unify_identical_files();
+	Filedetails::unify_identical_files();
 
 	if (process_mode == pm_obfuscation)
 		return obfuscate();
@@ -3664,7 +3665,7 @@ garbage_collect(Fileid root)
 	// Store them in a set to calculate set difference
 	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
 		if (*i != root && *i != input_file_id)
-			Filedetails::set_includes(root, *i, /* directly included (conservatively) */ false, i->required());
+			Filedetails::set_includes(root, *i, /* directly included (conservatively) */ false, Filedetails::is_required(*i));
 	if (process_mode == pm_database)
 		Fdep::dumpSql(Sql::getInterface(), root);
 	Fdep::reset();

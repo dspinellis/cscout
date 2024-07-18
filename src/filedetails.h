@@ -34,6 +34,14 @@ using namespace std;
 #include "fileid.h"
 #include "filemetrics.h"
 
+/*
+ * This is used for keeping identical files
+ * The value type must be ordered by the integer Fileid
+ * in order to keep *values.begin() invariant.
+ * This property is used by tokid unique for returning unique tokids
+ */
+typedef map <FileHash, set<Fileid> > FI_hash_to_ids;
+
 // Details we keep for each included file for a given includer
 class IncDetails {
 private:
@@ -68,14 +76,16 @@ struct function_file_order : public binary_function <const Call *, const Call *,
 
 typedef map <Fileid, IncDetails> FileIncMap;
 typedef set <Call *, function_file_order> FCallSet;
+class Filedetails;
 typedef vector <Filedetails> FI_id_to_details;
+typedef set <Fileid> Fileidset;
 
 // Details we keep for each file
 class Filedetails {
 private:
 	string name;	// File name (complete path)
 	bool m_garbage_collected;	// When postprocessing files to garbage collect ECs
-	bool m_required;		// When postprocessing files actually required (containing definitions)
+	bool required;		// When postprocessing files actually required (containing definitions)
 	bool m_compilation_unit;	// This file is a compilation unit (set by gc)
 	// Line end offsets; collected during postprocessing
 	// when we are generating warning reports
@@ -97,6 +107,7 @@ private:
 	bool visited;                   // For calculating transitive closures
 
 	static FI_id_to_details i2d;	// From id to file details
+	static FI_hash_to_ids identical_files;// Files that are exact duplicates
 public:
 	Attributes attr;		// The projects this file participates in
 	FileMetrics pre_cpp_metrics;	// File's metrics before cpp
@@ -107,11 +118,11 @@ public:
 	Filedetails();
 
 	// Return the instance associated with the specified id
-	static Filedetails &get_instance(Fileid id) {
-		return i2d[id];
+	static Filedetails &get_instance(Fileid fi) {
+		return i2d[fi.get_id()];
 	}
 
-	static i2d::size_type get_i2d_map_size() {
+	static FI_id_to_details::size_type get_i2d_map_size() {
 		return i2d.size();
 	}
 
@@ -120,8 +131,16 @@ public:
 		i2d.emplace_back(n, r, h);
 	}
 
+	// Unify identifiers of files that are exact copies
+	static void unify_identical_files(void);
+
 	// Clear the visited flag for all fileids
 	static void clear_all_visited();
+
+	// Add fi to the set of files that have the identical hash
+	static void add_identical_file(FileHash hash, Fileid fi) {
+		identical_files[hash].insert(fi);
+	}
 
 	const string& get_name() const { return name; }
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
@@ -129,12 +148,12 @@ public:
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
 	bool garbage_collected() const { return m_garbage_collected; }
 	void set_gc(bool r) { m_garbage_collected = r; }
-	bool is_required() const { return m_required; }
-	void set_required(bool r) { m_required = r; }
+	bool is_required() const { return required; }
+	void set_required(bool r) { required = r; }
 	bool compilation_unit() const { return m_compilation_unit; }
 	void set_compilation_unit(bool r) { m_compilation_unit = r; }
-	void process_line(bool processed);
-	bool is_processed(unsigned line) const {
+	void set_line_processed(bool processed);
+	bool is_line_processed(unsigned line) const {
 		return line <= processed_lines.size() &&
 			processed_lines[line - 1];
 	};
@@ -142,7 +161,7 @@ public:
 	// Should be called every time a newline is encountered
 	void add_line_end(streampos p) { line_ends.push_back(p); }
 	// Return a line number given a file offset
-	int line_number(streampos p) const;
+	int get_line_number(streampos p) const;
 
 
 	// Update maps when includer (us) includes included
@@ -163,72 +182,149 @@ public:
 	void clear_visited() { visited = false; }
 	bool is_visited() const { return visited; }
 	// Add file that this file uses at runtime
-	void glob_uses(Fileid f);
+	void m_set_glob_uses(Fileid f);
 	// Add file that is used by this file at runtime
-	void glob_used_by(Fileid f);
+	void m_set_glob_used_by(Fileid f);
 	// Return the set of files that we depend on for runtime objects
-	const Fileidset & glob_uses() const { return runtime_uses; }
+	const Fileidset & m_get_glob_uses() const { return runtime_uses; }
+
 	// Return the set of files that depend on us for runtime objects
-	const Fileidset & glob_used_by() const { return runtime_used_by; }
+	const Fileidset & m_get_glob_used_by() const {
+		return runtime_used_by;
+	}
 
 	// Return a reference to the Metrics class before cpp
-	static FileMetrics &get_pre_cpp_metrics(Fileid id) { return get_instance(id).pre_cpp_metrics; }
+	static FileMetrics &get_pre_cpp_metrics(Fileid id) {
+		return get_instance(id).pre_cpp_metrics;
+	}
+
 	// Return a const reference to the Metrics class before cpp
-	static const FileMetrics &get_pre_cpp_const_metrics(Fileid id) const {
+	static const FileMetrics &get_pre_cpp_const_metrics(Fileid id) {
 		return get_instance(id).pre_cpp_metrics;
 	}
 
 
 	// Return a reference to the Metrics class after cpp
-	static FileMetrics &get_post_cpp_metrics(Fileid id) { return get_instance(id).post_cpp_metrics; }
+	static FileMetrics &get_post_cpp_metrics(Fileid id) {
+		return get_instance(id).post_cpp_metrics;
+	}
+
 	// Return a const reference to the Metrics class after cpp
-	static const FileMetrics &get_post_cpp_const_metrics(Fileid id) const {
+	static const FileMetrics &get_post_cpp_const_metrics(Fileid id) {
 		return get_instance(id).post_cpp_metrics;
 	}
 
 	// Return the set of the file's functions
-	static FCallSet &get_functions(Fileid id) const { return get_instance(id).df; }
-	void add_function(Call *f) { get_instance(id).df.insert(f); }
-	// Get /set attributes
-	void set_attribute(int v) { get_instance(id).attr.set_attribute(v); }
-	bool get_attribute(int v) { return get_instance(id).attr.get_attribute(v); }
-	// Get/set the garbage collected property
-	static void set_gc(Fileid id, bool v) { get_instance(id).set_gc(v); }
-	static bool is_garbage_collected(Fileid id) const { return get_instance(id).garbage_collected(); }
-	// Get/set required property (for include files)
-	static void set_required(Fileid id, bool v) { get_instance(id).set_required(v); }
-	static bool is_required(Fileid id) const { return get_instance(id).required(); }
-	// Get/set compilation_unit property (for include files)
-	static void set_compilation_unit(Fileid id, bool v) { get_instance(id).set_compilation_unit(v); }
-	static bool is_compilation_unit(Fileid id) const { return get_instance(id).compilation_unit(); }
-	// Mark a line as processed
-	void process_line(bool processed) {get_instance(id).process_line(processed); }
-	// Return true if a line is processed
-	static bool is_processed(Fileid id, int line) const { return get_instance(id).is_processed(line); };
-	// Return the set of files that are the same as this (including this)
-	static const Fileidset & get_identical_files(Fileid id) const { return identical_files[get_instance(id).get_filehash()]; }
-	// Return the set of files that we depend on for runtime objects
-	static const Fileidset & glob_uses(Fileid id) const { return get_instance(id).glob_uses(); }
-	// Return the set of files that depend on us for runtime objects
-	static const Fileidset & glob_used_by(Fileid id) const { return get_instance(id).glob_used_by(); }
-	// Include file path offset
-	static void set_ipath_offset(Fileid id, int o) { get_instance(id).set_ipath_offset(o); }
-	static int get_ipath_offset(Fileid id) const { return get_instance(id).get_ipath_offset(); }
+	static FCallSet &get_functions(Fileid id) {
+		return get_instance(id).df;
+	}
 
-	static void set_visited(Fileid id) { get_instance(id).set_visited(); }
-	static void clear_visited(Fileid id) { get_instance(id).clear_visited(); }
-	static bool is_visited(Fileid id) const { return get_instance(id).is_visited(); }
+	static void add_function(Fileid id, Call *f) {
+		get_instance(id).df.insert(f);
+	}
+
+	// Get /set attributes
+	static void set_attribute(Fileid id, int v) {
+		get_instance(id).attr.set_attribute(v);
+	}
+
+	static bool get_attribute(Fileid id, int v) {
+		return get_instance(id).attr.get_attribute(v);
+	}
+
+	// Get/set the garbage collected property
+	static void set_gc(Fileid id, bool v) {
+		get_instance(id).set_gc(v);
+	}
+
+	static bool is_garbage_collected(Fileid id) {
+		return get_instance(id).garbage_collected();
+	}
+
+	// Get/set required property (for include files)
+	static void set_required(Fileid id, bool v) {
+		get_instance(id).set_required(v);
+	}
+
+	static bool is_required(Fileid id) {
+		return get_instance(id).is_required();
+	}
+
+	// Get/set compilation_unit property (for include files)
+	static void set_compilation_unit(Fileid id, bool v) {
+		get_instance(id).set_compilation_unit(v);
+	}
+
+	static bool is_compilation_unit(Fileid id) {
+		return get_instance(id).compilation_unit();
+	}
+
+	// Mark a line as processed
+	static void set_line_processed(Fileid id, bool processed) {
+		get_instance(id).set_line_processed(processed);
+	}
+
+	// Return true if a line is processed
+	static bool is_line_processed(Fileid id, int line) {
+		return get_instance(id).is_line_processed(line);
+	}
+;
+	// Return the set of files that are the same as this (including this)
+	static const Fileidset & get_identical_files(Fileid id) {
+		return identical_files[get_instance(id).get_filehash()];
+	}
+
+	// Return the set of files that we depend on for runtime objects
+	static const Fileidset & get_glob_uses(Fileid id) {
+		return get_instance(id).m_get_glob_uses();
+	}
+
+	// Return the set of files that depend on us for runtime objects
+	static const Fileidset & get_glob_used_by(Fileid id) {
+		return get_instance(id).m_get_glob_used_by();
+	}
+
+	// Include file path offset
+	static void set_ipath_offset(Fileid id, int o) {
+		get_instance(id).set_ipath_offset(o);
+	}
+
+	static int get_ipath_offset(Fileid id) {
+		return get_instance(id).get_ipath_offset();
+	}
+
+
+	static void set_visited(Fileid id) {
+		get_instance(id).set_visited();
+	}
+
+	static bool is_visited(Fileid id) {
+		return get_instance(id).is_visited();
+	}
+
 
 	// Add file that this file uses at runtime
-	void glob_uses(Fileid f) { get_instance(id).glob_uses(f); }
+	static void set_glob_uses(Fileid id, Fileid f) {
+		get_instance(id).m_set_glob_uses(f);
+	}
+
 	// Add file that is used by this file at runtime
-	void glob_used_by(Fileid f) { get_instance(id).glob_used_by(f); }
+	static void set_glob_used_by(Fileid id, Fileid f) {
+		get_instance(id).m_set_glob_used_by(f);
+	}
+
 
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered
-	static void add_line_end(Fileid id, streampos p) { get_instance(id).add_line_end(p); }
+	static void add_line_end(Fileid id, streampos p) {
+		get_instance(id).add_line_end(p);
+	}
+
 	// Return a line number given a file offset
-	static int line_number(Fileid id, streampos p) const { return get_instance(id).line_number(p); }
+	static int get_line_number(Fileid id, streampos p) {
+		return get_instance(id).get_line_number(p);
+	}
+
 
 	/*
 	 * Called when we include file f
@@ -240,20 +336,33 @@ public:
 		get_instance(f.get_id()).include_update_includer(id, directly, required, line);
 	}
 
-	static const FileIncMap& get_includes(Fileid id) const { return get_instance(id).get_includes(); }
-	static const FileIncMap& get_includers(Fileid id) const { return get_instance(id).get_includers(); }
+	static const FileIncMap& get_includes(Fileid id) {
+		return get_instance(id).get_includes();
+	}
+
+	static const FileIncMap& get_includers(Fileid id) {
+		return get_instance(id).get_includers();
+	}
+
 	// True if file has been hand-edited
-	static bool is_hand_edited(Fileid id) { return get_instance(id).is_hand_edited(); }
+	static bool is_hand_edited(Fileid id) {
+		return get_instance(id).is_hand_edited();
+	}
+
 	// Return the file's original contents
-	static const string &get_original_contents(Fileid id) { return get_instance(id).get_original_contents(); }
+	static const string &get_original_contents(Fileid id) {
+		return get_instance(id).get_original_contents();
+	}
+
 	// Should be called before hand-editing.  Return 0 if OK, !0 on error.
-	static int set_hand_edited(Fileid id) { return get_instance(id).set_hand_edited(); }
+	static int set_hand_edited(Fileid id) {
+		return get_instance(id).set_hand_edited(); }
 };
 
 // Add file that this file uses at runtime
-inline void Filedetails::glob_uses(Fileid f) { runtime_uses.insert(f); }
+inline void Filedetails::m_set_glob_uses(Fileid f) { runtime_uses.insert(f); }
 
 // Add file that is used by this file at runtime
-inline void Filedetails::glob_used_by(Fileid f) { runtime_used_by.insert(f); }
+inline void Filedetails::m_set_glob_used_by(Fileid f) { runtime_used_by.insert(f); }
 
 #endif /* FILEDETAILS_ */

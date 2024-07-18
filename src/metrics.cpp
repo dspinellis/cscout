@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2015 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * You may only use this code if you agree to the terms of the CScout
  * Source Code License agreement (see License.txt).
@@ -28,6 +28,7 @@
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
+#include "filedetails.h"
 #include "tokid.h"
 #include "tokmap.h"
 #include "eclass.h"
@@ -230,7 +231,7 @@ avg(double v, double n)
 void
 Metrics::call_pre_cpp_metrics(void (Metrics::*fun)())
 {
-	(Fchar::get_fileid().get_pre_cpp_metrics().*fun)();
+	(Filedetails::get_pre_cpp_metrics(Fchar::get_fileid()).*fun)();
 	Call::call_pre_cpp_metrics(fun);
 }
 

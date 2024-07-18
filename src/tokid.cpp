@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -37,6 +37,7 @@
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
+#include "filedetails.h"
 #include "tokid.h"
 #include "token.h"
 #include "parse.tab.h"

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -67,8 +67,8 @@ public:
 	// Functions where the this appears
 	set <Call *> functions();
 	// Other accessor functions
-	void set_attribute(int v) { Filedetails::set_attribute(attr, v); }
-	bool get_attribute(int v) { return Filedetails::get_attribute(attr, v); }
+	void set_attribute(int v) { attr.set_attribute(v); }
+	bool get_attribute(int v) { return attr.get_attribute(v); }
 	bool is_identifier() { return attr.is_identifier(); }
 	// Return true if this equivalence class is unintentionally unused
 	bool is_unused();

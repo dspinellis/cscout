@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -33,24 +33,11 @@
 
 using namespace std;
 
-#include "filemetrics.h"
-
-using namespace std;
-
-class Call;
 class Fchar;
+class FileMetrics;
 
 typedef vector<unsigned char> FileHash;
 typedef map <string, int> FI_uname_to_id;
-typedef set <Fileid> Fileidset;
-
-/*
- * This is used for keeping identical files
- * The value type must be ordered by the integer Fileid
- * in order to keep *values.begin() invariant.
- * This property is used by tokid unique for returning unique tokids
- */
-typedef map <FileHash, set<Fileid> > FI_hash_to_ids;
 
 /*
  * A unique file identifier
@@ -64,7 +51,6 @@ private:
 
 	static int counter;		// To generate ids
 	static FI_uname_to_id u2i;	// From unique name to id
-	static FI_hash_to_ids identical_files;// Files that are exact duplicates
 
 	// Construct a new Fileid given a name and id value
 	// Only used internally for creating the anonymous id
@@ -95,8 +81,6 @@ public:
 	static void clear();
 	// Set the prefix for read-only files
 	static void add_ro_prefix(string prefix) { ro_prefix.push_back(prefix); }
-	// Unify identifiers of files that are exact copies
-	static void unify_identical_files(void);
 	// Return the maximum file id
 	static int max_id() { return counter - 1; }
 
@@ -106,7 +90,17 @@ public:
 	inline friend bool operator <(const class Fileid a, const class Fileid b);
 	// Return a (possibly sorted) list of all filenames used
 	static vector <Fileid> files(bool sorted);
-	// Return a reference to the underlying file's metrics
+
+	/*
+	 * Normally file details are accessed through the static member
+	 * functions of the Filedetails class.  The following two are
+	 * required to allow the template definiction of MetricsCount::add()
+	 */
+	// Return a reference to the Metrics class before cpp
+	FileMetrics &get_pre_cpp_metrics();
+
+	// Return a reference to the Metrics class before cpp
+	FileMetrics &get_post_cpp_metrics();
 };
 
 inline bool

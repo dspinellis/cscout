@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2015 Diomidis Spinellis
+ * (C) Copyright 2008-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -64,8 +64,8 @@ GlobObj::glob_map GlobObj::all;
 static void
 mark_runtime_use(Fileid def, Fileid ref)
 {
-	Filedetails::glob_uses(ref, def);
-	Filedetails::glob_used_by(def, ref);
+	Filedetails::set_glob_uses(ref, def);
+	Filedetails::set_glob_used_by(def, ref);
 }
 
 void

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2015 Diomidis Spinellis
+ * (C) Copyright 2003-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -31,6 +31,7 @@ using namespace std;
 
 #include "query.h"
 #include "eclass.h"
+#include "filedetails.h"
 
 class Identifier;
 
@@ -55,7 +56,7 @@ public:
 		 * For this second condition it is enough to check the identical files of one element
 		 */
 		Tokid amember(*(e->get_members().begin()));
-		xfile = e->sorted_files().size() > amember.get_fileid().get_identical_files().size();
+		xfile = e->sorted_files().size() > Filedetails::get_identical_files(amember.get_fileid()).size();
 	}
 	Identifier() : xfile(false), replaced(false), active(false) {}
 	string get_id() const { return id; }

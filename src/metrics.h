@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2015 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -36,10 +36,10 @@
 #ifndef METRICS_
 #define METRICS_
 
-#include <string>
-#include <vector>
 #include <limits>
 #include <ostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -47,6 +47,8 @@ using namespace std;
 #include "error.h"
 
 class Eclass;
+class Filedetails;
+class Call;
 
 // States while processing characters
 enum e_cfile_state {
@@ -296,14 +298,14 @@ public:
 		count(M::metric_max, v)
 	{}
 	double get_metric(int i)  const { return count[i]; }
-	// Add the details of file fi
-	template <class BinaryFunction>
+
 	// Update metrics summary
+	template <class BinaryFunction>
 	void add(E &fi, BinaryFunction f) {
 		nelement++;
 		for (int i = 0; i < M::metric_max; i++) {
-			count[i] = f(Filedetails::get_pre_cpp_metrics(fi).get_metric(i), count[i]);
-			count[i] = f(Filedetails::get_post_cpp_metrics(fi).get_metric(i), count[i]);
+			count[i] = f(fi.get_pre_cpp_metrics().get_metric(i), count[i]);
+			count[i] = f(fi.get_post_cpp_metrics().get_metric(i), count[i]);
 		}
 	}
 	int get_nelement() const { return nelement; }

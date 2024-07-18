@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2015 Diomidis Spinellis
+ * (C) Copyright 2003-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -114,6 +114,6 @@ FCall::set_current_fun(const Type &t)
 	    Pdtoken::macros_size());
 	nesting.push(cfun);
 	if (nesting.size() == 1)
-		Filedetails::add_function(Fchar::get_fileid().get_pre_cpp_metrics(), t.is_static());
+		Filedetails::get_pre_cpp_metrics(Fchar::get_fileid()).add_function(t.is_static());
 }
 

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -45,6 +45,7 @@
 #include "filemetrics.h"
 #include "attr.h"
 #include "fileid.h"
+#include "filedetails.h"
 #include "tokid.h"
 #include "token.h"
 #include "ctoken.h"
@@ -638,7 +639,7 @@ workdb_rest(Sql *db, ostream &of)
 			    << db->boolval(i->get_readonly());
 			for (int j = 0; j < FileMetrics::metric_max; j++)
 				if (!Metrics::is_internal<FileMetrics>(j))
-					cout << ',' << i->get_pre_cpp_metrics().get_metric(j);
+					cout << ',' << Filedetails::get_pre_cpp_metrics(*i).get_metric(j);
 			cout << ");\n";
 		}
 		// This invalidates the file's metrics
@@ -650,7 +651,7 @@ workdb_rest(Sql *db, ostream &of)
 				     << i->get_id() << ',' << j << ");\n";
 
 		// Copies of the file
-		const set <Fileid> &copies(i->get_identical_files());
+		const set <Fileid> &copies(Filedetails::get_identical_files(*i));
 		if (copies.size() > 1
 		    && table_is_enabled(t_filecopies)
 		    && copies.begin()->get_id() == i->get_id()) {

@@ -21,6 +21,7 @@ using namespace std;
 #include "query.h"
 #include "swill.h"
 #include "metrics.h"
+#include "filemetrics.h"
 
 template <class M, class E>
 class MQuery {

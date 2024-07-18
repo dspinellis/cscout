@@ -60,6 +60,7 @@
 #include "stab.h"
 #include "call.h"
 #include "mcall.h"
+#include "filedetails.h"
 #include "os.h"
 #include "ctag.h"
 #include "type.h"		// stab.h
@@ -646,7 +647,7 @@ Pdtoken::process_include(bool next)
 
 	if (skiplevel >= 1)
 		return;
-	Fchar::get_fileid().get_pre_cpp_metrics().add_incfile();
+	Filedetails::get_pre_cpp_metrics(Fchar::get_fileid()).add_incfile();
 	// Get tokens till end of line
 	Pltoken::set_context(cpp_include);
 	do {

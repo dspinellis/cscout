@@ -57,12 +57,13 @@
 #include "md5.h"
 #include "os.h"
 
-FI_id_to_details Fileid::i2d;	// From id to file details
+FI_id_to_details Filedetails::i2d;	// From id to file details
+FI_hash_to_ids Filedetails::identical_files; // Files that are exact duplicates
 
 Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 	name(n),
 	m_garbage_collected(false),
-	m_required(false),
+	required(false),
 	m_compilation_unit(false),
 	hash(h),
 	ipath_offset(0),
@@ -80,7 +81,7 @@ Filedetails::Filedetails() :
 }
 
 int
-Filedetails::line_number(streampos p) const
+Filedetails::get_line_number(streampos p) const
 {
 	return (upper_bound(line_ends.begin(), line_ends.end(), p) - line_ends.begin()) + 1;
 }
@@ -130,7 +131,7 @@ Filedetails::include_update_includer(const Fileid includer, bool directly, bool 
 }
 
 void
-Filedetails::process_line(bool processed)
+Filedetails::set_line_processed(bool processed)
 {
 	int lnum = Fchar::get_line_num() - 1;
 	int s = processed_lines.size();
@@ -152,7 +153,7 @@ Filedetails::process_line(bool processed)
 }
 
 int
-Filedetails::sed_hand_edited()
+Filedetails::set_hand_edited()
 {
 	ifstream in;
 
@@ -175,5 +176,60 @@ void
 Filedetails::clear_all_visited()
 {
 	for (FI_id_to_details::iterator i = i2d.begin(); i != i2d.end(); i++)
-		Filedetails::clear_visited(*i);
+		i->clear_visited();
+}
+
+// Read identifier tokens from file fname into tkov
+static void
+read_file(const string &fname, vector <Pltoken> &tokv)
+{
+	Fchar::set_input(fname);
+	Pltoken t;
+
+	for (;;) {
+		t.getnext<Fchar>();
+		switch (t.get_code()) {
+		case IDENTIFIER:
+			tokv.push_back(t);
+			break;
+		case EOF:
+			return;
+		}
+	}
+}
+
+/*
+ * Unify all identifiers in the files of fs
+ * The corresponding files should be exact duplicates
+ */
+static void
+unify_file_identifiers(const set<Fileid> &fs)
+{
+	csassert(fs.size() > 1);
+	Fileid fi = *(fs.begin());
+	fifstream in;
+	vector <Pltoken> ft0, ftn;	// The tokens to unify
+
+	read_file(fi.get_path(), ft0);
+
+	set <Fileid>::const_iterator fsi = fs.begin();
+	for (fsi++; fsi != fs.end(); fsi++) {
+		if (DP())
+			// endl ensures flushing
+			cout << "Merging identifiers of " << fi.get_path() << " and " << fsi->get_path() << endl;
+		read_file(fsi->get_path(), ftn);
+		csassert(ft0.size() == ftn.size());
+		vector <Pltoken>::iterator ti0, tin;
+		for (ti0 = ft0.begin(), tin = ftn.begin(); ti0 != ft0.end(); ti0++, tin++)
+			Token::unify(*ti0, *tin);
+		ftn.clear();
+	}
+}
+
+void
+Filedetails::unify_identical_files(void)
+{
+	for (FI_hash_to_ids::const_iterator i = identical_files.begin(); i != identical_files.end(); i++)
+		if (i->second.size() > 1)
+			unify_file_identifiers(i->second);
 }

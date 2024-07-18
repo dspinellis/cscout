@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -47,6 +47,7 @@
 #include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"
+#include "filedetails.h"
 #include "eclass.h"
 
 // Remove references to the equivalence class from the tokid map
@@ -155,7 +156,7 @@ Eclass::functions()
 	setTokid::const_iterator i;
 
 	for (i = members.begin(); i != members.end(); i++) {
-		FCallSet fc(i->get_fileid().get_functions());
+		FCallSet fc(Filedetails::get_functions(i->get_fileid()));
 		for (FCallSet::const_iterator j = fc.begin(); j != fc.end(); j++)
 			if ((*j)->is_span_valid() &&
 			    *i >= (*j)->get_begin().get_tokid() &&
@@ -175,7 +176,7 @@ Eclass::is_unused()
 		return (true);
 	// More complex case: see if all the members come from unified identical files
 	Tokid amember(*members.begin());
-	if (amember.get_fileid().get_identical_files().size() == members.size())
+	if (Filedetails::get_identical_files(amember.get_fileid()).size() == members.size())
 		return (true);
 	return (false);
 }
