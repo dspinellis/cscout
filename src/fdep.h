@@ -66,7 +66,7 @@ public:
 	// File includer includes the file included
 	static void add_include(Fileid includer, Fileid included, int lnum) {
 		includers[included].insert(includer);
-		includer.includes(included, /* directly included = */ true, /* used = */ false, lnum);
+		Filedetails::set_includes(includer, included, /* directly included = */ true, /* used = */ false, lnum);
 	}
 
 	// File f provides code or data

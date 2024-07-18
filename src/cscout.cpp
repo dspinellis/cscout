@@ -3664,7 +3664,7 @@ garbage_collect(Fileid root)
 	// Store them in a set to calculate set difference
 	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
 		if (*i != root && *i != input_file_id)
-			root.includes(*i, /* directly included (conservatively) */ false, i->required());
+			Filedetails::set_includes(root, *i, /* directly included (conservatively) */ false, i->required());
 	if (process_mode == pm_database)
 		Fdep::dumpSql(Sql::getInterface(), root);
 	Fdep::reset();

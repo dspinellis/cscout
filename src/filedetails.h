@@ -235,7 +235,7 @@ public:
 	 * A false value in the Boolean flags can simply mean "don't know" and
 	 * can be later upgraded to true.
 	 */
-	static void includes(Fileid id, const Fileid f, bool directly, bool required, int line = -1) {
+	static void set_includes(Fileid id, const Fileid f, bool directly, bool required, int line = -1) {
 		get_instance(id).include_update_included(f, directly, required, line);
 		get_instance(f.get_id()).include_update_includer(id, directly, required, line);
 	}
