@@ -382,7 +382,7 @@ file_analyze(Fileid fi)
 			cfun->get_pre_cpp_metrics().process_char((char)val);
 		if (c == '\n') {
 			fi.add_line_end(ti.get_streampos());
-			if (!fi.is_processed(++line_number))
+			if (!Filedetails::is_processed(fi, ++line_number))
 				Filedetails::get_pre_cpp_metrics(fi).add_unprocessed();
 		}
 	}
@@ -452,7 +452,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 			break;
 		if (at_bol) {
 			fprintf(of,"<a name=\"%d\"></a>", line_number);
-			if (mark_unprocessed && !fi.is_processed(line_number))
+			if (mark_unprocessed && !Filedetails::is_processed(fi, line_number))
 				fprintf(of, "<span class=\"unused\">");
 			if (Option::show_line_number->get()) {
 				char buff[50];
@@ -502,7 +502,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 		fprintf(of, "%s", html((char)val));
 		if ((char)val == '\n') {
 			at_bol = true;
-			if (mark_unprocessed && !fi.is_processed(line_number))
+			if (mark_unprocessed && !Filedetails::is_processed(fi, line_number))
 				fprintf(of, "</span>");
 			line_number++;
 		}
