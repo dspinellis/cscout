@@ -114,6 +114,6 @@ FCall::set_current_fun(const Type &t)
 	    Pdtoken::macros_size());
 	nesting.push(cfun);
 	if (nesting.size() == 1)
-		Fchar::get_fileid().get_pre_cpp_metrics().add_function(t.is_static());
+		Filedetails::add_function(Fchar::get_fileid().get_pre_cpp_metrics(), t.is_static());
 }
 

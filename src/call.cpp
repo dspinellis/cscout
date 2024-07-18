@@ -213,7 +213,7 @@ Call::mark_end()
 		return;
 	end = Fchar::get_context();
 	if (is_span_valid())
-		end.get_tokid().get_fileid().add_function(this);
+		Filedetails::add_function(end.get_tokid().get_fileid(), this);
 	pre_cpp_metrics.summarize_operators();
 	pre_cpp_metrics.done_processing();
 }
