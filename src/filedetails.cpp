@@ -45,6 +45,7 @@
 #include "attr.h"
 #include "metrics.h"
 #include "fileid.h"
+#include "filedetails.h"
 #include "tokid.h"
 #include "fchar.h"
 #include "token.h"
@@ -168,4 +169,11 @@ Filedetails::hand_edit()
 		cout << '[' << contents << ']' << endl;
 	hand_edited = true;
 	return 0;
+}
+
+void
+Filedetails::clear_all_visited()
+{
+	for (FI_id_to_details::iterator i = i2d.begin(); i != i2d.end(); i++)
+		i->clear_visited();
 }

@@ -62,15 +62,6 @@ FI_hash_to_ids Fileid::identical_files;// Files that are exact duplicates
 Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
 list <string> Fileid::ro_prefix;	// Read-only prefix
 
-// Clear the maps
-void
-Fileid::clear()
-{
-	u2i.clear();
-	i2d.clear();
-	Fileid::anonymous = Fileid("ANONYMOUS", 0);
-}
-
 #ifdef WIN32
 // Return the canonical representation of a WIN32 filename character
 char
@@ -126,7 +117,7 @@ Fileid::Fileid(const string &name)
 		FileHash hash(h, h + 16);
 
 		u2i[sid] = id = counter++;
-		i2d.push_back(Filedetails(fpath, is_readonly(name.c_str()), hash));
+		Filedetails::add_instance(fpath, is_readonly(name.c_str()), hash);
 
 		identical_files[hash].insert(*this);
 	}
@@ -138,8 +129,7 @@ Fileid::Fileid(const string &name)
 Fileid::Fileid(const string &name, int i)
 {
 	u2i[name] = i;
-	i2d.resize(i + 1);
-	i2d[i] = Filedetails(name, true, FileHash());
+	Filedetails::add_instance(name, true, FileHash());
 	id = i;
 	identical_files[FileHash()].insert(*this);
 	counter = i + 1;
@@ -148,13 +138,13 @@ Fileid::Fileid(const string &name, int i)
 const string&
 Fileid::get_path() const
 {
-	return i2d[id].get_name();
+	return Filedetails::get_instance(id).get_name();
 }
 
 const string
 Fileid::get_fname() const
 {
-	const string &path = i2d[id].get_name();
+	const string &path = Filedetails::get_instance(id).get_name();
 	string::size_type slash = path.find_last_of("/\\");
 	if (slash == string::npos)
 		return string(path);
@@ -165,7 +155,7 @@ Fileid::get_fname() const
 const string
 Fileid::get_dir() const
 {
-	const string &path = i2d[id].get_name();
+	const string &path = Filedetails::get_instance(id).get_name();
 	string::size_type slash = path.find_last_of("/\\");
 	if (slash == string::npos)
 		return string(path);
@@ -176,33 +166,27 @@ Fileid::get_dir() const
 bool
 Fileid::get_readonly() const
 {
-	return i2d[id].get_readonly();
+	return Filedetails::get_instance(id).get_readonly();
 }
 
 void
 Fileid::set_readonly(bool r)
 {
-	i2d[id].set_readonly(r);
+	Filedetails::get_instance(id).set_readonly(r);
 }
 
-// Return a sorted list of all filenames used
+// Return an (optionally sorted) list of all filenames used
 vector <Fileid>
 Fileid::files(bool sorted)
 {
-	vector <Fileid> r(i2d.size() - 1);
+	// Exclude the anonymous entry
+	vector <Fileid> r(Filedetails::get_i2d_map_size() - 1);
 
 	for (vector <Fileid>::size_type i = 0; i < r.size(); i++)
 		r[i] = Fileid(i + 1);
 	if (sorted)
 		sort(r.begin(), r.end(), fname_order());
 	return (r);
-}
-
-void
-Fileid::clear_all_visited()
-{
-	for (FI_id_to_details::iterator i = i2d.begin(); i != i2d.end(); i++)
-		i->clear_visited();
 }
 
 // Read identifier tokens from file fname into tkov

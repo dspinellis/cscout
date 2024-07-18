@@ -2038,7 +2038,7 @@ single_file_graph(char gtype, EdgeMatrix &edges)
 	if (!swill_getargs("i(f)", &id) || !ltype)
 		return false;
 	Fileid fileid(id);
-	Fileid::clear_all_visited();
+	Filedetails::clear_all_visited();
 	// No output, just set the visited flag
 	switch (gtype) {
 	case 'I':		// Include graph
@@ -2205,7 +2205,7 @@ fgraph_page(GraphDisplay *gd)
 			int size = Fileid::max_id() + 1;
 			edges.insert(edges.begin(), size, vector<bool>(size, 0));
 			// Fill the edges for all files
-			Fileid::clear_all_visited();
+			Filedetails::clear_all_visited();
 			for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 				if (i->is_visited())
 					continue;
