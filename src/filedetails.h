@@ -200,7 +200,7 @@ public:
 	static bool required(Fileid id) const { return get_instance(id).required(); }
 	// Get/set compilation_unit property (for include files)
 	static void set_compilation_unit(Fileid id, bool v) { get_instance(id).set_compilation_unit(v); }
-	static bool compilation_unit(Fileid id) const { return get_instance(id).compilation_unit(); }
+	static bool is_compilation_unit(Fileid id) const { return get_instance(id).compilation_unit(); }
 	// Mark a line as processed
 	void process_line(bool processed) {get_instance(id).process_line(processed); }
 	// Return true if a line is processed

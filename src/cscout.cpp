@@ -3161,7 +3161,7 @@ warning_report()
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (i->get_readonly() ||		// Don't report on RO files
-		    !i->compilation_unit() ||		// Algorithm only works for CUs
+		    !Filedetails::is_compilation_unit(*i) ||		// Algorithm only works for CUs
 		    *i == input_file_id ||		// Don't report on main file
 		    i->get_includers().size() > 1)	// For files that are both CUs and included
 							// by others all bets are off
