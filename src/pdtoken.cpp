@@ -735,7 +735,7 @@ Pdtoken::process_include(bool next)
 		vectorstring::iterator i;
 		i = include_path.begin();
 		if (next)
-			i += Fchar::get_fileid().get_ipath_offset() + 1;
+			i += Filedetails::get_ipath_offset(Fchar::get_fileid()) + 1;
 		for (; i < include_path.end(); i++) {
 			string fname(*i + "/" + f.get_val());
 			if (DP()) cout << "Try open " << fname << "\n";
