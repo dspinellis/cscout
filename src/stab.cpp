@@ -225,7 +225,7 @@ obj_define(const Token& tok, Type typ)
 				Token::unify(id->get_token(), tok);
 			}
 			if (!typ.is_cfunction())
-				Fchar::get_fileid().get_post_cpp_metrics().add_fvar();
+				Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_fvar();
 			break;
 		case c_typedef:
 			tok.set_ec_attribute(is_cscope);
@@ -237,7 +237,7 @@ obj_define(const Token& tok, Type typ)
 			break;
 		default:
 			if (!typ.is_cfunction())
-				Fchar::get_fileid().get_post_cpp_metrics().add_pvar();
+				Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_pvar();
 			tok.set_ec_attribute(is_lscope);
 			break;
 		}

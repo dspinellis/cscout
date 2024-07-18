@@ -303,7 +303,7 @@ public:
 		nelement++;
 		for (int i = 0; i < M::metric_max; i++) {
 			count[i] = f(Filedetails::get_pre_cpp_metrics(fi).get_metric(i), count[i]);
-			count[i] = f(fi.get_post_cpp_metrics().get_metric(i), count[i]);
+			count[i] = f(Filedetails::get_post_cpp_metrics(fi).get_metric(i), count[i]);
 		}
 	}
 	int get_nelement() const { return nelement; }

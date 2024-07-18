@@ -194,7 +194,7 @@ Fchar::getnext()
 		if (val == EOF) {
 			total_lines += line_number;
 			Filedetails::get_pre_cpp_metrics(fi).done_processing();
-			fi.get_post_cpp_metrics().done_processing();
+			Filedetails::get_post_cpp_metrics(fi).done_processing();
 			fi.set_attribute(Project::get_current_projid());
 			if (DP())
 				cout << "Set projid for " << fi.get_path() << " = " << Project::get_current_projid() << "\n";

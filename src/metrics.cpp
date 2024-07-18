@@ -239,6 +239,6 @@ Metrics::call_pre_cpp_metrics(void (Metrics::*fun)())
 void
 Metrics::call_post_cpp_metrics(void (Metrics::*fun)())
 {
-	(Fchar::get_fileid().get_post_cpp_metrics().*fun)();
+	(Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).*fun)();
 	Call::call_post_cpp_metrics(fun);
 }
