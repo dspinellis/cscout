@@ -325,7 +325,7 @@ file_analyze(Fileid fi)
 
 		char c = (char)val;
 		mapTokidEclass::iterator ei;
-		enum e_cfile_state cstate = fi.get_pre_cpp_metrics().get_state();
+		enum e_cfile_state cstate = Filedetails::get_pre_cpp_metrics(fi).get_state();
 		if (cstate != s_block_comment &&
 		    cstate != s_string &&
 		    cstate != s_cpp_comment &&
@@ -350,7 +350,7 @@ file_analyze(Fileid fi)
 				int len = ec->get_len();
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
-				fi.get_pre_cpp_metrics().process_id(s, ec);
+				Filedetails::get_pre_cpp_metrics(fi).process_id(s, ec);
 				if (cfun)
 					cfun->get_pre_cpp_metrics().process_id(s, ec);
 				/*
@@ -377,20 +377,20 @@ file_analyze(Fileid fi)
 				delete ec;
 			}
 		}
-		fi.get_pre_cpp_metrics().process_char((char)val);
+		Filedetails::get_pre_cpp_metrics(fi).process_char((char)val);
 		if (cfun)
 			cfun->get_pre_cpp_metrics().process_char((char)val);
 		if (c == '\n') {
 			fi.add_line_end(ti.get_streampos());
 			if (!fi.is_processed(++line_number))
-				fi.get_pre_cpp_metrics().add_unprocessed();
+				Filedetails::get_pre_cpp_metrics(fi).add_unprocessed();
 		}
 	}
 	if (cfun)
 		cfun->get_pre_cpp_metrics().summarize_identifiers();
-	fi.get_pre_cpp_metrics().set_ncopies(fi.get_identical_files().size());
+	Filedetails::get_pre_cpp_metrics(fi).set_ncopies(fi.get_identical_files().size());
 	if (DP())
-		cout << "nchar = " << fi.get_pre_cpp_metrics().get_metric(Metrics::em_nchar) << endl;
+		cout << "nchar = " << Filedetails::get_pre_cpp_metrics(fi).get_metric(Metrics::em_nchar) << endl;
 	in.close();
 	return has_unused;
 }
@@ -2746,7 +2746,7 @@ file_page(FILE *of, void *p)
 	fprintf(of, "</ul>\n");
 	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), i.get_pre_cpp_metrics().get_metric(j));
+		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), Filedetails::get_pre_cpp_metrics(i).get_metric(j));
 	fprintf(of, "</table>\n");
 	html_tail(of);
 }

@@ -267,7 +267,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
 			insert_eclass(db, of, ec, s);
-			fid.get_pre_cpp_metrics().process_id(s, ec);
+			Filedetails::get_pre_cpp_metrics(fid).process_id(s, ec);
 			chunker.flush();
 			if (table_is_enabled(t_tokens))
 				of << "INSERT INTO TOKENS VALUES("
@@ -275,7 +275,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 				    << (unsigned)ti.get_streampos() << ","
 				    << ptr_offset(ec) << ");\n";
 		} else {
-			fid.get_pre_cpp_metrics().process_char(c);
+			Filedetails::get_pre_cpp_metrics(fid).process_char(c);
 			if (c == '\n') {
 				at_bol = true;
 				bol = in.tellg();
