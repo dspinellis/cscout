@@ -431,7 +431,7 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 	if (DP())
 		cout << "Write to " << fname << endl;
 	if (fi.is_hand_edited()) {
-		in = new istringstream(fi.get_original_contents());
+		in = new istringstream(Filedetails::get_original_contents(fi));
 		fputs("<p>This file has been edited by hand. The following code reflects the contents before the first CScout-invoked hand edit.</p>", of);
 	} else {
 		in = new ifstream(fname.c_str(), ios::binary);
