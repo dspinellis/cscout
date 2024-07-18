@@ -40,6 +40,7 @@ using namespace std;
  * in order to keep *values.begin() invariant.
  * This property is used by tokid unique for returning unique tokids
  */
+typedef vector<unsigned char> FileHash;
 typedef map <FileHash, set<Fileid> > FI_hash_to_ids;
 
 // Details we keep for each included file for a given includer
@@ -94,7 +95,7 @@ private:
 	vector <bool> processed_lines;;
 	FileIncMap includes;	// Files we include
 	FileIncMap includers;	// Files that include us
-	FileHash hash;			// MD5 hash for the file's contents
+	FileHash hash;		// MD5 hash for the file's contents
 	int ipath_offset;	// Offset in the include file path where this file was found
 	Fileidset runtime_uses;	// Files whose global objects this file uses at runtime
 	Fileidset runtime_used_by;	// Files that use at runtime this file's global objects
@@ -107,7 +108,8 @@ private:
 	bool visited;                   // For calculating transitive closures
 
 	static FI_id_to_details i2d;	// From id to file details
-	static FI_hash_to_ids identical_files;// Files that are exact duplicates
+	// Return map of files that are exact duplicates
+	static FI_hash_to_ids& get_identical_files();
 public:
 	Attributes attr;		// The projects this file participates in
 	FileMetrics pre_cpp_metrics;	// File's metrics before cpp
@@ -127,8 +129,8 @@ public:
 	}
 
 	// Add a new instance with the specified ctor values
-	static void add_instance(string n, bool r, const FileHash &h) {
-		i2d.emplace_back(n, r, h);
+	static void add_instance(string n, bool r, const FileHash &hash) {
+		i2d.emplace_back(n, r, hash);
 	}
 
 	// Unify identifiers of files that are exact copies
@@ -138,8 +140,9 @@ public:
 	static void clear_all_visited();
 
 	// Add fi to the set of files that have the identical hash
-	static void add_identical_file(FileHash hash, Fileid fi) {
-		identical_files[hash].insert(fi);
+	static void add_identical_file(const FileHash &hash, Fileid fi) {
+		auto &file_set = get_identical_files()[hash];
+		file_set.insert(fi);
 	}
 
 	const string& get_name() const { return name; }
@@ -271,7 +274,7 @@ public:
 ;
 	// Return the set of files that are the same as this (including this)
 	static const Fileidset & get_identical_files(Fileid id) {
-		return identical_files[get_instance(id).get_filehash()];
+		return get_identical_files()[get_instance(id).get_filehash()];
 	}
 
 	// Return the set of files that we depend on for runtime objects
