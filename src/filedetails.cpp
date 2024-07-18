@@ -58,7 +58,17 @@
 #include "os.h"
 
 FI_id_to_details Filedetails::i2d;	// From id to file details
-FI_hash_to_ids Filedetails::identical_files; // Files that are exact duplicates
+
+/*
+ * Return a map of files that are exact duplicates, controlling the order
+ * of its construction through the "Construct on First Use" idiom.
+ */
+FI_hash_to_ids &
+Filedetails::get_identical_files()
+{
+	static FI_hash_to_ids identical_files;
+	return identical_files;
+}
 
 Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 	name(n),
@@ -229,7 +239,7 @@ unify_file_identifiers(const set<Fileid> &fs)
 void
 Filedetails::unify_identical_files(void)
 {
-	for (FI_hash_to_ids::const_iterator i = identical_files.begin(); i != identical_files.end(); i++)
+	for (FI_hash_to_ids::const_iterator i = get_identical_files().begin(); i != get_identical_files().end(); i++)
 		if (i->second.size() > 1)
 			unify_file_identifiers(i->second);
 }

@@ -58,9 +58,30 @@
 #include "os.h"
 
 int Fileid::counter;		// To generate ids
-FI_uname_to_id Fileid::u2i;	// From unique name to id
-Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
 list <string> Fileid::ro_prefix;	// Read-only prefix
+					//
+/*
+ * Return the anonymous id, controlling the order of its construction
+ * through the "Construct on First Use" idiom.
+ */
+Fileid
+Fileid::get_anonymous()
+{
+	static Fileid anonymous(Fileid("ANONYMOUS", 0));
+	return anonymous;
+}
+
+/*
+ * Return the map from unique name to id, controlling the order of its
+ * construction through the "Construct on First Use" idiom.
+ */
+FI_uname_to_id &
+Fileid::get_u2i()
+{
+	static FI_uname_to_id u2i;
+	return u2i;
+}
+
 
 #ifdef WIN32
 // Return the canonical representation of a WIN32 filename character
@@ -107,7 +128,7 @@ Fileid::Fileid(const string &name)
 	string sid(get_uniq_fname_string(name.c_str()));
 	FI_uname_to_id::const_iterator uni;
 
-	if ((uni = u2i.find(sid)) != u2i.end()) {
+	if ((uni = get_u2i().find(sid)) != get_u2i().end()) {
 		// Filename exists; our id is the one from the map
 		id = uni->second;
 	} else {
@@ -116,7 +137,7 @@ Fileid::Fileid(const string &name)
 		unsigned char *h = MD5File(name.c_str());
 		FileHash hash(h, h + 16);
 
-		u2i[sid] = id = counter++;
+		get_u2i()[sid] = id = counter++;
 		Filedetails::add_instance(fpath, is_readonly(name.c_str()), hash);
 
 		Filedetails::add_identical_file(hash, *this);
@@ -125,10 +146,10 @@ Fileid::Fileid(const string &name)
 		cout << "Fileid(" << name << ") = " << id << "\n";
 }
 
-// User for initialization and testing; not for real files
+// Used for initialization and testing; not for real files
 Fileid::Fileid(const string &name, int i)
 {
-	u2i[name] = i;
+	get_u2i()[name] = i;
 	Filedetails::add_instance(name, true, FileHash());
 	id = i;
 	Filedetails::add_identical_file(FileHash(), *this);
