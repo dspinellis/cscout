@@ -3619,7 +3619,7 @@ garbage_collect(Fileid root)
 		touched_files.insert(fi);
 
 		if (!monitor.is_valid()) {
-			Filedetails::set_gc(fi, true);	// Mark the file as garbage collected
+			Filedetails::set_garbage_collected(fi, true);	// Mark the file as garbage collected
 			continue;
 		}
 
@@ -3652,7 +3652,7 @@ garbage_collect(Fileid root)
 			}
 		}
 		in.close();
-		Filedetails::set_gc(fi, true);	// Mark the file as garbage collected
+		Filedetails::set_garbage_collected(fi, true);	// Mark the file as garbage collected
 	}
 	if (DP())
 		cout << "Garbage collected " << count << " out of " << sum << " ECs" << endl;
