@@ -60,9 +60,9 @@
 
 Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 	name(n),
-	m_garbage_collected(false),
+	garbage_collected(false),
 	required(false),
-	m_compilation_unit(false),
+	compilation_unit(false),
 	hash(h),
 	ipath_offset(0),
 	hand_edited(false),
@@ -72,7 +72,7 @@ Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 }
 
 Filedetails::Filedetails() :
-	m_compilation_unit(false),
+	compilation_unit(false),
 	ipath_offset(0),
 	hand_edited(false)
 {

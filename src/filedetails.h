@@ -84,9 +84,9 @@ typedef set <Fileid> Fileidset;
 class Filedetails {
 private:
 	string name;	// File name (complete path)
-	bool m_garbage_collected;	// When postprocessing files to garbage collect ECs
+	bool garbage_collected;	// When postprocessing files to garbage collect ECs
 	bool required;		// When postprocessing files actually required (containing definitions)
-	bool m_compilation_unit;	// This file is a compilation unit (set by gc)
+	bool compilation_unit;	// This file is a compilation unit (set by gc)
 	// Line end offsets; collected during postprocessing
 	// when we are generating warning reports
 	vector <streampos> line_ends;
@@ -146,12 +146,12 @@ public:
 	bool get_readonly() { return attr.get_attribute(is_readonly); }
 	const FileHash & get_filehash() const { return hash; }
 	void set_readonly(bool r) { attr.set_attribute_val(is_readonly, r); }
-	bool garbage_collected() const { return m_garbage_collected; }
-	void set_gc(bool r) { m_garbage_collected = r; }
+	bool is_garbage_collected() const { return garbage_collected; }
+	void set_garbage_collected(bool r) { garbage_collected = r; }
 	bool is_required() const { return required; }
 	void set_required(bool r) { required = r; }
-	bool compilation_unit() const { return m_compilation_unit; }
-	void set_compilation_unit(bool r) { m_compilation_unit = r; }
+	bool is_compilation_unit() const { return compilation_unit; }
+	void set_compilation_unit(bool r) { compilation_unit = r; }
 	void set_line_processed(bool processed);
 	bool is_line_processed(unsigned line) const {
 		return line <= processed_lines.size() &&
@@ -233,12 +233,12 @@ public:
 	}
 
 	// Get/set the garbage collected property
-	static void set_gc(Fileid id, bool v) {
-		get_instance(id).set_gc(v);
+	static void set_garbage_collected(Fileid id, bool v) {
+		get_instance(id).set_garbage_collected(v);
 	}
 
 	static bool is_garbage_collected(Fileid id) {
-		return get_instance(id).garbage_collected();
+		return get_instance(id).is_garbage_collected();
 	}
 
 	// Get/set required property (for include files)
@@ -256,7 +256,7 @@ public:
 	}
 
 	static bool is_compilation_unit(Fileid id) {
-		return get_instance(id).compilation_unit();
+		return get_instance(id).is_compilation_unit();
 	}
 
 	// Mark a line as processed
