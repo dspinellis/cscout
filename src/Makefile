@@ -36,7 +36,8 @@ OBJBASE=eclass.o fchar.o filedetails.o fileid.o pdtoken.o pltoken.o debug.o \
   error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
   logo.o workdb.o obfuscate.o sql.o md5.o os.o pager.o \
   option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
-  dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o timer.o
+  dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o timer.o \
+  static_init.o
 
 # monitor.o
 
@@ -63,7 +64,7 @@ CFILES=md5.c attr.cpp call.cpp cscout.cpp ctag.cpp ctconst.cpp \
   logo.cpp macro.cpp mcall.cpp metrics.cpp obfuscate.cpp option.cpp os.cpp \
   pager.cpp pdtoken.cpp pltoken.cpp ptoken.cpp query.cpp simple_cpp.cpp \
   sql.cpp stab.cpp tchar.cpp timer.cpp token.cpp tokid.cpp \
-  tokmap.cpp type.cpp workdb.cpp
+  tokmap.cpp type.cpp workdb.cpp static_init.cpp
 
 HEADERS=attr.h call.h compiledre.h cpp.h ctag.h ctconst.h ctoken.h \
   debug.h defs.h dirbrowse.h eclass.h error.h eval.h fcall.h fchar.h fdep.h \

@@ -29,6 +29,7 @@
 #include <list>
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -36,6 +37,7 @@ using namespace std;
 class Fchar;
 class FileMetrics;
 
+typedef vector<unsigned char> FileHash;
 typedef map <string, int> FI_uname_to_id;
 
 /*
@@ -49,19 +51,13 @@ private:
 	int id;				// One global unique id per workspace file
 
 	static int counter;		// To generate ids
-	// Return map from unique name to id
-	static FI_uname_to_id& get_u2i();
+	static FI_uname_to_id u2i;	// From unique name to id
 
 	// Construct a new Fileid given a name and id value
 	// Only used internally for creating the anonymous id
 	Fileid(const string& name, int id);
-
-	/*
-	 * Return an anonymous id, controlling the order of its construction
-	 * through the "Construct on First Use" idiom.
-	 */
-	static Fileid get_anonymous();
-
+	// An anonymous id
+	static Fileid anonymous;
 	// The prefix for read-only files
 	static list <string> ro_prefix;
 	// And a function to check fnames against it
@@ -73,7 +69,7 @@ public:
 	// Create it without any checking from an integer
 	Fileid(int i) : id(i) {}
 	// Construct an anonymous Fileid
-	Fileid() { *this = get_anonymous(); };
+	Fileid() { *this = Fileid::anonymous; };
 	// Return the full file path of a given id
 	const string& get_path() const;
 	const string get_fname() const;

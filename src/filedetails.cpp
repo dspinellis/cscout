@@ -57,27 +57,6 @@
 #include "md5.h"
 #include "os.h"
 
-/*
- * Return the map from file id to file details, controlling the order of its
- * construction through the "Construct on First Use" idiom.
- */
-FI_id_to_details &
-Filedetails::get_i2d()
-{
-	static FI_id_to_details i2d;
-	return i2d;
-}
-
-/*
- * Return a map of files that are exact duplicates, controlling the order
- * of its construction through the "Construct on First Use" idiom.
- */
-FI_hash_to_ids &
-Filedetails::get_identical_files()
-{
-	static FI_hash_to_ids identical_files;
-	return identical_files;
-}
 
 Filedetails::Filedetails(string n, bool r, const FileHash &h) :
 	name(n),
@@ -194,7 +173,7 @@ Filedetails::set_hand_edited()
 void
 Filedetails::clear_all_visited()
 {
-	for (FI_id_to_details::iterator i = get_i2d().begin(); i != get_i2d().end(); i++)
+	for (FI_id_to_details::iterator i = i2d.begin(); i != i2d.end(); i++)
 		i->clear_visited();
 }
 
@@ -248,7 +227,7 @@ unify_file_identifiers(const set<Fileid> &fs)
 void
 Filedetails::unify_identical_files(void)
 {
-	for (FI_hash_to_ids::const_iterator i = get_identical_files().begin(); i != get_identical_files().end(); i++)
+	for (FI_hash_to_ids::const_iterator i = identical_files.begin(); i != identical_files.end(); i++)
 		if (i->second.size() > 1)
 			unify_file_identifiers(i->second);
 }
