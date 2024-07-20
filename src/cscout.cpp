@@ -350,9 +350,9 @@ file_analyze(Fileid fi)
 				int len = ec->get_len();
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
-				Filedetails::get_pre_cpp_metrics(fi).process_id(s, ec);
+				Filedetails::get_pre_cpp_metrics(fi).process_identifier(s, ec);
 				if (cfun)
-					cfun->get_pre_cpp_metrics().process_id(s, ec);
+					cfun->get_pre_cpp_metrics().process_identifier(s, ec);
 				/*
 				 * ids[ec] = Identifier(ec, s);
 				 * Efficiently add s to ids, if needed.

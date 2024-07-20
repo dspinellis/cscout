@@ -98,7 +98,7 @@ IdMetricsSummary id_msum;
 
 // Called for every identifier
 void
-Metrics::process_id(const string &s, Eclass *ec)
+Metrics::process_identifier(const string &s, Eclass *ec)
 {
 	count[em_nchar] += s.length();
 	currlinelen += s.length();

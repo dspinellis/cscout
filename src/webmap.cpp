@@ -171,7 +171,7 @@ file_hypertext(ofstream &of, ofstream &uof, Fileid fi, bool write_uof)
 				for (int j = 1; j < len; j++)
 					s += (char)in.get();
 				Identifier i(ec, s);
-				fi.metrics().process_id(s);
+				fi.metrics().process_identifier(s);
 				ids.insert(i);
 				html_id(of, i);
 				if (ec->get_size() == 1) {

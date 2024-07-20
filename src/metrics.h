@@ -26,7 +26,7 @@
  * overhead will be incured exactly once for each file.
  *
  * During postprocessing call:
- * process_char() or process_id() while going through each file
+ * process_char() or process_identifier() while going through each file
  * msum.add_unique_id once() for every EC
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
@@ -172,7 +172,7 @@ public:
 	// Called for all file characters appart from identifiers
 	void process_char(char c);
 	// Called for every identifier
-	void process_id(const string &s, Eclass *ec);
+	void process_identifier(const string &s, Eclass *ec);
 	// Called when encountering unprocessed lines
 	void add_unprocessed() { count[em_nuline]++; }
 

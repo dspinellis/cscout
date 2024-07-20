@@ -145,9 +145,9 @@ FunMetrics::summarize_identifiers()
 }
 // Called for every identifier
 void
-FunMetrics::process_id(const string &s, Eclass *ec)
+FunMetrics::process_identifier(const string &s, Eclass *ec)
 {
-	Metrics::process_id(s, ec);
+	Metrics::process_identifier(s, ec);
 	if (!ec)
 		return;
 	if (ec->get_attribute(is_lscope)) {
