@@ -31,8 +31,11 @@
 
 using namespace std;
 
+#include "fchar.h"
 #include "fileid.h"
 #include "filemetrics.h"
+#include "token.h"
+#include "ctoken.h"
 
 /*
  * This is used for keeping identical files
@@ -357,6 +360,13 @@ public:
 	// Should be called before hand-editing.  Return 0 if OK, !0 on error.
 	static int set_hand_edited(Fileid id) {
 		return get_instance(id).set_hand_edited(); }
+
+	// Process a token destined for C-proper parsing
+	static inline void process_post_cpp_token(const Ctoken &t) {
+		auto metrics = get_post_cpp_metrics(Fchar::get_fileid());
+		if (!metrics.is_processed())
+			metrics.process_token(t);
+	}
 };
 
 // Add file that this file uses at runtime
