@@ -268,7 +268,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			for (int j = 1; j < len; j++)
 				s += (char)in.get();
 			insert_eclass(db, of, ec, s);
-			Filedetails::get_pre_cpp_metrics(fid).process_id(s, ec);
+			Filedetails::get_pre_cpp_metrics(fid).process_identifier(s, ec);
 			chunker.flush();
 			if (table_is_enabled(t_tokens))
 				of << "INSERT INTO TOKENS VALUES("

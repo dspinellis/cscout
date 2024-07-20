@@ -28,7 +28,7 @@
  * Before preprocessing call:
  * process_token(int code) for every token recognized
  * During postprocessing call:
- * process_char() or process_id() while going through each file
+ * process_char() or process_identifier() while going through each file
  * summarize_identifiers() at the end of each function
  *
  */
@@ -95,7 +95,7 @@ public:
 	virtual ~FunMetrics() {}
 
 	// Called for every identifier (override Metrics method)
-	void process_id(const string &s, Eclass *ec);
+	void process_identifier(const string &s, Eclass *ec);
 	// Summarize the operators collected by process_token
 	void summarize_operators();
 	// Summarize the identifiers collected by process_id
