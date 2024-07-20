@@ -25,12 +25,6 @@
  * This design also ensures that the character-based metrics processing
  * overhead will be incured exactly once for each file.
  *
- * Before preprocessing call:
- * process_token(int code) for every token recognized
- * During postprocessing call:
- * process_char() or process_identifier() while going through each file
- * summarize_identifiers() at the end of each function
- *
  */
 
 #ifndef FUNMETRICS_
@@ -51,10 +45,6 @@ class FunMetrics : public Metrics {
 private:
 	static MetricDetails metric_details[];	// Descriptions of the metrics we store
 
-	set <Eclass *> pids;			// Project-scope dentifiers used in the function
-	set <Eclass *> fids;			// File-scope identifiers used in the function
-	set <Eclass *> mids;			// Macro identifiers used in the function
-	set <Eclass *> ids;			// Identifiers used in the function
 	Call *call;				// Associated function
 
 public:
@@ -94,12 +84,8 @@ public:
 	virtual double get_metric(int i) const;
 	virtual ~FunMetrics() {}
 
-	// Called for every identifier (override Metrics method)
-	void process_identifier(const string &s, Eclass *ec);
 	// Summarize the operators collected by process_token
 	void summarize_operators();
-	// Summarize the identifiers collected by process_id
-	void summarize_identifiers();
 	// Update the level of nesting
 	void update_nesting(int nesting) { if (nesting > count[em_maxnest]) count[em_maxnest] = nesting; }
 

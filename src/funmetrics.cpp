@@ -130,45 +130,6 @@ FunMetrics::summarize_operators()
 	operators.clear();
 }
 
-// Summarize the identifiers collected by process_id
-void
-FunMetrics::summarize_identifiers()
-{
-	count[em_nupid] = pids.size();
-	pids.clear();
-	count[em_nufid] = fids.size();
-	fids.clear();
-	count[em_numid] = mids.size();
-	mids.clear();
-	count[em_nuid] = ids.size();
-	ids.clear();
-}
-// Called for every identifier
-void
-FunMetrics::process_identifier(const string &s, Eclass *ec)
-{
-	Metrics::process_identifier(s, ec);
-	if (!ec)
-		return;
-	if (ec->get_attribute(is_lscope)) {
-		count[em_npid]++;
-		pids.insert(ec);
-	}
-	if (ec->get_attribute(is_cscope)) {
-		count[em_nfid]++;
-		fids.insert(ec);
-	}
-	if (ec->get_attribute(is_macro)) {
-		count[em_nmid]++;
-		mids.insert(ec);
-	}
-	count[em_nlabid] += ec->get_attribute(is_label);
-	if (ec->get_attribute(is_ordinary) || ec->get_attribute(is_macro)) {
-		count[em_nid]++;
-		ids.insert(ec);
-	}
-}
-
 // Global metrics
 FunMetricsSummary fun_msum;
 
