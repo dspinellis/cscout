@@ -81,13 +81,13 @@ private:
 	vector <Token> queued_identifiers;
 
 	// Int-indexed map of tokens that are operators
-	static vector<bool> &is_operator_map;
+	static vector<bool> is_operator_map;
 	// Return true if token op is an operator
 	static inline bool is_operator(unsigned op) { return op < is_operator_map.size() && is_operator_map[op]; }
 	// Add an operator to the map
 	static inline void add_operator(vector<bool> &v, unsigned op);
 	// Initialize map
-	static vector<bool> &make_is_operator();
+	static vector<bool> make_is_operator();
 protected:
 	vector <int> count;	// Metric counts
 	set <int> operators;	// Operators used in the function/file

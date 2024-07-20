@@ -38,7 +38,7 @@
 #include "pltoken.h"
 #include "call.h"
 
-vector<bool> &Metrics::is_operator_map = make_is_operator();
+vector<bool> Metrics::is_operator_map(make_is_operator());
 KeywordMetrics::map_type KeywordMetrics::map(make_keyword_map());
 
 MetricDetails Metrics::metric_details[] = {
@@ -310,10 +310,10 @@ Metrics::add_operator(vector<bool> &v, unsigned op)
 }
 
 // Create an integer-indexed map indicating which tokens represent operators
-vector<bool> &
+vector<bool>
 Metrics::make_is_operator()
 {
-	static vector<bool> isop;	// Tokens that are operators
+	vector<bool> isop;	// Tokens that are operators
 
 	add_operator(isop, '!');
 	add_operator(isop, '%');
