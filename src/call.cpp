@@ -233,6 +233,8 @@ Call::unset_current_fun()
 	csassert(current_fun);
 	current_fun->mark_end();
 	nesting.pop();
+	current_fun->post_cpp_metrics.summarize_operators();
+	current_fun->post_cpp_metrics.done_processing();
 	if (nesting.empty())
 		current_fun = NULL;
 	else
