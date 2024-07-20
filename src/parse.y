@@ -675,7 +675,7 @@ unary_expression:
 			{ $$ = basic(b_int); }
         | SIZEOF '(' type_name ')'
 			{ $$ = basic(b_int); }
-        | ALIGNOF '(' unary_expression ')'
+        | ALIGNOF unary_expression
 			{ $$ = basic(b_int); }
         | ALIGNOF '(' type_name ')'
 			{ $$ = basic(b_int); }
