@@ -39,7 +39,7 @@
 #include "call.h"
 
 vector<bool> &Metrics::is_operator_map = make_is_operator();
-Metrics::KeywordMap &Metrics::keyword_map = make_keyword_map();
+KeywordMetrics::map_type KeywordMetrics::map(make_keyword_map());
 
 MetricDetails Metrics::metric_details[] = {
 // BEGIN AUTOSCHEMA Metrics
@@ -278,23 +278,23 @@ Metrics::call_post_cpp_metrics(void (Metrics::*fun)())
 }
 
 // Initialize map
-Metrics::KeywordMap &
-Metrics::make_keyword_map()
+KeywordMetrics::map_type
+KeywordMetrics::make_keyword_map()
 {
-	static KeywordMap km;
+	map_type km;
 
-	km.insert(KeywordMap::value_type("if", em_nif));
-	km.insert(KeywordMap::value_type("else", em_nelse));
-	km.insert(KeywordMap::value_type("switch", em_nswitch));
-	km.insert(KeywordMap::value_type("case", em_ncase));
-	km.insert(KeywordMap::value_type("default", em_ndefault));
-	km.insert(KeywordMap::value_type("break", em_nbreak));
-	km.insert(KeywordMap::value_type("for", em_nfor));
-	km.insert(KeywordMap::value_type("while", em_nwhile));
-	km.insert(KeywordMap::value_type("do", em_ndo));
-	km.insert(KeywordMap::value_type("continue", em_ncontinue));
-	km.insert(KeywordMap::value_type("goto", em_ngoto));
-	km.insert(KeywordMap::value_type("return", em_nreturn));
+	km.insert(map_type::value_type("if", Metrics::em_nif));
+	km.insert(map_type::value_type("else", Metrics::em_nelse));
+	km.insert(map_type::value_type("switch", Metrics::em_nswitch));
+	km.insert(map_type::value_type("case", Metrics::em_ncase));
+	km.insert(map_type::value_type("default", Metrics::em_ndefault));
+	km.insert(map_type::value_type("break", Metrics::em_nbreak));
+	km.insert(map_type::value_type("for", Metrics::em_nfor));
+	km.insert(map_type::value_type("while", Metrics::em_nwhile));
+	km.insert(map_type::value_type("do", Metrics::em_ndo));
+	km.insert(map_type::value_type("continue", Metrics::em_ncontinue));
+	km.insert(map_type::value_type("goto", Metrics::em_ngoto));
+	km.insert(map_type::value_type("return", Metrics::em_nreturn));
 
 	return (km);
 }
