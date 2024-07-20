@@ -96,14 +96,6 @@ MetricDetails Metrics::metric_details[] = {
 // Global metrics
 IdMetricsSummary id_msum;
 
-// Called for every identifier
-void
-Metrics::process_identifier(const string &s, Eclass *ec)
-{
-	count[em_nchar] += s.length();
-	currlinelen += s.length();
-}
-
 // Called for all file characters appart from identifiers
 void
 Metrics::process_char(char c)
@@ -357,3 +349,45 @@ Metrics::make_is_operator()
 	add_operator(isop, XOR_ASSIGN);
 	return (isop);
 }
+
+// Summarize the identifiers collected by process_id
+void
+Metrics::summarize_identifiers()
+{
+	count[em_nupid] = pids.size();
+	pids.clear();
+	count[em_nufid] = fids.size();
+	fids.clear();
+	count[em_numid] = mids.size();
+	mids.clear();
+	count[em_nuid] = ids.size();
+	ids.clear();
+}
+// Called for every identifier
+void
+Metrics::process_identifier(const string &s, Eclass *ec)
+{
+	count[em_nchar] += s.length();
+	currlinelen += s.length();
+
+	if (!ec)
+		return;
+	if (ec->get_attribute(is_lscope)) {
+		count[em_npid]++;
+		pids.insert(ec);
+	}
+	if (ec->get_attribute(is_cscope)) {
+		count[em_nfid]++;
+		fids.insert(ec);
+	}
+	if (ec->get_attribute(is_macro)) {
+		count[em_nmid]++;
+		mids.insert(ec);
+	}
+	count[em_nlabid] += ec->get_attribute(is_label);
+	if (ec->get_attribute(is_ordinary) || ec->get_attribute(is_macro)) {
+		count[em_nid]++;
+		ids.insert(ec);
+	}
+}
+

@@ -25,8 +25,13 @@
  * This design also ensures that the character-based metrics processing
  * overhead will be incured exactly once for each file.
  *
+ * Before preprocessing call:
+ * process_token(int code) for every token recognized
+ *
+ *
  * During postprocessing call:
  * process_char() or process_identifier() while going through each file
+ * summarize_identifiers() at the end of each function/file
  * msum.add_unique_id once() for every EC
  * msum.add_id() for each identifier having an EC
  * summarize_files() at the end of processing
@@ -79,6 +84,11 @@ private:
 	enum e_cfile_state cstate;
 	static MetricDetails metric_details[];
 	vector <Token> queued_identifiers;
+
+	set <Eclass *> pids;			// Project-scope dentifiers used in the function/file
+	set <Eclass *> fids;			// File-scope identifiers used in the function/file
+	set <Eclass *> mids;			// Macro identifiers used in the function/file
+	set <Eclass *> ids;			// Identifiers used in the function/file
 
 	// Int-indexed map of tokens that are operators
 	static vector<bool> is_operator_map;
@@ -173,6 +183,8 @@ public:
 	void process_char(char c);
 	// Called for every identifier
 	void process_identifier(const string &s, Eclass *ec);
+	// Summarize the identifiers collected by process_idendifier
+	void summarize_identifiers();
 	// Called when encountering unprocessed lines
 	void add_unprocessed() { count[em_nuline]++; }
 
