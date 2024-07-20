@@ -54,41 +54,9 @@
 #include "ptoken.h"
 #include "pltoken.h"
 
-vector<bool> &FunMetrics::is_operator_map = make_is_operator();
-FunMetrics::KeywordMap &FunMetrics::keyword_map = make_keyword_map();
 
 MetricDetails FunMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FunMetrics
-	// Elements counted at the token tap before the preprocessor
-	{ em_nstmt,		"NSTMT",		"Number of statements or declarations"},
-	{ em_nop,		"NOP",			"Number of operators"},
-	{ em_nuop,		"NUOP",			"Number of unique operators"},
-	{ em_nnconst,		"NNCONST",		"Number of numeric constants"},
-	{ em_nclit,		"NCLIT",		"Number of character literals"},
-	{ em_ncc2op,		"INTERNAL",		"Number of operators contributing to cc2: &&, ||, ?:"},
-	// Keywords counted at the token tap before the preprocessor
-	{ em_nif,		"NIF",			"Number of if statements"},
-	{ em_nelse,		"NELSE",		"Number of else clauses"},
-	{ em_nswitch,		"NSWITCH",		"Number of switch statements"},
-	{ em_ncase,		"NCASE",		"Number of case labels"},
-	{ em_ndefault,		"NDEFAULT",		"Number of default labels"},
-	{ em_nbreak,		"NBREAK",		"Number of break statements"},
-	{ em_nfor,		"NFOR",			"Number of for statements"},
-	{ em_nwhile,		"NWHILE",		"Number of while statements"},
-	{ em_ndo,		"NDO",			"Number of do statements"},
-	{ em_ncontinue,		"NCONTINUE",		"Number of continue statements"},
-	{ em_ngoto,		"NGOTO",		"Number of goto statements"},
-	{ em_nreturn,		"NRETURN",		"Number of return statements"},
-	// Identifiers categorized during identifier processing
-	{ em_npid,		"NPID",			"Number of project-scope identifiers"},
-	{ em_nfid,		"NFID",			"Number of file-scope (static) identifiers"},
-	{ em_nmid,		"NMID",			"Number of macro identifiers"},
-	{ em_nid,		"NID",			"Total number of object and object-like identifiers"},
-	{ em_nupid,		"NUPID",		"Number of unique project-scope identifiers"},
-	{ em_nufid,		"NUFID",		"Number of unique file-scope (static) identifiers"},
-	{ em_numid,		"NUMID",		"Number of unique macro identifiers"},
-	{ em_nuid,		"NUID",			"Number of unique object and object-like identifiers"},
-	{ em_nlabid,		"INTERNAL",		"Number of label identifiers"},
 	// During processing (once based on processed)
 	{ em_ngnsoc,		"NGNSOC",		"Number of global namespace occupants at function's top"},
 	{ em_nparam,		"NPARAM",		"Number of parameters"},
@@ -151,63 +119,6 @@ FunMetrics::get_metric(int n) const
 	}
 }
 
-// Add operator op to int-indexed map v
-inline void
-FunMetrics::add_operator(vector<bool> &v, unsigned op)
-{
-	if (op >= v.size())
-		v.resize(op + 1, false);
-	v[op] = true;
-}
-
-// Create an integer-indexed map indicating which tokens represent operators
-vector<bool> &
-FunMetrics::make_is_operator()
-{
-	static vector<bool> isop;	// Tokens that are operators
-
-	add_operator(isop, '!');
-	add_operator(isop, '%');
-	add_operator(isop, '&');
-	add_operator(isop, '*');
-	add_operator(isop, '+');
-	// Comma is so overloaded as a token,
-	// that it doesn't make sense to count it as an operator
-	// add_operator(isop, ',');
-	add_operator(isop, '-');
-	add_operator(isop, '.');
-	add_operator(isop, '/');
-	add_operator(isop, '<');
-	add_operator(isop, '=');
-	add_operator(isop, '>');
-	add_operator(isop, '?');
-	add_operator(isop, '^');
-	add_operator(isop, '|');
-	add_operator(isop, '~');
-	add_operator(isop, ADD_ASSIGN);
-	add_operator(isop, AND_ASSIGN);
-	add_operator(isop, AND_OP);
-	add_operator(isop, CPP_CONCAT);
-	add_operator(isop, DEC_OP);
-	add_operator(isop, DIV_ASSIGN);
-	add_operator(isop, EQ_OP);
-	add_operator(isop, GE_OP);
-	add_operator(isop, INC_OP);
-	add_operator(isop, LEFT_ASSIGN);
-	add_operator(isop, LEFT_OP);
-	add_operator(isop, LE_OP);
-	add_operator(isop, MOD_ASSIGN);
-	add_operator(isop, MUL_ASSIGN);
-	add_operator(isop, NE_OP);
-	add_operator(isop, OR_ASSIGN);
-	add_operator(isop, OR_OP);
-	add_operator(isop, PTR_OP);
-	add_operator(isop, RIGHT_ASSIGN);
-	add_operator(isop, RIGHT_OP);
-	add_operator(isop, SUB_ASSIGN);
-	add_operator(isop, XOR_ASSIGN);
-	return (isop);
-}
 
 // Summarize the operators collected by process_token
 void
@@ -232,29 +143,6 @@ FunMetrics::summarize_identifiers()
 	count[em_nuid] = ids.size();
 	ids.clear();
 }
-
-// Initialize map
-FunMetrics::KeywordMap &
-FunMetrics::make_keyword_map()
-{
-	static KeywordMap km;
-
-	km.insert(KeywordMap::value_type("if", em_nif));
-	km.insert(KeywordMap::value_type("else", em_nelse));
-	km.insert(KeywordMap::value_type("switch", em_nswitch));
-	km.insert(KeywordMap::value_type("case", em_ncase));
-	km.insert(KeywordMap::value_type("default", em_ndefault));
-	km.insert(KeywordMap::value_type("break", em_nbreak));
-	km.insert(KeywordMap::value_type("for", em_nfor));
-	km.insert(KeywordMap::value_type("while", em_nwhile));
-	km.insert(KeywordMap::value_type("do", em_ndo));
-	km.insert(KeywordMap::value_type("continue", em_ncontinue));
-	km.insert(KeywordMap::value_type("goto", em_ngoto));
-	km.insert(KeywordMap::value_type("return", em_nreturn));
-
-	return (km);
-}
-
 // Called for every identifier
 void
 FunMetrics::process_id(const string &s, Eclass *ec)

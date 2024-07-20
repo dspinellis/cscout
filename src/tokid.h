@@ -42,8 +42,10 @@
 
 using namespace std;
 
+#include "attr.h"
 #include "cpp.h"
 #include "fileid.h"
+#include "error.h"
 
 class Eclass;
 

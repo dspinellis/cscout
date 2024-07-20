@@ -94,8 +94,10 @@ void
 Pdtoken::getnext()
 {
 	getnext_expand();
-	// Tally function metrics
+	// Tally function and file metrics
 	Call::process_post_cpp_token(*this);
+	Filedetails::process_post_cpp_token(*this);
+
 	if (get_code() == '\n')
 		current_line.clear();
 	else
