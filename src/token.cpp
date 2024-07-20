@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -41,6 +41,7 @@
 #include "tokid.h"
 #include "eclass.h"
 #include "token.h"
+#include "pltoken.h"
 #include "parse.tab.h"
 #include "debug.h"
 #include "fdep.h"

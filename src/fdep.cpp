@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -36,6 +36,7 @@
 #include "metrics.h"
 #include "fileid.h"
 #include "tokid.h"
+#include "pltoken.h"
 #include "fdep.h"
 #include "workdb.h"
 #include "sql.h"

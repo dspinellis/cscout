@@ -30,6 +30,7 @@
  *
  */
 
+#include "pltoken.h"
 #include "fileid.h"
 #include "filedetails.h"
 

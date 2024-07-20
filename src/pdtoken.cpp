@@ -94,9 +94,14 @@ void
 Pdtoken::getnext()
 {
 	getnext_expand();
+
 	// Tally function and file metrics
-	Call::process_post_cpp_token(*this);
-	Filedetails::process_post_cpp_token(*this);
+	int keyword_metric = -1;
+	if (this->get_code() == IDENTIFIER)
+		keyword_metric = Metrics::keyword_metric(this->get_val());
+
+	Call::process_post_cpp_token(*this, keyword_metric);
+	Filedetails::process_post_cpp_token(*this, keyword_metric);
 
 	if (get_code() == '\n')
 		current_line.clear();
