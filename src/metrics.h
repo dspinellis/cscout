@@ -88,13 +88,6 @@ private:
 	static inline void add_operator(vector<bool> &v, unsigned op);
 	// Initialize map
 	static vector<bool> &make_is_operator();
-
-	// String-indexed enum metric map of keywords we collect
-	typedef map<string, int> KeywordMap;
-	static KeywordMap &keyword_map;
-	// Initialize keyword to code map
-	static KeywordMap &make_keyword_map();
-
 protected:
 	vector <int> count;	// Metric counts
 	set <int> operators;	// Operators used in the function/file
@@ -168,7 +161,8 @@ public:
 		em_numid,	// Number of macro identifiers
 		em_nuid,	// Number of unique object and object-like identifiers
 		em_nlabid,	// (INT) Number of label identifiers
-		metric_max
+		metric_max,
+		em_invalid = -1,
 	};
 
 	void queue_identifier(const Token &t) {
@@ -225,27 +219,39 @@ public:
 	 * The metric_code is the return value of keyword_metric.
 	 */
 	template <typename TokenType> void process_token(const TokenType &t,
-			int metric_code);
+			Metrics::e_metric metric_code);
 
+};
+
+class KeywordMetrics {
+private:
+	// String-indexed enum metric map of keywords we collect
+	typedef map<string, Metrics::e_metric> map_type;
+
+	// Map from keywords to a metric that tallies them
+	static map_type map;
+	// Initialize keyword to code map
+	static map_type make_keyword_map();
+public:
 	/* If a string represents a keyword we collect,
 	 * return its metric enum value otherwise return -1
 	 * Calling it before process_token allows us to amortize its cost over
 	 * multiple calls.
 	 */
-	static inline int keyword_metric(const string &s) {
-		KeywordMap::iterator i = keyword_map.find(s);
-		return (i == keyword_map.end() ? -1 : i->second);
+	static inline Metrics::e_metric metric(const string &s) {
+		auto i = map.find(s);
+		return (i == map.end() ? Metrics::em_invalid : i->second);
 	}
 };
 
 template <typename TokenType> void
-Metrics::process_token(const TokenType &t, int metric_code)
+Metrics::process_token(const TokenType &t, Metrics::e_metric metric_code)
 {
 	csassert(!processed);
 	int code = t.get_code();
 	switch (code) {
 	case IDENTIFIER:
-		if (metric_code != -1)
+		if (metric_code != Metrics::em_invalid)
 			count[metric_code]++;
 		switch (metric_code) {
 		case em_nwhile:
@@ -267,6 +273,8 @@ Metrics::process_token(const TokenType &t, int metric_code)
 			count[em_nstmt]++;
 			// Don't count the semicolons in for statements
 			count[em_nstmt] -= 2;
+			break;
+		default:
 			break;
 		}
 		break;

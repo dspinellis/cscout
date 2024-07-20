@@ -96,9 +96,9 @@ Pdtoken::getnext()
 	getnext_expand();
 
 	// Tally function and file metrics
-	int keyword_metric = -1;
+	Metrics::e_metric keyword_metric = Metrics::em_invalid;
 	if (this->get_code() == IDENTIFIER)
-		keyword_metric = Metrics::keyword_metric(this->get_val());
+		keyword_metric = KeywordMetrics::metric(this->get_val());
 
 	Call::process_post_cpp_token(*this, keyword_metric);
 	Filedetails::process_post_cpp_token(*this, keyword_metric);
