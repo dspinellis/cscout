@@ -29,6 +29,7 @@
 #include "tokid.h"
 #include "ptoken.h"
 #include "call.h"
+#include "filedetails.h"
 
 class Fchar;
 
@@ -559,7 +560,15 @@ Pltoken::getnext_analyze()
 	default:
 		val = (char)(code = c0.get_char());
 	}
-	Call::process_pre_cpp_token(*this);
+
+	// Tally function and file metrics
+	int keyword_metric = -1;
+	if (this->get_code() == IDENTIFIER)
+		keyword_metric = Metrics::keyword_metric(this->get_val());
+
+	Filedetails::process_pre_cpp_token(*this, keyword_metric);
+	Call::process_pre_cpp_token(*this, keyword_metric);
+
 	// For metric counting filter out whitespace
 	if (code != SPACE && code != '\n')
 		Metrics::call_pre_cpp_metrics(&Metrics::add_pptoken);

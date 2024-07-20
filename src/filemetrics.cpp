@@ -42,6 +42,7 @@
 #include "fileid.h"
 #include "tokid.h"
 #include "tokmap.h"
+#include "pltoken.h"
 #include "eclass.h"
 #include "fchar.h"
 #include "filedetails.h"

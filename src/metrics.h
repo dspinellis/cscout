@@ -92,13 +92,7 @@ private:
 	// String-indexed enum metric map of keywords we collect
 	typedef map<string, int> KeywordMap;
 	static KeywordMap &keyword_map;
-	// If a string represents a keyword we collect,
-	// return its metric enum value otherwise return -1
-	static inline int keyword_metric(const string &s) {
-		KeywordMap::iterator i = keyword_map.find(s);
-		return (i == keyword_map.end() ? -1 : i->second);
-	}
-	// Initialize map
+	// Initialize keyword to code map
 	static KeywordMap &make_keyword_map();
 
 protected:
@@ -228,23 +222,32 @@ public:
 	 * Process a single token read from a file.
 	 * This is templated, so that it can be called with
 	 * Pltoken before the preprocessor and Ctoken after the preprocessor
+	 * The metric_code is the return value of keyword_metric.
 	 */
-	template <typename TokenType> void process_token(const TokenType &t);
+	template <typename TokenType> void process_token(const TokenType &t,
+			int metric_code);
 
+	/* If a string represents a keyword we collect,
+	 * return its metric enum value otherwise return -1
+	 * Calling it before process_token allows us to amortize its cost over
+	 * multiple calls.
+	 */
+	static inline int keyword_metric(const string &s) {
+		KeywordMap::iterator i = keyword_map.find(s);
+		return (i == keyword_map.end() ? -1 : i->second);
+	}
 };
 
 template <typename TokenType> void
-Metrics::process_token(const TokenType &t)
+Metrics::process_token(const TokenType &t, int metric_code)
 {
 	csassert(!processed);
 	int code = t.get_code();
-	int em;
 	switch (code) {
 	case IDENTIFIER:
-		em = keyword_metric(t.get_val());
-		if (em != -1)
-			count[em]++;
-		switch (em) {
+		if (metric_code != -1)
+			count[metric_code]++;
+		switch (metric_code) {
 		case em_nwhile:
 		case em_nswitch:
 		case em_nif:

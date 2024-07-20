@@ -44,6 +44,7 @@
 #include "parse.tab.h"
 #include "token.h"
 #include "ptoken.h"
+#include "pltoken.h"
 #include "macro.h"
 #include "pdtoken.h"
 #include "parse.tab.h"

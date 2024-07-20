@@ -37,6 +37,8 @@ using namespace std;
 #include "token.h"
 #include "ctoken.h"
 
+class Pltoken;
+
 /*
  * This is used for keeping identical files
  * The value type must be ordered by the integer Fileid
@@ -361,11 +363,18 @@ public:
 	static int set_hand_edited(Fileid id) {
 		return get_instance(id).set_hand_edited(); }
 
+	// Process a token before for C-proper parsing
+	static inline void process_pre_cpp_token(const Pltoken &t, int keyword_metric) {
+		auto metrics = get_pre_cpp_metrics(Fchar::get_fileid());
+		if (!metrics.is_processed())
+			metrics.process_token(t, keyword_metric);
+	}
+
 	// Process a token destined for C-proper parsing
-	static inline void process_post_cpp_token(const Ctoken &t) {
+	static inline void process_post_cpp_token(const Ctoken &t, int keyword_metric) {
 		auto metrics = get_post_cpp_metrics(Fchar::get_fileid());
 		if (!metrics.is_processed())
-			metrics.process_token(t);
+			metrics.process_token(t, keyword_metric);
 	}
 };
 
