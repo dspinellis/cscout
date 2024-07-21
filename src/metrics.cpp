@@ -96,7 +96,10 @@ MetricDetails Metrics::metric_details[] = {
 // Global metrics
 IdMetricsSummary id_msum;
 
-// Called for all file characters appart from identifiers
+/*
+ * Called when analyzing the preprocessed file for all file characters
+ * appart from identifiers.
+ */
 void
 Metrics::process_char(char c)
 {
@@ -120,7 +123,6 @@ Metrics::process_char(char c)
 			cstate = s_char;
 		else if (c == '"') {
 			cstate = s_string;
-			count[em_nstring]++;
 		}
 		break;
 	case s_char:
