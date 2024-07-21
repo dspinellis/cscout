@@ -1580,9 +1580,13 @@ function_page(FILE *fo, void *p)
 		for (int j = 0; j < FunMetrics::metric_max; j++) {
 			if (Metrics::is_internal<FunMetrics>(j))
 				continue;
-			fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td></tr>",
-			    Metrics::get_name<FunMetrics>(j).c_str(),
-			    f->get_pre_cpp_metrics().get_metric(j));
+			fprintf(fo, "<tr><td>%s</td>",
+			    Metrics::get_name<FunMetrics>(j).c_str());
+			if (Metrics::is_pre_cpp<FileMetrics>(j))
+				fprintf(fo, "<td align='right'>%g</td>",
+				    f->get_pre_cpp_metrics().get_metric(j));
+			else
+				fprintf(fo, "<td align='right'>&mdash;</td>");
 			if (Metrics::is_post_cpp<FileMetrics>(j))
 				fprintf(fo, "<td align='right'>%g</td></tr>",
 				    f->get_post_cpp_metrics().get_metric(j));
@@ -2768,9 +2772,13 @@ file_page(FILE *of, void *p)
 	for (int j = 0; j < FileMetrics::metric_max; j++) {
 		if (!Metrics::is_file<FileMetrics>(j))
 			continue;
-		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td>",
-		    Metrics::get_name<FileMetrics>(j).c_str(),
-		    Filedetails::get_pre_cpp_metrics(i).get_metric(j));
+		fprintf(of, "<tr><td>%s</td>",
+		    Metrics::get_name<FileMetrics>(j).c_str());
+		if (Metrics::is_pre_cpp<FileMetrics>(j))
+			fprintf(of, "<td align='right'>%g</td>",
+			    Filedetails::get_pre_cpp_metrics(i).get_metric(j));
+		else
+			fprintf(of, "<td align='right'>&mdash;</td>");
 		if (Metrics::is_post_cpp<FileMetrics>(j))
 			fprintf(of, "<td align='right'>%g</td></tr>",
 			    Filedetails::get_post_cpp_metrics(i).get_metric(j));

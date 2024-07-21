@@ -49,17 +49,17 @@
 
 MetricDetails FileMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FileMetrics
-				// post-cpp, file
-	{ em_ncopies,		0, 1, "NCOPIES",	"Number of copies of the file"},
-	{ em_npfunction,	1, 1, "NPFUNCTION",	"Number of defined project-scope functions"},
-	{ em_nffunction,	1, 1, "NFFUNCTION",	"Number of defined file-scope (static) functions"},
-	{ em_npvar,		1, 1, "NPVAR",		"Number of defined project-scope variables"},
-	{ em_nfvar,		1, 1, "NFVAR",		"Number of defined file-scope (static) variables"},
-	{ em_naggregate,	1, 1, "NAGGREGATE",	"Number of complete aggregate (struct/union) declarations"},
-	{ em_namember,		1, 1, "NAMEMBER",	"Number of declared aggregate (struct/union) members"},
-	{ em_nenum,		1, 1, "NENUM",		"Number of complete enumeration declarations"},
-	{ em_nemember,		1, 1, "NEMEMBER",	"Number of declared enumeration elements"},
-	{ em_nincfile,		0, 1, "NINCFILE",	"Number of directly included files"},
+				// pre-cpp, post-cpp, file
+	{ em_ncopies,		1, 0, 1, "NCOPIES",	"Number of copies of the file"},
+	{ em_npfunction,	1, 1, 1, "NPFUNCTION",	"Number of defined project-scope functions"},
+	{ em_nffunction,	1, 1, 1, "NFFUNCTION",	"Number of defined file-scope (static) functions"},
+	{ em_npvar,		1, 1, 1, "NPVAR",	"Number of defined project-scope variables"},
+	{ em_nfvar,		1, 1, 1, "NFVAR",	"Number of defined file-scope (static) variables"},
+	{ em_naggregate,	0, 1, 1, "NAGGREGATE",	"Number of complete aggregate (struct/union) declarations"},
+	{ em_namember,		0, 1, 1, "NAMEMBER",	"Number of declared aggregate (struct/union) members"},
+	{ em_nenum,		0, 1, 1, "NENUM",	"Number of complete enumeration declarations"},
+	{ em_nemember,		0, 1, 1, "NEMEMBER",	"Number of declared enumeration elements"},
+	{ em_nincfile,		1, 0, 1, "NINCFILE",	"Number of directly included files"},
 // END AUTOSCHEMA FileMetrics
 };
 

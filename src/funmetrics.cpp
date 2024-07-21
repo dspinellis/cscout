@@ -58,21 +58,21 @@
 MetricDetails FunMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FunMetrics
 	// During processing (once based on processed)
-				// post-cpp, file
-	{ em_ngnsoc,		1, 0, "NGNSOC",		"Number of global namespace occupants at function's top"},
-	{ em_nparam,		1, 0, "NPARAM",		"Number of parameters"},
-	{ em_maxnest,		1, 0, "MAXNEST",	"Maximum level of statement nesting"},
+				// pre-cpp, post-cpp, file
+	{ em_ngnsoc,		1, 1, 0, "NGNSOC",	"Number of global namespace occupants at function's top"},
+	{ em_nparam,		1, 1, 0, "NPARAM",	"Number of parameters"},
+	{ em_maxnest,		1, 1, 0, "MAXNEST",	"Maximum level of statement nesting"},
 	// Metrics dynamically derived
-	{ em_nlabel,		1, 0, "NLABEL",		"Number of goto labels"},
-	{ em_fanin,		1, 0, "FANIN",		"Fan-in (number of calling functions)"},
-	{ em_fanout,		1, 0, "FANOUT",		"Fan-out (number of called functions)"},
-	{ em_ccycl1,		1, 0, "CCYCL1",		"Cyclomatic complexity (control statements)"},
-	{ em_ccycl2,		1, 0, "CCYCL2",		"Extended cyclomatic complexity (includes branching operators)"},
-	{ em_ccycl3,		1, 0, "CCYCL3",		"Maximum cyclomatic complexity (includes branching operators and all switch branches)"},
+	{ em_nlabel,		1, 1, 0, "NLABEL",	"Number of goto labels"},
+	{ em_fanin,		1, 1, 0, "FANIN",	"Fan-in (number of calling functions)"},
+	{ em_fanout,		1, 1, 0, "FANOUT",	"Fan-out (number of called functions)"},
+	{ em_ccycl1,		1, 1, 0, "CCYCL1",	"Cyclomatic complexity (control statements)"},
+	{ em_ccycl2,		1, 1, 0, "CCYCL2",	"Extended cyclomatic complexity (includes branching operators)"},
+	{ em_ccycl3,		1, 1, 0, "CCYCL3",	"Maximum cyclomatic complexity (includes branching operators and all switch branches)"},
 	// Dynamically derived metrics after this point are hardcoded to be stored in the database as REAL
-	{ em_cstruc,		1, 0, "CSTRUC",		"Structure complexity (Henry and Kafura)"},	// REAL
-	{ em_chal,		1, 0, "CHAL",		"Halstead complexity"},				// REAL
-	{ em_iflow,		1, 0, "IFLOW",		"Information flow metric (Henry and Selig)"},	// REAL
+	{ em_cstruc,		1, 1, 0, "CSTRUC",	"Structure complexity (Henry and Kafura)"},	// REAL
+	{ em_chal,		1, 1, 0, "CHAL",	"Halstead complexity"},				// REAL
+	{ em_iflow,		1, 1, 0, "IFLOW",	"Information flow metric (Henry and Selig)"},	// REAL
 // END AUTOSCHEMA FunMetrics
 };
 
