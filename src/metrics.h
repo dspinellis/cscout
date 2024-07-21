@@ -312,6 +312,9 @@ Metrics::process_token(const TokenType &t, Metrics::e_metric metric_code)
 	case CHAR_LITERAL:
 		count[em_nclit]++;
 		break;
+	case STRING_LITERAL:
+		count[em_nstring]++;
+		break;
 	case AND_OP:
 	case OR_OP:
 	case '?':
