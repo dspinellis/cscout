@@ -73,6 +73,8 @@ enum e_cfile_state {
 // Details for each metric
 struct MetricDetails {
 	int id;			// Metric identifier
+	bool is_post_cpp;	// True if the metric is applicable after the cpp
+	bool is_file;		// True if the metric is applicable to files 
 	string dbfield;		// Database field name
 	string name;		// User-visible name
 };
@@ -226,6 +228,11 @@ public:
 
 	// Return the database field name of the specified metric
 	template <class M> static const string & get_dbfield(int n);
+
+	// Return true if the metric is applicable post-cpp
+	template <class M> static bool is_post_cpp(int n);
+	// Return true if the metric is applicable to files
+	template <class M> static bool is_file(int n);
 
 	// Return the metric name of the specified metric
 	template <class M> static const string & get_name(int n);
@@ -413,7 +420,7 @@ template <class M>
 const MetricDetails &
 Metrics::get_detail(int n)
 {
-	static const MetricDetails unknown = {0, "UNKNOWN", "UNKNOWN"};
+	static const MetricDetails unknown = {0, 0, 0, "UNKNOWN", "UNKNOWN"};
 
 	csassert(n < M::metric_max);
 	for (int i = 0 ; M::metric_details[i].id != M::metric_max; i++)
@@ -421,6 +428,30 @@ Metrics::get_detail(int n)
 			return (M::metric_details[i]);
 	csassert(0);
 	return (unknown);
+}
+
+// Return the is_post_cpp field name of the specified metric
+// i.e. if the metric is applicable to post-cpp values
+template <class M>
+bool
+Metrics::is_post_cpp(int n)
+{
+	if (n < Metrics::metric_max)
+		return get_detail<Metrics>(n).is_post_cpp;
+	else
+		return get_detail<M>(n).is_post_cpp;
+}
+
+// Return the is_file field name of the specified metric
+// i.e. if the metric is applicable to files
+template <class M>
+bool
+Metrics::is_file(int n)
+{
+	if (n < Metrics::metric_max)
+		return get_detail<Metrics>(n).is_file;
+	else
+		return get_detail<M>(n).is_file;
 }
 
 // Return the database field name of the specified metric
