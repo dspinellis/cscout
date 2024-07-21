@@ -50,7 +50,8 @@ public:
 	// During post-processing
 		em_ncopies =		// Number of copies of the file
 			Metrics::metric_max,
-	// During pre-processing or parsing (once based on processed)
+		em_nincfile,		// Number of directly included files
+	// During parsing (once based on processed)
 		em_npfunction,		// Defined project-scope functions
 		em_nffunction,		// Defined file-scope (static) functions
 		em_npvar,		// Defined project-scope variables
@@ -59,7 +60,6 @@ public:
 		em_namember,		// Number of declared aggregate members
 		em_nenum,		// Number of complete enumeration declarations
 		em_nemember,		// Number of declared enumeration elements
-		em_nincfile,		// Number of directly included files
 		metric_max
 	};
 
