@@ -365,20 +365,20 @@ public:
 
 	// Process a token before for C-proper parsing
 	static inline void process_pre_cpp_token(const Pltoken &t, Metrics::e_metric keyword_metric) {
-		auto metrics = get_pre_cpp_metrics(Fchar::get_fileid());
+		auto& metrics = get_pre_cpp_metrics(Fchar::get_fileid());
 		if (!metrics.is_processed())
 			metrics.process_token(t, keyword_metric);
 	}
 
 	// Process a token destined for C-proper parsing
 	static inline void process_post_cpp_token(const Ctoken &t, Metrics::e_metric keyword_metric) {
-		auto metrics = get_post_cpp_metrics(Fchar::get_fileid());
+		auto& metrics = get_post_cpp_metrics(Fchar::get_fileid());
 		if (!metrics.is_processed())
 			metrics.process_token(t, keyword_metric);
 	}
 
 	static inline void queue_post_cpp_identifier(const Ctoken &t) {
-		auto metrics = get_post_cpp_metrics(Fchar::get_fileid());
+		auto& metrics = get_post_cpp_metrics(Fchar::get_fileid());
 		if (!metrics.is_processed())
 			metrics.queue_identifier(t);
 	}
