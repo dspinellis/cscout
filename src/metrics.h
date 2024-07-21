@@ -51,7 +51,7 @@ using namespace std;
 #include "parse.tab.h"
 #include "attr.h"
 #include "error.h"
-#include "token.h"
+#include "ctoken.h"
 
 class Eclass;
 class Filedetails;
@@ -83,7 +83,7 @@ private:
 	int currlinelen;
 	enum e_cfile_state cstate;
 	static MetricDetails metric_details[];
-	vector <Token> queued_identifiers;
+	vector <Ctoken> queued_identifiers;
 
 	set <Eclass *> pids;			// Project-scope dentifiers used in the function/file
 	set <Eclass *> fids;			// File-scope identifiers used in the function/file
@@ -98,11 +98,14 @@ private:
 	static inline void add_operator(vector<bool> &v, unsigned op);
 	// Initialize map
 	static vector<bool> make_is_operator();
+
+	// Process the queued identifiers
+	void process_queued_identifiers();
+
 protected:
 	vector <int> count;	// Metric counts
 	set <int> operators;	// Operators used in the function/file
 
-	// Helper variables
 	bool processed;		// True after an element has been processed
 public:
 	Metrics() :
@@ -175,14 +178,19 @@ public:
 		em_invalid = -1,
 	};
 
-	void queue_identifier(const Token &t) {
+	// Queue an identifier token for processing its constituent
+	// parts when the function/file is processed
+	void queue_identifier(const Ctoken &t) {
 		queued_identifiers.emplace_back(t);
 	}
 
 	// Called for all file characters appart from identifiers
 	void process_char(char c);
 	// Called for every identifier
-	void process_identifier(const string &s, Eclass *ec);
+	void process_identifier(int len, Eclass *ec);
+	void process_identifier(const string &s, Eclass *ec) {
+		process_identifier(s.length(), ec);
+	}
 	// Summarize the identifiers collected by process_idendifier
 	void summarize_identifiers();
 	// Called when encountering unprocessed lines

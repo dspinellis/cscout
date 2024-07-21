@@ -350,10 +350,28 @@ Metrics::make_is_operator()
 	return (isop);
 }
 
-// Summarize the identifiers collected by process_id
+void
+Metrics::process_queued_identifiers()
+{
+	for (auto i = queued_identifiers.begin(); i != queued_identifiers.end();
+	    ++i) {
+		auto tparts = i->constituents();
+		for (auto tpart_it = tparts.begin(); tpart_it != tparts.end();
+		    ++tpart_it) {
+			process_identifier(
+			    tpart_it->get_len(),
+			    tpart_it->get_tokid().get_ec()
+			);
+		}
+	}
+}
+
+// Summarize the identifiers collected by process_identifier
 void
 Metrics::summarize_identifiers()
 {
+	process_queued_identifiers();
+
 	count[em_nupid] = pids.size();
 	pids.clear();
 	count[em_nufid] = fids.size();
@@ -363,12 +381,13 @@ Metrics::summarize_identifiers()
 	count[em_nuid] = ids.size();
 	ids.clear();
 }
+
 // Called for every identifier
 void
-Metrics::process_identifier(const string &s, Eclass *ec)
+Metrics::process_identifier(int len, Eclass *ec)
 {
-	count[em_nchar] += s.length();
-	currlinelen += s.length();
+	count[em_nchar] += len;
+	currlinelen += len;
 
 	if (!ec)
 		return;
@@ -390,4 +409,3 @@ Metrics::process_identifier(const string &s, Eclass *ec)
 		ids.insert(ec);
 	}
 }
-
