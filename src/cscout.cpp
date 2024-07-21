@@ -61,7 +61,6 @@
 #include "macro.h"
 #include "pdtoken.h"
 #include "eclass.h"
-#include "ctoken.h"
 #include "type.h"
 #include "stab.h"
 #include "fdep.h"

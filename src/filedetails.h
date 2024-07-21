@@ -376,6 +376,12 @@ public:
 		if (!metrics.is_processed())
 			metrics.process_token(t, keyword_metric);
 	}
+
+	static inline void queue_post_cpp_identifier(const Ctoken &t) {
+		auto metrics = get_post_cpp_metrics(Fchar::get_fileid());
+		if (!metrics.is_processed())
+			metrics.queue_identifier(t);
+	}
 };
 
 // Add file that this file uses at runtime

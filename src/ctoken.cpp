@@ -339,6 +339,11 @@ again:
 				default:
 					return (*ik).second;
 				}
+
+			// Queue identifier for metrics processing
+			Call::queue_post_cpp_identifier(t);
+			Filedetails::queue_post_cpp_identifier(t);
+
 			id = obj_lookup(t.get_val());
 			if (id && id->get_type().is_typedef())
 				return (TYPEDEF_NAME);	// Probably typedef

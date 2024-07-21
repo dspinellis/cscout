@@ -225,6 +225,13 @@ public:
 		}
 	}
 
+	// Queue for later processing an identifier destined for C-proper parsing
+	static inline void queue_post_cpp_identifier(const Ctoken &t) {
+		if (current_fun && !current_fun->post_cpp_metrics.is_processed()) {
+			current_fun->post_cpp_metrics.queue_identifier(t);
+		}
+	}
+
 	// Call the specified metrics function for the current function
 	static inline void call_pre_cpp_metrics(void (Metrics::*fun)()) {
 		if (current_fun)
