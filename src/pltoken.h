@@ -571,7 +571,7 @@ Pltoken::getnext_analyze()
 
 	// For metric counting filter out whitespace
 	if (code != SPACE && code != '\n')
-		Metrics::call_pre_cpp_metrics(&Metrics::add_pptoken);
+		Metrics::call_pre_cpp_metrics(&Metrics::add_token);
 	if (DP()) cout << "getnext returns: " << *this << "\n";
 }
 

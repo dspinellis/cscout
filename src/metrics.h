@@ -132,8 +132,7 @@ public:
 		em_nppcond,		// Number of processed cpp conditionals (ifdef, if, elif)
 		em_nppfmacro,		// Number of defined cpp function-like macros
 		em_nppomacro,		// Number of defined cpp object-like macros
-		em_npptoken,		// Number of preprocessed tokens
-		em_nctoken,		// Number of compiled tokens
+		em_ntoken,		// Number of tokens
 
 	// Elements counted before the preprocessor token tap
 		em_nstmt,	// Number of statements or declarations
@@ -201,8 +200,7 @@ public:
 	void add_ppcond() { if (!processed) count[em_nppcond]++; }
 	void add_ppfmacro() { if (!processed) count[em_nppfmacro]++; }
 	void add_ppomacro() { if (!processed) count[em_nppomacro]++; }
-	void add_pptoken() { if (!processed) count[em_npptoken]++; }
-	void add_ctoken() { if (!processed) count[em_nctoken]++; }
+	void add_token() { if (!processed) count[em_ntoken]++; }
 
 	void done_processing() { processed = true; }
 	bool is_processed() const { return processed; }
