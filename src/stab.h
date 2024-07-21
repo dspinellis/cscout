@@ -28,6 +28,7 @@
 
 using namespace std;
 
+#include "fileid.h"
 #include "token.h"
 #include "id.h"
 #include "type.h"
@@ -141,6 +142,8 @@ private:
 
 	static void define(Stab Block::*table, const Token& tok, const Type& t, FCall *fc = NULL, GlobObj *go = NULL);
 	static pair <Id const *, int> lookup(const Stab Block::*table, const string& name);
+	// The file id associated with the compilation unit block
+	static Fileid cu_file_id;
 public:
 	// Should be private appart from taking member address
 	Stab obj;		// Objects (variables...)
@@ -154,7 +157,8 @@ public:
 	static void enter();
 	static void exit();
 	static void clear();		// Clear all block-related information
-
+	// Set Fileid of compilation unit being processed
+	static void set_cu_file_id(Fileid id) { cu_file_id = id; }
 	// Return the number of namespace occupants of the cu and lu blocks
 	static int global_namespace_occupants_size() {
 		return scope_block[Block::lu_block].obj.size() +

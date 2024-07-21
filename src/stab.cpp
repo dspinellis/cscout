@@ -64,6 +64,7 @@ Stab Function::label;
 Block Block::param_block;	// Function parameter declarations
 bool Block::param_use;		// Declare types in param_block when true
 bool Block::param_seen;		// Don't set param_block on scope exit when true
+Fileid Block::cu_file_id;	// Fileid of current compilation unit
 
 Id::Id(const Token& tok, Type typ, FCall *fc, GlobObj *go) :
 	token(tok), type(typ), fcall(fc), glob(go)
@@ -106,6 +107,8 @@ Block::exit()
 	scope_block.pop_back();
 	current_block--;
 	param_clear();
+	if (get_scope_level() == lu_block)
+		Filedetails::get_post_cpp_metrics(cu_file_id).summarize_identifiers();
 }
 
 // Called when exiting a function parameter list
