@@ -1865,7 +1865,6 @@ designator:
 statement:
 	any_statement
 		{
-			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_statement();
 			Fdep::add_provider(Fchar::get_fileid());
 			if (DP())
 				Error::error(E_DEBUG, "Add provider for any_statement -> statement");

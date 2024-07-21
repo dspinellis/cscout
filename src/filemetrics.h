@@ -51,7 +51,6 @@ public:
 		em_ncopies =		// Number of copies of the file
 			Metrics::metric_max,
 	// During pre-processing or parsing (once based on processed)
-		em_nstatement,		// Number of statements
 		em_npfunction,		// Defined project-scope functions
 		em_nffunction,		// Defined file-scope (static) functions
 		em_npvar,		// Defined project-scope variables
@@ -68,7 +67,6 @@ public:
 	void set_ncopies(int n) { count[em_ncopies] = n; }
 
 	// Manipulate the processing-based metrics
-	void add_statement() { if (!processed) count[em_nstatement]++; }
 	void add_incfile() { if (!processed) count[em_nincfile]++; }
 
 	// Increment the number of functions for the file being processed

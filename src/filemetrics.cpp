@@ -49,7 +49,6 @@
 
 MetricDetails FileMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FileMetrics
-	{ em_nstatement,	"NSTATEMENT",		"Number of statements"},
 	{ em_ncopies,		"NCOPIES",		"Number of copies of the file"},
 	{ em_npfunction,	"NPFUNCTION",		"Number of defined project-scope functions"},
 	{ em_nffunction,	"NFFUNCTION",		"Number of defined file-scope (static) functions"},
