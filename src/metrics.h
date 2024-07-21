@@ -126,7 +126,6 @@ public:
 		em_nbcomment,		// Number of block comments
 		em_nline,		// Number of lines
 		em_maxlinelen,		// Maximum number of characters in a line
-		em_nstring,		// Number of character strings
 		em_nuline,		// Number of unprocessed lines
 
 	// During processing (once based on processed)
@@ -142,6 +141,7 @@ public:
 		em_nuop,	// Number of unique operators
 		em_nnconst,	// Number of numeric constants
 		em_nclit,	// Number of character literals
+		em_nstring,	// Number of character strings
 		em_ncc2op,	// (INT) Number of operators contributing to cc2: &&, ||, ?:
 		/*
 		 * Keywords counted during identifier processing that takes

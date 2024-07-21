@@ -51,7 +51,6 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_nbcomment,		0, 1, "NBCOMMENT",	"Number of block comments"},
 	{ em_nline,		0, 1, "NLINE",		"Number of lines"},
 	{ em_maxlinelen,	0, 1, "MAXLINELEN",	"Maximum number of characters in a line"},
-	{ em_nstring,		1, 1, "NSTRING",	"Number of character strings"},
 	{ em_nuline,		0, 1, "NULINE",		"Number of unprocessed lines"},
 
 	{ em_ntoken,		1, 1, "NTOKEN",		"Number of tokens"},
@@ -65,6 +64,7 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_nuop,		1, 0, "NUOP",		"Number of unique operators"},
 	{ em_nnconst,		1, 1, "NNCONST",	"Number of numeric constants"},
 	{ em_nclit,		1, 1, "NCLIT",		"Number of character literals"},
+	{ em_nstring,		1, 1, "NSTRING",	"Number of character strings"},
 	{ em_ncc2op,		1, 0, "INTERNAL",	"Number of operators contributing to cc2: &&, ||, ?:"},
 	// Keywords counted at the token tap
 	{ em_nif,		1, 1, "NIF",		"Number of if statements"},
