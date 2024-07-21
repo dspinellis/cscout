@@ -357,7 +357,7 @@ Metrics::process_queued_identifiers()
 {
 	for (auto i = queued_identifiers.begin(); i != queued_identifiers.end();
 	    ++i) {
-		auto tparts = i->constituents();
+		const auto& tparts(i->constituents());
 		for (auto tpart_it = tparts.begin(); tpart_it != tparts.end();
 		    ++tpart_it) {
 			process_identifier(
