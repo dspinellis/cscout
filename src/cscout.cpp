@@ -1571,10 +1571,18 @@ function_page(FILE *fo, void *p)
 	}
 	fprintf(fo, "</ul>\n");
 	if (f->is_defined()) {
-		fprintf(fo, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
+		// Metrics
+		fprintf(fo, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr>"
+		    "<th>Metric</th>"
+		    "<th>Pre-cpp Value</th>"
+		    "<th>Post-cpp Value</th>"
+		    "</tr>\n");
 		for (int j = 0; j < FunMetrics::metric_max; j++)
 			if (!Metrics::is_internal<FunMetrics>(j))
-				fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FunMetrics>(j).c_str(), f->get_pre_cpp_metrics().get_metric(j));
+				fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td><td align='right'>%g</td></tr>",
+				    Metrics::get_name<FunMetrics>(j).c_str(),
+				    f->get_pre_cpp_metrics().get_metric(j),
+				    f->get_post_cpp_metrics().get_metric(j));
 		fprintf(fo, "</table>\n");
 	}
 	fprintf(fo, "</FORM>\n");
@@ -2744,10 +2752,20 @@ file_page(FILE *of, void *p)
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&unused=1&includes=1&n=Unused+Directly+Included+Files\">Unused directly included files</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&n=Files+Including+the+File\">Files including this file</a>\n", i.get_id());
 	fprintf(of, "</ul>\n");
-	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr><th>Metric</th><th>Value</th></tr>\n");
+
+	// Metrics
+	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr>"
+	    "<th>Metric</th>"
+	    "<th>Pre-cpp Value</th>"
+	    "<th>Post-cpp Value</th>"
+	    "</tr>\n");
 	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td></tr>", Metrics::get_name<FileMetrics>(j).c_str(), Filedetails::get_pre_cpp_metrics(i).get_metric(j));
+		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td><td align='right'>%g</td></tr>",
+		    Metrics::get_name<FileMetrics>(j).c_str(),
+		    Filedetails::get_pre_cpp_metrics(i).get_metric(j),
+		    Filedetails::get_post_cpp_metrics(i).get_metric(j));
 	fprintf(of, "</table>\n");
+
 	html_tail(of);
 }
 
