@@ -1577,12 +1577,18 @@ function_page(FILE *fo, void *p)
 		    "<th>Pre-cpp Value</th>"
 		    "<th>Post-cpp Value</th>"
 		    "</tr>\n");
-		for (int j = 0; j < FunMetrics::metric_max; j++)
-			if (!Metrics::is_internal<FunMetrics>(j))
-				fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td><td align='right'>%g</td></tr>",
-				    Metrics::get_name<FunMetrics>(j).c_str(),
-				    f->get_pre_cpp_metrics().get_metric(j),
+		for (int j = 0; j < FunMetrics::metric_max; j++) {
+			if (Metrics::is_internal<FunMetrics>(j))
+				continue;
+			fprintf(fo, "<tr><td>%s</td><td align='right'>%g</td></tr>",
+			    Metrics::get_name<FunMetrics>(j).c_str(),
+			    f->get_pre_cpp_metrics().get_metric(j));
+			if (Metrics::is_post_cpp<FileMetrics>(j))
+				fprintf(fo, "<td align='right'>%g</td></tr>",
 				    f->get_post_cpp_metrics().get_metric(j));
+			else
+				fprintf(fo, "<td align='right'>&mdash;</td></tr>");
+		}
 		fprintf(fo, "</table>\n");
 	}
 	fprintf(fo, "</FORM>\n");
@@ -2759,11 +2765,18 @@ file_page(FILE *of, void *p)
 	    "<th>Pre-cpp Value</th>"
 	    "<th>Post-cpp Value</th>"
 	    "</tr>\n");
-	for (int j = 0; j < FileMetrics::metric_max; j++)
-		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td><td align='right'>%g</td></tr>",
+	for (int j = 0; j < FileMetrics::metric_max; j++) {
+		if (!Metrics::is_file<FileMetrics>(j))
+			continue;
+		fprintf(of, "<tr><td>%s</td><td align='right'>%g</td>",
 		    Metrics::get_name<FileMetrics>(j).c_str(),
-		    Filedetails::get_pre_cpp_metrics(i).get_metric(j),
-		    Filedetails::get_post_cpp_metrics(i).get_metric(j));
+		    Filedetails::get_pre_cpp_metrics(i).get_metric(j));
+		if (Metrics::is_post_cpp<FileMetrics>(j))
+			fprintf(of, "<td align='right'>%g</td></tr>",
+			    Filedetails::get_post_cpp_metrics(i).get_metric(j));
+		else
+			fprintf(of, "<td align='right'>&mdash;</td></tr>");
+	}
 	fprintf(of, "</table>\n");
 
 	html_tail(of);
