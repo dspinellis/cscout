@@ -233,7 +233,7 @@ Call::unset_current_fun()
 	csassert(current_fun);
 	current_fun->mark_end();
 	nesting.pop();
-	auto metrics = current_fun->post_cpp_metrics;
+	auto& metrics = current_fun->post_cpp_metrics;
 	if (!metrics.is_processed()) {
 		metrics.summarize_operators();
 		metrics.summarize_identifiers();
