@@ -59,9 +59,10 @@ MetricDetails FunMetrics::metric_details[] = {
 // BEGIN AUTOSCHEMA FunMetrics
 	// During processing (once based on processed)
 				// pre-cpp, post-cpp, file
-	{ em_ngnsoc,		1, 1, 0, "NGNSOC",	"Number of global namespace occupants at function's top"},
-	{ em_nparam,		1, 1, 0, "NPARAM",	"Number of parameters"},
-	{ em_maxnest,		1, 1, 0, "MAXNEST",	"Maximum level of statement nesting"},
+	{ em_ngnsoc,		0, 1, 0, "NGNSOC",	"Number of global namespace occupants at function's top"},
+	{ em_nmparam,		1, 0, 0, "NMPARAM",	"Number of parameters (for macros)"},
+	{ em_nfparam,		0, 1, 0, "NFPARAM",	"Number of parameters (for functions)"},
+	{ em_maxnest,		0, 1, 0, "MAXNEST",	"Maximum level of statement nesting"},
 	// Metrics dynamically derived
 	{ em_nlabel,		1, 1, 0, "NLABEL",	"Number of goto labels"},
 	{ em_fanin,		1, 1, 0, "FANIN",	"Fan-in (number of calling functions)"},

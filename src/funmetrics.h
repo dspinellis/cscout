@@ -60,7 +60,8 @@ public:
 		// During processing (once based on processed)
 		em_ngnsoc =	// Number of global namespace occupants at function's top
 			Metrics::metric_max,
-		em_nparam,	// Number of parameters
+		em_nmparam,	// Number of macro parameters
+		em_nfparam,	// Number of function parameters
 		em_maxnest,	// Maximum level of statement nesting
 		// Stored metrics stop here
 		stored_metric_max,

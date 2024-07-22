@@ -1554,12 +1554,16 @@ function_page(FILE *fo, void *p)
 			RefFunCall::store_type::const_iterator rfc;
 		    	if ((rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end())
 				repl_temp << html(rfc->second.get_replacement());
-			else if (f->is_defined())
-				for (int i = 0; i < f->get_pre_cpp_metrics().get_metric(FunMetrics::em_nparam); i++) {
+			else if (f->is_defined()) {
+				int nparam = f->is_cfun()
+					? f->get_post_cpp_metrics().get_metric(FunMetrics::em_nfparam)
+					: f->get_pre_cpp_metrics().get_metric(FunMetrics::em_nmparam);
+				for (int i = 0; i < nparam; i++) {
 					repl_temp << '@' << i + 1;
-					if (i + 1 < f->get_pre_cpp_metrics().get_metric(FunMetrics::em_nparam))
+					if (i + 1 < nparam)
 						repl_temp << ", ";
 				}
+			}
 			fprintf(fo, "<li> Refactor arguments into: \n"
 				"<INPUT TYPE=\"text\" NAME=\"ncall\" VALUE=\"%s\" SIZE=40 MAXLENGTH=256> "
 				"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n",

@@ -109,7 +109,7 @@ FCall::set_current_fun(const Type &t)
 		cout << "Current function " << id->get_name() << "\n";
 		cout << "Type: " << t << "\n";
 	}
-	cfun->get_pre_cpp_metrics().set_metric(FunMetrics::em_ngnsoc,
+	cfun->get_post_cpp_metrics().set_metric(FunMetrics::em_ngnsoc,
 	    Block::global_namespace_occupants_size() +
 	    Pdtoken::macros_size());
 	nesting.push(cfun);

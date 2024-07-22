@@ -288,7 +288,7 @@ obj_define(const Token& tok, Type typ)
 				fc = new FCall(utok, typ, tok.get_name());
 			}
 		}
-		fc->get_pre_cpp_metrics().set_metric(FunMetrics::em_nparam, typ.get_nparam());
+		fc->get_post_cpp_metrics().set_metric(FunMetrics::em_nfparam, typ.get_nparam());
 	}
 
 	static Stab Block::*objptr = &Block::obj;
