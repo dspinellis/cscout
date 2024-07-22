@@ -876,7 +876,7 @@ Pdtoken::process_define(bool is_immutable)
 			MCall::set_current_fun(m);
 			t.getnext<Fchar>();
 		}
-		MCall::set_num_args(m.get_num_args());
+		MCall::set_pre_cpp_num_args(m.get_num_args());
 	} else
 		Metrics::call_pre_cpp_metrics(&Metrics::add_ppomacro);
 	if (DP()) cout << "Body starts with " << t;

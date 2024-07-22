@@ -207,9 +207,9 @@ public:
 	}
 
 	// Set number of arguments
-	static inline void set_num_args(int n) {
+	static inline void set_pre_cpp_num_args(int n) {
 		if (current_fun && !current_fun->pre_cpp_metrics.is_processed())
-			current_fun->pre_cpp_metrics.set_metric(FunMetrics::em_nparam, n);
+			current_fun->pre_cpp_metrics.set_metric(FunMetrics::em_nmparam, n);
 	}
 
 	// Process a token destined for preprocessing
@@ -250,14 +250,14 @@ public:
 
 	// Increase the current function's level of nesting
 	static inline void increase_nesting() {
-		if (current_fun && !current_fun->pre_cpp_metrics.is_processed() &&
+		if (current_fun && !current_fun->post_cpp_metrics.is_processed() &&
 		    !macro_nesting)
-			current_fun->pre_cpp_metrics.update_nesting(++(current_fun->curr_stmt_nesting));
+			current_fun->post_cpp_metrics.update_nesting(++(current_fun->curr_stmt_nesting));
 	}
 
 	// Decrease the current function's level of nesting
 	static inline void decrease_nesting() {
-		if (!current_fun || current_fun->pre_cpp_metrics.is_processed())
+		if (!current_fun || current_fun->post_cpp_metrics.is_processed())
 			return;
 		if (macro_nesting)
 			macro_nesting--;
