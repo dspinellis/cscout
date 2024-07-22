@@ -1583,12 +1583,12 @@ function_page(FILE *fo, void *p)
 				continue;
 			fprintf(fo, "<tr><td>%s</td>",
 			    Metrics::get_name<FunMetrics>(j).c_str());
-			if (Metrics::is_pre_cpp<FileMetrics>(j))
+			if (Metrics::is_pre_cpp<FunMetrics>(j))
 				fprintf(fo, "<td align='right'>%g</td>",
 				    f->get_pre_cpp_metrics().get_metric(j));
 			else
 				fprintf(fo, "<td align='right'>&mdash;</td>");
-			if (Metrics::is_post_cpp<FileMetrics>(j))
+			if (Metrics::is_post_cpp<FunMetrics>(j))
 				fprintf(fo, "<td align='right'>%g</td></tr>",
 				    f->get_post_cpp_metrics().get_metric(j));
 			else
