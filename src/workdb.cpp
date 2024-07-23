@@ -79,6 +79,7 @@ table_enable(const char *name)
 
 		table_enum["IDS"] = t_ids;
 		table_enum["FILES"] = t_files;
+		table_enum["FILEMETRICS"] = t_filemetrics;
 		table_enum["TOKENS"] = t_tokens;
 		table_enum["COMMENTS"] = t_comments;
 		table_enum["STRINGS"] = t_strings;
@@ -92,6 +93,7 @@ table_enable(const char *name)
 		table_enum["PROVIDERS"] = t_providers;
 		table_enum["INCTRIGGERS"] = t_inctriggers;
 		table_enum["FUNCTIONS"] = t_functions;
+		table_enum["FUNCTIONDEFS"] = t_functiondefs;
 		table_enum["FUNCTIONMETRICS"] = t_functionmetrics;
 		table_enum["FUNCTIONID"] = t_functionid;
 		table_enum["FCALLS"] = t_fcalls;
@@ -402,12 +404,21 @@ workdb_schema(Sql *db, ostream &of)
 			"FID INTEGER PRIMARY KEY,"		// Unique file key
 			"NAME " << db->varchar() << ",\n"	// File name
 			"RO " << db->booltype();		// True if the file is read-only
+			cout << ");\n";
+	}
+
+	if (table_is_enabled(t_filemetrics)) {
+		cout <<
+			"CREATE TABLE FILEMETRICS("		// File details
+			"FID INTEGER,\n"			// File key
+			"PRECPP " << db->booltype() << ",\n";	// True for values before the cpp false for values after it
 			// AUTOSCHEMA INCLUDE metrics.cpp Metrics
 			// AUTOSCHEMA INCLUDE filemetrics.cpp FileMetrics
 			for (int i = 0; i < FileMetrics::metric_max; i++)
 				if (!Metrics::is_internal<FileMetrics>(i))
-					cout << ",\n" << Metrics::get_dbfield<FileMetrics>(i) << " INTEGER";
-			cout << ");\n";
+					cout << Metrics::get_dbfield<FileMetrics>(i) << " INTEGER,\n" ;
+			cout << "PRIMARY KEY(FID, PRECPP),\n"
+				"FOREIGN KEY(FID) REFERENCES FILES(FID));\n";
 	}
 
 	if (table_is_enabled(t_tokens))
@@ -562,10 +573,24 @@ workdb_schema(Sql *db, ostream &of)
 			"FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 			");\n";
 
+	if (table_is_enabled(t_functiondefs)) {
+		cout <<
+			"CREATE TABLE FUNCTIONDEFS("		// Details of defined functions and macros
+			"FUNCTIONID " << db->ptrtype() << " PRIMARY KEY,\n";	// Function identifier key (references FUNCTIONS)
+			cout <<
+			"FIDBEGIN INTEGER,\n"			// File key of the function's definition begin (references FILES)
+			"FOFFSETBEGIN INTEGER,\n"		// Offset of definition begin within the file
+			"FIDEND INTEGER,\n"			// File key of the function's definition end (references FILES)
+			"FOFFSETEND INTEGER,\n"			// Offset of definition end within the file
+			"FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)"
+			");\n";
+
+	}
 	if (table_is_enabled(t_functionmetrics)) {
 		cout <<
 			"CREATE TABLE FUNCTIONMETRICS("		// Metrics of defined functions and macros
-			"FUNCTIONID " << db->ptrtype() << " PRIMARY KEY,\n";	// Function identifier key (references FUNCTIONS)
+			"FUNCTIONID " << db->ptrtype() << ",\n"	// Function identifier key (references FUNCTIONS)
+			"PRECPP " << db->booltype() << ",\n";	// True for values before the cpp false for values after it
 			// AUTOSCHEMA INCLUDE metrics.cpp Metrics
 			// AUTOSCHEMA INCLUDE funmetrics.cpp FunMetrics
 			for (int i = 0; i < FunMetrics::metric_max; i++)
@@ -574,10 +599,7 @@ workdb_schema(Sql *db, ostream &of)
 					    (i >= FunMetrics::em_real_start ? " REAL" : " INTEGER") <<
 					    ",\n";
 			cout <<
-			"FIDBEGIN INTEGER,\n"			// File key of the function's definition begin (references FILES)
-			"FOFFSETBEGIN INTEGER,\n"		// Offset of definition begin within the file
-			"FIDEND INTEGER,\n"			// File key of the function's definition end (references FILES)
-			"FOFFSETEND INTEGER,\n"			// Offset of definition end within the file
+			"PRIMARY KEY(FUNCTIONID, PRECPP),\n"
 			"FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)"
 			");\n";
 
@@ -637,9 +659,32 @@ workdb_rest(Sql *db, ostream &of)
 			    << i->get_id() << ",'"
 			    << i->get_path() << "',"
 			    << db->boolval(i->get_readonly());
-			for (int j = 0; j < FileMetrics::metric_max; j++)
-				if (!Metrics::is_internal<FileMetrics>(j))
+			cout << ");\n";
+			// Pre-cpp
+			cout << "INSERT INTO FILEMETRICS VALUES("
+			    << i->get_id() << ","
+			    << db->boolval(true);
+			for (int j = 0; j < FileMetrics::metric_max; j++) {
+				if (Metrics::is_internal<FileMetrics>(j))
+					continue;
+				if (Metrics::is_pre_cpp<FileMetrics>(j))
 					cout << ',' << Filedetails::get_pre_cpp_metrics(*i).get_metric(j);
+				else
+					cout << ",NULL";
+			}
+			cout << ");\n";
+			// Post-cpp
+			cout << "INSERT INTO FILEMETRICS VALUES("
+			    << i->get_id() << ","
+			    << db->boolval(false);
+			for (int j = 0; j < FileMetrics::metric_max; j++) {
+				if (Metrics::is_internal<FileMetrics>(j))
+					continue;
+				if (Metrics::is_post_cpp<FileMetrics>(j))
+					cout << ',' << Filedetails::get_post_cpp_metrics(*i).get_metric(j);
+				else
+					cout << ",NULL";
+			}
 			cout << ");\n";
 		}
 		// This invalidates the file's metrics
