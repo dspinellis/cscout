@@ -176,6 +176,8 @@ public:
 		em_numid,	// Number of macro identifiers
 		em_nuid,	// Number of unique object and object-like identifiers
 		em_nlabid,	// (INT) Number of label identifiers
+		// The following metrics are dynamically derived
+		em_nlabel,	// Number of goto labels (label identifiers - goto statements)
 		metric_max,
 		em_invalid = -1,
 	};
@@ -211,7 +213,8 @@ public:
 	// Get methods
 	enum e_cfile_state get_state() { return cstate; }
 	// Generic
-	double get_metric(int n) const { return count[n]; }
+	// Return metric i (by lookup or calculation)
+	double get_metric(int n) const;
 	void set_metric(int n, int val) { count[n] = val; }
 	void summarize_operators();
 
