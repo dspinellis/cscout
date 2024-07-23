@@ -86,7 +86,9 @@ end_compare()
 	fi
 }
 
-# End a test (arguments result, name)
+# End a test
+# usage: end_test name result
+# result = 1 means success, other value means error
 end_test()
 {
 	NTEST=`expr $NTEST + 1`
