@@ -100,9 +100,24 @@ public:
 	// Create file-based summary
 	void summarize_files();
 	friend ostream& operator<<(ostream& o,const FileMetricsSummary &ms);
-	double get_total(int i) { return rw[0].get_total(i) + rw[1].get_total(i); }
-	double get_readonly(int i) { return rw[1].get_total(i); }
-	double get_writable(int i) { return rw[0].get_total(i); }
+	double get_pre_cpp_total(int i) {
+		return rw[0].get_pre_cpp_total(i) + rw[1].get_pre_cpp_total(i);
+	}
+	double get_post_cpp_total(int i) {
+		return rw[0].get_post_cpp_total(i) + rw[1].get_post_cpp_total(i);
+	}
+	double get_pre_cpp_readonly(int i) {
+		return rw[1].get_pre_cpp_total(i);
+	}
+	double get_pre_cpp_writable(int i) {
+		return rw[0].get_pre_cpp_total(i);
+	}
+	double get_post_cpp_readonly(int i) {
+		return rw[1].get_post_cpp_total(i);
+	}
+	double get_post_cpp_writable(int i) {
+		return rw[0].get_post_cpp_total(i);
+	}
 };
 
 extern FileMetricsSummary file_msum;

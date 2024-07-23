@@ -3522,7 +3522,7 @@ main(int argc, char *argv[])
 	cerr << endl;
 
 	if (DP())
-		cout << "Size " << file_msum.get_total(Metrics::em_nchar) << endl;
+		cout << "Size " << file_msum.get_pre_cpp_total(Metrics::em_nchar) << endl;
 
 	if (process_mode == pm_database) {
 		workdb_rest(Sql::getInterface(), cout);
@@ -3576,12 +3576,12 @@ main(int argc, char *argv[])
 	}
 
 
-	if (file_msum.get_writable(Metrics::em_nuline)) {
+	if (file_msum.get_pre_cpp_writable(Metrics::em_nuline)) {
 		ostringstream msg;
-		msg << file_msum.get_writable(Metrics::em_nuline) <<
+		msg << file_msum.get_pre_cpp_writable(Metrics::em_nuline) <<
 		    " conditionally compiled writable lines" << endl <<
 		    "(out of a total of " <<
-		    (int)file_msum.get_writable(Metrics::em_nline) <<
+		    (int)file_msum.get_pre_cpp_writable(Metrics::em_nline) <<
 		    " writable lines) were not processed";
 		Error::error(E_WARN, msg.str(), false);
 	}

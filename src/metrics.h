@@ -542,21 +542,24 @@ class MetricsCount {
 private:
 	// Totals for all files
 	int nelement;		// Number of unique files
-	vector <double> count;	// File metric counts
+	vector <double> pre_cpp_count;	// File metric counts before the cpp
+	vector <double> post_cpp_count;	// File metric counts after the cpp
 public:
 	MetricsCount(double v = 0) :
 		nelement(0),
-		count(M::metric_max, v)
+		pre_cpp_count(M::metric_max, v),
+		post_cpp_count(M::metric_max, v)
 	{}
-	double get_metric(int i)  const { return count[i]; }
+	double get_pre_cpp_metric(int i)  const { return pre_cpp_count[i]; }
+	double get_post_cpp_metric(int i)  const { return post_cpp_count[i]; }
 
 	// Update metrics summary
 	template <class BinaryFunction>
 	void add(E &fi, BinaryFunction f) {
 		nelement++;
 		for (int i = 0; i < M::metric_max; i++) {
-			count[i] = f(fi.get_pre_cpp_metrics().get_metric(i), count[i]);
-			count[i] = f(fi.get_post_cpp_metrics().get_metric(i), count[i]);
+			pre_cpp_count[i] = f(fi.get_pre_cpp_metrics().get_metric(i), pre_cpp_count[i]);
+			post_cpp_count[i] = f(fi.get_post_cpp_metrics().get_metric(i), post_cpp_count[i]);
 		}
 	}
 	int get_nelement() const { return nelement; }
@@ -579,7 +582,8 @@ public:
 	{}
 	template <class MM, class EE>
 	friend ostream& operator<<(ostream& o, const MetricsRange &m);
-	double get_total(int i) { return total.get_metric(i); }
+	double get_pre_cpp_total(int i) { return total.get_pre_cpp_metric(i); }
+	double get_post_cpp_total(int i) { return total.get_post_cpp_metric(i); }
 };
 
 template <class M, class E>
@@ -589,8 +593,19 @@ operator<<(ostream& o, const MetricsRange<M, E> &m)
 	o << "Number of elements: " << m.total.get_nelement() << "<p>\n";
 	if (m.total.get_nelement() == 0)
 		return o;
+	// Number data
+	const string tdnum("<td style='text-align: right;'>");
+
 	o << "<table class='metrics'>"
 		"<tr><th>" "Metric" "</th>"
+                "<th style='text-align: center;' colspan='4'>Pre-cpp</th>"
+                "<th style='text-align: center;' colspan='4'>Post-cpp</th>"
+		"</tr>\n"
+		"<tr><th></th>"
+		"<th>" "Total" "</th>"
+		"<th>" "Min" "</th>"
+		"<th>" "Max" "</th>"
+		"<th>" "Avg" "</th>"
 		"<th>" "Total" "</th>"
 		"<th>" "Min" "</th>"
 		"<th>" "Max" "</th>"
@@ -598,10 +613,14 @@ operator<<(ostream& o, const MetricsRange<M, E> &m)
 	for (int i = 0; i < M::metric_max; i++)
 		if (!Metrics::is_internal<M>(i))
 			o << "<tr><td>" << Metrics::get_name<M>(i) << "</td>"
-			    "<td>" << m.total.get_metric(i) << "</td>"
-			    "<td>" << m.min.get_metric(i) << "</td>"
-			    "<td>" << m.max.get_metric(i) << "</td>"
-			    "<td>" << avg(m.total.get_metric(i), m.total.get_nelement()) << "</td></tr>\n";
+			    << tdnum << m.total.get_pre_cpp_metric(i) << "</td>"
+			    << tdnum << m.min.get_pre_cpp_metric(i) << "</td>"
+			    << tdnum << m.max.get_pre_cpp_metric(i) << "</td>"
+			    << tdnum << avg(m.total.get_pre_cpp_metric(i), m.total.get_nelement()) << "</td>"
+			    << tdnum << m.total.get_post_cpp_metric(i) << "</td>"
+			    << tdnum << m.min.get_post_cpp_metric(i) << "</td>"
+			    << tdnum << m.max.get_post_cpp_metric(i) << "</td>"
+			    << tdnum << avg(m.total.get_post_cpp_metric(i), m.total.get_nelement()) << "</td></tr>\n";
 	o << "</table>\n";
 	return o;
 }
