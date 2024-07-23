@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004-2015 Diomidis Spinellis
+ * (C) Copyright 2004-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -28,6 +28,7 @@
 #include "tokid.h"
 #include "fchar.h"
 #include "token.h"
+#include "filedetails.h"
 
 class FCall;
 class Sql;
@@ -251,8 +252,11 @@ public:
 	// Increase the current function's level of nesting
 	static inline void increase_nesting() {
 		if (current_fun && !current_fun->post_cpp_metrics.is_processed() &&
-		    !macro_nesting)
-			current_fun->post_cpp_metrics.update_nesting(++(current_fun->curr_stmt_nesting));
+		    !macro_nesting) {
+			current_fun->curr_stmt_nesting += 1;
+			current_fun->post_cpp_metrics.update_nesting(current_fun->curr_stmt_nesting);
+			Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).update_nesting(current_fun->curr_stmt_nesting);
+		}
 	}
 
 	// Decrease the current function's level of nesting

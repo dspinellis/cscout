@@ -62,7 +62,6 @@ MetricDetails FunMetrics::metric_details[] = {
 	{ em_ngnsoc,		0, 1, 0, "NGNSOC",	"Number of global namespace occupants at function's top"},
 	{ em_nmparam,		1, 0, 0, "NMPARAM",	"Number of parameters (for macros)"},
 	{ em_nfparam,		0, 1, 0, "NFPARAM",	"Number of parameters (for functions)"},
-	{ em_maxnest,		0, 1, 0, "MAXNEST",	"Maximum level of statement nesting"},
 	// Metrics dynamically derived
 	{ em_fanin,		1, 1, 0, "FANIN",	"Fan-in (number of calling functions)"},
 	{ em_fanout,		1, 1, 0, "FANOUT",	"Fan-out (number of called functions)"},
