@@ -261,7 +261,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 		    (isalnum(c) || c == '_') &&
 		    (ec = ti.check_ec()) &&
 		    ec->is_identifier()) {
-			id_msum.add_id(ec);
+			id_msum.add_pre_cpp_id(ec);
 			string s;
 			s = (char)val;
 			int len = ec->get_len();

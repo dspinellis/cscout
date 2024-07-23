@@ -199,9 +199,15 @@ IdCount::add(Eclass *ec, UnaryFunction f)
 
 // Called for each identifier occurence (all)
 void
-IdMetricsSummary::add_id(Eclass *ec)
+IdMetricsSummary::add_pre_cpp_id(Eclass *ec)
 {
-	rw[ec->get_attribute(is_readonly)].all.add(ec, add_one());
+	rw[ec->get_attribute(is_readonly)].all[IdMetricsSet::pp_pre].add(ec, add_one());
+}
+
+void
+IdMetricsSummary::add_post_cpp_id(Eclass *ec)
+{
+	rw[ec->get_attribute(is_readonly)].all[IdMetricsSet::pp_post].add(ec, add_one());
 }
 
 // Called for each unique identifier occurence (EC)
@@ -214,6 +220,7 @@ IdMetricsSummary::add_unique_id(Eclass *ec)
 	rw[ec->get_attribute(is_readonly)].minlen.add(ec, set_min(ec->get_len()));
 }
 
+
 ostream&
 operator<<(ostream& o, const IdMetricsSet &mi)
 {
@@ -221,24 +228,32 @@ operator<<(ostream& o, const IdMetricsSet &mi)
 
 	o << "<table class='metrics'>"
 		"<tr><th>" "Identifier class" "</th>"
-		"<th>" "Distinct # ids" "</th>"
-		"<th>" "Total # ids" "</th>"
-		"<th>" "Avg length" "</th>"
-		"<th>" "Min length" "</th>"
-		"<th>" "Max length" "</th></tr>\n";
+		"<th>" "Pre-cpp<br>total ids" "</th>"
+		"<th>" "Post-cpp<br>total ids" "</th>"
+		"<th>" "Distinct ids" "</th>"
+		"<th>" "Avg len" "</th>"
+		"<th>" "Min len" "</th>"
+		"<th>" "Max len" "</th></tr>\n";
+
+	const string tdnum("<td style='text-align: right;'>");
 	o << "<tr><td>" "All identifiers" "</td>"
-		"<td>" << m.once.total << "</td>"
-		"<td>" << m.all.total << "</td>"
-		"<td>" << avg(m.len.total, m.once.total) << "</td>"
-		"<td>" << m.minlen.total << "</td>"
-		"<td>" << m.maxlen.total << "</td></tr>\n";
-	for (int i = is_readonly + 1; i < attr_end; i++)
+	    << tdnum << m.all[IdMetricsSet::pp_pre].total << "</td>"
+	    << tdnum << m.all[IdMetricsSet::pp_post].total << "</td>"
+	    << tdnum << m.once.total << "</td>"
+	    << tdnum << avg(m.len.total, m.once.total) << "</td>"
+	    << tdnum << m.minlen.total << "</td>"
+	    << tdnum << m.maxlen.total << "</td>"
+	    << "</tr>\n";
+	for (int i = is_readonly + 1; i < attr_end; i++) {
 		o << "<tr><td>" << Attributes::name(i) << "</td>"
-			"<td>" << m.once.get_count(i) << "</td>"
-			"<td>" << m.all.get_count(i) << "</td>"
-			"<td>" << avg(m.len.get_count(i), m.once.get_count(i)) << "</td>"
-			"<td>" << m.minlen.get_count(i) << "</td>"
-			"<td>" << m.maxlen.get_count(i) << "</td></tr>\n";
+		    << tdnum << m.all[IdMetricsSet::pp_pre].get_count(i) << "</td>"
+		    << tdnum << m.all[IdMetricsSet::pp_post].get_count(i) << "</td>"
+		    << tdnum << m.once.get_count(i) << "</td>"
+		    << tdnum << avg(m.len.get_count(i), m.once.get_count(i)) << "</td>"
+		    << tdnum << m.minlen.get_count(i) << "</td>"
+		    << tdnum << m.maxlen.get_count(i) << "</td>"
+		    << "</tr>\n";
+	}
 	o << "</table>\n";
 	return o;
 }
@@ -372,6 +387,8 @@ Metrics::process_queued_identifiers()
 			    tpart_it->get_len(),
 			    tpart_it->get_tokid().get_ec()
 			);
+
+			id_msum.add_post_cpp_id(tpart_it->get_tokid().get_ec());
 		}
 	}
 }
