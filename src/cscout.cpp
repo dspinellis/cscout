@@ -343,7 +343,7 @@ file_analyze(Fileid fi)
 			// Identifiers we can mark
 			if (ec->is_identifier()) {
 				// Update metrics
-				id_msum.add_id(ec);
+				id_msum.add_pre_cpp_id(ec);
 				// Add to the map
 				string s(1, c);
 				int len = ec->get_len();
@@ -3614,10 +3614,10 @@ main(int argc, char *argv[])
 		return (0);
 	}
 
-	if (process_mode == pm_compile)
-		return (0);
 	if (DP())
 		cout  << "Tokid EC map size is " << Tokid::map_size() << endl;
+	if (process_mode == pm_compile)
+		return (0);
 	// Serve web pages
 	if (!must_exit)
 		cerr << "CScout is now ready to serve you at http://localhost:" << portno << endl;

@@ -422,19 +422,20 @@ public:
 };
 
 class Fileid;
-class IdMetricsSet;
 
-
-// One such set is kept for readable and writable identifiers
 class IdMetricsSet {
 	friend class IdMetricsSummary;
+public:
+	enum e_pre_post { pp_pre, pp_post, pp_max };
+	friend ostream& operator<<(ostream& o, const IdMetricsSet &m);
+private:
+	// Total metrics before (pp_pre) and after (pp_post) cpp
+	IdCount all[pp_max];
+
 	IdCount once;	// Each identifier EC is counted once
 	IdCount len;	// Use the len of each EC
 	IdCount maxlen;	// Maximum length for each type
 	IdCount minlen;	// Minimum length for each type
-	IdCount all;	// Each identifier counted for every occurance in a file
-public:
-	friend ostream& operator<<(ostream& o, const IdMetricsSet &m);
 };
 
 // This can be kept per project and globally
@@ -442,9 +443,12 @@ class IdMetricsSummary {
 	IdMetricsSet rw[2];			// For writable (0) and read-only (1) cases
 public:
 	// Called for every identifier occurence
-	void add_id(Eclass *ec);
+	void add_pre_cpp_id(Eclass *ec);
+	void add_post_cpp_id(Eclass *ec);
+
 	// Called for every unique identifier occurence (EC)
 	void add_unique_id(Eclass *ec);
+
 	friend ostream& operator<<(ostream& o,const IdMetricsSummary &ms);
 };
 
