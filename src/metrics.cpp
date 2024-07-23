@@ -39,7 +39,7 @@
 #include "call.h"
 
 vector<bool> Metrics::is_operator_map(make_is_operator());
-KeywordMetrics::map_type KeywordMetrics::map(make_keyword_map());
+KeywordMetrics::map_type KeywordMetrics::keyword_map(make_keyword_map());
 
 vector<MetricDetails>
 Metrics::metric_details_values()
