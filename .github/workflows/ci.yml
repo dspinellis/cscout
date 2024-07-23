@@ -31,7 +31,7 @@ jobs:
         run: make
 
       - name: Run tests
-        run: make test
+        run: make test -DTEST_FLAGS=-k
   build-and-test-macos:
     runs-on: macos-latest
 
