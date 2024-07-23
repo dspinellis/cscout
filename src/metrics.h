@@ -84,6 +84,9 @@ struct MetricDetails {
 class Metrics {
 private:
 	int currlinelen;
+	int currstmtlen;
+	int currbracenesting;
+	int currbracknesting;
 	enum e_cfile_state cstate;
 	static MetricDetails metric_details[];
 	vector <Ctoken> queued_identifiers;
@@ -113,6 +116,9 @@ protected:
 public:
 	Metrics() :
 		currlinelen(0),
+		currstmtlen(0),
+		currbracenesting(0),
+		currbracknesting(0),
 		cstate(s_normal),
 		processed(false)
 	{}
@@ -127,7 +133,10 @@ public:
 		em_nbcomment,		// Number of block comments
 		em_nline,		// Number of lines
 		em_maxlinelen,		// Maximum number of characters in a line
-		em_maxnest,		// Maximum level of statement nesting
+		em_maxstmtlen,		// Maximum number of characters in a line
+		em_maxstmtnest,		// Maximum level of statement nesting
+		em_maxbracenest,	// Maximum level of brace nesting
+		em_maxbracknest,	// Maximum level of bracket nesting
 		em_nuline,		// Number of unprocessed lines
 
 	// During processing (once based on processed)
@@ -221,8 +230,8 @@ public:
 
 	// Update the maxumum level of statement nesting
 	void update_nesting(int nesting) {
-		if (nesting > count[em_maxnest])
-			count[em_maxnest] = nesting;
+		if (nesting > count[em_maxstmtnest])
+			count[em_maxstmtnest] = nesting;
 	}
 
 	// Call the specified metrics function for the current file and function
@@ -286,6 +295,7 @@ template <typename TokenType> void
 Metrics::process_token(const TokenType &t, Metrics::e_metric metric_code)
 {
 	csassert(!processed);
+	++currstmtlen;
 	int code = t.get_code();
 	switch (code) {
 	case IDENTIFIER:
@@ -317,6 +327,9 @@ Metrics::process_token(const TokenType &t, Metrics::e_metric metric_code)
 		}
 		break;
 	case ';':
+		if (currstmtlen > count[em_maxstmtlen])
+			count[em_maxstmtlen] = currstmtlen;
+		currstmtlen = 0;
 		count[em_nstmt]++;
 		break;
 	case PP_NUMBER:
@@ -327,6 +340,22 @@ Metrics::process_token(const TokenType &t, Metrics::e_metric metric_code)
 		break;
 	case STRING_LITERAL:
 		count[em_nstring]++;
+		break;
+	case '{':
+		++currbracenesting;
+		if (currbracenesting > count[em_maxbracenest])
+			count[em_maxbracenest] = currbracenesting;
+		break;
+	case '}':
+		--currbracenesting;
+		break;
+	case '(':
+		++currbracknesting;
+		if (currbracknesting > count[em_maxbracknest])
+			count[em_maxbracknest] = currbracknesting;
+		break;
+	case ')':
+		--currbracknesting;
 		break;
 	case AND_OP:
 	case OR_OP:

@@ -51,7 +51,10 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_nbcomment,		1, 0, 1, "NBCOMMENT",	"Number of block comments"},
 	{ em_nline,		1, 0, 1, "NLINE",	"Number of lines"},
 	{ em_maxlinelen,	1, 0, 1, "MAXLINELEN",	"Maximum number of characters in a line"},
-	{ em_maxnest,		0, 1, 1, "MAXNEST",	"Maximum level of statement nesting"},
+	{ em_maxstmtlen,	1, 1, 1, "MAXSTMTLEN",	"Maximum number of tokens in a statement"},
+	{ em_maxstmtnest,	0, 1, 1, "MAXSTMTNEST",	"Maximum level of statement nesting"},
+	{ em_maxbracenest,	1, 1, 1, "MAXBRACENEST","Maximum level of brace nesting"},
+	{ em_maxbracknest,	1, 1, 1, "MAXBRACKNEST","Maximum level of bracket nesting"},
 	{ em_nuline,		1, 0, 1, "NULINE",	"Number of unprocessed lines"},
 
 	{ em_ntoken,		1, 1, 1, "NTOKEN",	"Number of tokens"},
