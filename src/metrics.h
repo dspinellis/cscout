@@ -306,7 +306,7 @@ private:
 	typedef map<string, Metrics::e_metric> map_type;
 
 	// Map from keywords to a metric that tallies them
-	static map_type map;
+	static map_type keyword_map;
 	// Initialize keyword to code map
 	static map_type make_keyword_map();
 public:
@@ -316,8 +316,8 @@ public:
 	 * multiple calls.
 	 */
 	static inline Metrics::e_metric metric(const string &s) {
-		auto i = map.find(s);
-		return (i == map.end() ? Metrics::em_invalid : i->second);
+		auto i = keyword_map.find(s);
+		return (i == keyword_map.end() ? Metrics::em_invalid : i->second);
 	}
 };
 
