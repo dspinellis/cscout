@@ -66,9 +66,8 @@ public:
 		// Stored metrics stop here
 		stored_metric_max,
 		// The following metrics are dynamically derived
-		em_nlabel =	// Number of goto labels (label identifiers - goto statements)
+		em_fanin =	// Fan-in (number of calling functions)
 			stored_metric_max,
-		em_fanin,	// Fan-in (number of calling functions)
 		em_fanout,	// Fan-out (number of called functions)
 		em_ccycl1,	// Cyclomatic complexity (control statements)
 		em_ccycl2,	// Extended cyclomatic complexity (includes branching operators)

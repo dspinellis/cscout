@@ -64,7 +64,6 @@ MetricDetails FunMetrics::metric_details[] = {
 	{ em_nfparam,		0, 1, 0, "NFPARAM",	"Number of parameters (for functions)"},
 	{ em_maxnest,		0, 1, 0, "MAXNEST",	"Maximum level of statement nesting"},
 	// Metrics dynamically derived
-	{ em_nlabel,		1, 1, 0, "NLABEL",	"Number of goto labels"},
 	{ em_fanin,		1, 1, 0, "FANIN",	"Fan-in (number of calling functions)"},
 	{ em_fanout,		1, 1, 0, "FANOUT",	"Fan-out (number of called functions)"},
 	{ em_ccycl1,		1, 1, 0, "CCYCL1",	"Cyclomatic complexity (control statements)"},
@@ -83,10 +82,8 @@ FunMetrics::get_metric(int n) const
 	switch (n) {
 	// Most metrics are simply looked up
 	default:
-		return count[n];
+		return Metrics::get_metric(n);
 	// A few are calculated dynamically
-	case em_nlabel:	// Number of goto labels
-		return (get_metric(em_nlabid) - get_metric(em_ngoto));
 	case em_fanin:	// Fan-in (number of calling functions)
 		return call->get_num_caller();
 	case em_fanout:	// Fan-out (number of called functions)
@@ -120,7 +117,6 @@ FunMetrics::get_metric(int n) const
 			    log2(logarg);
 	}
 }
-
 
 // Summarize the operators collected by process_token
 void

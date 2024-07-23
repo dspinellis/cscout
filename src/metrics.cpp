@@ -89,6 +89,7 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_numid,		1, 0, 1, "NUMID",	"Number of unique macro identifiers"},
 	{ em_nuid,		1, 1, 1, "NUID",	"Number of unique object and object-like identifiers"},
 	{ em_nlabid,		1, 1, 1, "INTERNAL",	"Number of label identifiers"},
+	{ em_nlabel,		1, 1, 1, "NLABEL",	"Number of goto labels"},
 // END AUTOSCHEMA Metrics
 	{ metric_max,		1, 0, 0, "",		""},
 };
@@ -365,6 +366,19 @@ Metrics::process_queued_identifiers()
 			    tpart_it->get_tokid().get_ec()
 			);
 		}
+	}
+}
+
+double
+Metrics::get_metric(int n) const
+{
+	switch (n) {
+	// Most metrics are simply looked up
+	default:
+		return count[n];
+	// A few are calculated dynamically
+	case em_nlabel:	// Number of goto labels
+		return (get_metric(em_nlabid) - get_metric(em_ngoto));
 	}
 }
 
