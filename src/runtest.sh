@@ -126,6 +126,7 @@ PRAGMA locking_mode = EXCLUSIVE;
 
 .separator "\t"
 .headers on
+.nullvalue NULL
 
 .print "Fixing EIDs"
 
