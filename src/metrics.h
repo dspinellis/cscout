@@ -266,7 +266,9 @@ public:
 
 	// Return true if the specified metric shall not appear in the UI/RDBMS
 	template <class M>
-	static bool is_internal(int n) { return get_dbfield<M>(n) == "INTERNAL"; }
+	static bool is_internal(int n) {
+		return !is_pre_cpp<M>(n) && !is_post_cpp<M>(n) ;
+	}
 
 	// Return a reference to the details of the specified metric of class M
 	template <class M>

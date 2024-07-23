@@ -72,7 +72,7 @@ Metrics::metric_details_values()
 	v[em_nnconst]		= MetricDetails(1, 1, 1, "NNCONST",	"Number of numeric constants");
 	v[em_nclit]		= MetricDetails(1, 1, 1, "NCLIT",	"Number of character literals");
 	v[em_nstring]		= MetricDetails(1, 1, 1, "NSTRING",	"Number of character strings");
-	v[em_ncc2op]		= MetricDetails(1, 1, 0, "INTERNAL",	"Number of operators contributing to cc2: &&, ||, ?:");
+	v[em_ncc2op]		= MetricDetails(0, 0, 0, "INTERNAL",	"Number of operators contributing to cc2: &&, ||, ?:");
 	// Keywords counted at the token tap
 	v[em_nif]		= MetricDetails(1, 1, 1, "NIF",		"Number of if statements");
 	v[em_nelse]		= MetricDetails(1, 1, 1, "NELSE",	"Number of else clauses");
@@ -95,7 +95,7 @@ Metrics::metric_details_values()
 	v[em_nufid]		= MetricDetails(1, 1, 1, "NUFID",	"Number of unique file-scope (static) identifiers");
 	v[em_numid]		= MetricDetails(1, 0, 1, "NUMID",	"Number of unique macro identifiers");
 	v[em_nuid]		= MetricDetails(1, 1, 1, "NUID",	"Number of unique object and object-like identifiers");
-	v[em_nlabid]		= MetricDetails(1, 1, 1, "INTERNAL",	"Number of label identifiers");
+	v[em_nlabid]		= MetricDetails(0, 0, 1, "INTERNAL",	"Number of label identifiers");
 	v[em_nlabel]		= MetricDetails(1, 1, 1, "NLABEL",	"Number of goto labels");
 // END AUTOSCHEMA Metrics
 	return v;
