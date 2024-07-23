@@ -41,61 +41,64 @@
 vector<bool> Metrics::is_operator_map(make_is_operator());
 KeywordMetrics::map_type KeywordMetrics::map(make_keyword_map());
 
-MetricDetails Metrics::metric_details[] = {
+vector<MetricDetails>
+Metrics::metric_details_values()
+{
+	vector<MetricDetails> v(metric_max);
 // BEGIN AUTOSCHEMA Metrics
-				// pre-cpp, post-cpp, file
-	{ em_nchar,		1, 0, 1, "NCHAR",	"Number of characters"},
-	{ em_nccomment,		1, 0, 1, "NCCOMMENT",	"Number of comment characters"},
-	{ em_nspace,		1, 0, 1, "NSPACE",	"Number of space characters"},
-	{ em_nlcomment,		1, 0, 1, "NLCOMMENT",	"Number of line comments"},
-	{ em_nbcomment,		1, 0, 1, "NBCOMMENT",	"Number of block comments"},
-	{ em_nline,		1, 0, 1, "NLINE",	"Number of lines"},
-	{ em_maxlinelen,	1, 0, 1, "MAXLINELEN",	"Maximum number of characters in a line"},
-	{ em_maxstmtlen,	1, 1, 1, "MAXSTMTLEN",	"Maximum number of tokens in a statement"},
-	{ em_maxstmtnest,	0, 1, 1, "MAXSTMTNEST",	"Maximum level of statement nesting"},
-	{ em_maxbracenest,	1, 1, 1, "MAXBRACENEST","Maximum level of brace nesting"},
-	{ em_maxbracknest,	1, 1, 1, "MAXBRACKNEST","Maximum level of bracket nesting"},
-	{ em_nuline,		1, 0, 1, "NULINE",	"Number of unprocessed lines"},
+						// pre-cpp, post-cpp, file
+	v[em_nchar]		= MetricDetails(1, 0, 1, "NCHAR",	"Number of characters");
+	v[em_nccomment]		= MetricDetails(1, 0, 1, "NCCOMMENT",	"Number of comment characters");
+	v[em_nspace]		= MetricDetails(1, 0, 1, "NSPACE",	"Number of space characters");
+	v[em_nlcomment]		= MetricDetails(1, 0, 1, "NLCOMMENT",	"Number of line comments");
+	v[em_nbcomment]		= MetricDetails(1, 0, 1, "NBCOMMENT",	"Number of block comments");
+	v[em_nline]		= MetricDetails(1, 0, 1, "NLINE",	"Number of lines");
+	v[em_maxlinelen]	= MetricDetails(1, 0, 1, "MAXLINELEN",	"Maximum number of characters in a line");
+	v[em_maxstmtlen]	= MetricDetails(1, 1, 1, "MAXSTMTLEN",	"Maximum number of tokens in a statement");
+	v[em_maxstmtnest]	= MetricDetails(0, 1, 1, "MAXSTMTNEST",	"Maximum level of statement nesting");
+	v[em_maxbracenest]	= MetricDetails(1, 1, 1, "MAXBRACENEST","Maximum level of brace nesting");
+	v[em_maxbracknest]	= MetricDetails(1, 1, 1, "MAXBRACKNEST","Maximum level of bracket nesting");
+	v[em_nuline]		= MetricDetails(1, 0, 1, "NULINE",	"Number of unprocessed lines");
 
-	{ em_ntoken,		1, 1, 1, "NTOKEN",	"Number of tokens"},
-	{ em_nppdirective,	1, 0, 1, "NPPDIRECTIVE","Number of C preprocessor directives"},
-	{ em_nppcond,		1, 0, 1, "NPPCOND",	"Number of processed C preprocessor conditionals (ifdef, if, elif)"},
-	{ em_nppfmacro,		1, 0, 1, "NPPFMACRO",	"Number of defined C preprocessor function-like macros"},
-	{ em_nppomacro,		1, 0, 1, "NPPOMACRO",	"Number of defined C preprocessor object-like macros"},
+	v[em_ntoken]		= MetricDetails(1, 1, 1, "NTOKEN",	"Number of tokens");
+	v[em_nppdirective]	= MetricDetails(1, 0, 1, "NPPDIRECTIVE","Number of C preprocessor directives");
+	v[em_nppcond]		= MetricDetails(1, 0, 1, "NPPCOND",	"Number of processed C preprocessor conditionals (ifdef, if, elif)");
+	v[em_nppfmacro]		= MetricDetails(1, 0, 1, "NPPFMACRO",	"Number of defined C preprocessor function-like macros");
+	v[em_nppomacro]		= MetricDetails(1, 0, 1, "NPPOMACRO",	"Number of defined C preprocessor object-like macros");
 	// Elements counted at the token tap
-	{ em_nstmt,		1, 1, 1, "NSTMT",	"Number of statements or declarations"},
-	{ em_nop,		1, 1, 1, "NOP",		"Number of operators"},
-	{ em_nuop,		1, 1, 0, "NUOP",	"Number of unique operators"},
-	{ em_nnconst,		1, 1, 1, "NNCONST",	"Number of numeric constants"},
-	{ em_nclit,		1, 1, 1, "NCLIT",	"Number of character literals"},
-	{ em_nstring,		1, 1, 1, "NSTRING",	"Number of character strings"},
-	{ em_ncc2op,		1, 1, 0, "INTERNAL",	"Number of operators contributing to cc2: &&, ||, ?:"},
+	v[em_nstmt]		= MetricDetails(1, 1, 1, "NSTMT",	"Number of statements or declarations");
+	v[em_nop]		= MetricDetails(1, 1, 1, "NOP",		"Number of operators");
+	v[em_nuop]		= MetricDetails(1, 1, 0, "NUOP",	"Number of unique operators");
+	v[em_nnconst]		= MetricDetails(1, 1, 1, "NNCONST",	"Number of numeric constants");
+	v[em_nclit]		= MetricDetails(1, 1, 1, "NCLIT",	"Number of character literals");
+	v[em_nstring]		= MetricDetails(1, 1, 1, "NSTRING",	"Number of character strings");
+	v[em_ncc2op]		= MetricDetails(1, 1, 0, "INTERNAL",	"Number of operators contributing to cc2: &&, ||, ?:");
 	// Keywords counted at the token tap
-	{ em_nif,		1, 1, 1, "NIF",		"Number of if statements"},
-	{ em_nelse,		1, 1, 1, "NELSE",	"Number of else clauses"},
-	{ em_nswitch,		1, 1, 1, "NSWITCH",	"Number of switch statements"},
-	{ em_ncase,		1, 1, 1, "NCASE",	"Number of case labels"},
-	{ em_ndefault,		1, 1, 1, "NDEFAULT",	"Number of default labels"},
-	{ em_nbreak,		1, 1, 1, "NBREAK",	"Number of break statements"},
-	{ em_nfor,		1, 1, 1, "NFOR",	"Number of for statements"},
-	{ em_nwhile,		1, 1, 1, "NWHILE",	"Number of while statements"},
-	{ em_ndo,		1, 1, 1, "NDO",		"Number of do statements"},
-	{ em_ncontinue,		1, 1, 1, "NCONTINUE",	"Number of continue statements"},
-	{ em_ngoto,		1, 1, 1, "NGOTO",	"Number of goto statements"},
-	{ em_nreturn,		1, 1, 1, "NRETURN",	"Number of return statements"},
+	v[em_nif]		= MetricDetails(1, 1, 1, "NIF",		"Number of if statements");
+	v[em_nelse]		= MetricDetails(1, 1, 1, "NELSE",	"Number of else clauses");
+	v[em_nswitch]		= MetricDetails(1, 1, 1, "NSWITCH",	"Number of switch statements");
+	v[em_ncase]		= MetricDetails(1, 1, 1, "NCASE",	"Number of case labels");
+	v[em_ndefault]		= MetricDetails(1, 1, 1, "NDEFAULT",	"Number of default labels");
+	v[em_nbreak]		= MetricDetails(1, 1, 1, "NBREAK",	"Number of break statements");
+	v[em_nfor]		= MetricDetails(1, 1, 1, "NFOR",	"Number of for statements");
+	v[em_nwhile]		= MetricDetails(1, 1, 1, "NWHILE",	"Number of while statements");
+	v[em_ndo]		= MetricDetails(1, 1, 1, "NDO",		"Number of do statements");
+	v[em_ncontinue]		= MetricDetails(1, 1, 1, "NCONTINUE",	"Number of continue statements");
+	v[em_ngoto]		= MetricDetails(1, 1, 1, "NGOTO",	"Number of goto statements");
+	v[em_nreturn]		= MetricDetails(1, 1, 1, "NRETURN",	"Number of return statements");
 	// Identifiers categorized during identifier processing
-	{ em_npid,		1, 1, 1, "NPID",	"Number of project-scope identifiers"},
-	{ em_nfid,		1, 1, 1, "NFID",	"Number of file-scope (static) identifiers"},
-	{ em_nmid,		1, 0, 1, "NMID",	"Number of macro identifiers"},
-	{ em_nid,		1, 1, 1, "NID",		"Total number of object and object-like identifiers"},
-	{ em_nupid,		1, 1, 1, "NUPID",	"Number of unique project-scope identifiers"},
-	{ em_nufid,		1, 1, 1, "NUFID",	"Number of unique file-scope (static) identifiers"},
-	{ em_numid,		1, 0, 1, "NUMID",	"Number of unique macro identifiers"},
-	{ em_nuid,		1, 1, 1, "NUID",	"Number of unique object and object-like identifiers"},
-	{ em_nlabid,		1, 1, 1, "INTERNAL",	"Number of label identifiers"},
-	{ em_nlabel,		1, 1, 1, "NLABEL",	"Number of goto labels"},
+	v[em_npid]		= MetricDetails(1, 1, 1, "NPID",	"Number of project-scope identifiers");
+	v[em_nfid]		= MetricDetails(1, 1, 1, "NFID",	"Number of file-scope (static) identifiers");
+	v[em_nmid]		= MetricDetails(1, 0, 1, "NMID",	"Number of macro identifiers");
+	v[em_nid]		= MetricDetails(1, 1, 1, "NID",		"Total number of object and object-like identifiers");
+	v[em_nupid]		= MetricDetails(1, 1, 1, "NUPID",	"Number of unique project-scope identifiers");
+	v[em_nufid]		= MetricDetails(1, 1, 1, "NUFID",	"Number of unique file-scope (static) identifiers");
+	v[em_numid]		= MetricDetails(1, 0, 1, "NUMID",	"Number of unique macro identifiers");
+	v[em_nuid]		= MetricDetails(1, 1, 1, "NUID",	"Number of unique object and object-like identifiers");
+	v[em_nlabid]		= MetricDetails(1, 1, 1, "INTERNAL",	"Number of label identifiers");
+	v[em_nlabel]		= MetricDetails(1, 1, 1, "NLABEL",	"Number of goto labels");
 // END AUTOSCHEMA Metrics
-	{ metric_max,		1, 0, 0, "",		""},
+	return v;
 };
 
 // Global metrics

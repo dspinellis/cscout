@@ -59,3 +59,16 @@ FI_hash_to_ids Filedetails::identical_files;
  * which is required for initially empty Tokids.
  */
 Fileid Fileid::anonymous = Fileid("ANONYMOUS", 0);
+
+
+/*
+ * In the following metric id to metric details maps the file and function
+ * metrics initializers require the metric initializer to have been run.
+ */
+#include "metrics.h"
+#include "funmetrics.h"
+
+// Maps from a metric to its details
+vector <MetricDetails> Metrics::metric_details(Metrics::metric_details_values());
+vector <MetricDetails> FunMetrics::metric_details(FunMetrics::metric_details_values());
+vector <MetricDetails> FileMetrics::metric_details(FileMetrics::metric_details_values());

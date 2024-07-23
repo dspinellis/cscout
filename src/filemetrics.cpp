@@ -47,20 +47,28 @@
 #include "fchar.h"
 #include "filedetails.h"
 
-MetricDetails FileMetrics::metric_details[] = {
+vector <MetricDetails>
+FileMetrics::metric_details_values()
+{
+	vector <MetricDetails> v(metric_max);
+
+	// First elements come from Metrics
+	copy(Metrics::get_metric_details_vector().begin(),
+	   Metrics::get_metric_details_vector().end(), v.begin());
 // BEGIN AUTOSCHEMA FileMetrics
-				// pre-cpp, post-cpp, file
-	{ em_ncopies,		1, 0, 1, "NCOPIES",	"Number of copies of the file"},
-	{ em_nincfile,		1, 0, 1, "NINCFILE",	"Number of directly included files"},
-	{ em_npfunction,	0, 1, 1, "NPFUNCTION",	"Number of defined project-scope functions"},
-	{ em_nffunction,	0, 1, 1, "NFFUNCTION",	"Number of defined file-scope (static) functions"},
-	{ em_npvar,		0, 1, 1, "NPVAR",	"Number of defined project-scope variables"},
-	{ em_nfvar,		0, 1, 1, "NFVAR",	"Number of defined file-scope (static) variables"},
-	{ em_naggregate,	0, 1, 1, "NAGGREGATE",	"Number of complete aggregate (struct/union) declarations"},
-	{ em_namember,		0, 1, 1, "NAMEMBER",	"Number of declared aggregate (struct/union) members"},
-	{ em_nenum,		0, 1, 1, "NENUM",	"Number of complete enumeration declarations"},
-	{ em_nemember,		0, 1, 1, "NEMEMBER",	"Number of declared enumeration elements"},
+						// pre-cpp, post-cpp, file
+	v[em_ncopies]		= MetricDetails(1, 0, 1, "NCOPIES",	"Number of copies of the file");
+	v[em_nincfile]		= MetricDetails(1, 0, 1, "NINCFILE",	"Number of directly included files");
+	v[em_npfunction]	= MetricDetails(0, 1, 1, "NPFUNCTION",	"Number of defined project-scope functions");
+	v[em_nffunction]	= MetricDetails(0, 1, 1, "NFFUNCTION",	"Number of defined file-scope (static) functions");
+	v[em_npvar]		= MetricDetails(0, 1, 1, "NPVAR",	"Number of defined project-scope variables");
+	v[em_nfvar]		= MetricDetails(0, 1, 1, "NFVAR",	"Number of defined file-scope (static) variables");
+	v[em_naggregate]	= MetricDetails(0, 1, 1, "NAGGREGATE",	"Number of complete aggregate (struct/union) declarations");
+	v[em_namember]		= MetricDetails(0, 1, 1, "NAMEMBER",	"Number of declared aggregate (struct/union) members");
+	v[em_nenum]		= MetricDetails(0, 1, 1, "NENUM",	"Number of complete enumeration declarations");
+	v[em_nemember]		= MetricDetails(0, 1, 1, "NEMEMBER",	"Number of declared enumeration elements");
 // END AUTOSCHEMA FileMetrics
+	return v;
 };
 
 // Global metrics
