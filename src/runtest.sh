@@ -201,9 +201,10 @@ SELECT FID,
   -- HSQLDB:
   -- REGEXP_SUBSTRING(NAME, '[^/]*$') as NAME,
   -- SQLite: (see https://stackoverflow.com/a/38330814/20520)
-  Replace(name, rtrim(name, replace(name, '/', '')), '') AS NAME,
-  RO, NCHAR, NCCOMMENT, NSPACE, NLCOMMENT, NBCOMMENT, NLINE, MAXLINELEN, NSTRING, NULINE, NPPDIRECTIVE, NPPCOND, NPPFMACRO, NPPOMACRO, NPPTOKEN, NCTOKEN, NCOPIES, NSTATEMENT, NPFUNCTION, NFFUNCTION, NPVAR, NFVAR, NAGGREGATE, NAMEMBER, NENUM, NEMEMBER, NINCFILE
+  Replace(name, rtrim(name, replace(name, '/', '')), '') AS NAME, RO
 from Files WHERE Fid != 1 ORDER BY Fid;
+.print "Table: Filemetrics"
+SELECT * from Filemetrics WHERE Fid != 1 ORDER BY Fid, PreCpp;
 .print "Table: FileProj"
 SELECT * from FileProj ORDER BY Pid, Fid;
 .print "Table: Definers"
@@ -217,8 +218,10 @@ SELECT * from IncTriggers WHERE Definerid != 1
 ORDER BY PID, CUID, Basefileid, Definerid, FOffset;
 .print "Table: Functions"
 SELECT * from Functions ORDER BY ID;
+.print "Table: FunctionDefs"
+SELECT * from FunctionDefs ORDER BY FUNCTIONID;
 .print "Table: FunctionMetrics"
-SELECT * from FunctionMetrics ORDER BY FUNCTIONID;
+SELECT * from FunctionMetrics ORDER BY FUNCTIONID, PreCpp;
 .print "Table: FunctionId"
 SELECT * from FunctionId ORDER BY FUNCTIONID, ORDINAL;
 .print "Table: Fcalls"

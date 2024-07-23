@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1995-2015 Diomidis Spinellis
+ * (C) Copyright 1995-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -34,6 +34,7 @@ using namespace std;
 enum e_table {
 	t_ids,
 	t_files,
+	t_filemetrics,
 	t_tokens,
 	t_comments,
 	t_strings,
@@ -47,6 +48,7 @@ enum e_table {
 	t_providers,
 	t_inctriggers,
 	t_functions,
+	t_functiondefs,
 	t_functionmetrics,
 	t_functionid,
 	t_fcalls,

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2015 Diomidis Spinellis
+ * (C) Copyright 2003-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -274,15 +274,36 @@ Call::dumpSql(Sql *db, ostream &of)
 			    << fun->get_num_caller()
 			    << ");\n";
 
+		if (fun->is_defined() && table_is_enabled(t_functiondefs)) {
+			of << "INSERT INTO FUNCTIONDEFS VALUES(" << ptr_offset(fun)
+			    << ',' << fun->get_begin().get_tokid().get_fileid().get_id() <<
+			    ',' << (unsigned)(fun->get_begin().get_tokid().get_streampos()) <<
+			    ',' << fun->get_end().get_tokid().get_fileid().get_id() <<
+			    ',' << (unsigned)(fun->get_end().get_tokid().get_streampos());
+			of << ");\n";
+		}
 		if (fun->is_defined() && table_is_enabled(t_functionmetrics)) {
-			of << "INSERT INTO FUNCTIONMETRICS VALUES(" << ptr_offset(fun);
-			for (int j = 0; j < FunMetrics::metric_max; j++)
-				if (!Metrics::is_internal<FunMetrics>(j))
-					cout << ',' << fun->get_pre_cpp_metrics().get_metric(j);
-			of << ',' << fun->get_begin().get_tokid().get_fileid().get_id() <<
-			',' << (unsigned)(fun->get_begin().get_tokid().get_streampos()) <<
-			',' << fun->get_end().get_tokid().get_fileid().get_id() <<
-			',' << (unsigned)(fun->get_end().get_tokid().get_streampos());
+			of << "INSERT INTO FUNCTIONMETRICS VALUES("
+			    << ptr_offset(fun) << ',' << db->boolval(true);
+			for (int j = 0; j < FunMetrics::metric_max; j++) {
+				if (Metrics::is_internal<FunMetrics>(j))
+					continue;
+				if (Metrics::is_pre_cpp<FunMetrics>(j))
+					of << ',' << fun->get_pre_cpp_metrics().get_metric(j);
+				else
+					cout << ",NULL";
+			}
+			of << ");\n";
+			of << "INSERT INTO FUNCTIONMETRICS VALUES("
+			    << ptr_offset(fun) << ',' << db->boolval(false);
+			for (int j = 0; j < FunMetrics::metric_max; j++) {
+				if (Metrics::is_internal<FunMetrics>(j))
+					continue;
+				if (Metrics::is_post_cpp<FunMetrics>(j))
+					of << ',' << fun->get_post_cpp_metrics().get_metric(j);
+				else
+					cout << ",NULL";
+			}
 			of << ");\n";
 		}
 
