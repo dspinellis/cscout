@@ -127,6 +127,7 @@ public:
 		em_nbcomment,		// Number of block comments
 		em_nline,		// Number of lines
 		em_maxlinelen,		// Maximum number of characters in a line
+		em_maxnest,		// Maximum level of statement nesting
 		em_nuline,		// Number of unprocessed lines
 
 	// During processing (once based on processed)
@@ -217,6 +218,12 @@ public:
 	double get_metric(int n) const;
 	void set_metric(int n, int val) { count[n] = val; }
 	void summarize_operators();
+
+	// Update the maxumum level of statement nesting
+	void update_nesting(int nesting) {
+		if (nesting > count[em_maxnest])
+			count[em_maxnest] = nesting;
+	}
 
 	// Call the specified metrics function for the current file and function
 	// before or after the C preprocessor processing

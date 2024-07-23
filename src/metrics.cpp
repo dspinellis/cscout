@@ -51,6 +51,7 @@ MetricDetails Metrics::metric_details[] = {
 	{ em_nbcomment,		1, 0, 1, "NBCOMMENT",	"Number of block comments"},
 	{ em_nline,		1, 0, 1, "NLINE",	"Number of lines"},
 	{ em_maxlinelen,	1, 0, 1, "MAXLINELEN",	"Maximum number of characters in a line"},
+	{ em_maxnest,		0, 1, 1, "MAXNEST",	"Maximum level of statement nesting"},
 	{ em_nuline,		1, 0, 1, "NULINE",	"Number of unprocessed lines"},
 
 	{ em_ntoken,		1, 1, 1, "NTOKEN",	"Number of tokens"},

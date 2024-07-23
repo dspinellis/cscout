@@ -62,7 +62,6 @@ public:
 			Metrics::metric_max,
 		em_nmparam,	// Number of macro parameters
 		em_nfparam,	// Number of function parameters
-		em_maxnest,	// Maximum level of statement nesting
 		// Stored metrics stop here
 		stored_metric_max,
 		// The following metrics are dynamically derived
@@ -86,8 +85,6 @@ public:
 
 	// Summarize the operators collected by process_token
 	void summarize_operators();
-	// Update the level of nesting
-	void update_nesting(int nesting) { if (nesting > count[em_maxnest]) count[em_maxnest] = nesting; }
 
 	template <class M> friend const MetricDetails &Metrics::get_detail(int n);
 };
