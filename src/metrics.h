@@ -71,13 +71,30 @@ enum e_cfile_state {
 };
 
 // Details for each metric
-struct MetricDetails {
-	int id;			// Metric identifier
-	bool is_pre_cpp;	// True if the metric is applicable before the cpp
-	bool is_post_cpp;	// True if the metric is applicable after the cpp
-	bool is_file;		// True if the metric is applicable to files 
-	string dbfield;		// Database field name
-	string name;		// User-visible name
+class MetricDetails {
+private:
+	bool pre_cpp;	// True if the metric is applicable before the cpp
+	bool post_cpp;	// True if the metric is applicable after the cpp
+	bool file;	// True if the metric is applicable to files 
+	string dbfield;	// Database field name
+	string name;	// User-visible name
+
+public:
+	MetricDetails(bool pre_cpp, bool post_cpp, bool file,
+	    const string& dbfield, const string& name) : pre_cpp(pre_cpp),
+	    post_cpp(post_cpp), file(file), dbfield(dbfield),
+	    name(name) {}
+
+	// Default ctor for when we are setting the vector<MetricDetails> size
+	MetricDetails() : pre_cpp(false), post_cpp(false), file(false),
+	    dbfield(""), name("") {}
+
+	// Getters
+	bool is_pre_cpp() const { return pre_cpp; }
+	bool is_post_cpp() const { return post_cpp; }
+	bool is_file() const { return file; }
+	string get_dbfield() const { return dbfield; }
+	string get_name() const { return name; }
 };
 
 // Metrics for regions of code (files and functions)
@@ -88,7 +105,11 @@ private:
 	int currbracenesting;
 	int currbracknesting;
 	enum e_cfile_state cstate;
-	static MetricDetails metric_details[];
+
+	// Map from a metric to its details and its initializer
+	static vector <MetricDetails> metric_details;
+	static vector<MetricDetails> metric_details_values();
+
 	vector <Ctoken> queued_identifiers;
 
 	set <Eclass *> pids;			// Project-scope dentifiers used in the function/file
@@ -113,6 +134,10 @@ protected:
 	set <int> operators;	// Operators used in the function/file
 
 	bool processed;		// True after an element has been processed
+
+	static const vector <MetricDetails>& get_metric_details_vector() {
+		return metric_details;
+	}
 public:
 	Metrics() :
 		currlinelen(0),
@@ -243,11 +268,14 @@ public:
 	template <class M>
 	static bool is_internal(int n) { return get_dbfield<M>(n) == "INTERNAL"; }
 
-	// Return a reference to the details of the specified metric
-	template <class M> static const MetricDetails & get_detail(int n);
+	// Return a reference to the details of the specified metric of class M
+	template <class M>
+	static const MetricDetails & get_metric_details(int n) {
+		return M::metric_details[n];
+	}
 
 	// Return the database field name of the specified metric
-	template <class M> static const string & get_dbfield(int n);
+	template <class M> static const string get_dbfield(int n);
 
 	// Return true if the metric is applicable pre-cpp
 	template <class M> static bool is_pre_cpp(int n);
@@ -257,7 +285,7 @@ public:
 	template <class M> static bool is_file(int n);
 
 	// Return the metric name of the specified metric
-	template <class M> static const string & get_name(int n);
+	template <class M> static const string get_name(int n);
 
 	/*
 	 * Process a single token read from a file.
@@ -460,20 +488,6 @@ struct get_min : public binary_function<double, double, double>
 // Return the average of a sum v over n values as a string
 string avg(double v, double n);
 
-// Return a reference to the details of the specified metric
-template <class M>
-const MetricDetails &
-Metrics::get_detail(int n)
-{
-	static const MetricDetails unknown = {0, 0, 0, 0, "UNKNOWN", "UNKNOWN"};
-
-	csassert(n < M::metric_max);
-	for (int i = 0 ; M::metric_details[i].id != M::metric_max; i++)
-		if (M::metric_details[i].id == n)
-			return (M::metric_details[i]);
-	csassert(0);
-	return (unknown);
-}
 
 // Return the is_pre_cpp field name of the specified metric
 // i.e. if the metric is applicable to pre-cpp values
@@ -481,10 +495,7 @@ template <class M>
 bool
 Metrics::is_pre_cpp(int n)
 {
-	if (n < Metrics::metric_max)
-		return get_detail<Metrics>(n).is_pre_cpp;
-	else
-		return get_detail<M>(n).is_pre_cpp;
+	return Metrics::get_metric_details<M>(n).is_pre_cpp();
 }
 
 // Return the is_post_cpp field name of the specified metric
@@ -493,10 +504,7 @@ template <class M>
 bool
 Metrics::is_post_cpp(int n)
 {
-	if (n < Metrics::metric_max)
-		return get_detail<Metrics>(n).is_post_cpp;
-	else
-		return get_detail<M>(n).is_post_cpp;
+	return Metrics::get_metric_details<M>(n).is_post_cpp();
 }
 
 // Return the is_file field name of the specified metric
@@ -505,32 +513,23 @@ template <class M>
 bool
 Metrics::is_file(int n)
 {
-	if (n < Metrics::metric_max)
-		return get_detail<Metrics>(n).is_file;
-	else
-		return get_detail<M>(n).is_file;
+	return Metrics::get_metric_details<M>(n).is_file();
 }
 
 // Return the database field name of the specified metric
 template <class M>
-const string &
+const string
 Metrics::get_dbfield(int n)
 {
-	if (n < Metrics::metric_max)
-		return get_detail<Metrics>(n).dbfield;
-	else
-		return get_detail<M>(n).dbfield;
+	return Metrics::get_metric_details<M>(n).get_dbfield();
 }
 
 // Return the metric name of the specified metric
 template <class M>
-const string &
+const string
 Metrics::get_name(int n)
 {
-	if (n < Metrics::metric_max)
-		return get_detail<Metrics>(n).name;
-	else
-		return get_detail<M>(n).name;
+	return Metrics::get_metric_details<M>(n).get_name();
 }
 
 template <class M, class E> class MetricsRange;

@@ -43,7 +43,9 @@ class Eclass;
 
 class FunMetrics : public Metrics {
 private:
-	static MetricDetails metric_details[];	// Descriptions of the metrics we store
+	// Map from a metric to its details and its initializer
+	static vector <MetricDetails> metric_details;
+	static vector<MetricDetails> metric_details_values();
 
 	Call *call;				// Associated function
 
@@ -85,8 +87,8 @@ public:
 
 	// Summarize the operators collected by process_token
 	void summarize_operators();
+	template <class M> friend const MetricDetails & Metrics::get_metric_details(int n);
 
-	template <class M> friend const MetricDetails &Metrics::get_detail(int n);
 };
 
 

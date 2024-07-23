@@ -55,24 +55,33 @@
 #include "pltoken.h"
 
 
-MetricDetails FunMetrics::metric_details[] = {
+vector <MetricDetails>
+FunMetrics::metric_details_values()
+{
+	vector <MetricDetails> v(metric_max);
+
+	// First elements come from Metrics
+	copy(Metrics::get_metric_details_vector().begin(),
+	    Metrics::get_metric_details_vector().end(), v.begin());
+
 // BEGIN AUTOSCHEMA FunMetrics
 	// During processing (once based on processed)
-				// pre-cpp, post-cpp, file
-	{ em_ngnsoc,		0, 1, 0, "NGNSOC",	"Number of global namespace occupants at function's top"},
-	{ em_nmparam,		1, 0, 0, "NMPARAM",	"Number of parameters (for macros)"},
-	{ em_nfparam,		0, 1, 0, "NFPARAM",	"Number of parameters (for functions)"},
+					// pre-cpp, post-cpp, file
+	v[em_ngnsoc]	= MetricDetails(0, 1, 0, "NGNSOC",	"Number of global namespace occupants at function's top");
+	v[em_nmparam]	= MetricDetails(1, 0, 0, "NMPARAM",	"Number of parameters (for macros)");
+	v[em_nfparam]	= MetricDetails(0, 1, 0, "NFPARAM",	"Number of parameters (for functions)");
 	// Metrics dynamically derived
-	{ em_fanin,		1, 1, 0, "FANIN",	"Fan-in (number of calling functions)"},
-	{ em_fanout,		1, 1, 0, "FANOUT",	"Fan-out (number of called functions)"},
-	{ em_ccycl1,		1, 1, 0, "CCYCL1",	"Cyclomatic complexity (control statements)"},
-	{ em_ccycl2,		1, 1, 0, "CCYCL2",	"Extended cyclomatic complexity (includes branching operators)"},
-	{ em_ccycl3,		1, 1, 0, "CCYCL3",	"Maximum cyclomatic complexity (includes branching operators and all switch branches)"},
+	v[em_fanin]	= MetricDetails(1, 1, 0, "FANIN",	"Fan-in (number of calling functions)");
+	v[em_fanout]	= MetricDetails(1, 1, 0, "FANOUT",	"Fan-out (number of called functions)");
+	v[em_ccycl1]	= MetricDetails(1, 1, 0, "CCYCL1",	"Cyclomatic complexity (control statements)");
+	v[em_ccycl2]	= MetricDetails(1, 1, 0, "CCYCL2",	"Extended cyclomatic complexity (includes branching operators)");
+	v[em_ccycl3]	= MetricDetails(1, 1, 0, "CCYCL3",	"Maximum cyclomatic complexity (includes branching operators and all switch branches)");
 	// Dynamically derived metrics after this point are hardcoded to be stored in the database as REAL
-	{ em_cstruc,		1, 1, 0, "CSTRUC",	"Structure complexity (Henry and Kafura)"},	// REAL
-	{ em_chal,		1, 1, 0, "CHAL",	"Halstead complexity"},				// REAL
-	{ em_iflow,		1, 1, 0, "IFLOW",	"Information flow metric (Henry and Selig)"},	// REAL
+	v[em_cstruc]	= MetricDetails(1, 1, 0, "CSTRUC",	"Structure complexity (Henry and Kafura)");	// REAL
+	v[em_chal]	= MetricDetails(1, 1, 0, "CHAL",	"Halstead complexity");				// REAL
+	v[em_iflow]	= MetricDetails(1, 1, 0, "IFLOW",	"Information flow metric (Henry and Selig)");	// REAL
 // END AUTOSCHEMA FunMetrics
+	return v;
 };
 
 double

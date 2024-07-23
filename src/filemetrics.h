@@ -40,7 +40,9 @@
 
 class FileMetrics : public Metrics {
 private:
-	static MetricDetails metric_details[];
+	// Map from a metric to its details and its initializer
+	static vector <MetricDetails> metric_details;
+	static vector<MetricDetails> metric_details_values();
 
 public:
 	FileMetrics() { count.resize(metric_max, 0); }
@@ -88,7 +90,7 @@ public:
 	int get_int_metric(int n) const { return count[n]; }
 	virtual ~FileMetrics() {}
 
-	template <class M> friend const MetricDetails &Metrics::get_detail(int n);
+	template <class M> friend const MetricDetails & Metrics::get_metric_details(int n);
 };
 
 // This can be kept per project and globally
