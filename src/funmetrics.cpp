@@ -64,7 +64,6 @@ FunMetrics::metric_details_values()
 	copy(Metrics::get_metric_details_vector().begin(),
 	    Metrics::get_metric_details_vector().end(), v.begin());
 
-// BEGIN AUTOSCHEMA FunMetrics
 	// During processing (once based on processed)
 					// pre-cpp, post-cpp, file
 	v[em_ngnsoc]	= MetricDetails(0, 1, 0, "NGNSOC",	"Number of global namespace occupants at function's top");
@@ -80,7 +79,6 @@ FunMetrics::metric_details_values()
 	v[em_cstruc]	= MetricDetails(1, 1, 0, "CSTRUC",	"Structure complexity (Henry and Kafura)");	// REAL
 	v[em_chal]	= MetricDetails(1, 1, 0, "CHAL",	"Halstead complexity");				// REAL
 	v[em_iflow]	= MetricDetails(1, 1, 0, "IFLOW",	"Information flow metric (Henry and Selig)");	// REAL
-// END AUTOSCHEMA FunMetrics
 	return v;
 };
 

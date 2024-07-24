@@ -45,7 +45,6 @@ vector<MetricDetails>
 Metrics::metric_details_values()
 {
 	vector<MetricDetails> v(metric_max);
-// BEGIN AUTOSCHEMA Metrics
 						// pre-cpp, post-cpp, file
 	v[em_nchar]		= MetricDetails(1, 0, 1, "NCHAR",	"Number of characters");
 	v[em_nccomment]		= MetricDetails(1, 0, 1, "NCCOMMENT",	"Number of comment characters");
@@ -97,7 +96,6 @@ Metrics::metric_details_values()
 	v[em_nuid]		= MetricDetails(1, 1, 1, "NUID",	"Number of unique object and object-like identifiers");
 	v[em_nlabid]		= MetricDetails(0, 0, 1, "INTERNAL",	"Number of label identifiers");
 	v[em_nlabel]		= MetricDetails(1, 1, 1, "NLABEL",	"Number of goto labels");
-// END AUTOSCHEMA Metrics
 	return v;
 };
 

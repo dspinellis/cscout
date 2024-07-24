@@ -55,7 +55,6 @@ FileMetrics::metric_details_values()
 	// First elements come from Metrics
 	copy(Metrics::get_metric_details_vector().begin(),
 	   Metrics::get_metric_details_vector().end(), v.begin());
-// BEGIN AUTOSCHEMA FileMetrics
 						// pre-cpp, post-cpp, file
 	v[em_ncopies]		= MetricDetails(1, 0, 1, "NCOPIES",	"Number of copies of the file");
 	v[em_nincfile]		= MetricDetails(1, 0, 1, "NINCFILE",	"Number of directly included files");
@@ -67,7 +66,6 @@ FileMetrics::metric_details_values()
 	v[em_namember]		= MetricDetails(0, 1, 1, "NAMEMBER",	"Number of declared aggregate (struct/union) members");
 	v[em_nenum]		= MetricDetails(0, 1, 1, "NENUM",	"Number of complete enumeration declarations");
 	v[em_nemember]		= MetricDetails(0, 1, 1, "NEMEMBER",	"Number of declared enumeration elements");
-// END AUTOSCHEMA FileMetrics
 	return v;
 };
 
