@@ -178,6 +178,8 @@ UPDATE FunctionId SET FunctionId=(SELECT FixedId FROM FixedIds WHERE FixedIds.Fu
 
 UPDATE FunctionMetrics SET FunctionId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = FunctionMetrics.FunctionId);
 
+UPDATE FunctionDefs SET FunctionId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = FunctionDefs.FunctionId);
+
 UPDATE Fcalls SET
 SourceId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.sourceid),
 DestId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.DestId);
