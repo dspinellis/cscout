@@ -49,6 +49,7 @@
 #include "pdtoken.h"
 #include "filedetails.h"
 #include "eclass.h"
+#include "call.h"
 
 // Remove references to the equivalence class from the tokid map
 // Should be called when we delete the ec for good

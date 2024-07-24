@@ -33,6 +33,8 @@
 #include "ptoken.h"
 #include "fchar.h"
 #include "pltoken.h"
+#include "call.h"
+#include "filedetails.h"
 
 enum e_cpp_context Pltoken::context = cpp_normal;
 bool Pltoken::semicolon_line_comments;
@@ -47,6 +49,21 @@ operator<<(ostream& o,const Pltoken &t)
 }
 #endif
 
+void
+Pltoken::process_metrics()
+{
+	// Tally function and file metrics
+	Metrics::e_metric keyword_metric = Metrics::em_invalid;
+	if (this->get_code() == IDENTIFIER)
+		keyword_metric = KeywordMetrics::metric(this->get_val());
+
+	Filedetails::process_pre_cpp_token(*this, keyword_metric);
+	Call::process_pre_cpp_token(*this, keyword_metric);
+
+	// For metric counting filter out whitespace
+	if (code != SPACE && code != '\n')
+		Metrics::call_pre_cpp_metrics(&Metrics::add_token);
+}
 
 #ifdef UNIT_TEST
 // cl -GX -DWIN32 -c eclass.cpp fileid.cpp tokid.cpp tokname.cpp token.cpp ptoken.cpp fchar.cpp
