@@ -1,4 +1,4 @@
-.TH CSCOUT 1 "12 July 2024"
+.TH CSCOUT 1 "24 July 2024"
 .\"
 .\" (C) Copyright 2003-2024 Diomidis Spinellis
 .\"
@@ -30,7 +30,7 @@ cscout \- C code analyzer and refactoring browser
 [\fB\-R\fP \fIspecification\fP]
 [\fB\-m\fP \fIspecification\fP]
 [\fB\-t\fP \fIsname\fP]
-[\fB\-o\fP | \fB\-s\fP \fIdb\fP]
+[\fB\-o\fP | \fB\-S\fP \fIdb\fP | \fB\-s\fP \fIdb\fP]
 \fIfile\fR
 .SH DESCRIPTION
 \fICScout\fP is a source code analyzer and refactoring browser for collections
@@ -206,6 +206,10 @@ All web operations that can affect the server's functioning
 refactoring function arguments, selecting a project, editing a file,
 or terminating the server) are prohibited.
 Call graphs are truncated to 1000 elements (nodes or edges).
+.IP "\fB\-S\fP \fIdatabase dialect\fP"
+Output the database schema as an SQL script.
+Specify \fIhelp\fP as the database dialect to obtain a list of
+supported database back-ends.
 .IP "\fB\-s\fP \fIdatabase dialect\fP"
 Dump the workspace contents as an SQL script.
 Specify \fIhelp\fP as the database dialect to obtain a list of

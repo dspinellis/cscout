@@ -375,265 +375,273 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 void
 workdb_schema(Sql *db, ostream &of)
 {
-			// BEGIN AUTOSCHEMA
-	if (table_is_enabled(t_ids))
-		cout <<
-			"CREATE TABLE IDS("			// Details of interdependant identifiers appearing in the workspace
-			"EID " << db->ptrtype() << " PRIMARY KEY,"	// Unique identifier key
-			"NAME " << db->varchar() << ","		// Identifier name
-			"READONLY " << db->booltype() << ", "	// True if it appears in at least one read-only file
-			"UNDEFMACRO " << db->booltype() << ", "	// True if it is apparantly an undefined macro
-			"MACRO " << db->booltype() << ", "	// True if it a preprocessor macro
-			"MACROARG " << db->booltype() << ", "	// True if it a preprocessor macro argument
-			"ORDINARY " << db->booltype() << ", "	// True if it is an ordinary identifier (variable or function)
-			"SUETAG " << db->booltype() << ", "	// True if it is a structure, union, or enumeration tag
-			"SUMEMBER " << db->booltype() << ", "	// True if it is a structure or union member
-			"LABEL " << db->booltype() << ", "	// True if it is a label
-			"TYPEDEF " << db->booltype() << ", "	// True if it is a typedef
-			"ENUM " << db->booltype() << ", "	// True if it is an enumeration member
-			"YACC " << db->booltype() << ", "	// True if it is a yacc identifier
-			"FUN " << db->booltype() << ", "	// True if it is a function name
-			"CSCOPE " << db->booltype() << ", "	// True if its scope is a compilation unit
-			"LSCOPE " << db->booltype() << ", "	// True if it has linkage scope
-			"UNUSED " << db->booltype() <<		// True if it is not used
-			");\n";
+	if (table_is_enabled(t_ids)) cout <<
+		"-- Details of interdependant identifiers appearing in the workspace\n"
+		"CREATE TABLE IDS(\n"
+		"  EID " << db->ptrtype() << " PRIMARY KEY, -- Unique identifier key\n"
+		"  NAME " << db->varchar() << ", -- Identifier name\n"
+		"  READONLY " << db->booltype() << ", -- True if it appears in at least one read-only file\n"
+		"  UNDEFMACRO " << db->booltype() << ", -- True if it is apparantly an undefined macro\n"
+		"  MACRO " << db->booltype() << ", -- True if it a preprocessor macro\n"
+		"  MACROARG " << db->booltype() << ", -- True if it a preprocessor macro argument\n"
+		"  ORDINARY " << db->booltype() << ", -- True if it is an ordinary identifier (variable or function)\n"
+		"  SUETAG " << db->booltype() << ", -- True if it is a structure, union, or enumeration tag\n"
+		"  SUMEMBER " << db->booltype() << ", -- True if it is a structure or union member\n"
+		"  LABEL " << db->booltype() << ", -- True if it is a label\n"
+		"  TYPEDEF " << db->booltype() << ", -- True if it is a typedef\n"
+		"  ENUM " << db->booltype() << ", -- True if it is an enumeration member\n"
+		"  YACC " << db->booltype() << ", -- True if it is a yacc identifier\n"
+		"  FUN " << db->booltype() << ", -- True if it is a function name\n"
+		"  CSCOPE " << db->booltype() << ", -- True if its scope is a compilation unit\n"
+		"  LSCOPE " << db->booltype() << ", -- True if it has linkage scope\n"
+		"  UNUSED " << db->booltype() << " -- True if it is not used\n"
+		");\n";
 
-	if (table_is_enabled(t_files)) {
-		cout <<
-			"CREATE TABLE FILES("			// File details
-			"FID INTEGER PRIMARY KEY,"		// Unique file key
-			"NAME " << db->varchar() << ",\n"	// File name
-			"RO " << db->booltype();		// True if the file is read-only
-			cout << ");\n";
-	}
+	if (table_is_enabled(t_files)) cout <<
+		"\n\n-- File details\n"
+		"CREATE TABLE FILES(\n"
+		"  FID INTEGER PRIMARY KEY, -- Unique file key\n"
+		"  NAME " << db->varchar() << ", -- File name\n"
+		"  RO " << db->booltype() << " -- True if the file is read-only\n"
+		");\n";
 
 	if (table_is_enabled(t_filemetrics)) {
+		cout
+		    << "\n\n-- File metrics\n"
+		    << "CREATE TABLE FILEMETRICS(\n"
+		    "  FID INTEGER, -- File key\n"
+		    "  PRECPP "
+		    << db->booltype()
+		    << ", -- True for values before the cpp false for values after it\n";
+
+		for (int i = 0; i < FileMetrics::metric_max; i++)
+			if (!Metrics::is_internal<FileMetrics>(i))
+				cout
+				    << "  "
+				    << Metrics::get_dbfield<FileMetrics>(i)
+				    << " INTEGER, -- "
+				    << Metrics::get_name<FileMetrics>(i)
+				    << "\n";
 		cout <<
-			"CREATE TABLE FILEMETRICS("		// File details
-			"FID INTEGER,\n"			// File key
-			"PRECPP " << db->booltype() << ",\n";	// True for values before the cpp false for values after it
-			// AUTOSCHEMA INCLUDE metrics.cpp Metrics
-			// AUTOSCHEMA INCLUDE filemetrics.cpp FileMetrics
-			for (int i = 0; i < FileMetrics::metric_max; i++)
-				if (!Metrics::is_internal<FileMetrics>(i))
-					cout << Metrics::get_dbfield<FileMetrics>(i) << " INTEGER,\n" ;
-			cout << "PRIMARY KEY(FID, PRECPP),\n"
-				"FOREIGN KEY(FID) REFERENCES FILES(FID));\n";
-	}
+		    "  PRIMARY KEY(FID, PRECPP),\n"
+		    "  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
+		    ");\n";
+}
 
-	if (table_is_enabled(t_tokens))
-		cout <<
-			"CREATE TABLE TOKENS("			// Instances of identifier tokens within the source code
-			"FID INTEGER,"				// File key (references FILES)
-			"FOFFSET INTEGER,"			// Offset within the file
-			"EID " << db->ptrtype() << ",\n"	// Identifier key (references IDS)
-			"PRIMARY KEY(FID, FOFFSET),"
-			"FOREIGN KEY(FID) REFERENCES FILES(FID),"
-			"FOREIGN KEY(EID) REFERENCES IDS(EID)"
-			");\n";
+	if (table_is_enabled(t_tokens)) cout <<
+		"\n\n-- Instances of identifier tokens within the source code\n"
+		"CREATE TABLE TOKENS(\n"
+		"  FID INTEGER, -- File key\n"
+		"  FOFFSET INTEGER, -- Offset within the file\n"
+		"  EID " << db->ptrtype() << ", -- Identifier key\n"
+		"  PRIMARY KEY(FID, FOFFSET),\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID),\n"
+		"  FOREIGN KEY(EID) REFERENCES IDS(EID)\n"
+		");\n";
 
-	if (table_is_enabled(t_comments))
-		cout <<
-			"CREATE TABLE COMMENTS("		// Comments in the code
-			"FID INTEGER,"				// File key (references FILES)
-			"FOFFSET INTEGER,"			// Offset within the file
-			"COMMENT " << db->varchar() << ","	// The comment, including its delimiters
-			"PRIMARY KEY(FID, FOFFSET),"
-			"FOREIGN KEY(FID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_comments)) cout <<
+		"\n\n-- Comments in the code\n"
+		"CREATE TABLE COMMENTS(\n"
+		"  FID INTEGER, -- File key\n"
+		"  FOFFSET INTEGER, -- Offset within the file\n"
+		"  COMMENT " << db->varchar() << ", -- The comment, including its delimiters\n"
+		"  PRIMARY KEY(FID, FOFFSET),\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
+		");\n";
 
-	if (table_is_enabled(t_strings))
-		cout <<
-			"CREATE TABLE STRINGS("			// Strings in the code
-			"FID INTEGER,"				// File key (references FILES)
-			"FOFFSET INTEGER,"			// Offset within the file
-			"STRING " << db->varchar() << ","	// The string, including its delimiters
-			"PRIMARY KEY(FID, FOFFSET),"
-			"FOREIGN KEY(FID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_strings)) cout <<
+		"\n\n-- Strings in the code\n"
+		"CREATE TABLE STRINGS(\n"
+		"  FID INTEGER, -- File key\n"
+		"  FOFFSET INTEGER, -- Offset within the file\n"
+		"  STRING " << db->varchar() << ", -- The string, including its delimiters\n"
+		"  PRIMARY KEY(FID, FOFFSET),\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
+		");\n";
 
-	if (table_is_enabled(t_rest))
-		cout <<
-			"CREATE TABLE REST("			// Remaining, non-identifier source code
-			"FID INTEGER,"				// File key (references FILES)
-			"FOFFSET INTEGER,"			// Offset within the file
-			"CODE " << db->varchar() << ","		// The actual code
-			"PRIMARY KEY(FID, FOFFSET),"
-			"FOREIGN KEY(FID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_rest)) cout <<
+		"\n\n-- Remaining, non-identifier source code\n"
+		"CREATE TABLE REST(\n"
+		"  FID INTEGER, -- File key\n"
+		"  FOFFSET INTEGER, -- Offset within the file\n"
+		"  CODE " << db->varchar() << ", -- The actual code\n"
+		"  PRIMARY KEY(FID, FOFFSET),\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
+		");\n";
 
-	if (table_is_enabled(t_linepos))
-		cout <<
-			"CREATE TABLE LINEPOS("			// Line number offsets within each file
-			"FID INTEGER,"				// File key (references FILES)
-			"FOFFSET INTEGER,"			// Offset within the file
-			"LNUM INTEGER,"				// Line number (starts at 1)
-			"PRIMARY KEY(FID, FOFFSET),"
-			"FOREIGN KEY(FID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_linepos)) cout <<
+		"\n\n-- Line number offsets within each file\n"
+		"CREATE TABLE LINEPOS(\n"
+		"  FID INTEGER, -- File key\n"
+		"  FOFFSET INTEGER, -- Offset within the file\n"
+		"  LNUM INTEGER, -- Line number (starts at 1)\n"
+		"  PRIMARY KEY(FID, FOFFSET),\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
+		");\n";
 
 
-	if (table_is_enabled(t_projects))
-		cout <<
-			"CREATE TABLE PROJECTS("		// Project details
-			"PID INTEGER PRIMARY KEY,"		// Unique project key
-			"NAME " << db->varchar() <<		// Project name
-			");\n";
+	if (table_is_enabled(t_projects)) cout <<
+		"\n\n-- Project details\n"
+		"CREATE TABLE PROJECTS(\n"
+		"  PID INTEGER PRIMARY KEY, -- Unique project key\n"
+		"  NAME " << db->varchar() << " -- Project name\n"
+		");\n";
 
-	if (table_is_enabled(t_idproj))
-		cout <<
-			"CREATE TABLE IDPROJ("			// Identifiers appearing in projects
-			"EID " << db->ptrtype() << ","		// Identifier key (references IDS)
-			"PID INTEGER,"				// Project key (references PROJECTS)
-			"FOREIGN KEY(EID) REFERENCES IDS(EID),"
-			"FOREIGN KEY(PID) REFERENCES PROJECTS(PID)"
-			");\n";
+	if (table_is_enabled(t_idproj)) cout <<
+		"\n\n-- Identifiers appearing in projects\n"
+		"CREATE TABLE IDPROJ(\n"
+		"  EID " << db->ptrtype() << ", -- Identifier key\n"
+		"  PID INTEGER, -- Project key\n"
+		"  FOREIGN KEY(EID) REFERENCES IDS(EID),\n"
+		"  FOREIGN KEY(PID) REFERENCES PROJECTS(PID)\n"
+		");\n";
 
-	if (table_is_enabled(t_fileproj))
-		cout <<
-			"CREATE TABLE FILEPROJ("		// Files used in projects
-			"FID INTEGER, "				// File key (references FILES)
-			"PID INTEGER,"				// Project key (references PROJECTS)
-			"FOREIGN KEY(FID) REFERENCES FILES(FID),"
-			"FOREIGN KEY(PID) REFERENCES PROJECTS(PID)"
-			");\n";
+	if (table_is_enabled(t_fileproj)) cout <<
+		"\n\n-- Files used in projects\n"
+		"CREATE TABLE FILEPROJ(\n"
+		"  FID INTEGER, -- File key\n"
+		"  PID INTEGER, -- Project key\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID),\n"
+		"  FOREIGN KEY(PID) REFERENCES PROJECTS(PID)\n"
+		");\n";
+	cout <<
+	    "\n\n"
+	    "-- Foreign keys for the following four tables are not specified, because it is\n" 
+	    "-- difficult to satisfy integrity constraints: files (esp. their metrics,\n" 
+	    "-- esp. ncopies) can't be written until the end of processing, while\n" 
+	    "-- to conserve space, these tables are written after each file is processed.\n" 
+	    "-- Alternatively, inserts to these tables could be wrapped into\n" 
+	    "-- SET REFERENTIAL_INTEGRITY { TRUE | FALSE } calls.\n";
 
-			/*
-			 * Foreign keys for the following four tables are not specified, because it is difficult
-			 * to satisfy integrity constraints: files (esp. their metrics, esp. ncopies) can't
-			 * be written until the end of processing, while to conserve space, these tables are
-			 * written after each file is processed.
-			 * Alternatively, we can wrap inserts to these tables into
-			 * SET REFERENTIAL_INTEGRITY { TRUE | FALSE } calls.
-			 */
-	if (table_is_enabled(t_definers))
-		cout <<
-			"CREATE TABLE DEFINERS("		// Included files defining required elements for a given compilation unit and project
-			"PID INTEGER, "				// Project key (references PROJECTS)
-			"CUID INTEGER, "			// Compilation unit key (references FILES)
-			"BASEFILEID INTEGER, "			// File (often .c) requiring (using) a definition (references FILES)
-			"DEFINERID INTEGER"			// File (often .h) providing a definition (references FILES)
-			//"FOREIGN KEY(PID) REFERENCES PROJECTS(PID), "
-			//"FOREIGN KEY(CUID) REFERENCES FILES(FID), "
-			//"FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID), "
-			//"FOREIGN KEY(DEFINERID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_definers)) cout <<
+		"\n\n-- Included files defining required elements for a given compilation unit and project\n"
+		"CREATE TABLE DEFINERS(\n"
+		"  PID INTEGER, -- Project key\n"
+		"  CUID INTEGER, -- Compilation unit key\n"
+		"  BASEFILEID INTEGER, -- File (often .c) requiring (using) a definition\n"
+		"  DEFINERID INTEGER -- File (often .h) providing a definition\n"
+		"  -- FOREIGN KEY(PID) REFERENCES PROJECTS(PID),\n"
+		"  -- FOREIGN KEY(CUID) REFERENCES FILES(FID),\n"
+		"  -- FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID),\n"
+		"  -- FOREIGN KEY(DEFINERID) REFERENCES FILES(FID)\n"
+		");\n";
 
-	if (table_is_enabled(t_includers))
-		cout <<
-			"CREATE TABLE INCLUDERS("		// Included files including files for a given compilation unit and project
-			"PID INTEGER, "				// Project key (references PROJECTS)
-			"CUID INTEGER, "			// Compilation unit key (references FILES)
-			"BASEFILEID INTEGER, "			// File included in the compilation (references FILES)
-			"INCLUDERID INTEGER"			// Files that include it (references FILES)
-			//"FOREIGN KEY(PID) REFERENCES PROJECTS(PID), "
-			//"FOREIGN KEY(CUID) REFERENCES FILES(FID), "
-			//"FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID), "
-			//"FOREIGN KEY(INCLUDERID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_includers)) cout <<
+		"\n\n-- Included files including files for a given compilation unit and project\n"
+		"CREATE TABLE INCLUDERS(\n"
+		"  PID INTEGER, -- Project key\n"
+		"  CUID INTEGER, -- Compilation unit key\n"
+		"  BASEFILEID INTEGER, -- File included in the compilation\n"
+		"  INCLUDERID INTEGER -- Files that include it\n"
+		"  -- FOREIGN KEY(PID) REFERENCES PROJECTS(PID),\n"
+		"  -- FOREIGN KEY(CUID) REFERENCES FILES(FID),\n"
+		"  -- FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID),\n"
+		"  -- FOREIGN KEY(INCLUDERID) REFERENCES FILES(FID)\n"
+		");\n";
 
-	if (table_is_enabled(t_providers))
-		cout <<
-			"CREATE TABLE PROVIDERS("		// Included files providing code or data for a given compilation unit and project
-			"PID INTEGER, "				// Project key (references PROJECTS)
-			"CUID INTEGER, "			// Compilation unit key (references FILES)
-			"PROVIDERID INTEGER"			// Included file (references FILES)
-			//"FOREIGN KEY(PID) REFERENCES PROJECTS(PID), "
-			//"FOREIGN KEY(CUID) REFERENCES FILES(FID), "
-			//"FOREIGN KEY(PROVIDERID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_providers)) cout <<
+		"\n\n-- Included files providing code or data for a given compilation unit and project\n"
+		"CREATE TABLE PROVIDERS(\n"
+		"  PID INTEGER, -- Project key\n"
+		"  CUID INTEGER, -- Compilation unit key\n"
+		"  PROVIDERID INTEGER -- Included file\n"
+		"  -- FOREIGN KEY(PID) REFERENCES PROJECTS(PID),\n"
+		"  -- FOREIGN KEY(CUID) REFERENCES FILES(FID),\n"
+		"  -- FOREIGN KEY(PROVIDERID) REFERENCES FILES(FID)\n"
+		");\n";
 
-	if (table_is_enabled(t_inctriggers))
-		cout <<
-			"CREATE TABLE INCTRIGGERS("		// Tokens requiring file inclusion for a given compilation unit and project
-			"PID INTEGER, "				// Project key (references PROJECTS)
-			"CUID INTEGER, "			// Compilation unit key (references FILES)
-			"BASEFILEID INTEGER, "			// File requiring a definition (references FILES)
-			"DEFINERID INTEGER, "			// File providing a definition (references FILES)
-			"FOFFSET INTEGER, "			// Definition's offset within the providing file
-			"LEN INTEGER"				// Token's length
-			//"FOREIGN KEY(PID) REFERENCES PROJECTS(PID), "
-			//"FOREIGN KEY(CUID) REFERENCES FILES(FID), "
-			//"FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID), "
-			//"FOREIGN KEY(DEFINERID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_inctriggers)) cout <<
+		"\n\n-- Tokens requiring file inclusion for a given compilation unit and project\n"
+		"CREATE TABLE INCTRIGGERS(\n"
+		"  PID INTEGER, -- Project key\n"
+		"  CUID INTEGER, -- Compilation unit key\n"
+		"  BASEFILEID INTEGER, -- File requiring a definition\n"
+		"  DEFINERID INTEGER, -- File providing a definition\n"
+		"  FOFFSET INTEGER, -- Definition's offset within the providing file\n"
+		"  LEN INTEGER -- Token's length\n"
+		"  -- FOREIGN KEY(PID) REFERENCES PROJECTS(PID),\n"
+		"  -- FOREIGN KEY(CUID) REFERENCES FILES(FID),\n"
+		"  -- FOREIGN KEY(BASEFILEID) REFERENCES FILES(FID),\n"
+		"  -- FOREIGN KEY(DEFINERID) REFERENCES FILES(FID)\n"
+		");\n";
 
-	if (table_is_enabled(t_functions))
-		cout <<
-			"CREATE TABLE FUNCTIONS("		// C functions and function-like macros
-			"ID " << db->ptrtype() << " PRIMARY KEY,\n"	// Unique function identifier
-			"NAME " << db->varchar() << ",\n"	// Function name (redundant; see FUNCTIONID)
-			"ISMACRO " << db->booltype() << ",\n"	// True if a function-like macro (otherwise a C function)
-			"DEFINED " << db->booltype() << ",\n"	// True if the function is defined within the workspace
-			"DECLARED " << db->booltype() << ",\n"	// True if the function is declared within the workspace
-			"FILESCOPED " << db->booltype() << ",\n"// True if the function's scope is a single compilation unit (static or macro)
-			"FID INTEGER,\n"			// File key of the function's definition, declaration, or use (references FILES)
-			"FOFFSET INTEGER,\n"			// Offset of definition, declaration, or use within the file
-			"FANIN INTEGER,\n"			// Fan-in (number of callers)
-			"FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
-			");\n";
+	if (table_is_enabled(t_functions)) cout <<
+		"\n\n-- C functions and function-like macros\n"
+		"CREATE TABLE FUNCTIONS(\n"
+		"  ID " << db->ptrtype() << " PRIMARY KEY, -- Unique function identifier\n"
+		"  NAME " << db->varchar() << ", -- Function name (redundant; see FUNCTIONID)\n"
+		"  ISMACRO " << db->booltype() << ", -- True if a function-like macro (otherwise a C function)\n"
+		"  DEFINED " << db->booltype() << ", -- True if the function is defined within the workspace\n"
+		"  DECLARED " << db->booltype() << ", -- True if the function is declared within the workspace\n"
+		"  FILESCOPED " << db->booltype() << ", -- True if the function's scope is a single compilation unit (static or macro)\n"
+		"  FID INTEGER, -- File key of the function's definition, declaration, or use\n"
+		"  FOFFSET INTEGER, -- Offset of definition, declaration, or use within the file\n"
+		"  FANIN INTEGER, -- Fan-in (number of callers)\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
+		");\n";
 
-	if (table_is_enabled(t_functiondefs)) {
-		cout <<
-			"CREATE TABLE FUNCTIONDEFS("		// Details of defined functions and macros
-			"FUNCTIONID " << db->ptrtype() << " PRIMARY KEY,\n";	// Function identifier key (references FUNCTIONS)
-			cout <<
-			"FIDBEGIN INTEGER,\n"			// File key of the function's definition begin (references FILES)
-			"FOFFSETBEGIN INTEGER,\n"		// Offset of definition begin within the file
-			"FIDEND INTEGER,\n"			// File key of the function's definition end (references FILES)
-			"FOFFSETEND INTEGER,\n"			// Offset of definition end within the file
-			"FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)"
-			");\n";
+	if (table_is_enabled(t_functiondefs)) cout <<
+		"\n\n-- Details of defined functions and macros\n"
+		"CREATE TABLE FUNCTIONDEFS(\n"
+		"  FUNCTIONID " << db->ptrtype() << " PRIMARY KEY, -- Function identifier key\n"
+		"  FIDBEGIN INTEGER, -- File key of the function's definition begin\n"
+		"  FOFFSETBEGIN INTEGER, -- Offset of definition begin within the file\n"
+		"  FIDEND INTEGER, -- File key of the function's definition end\n"
+		"  FOFFSETEND INTEGER, -- Offset of definition end within the file\n"
+		"  FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)\n"
+		");\n";
 
-	}
 	if (table_is_enabled(t_functionmetrics)) {
-		cout <<
-			"CREATE TABLE FUNCTIONMETRICS("		// Metrics of defined functions and macros
-			"FUNCTIONID " << db->ptrtype() << ",\n"	// Function identifier key (references FUNCTIONS)
-			"PRECPP " << db->booltype() << ",\n";	// True for values before the cpp false for values after it
-			// AUTOSCHEMA INCLUDE metrics.cpp Metrics
-			// AUTOSCHEMA INCLUDE funmetrics.cpp FunMetrics
-			for (int i = 0; i < FunMetrics::metric_max; i++)
-				if (!Metrics::is_internal<FunMetrics>(i))
-					cout << Metrics::get_dbfield<FunMetrics>(i) <<
-					    (i >= FunMetrics::em_real_start ? " REAL" : " INTEGER") <<
-					    ",\n";
-			cout <<
-			"PRIMARY KEY(FUNCTIONID, PRECPP),\n"
-			"FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)"
-			");\n";
+		cout
+		    << "\n\n-- Metrics of defined functions and macros\n"
+		    << "CREATE TABLE FUNCTIONMETRICS(\n"
+		    "  FUNCTIONID " << db->ptrtype() << ", -- Function identifier key\n"
+		    "  PRECPP " << db->booltype() << ", -- True for values before the cpp false for values after it\n";
 
+		for (int i = 0; i < FunMetrics::metric_max; i++)
+			if (!Metrics::is_internal<FunMetrics>(i))
+				cout
+				    << "  "
+				    << Metrics::get_dbfield<FunMetrics>(i)
+				    << (i >= FunMetrics::em_real_start
+					? " REAL" : " INTEGER")
+				    << ", -- "
+				    << Metrics::get_name<FunMetrics>(i)
+				    << "\n";
+		cout <<
+		    "  PRIMARY KEY(FUNCTIONID, PRECPP),\n"
+		    "  FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)\n"
+		    ");\n";
 	}
-	if (table_is_enabled(t_functionid))
-		cout <<
-			"CREATE TABLE FUNCTIONID("		// Identifiers comprising a function's name
-			"FUNCTIONID " << db->ptrtype() << ", "	// Function identifier key (references FUNCTIONS)
-			"ORDINAL INTEGER, "			// Position of the identifier within the function name (0-based)
-			"EID " << db->ptrtype() << ", "		// Identifier key (references IDS)
-			"PRIMARY KEY(FUNCTIONID, ORDINAL), "
-			"FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID), "
-			"FOREIGN KEY(EID) REFERENCES IDS(EID)"
-			");\n";
 
-	if (table_is_enabled(t_fcalls))
-		cout <<
-			"CREATE TABLE FCALLS("			// Function calls
-			"SOURCEID " << db->ptrtype() << ", "	// Calling function identifier key (references FUNCTIONS)
-			"DESTID " << db->ptrtype() << ", "	// Called function identifier key (references FUNCTIONS)
-			"FOREIGN KEY(SOURCEID) REFERENCES FUNCTIONS(ID), "
-			"FOREIGN KEY(DESTID) REFERENCES FUNCTIONS(ID)"
-			");\n";
+	if (table_is_enabled(t_functionid)) cout <<
+		"\n\n-- Identifiers comprising a function's name\n"
+		"CREATE TABLE FUNCTIONID(\n"
+		"  FUNCTIONID " << db->ptrtype() << ", -- Function identifier key\n"
+		"  ORDINAL INTEGER, -- Position of the identifier within the function name (0-based)\n"
+		"  EID " << db->ptrtype() << ", -- Identifier key\n"
+		"  PRIMARY KEY(FUNCTIONID, ORDINAL),\n"
+		"  FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID),\n"
+		"  FOREIGN KEY(EID) REFERENCES IDS(EID)\n"
+		");\n";
 
-	if (table_is_enabled(t_filecopies))
-		cout <<
-			"CREATE TABLE FILECOPIES("		// Files occuring in more than one copy
-			"GROUPID INTEGER, "			// File group identifier
-			"FID INTEGER, "				// Key of file belonging to a group of identical files (references FILES)
-			"PRIMARY KEY(GROUPID, FID), "
-			"FOREIGN KEY(FID) REFERENCES FILES(FID)"
-			");\n";
+	if (table_is_enabled(t_fcalls)) cout <<
+		"\n\n-- Function calls\n"
+		"CREATE TABLE FCALLS(\n"
+		"  SOURCEID " << db->ptrtype() << ", -- Calling function identifier key\n"
+		"  DESTID " << db->ptrtype() << ", -- Called function identifier key\n"
+		"  FOREIGN KEY(SOURCEID) REFERENCES FUNCTIONS(ID),\n"
+		"  FOREIGN KEY(DESTID) REFERENCES FUNCTIONS(ID)\n"
+		");\n";
 
-			// END AUTOSCHEMA
+	if (table_is_enabled(t_filecopies)) cout <<
+		"\n\n-- Files occuring in more than one copy\n"
+		"CREATE TABLE FILECOPIES(\n"
+		"  GROUPID INTEGER, -- File group identifier\n"
+		"  FID INTEGER, -- Key of file belonging to a group of identical files\n"
+		"  PRIMARY KEY(GROUPID, FID),\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
+		");\n";
 }
 
 void

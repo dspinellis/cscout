@@ -3255,7 +3255,7 @@ usage(char *fname)
 		"-b|"	// browse-only
 #endif
 		"-C|-c|-d D|-d H|-E RE|-o|"
-		"-R URL|-r|-s db|-v] "
+		"-R URL|-r|-S db|-s db|-v] "
 		"[-l file] "
 
 #ifdef PICO_QL
@@ -3286,6 +3286,7 @@ usage(char *fname)
 		"\t-q\tProvide a PiCO_QL query interface\n"
 #endif
 		"\t-r\tGenerate an identifier and include file warning report\n"
+		"\t-S db\tGenerate the SQL schema for the specified RDBMS\n"
 		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
 		"\t-v\tDisplay version and copyright information and exit\n"
 		"\t-3\tEnable the handling of trigraph characters\n"
@@ -3321,7 +3322,7 @@ main(int argc, char *argv[])
 	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:m:l:oR:s:t:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:m:l:oR:S:s:t:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3404,6 +3405,16 @@ main(int argc, char *argv[])
 			// Process the specified file(s)
 			Pdtoken::set_processed_files(verified_compiled_re(optarg));
 			break;
+		case 'S':
+			if (process_mode)
+				usage(argv[0]);
+			if (!optarg)
+				usage(argv[0]);
+			db_engine = strdup(optarg);
+			if (!Sql::setEngine(optarg))
+				return 1;
+			workdb_schema(Sql::getInterface(), cout);
+			exit(0);
 		case 's':
 			if (process_mode)
 				usage(argv[0]);

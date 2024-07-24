@@ -52,7 +52,13 @@ mancscc.xml: ../man/cscc.1
 	groff -mhtml -Thtml -man <../man/cscc.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancscc.xml
 	echo '</notes>' >>mancscc.xml
 
-dbschema.xml: ../src/workdb.cpp ../src/metrics.cpp ../src/docschema.pl
-	perl ../src/docschema.pl ../src/workdb.cpp >dbschema.xml
+dbschema.xml: ../src/build/cscout
+	echo '<?xml version="1.0" ?>' >$@
+	echo '<notes>' >>$@
+	echo '<fmtcode ext="SQL">' >>$@
+	../src/build/cscout -S postgres >>$@
+	echo '</fmtcode>' >>$@
+	echo '</notes>' >>$@
+
 clean:
 	rm ${UH}/${DESTDIR}/*
