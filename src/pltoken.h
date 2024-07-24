@@ -55,6 +55,7 @@ public:
 	template <class C> void getnext();
 	template <class C> void getnext_nospc();
 	static void set_context(enum e_cpp_context con) { context = con; };
+	static enum e_cpp_context get_context() { return context; };
 	static void set_semicolon_line_comments(bool v) { semicolon_line_comments = v; }
 	Tokid get_delimiter_tokid() const { return t; }
 	static void set_echo() { echo = true; }

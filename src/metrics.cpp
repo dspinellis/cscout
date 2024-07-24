@@ -64,6 +64,8 @@ Metrics::metric_details_values()
 	v[em_nppcond]		= MetricDetails(1, 0, 1, "NPPCOND",	"Number of processed C preprocessor conditionals (ifdef, if, elif)");
 	v[em_nppfmacro]		= MetricDetails(1, 0, 1, "NPPFMACRO",	"Number of defined C preprocessor function-like macros");
 	v[em_nppomacro]		= MetricDetails(1, 0, 1, "NPPOMACRO",	"Number of defined C preprocessor object-like macros");
+	v[em_nconcatop]		= MetricDetails(1, 0, 1, "NPPCONCATOP",	"Number of token concatenation operators (##)");
+	v[em_nstringop]		= MetricDetails(1, 0, 1, "NPPSTRINGOP",	"Number of token stringification operators (#)");
 	// Elements counted at the token tap
 	v[em_nstmt]		= MetricDetails(1, 1, 1, "NSTMT",	"Number of statements or declarations");
 	v[em_nop]		= MetricDetails(1, 1, 1, "NOP",		"Number of operators");

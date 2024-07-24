@@ -52,6 +52,7 @@ using namespace std;
 #include "attr.h"
 #include "error.h"
 #include "ctoken.h"
+#include "pltoken.h"
 
 class Eclass;
 class Filedetails;
@@ -179,6 +180,8 @@ public:
 		em_nclit,	// Number of character literals
 		em_nstring,	// Number of character strings
 		em_ncc2op,	// (INT) Number of operators contributing to cc2: &&, ||, ?:
+		em_nconcatop,	// Number of concatenation operators (##) in macro definition
+		em_nstringop,	// Number of stringification operators (#) in macro definition
 		/*
 		 * Keywords counted during identifier processing that takes
 		 * place when each file is post-processed.
@@ -391,6 +394,14 @@ Metrics::process_token(const TokenType &t, Metrics::e_metric metric_code)
 	case OR_OP:
 	case '?':
 		count[em_ncc2op]++;
+		break;
+	case CPP_CONCAT:
+		if (Pltoken::get_context() == cpp_define)
+			count[em_nconcatop]++;
+		break;
+	case '#':
+		if (Pltoken::get_context() == cpp_define)
+			count[em_nstringop]++;
 		break;
 	}
 	if (is_operator(code)) {
