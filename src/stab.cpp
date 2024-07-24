@@ -96,6 +96,13 @@ Block::fn_body_enter()
 void
 Block::exit()
 {
+	if (scope_block.empty())
+		/*
+		 * @error
+		 * A <code>#pragma block_exit</code> was performed without
+		 * having a corresponding active block.
+		 */
+		Error::error(E_FATAL, "#pragma block_exit on an empty block stack");
 	scope_block.pop_back();
 	current_block--;
 	param_clear();
