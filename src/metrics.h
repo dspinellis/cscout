@@ -625,17 +625,33 @@ operator<<(ostream& o, const MetricsRange<M, E> &m)
 		"<th>" "Min" "</th>"
 		"<th>" "Max" "</th>"
 		"<th>" "Avg" "</th></tr>\n";
-	for (int i = 0; i < M::metric_max; i++)
-		if (!Metrics::is_internal<M>(i))
-			o << "<tr><td>" << Metrics::get_name<M>(i) << "</td>"
+	string na_metric(
+		"<td style='text-align: right;'>&mdash;</td>"
+		"<td style='text-align: right;'>&mdash;</td>"
+		"<td style='text-align: right;'>&mdash;</td>"
+		"<td style='text-align: right;'>&mdash;</td>"
+	    );
+	for (int i = 0; i < M::metric_max; i++) {
+		if (Metrics::is_internal<M>(i))
+			continue;
+		o << "<tr><td>" << Metrics::get_name<M>(i) << "</td>";
+		if (Metrics::is_pre_cpp<M>(i))
+			o
 			    << tdnum << m.total.get_pre_cpp_metric(i) << "</td>"
 			    << tdnum << m.min.get_pre_cpp_metric(i) << "</td>"
 			    << tdnum << m.max.get_pre_cpp_metric(i) << "</td>"
-			    << tdnum << avg(m.total.get_pre_cpp_metric(i), m.total.get_nelement()) << "</td>"
+			    << tdnum << avg(m.total.get_pre_cpp_metric(i), m.total.get_nelement()) << "</td>";
+		else
+			o << na_metric;
+		if (Metrics::is_post_cpp<M>(i))
+			o
 			    << tdnum << m.total.get_post_cpp_metric(i) << "</td>"
 			    << tdnum << m.min.get_post_cpp_metric(i) << "</td>"
 			    << tdnum << m.max.get_post_cpp_metric(i) << "</td>"
 			    << tdnum << avg(m.total.get_post_cpp_metric(i), m.total.get_nelement()) << "</td></tr>\n";
+		else
+			o << na_metric;
+	}
 	o << "</table>\n";
 	return o;
 }
