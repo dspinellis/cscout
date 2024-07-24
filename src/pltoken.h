@@ -26,10 +26,9 @@
 #define PLTOKEN_
 
 #include "debug.h"
+#include "fchar.h"
 #include "tokid.h"
 #include "ptoken.h"
-#include "call.h"
-#include "filedetails.h"
 
 class Fchar;
 
@@ -51,6 +50,7 @@ private:
 	template <class C> void update_parts(Tokid& base, Tokid& follow, const C& c0);
 	Tokid t;		// Token identifier for delimeters: comma, bracket
 	template <class C> void getnext_analyze();
+	void process_metrics();
 public:
 	template <class C> void getnext();
 	template <class C> void getnext_nospc();
@@ -562,17 +562,8 @@ Pltoken::getnext_analyze()
 		val = (char)(code = c0.get_char());
 	}
 
-	// Tally function and file metrics
-	Metrics::e_metric keyword_metric = Metrics::em_invalid;
-	if (this->get_code() == IDENTIFIER)
-		keyword_metric = KeywordMetrics::metric(this->get_val());
+	process_metrics();
 
-	Filedetails::process_pre_cpp_token(*this, keyword_metric);
-	Call::process_pre_cpp_token(*this, keyword_metric);
-
-	// For metric counting filter out whitespace
-	if (code != SPACE && code != '\n')
-		Metrics::call_pre_cpp_metrics(&Metrics::add_token);
 	if (DP()) cout << "getnext returns: " << *this << "\n";
 }
 

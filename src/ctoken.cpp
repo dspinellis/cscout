@@ -49,6 +49,7 @@
 #include "ctoken.h"
 #include "type.h"
 #include "stab.h"
+#include "call.h"
 
 /*
  * Return the character value of a string containing a C character
