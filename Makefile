@@ -24,32 +24,32 @@ export CSCOUT_DIR=$(shell pwd)
 .PHONY: src/build/cscout swill/libswill.a btyacc/btyacc
 
 src/build/cscout: swill/libswill.a btyacc/btyacc
-	cd src && $(MAKE)
+	cd src && $(MAKE) $(MAKEFLAGS)
 
 swill/libswill.a: swill
-	cd swill && $(MAKE)
+	cd swill && $(MAKE) $(MAKEFLAGS)
 
 swill:
 	git clone https://github.com/dspinellis/swill.git
 	cd swill && ./configure
 
 btyacc/btyacc: btyacc
-	cd btyacc && $(MAKE)
+	cd btyacc && $(MAKE) $(MAKEFLAGS)
 
 btyacc:
 	git clone https://github.com/dspinellis/btyacc
 
 test: src/build/cscout
-	cd src && $(MAKE) test
+	cd src && $(MAKE) $(MAKEFLAGS) test
 
 clean:
-	cd src && $(MAKE) clean
+	cd src && $(MAKE) $(MAKEFLAGS) clean
 
 install: src/build/cscout
-	cd src && $(MAKE) install
+	cd src && $(MAKE) $(MAKEFLAGS) install
 
 uninstall:
-	cd src && $(MAKE) uninstall
+	cd src && $(MAKE) $(MAKEFLAGS) uninstall
 
 example: src/build/cscout
-	cd src && $(MAKE) example
+	cd src && $(MAKE) $(MAKEFLAGS) example
