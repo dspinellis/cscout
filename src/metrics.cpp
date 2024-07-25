@@ -57,6 +57,8 @@ Metrics::metric_details_values()
 	v[em_maxstmtnest]	= MetricDetails(0, 1, 1, "MAXSTMTNEST",	"Maximum level of statement nesting");
 	v[em_maxbracenest]	= MetricDetails(1, 1, 1, "MAXBRACENEST","Maximum level of brace nesting");
 	v[em_maxbracknest]	= MetricDetails(1, 1, 1, "MAXBRACKNEST","Maximum level of bracket nesting");
+	v[em_bracenest]		= MetricDetails(1, 0, 0, "BRACENEST",	"Dangling brace nesting");
+	v[em_bracknest]		= MetricDetails(1, 0, 0, "BRACKNEST",	"Dangling bracket nesting");
 	v[em_nuline]		= MetricDetails(1, 0, 1, "NULINE",	"Number of unprocessed lines");
 
 	v[em_ntoken]		= MetricDetails(1, 1, 1, "NTOKEN",	"Number of tokens");

@@ -18,6 +18,8 @@ extern puts(char *s);
 
 char *a = " string";
 
+#define WBEGIN(cond) while (cond) {
+
 #if !defined(MACROS)
 #define PI 3.14
 #define sqr(x) (x * x)
