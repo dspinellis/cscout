@@ -17,7 +17,8 @@
  * along with CScout.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * Web-based interface for viewing and processing C code
+ * CLI and web-based interface for viewing and processing C code
+ * Important functions: main(), file_analyze(), file_refactor()
  *
  */
 
@@ -308,6 +309,8 @@ file_analyze(Fileid fi)
 		// Update current_function
 		if (cfun && ti > cfun->get_end().get_tokid()) {
 			cfun->get_pre_cpp_metrics().summarize_identifiers();
+			if (cfun->is_cfun())
+				cfun->get_pre_cpp_metrics().adjust_cfun_metrics();
 			if (fun_nesting.empty())
 				cfun = NULL;
 			else {
@@ -385,8 +388,11 @@ file_analyze(Fileid fi)
 				Filedetails::get_pre_cpp_metrics(fi).add_unprocessed();
 		}
 	}
-	if (cfun)
+	if (cfun) {
 		cfun->get_pre_cpp_metrics().summarize_identifiers();
+		if (cfun->is_cfun())
+			cfun->get_pre_cpp_metrics().adjust_cfun_metrics();
+	}
 	Filedetails::get_pre_cpp_metrics(fi).summarize_identifiers();
 	Filedetails::get_pre_cpp_metrics(fi).set_ncopies(Filedetails::get_identical_files(fi).size());
 	if (DP())

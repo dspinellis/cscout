@@ -103,8 +103,6 @@ class Metrics {
 private:
 	int currlinelen;
 	int currstmtlen;
-	int currbracenesting;
-	int currbracknesting;
 	enum e_cfile_state cstate;
 
 	// Map from a metric to its details and its initializer
@@ -143,8 +141,6 @@ public:
 	Metrics() :
 		currlinelen(0),
 		currstmtlen(0),
-		currbracenesting(0),
-		currbracknesting(0),
 		cstate(s_normal),
 		processed(false)
 	{}
@@ -163,6 +159,8 @@ public:
 		em_maxstmtnest,		// Maximum level of statement nesting
 		em_maxbracenest,	// Maximum level of brace nesting
 		em_maxbracknest,	// Maximum level of bracket nesting
+		em_bracenest,		// Dangling brace nesting
+		em_bracknest,		// Dangling bracket nesting
 		em_nuline,		// Number of unprocessed lines
 
 	// During processing (once based on processed)
@@ -244,6 +242,9 @@ public:
 	void add_ppfmacro() { if (!processed) count[em_nppfmacro]++; }
 	void add_ppomacro() { if (!processed) count[em_nppomacro]++; }
 	void add_token() { if (!processed) count[em_ntoken]++; }
+
+	// Initialize the metrics associated with processing C functions
+	void adjust_cfun_metrics() { count[em_bracenest]++; }
 
 	void done_processing() { processed = true; }
 	bool is_processed() const { return processed; }
@@ -375,20 +376,20 @@ Metrics::process_token(const TokenType &t, Metrics::e_metric metric_code)
 		count[em_nstring]++;
 		break;
 	case '{':
-		++currbracenesting;
-		if (currbracenesting > count[em_maxbracenest])
-			count[em_maxbracenest] = currbracenesting;
+		++count[em_bracenest];
+		if (count[em_bracenest] > count[em_maxbracenest])
+			count[em_maxbracenest] = count[em_bracenest];
 		break;
 	case '}':
-		--currbracenesting;
+		--count[em_bracenest];
 		break;
 	case '(':
-		++currbracknesting;
-		if (currbracknesting > count[em_maxbracknest])
-			count[em_maxbracknest] = currbracknesting;
+		++count[em_bracknest];
+		if (count[em_bracknest] > count[em_maxbracknest])
+			count[em_maxbracknest] = count[em_bracknest];
 		break;
 	case ')':
-		--currbracknesting;
+		--count[em_bracknest];
 		break;
 	case AND_OP:
 	case OR_OP:
