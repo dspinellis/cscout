@@ -74,7 +74,7 @@ HEADERS=attr.h call.h compiledre.h cpp.h ctag.h ctconst.h ctoken.h \
   macro.h mcall.h md5.h metrics.h mquery.h mscdefs.h mscincs.h obfuscate.h \
   option.h os.h pager.h pdtoken.h pltoken.h ptoken.h query.h sql.h stab.h \
   swill.h tchar.h timer.h token.h tokid.h tokmap.h type.h type2.h version.h \
-  wdefs.h wincs.h workdb.h ytoken.h
+  wdefs.h wincs.h workdb.h ytoken.h macro_arg_processor.h
 
 OTHERSRC=style.css csmake.pl cswc.pl tokname.pl runtest.sh eval.y parse.y \
   Makefile

@@ -69,6 +69,9 @@ Call::fun_map Call::all;
 // Nested statements created from macro expansion
 int Call::macro_nesting;
 
+// All known macros
+map<Call::name_identifier, Call *> Call::macros;
+
 // The current function makes a call to f
 void
 Call::register_call(Call *f)
@@ -156,6 +159,13 @@ Call::contains(Eclass *e) const
 		}
 	}
 	return false;
+}
+
+void
+populate_namers()
+{
+	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
+	}
 }
 
 void
@@ -336,4 +346,26 @@ Call::dumpSql(Sql *db, ostream &of)
 				    ptr_offset(fun) << ',' <<
 				    ptr_offset(*dest) << ");\n";
 		}
+}
+
+/*
+ * After the projects have been processed populate a map from the name
+ * of each macro to its Call object.
+ */
+void
+Call::populate_macro_map()
+{
+	for (auto fit = all.begin(); fit != all.end(); ++fit) {
+		Call *f = fit->second;
+
+		if (!f->is_macro())
+			continue;
+
+		name_identifier name;
+		const auto& tparts(f->token.constituents());
+		for (auto t = tparts.begin(); t != tparts.end(); ++t)
+			name.push_back(t->get_tokid().get_ec());
+
+		macros.emplace(name, f);
+	}
 }

@@ -255,6 +255,8 @@ public:
 	// Return metric i (by lookup or calculation)
 	double get_metric(int n) const;
 	void set_metric(int n, int val) { count[n] = val; }
+
+	void add_metric(int n, int val) { count[n] += val; }
 	void summarize_operators();
 
 	// Update the maxumum level of statement nesting

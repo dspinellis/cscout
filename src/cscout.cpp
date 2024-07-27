@@ -85,6 +85,7 @@
 #include "fifstream.h"
 #include "ctag.h"
 #include "timer.h"
+#include "macro_arg_processor.h"
 
 #ifdef PICO_QL
 #include "pico_ql_search.h"
@@ -286,6 +287,7 @@ file_analyze(Fileid fi)
 	const string &fname = fi.get_path();
 	int line_number = 0;
 
+
 	FCallSet &fc = Filedetails::get_functions(fi);	// File's functions
 	FCallSet::iterator fci = fc.begin();	// Iterator through them
 	Call *cfun = NULL;			// Current function
@@ -297,6 +299,9 @@ file_analyze(Fileid fi)
 		perror(fname.c_str());
 		exit(1);
 	}
+
+	MacroArgProcessor ma_proc;
+
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
@@ -318,6 +323,7 @@ file_analyze(Fileid fi)
 				fun_nesting.pop();
 			}
 		}
+		// See if entering a new function
 		if (fci != fc.end() && ti >= (*fci)->get_begin().get_tokid()) {
 			if (cfun)
 				fun_nesting.push(cfun);
@@ -328,6 +334,10 @@ file_analyze(Fileid fi)
 		char c = (char)val;
 		mapTokidEclass::iterator ei;
 		enum e_cfile_state cstate = Filedetails::get_pre_cpp_metrics(fi).get_state();
+
+		ma_proc.process_char(cstate, c);
+
+		// Mark identifiers
 		if (cstate != s_block_comment &&
 		    cstate != s_string &&
 		    cstate != s_cpp_comment &&
@@ -343,15 +353,17 @@ file_analyze(Fileid fi)
 					continue;
 				}
 			}
+
+			string s(1, c);
+			int len = ec->get_len();
+			for (int j = 1; j < len; j++)
+				s += (char)in.get();
+
 			// Identifiers we can mark
 			if (ec->is_identifier()) {
 				// Update metrics
 				id_msum.add_pre_cpp_id(ec);
 				// Add to the map
-				string s(1, c);
-				int len = ec->get_len();
-				for (int j = 1; j < len; j++)
-					s += (char)in.get();
 				Filedetails::get_pre_cpp_metrics(fi).process_identifier(s, ec);
 				if (cfun)
 					cfun->get_pre_cpp_metrics().process_identifier(s, ec);
@@ -367,7 +379,6 @@ file_analyze(Fileid fi)
 					has_unused = true;
 				else
 					; // TODO fi.set_associated_files(ec);
-				continue;
 			} else {
 				/*
 				 * This equivalence class is not needed.
@@ -377,7 +388,9 @@ file_analyze(Fileid fi)
 				 */
 				ec->remove_from_tokid_map();
 				delete ec;
+				ec = NULL;
 			}
+			ma_proc.process_ec(ec, s);
 		}
 		Filedetails::get_pre_cpp_metrics(fi).process_char((char)val);
 		if (cfun)
@@ -3513,7 +3526,11 @@ main(int argc, char *argv[])
 		swill_handle("qexit.html", quit_page, 0);
 	}
 
-	// Populate the EC identifier member and the directory tree
+	/*
+	 * Populate the EC identifier member and the directory tree.
+	 * Set several file and function metrics.
+	 */
+	Call::populate_macro_map();
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		file_analyze(*i);
 		dir_add_file(*i);
