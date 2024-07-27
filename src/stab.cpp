@@ -204,6 +204,8 @@ obj_define(const Token& tok, Type typ)
 	}
 	if (DP())
 		cout << "Type of " << tok << " is " << typ << (typ.is_typedef() ? " (typedef)\n" : "\n");
+	if (sc == c_typedef)
+		tok.set_ec_attribute(is_typedef);
 	if (Block::get_scope_level() == Block::cu_block) {
 		// Function *definitions* are added from FCall::set_current_fun
 		// We don't add extern variables
@@ -211,7 +213,7 @@ obj_define(const Token& tok, Type typ)
 			CTag::add(tok, typ, sc);
 
 		// Special rules for definitions at file scope
-		// ANSI 3.1.2.2 p. 22
+		// ANSI 6.1.2.2 p. 21
 		switch (sc) {
 		case c_static:
 			tok.set_ec_attribute(is_cscope);
@@ -232,7 +234,6 @@ obj_define(const Token& tok, Type typ)
 			break;
 		case c_typedef:
 			tok.set_ec_attribute(is_cscope);
-			tok.set_ec_attribute(is_typedef);
 			break;
 		case c_enum:
 			tok.set_ec_attribute(is_cscope);
