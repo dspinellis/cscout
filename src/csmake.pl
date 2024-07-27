@@ -32,6 +32,8 @@ use Getopt::Std;
 # Used for reading the source of the other spy programs
 $script_name =$0;
 
+my $tmpdir = ($ENV{TMP} ? $ENV{TMP} : "/tmp");
+
 # Find and set the installation directory
 if (-d '.cscout') {
 	$instdir = '.cscout';
@@ -314,7 +316,7 @@ prepare_spy_environment
 		}
 		$ENV{CSCOUT_SPY_TMPDIR} = $option_T;
 	} else {
-		$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
+		$ENV{CSCOUT_SPY_TMPDIR} = $tmpdir . "/spy-make.$$";
 		mkdir($ENV{CSCOUT_SPY_TMPDIR}) || die "Unable to mkdir $ENV{CSCOUT_SPY_TMPDIR}: $!\n";
 	}
 
@@ -618,7 +620,7 @@ for $cfile (@cfiles) {
 		# Obtain a globally unique identifier across all csmake spy
 		# program runs by using the current rules file offset. This
 		# will be always increasing across all programs.
-		my $ofile = '/tmp/csmake-ofile-' . tell(RULES) . '.o';
+		my $ofile = "/$tmpdir/csmake-ofile-" . tell(RULES) . '.o';
 		push(@implicit_ofiles, $ofile);
 		$rules .= "OUTOBJ $ofile\n";
 	}
