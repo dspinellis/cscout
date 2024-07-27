@@ -303,16 +303,15 @@ can_filename
 	return ($filename);
 }
 
-
 # Prepare an environment for spying on command invocations
 sub
 prepare_spy_environment
 {
-    my ($option_T) = @_;
+	my ($option_T) = @_;
 	if (defined $option_T) {
-        if (! -d $option_T) {
-            die "$option_T directory doesn't exist\n";
-        }
+		if (! -d $option_T) {
+			die "$option_T directory doesn't exist\n";
+		}
 		$ENV{CSCOUT_SPY_TMPDIR} = $option_T;
 	} else {
 		$ENV{CSCOUT_SPY_TMPDIR} = ($ENV{TMP} ? $ENV{TMP} : "/tmp") . "/spy-make.$$";
