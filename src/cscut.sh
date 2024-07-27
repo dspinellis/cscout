@@ -28,30 +28,45 @@ set -eu
 usage()
 {
   cat <<EOF 1>&2
-Usage: $(basename $0) [-e] (-p project|-f file) cscout-file
+Usage: $(basename $0) [-e] (-F file-list|-f file|-p project) cscout-file
 
-  -e         Output from specified point to the end
-  -f file    Process only the specified file
-  -p project Process only the specified project
+  -e            Output from specified point to the end
+  -F file-list  Process only the specified files contained in file-list file
+  -f file       Process only the specified file
+  -p project    Process only the specified project
 EOF
   exit 1
 }
 
-FILE=''
-TO_END=''
+# File to cut
+file=''
+
+# File containing list of files to cut
+file_list=''
+
+# Non-empty if a project is being cut
+project=''
+
+# Non-empty if files until the end are to be cut
+to_end=''
+
 
 # Process command-line arguments
-while getopts "ef:p:" opt; do
+while getopts "eF:f:p:" opt; do
   case $opt in
     f)
       search="$OPTARG"
-      FILE=1
+      file=1
+      ;;
+    F)
+      file_list="$OPTARG"
       ;;
     e)
-      TO_END=1
+      to_end=1
       ;;
     p)
       search="project $OPTARG"
+      project=1
       ;;
     \?) # Illegal option
       usage
@@ -70,25 +85,42 @@ if [ $# -eq 0 ] ; then
   usage
 fi
 
-pattern=$(echo "$search" | sed 's/\([].\\*$^\/[]\)/\\\1/g')
+# CScout project file
+csfile="$1"
 
-begin="/#pragma echo \"Processing $pattern\\\\n\"/"
+# Extract the specified search pattern
+extract()
+{
+  local search="$1"
 
-if [ -n "$TO_END" ]; then
-  end=\$
-else
-  end="/#pragma echo \"Done processing $pattern\\\\n/"
-fi
+  local pattern=$(echo "$search" | sed 's/\([].\\*$^\/[]\)/\\\1/g')
 
-if [ -n "$FILE" ] ; then
+  local begin="/#pragma echo \"Processing $pattern\\\\n\"/"
+
+  if [ -n "$to_end" ]; then
+    local end=\$
+  else
+    local end="/#pragma echo \"Done processing $pattern\\\\n/"
+  fi
+
+  sed -n "${begin},${end}p" "$csfile"
+}
+
+if [ -z "$project" ] ; then
   cat <<\EOF
 #pragma project "cscut"
 #pragma block_enter
 EOF
 fi
 
-sed -n "${begin},${end}p" "$1"
+if [ -n "$file_list" ] ; then
+  while read search ; do
+    extract "$search"
+  done < "$file_list"
+else
+  extract "$search"
+fi
 
-if [ -n "$FILE" ] ; then
+if [ -z "$project" -a -z "$to_end" ] ; then
   echo '#pragma block_exit'
 fi
