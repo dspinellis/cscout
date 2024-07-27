@@ -397,6 +397,15 @@ again:
 	}
 }
 
+int
+Ctoken::lookup_keyword(const string& s)
+{
+	auto ik = keymap.find(s);
+	if (ik == keymap.end())
+		return -1;
+	return ik->second;
+}
+
 // Lexical analysis function for yacc
 // Used for debugging
 int

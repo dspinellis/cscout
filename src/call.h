@@ -60,7 +60,7 @@ class Pltoken;
 class Call {
 private:
 
-	// Container for storing all declared functions
+	// Container for storing called and calling functions
 	typedef set <Call *> fun_container;
 	/*
 	 * When processing the program a Call * is stored with each Id

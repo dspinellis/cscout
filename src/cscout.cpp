@@ -286,6 +286,7 @@ file_analyze(Fileid fi)
 	const string &fname = fi.get_path();
 	int line_number = 0;
 
+
 	FCallSet &fc = Filedetails::get_functions(fi);	// File's functions
 	FCallSet::iterator fci = fc.begin();	// Iterator through them
 	Call *cfun = NULL;			// Current function
@@ -297,6 +298,15 @@ file_analyze(Fileid fi)
 		perror(fname.c_str());
 		exit(1);
 	}
+
+	bool analyze_param = false;	// True if analyzing macro parameters
+	int bracket_nesting = 0;	// Nesting during the analysis
+	int non_obj_param = 0;		// Number of non-object parameters
+	// Check this or next parameter token for prohibited values
+	bool check_param_token = false;
+	bool check_next_param_token = false;
+	vector <Eclass *> macro_name_ecs;
+
 	// Go through the file character by character
 	for (;;) {
 		Tokid ti;
@@ -318,6 +328,7 @@ file_analyze(Fileid fi)
 				fun_nesting.pop();
 			}
 		}
+		// See if entering a new function
 		if (fci != fc.end() && ti >= (*fci)->get_begin().get_tokid()) {
 			if (cfun)
 				fun_nesting.push(cfun);
@@ -328,6 +339,36 @@ file_analyze(Fileid fi)
 		char c = (char)val;
 		mapTokidEclass::iterator ei;
 		enum e_cfile_state cstate = Filedetails::get_pre_cpp_metrics(fi).get_state();
+
+		/*
+		 * Analyze macro parameters for arguments that make them
+		 * unsuitable for converting into a C function.
+		 */
+		if (analyze_param &&
+		    cstate != s_block_comment &&
+		    cstate != s_string &&
+		    cstate != s_cpp_comment) {
+			// cout << "Got " << c << "\n";
+			if (check_next_param_token)
+				check_param_token = true;
+			check_next_param_token = false;
+			if (c == '(') {
+				if (bracket_nesting == 0)
+					check_next_param_token = true;
+				bracket_nesting++;
+			} else if (c == ')') {
+				bracket_nesting--;
+				if (bracket_nesting == 0) {
+					analyze_param = false;
+					Call* macro = Call::get_macro(macr_name_ecs);
+					if (macro)
+						macro->get_pre_cpp_metrics().add_metric(FunMetrics::em_nnoparam, non_obj_param);
+
+			} else if (c == ',' && bracket_nesting == 1)
+				check_next_param_token = true;
+		}
+
+		// Mark identifiers
 		if (cstate != s_block_comment &&
 		    cstate != s_string &&
 		    cstate != s_cpp_comment &&
@@ -343,15 +384,17 @@ file_analyze(Fileid fi)
 					continue;
 				}
 			}
+
+			string s(1, c);
+			int len = ec->get_len();
+			for (int j = 1; j < len; j++)
+				s += (char)in.get();
+
 			// Identifiers we can mark
 			if (ec->is_identifier()) {
 				// Update metrics
 				id_msum.add_pre_cpp_id(ec);
 				// Add to the map
-				string s(1, c);
-				int len = ec->get_len();
-				for (int j = 1; j < len; j++)
-					s += (char)in.get();
 				Filedetails::get_pre_cpp_metrics(fi).process_identifier(s, ec);
 				if (cfun)
 					cfun->get_pre_cpp_metrics().process_identifier(s, ec);
@@ -367,7 +410,10 @@ file_analyze(Fileid fi)
 					has_unused = true;
 				else
 					; // TODO fi.set_associated_files(ec);
-				continue;
+
+				if (check_param_token
+				    && ec->get_attribute(is_macro)) {
+
 			} else {
 				/*
 				 * This equivalence class is not needed.
@@ -377,7 +423,20 @@ file_analyze(Fileid fi)
 				 */
 				ec->remove_from_tokid_map();
 				delete ec;
+				ec = NULL;
 			}
+
+
+			if (ec && !analyze_param
+			    && ec->get_attribute(is_macro)) {
+				cout << "Macro " << *ec << "\n";
+				analyze_param = true;
+				bracket_nesting = 0;
+				non_obj_param = 0;
+				macro_ecs.clear();
+			}
+			if (ec && analyze_param)
+				macro_name_ecs.push_back(ec);
 		}
 		Filedetails::get_pre_cpp_metrics(fi).process_char((char)val);
 		if (cfun)

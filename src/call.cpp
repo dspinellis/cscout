@@ -159,6 +159,13 @@ Call::contains(Eclass *e) const
 }
 
 void
+populate_namers()
+{
+	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
+	}
+}
+
+void
 Call::clear_visit_flags()
 {
 	for (const_fmap_iterator_type i = all.begin(); i != all.end(); i++)

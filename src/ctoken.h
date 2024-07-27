@@ -46,6 +46,10 @@ public:
 	Ctoken() {}
 	Ctoken(Pdtoken& t) :
 		Token(t) {};
+	/*
+	 * Return the string's keyword token value or -1 if the string
+	 * isn't a keyword.
+	 */
 	static int lookup_keyword(const string& s);
 	void getnext();
 };
