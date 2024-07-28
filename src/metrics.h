@@ -212,8 +212,12 @@ public:
 		em_numid,	// Number of macro identifiers
 		em_nuid,	// Number of unique object and object-like identifiers
 		em_nlabid,	// (INT) Number of label identifiers
+		// Metrics tallied at macro expansion
+		em_nmacrointoken, // Tokens supplied for macro expansion
+		em_nmacroouttoken, // Tokens derived from macro expansion
 		// The following metrics are dynamically derived
 		em_nlabel,	// Number of goto labels (label identifiers - goto statements)
+		em_nmacroexpandtoken, // Number of tokens added by macro expansion
 		metric_max,
 		em_invalid = -1,
 	};
@@ -269,6 +273,9 @@ public:
 	// before or after the C preprocessor processing
 	static void call_pre_cpp_metrics(void (Metrics::*fun)());
 	static void call_post_cpp_metrics(void (Metrics::*fun)());
+
+	// Add the specified value to the specified metric
+	static void add_pre_cpp_metric(int metric, int value);
 
 	// Return true if the specified metric shall not appear in the UI/RDBMS
 	template <class M>

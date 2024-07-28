@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * You may only use this code if you agree to the terms of the CScout
  * Source Code License agreement (see License.txt).
@@ -42,6 +42,7 @@
 #include "type.h"
 #include "call.h"
 #include "mcall.h"
+#include "metrics.h"
 
 
 /*
@@ -378,6 +379,7 @@ PtokenSequence
 macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *caller)
 {
 	PtokenSequence r;	// Return value
+	auto ts_size = ts.size();
 
 	if (DP()) cout << "Expanding: " << ts << endl;
 	while (!ts.empty()) {
@@ -456,6 +458,11 @@ macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *c
 			r.push_back(head);
 		}
 	}
+	if (DP()) cout << "Result: " << r << endl;
+
+	Metrics::add_pre_cpp_metric(Metrics::em_nmacrointoken, ts_size);
+	Metrics::add_pre_cpp_metric(Metrics::em_nmacroouttoken, r.size());
+
 	return (r);
 }
 
