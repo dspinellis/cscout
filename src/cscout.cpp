@@ -3286,7 +3286,7 @@ usage(char *fname)
 #define PICO_QL_OPTIONS ""
 #endif
 
-		"[-P RE] [-p port] [-m spec] file\n"
+		"[-P RE] [-p port] [-m spec] [-t table ...] file\n"
 #ifndef WIN32
 		"\t-b\tRun in multiuser browse-only mode\n"
 #endif
@@ -3309,6 +3309,8 @@ usage(char *fname)
 		"\t-r\tGenerate an identifier and include file warning report\n"
 		"\t-S db\tGenerate the SQL schema for the specified RDBMS\n"
 		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
+		"\t-t table\tEnable population of the specified RDBMS table\n"
+		"\t\t(All enabled by default. Option can be provided multiple times)\n"
 		"\t-v\tDisplay version and copyright information and exit\n"
 		"\t-3\tEnable the handling of trigraph characters\n"
 		;
