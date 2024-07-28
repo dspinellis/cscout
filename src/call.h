@@ -260,6 +260,12 @@ public:
 			(current_fun->post_cpp_metrics.*fun)();
 	}
 
+	// Add the specified value to the specified metric
+	static inline void add_pre_cpp_metric(int metric, int value) {
+		if (current_fun && !current_fun->pre_cpp_metrics.is_processed())
+			current_fun->pre_cpp_metrics.add_metric(metric, value);
+	}
+
 	// The following three methods must always be called as a group
 	// See if we have started nesting through macro-expanded tokens
 	static void check_macro_nesting(const Ctoken &t);

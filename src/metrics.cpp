@@ -99,7 +99,12 @@ Metrics::metric_details_values()
 	v[em_numid]		= MetricDetails(1, 0, 1, "NUMID",	"Number of unique macro identifiers");
 	v[em_nuid]		= MetricDetails(1, 1, 1, "NUID",	"Number of unique object and object-like identifiers");
 	v[em_nlabid]		= MetricDetails(0, 0, 1, "INTERNAL",	"Number of label identifiers");
+	// Metrics tallied at macro expansion
+	v[em_nmacrointoken]	= MetricDetails(0, 0, 1, "INTERNAL",	"Tokens supplied for macro expansion");
+	v[em_nmacroouttoken]	= MetricDetails(0, 0, 1, "INTERNAL",	"Tokens derived from macro expansion");
+	// The following metrics are dynamically derived
 	v[em_nlabel]		= MetricDetails(1, 1, 1, "NLABEL",	"Number of goto labels");
+	v[em_nmacroexpandtoken]	= MetricDetails(1, 0, 1, "NMACROEXPANDTOKEN","Tokens added by macro expansion");
 	return v;
 };
 
@@ -296,6 +301,13 @@ Metrics::call_post_cpp_metrics(void (Metrics::*fun)())
 	Call::call_post_cpp_metrics(fun);
 }
 
+void
+Metrics::add_pre_cpp_metric(int metric, int value)
+{
+	Filedetails::get_pre_cpp_metrics(Fchar::get_fileid()).add_metric(metric, value);
+	Call::add_pre_cpp_metric(metric, value);
+}
+
 // Initialize map
 KeywordMetrics::map_type
 KeywordMetrics::make_keyword_map()
@@ -405,6 +417,8 @@ Metrics::get_metric(int n) const
 	// A few are calculated dynamically
 	case em_nlabel:	// Number of goto labels
 		return (get_metric(em_nlabid) - get_metric(em_ngoto));
+	case em_nmacroexpandtoken:	// Number of tokens added by macro expansion
+		return (get_metric(em_nmacroouttoken) - get_metric(em_nmacrointoken));
 	}
 }
 
