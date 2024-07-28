@@ -2797,6 +2797,8 @@ file_page(FILE *of, void *p)
 	for (int j = 0; j < FileMetrics::metric_max; j++) {
 		if (!Metrics::is_file<FileMetrics>(j))
 			continue;
+		if (Metrics::is_internal<FunMetrics>(j))
+			continue;
 		fprintf(of, "<tr><td>%s</td>",
 		    Metrics::get_name<FileMetrics>(j).c_str());
 		if (Metrics::is_pre_cpp<FileMetrics>(j))
