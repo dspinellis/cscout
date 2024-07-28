@@ -204,8 +204,8 @@ while (<IN>) {
 #include "$instdir/csmake-post-defs.h"
 $process
 #pragma popd
-#pragma echo "Done processing $src\\n"
 #pragma block_exit
+#pragma echo "Done processing $src\\n"
 };
 			undef $state;
 		} elsif (/^INSRC (.*)/) {
