@@ -58,6 +58,9 @@ class Pltoken;
  *	macro names consisting of multiple parts
  */
 class Call {
+public:
+	// A unique full identifier of a macro or function name
+	typedef vector <Eclass *> name_identifier;
 private:
 
 	// Container for storing called and calling functions
@@ -76,6 +79,7 @@ private:
 	 */
 	typedef multimap <Tokid, Call *> fun_map;
 
+
 	string name;			// Function's name
 	fun_container call;		// Functions this function calls
 	fun_container caller;		// Functions that call this function
@@ -90,6 +94,8 @@ private:
 	void add_call(Call *f) { call.insert(f); }
 	void add_caller(Call *f) { caller.insert(f); }
 
+	// All known macros
+	static map<name_identifier, Call *> macros;
 protected:
 	static fun_map all;		// Set of all functions
 	static Call *current_fun;	// Function currently being parsed
@@ -138,6 +144,15 @@ public:
 
 	// Dump the data in SQL format
 	static void dumpSql(Sql *db, ostream &of);
+
+	// Populate a map from ECs to macros
+	static void populate_macro_map();
+
+	// Return a macro corresponding to the specified name
+	static Call* get_macro(const name_identifier &name) {
+		auto it = macros.find(name);
+		return it == macros.end() ? nullptr : it->second;
+	}
 
 	const string &get_name() const { return name; }
 	bool contains(Eclass *e) const;

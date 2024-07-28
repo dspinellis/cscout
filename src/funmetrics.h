@@ -64,6 +64,7 @@ public:
 			Metrics::metric_max,
 		em_nmparam,	// Number of macro parameters
 		em_nfparam,	// Number of function parameters
+		em_nneparam,	// Number of passed non-expression macro parameters
 		// Stored metrics stop here
 		stored_metric_max,
 		// The following metrics are dynamically derived

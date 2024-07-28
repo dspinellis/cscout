@@ -69,6 +69,7 @@ FunMetrics::metric_details_values()
 	v[em_ngnsoc]	= MetricDetails(0, 1, 0, "NGNSOC",	"Number of global namespace occupants at function's top");
 	v[em_nmparam]	= MetricDetails(1, 0, 0, "NMPARAM",	"Number of parameters (for macros)");
 	v[em_nfparam]	= MetricDetails(0, 1, 0, "NFPARAM",	"Number of parameters (for functions)");
+	v[em_nneparam]	= MetricDetails(1, 0, 0, "NEPARAM",	"Number of passed non-expression macro parameters");
 	// Metrics dynamically derived
 	v[em_fanin]	= MetricDetails(1, 1, 0, "FANIN",	"Fan-in (number of calling functions)");
 	v[em_fanout]	= MetricDetails(1, 1, 0, "FANOUT",	"Fan-out (number of called functions)");

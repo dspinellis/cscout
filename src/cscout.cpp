@@ -85,6 +85,7 @@
 #include "fifstream.h"
 #include "ctag.h"
 #include "timer.h"
+#include "macro_arg_processor.h"
 
 #ifdef PICO_QL
 #include "pico_ql_search.h"
@@ -299,13 +300,7 @@ file_analyze(Fileid fi)
 		exit(1);
 	}
 
-	bool analyze_param = false;	// True if analyzing macro parameters
-	int bracket_nesting = 0;	// Nesting during the analysis
-	int non_obj_param = 0;		// Number of non-object parameters
-	// Check this or next parameter token for prohibited values
-	bool check_param_token = false;
-	bool check_next_param_token = false;
-	vector <Eclass *> macro_name_ecs;
+	MacroArgProcessor ma_proc;
 
 	// Go through the file character by character
 	for (;;) {
@@ -340,33 +335,7 @@ file_analyze(Fileid fi)
 		mapTokidEclass::iterator ei;
 		enum e_cfile_state cstate = Filedetails::get_pre_cpp_metrics(fi).get_state();
 
-		/*
-		 * Analyze macro parameters for arguments that make them
-		 * unsuitable for converting into a C function.
-		 */
-		if (analyze_param &&
-		    cstate != s_block_comment &&
-		    cstate != s_string &&
-		    cstate != s_cpp_comment) {
-			// cout << "Got " << c << "\n";
-			if (check_next_param_token)
-				check_param_token = true;
-			check_next_param_token = false;
-			if (c == '(') {
-				if (bracket_nesting == 0)
-					check_next_param_token = true;
-				bracket_nesting++;
-			} else if (c == ')') {
-				bracket_nesting--;
-				if (bracket_nesting == 0) {
-					analyze_param = false;
-					Call* macro = Call::get_macro(macr_name_ecs);
-					if (macro)
-						macro->get_pre_cpp_metrics().add_metric(FunMetrics::em_nnoparam, non_obj_param);
-
-			} else if (c == ',' && bracket_nesting == 1)
-				check_next_param_token = true;
-		}
+		ma_proc.process_char(cstate, c);
 
 		// Mark identifiers
 		if (cstate != s_block_comment &&
@@ -410,10 +379,6 @@ file_analyze(Fileid fi)
 					has_unused = true;
 				else
 					; // TODO fi.set_associated_files(ec);
-
-				if (check_param_token
-				    && ec->get_attribute(is_macro)) {
-
 			} else {
 				/*
 				 * This equivalence class is not needed.
@@ -425,18 +390,7 @@ file_analyze(Fileid fi)
 				delete ec;
 				ec = NULL;
 			}
-
-
-			if (ec && !analyze_param
-			    && ec->get_attribute(is_macro)) {
-				cout << "Macro " << *ec << "\n";
-				analyze_param = true;
-				bracket_nesting = 0;
-				non_obj_param = 0;
-				macro_ecs.clear();
-			}
-			if (ec && analyze_param)
-				macro_name_ecs.push_back(ec);
+			ma_proc.process_ec(ec, s);
 		}
 		Filedetails::get_pre_cpp_metrics(fi).process_char((char)val);
 		if (cfun)
@@ -3572,7 +3526,11 @@ main(int argc, char *argv[])
 		swill_handle("qexit.html", quit_page, 0);
 	}
 
-	// Populate the EC identifier member and the directory tree
+	/*
+	 * Populate the EC identifier member and the directory tree.
+	 * Set several file and function metrics.
+	 */
+	Call::populate_macro_map();
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		file_analyze(*i);
 		dir_add_file(*i);
