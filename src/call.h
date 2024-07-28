@@ -250,13 +250,13 @@ public:
 
 	// Call the specified metrics function for the current function
 	static inline void call_pre_cpp_metrics(void (Metrics::*fun)()) {
-		if (current_fun)
+		if (current_fun && !current_fun->pre_cpp_metrics.is_processed())
 			(current_fun->pre_cpp_metrics.*fun)();
 	}
 
 	// Call the specified metrics function for the current function
 	static inline void call_post_cpp_metrics(void (Metrics::*fun)()) {
-		if (current_fun)
+		if (current_fun && !current_fun->pre_cpp_metrics.is_processed())
 			(current_fun->post_cpp_metrics.*fun)();
 	}
 
