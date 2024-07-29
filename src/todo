@@ -8,8 +8,6 @@ Perhaps include compiler as part of the build environment.
 - Check http://blog.regehr.org/archives/696
   57 Small Programs that Crash Compilers
 
-- integrate sqlite
-
 - Add HTTP logging.
 
 - Add a timeout on expensive queries.
@@ -216,7 +214,7 @@ Convert color to cgi/command-line
 Convert the _asm handling into generic handlers for excluding line and
 block-based compiler extensions via compiler-specific preprocess-specific preprocessor defs.
 
-Create Java-based front end
+Create JS-based front end
 Make color conform with the other programs
 
 Add isfunction identifier property
