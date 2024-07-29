@@ -107,7 +107,8 @@ if ($0 =~ m/\bcscc$/) {
 	# Run as a C compiler invocation
 	prepare_spy_environment($options{T});
 	spy('gcc', 'spy-gcc');
-	system(("gcc", @MAKEARGS));
+	$exit_status = system(("gcc", @MAKEARGS));
+	check_exit('gcc', $exit_status);
 	push(@toclean, 'rules');
 	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure you have specified appropriate compiler options.\n";
 } elsif (defined $options{N}) {
@@ -124,7 +125,8 @@ if ($0 =~ m/\bcscc$/) {
 	spy('ar', 'spy-ar');
 	spy('mv', 'spy-mv');
 	spy('install', 'spy-install');
-	system(("make", @MAKEARGS));
+	my $exit_status = system(("make", @MAKEARGS));
+	check_exit('make', $exit_status);
 	push(@toclean, 'rules');
 	if (!open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules")) {
 		print STDERR "Warning: Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure a make command that creates an executable will precede or follow\nthis run.\n";
@@ -294,6 +296,29 @@ print_to_many
 		print $_ $output;
 	}
 }
+
+# Check the system exit status for errors, report, and exit on failure
+sub
+check_exit
+{
+	my ($command, $exit_status) = @_;
+
+	if ($exit_status == -1) {
+		print STDERR "Failed to execute $command command: $!\n";
+		exit(1);
+	} elsif ($exit_status & 127) {
+		my $signal = ($exit_status & 127);
+		print STDERR "Child $command died with signal $signal.\n";
+		exit(1);
+	} else {
+		my $exit_code = $exit_status >> 8;
+		if ($exit_code != 0) {
+			print STDERR "Command $command failed with exit code $exit_code.\n";
+			exit($exit_code);
+		}
+	}
+}
+
 
 # Canonicalize filename
 # Replace '/' or '\' with '#'
