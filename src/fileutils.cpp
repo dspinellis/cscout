@@ -54,8 +54,8 @@ cscout_dirs()
 	dirs.push_back("../src");
 #endif
 	dirs.push_back(".cscout");
-#if defined(INSTALL_PREFIX)
-	dirs.push_back(INSTALL_PREFIX "/include");
+#if defined(PREFIX)
+	dirs.push_back(PREFIX "/include");
 #endif
 	if (getenv("CSCOUT_HOME"))
 		dirs.push_back(getenv("CSCOUT_HOME"));

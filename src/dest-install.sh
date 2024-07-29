@@ -31,10 +31,10 @@
 #host-defs			*		*		*
 #csmake-defs			*		*
 
-INSTALL_PREFIX="${1-/usr/local}"
+PREFIX="${1-/usr/local}"
 TMPFILE="/tmp/$0-$$"
 INC=../include
-INCLUDE_DIR="$INSTALL_PREFIX/include/cscout"
+INCLUDE_DIR="$PREFIX/include/cscout"
 # Permissions for header files
 HMODE=644
 
@@ -43,7 +43,7 @@ WORKAROUNDS_PRE="$INC/template/gcc-defs.h $INC/template/llvm-defs.h $INC/templat
 WORKAROUNDS_POST="$INC/template/llvm-undefs.h"
 
 # Create required directories
-install -d "$INCLUDE_DIR/stdc" "$INSTALL_PREFIX/bin"
+install -d "$INCLUDE_DIR/stdc" "$PREFIX/bin"
 
 # Generic C definitions
 install -m $HMODE $INC/stdc/*.h "$INCLUDE_DIR/stdc/"
@@ -94,9 +94,9 @@ install -m $HMODE $TMPFILE "$INCLUDE_DIR/host-incs.h"
 # Perl scripts (keep csmake.pl in the end)
 for f in cswc.pl csmake.pl ; do
   sed "s|INSTALL_INCLUDE|$INCLUDE_DIR|g" $f >$TMPFILE
-  install $TMPFILE "$INSTALL_PREFIX/bin/$(basename $f .pl)"
+  install $TMPFILE "$PREFIX/bin/$(basename $f .pl)"
 done
 # Install as cscc
-install $TMPFILE "$INSTALL_PREFIX/bin/cscc"
+install $TMPFILE "$PREFIX/bin/cscc"
 
 rm -f $TMPFILE

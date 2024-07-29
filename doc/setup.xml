@@ -40,10 +40,10 @@ You install <em>CScout</em> in five steps:
 	<li> Run <code>sudo make install</code>. If you want the installation
 to use a different directory hierarchy than the default
 <code>/usr/local</code></li>, you can specify this on the command
-line with the <code>INSTALL_PREFIX</code> variable.
-For example, you run <code>make install INSTALL_PREFIX=/home/mydir</code>
+line with the <code>PREFIX</code> variable.
+For example, you run <code>make install PREFIX=/home/mydir</code>
 to install <em>CScout</em> under your home directory or
-<code>sudo make install INSTALL_PREFIX=/usr</code>
+<code>sudo make install PREFIX=/usr</code>
 to install <em>CScout</em> under /usr.
 </ol>
 

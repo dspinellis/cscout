@@ -17,7 +17,7 @@
 # along with CScout.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-INSTALL_PREFIX?=/usr/local
+PREFIX?=/usr/local
 
 # By default a production build is made.
 # For a debug build run make as:
@@ -87,7 +87,7 @@ AUTOHEADERS=parse.tab.h
 YACC=../btyacc/btyacc
 #YACC=yacc
 
-CPPFLAGS+=-pipe -Wall -I. -DINSTALL_PREFIX='"$(INSTALL_PREFIX)"'
+CPPFLAGS+=-pipe -Wall -I. -DPREFIX='"$(PREFIX)"'
 CXXFLAGS+=-std=gnu++11
 ifdef DEBUG
 # Debug build
@@ -270,15 +270,15 @@ obfuscation:
 	)
 
 install: build/cscout
-	install -Ds $< "$(INSTALL_PREFIX)/bin/cscout"
-	./dest-install.sh "$(INSTALL_PREFIX)"
+	install -Ds $< "$(PREFIX)/bin/cscout"
+	./dest-install.sh "$(PREFIX)"
 
 uninstall:
-	rm -f "$(INSTALL_PREFIX)/bin/cscc"
-	rm -f "$(INSTALL_PREFIX)/bin/cscout"
-	rm -f "$(INSTALL_PREFIX)/bin/csmake"
-	rm -f "$(INSTALL_PREFIX)/bin/cswc"
-	rm -rf "$(INSTALL_PREFIX)/include/cscout"
+	rm -f "$(PREFIX)/bin/cscc"
+	rm -f "$(PREFIX)/bin/cscout"
+	rm -f "$(PREFIX)/bin/csmake"
+	rm -f "$(PREFIX)/bin/cswc"
+	rm -rf "$(PREFIX)/include/cscout"
 
 example: build/cscout
 	cd ../example && ../src/build/cscout awk.cs
