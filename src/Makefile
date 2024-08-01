@@ -98,9 +98,14 @@ CFLAGS+=-g
 CXXFLAGS+=-g
 # -D_GLIBCXX_CONCEPT_CHECKS
 else
-CPPFLAGS+=-DPRODUCTION
-CFLAGS+=-O3
-CXXFLAGS+=-O3
+	ifdef PROFILE
+		CFLAGS+=-O0 -g -pg
+		CXXFLAGS+=-O0 -g -pg
+	else
+		CPPFLAGS+=-DPRODUCTION
+		CFLAGS+=-O3
+		CXXFLAGS+=-O3
+	endif
 endif
 
 # Test coverage analysis
