@@ -364,7 +364,6 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun, bool isimmutable) :
 }
 
 static PtokenSequence subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, const Macro *caller);
-static PtokenSequence inline hsadd(const HideSet& hs, const PtokenSequence& ts);
 static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
 static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
 
@@ -568,21 +567,13 @@ subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool sk
 		}
 		os.push_back(head);
 	}
-	return (hsadd(hs, os));
-}
 
-// Return a new token sequence with hs added to the hide set of every element of ts
-static inline PtokenSequence
-hsadd(const HideSet& hs, const PtokenSequence& ts)
-{
-	PtokenSequence r;
-	for (PtokenSequence::const_iterator i = ts.begin(); i != ts.end(); i++) {
-		Ptoken t(*i);
-		t.hideset_insert(hs.begin(), hs.end());
-		r.push_back(t);
-	}
-	if (DP()) cout << "hsadd returns: " << r << endl;
-	return (r);
+	// Add hs to the hide set of every element of os
+	for (PtokenSequence::iterator oi = os.begin(); oi != os.end(); ++oi)
+		oi->hideset_insert(hs.begin(), hs.end());
+	if (DP()) cout << "os after adding hs: " << os << endl;
+
+	return os;
 }
 
 // Paste last of left side with first of right side
