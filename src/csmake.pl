@@ -303,28 +303,6 @@ print_to_many
 	}
 }
 
-# Check the system exit status for errors, report, and exit on failure
-sub
-check_exit
-{
-	my ($command, $exit_status) = @_;
-
-	if ($exit_status == -1) {
-		print STDERR "Failed to execute $command command: $!\n";
-		exit(1);
-	} elsif ($exit_status & 127) {
-		my $signal = ($exit_status & 127);
-		print STDERR "Child $command died with signal $signal.\n";
-		exit(1);
-	} else {
-		my $exit_code = $exit_status >> 8;
-		if ($exit_code != 0) {
-			print STDERR "Command $command failed with exit code $exit_code.\n";
-			exit($exit_code);
-		}
-	}
-}
-
 
 # Canonicalize filename
 # Replace '/' or '\' with '#'
@@ -525,6 +503,8 @@ exit system(($real, @ARGV)) / 256;
 # Therefore it is easier to let gcc do the work
 #
 
+use File::Temp qw/ tempdir /;
+
 $real = which($0);
 
 # Gather input / output files and remove them from the command line
@@ -592,6 +572,9 @@ if ($bailout) {
 	exit $exit;
 }
 
+my @incs;
+my @defs;
+
 if ($#cfiles >= 0) {
 	push(@ARGV2, $ENV{CSCOUT_SPY_TMPDIR} . '/empty.c');
 	# Escape shell metacharacters
@@ -599,12 +582,20 @@ if ($#cfiles >= 0) {
 		$ARGV2[$i] =~ s/([][*\\"';|()<> \t\n{}&])/\\$1/g;
 	}
 	$cmdline = $real . ' ' . join(' ', @ARGV2);
-	print STDERR "Running $cmdline\n" if ($debug);
+	print STDERR "Get gcc incs/defs for C files @cfiles by running $cmdline\n" if ($debug);
+
+	my $tmpdir = tempdir('gcc-out-XXXX', DIR => $ENV{CSCOUT_SPY_TMPDIR});
+	my $gcc_out = "$tmpdir/out.txt";
+	print STDERR "Redirecting to $gcc_out\n" if ($debug > 2);
 
 
 	# Gather include path
-	open(IN, "$cmdline -v -E 2>&1|") || die "Unable to run $cmdline: $!\n";
-	undef $gather;
+	print STDERR "Run $cmdline -v -E 2>&1 >$gcc_out\n" if ($debug > 2);
+	my $exit_status = system("$cmdline -v -E >$gcc_out 2>&1");
+	check_exit("$cmdline -v -E", $exit_status, $gcc_out);
+	open(IN, '<', $gcc_out) || die "Unable to read $cmdline: $!\n";
+	my $gather;
+	print STDERR "Parse -v -E output\n" if ($debug > 2);
 	while (<IN>) {
 		chop;
 		$gather = 1 if (/\#include \"\.\.\.\" search starts here\:/);
@@ -616,14 +607,26 @@ if ($#cfiles >= 0) {
 			print STDERR "path=[$_]\n" if ($debug > 2);
 		}
 	}
+	close(IN);
 
 	# Gather macro definitions
-	open(IN, "$cmdline -dD -E|") || die "Unable to run $cmdline: $!\n";
+	$exit_status = system("$cmdline -dD -E >$gcc_out 2>&1");
+	check_exit("$cmdline -dD -E", $exit_status, $gcc_out);
+	open(IN, '<', $gcc_out) || die "Unable to read $gcc_out $!\n";
+	print STDERR "Parse -dD output\n" if ($debug > 2);
 	while (<IN>) {
 		chop;
-		next if (/\s*\#\s*\d/);
+		# Skip line directives, e.g.: # 525 "types.h"
+		next if (/^\s*\#\s*\d/);
 		push(@defs, $_);
+		print STDERR "debug=[$_]\n" if ($debug > 2);
 	}
+	close(IN);
+
+	unlink($gcc_out);
+	rmdir($tmpdir);
+
+	print STDERR "Parsed incs=[@incs] defs=[@defs]\n" if ($debug > 2);
 }
 
 $origline = "gcc " . join(' ', @ARGV);
@@ -655,6 +658,7 @@ for $cfile (@cfiles) {
 		push(@implicit_ofiles, $ofile);
 		$rules .= "OUTOBJ $ofile\n";
 	}
+	print STDERR "Adding to rules incs=[@incs] defs=[@defs]\n" if ($debug > 2);
 	$rules .= join("\n", @incs) . "\n";
 	$rules .= join("\n", @defs) . "\n";
 	$rules .= "END COMPILE\n";
@@ -913,6 +917,36 @@ sub which
 		return "$d/$prog" if (-x "$d/$prog");
 	}
 	die "Unable to locate $prog in PATH $ENV{PATH}\n";
+}
+
+# Check the system exit status for errors, report, and exit on failure
+sub
+check_exit
+{
+	my ($command, $exit_status, $error_file) = @_;
+
+	if ($exit_status && defined($error_file)) {
+		open my $fh, '<', $error_file or die "Cannot open file '$error_file': $!";
+
+		while (my $line = <$fh>) {
+			print STDERR $line;
+		}
+	}
+
+	if ($exit_status == -1) {
+		print STDERR "Failed to execute $command command: $!\n";
+		exit(1);
+	} elsif ($exit_status & 127) {
+		my $signal = ($exit_status & 127);
+		print STDERR "Child $command died with signal $signal.\n";
+		exit(1);
+	} else {
+		my $exit_code = $exit_status >> 8;
+		if ($exit_code != 0) {
+			print STDERR "Command $command failed with exit code $exit_code.\n";
+			exit($exit_code);
+		}
+	}
 }
 
 #@END
