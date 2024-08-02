@@ -539,7 +539,7 @@ for ($i = 0; $i <= $#ARGV; $i++) {
 	} elsif ($arg =~ m/\.(o|obj|opic)$/i) {
 		push(@ofiles, $arg);
 		next;
-	} elsif ($arg =~ m/\.(a|so)$/i) {
+	} elsif ($arg !~ m/\-fplugin\=/ && $arg =~ m/\.(a|so)$/i) {
 		push(@afiles, $arg);
 		next;
 	} elsif ($arg =~ m/^\-M[TF]$/) {
