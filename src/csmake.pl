@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# (C) Copyright 2006-2020 Diomidis Spinellis
+# (C) Copyright 2006-2024 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -64,7 +64,7 @@ if ($ENV{'CSMAKEFLAGS'}) {
 	@ARGV = split(/\s+/, $ENV{'CSMAKEFLAGS'});
 }
 my %options=();  # csmake options
-my $csmake_opts = "hdkAs:N:T:";
+my $csmake_opts = "AdhkN:o:s:T:";
 # Parse options from CSMAKEFLAGS
 getopts($csmake_opts, \%options);
 
@@ -91,14 +91,15 @@ if (defined $options{d}) {
 
 if (defined $options{h}) {
 print <<HELP;
-usage: csmake [ [-A] [-d] [-k] [-s cs_files_directory] [-T temporary_directory ] [-N rules_file] [-h] -- ] [make(1) options]
-    -d                      Run in debug mode (it also keeps spy directory in place).
-    -h                      Print help message.
-    -k                      Keep temporary directory in place.
-    -s cs_files_directory   Create a separate CScout .cs file for each real executable.
-    -A                      Generate cs projects for static libraries.
-    -N rules_file           Run on an existing rules file.
-    -T temporary_directory  Set temporary directory.
+usage: csmake [ [-A] [-d] [-k] [-o output] [-s cs_files_directory] [-T temporary_directory ] [-N rules_file] [-h] -- ] [make(1) options]
+    -d                Run in debug mode (it also keeps spy directory in place).
+    -h                Print help message.
+    -k                Keep temporary directory in place.
+    -o file           Specify output file; (default make.cs, - for stdout)
+    -s cs_files_dir   Create a separate CScout .cs file for each executable.
+    -A                Generate cs projects for static libraries.
+    -N rules_file     Run on an existing rules file.
+    -T temporary_dir  Set temporary directory.
 HELP
 exit();
 }
@@ -135,7 +136,12 @@ if ($0 =~ m/\bcscc$/) {
 }
 
 # Create a CScout .cs file
-open(OUT, ">make.cs") || die "Unable to open make.cs for writing: $!\n";
+my $output_file = $options{o} // 'make.cs';
+if ($output_file eq '-') {
+	*OUT = *STDOUT;  # Alias STDOUT to OUT
+} else {
+	open(OUT, '>', $output_file) || die "Unable to open $output_file for writing: $!\n";
+}
 # Create a Directory to save CScout .cs files for each project
 my $directory = "";
 if (defined $options{s}) {

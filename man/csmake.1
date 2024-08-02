@@ -25,10 +25,11 @@ csmake \- CScout make
 [\fB\-d\fP]
 [\fB\-h\fP]
 [\fB\-k\fP]
-[\fB\-s\fP \fIcs_files_directory\fP]
+[\fB\-o\fP \fIoutput-file\fP]
+[\fB\-s\fP \fIcs-files-directory\fP]
 [\fB\-A\fP]
-[\fB\-T\fP \fItemporary_directory\fP]
-[\fB\-N\fP \fIrules_file\fP]
+[\fB\-T\fP \fItemporary-directory\fP]
+[\fB\-N\fP \fIrules-file\fP]
 --
 ]
 [\fImake(1) options\fP]
@@ -65,16 +66,21 @@ Run in debug mode (it also keeps spy directory in place).
 Print help message.
 .IP "\fB\-k\fP"
 Keep temporary directory in place.
-.IP "\fB\-s\fP \fIcs_files_directory\fP"
+.IP "\fB\-o\fP \fIoutput-file\fP"
+Specify the name of the generated specification file,
+which is by default
+.I make.cs .
+A name of - will output the file on the standard output.
+.IP "\fB\-s\fP \fIcs-files-directory\fP"
 Create a separate CScout .cs file for each real executable.
-Save the .cs files into \fIcs_files_directory\fP in the current directory.
+Save the .cs files into \fIcs-files-directory\fP in the current directory.
 .IP "\fB\-A\fP"
 Generate cs projects for static libraries.
-.IP "\fB\-N\fP \fIrules_file\fP"
+.IP "\fB\-N\fP \fIrules-file\fP"
 Run on an existing rules file.
-.IP "\fB\-T\fP \fItemporary_directory\fP"
+.IP "\fB\-T\fP \fItemporary-directory\fP"
 Set temporary directory.
-Use \fItemporary_directory\fP as temporary directory,
+Use \fItemporary-directory\fP as temporary directory,
 remember to clear it if you use it multiple times.
 .PP
 .SH EXAMPLES
