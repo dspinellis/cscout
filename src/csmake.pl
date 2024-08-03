@@ -351,13 +351,10 @@ sub spy
 #
 
 my $rulesfile = "$ENV{CSCOUT_SPY_TMPDIR}/rules";
-open(RULES, ">>", $rulesfile) || die "Unable to open $rulesfile: $!\n";
 
-# Disable buffering to avoid (for POSIX-compliant filesystems) garbled output
+# Use syswrite to avoid (for POSIX-compliant filesystems) garbled output
 # from concurrent spy executions
-my $ofh = select RULES;
-$| = 1;
-select $ofh;
+open(RULES, ">>", $rulesfile) || die "Unable to open $rulesfile: $!\n";
 
 # String to accumulate rules, so that they can be written with an atomic write
 my $rules;
@@ -484,7 +481,7 @@ if ($#ofiles >= 0) {
 	$rules .= "END AR\n";
 }
 
-print RULES $rules;
+syswrite(RULES, $rules);
 close(RULES);
 
 # Finally, execute the real ar
@@ -693,7 +690,7 @@ if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0 || $#afi
 	$rules .= "END LINK\n";
 }
 
-print RULES $rules;
+syswrite(RULES, $rules);
 close(RULES);
 
 # Finally, execute the real gcc
@@ -777,7 +774,7 @@ if ($#ofiles >= 0 || $#afiles >= 0) {
 	$rules .= "END LINK\n";
 }
 
-print RULES $rules;
+syswrite(RULES, $rules);
 close(RULES);
 
 # Finally, execute the real ld
@@ -813,7 +810,7 @@ if ($#ARGV2 == 1) {
 	}
 }
 
-print RULES $rules;
+syswrite(RULES, $rules);
 close(RULES);
 
 # Finally, execute the real mv
@@ -872,7 +869,7 @@ if (@excecutables) {
 	}
 }
 
-print RULES $rules;
+syswrite(RULES, $rules);
 close(RULES);
 
 # Finally, execute the real install
