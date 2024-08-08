@@ -11,6 +11,8 @@ TOOL_DIR=$(dirname $0)
 # Get dbids from 33 onward. 1-32 are the databases to merge.
 echo 33 >$DBID_FILE
 
+:>log
+
 # Log the specified message with a timestamp
 log()
 {
