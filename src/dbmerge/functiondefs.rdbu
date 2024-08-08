@@ -1,0 +1,46 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consilidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	2	1
+2	3	2
+2	4	3
+2	5	4
+5	3	1
+5	4	3
+5       6       5
+5	7	6
+5	9	7
+
+functionid_to_global_map:
+dbid	id	global_id
+2	3	1
+2	5	2
+5	52	1
+5	53	3
+5	54	4
+
+functiondefs:
+functionid fidbegin foffsetbegin fidend foffsetend
+1	   2        22           2      222
+2	   1        11           2      111
+
+# One common, one new in shared fid, one new in new id
+adb.functiondefs:
+functionid fidbegin foffsetbegin fidend foffsetend
+52	   2        22           2      222
+53	   3        33           3      333
+54	   6        66           6      666
+END
+
+INCLUDE CREATE functiondefs.sql
+
+BEGIN RESULT
+functiondefs:
+functionid fidbegin foffsetbegin fidend foffsetend
+1	   2        22           2      222
+2	   1        11           2      111
+3	   1        33           1      333
+4	   5        66           5      666
+END

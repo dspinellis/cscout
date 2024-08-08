@@ -1,0 +1,35 @@
+BEGIN SETUP
+
+functionid_to_global_map:
+dbid	id	global_id
+2	3	1
+2	5	2
+2	5	3
+5	51	1
+5	52	2
+5	54	4
+5	55	5
+
+fcalls:
+sourceid destid
+1	 2
+2	 3
+
+# One common, one missing, one new in shared id, one new in new id
+adb.fcalls:
+sourceid destid
+51	 52
+52	 54
+55	 54
+END
+
+INCLUDE CREATE fcalls.sql
+
+BEGIN RESULT
+fcalls:
+sourceid destid
+1	 2
+2	 3
+2	 4
+5	 4
+END

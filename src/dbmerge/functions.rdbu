@@ -1,0 +1,33 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consilidated global fid
+fileid_to_global_map:
+fid	global_fid
+202	202
+302	302
+205	202
+405	405
+
+# Existing table with globally unique fids
+functions:
+id name ismacro defined declared filescoped fid foffset fanin
+2  f2   0       0       1        1          202 25      2
+3  f3   0       0       1        1          302 35      3
+
+# Table to be imported, with local fids
+# One repeated, one new
+adb.functions:
+id name ismacro defined declared filescoped fid foffset fanin
+9  f2   0       1       1        1          2   25      2
+8  f8   0       0       1        1          4   45      4
+END
+
+INCLUDE CREATE functions.sql
+
+BEGIN RESULT
+functions:
+id name ismacro defined declared filescoped fid foffset fanin
+2  f2   0       0       1        1          202 25      2
+3  f3   0       0       1        1          302 35      3
+4  f8   0       0       1        1          405 45      4
+END

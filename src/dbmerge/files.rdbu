@@ -1,0 +1,28 @@
+BEGIN SETUP
+files:
+fid	name	ro
+1	f52.h	1
+2	f25.c	1
+
+adb.files:
+fid	name	ro
+1	f15.c	0
+2	f25.c	1
+
+fileid_to_global_map:
+dbid	fid	global_fid
+2	1	1
+2	2	2
+5	1	3
+5	2	1
+END
+
+INCLUDE CREATE files.sql
+
+BEGIN RESULT
+files:
+fid	name	ro
+1	f52.h	1
+2	f25.c	1
+3	f15.c	0
+END

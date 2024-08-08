@@ -1,0 +1,42 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consilidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	2	1
+2	3	2
+2	4	3
+2	5	4
+5	2	1
+5	3	2
+5	4	3
+5       6       5
+5	7	6
+5	9	7
+
+
+# Existing table with globally unique fids
+providers:
+pid cuid providerid
+1   1    2
+1   2    3
+
+# Table to be imported, with local fids
+# One repeated, one partially new, one completely new data row
+adb.providers:
+pid cuid providerid
+1   2    3
+1   2    6
+1   6    7
+END
+
+INCLUDE CREATE providers.sql
+
+BEGIN RESULT
+providers:
+pid cuid providerid
+1   1    2
+1   2    3
+1   1    5
+1   5    6
+END

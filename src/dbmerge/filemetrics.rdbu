@@ -1,0 +1,49 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consilidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	7	1
+2	8	2
+5	9	3
+5	4	1
+5	8	2
+
+# Existing table with globally unique fids
+filemetrics:
+fid precpp nchar nccomment nspace nlcomment nbcomment nline maxlinelen maxstmtlen maxstmtnest maxbracenest maxbracknest bracenest bracknest nuline nppdirective nppcond nppfmacro nppomacro ntoken nstmt nop nuop nnconst nclit nstring nppconcatop nppstringop nif nelse nswitch ncase ndefault nbreak nfor nwhile ndo ncontinue ngoto nreturn npid nfid nmid nid nupid nufid numid nuid nlabel nmacroexpandtoken ncopies nincfile npfunction nffunction npvar nfvar naggregate namember nenum nemember
+3 0 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+3 1 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 0 45 null 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 1 42 null 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+2 0 25 85 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+2 1 22 82 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+
+# Table to be imported, with local fids
+# No data for 3, higher or non-null data for 1, lower or null data for 2
+adb.filemetrics:
+fid precpp nchar nccomment nspace nlcomment nbcomment nline maxlinelen maxstmtlen maxstmtnest maxbracenest maxbracknest bracenest bracknest nuline nppdirective nppcond nppfmacro nppomacro ntoken nstmt nop nuop nnconst nclit nstring nppconcatop nppstringop nif nelse nswitch ncase ndefault nbreak nfor nwhile ndo ncontinue ngoto nreturn npid nfid nmid nid nupid nufid numid nuid nlabel nmacroexpandtoken ncopies nincfile npfunction nffunction npvar nfvar naggregate namember nenum nemember
+4 0 47 42 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+4 1 49 43 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+8 0 24 null 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+8 1 21 null 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+END
+
+# Add index to simulate primary key clashing behavior
+BEGIN CREATE
+CREATE UNIQUE INDEX pk ON filemetrics(fid, precpp);
+END
+
+INCLUDE CREATE filemetrics.sql
+
+BEGIN RESULT
+filemetrics:
+fid precpp nchar nccomment nspace nlcomment nbcomment nline maxlinelen maxstmtlen maxstmtnest maxbracenest maxbracknest bracenest bracknest nuline nppdirective nppcond nppfmacro nppomacro ntoken nstmt nop nuop nnconst nclit nstring nppconcatop nppstringop nif nelse nswitch ncase ndefault nbreak nfor nwhile ndo ncontinue ngoto nreturn npid nfid nmid nid nupid nufid numid nuid nlabel nmacroexpandtoken ncopies nincfile npfunction nffunction npvar nfvar naggregate namember nenum nemember
+3 0 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+3 1 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 0 47 42 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 1 49 43 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+2 0 25 85 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+2 1 22 82 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+END
