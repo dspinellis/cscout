@@ -146,4 +146,5 @@ log "Finished merging into $result"
 sqlite3 "$result" 'VACUUM;'
 log "Finished vacuuming $result"
 
-echo "Result in: $result"
+ln "$result" merged.db
+echo "Result in: merged.db"
