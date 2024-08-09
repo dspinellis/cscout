@@ -7,16 +7,17 @@ set -eu
 
 DBID_FILE="dbid.txt"
 TOOL_DIR=$(dirname $0)
+LOG_FILE=dbmerge.log
 
 # Get dbids from 33 onward. 1-32 are the databases to merge.
 echo 33 >$DBID_FILE
 
-:>log
+:>$LOG_FILE
 
 # Log the specified message with a timestamp
 log()
 {
-  echo "$(date -Is) $1" >>log
+  echo "$(date -Is) $1" >>$LOG_FILE
 }
 
 # Create an empty database onto which to consolidate the parts
