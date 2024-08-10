@@ -143,8 +143,16 @@ files=($(seq 1 32 | xargs -n 1 printf 'file-%04d.db '))
 result=$(merge "${files[@]}")
 log "Finished merging into $result"
 
-sqlite3 "$result" 'VACUUM;'
-log "Finished vacuuming $result"
+cat <<\EOF | sqlite3 "$result"
+ALTER TABLE filemetrics ADD COLUMN iscscout BOOLEAN;
+UPDATE filemetrics SET iscscout = (
+  SELECT (name LIKE '%.cs')
+    FROM files
+    WHERE filemetrics.fid = files.fid
+);
+VACUUM;
+EOF
+log "Finished completing and vacuuming $result"
 
 ln "$result" merged.db
 echo "Result in: merged.db"
