@@ -28,8 +28,6 @@ create_empty()
   rm -f "$name"
   sqlite3 file-0001.db .schema | sqlite3 "$name"
   cat <<\EOF | sqlite3 "$name"
-DROP TABLE ids;
-
 CREATE INDEX IF NOT EXISTS idx_files_name ON files(name);
 CREATE INDEX idx_filemetrics_composite ON filemetrics(fid, precpp);
 CREATE INDEX idx_definers_composite ON definers(cuid, basefileid, definerid);
@@ -52,6 +50,14 @@ CREATE TABLE functionid_to_global_map(
   PRIMARY KEY(dbid, id)
 );
 CREATE INDEX idx_functionid_to_global_map ON functionid_to_global_map(global_id);
+
+CREATE TABLE eid_to_global_map(
+  dbid INTEGER,         -- Unmerged database identifier
+  eid INTEGER,          -- Equivalence class identifier in an unmerged database
+  global_eid INTEGER,   -- Corresponding eid used across all databases
+  PRIMARY KEY(dbid, eid)
+);
+CREATE INDEX idx_eid_to_global_map ON eid_to_global_map(global_eid);
 EOF
 }
 
@@ -83,6 +89,7 @@ merge_onto()
     cd "$TOOL_DIR"
     cat \
       fileid_to_global_map.sql \
+      eid_to_global_map.sql \
       files.sql \
       filemetrics.sql \
       definers.sql \
