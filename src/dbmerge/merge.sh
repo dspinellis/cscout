@@ -93,6 +93,7 @@ merge_onto()
       fileid_to_global_map.sql \
       eid_to_global_map.sql \
       tokens.sql \
+      ids.sql \
       files.sql \
       filemetrics.sql \
       definers.sql \
