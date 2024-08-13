@@ -1,0 +1,62 @@
+BEGIN SETUP
+
+# Map from adjusted local eid to consilidated global eid
+eid_to_global_map:
+dbid	eid	global_eid
+2	3	1
+2	5	2
+2	8	9
+2	80	10
+2	81	11
+5	61	1
+5	62	2
+5	63	3
+5	64	4
+5	65	5
+5	66	6
+
+functionid_to_global_map:
+dbid	id	global_id
+2	3	1
+2	5	2
+2	5	3
+5	51	1
+5	52	2
+5	54	4
+5	55	5
+
+# Existing table with globally unique eids
+functionid:
+functionid ordinal eid
+1	   0	   1
+1	   1	   2
+2	   0	   9
+3	   0       10
+3	   1       11
+
+
+# Table to be imported, with local eids
+# One repeated, three new
+adb.functionid:
+functionid ordinal eid
+51	   0	   61
+51	   1	   62
+54	   0       63
+54	   1       64
+55	   0       65
+END
+
+INCLUDE CREATE functionid.sql
+
+BEGIN RESULT
+functionid:
+functionid ordinal eid
+1	   0	   1
+1	   1	   2
+2	   0	   9
+3	   0       10
+3	   1       11
+4	   0       3
+4	   1       4
+5	   0       5
+END

@@ -89,6 +89,7 @@ merge_onto()
   (
     echo "ATTACH DATABASE '$source' AS adb;"
     cd "$TOOL_DIR"
+    # Order matters here
     cat \
       fileid_to_global_map.sql \
       eid_to_global_map.sql \
@@ -102,6 +103,7 @@ merge_onto()
       inctriggers.sql \
       functionid_to_global_map.sql \
       functions.sql \
+      functionid.sql \
       functiondefs.sql \
       functionmetrics.sql \
       fcalls.sql
