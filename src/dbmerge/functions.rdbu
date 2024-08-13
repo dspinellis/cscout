@@ -2,32 +2,53 @@ BEGIN SETUP
 
 # Map from adjusted local fid to consilidated global fid
 fileid_to_global_map:
-fid	global_fid
-202	202
-302	302
-205	202
-405	405
+dbid	fid	global_fid
+2	2	101
+2	3	102
+2	4	103
+2	5	104
+5	2	102
+5	4	103
+5       6       105
+5	7	106
+5	9	107
 
-# Existing table with globally unique fids
+
+functionid_to_global_map:
+dbid	id	global_id
+2	2	12
+2	3	13
+5	52	12
+5	53	13
+5	57	17
+5	58	18
+
+# Existing table with globally unique function and file ids
 functions:
-id name ismacro defined declared filescoped fid foffset fanin
-2  f2   0       0       1        1          202 25      2
-3  f3   0       0       1        1          302 35      3
+id	name ismacro defined declared filescoped fid foffset fanin
+12  	f2   0       0       1        1          102 25      2
+13  	f3   0       0       1        1          102 35      3
 
-# Table to be imported, with local fids
-# One repeated, one new
+# Table to be imported, with local function and file ids
+# One repeated, one updated, one new
 adb.functions:
-id name ismacro defined declared filescoped fid foffset fanin
-9  f2   0       1       1        1          2   25      2
-8  f8   0       0       1        1          4   45      4
+id	name ismacro defined declared filescoped fid foffset fanin
+52  	f2   0       0       1        1          2   25      2
+53  	f3   0       1       1        1          2   35      9
+58  	f8   0       0       1        1          4   45      4
+END
+
+# Add index to simulate primary key clashing behavior
+BEGIN CREATE
+CREATE UNIQUE INDEX pk ON functions(id);
 END
 
 INCLUDE CREATE functions.sql
 
 BEGIN RESULT
 functions:
-id name ismacro defined declared filescoped fid foffset fanin
-2  f2   0       0       1        1          202 25      2
-3  f3   0       0       1        1          302 35      3
-4  f8   0       0       1        1          405 45      4
+id	name ismacro defined declared filescoped fid foffset fanin
+12  	f2   0       0       1        1          102 25      2
+13  	f3   0       1       1        1          102 35      9
+18  	f8   0       0       1        1          103 45      4
 END
