@@ -34,6 +34,8 @@ CREATE INDEX idx_definers_composite ON definers(cuid, basefileid, definerid);
 CREATE INDEX idx_includers_composite ON includers(cuid, basefileid, includerid);
 CREATE INDEX idx_inctriggers_composite ON inctriggers(cuid, basefileid, definerid, foffset, len);
 CREATE INDEX IF NOT EXISTS idx_functions_composite ON functions(fid, foffset);
+CREATE INDEX IF NOT EXISTS idx_tokens_foffset ON tokens(foffset);
+
 
 CREATE TABLE fileid_to_global_map(
   dbid INTEGER,         -- Unmerged database identifier
@@ -90,6 +92,7 @@ merge_onto()
     cat \
       fileid_to_global_map.sql \
       eid_to_global_map.sql \
+      tokens.sql \
       files.sql \
       filemetrics.sql \
       definers.sql \
