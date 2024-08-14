@@ -20,14 +20,18 @@ dbid	fid	global_fid
 5	4	3
 5	5	4
 
-# One common, one new in same class,
-# one new in existing file,
+# Two common,
+# two new in same class,
+# Two new in existing file,
 # three same EC new in existing and new files
 adb.tokens:
 fid	foffset	eid
 3	22	52
+3	42	52
 3	222	52
+3	232	52
 3	333	53
+3	343	53
 2	111	51
 5	44	51
 5	444	51
