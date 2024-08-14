@@ -81,10 +81,10 @@ merge_onto()
   local dest="$1"
   local source="$2"
 
-  log "BEGIN merge onto $dest $source"
-
   # Obtain the unique identifier for the database being merged
   local dbid=$(echo $source | awk -F'[-.]' '{print $2 + 0}')
+
+  log "BEGIN merge onto $dest $source as db $dbid"
 
   (
     echo "ATTACH DATABASE '$source' AS adb;"
@@ -110,7 +110,7 @@ merge_onto()
   ) |
     # Replace hard-coded database id 5 used for testing
     sed "s/\\<5\\>/$dbid/" |
-    sqlite3 "$dest"
+    sqlite3 "$dest" 2>$(basename $source .db).err
   log "END merge onto $dest $source"
 }
 
