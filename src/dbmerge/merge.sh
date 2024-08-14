@@ -84,7 +84,7 @@ merge_onto()
   log "BEGIN merge onto $dest $source"
 
   # Obtain the unique identifier for the database being merged
-  local dbid=$(echo $source | awk -F'[-.]' '{print $2}')
+  local dbid=$(echo $source | awk -F'[-.]' '{print $2 + 0}')
 
   (
     echo "ATTACH DATABASE '$source' AS adb;"
