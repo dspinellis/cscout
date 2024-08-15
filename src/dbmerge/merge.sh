@@ -84,34 +84,37 @@ merge_onto()
   # Obtain the unique identifier for the database being merged
   local dbid=$(echo $source | awk -F'[-.]' '{print $2 + 0}')
 
-  log "BEGIN merge onto $dest $source as db $dbid"
+  log "DB $dbid: BEGIN merge onto $dest $source"
 
-  (
-    echo "ATTACH DATABASE '$source' AS adb;"
-    cd "$TOOL_DIR"
-    # Order matters here
-    cat \
-      fileid_to_global_map.sql \
-      eid_to_global_map.sql \
-      tokens.sql \
-      ids.sql \
-      files.sql \
-      filemetrics.sql \
-      definers.sql \
-      includers.sql \
-      providers.sql \
-      inctriggers.sql \
-      functionid_to_global_map.sql \
-      functions.sql \
-      functionid.sql \
-      functiondefs.sql \
-      functionmetrics.sql \
-      fcalls.sql
-  ) |
-    # Replace hard-coded database id 5 used for testing
-    sed "s/\\<5\\>/$dbid/" |
-    sqlite3 "$dest" 2>$(basename $source .db).err
-  log "END merge onto $dest $source"
+  # Order matters here
+  for i in \
+    fileid_to_global_map.sql \
+    eid_to_global_map.sql \
+    tokens.sql \
+    ids.sql \
+    files.sql \
+    filemetrics.sql \
+    definers.sql \
+    includers.sql \
+    providers.sql \
+    inctriggers.sql \
+    functionid_to_global_map.sql \
+    functions.sql \
+    functionid.sql \
+    functiondefs.sql \
+    functionmetrics.sql \
+    fcalls.sql
+   do
+     {
+       log "DB $dbid: running $i"
+       echo "ATTACH DATABASE '$source' AS adb;"
+       # Replace hard-coded database id 5 used for testing
+       sed "s/\\<5\\>/$dbid/" "$TOOL_DIR/$i"
+     } |
+     sqlite3 "$dest" 2>&1 |
+     while read -r line ; do log "DB $dbid: $line" ; done
+   done
+  log "DB $dbid: END merge onto $dest $source"
 }
 
 merge()
@@ -167,5 +170,6 @@ VACUUM;
 EOF
 log "Finished completing and vacuuming $result"
 
+rm -f merged.db
 ln "$result" merged.db
 echo "Result in: merged.db"
