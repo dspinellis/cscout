@@ -36,33 +36,38 @@ right_joined_tokens AS (
 ),
 -- Combine the two to have all the possible mappings
 ec_pairs AS (
-  SELECT * from left_joined_tokens
+  SELECT * FROM left_joined_tokens
   UNION
-  SELECT * from right_joined_tokens
+  SELECT * FROM right_joined_tokens
+),
+distinct_ec_pairs AS (
+  SELECT DISTINCT * FROM ec_pairs
 ),
 -- Fill in the null values from paired matches
 filled_ec_pairs AS (
   SELECT DISTINCT
       Coalesce(half.teid, tp.teid) AS teid,
       Coalesce(half.aeid, ap.aeid) AS aeid
-    FROM ec_pairs AS half
-    LEFT JOIN ec_pairs AS ap ON half.teid = ap.teid AND ap.aeid IS NOT NULL
-    LEFT JOIN ec_pairs AS tp ON half.aeid = tp.aeid AND tp.teid IS NOT NULL
+    FROM distinct_ec_pairs AS half
+    LEFT JOIN distinct_ec_pairs AS ap
+      ON half.teid = ap.teid AND ap.aeid IS NOT NULL
+    LEFT JOIN distinct_ec_pairs AS tp
+      ON half.aeid = tp.aeid AND tp.teid IS NOT NULL
 ),
 -- Number groups of non-matching ECs.  ECs can match either on the
 -- original token side or the attached token side.
 changed_rows AS (
   SELECT
-      teid, 
+      teid,
       aeid,
-      CASE 
+      CASE
         WHEN
           (teid != LAG(teid) OVER (ORDER BY teid, aeid)
             AND aeid != LAG(aeid) OVER (ORDER BY teid, aeid))
           OR LAG(teid) OVER (ORDER BY teid, aeid) IS NULL
           OR LAG(aeid) OVER (ORDER BY teid, aeid) IS NULL
-          THEN 1 
-        ELSE 0 
+          THEN 1
+        ELSE 0
       END AS change_flag
     FROM filled_ec_pairs
 ),
