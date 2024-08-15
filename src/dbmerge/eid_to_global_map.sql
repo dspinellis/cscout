@@ -56,29 +56,104 @@ filled_ec_pairs AS (
 ),
 -- Number groups of non-matching ECs.  ECs can match either on the
 -- original token side or the attached token side.
-changed_rows AS (
+teid_changed_rows AS (
   SELECT
       teid,
       aeid,
       CASE
         WHEN
-          (teid != LAG(teid) OVER (ORDER BY teid, aeid)
-            AND aeid != LAG(aeid) OVER (ORDER BY teid, aeid))
-          OR LAG(teid) OVER (ORDER BY teid, aeid) IS NULL
-          OR LAG(aeid) OVER (ORDER BY teid, aeid) IS NULL
+          teid != LAG(teid) OVER (ORDER BY teid)
+          OR LAG(teid) OVER (ORDER BY teid) IS NULL
           THEN 1
         ELSE 0
       END AS change_flag
     FROM filled_ec_pairs
 ),
 -- Assign group numbers according to the changes
-groups AS (
+teid_groups AS (
   SELECT
       teid,
       aeid,
-      SUM(change_flag) OVER (ORDER BY teid, aeid ROWS UNBOUNDED PRECEDING)
-        AS group_id
-    FROM changed_rows
+      SUM(change_flag) OVER (ORDER BY teid ROWS UNBOUNDED PRECEDING)
+        AS teid_group_id
+    FROM teid_changed_rows
+),
+start_aeid_group_id AS (
+  SELECT Max(teid_group_id) + 1 AS value FROM teid_groups
+),
+aeid_changed_rows AS (
+  SELECT
+      teid,
+      teid_group_id,
+      aeid,
+      CASE
+        WHEN
+          aeid != LAG(aeid) OVER (ORDER BY aeid)
+          OR LAG(aeid) OVER (ORDER BY aeid) IS NULL
+          THEN 1
+        ELSE 0
+      END AS change_flag
+    FROM teid_groups
+),
+-- Assign group numbers according to the changes
+aeid_groups AS (
+  SELECT
+      teid,
+      teid_group_id,
+      aeid,
+      SUM(change_flag) OVER (ORDER BY aeid ROWS UNBOUNDED PRECEDING)
+        + (SELECT value FROM start_aeid_group_id)
+        AS aeid_group_id
+    FROM aeid_changed_rows
+),
+-- Provide previous and next group ids, needed to the grouping
+window_values AS (
+  SELECT
+      aeid,
+      aeid_group_id AS curr_ag,
+      LAG(aeid_group_id) OVER (ORDER BY aeid_group_id) AS prev_ag,
+      LEAD(aeid_group_id) OVER (ORDER BY aeid_group_id) AS next_ag,
+      teid,
+      teid_group_id AS curr_tg,
+      LAG(teid_group_id) OVER (ORDER BY aeid_group_id) AS prev_tg,
+      LEAD(teid_group_id) OVER (ORDER BY aeid_group_id) AS next_tg
+  FROM aeid_groups
+),
+-- If tg and ag change provide the value of tg or ag that remains the same
+-- in the next row (or ag by default), otherwise set to null to
+-- keep the previous value in the next step.
+groups_with_nulls AS (
+  SELECT aeid, teid,
+      CASE
+        WHEN (prev_ag != curr_ag AND prev_tg != curr_tg)
+            OR prev_ag IS NULL OR prev_tg IS NULL
+          THEN CASE
+            WHEN curr_tg = next_tg THEN curr_tg
+            WHEN curr_ag = next_ag THEN curr_ag
+            ELSE curr_tg
+          END
+        ELSE null
+      END as group_id,
+      ROW_NUMBER() OVER (ORDER BY curr_ag) AS rn
+    FROM window_values
+),
+groups AS (
+  WITH RECURSIVE filled_groups AS (
+    SELECT
+        rn,
+        a.aeid, a.teid,
+        group_id
+      FROM groups_with_nulls a
+      WHERE rn = 1
+    UNION ALL
+    SELECT
+        g.rn,
+        g.aeid, g.teid,
+        COALESCE(g.group_id, f.group_id) AS group_id
+      FROM groups_with_nulls g
+      JOIN filled_groups f ON g.rn = f.rn + 1
+    )
+  SELECT aeid, teid, group_id FROM filled_groups
 ),
 -- Create a map from tokens to their new eids
 eid_map AS (
@@ -97,9 +172,18 @@ eid_map AS (
     WHERE aeid IS NOT NULL
 )
 INSERT INTO eid_to_global_map SELECT * from eid_map;
+
 -- Other SELECT statements for troubleshooting using rdbunit
--- See eid_to_global_map.txt.
+-- To use them, here: comment out the preceding INSERT and DELETE
+-- in the rdbu: the INCLUDE CREATE into INCLUDE SELECT and comment
+-- out the table name.
+-- Example results are in eid_to_global_map.txt.
+--SELECT * FROM ec_pairs ORDER BY teid, aeid;
 --SELECT * FROM filled_ec_pairs ORDER BY teid, aeid;
---SELECT * FROM changed_rows ORDER BY teid, aeid;
+--SELECT * FROM teid_changed_rows ORDER BY teid;
+--SELECT * FROM teid_groups;
+--SELECT * FROM aeid_changed_rows ORDER BY aeid;
+--SELECT * FROM aeid_groups;
+--SELECT * FROM window_values;
 --SELECT * FROM groups;
 --SELECT * FROM eid_map;
