@@ -16,6 +16,7 @@ joined_functions AS (
         ON fidmap.dbid = 5 AND fidmap.fid = afunctions.fid
       LEFT JOIN functions ON functions.fid = fidmap.global_fid
         AND functions.foffset = afunctions.foffset
+        AND functions.name = afunctions.name
 )
 INSERT INTO functionid_to_global_map
     -- Functions already mapped
