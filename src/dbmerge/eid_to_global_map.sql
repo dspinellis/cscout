@@ -2,19 +2,22 @@
 -- identifiers assigned for the corresponding tokens/offsets across all
 -- databases.  To do this merge ECs that share tokens.
 
--- Clear original map as it is useless
-DELETE FROM eid_to_global_map;
+-- Empty the table to recreate it keeping a backup copy for lookups
+DROP TABLE IF EXISTS old_eid_to_global_map;
+ALTER TABLE eid_to_global_map RENAME TO old_eid_to_global_map;
+CREATE INDEX IF NOT EXISTS idx_old_eid_to_global_map ON old_eid_to_global_map(global_eid);
 
--- Original database id for existing tokens having teid ECs
-WITH original_db_id AS (
-  SELECT fm.dbid AS dbid
-    FROM fileid_to_global_map AS fm
-    LEFT JOIN (SELECT fid FROM tokens LIMIT 1) AS tf
-      ON tf.fid = fm.fid
-    LIMIT 1
-),
+-- When changing also update merge.sh
+CREATE TABLE eid_to_global_map(
+  dbid INTEGER,         -- Unmerged database identifier
+  eid INTEGER,          -- Equivalence class identifier in an unmerged database
+  global_eid INTEGER,   -- Corresponding eid used across all databases
+  PRIMARY KEY(dbid, eid)
+);
+CREATE INDEX IF NOT EXISTS idx_eid_to_global_map ON eid_to_global_map(global_eid);
+
 -- Map attached tokens (having aeid ECs) to use the global fid
-mapped_atokens AS (
+WITH mapped_atokens AS (
   SELECT fid_map.global_fid AS fid, at.foffset, at.eid
     FROM adb.tokens AS at
     LEFT JOIN fileid_to_global_map AS fid_map
@@ -107,6 +110,7 @@ aeid_groups AS (
     FROM aeid_changed_rows
 ),
 -- Provide previous and next group ids, needed to the grouping
+-- for the attached and original tokens.
 window_values AS (
   SELECT
       aeid,
@@ -158,10 +162,11 @@ groups AS (
 -- Create a map from tokens to their new eids
 eid_map AS (
   -- Original tokens
-  SELECT DISTINCT original_db_id.dbid AS dbid,
+  SELECT DISTINCT om.dbid AS dbid,
       teid AS eid,
       group_id AS global_eid
-    FROM groups CROSS JOIN original_db_id
+    FROM groups
+    LEFT JOIN old_eid_to_global_map AS om ON om.global_eid = teid
     WHERE teid IS NOT NULL
   UNION ALL
   -- Attached tokens

@@ -45,7 +45,14 @@ fid	foffset	eid
 
 eid_to_global_map:
 dbid	eid	global_eid
-2	201	1
+2	11	1000
+2	12	3000
+2	13	4000
+2	14	5000
+2	15	5100
+2	16	55000
+2	17	6000
+2	18	6100
 
 # Map from adjusted local fid to consilidated global fid
 fileid_to_global_map:

@@ -96,6 +96,7 @@ aeid_groups:
 4000|4|45000|19
 
 window_values:
+aeid|curr_ag|prev_ag|next_ag|teid|curr_tg|prev_tg|next_tg
 |11||12|1000|2||1
 21|12|11|13||1|2|3
 31|13|12|14|3000|3|1|4

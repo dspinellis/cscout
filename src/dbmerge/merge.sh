@@ -53,6 +53,7 @@ CREATE TABLE functionid_to_global_map(
 );
 CREATE INDEX idx_functionid_to_global_map ON functionid_to_global_map(global_id);
 
+-- When changing also update eid_to_global_map.sql
 CREATE TABLE eid_to_global_map(
   dbid INTEGER,         -- Unmerged database identifier
   eid INTEGER,          -- Equivalence class identifier in an unmerged database
