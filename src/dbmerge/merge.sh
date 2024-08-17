@@ -4,6 +4,7 @@
 #
 
 set -eu
+set -o pipefail
 
 DBID_FILE="dbid.txt"
 TOOL_DIR=$(dirname $0)
@@ -108,6 +109,8 @@ merge_onto()
    do
      {
        log "DB $dbid: running $i"
+       # Exit on errors
+       echo ".bail on"
        echo "ATTACH DATABASE '$source' AS adb;"
        # Replace hard-coded database id 5 used for testing
        sed "s/\\<5\\>/$dbid/" "$TOOL_DIR/$i"
