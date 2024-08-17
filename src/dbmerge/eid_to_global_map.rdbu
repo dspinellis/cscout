@@ -42,6 +42,10 @@ fid	foffset	eid
 1	633	6100
 1	643	6100
 1	699	6000
+1	700	7000
+1	701	7000
+1	702	7000
+1	703	7000
 
 eid_to_global_map:
 dbid	eid	global_eid
@@ -53,6 +57,7 @@ dbid	eid	global_eid
 2	16	55000
 2	17	6000
 2	18	6100
+2	19	7000
 
 # Map from adjusted local fid to consilidated global fid
 fileid_to_global_map:
@@ -95,15 +100,20 @@ fid	foffset	eid
 2	633	62
 2	643	62
 2	699	62
+2	700	70000
+2	701	71
+2	702	71
+2	703	70000
+2	704	70000
 
 END
 
-INCLUDE CREATE eid_to_global_map.sql
+# INCLUDE CREATE eid_to_global_map.sql
 # For troubleshooting
-# INCLUDE SELECT eid_to_global_map.sql
+INCLUDE SELECT eid_to_global_map.sql
 
+# eid_to_global_map:
 BEGIN RESULT
-eid_to_global_map:
 dbid	eid	global_eid
 2	1000	2
 2	3000	3
