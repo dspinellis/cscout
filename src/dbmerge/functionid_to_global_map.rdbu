@@ -14,9 +14,9 @@ dbid	fid	global_fid
 5	9	7
 
 functions:
-id	fid 	foffset
-1	1	11
-2	4	44
+id	fid 	foffset	name
+1	1	11	f1
+2	4	44	f2
 
 functionid_to_global_map:
 dbid	id	global_id
@@ -25,10 +25,10 @@ dbid	id	global_id
 
 # One common, one new in shared fid, one new in new fid
 adb.functions:
-id	fid 	foffset
-52	3	11
-53	3	111
-54	6	66
+id	fid 	foffset	name
+52	3	11	f1
+53	3	111	f111
+54	6	66	f66
 END
 
 INCLUDE CREATE functionid_to_global_map.sql
