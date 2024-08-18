@@ -2,6 +2,10 @@
 -- identifiers assigned for the corresponding tokens/offsets across all
 -- databases.  To do this merge ECs that share tokens.
 
+.echo on
+.timer on
+
+select 'Start';
 
 CREATE INDEX IF NOT EXISTS idx_eid_to_global_map ON eid_to_global_map(global_eid);
 
@@ -46,10 +50,13 @@ CREATE TABLE ec_pairs AS SELECT * FROM (
   SELECT DISTINCT * FROM ec_pairs
 );
 
+CREATE INDEX idx_ec_pairs_teid ON ec_pairs(teid);
+CREATE INDEX idx_ec_pairs_aeid ON ec_pairs(aeid);
+
 -- Convert teids into small integers to be used as typed node identifiers
 DROP TABLE IF EXISTS teid_map;
 CREATE TABLE teid_map(teid PRIMARY KEY, teid_node);
-INSERT INTO teid_map 
+INSERT INTO teid_map
   SELECT teid, ROW_NUMBER() OVER (ORDER BY teid) AS teid_node
     FROM (
       SELECT DISTINCT(teid) AS teid
@@ -61,7 +68,7 @@ CREATE INDEX idx_teid_map_teid_node ON teid_map(teid_node);
 -- Convert aeids into large integers to be used as typed node identifiers
 DROP TABLE IF EXISTS aeid_map;
 CREATE TABLE aeid_map(aeid PRIMARY KEY, aeid_node);
-INSERT INTO aeid_map 
+INSERT INTO aeid_map
   SELECT aeid, ROW_NUMBER() OVER (ORDER BY aeid) + 1000000000 AS aeid_node
     FROM (
       SELECT DISTINCT(aeid) AS aeid
