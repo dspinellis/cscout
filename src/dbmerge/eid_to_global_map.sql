@@ -94,7 +94,7 @@ INSERT INTO edges SELECT * FROM (
 
 -- Load BFS SQLite extension
 -- https://github.com/abetlen/sqlite3-bfsvtab-ext
-.load bfsvtab.so
+.load ./bfsvtab.so
 
 -- Obtain all nodes in the graph
 WITH all_nodes AS (
