@@ -21,28 +21,12 @@ CREATE TABLE ec_pairs AS SELECT * FROM (
       FROM adb.tokens AS at
       LEFT JOIN fileid_to_global_map AS fid_map
         ON fid_map.dbid = 5 AND fid_map.fid = at.fid
-  ),
-  -- Map each original token with any matching attached tokens
-  left_joined_tokens AS (
-    SELECT DISTINCT tokens.eid AS teid, atokens.eid AS aeid
-      FROM tokens
-      LEFT JOIN mapped_atokens AS atokens ON tokens.fid = atokens.fid
-        AND tokens.foffset = atokens.foffset
-  ),
-  -- Map each attached token with any matching original tokens
-  right_joined_tokens AS (
-    SELECT DISTINCT tokens.eid AS teid, atokens.eid AS aeid
-      FROM mapped_atokens AS atokens
-      LEFT JOIN tokens ON tokens.fid = atokens.fid
-        AND tokens.foffset = atokens.foffset
-  ),
-  -- Combine the two to have all the possible mappings
-  ec_pairs AS (
-    SELECT * FROM left_joined_tokens
-    UNION
-    SELECT * FROM right_joined_tokens
   )
-  SELECT DISTINCT * FROM ec_pairs
+  -- Map each original token with any matching attached tokens
+  SELECT DISTINCT tokens.eid AS teid, atokens.eid AS aeid
+    FROM tokens
+    INNER JOIN mapped_atokens AS atokens ON tokens.fid = atokens.fid
+      AND tokens.foffset = atokens.foffset
 );
 
 CREATE INDEX idx_ec_pairs_teid ON ec_pairs(teid);
@@ -54,9 +38,7 @@ CREATE TABLE teid_map(teid PRIMARY KEY, teid_node);
 INSERT INTO teid_map
   SELECT teid, ROW_NUMBER() OVER (ORDER BY teid) AS teid_node
     FROM (
-      SELECT DISTINCT(teid) AS teid
-        FROM ec_pairs
-        WHERE teid IS NOT NULL
+      SELECT DISTINCT(tokens.eid) AS teid FROM tokens
     );
 CREATE INDEX idx_teid_map_teid_node ON teid_map(teid_node);
 
@@ -66,9 +48,7 @@ CREATE TABLE aeid_map(aeid PRIMARY KEY, aeid_node);
 INSERT INTO aeid_map
   SELECT aeid, ROW_NUMBER() OVER (ORDER BY aeid) + 1000000000 AS aeid_node
     FROM (
-      SELECT DISTINCT(aeid) AS aeid
-        FROM ec_pairs
-        WHERE aeid IS NOT NULL
+      SELECT DISTINCT(tokens.eid) AS aeid FROM adb.tokens
     );
 CREATE INDEX idx_aeid_map_aeid_node ON aeid_map(aeid_node);
 
@@ -82,7 +62,6 @@ INSERT INTO edges SELECT * FROM (
     FROM ec_pairs
     LEFT JOIN teid_map ON ec_pairs.teid = teid_map.teid
     LEFT JOIN aeid_map ON ec_pairs.aeid = aeid_map.aeid
-    WHERE ec_pairs.teid IS NOT NULL AND ec_pairs.aeid IS NOT NULL
   ),
   all_edges AS (
     SELECT teid_node AS a, aeid_node AS b FROM mapped_edges
