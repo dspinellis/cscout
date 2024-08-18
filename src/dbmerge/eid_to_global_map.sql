@@ -165,3 +165,9 @@ INSERT INTO new_eid_to_global_map SELECT * from eid_map;
 
 DROP TABLE IF EXISTS eid_to_global_map;
 ALTER TABLE new_eid_to_global_map RENAME TO eid_to_global_map;
+
+-- Drop temporary tables
+DROP TABLE ec_pairs;
+DROP TABLE teid_map;
+DROP TABLE aeid_map;
+DROP TABLE edges;
