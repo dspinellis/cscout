@@ -2,11 +2,6 @@
 -- identifiers assigned for the corresponding tokens/offsets across all
 -- databases.  To do this merge ECs that share tokens.
 
-.echo on
-.timer on
-
-select 'Start';
-
 CREATE INDEX IF NOT EXISTS idx_eid_to_global_map ON eid_to_global_map(global_eid);
 
 -- When changing also update merge.sh
@@ -87,6 +82,7 @@ INSERT INTO edges SELECT * FROM (
     FROM ec_pairs
     LEFT JOIN teid_map ON ec_pairs.teid = teid_map.teid
     LEFT JOIN aeid_map ON ec_pairs.aeid = aeid_map.aeid
+    WHERE ec_pairs.teid IS NOT NULL AND ec_pairs.aeid IS NOT NULL
   ),
   all_edges AS (
     SELECT teid_node AS a, aeid_node AS b FROM mapped_edges
@@ -129,23 +125,41 @@ connected_components AS (
 ),
 -- Create a map from tokens to their new eids
 eid_map AS (
-  -- Original tokens
+  -- Original tokens in components with others
   SELECT om.dbid AS dbid,
       teid_map.teid AS eid,
       component AS global_eid
-    FROM connected_components AS cct
-    LEFT JOIN teid_map ON teid_map.teid_node = cct.node
+    FROM connected_components AS cc
+    LEFT JOIN teid_map ON teid_map.teid_node = cc.node
     LEFT JOIN eid_to_global_map AS om
       ON om.global_eid = teid_map.teid
     WHERE node < 1000000000
-  UNION ALL
-  -- Attached tokens
+  UNION
+  -- Original tokens not joined in a component
+  SELECT om.dbid AS dbid,
+      teid_map.teid AS eid,
+      teid_map.teid_node AS global_eid
+    FROM teid_map
+    LEFT JOIN connected_components AS cc ON teid_map.teid_node = cc.node
+    LEFT JOIN eid_to_global_map AS om
+      ON om.global_eid = teid_map.teid
+    WHERE component IS NULL
+  UNION
+  -- Attached tokens in components with others
   SELECT 5 AS dbid,
       aeid_map.aeid AS eid,
       component AS global_eid
-    FROM connected_components AS cca
-    LEFT JOIN aeid_map ON aeid_map.aeid_node = cca.node
+    FROM connected_components AS cc
+    LEFT JOIN aeid_map ON aeid_map.aeid_node = cc.node
     WHERE node >= 1000000000
+  UNION
+  -- Attached tokens not joined in a component
+  SELECT 5 AS dbid,
+      aeid_map.aeid AS eid,
+      aeid_map.aeid_node AS global_eid
+    FROM aeid_map
+    LEFT JOIN connected_components AS cc ON aeid_map.aeid_node = cc.node
+    WHERE component IS NULL
 )
 INSERT INTO new_eid_to_global_map SELECT * from eid_map;
 
