@@ -21,124 +21,115 @@ CREATE TABLE ec_pairs AS SELECT * FROM (
       FROM adb.tokens AS at
       LEFT JOIN fileid_to_global_map AS fid_map
         ON fid_map.dbid = 5 AND fid_map.fid = at.fid
-  )
-  -- Map each original token with any matching attached tokens
-  SELECT DISTINCT tokens.eid AS teid, atokens.eid AS aeid
-    FROM tokens
-    INNER JOIN mapped_atokens AS atokens ON tokens.fid = atokens.fid
-      AND tokens.foffset = atokens.foffset
-);
-
-CREATE INDEX idx_ec_pairs_teid ON ec_pairs(teid);
-CREATE INDEX idx_ec_pairs_aeid ON ec_pairs(aeid);
-
--- Convert teids into small integers to be used as typed node identifiers
-DROP TABLE IF EXISTS teid_map;
-CREATE TABLE teid_map(teid PRIMARY KEY, teid_node);
-INSERT INTO teid_map
-  SELECT teid, ROW_NUMBER() OVER (ORDER BY teid) AS teid_node
-    FROM (
-      SELECT DISTINCT(tokens.eid) AS teid FROM tokens
-    );
-CREATE INDEX idx_teid_map_teid_node ON teid_map(teid_node);
-
--- Convert aeids into large integers to be used as typed node identifiers
-DROP TABLE IF EXISTS aeid_map;
-CREATE TABLE aeid_map(aeid PRIMARY KEY, aeid_node);
-INSERT INTO aeid_map
-  SELECT aeid, ROW_NUMBER() OVER (ORDER BY aeid) + 1000000000 AS aeid_node
-    FROM (
-      SELECT DISTINCT(tokens.eid) AS aeid FROM adb.tokens
-    );
-CREATE INDEX idx_aeid_map_aeid_node ON aeid_map(aeid_node);
-
--- Create a table of undirected mapped edges from ec_pairs
--- to be used in the BFS.
-DROP TABLE IF EXISTS edges;
-CREATE TABLE edges(a, b, PRIMARY KEY(a, b));
-INSERT INTO edges SELECT * FROM (
-  WITH mapped_edges AS (
-    SELECT teid_map.teid_node, aeid_map.aeid_node
-    FROM ec_pairs
-    LEFT JOIN teid_map ON ec_pairs.teid = teid_map.teid
-    LEFT JOIN aeid_map ON ec_pairs.aeid = aeid_map.aeid
   ),
-  all_edges AS (
-    SELECT teid_node AS a, aeid_node AS b FROM mapped_edges
+  -- Map each original token with any matching attached tokens
+  left_joined_tokens AS (
+    SELECT DISTINCT tokens.eid AS teid, atokens.eid AS aeid
+      FROM tokens
+      LEFT JOIN mapped_atokens AS atokens ON tokens.fid = atokens.fid
+        AND tokens.foffset = atokens.foffset
+  ),
+  -- Map each attached token with any matching original tokens
+  right_joined_tokens AS (
+    SELECT DISTINCT tokens.eid AS teid, atokens.eid AS aeid
+      FROM mapped_atokens AS atokens
+      LEFT JOIN tokens ON tokens.fid = atokens.fid
+        AND tokens.foffset = atokens.foffset
+  ),
+  -- Combine the two to have all the possible mappings
+  ec_pairs AS (
+    SELECT teid, aeid FROM left_joined_tokens
     UNION
-    SELECT aeid_node AS a, teid_node AS b FROM mapped_edges
+    SELECT teid, aeid FROM right_joined_tokens
   )
-  SELECT DISTINCT * FROM all_edges
+  SELECT DISTINCT teid, aeid FROM ec_pairs
 );
 
--- Load BFS SQLite extension
--- https://github.com/abetlen/sqlite3-bfsvtab-ext
-.load ./bfsvtab.so
+-- Create a GraphViz file; use -5 to get a unique name
+.output ec_pairs-5.gv
+SELECT 'graph G {';
+-- Map attached tokens (having aeid ECs) to use the global fid
+WITH joined_tokens AS (
+  SELECT teid, aeid
+    FROM ec_pairs
+    WHERE teid IS NOT NULL and aeid IS NOT NULL
+)
+-- Nodes
+SELECT
+    ' "n'
+    || teid
+    || '" [T=t]; "n'
+    || aeid
+    || '" [T=a];'
+  FROM joined_tokens
+UNION
+-- Edges
+SELECT
+    ' "n'
+    || teid
+    || '" -- "n'
+    || aeid
+    || '";'
+  FROM joined_tokens;
+SELECT '}';
+.output stdout
 
--- Obtain all nodes in the graph
-WITH all_nodes AS (
-  SELECT a AS id FROM edges
-  UNION
-  SELECT b AS id FROM edges
-),
-nodes AS (
-  SELECT DISTINCT id FROM all_nodes WHERE id IS NOT NULL
-),
--- Visit them with a BFS search
-visits AS (
-  SELECT 
-    nodes.id AS a, bfs.id AS b
-    FROM nodes
-    LEFT JOIN bfsvtab AS bfs
-      ON
-        tablename  = 'edges'
-        AND fromcolumn = 'a'
-        AND tocolumn = 'b'
-        AND root = nodes.id
-),
--- Find CCs by mapping each visited node with its minimum pair
-connected_components AS (
-  SELECT a AS node, Min(b) AS component
-    FROM visits
-    GROUP BY a
-),
+-- Convert the graph into a CSV file of token groups
+.shell ccomps ec_pairs-5.gv | gvtocsv.awk >token_groups-5.csv
+
+DROP TABLE IF EXISTS token_groups;
+CREATE TABLE token_groups(
+  eid INTEGER,
+  eid_type CHAR,
+  global_eid INTEGER,
+  PRIMARY KEY(eid, eid_type)
+);
+
+.mode csv
+.import token_groups-5.csv token_groups
+
 -- Create a map from tokens to their new eids
+WITH new_global_eid AS (
+  SELECT Max(global_eid) + 1 AS value FROM token_groups
+),
 eid_map AS (
   -- Original tokens in components with others
   SELECT om.dbid AS dbid,
-      teid_map.teid AS eid,
-      component AS global_eid
-    FROM connected_components AS cc
-    LEFT JOIN teid_map ON teid_map.teid_node = cc.node
+      token_groups.eid,
+      token_groups.global_eid
+    FROM token_groups
     LEFT JOIN eid_to_global_map AS om
-      ON om.global_eid = teid_map.teid
-    WHERE node < 1000000000
+      ON om.global_eid = token_groups.eid
+    WHERE eid_type = 't'
   UNION
   -- Original tokens not joined in a component
+  -- Use their eid incremented by the highest assigned global_eid
   SELECT om.dbid AS dbid,
-      teid_map.teid AS eid,
-      teid_map.teid_node AS global_eid
-    FROM teid_map
-    LEFT JOIN connected_components AS cc ON teid_map.teid_node = cc.node
+      ec_pairs.teid AS eid,
+      ec_pairs.teid + (SELECT value FROM new_global_eid) AS global_eid
+    FROM ec_pairs
+    LEFT JOIN token_groups
+      ON token_groups.eid = ec_pairs.teid AND token_groups.eid_type = 't'
     LEFT JOIN eid_to_global_map AS om
-      ON om.global_eid = teid_map.teid
-    WHERE component IS NULL
+      ON om.global_eid = ec_pairs.teid
+    WHERE ec_pairs.teid IS NOT NULL AND token_groups.global_eid IS NULL
   UNION
   -- Attached tokens in components with others
   SELECT 5 AS dbid,
-      aeid_map.aeid AS eid,
-      component AS global_eid
-    FROM connected_components AS cc
-    LEFT JOIN aeid_map ON aeid_map.aeid_node = cc.node
-    WHERE node >= 1000000000
+      token_groups.eid,
+      token_groups.global_eid
+    FROM token_groups
+    WHERE eid_type = 'a'
   UNION
   -- Attached tokens not joined in a component
+  -- Use their eid incremented by the highest assigned global_eid
   SELECT 5 AS dbid,
-      aeid_map.aeid AS eid,
-      aeid_map.aeid_node AS global_eid
-    FROM aeid_map
-    LEFT JOIN connected_components AS cc ON aeid_map.aeid_node = cc.node
-    WHERE component IS NULL
+      ec_pairs.aeid AS eid,
+      ec_pairs.aeid + (SELECT value FROM new_global_eid) AS global_eid
+    FROM ec_pairs
+    LEFT JOIN token_groups
+      ON token_groups.eid = ec_pairs.aeid AND token_groups.eid_type = 'a'
+    WHERE ec_pairs.aeid IS NOT NULL AND token_groups.global_eid IS NULL
 )
 INSERT INTO new_eid_to_global_map SELECT * from eid_map;
 
@@ -147,6 +138,4 @@ ALTER TABLE new_eid_to_global_map RENAME TO eid_to_global_map;
 
 -- Drop temporary tables
 DROP TABLE ec_pairs;
-DROP TABLE teid_map;
-DROP TABLE aeid_map;
-DROP TABLE edges;
+DROP TABLE token_groups;
