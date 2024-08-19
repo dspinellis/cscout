@@ -13,9 +13,10 @@
 
 set -eu
 
-# Path must include a version of ccomps that avoids issue
-# https://gitlab.com/graphviz/graphviz/-/issues/2593
-# This can be done by applying write.c.patch
+# Needed for GraphViz
+module load gnu/8
+# Needed for ccomps
+module load graphviz/2.50.0
 
 # /tmp is 2GB; redirect it here for 64GB
 export TMP=$(mktemp -d /dev/shm/dbmerge.XXXXXX)
