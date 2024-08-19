@@ -1,3 +1,41 @@
+# Simple case: Merge into empty
+BEGIN SETUP
+tokens:
+fid	foffset	eid
+99	99	99
+
+eid_to_global_map:
+dbid	eid	global_eid
+99	99	99
+
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+5	2	1
+
+adb.tokens:
+fid	foffset	eid
+2	210	21
+2	220	21
+2	310	-31
+
+END
+
+BEGIN CREATE
+DELETE FROM tokens;
+DELETE FROM eid_to_global_map;
+END
+
+INCLUDE CREATE eid_to_global_map.sql
+
+BEGIN RESULT
+eid_to_global_map:
+dbid	eid	global_eid
+5	21	21
+5	-31	-31
+END
+
+# Complex case: several chains of connected ECs
 # offset
 # 100	EC only in tokens
 # 200	EC only in atokens
@@ -57,7 +95,7 @@ dbid	eid	global_eid
 2	19	7000
 2	19	7100
 
-# Map from adjusted local fid to consilidated global fid
+# Map from adjusted local fid to consolidated global fid
 fileid_to_global_map:
 dbid	fid	global_fid
 2	1	1

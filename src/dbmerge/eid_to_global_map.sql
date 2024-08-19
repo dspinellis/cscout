@@ -87,10 +87,11 @@ CREATE TABLE token_groups(
 
 .mode csv
 .import token_groups-5.csv token_groups
+.mode list
 
 -- Create a map from tokens to their new eids
 WITH new_global_eid AS (
-  SELECT Max(global_eid) + 1 AS value FROM token_groups
+  SELECT Coalesce(Max(global_eid), -1) + 1 AS value FROM token_groups
 ),
 eid_map AS (
   -- Original tokens in components with others
