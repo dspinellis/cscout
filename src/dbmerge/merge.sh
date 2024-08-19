@@ -15,6 +15,9 @@ echo 33 >$DBID_FILE
 
 :>$LOG_FILE
 
+# Obtain required awk script
+cp "$TOOL_DIR/gvtocsv.awk" .
+
 # Log the specified message with a timestamp
 log()
 {
