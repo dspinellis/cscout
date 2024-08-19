@@ -15,9 +15,6 @@ echo 33 >$DBID_FILE
 
 :>$LOG_FILE
 
-# Obtain required BFS extension
-cp "$TOOL_DIR/bfsvtab.so" .
-
 # Log the specified message with a timestamp
 log()
 {
