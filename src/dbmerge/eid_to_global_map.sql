@@ -104,10 +104,13 @@ eid_map AS (
     WHERE eid_type = 't'
   UNION
   -- Original tokens not joined in a component
-  -- Use their eid incremented by the highest assigned global_eid
+  -- Use their eid incremented or decremented by the highest assigned global_eid
   SELECT om.dbid AS dbid,
       ec_pairs.teid AS eid,
-      ec_pairs.teid + (SELECT value FROM new_global_eid) AS global_eid
+      CASE WHEN ec_pairs.teid > 0
+        THEN ec_pairs.teid + (SELECT value FROM new_global_eid)
+        ELSE ec_pairs.teid - (SELECT value FROM new_global_eid)
+      END AS global_eid
     FROM ec_pairs
     LEFT JOIN token_groups
       ON token_groups.eid = ec_pairs.teid AND token_groups.eid_type = 't'
@@ -123,10 +126,13 @@ eid_map AS (
     WHERE eid_type = 'a'
   UNION
   -- Attached tokens not joined in a component
-  -- Use their eid incremented by the highest assigned global_eid
+  -- Use their eid incremented or decremented by the highest assigned global_eid
   SELECT 5 AS dbid,
       ec_pairs.aeid AS eid,
-      ec_pairs.aeid + (SELECT value FROM new_global_eid) AS global_eid
+      CASE WHEN ec_pairs.aeid > 0
+        THEN ec_pairs.aeid + (SELECT value FROM new_global_eid)
+        ELSE ec_pairs.aeid - (SELECT value FROM new_global_eid)
+      END AS global_eid
     FROM ec_pairs
     LEFT JOIN token_groups
       ON token_groups.eid = ec_pairs.aeid AND token_groups.eid_type = 'a'
