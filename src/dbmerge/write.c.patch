@@ -1,0 +1,11 @@
+--- write.c.orig        2024-08-19 18:53:43.102357885 +0300
++++ ./lib/cgraph/write.c        2024-08-19 18:55:09.113802657 +0300
+@@ -717,7 +717,7 @@
+     }
+     set_attrwf(g, true, false);
+     CHKRV(write_hdr(g, ofile, true));
+-    CHKRV(write_body(g, ofile));
++    CHKRV(write_subgs(g, ofile));
+     CHKRV(write_trl(g, ofile));
+     Max_outputline = MAX_OUTPUTLINE;
+     return AGDISC(g, io)->flush(ofile);
