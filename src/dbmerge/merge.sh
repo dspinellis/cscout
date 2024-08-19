@@ -114,6 +114,8 @@ merge_onto()
        log "DB $dbid: running $i"
        # Exit on errors
        echo ".bail on"
+       # Time issued commands
+       echo ".timer on"
        echo "ATTACH DATABASE '$source' AS adb;"
        # Replace hard-coded database id 5 used for testing
        sed "s/\\<5\\>/$dbid/" "$TOOL_DIR/$i"
