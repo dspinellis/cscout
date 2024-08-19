@@ -1,6 +1,6 @@
 #!/usr/bin/awk -f
 #
-# Convert the output of ccomp into a CSV file containing
+# Convert the output of ccomps -x into a CSV file containing
 # node-id, node-type, group-id
 #
 
@@ -8,7 +8,7 @@
 BEGIN { OFS="," }
 
 # Set the current group
-/^\tsubgraph/ { 
+/^graph/ {
 	group = substr($2, 6);
 	delete output;
 	delete type;

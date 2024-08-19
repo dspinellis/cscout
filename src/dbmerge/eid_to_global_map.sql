@@ -75,7 +75,7 @@ SELECT '}';
 .output stdout
 
 -- Convert the graph into a CSV file of token groups
-.shell ccomps ec_pairs-5.gv | gvtocsv.awk >token_groups-5.csv
+.shell ccomps -x ec_pairs-5.gv | gvtocsv.awk >token_groups-5.csv
 
 DROP TABLE IF EXISTS token_groups;
 CREATE TABLE token_groups(
