@@ -7,11 +7,9 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --time=10:00:00
-#SBATCH --partition=compute
+#SBATCH --partition=fat
+#SBATCH --mem=128G
 #SBATCH --account=pa240702
-
-# Compile the Linux kernel under csmake
-# Actual use with one CPU: Elapsed 14:26:54 MaxRSS 3259932K
 
 set -eu
 
