@@ -118,7 +118,7 @@ merge_onto()
        echo ".timer on"
        echo "ATTACH DATABASE '$source' AS adb;"
        # Replace hard-coded database id 5 used for testing
-       sed "s/\\<5\\>/$dbid/" "$TOOL_DIR/$i"
+       sed "s/\\<5\\>/$dbid/g" "$TOOL_DIR/$i"
      } |
      sqlite3 "$dest" 2>&1 |
      while read -r line ; do log "DB $dbid: $line" ; done
