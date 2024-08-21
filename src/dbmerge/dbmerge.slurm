@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
-#SBATCH --time=10:00:00
+#SBATCH --time=40:00:00
 #SBATCH --partition=fat
 #SBATCH --mem=128G
 #SBATCH --account=pa240702
