@@ -9,24 +9,19 @@ dbid	eid	global_eid
 5	4	1
 5	8	2
 
-# Existing table with globally unique eids
+# Database 2: Existing table, with local eids
 ids:
 eid name readonly undefmacro macro macroarg ordinary suetag sumember label typedef enum yacc fun cscope lscope unused
-1 a 1 0 0 0 0 0 0 0 0 0 0 0 0 1 1
-2 b 0 0 0 0 0 1 0 1 0 1 0 0 0 0 1
+7 a 1 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+8 b 0 0 0 0 0 1 0 1 0 1 0 0 0 0 1
 
 
-# Table to be imported, with local eids
+# Database 5: Table to be imported, with local eids
 # One new, one common
 adb.ids:
 eid name readonly undefmacro macro macroarg ordinary suetag sumember label typedef enum yacc fun cscope lscope unused
 9 c 0 0 0 0 1 0 0 0 0 1 1 1 0 0 1
 8 b 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0
-END
-
-# Add index to simulate primary key clashing behavior
-BEGIN CREATE
-CREATE UNIQUE INDEX pk ON ids(eid);
 END
 
 INCLUDE CREATE ids.sql

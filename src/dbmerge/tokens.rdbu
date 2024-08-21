@@ -1,19 +1,21 @@
 BEGIN SETUP
+# Database 2
 tokens:
 fid	foffset	eid
-1	11	1
-2	22	2
-2	42	2
+1	11	100
+2	22	200
+2	42	200
 
 eid_to_global_map:
 dbid	eid	global_eid
-2	3	1
-2	5	2
+2	100	1
+2	200	2
+2	300	5
 5	52	2
 5	53	3
 5	51	4
 
-# Map from adjusted local fid to consilidated global fid
+# Map from adjusted local fid to consolidated global fid
 fileid_to_global_map:
 dbid	fid	global_fid
 2	2	1
@@ -23,6 +25,7 @@ dbid	fid	global_fid
 5	4	3
 5	5	4
 
+# Database 5
 # One common, one new in same class,
 # one new in existing file,
 # three same EC new in existing and new files

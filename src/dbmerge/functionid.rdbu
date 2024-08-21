@@ -25,17 +25,17 @@ dbid	id	global_id
 5	54	4
 5	55	5
 
-# Existing table with globally unique eids
+# Database 2: Existing table with local eids
 functionid:
 functionid ordinal eid
-1	   0	   1
-1	   1	   2
-2	   0	   9
-3	   0       10
-3	   1       11
+1	   0	   3
+1	   1	   5
+2	   0	   8
+3	   0       80
+3	   1       81
 
 
-# Table to be imported, with local eids
+# Database 5: Table to be imported, with local eids
 # One repeated, three new
 adb.functionid:
 functionid ordinal eid
