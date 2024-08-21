@@ -257,6 +257,13 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 			break;
 		char c = (char)val;
 		Eclass *ec;
+
+		// Return to normal if slash didn't start a commend
+		if (cstate == s_saw_slash && c != '*' && c != '/') {
+			chunker.add('/');
+			cstate = s_normal;
+		}
+
 		if (cstate != s_block_comment &&
 		    cstate != s_string &&
 		    cstate != s_cpp_comment &&
@@ -338,9 +345,8 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 					cstate = s_block_comment;
 					chunker.start("COMMENTS", table_is_enabled(t_comments), "/*");
 				} else {
-					chunker.add('/');
-					chunker.add(c);
-					cstate = s_normal;
+					// Should have set s_normal at the top
+					csassert(0);
 				}
 				break;
 			case s_cpp_comment:		// Inside C++ comment
