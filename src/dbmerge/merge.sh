@@ -108,7 +108,11 @@ merge_onto()
     functionid.sql \
     functiondefs.sql \
     functionmetrics.sql \
-    fcalls.sql
+    fcalls.sql \
+    comments.sql \
+    strings.sql \
+    rest.sql \
+    linepos.sql
    do
      {
        log "DB $dbid: running $i"
