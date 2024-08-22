@@ -113,6 +113,8 @@ merge_onto()
     rest.sql \
     linepos.sql
    do
+     set -eu
+     set -o pipefail
      {
        log "DB $dbid: running $i"
        # Exit on errors
