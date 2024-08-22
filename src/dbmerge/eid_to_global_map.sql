@@ -14,7 +14,7 @@ CREATE TABLE new_eid_to_global_map(
 
 DROP TABLE IF EXISTS ec_pairs;
 
-CREATE TABLE ec_pairs AS SELECT * FROM (
+CREATE TEMP TABLE ec_pairs AS SELECT * FROM (
   -- Map attached tokens (having aeid ECs) to use the global fid
   WITH mapped_atokens AS (
     SELECT fid_map.global_fid AS fid, at.foffset, at.eid
@@ -75,7 +75,7 @@ SELECT '}';
 .shell ccomps -x ec_pairs-5.gv | gvtocsv.awk >token_groups-5.csv
 
 DROP TABLE IF EXISTS token_groups;
-CREATE TABLE token_groups(
+CREATE TEMP TABLE token_groups(
   eid INTEGER,
   eid_type CHAR,
   global_eid INTEGER,
