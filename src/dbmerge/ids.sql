@@ -23,9 +23,28 @@ CREATE TABLE new_ids(
   unused BOOLEAN -- True if it is not used
 );
 
+-- Create indexed temporary tables to speed up the join
+CREATE TEMP TABLE fma AS
+SELECT fma.*, egma.global_eid
+FROM adb.ids AS fma
+LEFT JOIN eid_to_global_map AS egma
+ON egma.dbid = 5 AND egma.eid = fma.eid;
+
+CREATE INDEX idx_fma_global_eid ON fma(global_eid);
+
+-- Materialize fmb into a temporary table with an index
+CREATE TEMP TABLE fmb AS
+SELECT fmb.*, egmb.global_eid
+FROM ids AS fmb
+LEFT JOIN eid_to_global_map AS egmb
+ON egmb.dbid != 5 AND egmb.eid = fmb.eid;
+
+CREATE INDEX idx_fmb_global_eid ON fmb(global_eid);
+
+-- Insert the merged records
 INSERT INTO new_ids
   SELECT
-    Coalesce(egma.global_eid, egmb.global_eid) AS eid,
+    Coalesce(fma.global_eid, fmb.global_eid) AS eid,
     Coalesce(fma.name, fmb.name) AS name,
     Coalesce(fma.readonly, fmb.readonly) OR Coalesce(fmb.readonly, fma.readonly) AS readonly,
     Coalesce(fma.undefmacro, fmb.undefmacro) AND Coalesce(fmb.undefmacro, fma.undefmacro) AS undefmacro,
@@ -42,15 +61,13 @@ INSERT INTO new_ids
     Coalesce(fma.cscope, fmb.cscope) OR Coalesce(fmb.cscope, fma.cscope) AS cscope,
     Coalesce(fma.lscope, fmb.lscope) OR Coalesce(fmb.lscope, fma.lscope) AS lscope,
     Coalesce(fma.unused, fmb.unused) AND Coalesce(fmb.unused, fma.unused) AS unused
-  FROM
-    adb.ids AS fma
-    LEFT JOIN eid_to_global_map AS egma
-      ON egma.dbid = 5 AND egma.eid = fma.eid
-    -- Requires SQLite >= 3.39.0
-    FULL OUTER JOIN ids AS fmb
-      ON fma.eid = fmb.eid
-    LEFT JOIN eid_to_global_map AS egmb
-      ON egmb.dbid != 5 AND egmb.eid = fmb.eid;
+  FROM fma
+  -- Requires SQLite >= 3.39.0
+  FULL OUTER JOIN fmb
+  ON fma.global_eid = fmb.global_eid;
+
+DROP TABLE fma;
+DROP TABLE fmb;
 
 DROP TABLE IF EXISTS ids;
 ALTER TABLE new_ids RENAME TO ids;
