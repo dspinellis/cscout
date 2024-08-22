@@ -35,14 +35,11 @@ CREATE TABLE ec_pairs AS SELECT * FROM (
       FROM mapped_atokens AS atokens
       LEFT JOIN tokens ON tokens.fid = atokens.fid
         AND tokens.foffset = atokens.foffset
-  ),
-  -- Combine the two to have all the possible mappings
-  ec_pairs AS (
-    SELECT teid, aeid FROM left_joined_tokens
-    UNION
-    SELECT teid, aeid FROM right_joined_tokens
   )
-  SELECT DISTINCT teid, aeid FROM ec_pairs
+  -- Combine the two to have all the possible mappings
+  SELECT teid, aeid FROM left_joined_tokens
+  UNION
+  SELECT teid, aeid FROM right_joined_tokens
 );
 
 -- Create a GraphViz file; use -5 to get a unique name
