@@ -16,14 +16,14 @@ null	80	10
 null	81	11
 
 functionid_to_global_map:
-id	global_id
-3	1
-5	2
-5	3
-51	1
-52	2
-54	4
-55	5
+dbid	id	global_id
+2	3	1
+2	5	2
+2	5	3
+5	51	1
+5	52	2
+5	54	4
+5	55	5
 
 # Database 2: Existing table with local eids
 functionid:

@@ -12,7 +12,8 @@ INSERT INTO functiondefs
     LEFT JOIN fileid_to_global_map AS end_map
       ON end_map.dbid = 5 AND end_map.fid = afunctiondefs.fidend
     LEFT JOIN functionid_to_global_map
-      ON functionid_to_global_map.id = afunctiondefs.functionid
+      ON functionid_to_global_map.dbid = 5
+        AND functionid_to_global_map.id = afunctiondefs.functionid
     LEFT JOIN functiondefs
       ON functiondefs.functionid = functionid_to_global_map.global_id
     WHERE functiondefs.functionid IS NULL;

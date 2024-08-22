@@ -20,13 +20,15 @@ joined_functions AS (
 )
 INSERT INTO functionid_to_global_map
     -- Functions already mapped
-    SELECT id,
+    SELECT 5 AS dbid,
+        id,
         global_id
       FROM joined_functions
       WHERE global_id IS NOT NULL
   UNION
     -- Newly mapped functions
-    SELECT id,
+    SELECT 5 AS dbid,
+      id,
       max_id.max_id + ROW_NUMBER() OVER () AS global_id
     FROM joined_functions
     CROSS JOIN max_id

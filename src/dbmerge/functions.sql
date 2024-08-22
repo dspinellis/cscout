@@ -14,6 +14,7 @@ INSERT OR REPLACE INTO functions
     LEFT JOIN fileid_to_global_map AS fileid_map
       ON fileid_map.dbid = 5 AND fileid_map.fid = fa.fid
     LEFT JOIN functionid_to_global_map AS functionid_map
-      ON functionid_map.id = fa.id
+      ON functionid_map.dbid = 5
+        AND functionid_map.id = fa.id
     LEFT JOIN functions AS fb
       ON fb.id = functionid_map.global_id;
