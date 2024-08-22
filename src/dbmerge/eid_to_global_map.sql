@@ -1,6 +1,9 @@
 -- Create a map from each database's local equivalence class identifiers to
 -- identifiers assigned for the corresponding tokens/offsets across all
 -- databases.  To do this merge ECs that share tokens.
+-- The sharing is best effort, because following the token.cpp homogenize()
+-- algorithm would be too difficult.  Consequently we merge classes whose
+-- identifiers have the same length.
 
 CREATE INDEX IF NOT EXISTS idx_eid_to_global_map ON eid_to_global_map(global_eid);
 
@@ -17,24 +20,35 @@ DROP TABLE IF EXISTS ec_pairs;
 CREATE TEMP TABLE ec_pairs AS SELECT * FROM (
   -- Map attached tokens (having aeid ECs) to use the global fid
   WITH mapped_atokens AS (
-    SELECT fid_map.global_fid AS fid, at.foffset, at.eid
+    SELECT fid_map.global_fid AS fid, at.foffset, at.eid,
+        length(ids.name) AS len
       FROM adb.tokens AS at
       LEFT JOIN fileid_to_global_map AS fid_map
         ON fid_map.dbid = 5 AND fid_map.fid = at.fid
+      LEFT JOIN adb.ids USING(eid)
+  ),
+  tokens_with_len AS (
+    SELECT tokens.*, length(ids.name) AS len
+      FROM tokens
+      LEFT JOIN ids USING(eid)
   ),
   -- Map each original token with any matching attached tokens
   left_joined_tokens AS (
     SELECT DISTINCT tokens.eid AS teid, atokens.eid AS aeid
-      FROM tokens
-      LEFT JOIN mapped_atokens AS atokens ON tokens.fid = atokens.fid
-        AND tokens.foffset = atokens.foffset
+      FROM tokens_with_len AS tokens
+      LEFT JOIN mapped_atokens AS atokens
+        ON tokens.fid = atokens.fid
+          AND tokens.foffset = atokens.foffset
+          AND tokens.len = atokens.len
   ),
   -- Map each attached token with any matching original tokens
   right_joined_tokens AS (
     SELECT DISTINCT tokens.eid AS teid, atokens.eid AS aeid
       FROM mapped_atokens AS atokens
-      LEFT JOIN tokens ON tokens.fid = atokens.fid
-        AND tokens.foffset = atokens.foffset
+      LEFT JOIN tokens_with_len AS tokens
+        ON tokens.fid = atokens.fid
+          AND tokens.foffset = atokens.foffset
+          AND tokens.len = atokens.len
   )
   -- Combine the two to have all the possible mappings
   SELECT teid, aeid FROM left_joined_tokens
