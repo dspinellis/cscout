@@ -87,6 +87,8 @@ CREATE TABLE token_groups(
 .mode list
 
 -- Create a map from tokens to their new eids
+
+-- Obtain largest token group eid to renumber other tokens away from it
 WITH new_global_eid AS (
   SELECT Coalesce(Max(global_eid), -1) + 1 AS value FROM token_groups
 ),
