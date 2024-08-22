@@ -92,29 +92,22 @@ CREATE TEMP TABLE token_groups(
 WITH new_global_eid AS (
   SELECT Coalesce(Max(global_eid), -1) + 1 AS value FROM token_groups
 ),
-eid_map AS (
+eid_map_with_nulls AS (
   -- Original tokens in components with others
-  SELECT om.dbid AS dbid,
+  SELECT null AS dbid,
       token_groups.eid,
       token_groups.global_eid
     FROM token_groups
-    LEFT JOIN eid_to_global_map AS om
-      ON om.global_eid = token_groups.eid
     WHERE eid_type = 't'
   UNION
   -- Original tokens not joined in a component
-  -- Use their eid incremented or decremented by the highest assigned global_eid
-  SELECT om.dbid AS dbid,
+  -- Provide a null eid that will be assigned later
+  SELECT null AS dbid,
       ec_pairs.teid AS eid,
-      CASE WHEN ec_pairs.teid > 0
-        THEN ec_pairs.teid + (SELECT value FROM new_global_eid)
-        ELSE ec_pairs.teid - (SELECT value FROM new_global_eid)
-      END AS global_eid
+      null AS global_eid
     FROM ec_pairs
     LEFT JOIN token_groups
       ON token_groups.eid = ec_pairs.teid AND token_groups.eid_type = 't'
-    LEFT JOIN eid_to_global_map AS om
-      ON om.global_eid = ec_pairs.teid
     WHERE ec_pairs.teid IS NOT NULL AND token_groups.global_eid IS NULL
   UNION
   -- Attached tokens in components with others
@@ -125,17 +118,23 @@ eid_map AS (
     WHERE eid_type = 'a'
   UNION
   -- Attached tokens not joined in a component
-  -- Use their eid incremented or decremented by the highest assigned global_eid
+  -- Provide a null eid that will be assigned later
   SELECT 5 AS dbid,
       ec_pairs.aeid AS eid,
-      CASE WHEN ec_pairs.aeid > 0
-        THEN ec_pairs.aeid + (SELECT value FROM new_global_eid)
-        ELSE ec_pairs.aeid - (SELECT value FROM new_global_eid)
-      END AS global_eid
+      null AS global_eid
     FROM ec_pairs
     LEFT JOIN token_groups
       ON token_groups.eid = ec_pairs.aeid AND token_groups.eid_type = 'a'
     WHERE ec_pairs.aeid IS NOT NULL AND token_groups.global_eid IS NULL
+),
+eid_map AS (
+  SELECT dbid, eid,
+      -- When global_eid is null, assign it a new unique number
+      -- The numbering will introduce small gaps
+      -- when assigned eids are jumped over.
+      Coalesce(global_eid, row_number() OVER ()
+        + (SELECT value FROM new_global_eid)) AS global_eid
+  FROM eid_map_with_nulls
 )
 INSERT INTO new_eid_to_global_map SELECT * from eid_map;
 

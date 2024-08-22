@@ -8,22 +8,22 @@ fid	foffset	eid
 
 eid_to_global_map:
 dbid	eid	global_eid
-2	100	1
-2	200	2
-2	300	5
 5	52	2
 5	53	3
 5	51	4
+null	100	1
+null	200	2
+null	300	5
 
 # Map from adjusted local fid to consolidated global fid
 fileid_to_global_map:
 dbid	fid	global_fid
-2	2	1
-2	3	2
 5	2	1
 5	3	2
 5	4	3
 5	5	4
+2	2	1
+2	3	2
 
 # Database 5
 # One common, one new in same class,

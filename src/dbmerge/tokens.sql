@@ -30,10 +30,8 @@ INSERT INTO new_tokens
       tokens.foffset,
       eid_map.global_eid AS eid
     FROM tokens
-    LEFT JOIN fileid_to_global_map as fid_map
-      ON fid_map.global_fid = tokens.fid AND fid_map.dbid != 5
     LEFT JOIN eid_to_global_map AS eid_map
-      ON eid_map.dbid = fid_map.dbid AND eid_map.eid = tokens.eid;
+      ON eid_map.dbid is null AND eid_map.eid = tokens.eid;
 
 DROP TABLE IF EXISTS tokens;
 ALTER TABLE new_tokens RENAME TO tokens;

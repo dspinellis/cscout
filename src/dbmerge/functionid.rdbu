@@ -3,27 +3,27 @@ BEGIN SETUP
 # Map from adjusted local eid to consilidated global eid
 eid_to_global_map:
 dbid	eid	global_eid
-2	3	1
-2	5	2
-2	8	9
-2	80	10
-2	81	11
 5	61	1
 5	62	2
 5	63	3
 5	64	4
 5	65	5
 5	66	6
+null	3	1
+null	5	2
+null	8	9
+null	80	10
+null	81	11
 
 functionid_to_global_map:
-dbid	id	global_id
-2	3	1
-2	5	2
-2	5	3
-5	51	1
-5	52	2
-5	54	4
-5	55	5
+id	global_id
+3	1
+5	2
+5	3
+51	1
+52	2
+54	4
+55	5
 
 # Database 2: Existing table with local eids
 functionid:

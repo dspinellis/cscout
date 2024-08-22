@@ -3,14 +3,14 @@ BEGIN SETUP
 # Map from adjusted local eid to consilidated global eid
 eid_to_global_map:
 dbid	eid	global_eid
-2	7	1
-2	8	2
-2	10	4
-2	11	4
 5	9	3
 5	4	1
 5	8	2
 5	12	4
+null	7	1
+null	8	2
+null	10	4
+null	11	4
 
 # Database 2: Existing table, with local eids
 # Record d will be joined through the map

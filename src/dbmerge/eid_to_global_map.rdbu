@@ -31,8 +31,8 @@ INCLUDE CREATE eid_to_global_map.sql
 BEGIN RESULT
 eid_to_global_map:
 dbid	eid	global_eid
-5	21	21
-5	-31	-31
+5	21	2
+5	-31	1
 END
 
 # Complex case: several chains of connected ECs
@@ -143,19 +143,12 @@ END
 INCLUDE CREATE eid_to_global_map.sql
 
 BEGIN RESULT
+# 1000 and 21 get assigned from row_number()
+# The rest should be in a group based on their initial digit
 eid_to_global_map:
 dbid	eid	global_eid
-2	1000	1005
-2	3000	0
-2	4000	1
-2	5000	2
-2	5100	2
-2	6000	3
-2	6100	3
-2	7000	4
-2	7100	4
+5	21	16
 5	-31	0
-5	21	26
 5	41	1
 5	42	1
 5	51	2
@@ -163,4 +156,13 @@ dbid	eid	global_eid
 5	62	3
 5	70	4
 5	71	4
+null	1000	6
+null	3000	0
+null	4000	1
+null	5000	2
+null	5100	2
+null	6000	3
+null	6100	3
+null	7000	4
+null	7100	4
 END

@@ -37,7 +37,7 @@ CREATE TEMP TABLE fmb AS
 SELECT fmb.*, egmb.global_eid
 FROM ids AS fmb
 LEFT JOIN eid_to_global_map AS egmb
-ON egmb.dbid != 5 AND egmb.eid = fmb.eid;
+ON egmb.dbid is null AND egmb.eid = fmb.eid;
 
 CREATE INDEX idx_fmb_global_eid ON fmb(global_eid);
 
