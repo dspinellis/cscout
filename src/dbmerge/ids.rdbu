@@ -5,23 +5,30 @@ eid_to_global_map:
 dbid	eid	global_eid
 2	7	1
 2	8	2
+2	10	4
+2	11	4
 5	9	3
 5	4	1
 5	8	2
+5	12	4
 
 # Database 2: Existing table, with local eids
+# Record d will be joined through the map
 ids:
 eid name readonly undefmacro macro macroarg ordinary suetag sumember label typedef enum yacc fun cscope lscope unused
 7 a 1 0 0 0 0 0 0 0 0 0 0 0 0 1 1
 8 b 0 0 0 0 0 1 0 1 0 1 0 0 0 0 1
+10 d 0 0 0 0 0 1 0 1 0 1 0 0 0 0 1
+11 d 0 0 0 0 0 1 0 1 0 1 0 0 0 0 1
 
 
 # Database 5: Table to be imported, with local eids
-# One new, one common
+# One new, two common
 adb.ids:
 eid name readonly undefmacro macro macroarg ordinary suetag sumember label typedef enum yacc fun cscope lscope unused
 9 c 0 0 0 0 1 0 0 0 0 1 1 1 0 0 1
 8 b 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0
+12 d 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0
 END
 
 INCLUDE CREATE ids.sql
@@ -32,4 +39,5 @@ eid name readonly undefmacro macro macroarg ordinary suetag sumember label typed
 1 a 1 0 0 0 0 0 0 0 0 0 0 0 0 1 1
 2 b 0 0 1 0 1 1 1 1 0 1 0 0 0 0 0
 3 c 0 0 0 0 1 0 0 0 0 1 1 1 0 0 1
+4 d 0 0 1 0 1 1 1 1 0 1 0 0 0 0 0
 END

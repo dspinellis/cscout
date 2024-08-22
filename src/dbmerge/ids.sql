@@ -42,29 +42,54 @@ ON egmb.dbid != 5 AND egmb.eid = fmb.eid;
 CREATE INDEX idx_fmb_global_eid ON fmb(global_eid);
 
 -- Insert the merged records
-INSERT INTO new_ids
-  SELECT
-    Coalesce(fma.global_eid, fmb.global_eid) AS eid,
-    Coalesce(fma.name, fmb.name) AS name,
-    Coalesce(fma.readonly, fmb.readonly) OR Coalesce(fmb.readonly, fma.readonly) AS readonly,
-    Coalesce(fma.undefmacro, fmb.undefmacro) AND Coalesce(fmb.undefmacro, fma.undefmacro) AS undefmacro,
-    Coalesce(fma.macro, fmb.macro) OR Coalesce(fmb.macro, fma.macro) AS macro,
-    Coalesce(fma.macroarg, fmb.macroarg) OR Coalesce(fmb.macroarg, fma.macroarg) AS macroarg,
-    Coalesce(fma.ordinary, fmb.ordinary) OR Coalesce(fmb.ordinary, fma.ordinary) AS ordinary,
-    Coalesce(fma.suetag, fmb.suetag) OR Coalesce(fmb.suetag, fma.suetag) AS suetag,
-    Coalesce(fma.sumember, fmb.sumember) OR Coalesce(fmb.sumember, fma.sumember) AS sumember,
-    Coalesce(fma.label, fmb.label) OR Coalesce(fmb.label, fma.label) AS label,
-    Coalesce(fma.typedef, fmb.typedef) OR Coalesce(fmb.typedef, fma.typedef) AS typedef,
-    Coalesce(fma.enum, fmb.enum) OR Coalesce(fmb.enum, fma.enum) AS enum,
-    Coalesce(fma.yacc, fmb.yacc) OR Coalesce(fmb.yacc, fma.yacc) AS yacc,
-    Coalesce(fma.fun, fmb.fun) OR Coalesce(fmb.fun, fma.fun) AS fun,
-    Coalesce(fma.cscope, fmb.cscope) OR Coalesce(fmb.cscope, fma.cscope) AS cscope,
-    Coalesce(fma.lscope, fmb.lscope) OR Coalesce(fmb.lscope, fma.lscope) AS lscope,
-    Coalesce(fma.unused, fmb.unused) AND Coalesce(fmb.unused, fma.unused) AS unused
-  FROM fma
-  -- Requires SQLite >= 3.39.0
-  FULL OUTER JOIN fmb
-  ON fma.global_eid = fmb.global_eid;
+INSERT INTO new_ids SELECT * FROM (
+  -- First coalesce pairs from the two tables
+  WITH multiple_records AS (
+    SELECT
+      Coalesce(fma.global_eid, fmb.global_eid) AS eid,
+      Coalesce(fma.name, fmb.name) AS name,
+      Coalesce(fma.readonly, fmb.readonly) OR Coalesce(fmb.readonly, fma.readonly) AS readonly,
+      Coalesce(fma.undefmacro, fmb.undefmacro) AND Coalesce(fmb.undefmacro, fma.undefmacro) AS undefmacro,
+      Coalesce(fma.macro, fmb.macro) OR Coalesce(fmb.macro, fma.macro) AS macro,
+      Coalesce(fma.macroarg, fmb.macroarg) OR Coalesce(fmb.macroarg, fma.macroarg) AS macroarg,
+      Coalesce(fma.ordinary, fmb.ordinary) OR Coalesce(fmb.ordinary, fma.ordinary) AS ordinary,
+      Coalesce(fma.suetag, fmb.suetag) OR Coalesce(fmb.suetag, fma.suetag) AS suetag,
+      Coalesce(fma.sumember, fmb.sumember) OR Coalesce(fmb.sumember, fma.sumember) AS sumember,
+      Coalesce(fma.label, fmb.label) OR Coalesce(fmb.label, fma.label) AS label,
+      Coalesce(fma.typedef, fmb.typedef) OR Coalesce(fmb.typedef, fma.typedef) AS typedef,
+      Coalesce(fma.enum, fmb.enum) OR Coalesce(fmb.enum, fma.enum) AS enum,
+      Coalesce(fma.yacc, fmb.yacc) OR Coalesce(fmb.yacc, fma.yacc) AS yacc,
+      Coalesce(fma.fun, fmb.fun) OR Coalesce(fmb.fun, fma.fun) AS fun,
+      Coalesce(fma.cscope, fmb.cscope) OR Coalesce(fmb.cscope, fma.cscope) AS cscope,
+      Coalesce(fma.lscope, fmb.lscope) OR Coalesce(fmb.lscope, fma.lscope) AS lscope,
+      Coalesce(fma.unused, fmb.unused) AND Coalesce(fmb.unused, fma.unused) AS unused
+    FROM fma
+    -- Requires SQLite >= 3.39.0
+    FULL OUTER JOIN fmb
+    ON fma.global_eid = fmb.global_eid
+  )
+  -- Second coalesce multiple records that were brought together under the
+  -- same eid. Min() acts as AND, Max() acts as OR.
+  SELECT eid,
+      name,
+      Max(readonly) AS readonly,
+      Min(undefmacro) AS undefmacro,
+      Max(macro) AS macro,
+      Max(macroarg) AS macroarg,
+      Max(ordinary) AS ordinary,
+      Max(suetag) AS suetag,
+      Max(sumember) AS sumember,
+      Max(label) AS label,
+      Max(typedef) AS typedef,
+      Max(enum) AS enum,
+      Max(yacc) AS yacc,
+      Max(fun) AS fun,
+      Max(cscope) AS cscope,
+      Max(lscope) AS lscope,
+      Min(unused) AS unused
+    FROM multiple_records
+    GROUP BY eid
+);
 
 DROP TABLE fma;
 DROP TABLE fmb;
