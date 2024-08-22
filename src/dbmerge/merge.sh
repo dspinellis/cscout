@@ -50,9 +50,8 @@ CREATE TABLE fileid_to_global_map(
 CREATE INDEX idx_fileid_to_global_map ON fileid_to_global_map(global_fid);
 
 CREATE TABLE functionid_to_global_map(
-  id INTEGER,           -- Function identifier in an unmerged database
-  global_id INTEGER,     -- Corresponding id used across all databases
-  PRIMARY KEY(dbid, id)
+  id INTEGER PRIMARY KEY,-- Function identifier in an unmerged database
+  global_id INTEGER     -- Corresponding id used across all databases
 );
 CREATE INDEX idx_functionid_to_global_map ON functionid_to_global_map(global_id);
 

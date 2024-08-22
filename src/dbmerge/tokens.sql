@@ -15,7 +15,7 @@ CREATE TABLE new_tokens(
 );
 
 INSERT INTO new_tokens
-  SELECT
+  SELECT DISTINCT
       fid_map.global_fid AS fid,
       atokens.foffset,
       eid_map.global_eid AS eid
@@ -25,7 +25,7 @@ INSERT INTO new_tokens
     LEFT JOIN eid_to_global_map AS eid_map
       ON eid_map.dbid = 5 AND eid_map.eid = atokens.eid
   UNION
-  SELECT
+  SELECT DISTINCT
       tokens.fid,
       tokens.foffset,
       eid_map.global_eid AS eid

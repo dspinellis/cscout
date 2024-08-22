@@ -68,7 +68,6 @@ INSERT OR REPLACE INTO functionmetrics
     Max(Coalesce(fma.iflow, fmb.iflow), Coalesce(fmb.iflow, fma.iflow)) AS iflow
   FROM
     adb.functionmetrics AS fma
-    LEFT JOIN functionid_to_global_map AS fgm ON fgm.dbid = 5
-      AND fgm.id = fma.functionid
+    LEFT JOIN functionid_to_global_map AS fgm ON fgm.id = fma.functionid
     LEFT JOIN functionmetrics AS fmb ON fmb.functionid = fgm.global_id
       AND fmb.precpp = fma.precpp;
