@@ -51,20 +51,10 @@ WITH joined_tokens AS (
     FROM ec_pairs
     WHERE teid IS NOT NULL and aeid IS NOT NULL
 )
--- Nodes
 SELECT
-    ' "n'
+    ' "t'
     || teid
-    || '" [T=t]; "n'
-    || aeid
-    || '" [T=a];'
-  FROM joined_tokens
-UNION
--- Edges
-SELECT
-    ' "n'
-    || teid
-    || '" -- "n'
+    || '" -- "a'
     || aeid
     || '";'
   FROM joined_tokens;

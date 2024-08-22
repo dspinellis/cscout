@@ -11,23 +11,19 @@ BEGIN { OFS="," }
 /^graph/ {
 	group = substr($2, 6);
 	delete output;
-	delete type;
 }
 
 # Split input into clean fields
-{ gsub(/[\[\]"n;T=]/, ""); split($0, fields); }
-
-# node-id type: record the type
-fields[2] == "a" || fields[2] == "t" { type[fields[1]] = fields[2]; }
+{ gsub(/[";]/, ""); split($0, fields); }
 
 # from -- to: output a CSV record
 fields[2] == "--" {
-	type_from = type[fields[1]];
-	type_to = type[fields[3]];
+	type_from = substr(fields[1], 1, 1);
+	type_to = substr(fields[3], 1, 1);
 
 	# Output the type and group of each node (only once)
 	if (!output[fields[1] type_from]++)
-		print fields[1], type_from, group;
+		print substr(fields[1], 2), type_from, group;
 	if (!output[fields[3] type_to]++)
-		print fields[3], type_to, group;
+		print substr(fields[3], 2), type_to, group;
 }
