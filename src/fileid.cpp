@@ -58,6 +58,7 @@
 #include "os.h"
 
 int Fileid::counter;		// To generate ids
+bool Fileid::filedetails_disabled;	// Disables filedetails access
 list <string> Fileid::ro_prefix;	// Read-only prefix
 
 #ifdef WIN32
@@ -164,6 +165,8 @@ Fileid::get_dir() const
 bool
 Fileid::get_readonly() const
 {
+	if (filedetails_disabled)
+		return false;
 	return Filedetails::get_instance(id).get_readonly();
 }
 

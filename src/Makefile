@@ -32,7 +32,7 @@ ADDLIBS+=../swill/libswill.a
 # Common object files
 OBJBASE=eclass.o fchar.o filedetails.o fileid.o pdtoken.o pltoken.o debug.o \
   ptoken.o tchar.o token.o tokid.o tokname.o eval.o ctoken.o macro.o \
-  parse.o type.o stab.o attr.o metrics.o version.o \
+  parse.o type.o stab.o attr.o metrics.o version.o dbtoken.o \
   error.o fdep.o fcall.o call.o idquery.o query.o funquery.o \
   logo.o workdb.o obfuscate.o sql.o md5.o os.o pager.o \
   option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
@@ -64,7 +64,7 @@ CFILES=md5.c attr.cpp call.cpp cscout.cpp ctag.cpp ctconst.cpp \
   logo.cpp macro.cpp mcall.cpp metrics.cpp obfuscate.cpp option.cpp os.cpp \
   pager.cpp pdtoken.cpp pltoken.cpp ptoken.cpp query.cpp simple_cpp.cpp \
   sql.cpp stab.cpp tchar.cpp timer.cpp token.cpp tokid.cpp \
-  tokmap.cpp type.cpp workdb.cpp static_init.cpp
+  tokmap.cpp type.cpp workdb.cpp static_init.cpp dbtoken.cpp
 
 HEADERS=attr.h call.h compiledre.h cpp.h ctag.h ctconst.h ctoken.h \
   debug.h defs.h dirbrowse.h eclass.h error.h eval.h fcall.h fchar.h fdep.h \
@@ -74,7 +74,7 @@ HEADERS=attr.h call.h compiledre.h cpp.h ctag.h ctconst.h ctoken.h \
   macro.h mcall.h md5.h metrics.h mquery.h mscdefs.h mscincs.h obfuscate.h \
   option.h os.h pager.h pdtoken.h pltoken.h ptoken.h query.h sql.h stab.h \
   swill.h tchar.h timer.h token.h tokid.h tokmap.h type.h type2.h version.h \
-  wdefs.h wincs.h workdb.h ytoken.h macro_arg_processor.h
+  wdefs.h wincs.h workdb.h ytoken.h macro_arg_processor.h dbtoken.h
 
 OTHERSRC=style.css csmake.pl cswc.pl tokname.pl runtest.sh eval.y parse.y \
   Makefile

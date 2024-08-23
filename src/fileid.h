@@ -62,7 +62,8 @@ private:
 	static list <string> ro_prefix;
 	// And a function to check fnames against it
 	static bool is_readonly(string fname);
-
+	// Disable filedetails support
+	static bool filedetails_disabled;
 public:
 	// Construct a new Fileid given a filename
 	Fileid(const string& fname);
@@ -82,6 +83,7 @@ public:
 	static void clear();
 	// Set the prefix for read-only files
 	static void add_ro_prefix(string prefix) { ro_prefix.push_back(prefix); }
+	static void disable_filedetails() { filedetails_disabled = true; }
 	// Return the maximum file id
 	static int max_id() { return counter - 1; }
 

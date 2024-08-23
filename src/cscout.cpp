@@ -85,6 +85,7 @@
 #include "fifstream.h"
 #include "ctag.h"
 #include "timer.h"
+#include "dbtoken.h"
 #include "macro_arg_processor.h"
 
 #ifdef PICO_QL
@@ -3332,6 +3333,21 @@ verified_compiled_re(const char *s)
 	return pre;
 }
 
+/*
+ * Read files with tokens classes and identifier attributes
+ * and merge them together
+ */
+static void
+merge_tokens(char *argv[])
+{
+	Dbtoken::read_eclasses(argv[1]);
+	Dbtoken::read_ids(argv[2]);
+	Dbtoken::dump_eclasses(argv[3]);
+	Dbtoken::dump_ids(argv[4]);
+
+	exit(0);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -3345,7 +3361,7 @@ main(int argc, char *argv[])
 	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:m:l:oR:S:s:t:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:Mm:l:oR:S:s:t:" PICO_QL_OPTIONS)) != EOF)
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3390,6 +3406,9 @@ main(int argc, char *argv[])
 			portno = atoi(optarg);
 			if (portno < 1024 || portno > 32767)
 				usage(argv[0]);
+			break;
+		case 'M':
+			merge_tokens(argv);
 			break;
 		case 'm':
 			if (!optarg)
