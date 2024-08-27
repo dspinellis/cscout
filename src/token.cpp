@@ -178,6 +178,8 @@ static inline void
 advance_tpart_iter(dequeTpart::const_iterator &i,
 		dequeTpart::const_iterator end, int &used_chars, Eclass * &e)
 {
+	if (DP())
+		cout << "advance_tpart *i=" << *i << " UC=" << used_chars << '\n';
 	if (used_chars == i->get_len()) {
 		// All characters used, advance iterator; update e, used_chars
 		i++;
@@ -225,6 +227,7 @@ Tpart::homogenize(const dequeTpart &a, const dequeTpart &b)
 	while (ai != a.end() && bi != b.end()) {
 		if (DP()) {
 			cout << "ai=" << *ai << " bi=" << *bi << "\n";
+			cout << "auc=" << a_used_chars << " buc=" << b_used_chars << "\n";
 			cout << "ae=" << *ae << " be=" << *be << "\n";
 		}
 		if (ae->get_len() == be->get_len()) {
@@ -249,6 +252,8 @@ Tpart::homogenize(const dequeTpart &a, const dequeTpart &b)
 // Unify the constituent equivalence classes for a and b
 // The definition/reference order is only required when maintaining
 // dependency relationships across files
+// The smaller EC is merged into the larger one.
+// If they are equal the reference EC is merged into the definition.
 void
 Token::unify(const Token &a /* definition */, const Token &b /* reference */)
 {

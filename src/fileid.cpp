@@ -137,7 +137,13 @@ Fileid::Fileid(const string &name, int i)
 const string&
 Fileid::get_path() const
 {
-	return Filedetails::get_instance(id).get_name();
+	if (Filedetails::check_instance(id))
+		return Filedetails::get_instance(id).get_name();
+	// Required for debugging the merge functionality, which doesn't
+	// populate file names
+	static string result;
+	result = "[" + to_string(id) + "]";
+	return result;
 }
 
 const string

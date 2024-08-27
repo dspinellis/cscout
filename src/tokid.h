@@ -97,10 +97,15 @@ public:
 	// Set its equivalence class to ec (done when adding it to an Eclass)
 	// use Eclass:add_tokid, not this method in all other contexts
 	inline void set_ec(Eclass *ec) const;
-	// Return an iterator for accessing the map or the end_ec() value
-	inline mapTokidEclass::iterator find_ec() const;
+	// Return an iterator to the map for this tokid or the end_ec() value
+	mapTokidEclass::iterator find_ec() const { return tm.find(*this); }
+
+	// The map's begin
+	static mapTokidEclass::iterator begin_ec() { return tm.begin(); }
+
 	// The not-found value
-	inline mapTokidEclass::iterator end_ec();
+	static mapTokidEclass::iterator end_ec() { return tm.end(); }
+
 	// Erase the tokid's EC from the map
 	inline void erase_ec(mapTokidEclass::iterator i) const;
 	inline void erase_ec(Eclass *e) const;
@@ -114,6 +119,8 @@ public:
 	static void clear();
 	// Print the contents of the class map
 	friend ostream& operator<<(ostream& o,const map <Tokid, Eclass *>& dummy);
+	static void dump_map();
+
 	// Return true if the underlying file is read-only
 	bool get_readonly() const { return fi.get_readonly(); }
 	// Accessor functions
@@ -233,17 +240,5 @@ Tokid::erase_ec(Eclass *e) const
 	mapTokidEclass::iterator i = tm.find(*this);
 	csassert(i != tm.end());
 	tm.erase(i);
-}
-
-inline mapTokidEclass::iterator
-Tokid::find_ec() const
-{
-	return tm.find(*this);
-}
-
-inline mapTokidEclass::iterator
-Tokid::end_ec()
-{
-	return tm.end();
 }
 #endif /* TOKID_ */

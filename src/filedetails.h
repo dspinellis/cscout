@@ -127,6 +127,12 @@ public:
 		return i2d[fi.get_id()];
 	}
 
+	// Return true if there is an instance associated with the specified id
+	// This is normally true, but can be false when debugging Dbtoken.
+	static bool check_instance(Fileid fi) {
+		return (FI_id_to_details::size_type)fi.get_id() < i2d.size();
+	}
+
 	static FI_id_to_details::size_type get_i2d_map_size() {
 		return i2d.size();
 	}

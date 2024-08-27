@@ -50,12 +50,15 @@ public:
 	inline Eclass(Tokid t, int len);
 	// Add t to the class; also updates the Tokmap
 	void add_tokid(Tokid t);
+	// Remove t from the class; also updates the Tokmap
+	void remove_tokid(Tokid t);
 	// Split an equivalence class after the (0-based) character position
 	// pos returning the new EC receiving the split Tokids
 	Eclass *split(int pos);
 	// Merge two equivalence classes returning the resulting one
 	// After the merger the values of a and b are undefined
 	friend Eclass *merge(Eclass *a, Eclass *b);
+	friend void merge_into(Eclass *dst, Eclass *src);
 	// Return length
 	int get_len() const { return len; }
 	// Return number of members

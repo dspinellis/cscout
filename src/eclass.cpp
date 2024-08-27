@@ -62,29 +62,38 @@ Eclass::remove_from_tokid_map()
 		(*i).erase_ec(this);
 }
 
+// Merge the source EC into the dst EC.
+void
+merge_into(Eclass *dst, Eclass *src)
+{
+	csassert(src->len == dst->len);
+	if (DP())
+		cout << "merge onto dst=" << dst << *dst << " src=" << src << *src << "\n";
+	for (setTokid::const_iterator i = src->members.begin(); i != src->members.end(); i++)
+		dst->add_tokid(*i);
+	dst->merge_attributes(src);
+	delete src;
+}
+
+/*
+ * Merge smaller-sized EC into larger sized.
+ * If the two are equal-sized merge b into a.
+ * Return the merged EC.
+ */
 Eclass *
 merge(Eclass *a, Eclass *b)
 {
-	Eclass *little, *large;
 	if (a == b)
 		return a;
-	if (DP())
-		cout << "merge a=" << a << *a << " b=" << b << *b << "\n";
-	csassert(a->len == b->len);
-	// It is more efficient to append the little at the end of the large one
-	if (a->members.size() > b->members.size()) {
-		large = a;
-		little = b;
-	} else {
-		large = b;
-		little = a;
-	}
 
-	for (setTokid::const_iterator i = little->members.begin(); i != little->members.end(); i++)
-		large->add_tokid(*i);
-	large->merge_attributes(little);
-	delete little;
-	return (large);
+	// It is more efficient to append the little at the end of the large one
+	if (a->members.size() >= b->members.size()) {
+		merge_into(a, b);
+		return a;
+	} else {
+		merge_into(b, a);
+		return b;
+	}
 }
 
 // Split an equivalence class starting at the (0-based) character position
@@ -135,6 +144,13 @@ Eclass::add_tokid(Tokid t)
 		if (DP())
 			cout << "Set_attribute for " << t << " to " << Project::get_current_projid() << "\n";
 	}
+}
+
+void
+Eclass::remove_tokid(Tokid t)
+{
+	members.erase(t);
+	t.erase_ec(this);
 }
 
 // Return a set of all files where the equivalence class appears

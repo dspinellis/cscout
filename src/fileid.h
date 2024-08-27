@@ -71,6 +71,8 @@ public:
 	Fileid(int i) : id(i) {}
 	// Construct an anonymous Fileid
 	Fileid() { *this = Fileid::anonymous; };
+	// Return true if the fileid is the anonymous one
+	bool is_anonymous() const { return *this == Fileid::anonymous; }
 	// Return the full file path of a given id
 	const string& get_path() const;
 	const string get_fname() const;

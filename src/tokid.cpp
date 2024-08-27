@@ -77,6 +77,12 @@ operator<<(ostream& o,const mapTokidEclass& t)
 	return o;
 }
 
+void
+Tokid::dump_map()
+{
+	cout << tm;
+}
+
 // Clear the map of tokid equivalence classes
 void
 Tokid::clear()
@@ -127,7 +133,7 @@ Tokid::constituents(int l)
 		Tpart tp(t, covered);
 		r.push_back(tp);
 		if (DP())
-			cout << "l = " << l << "covered = " << covered << endl;
+			cout << "l = " << l << " covered = " << covered << endl;
 		l -= covered;
 		csassert(l >= 0);
 		if (l == 0)

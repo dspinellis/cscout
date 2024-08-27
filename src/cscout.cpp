@@ -3338,12 +3338,21 @@ verified_compiled_re(const char *s)
  * and merge them together
  */
 static void
-merge_tokens(char *argv[])
+merge_tokens(char **argv)
 {
-	Dbtoken::read_eclasses(argv[1]);
-	Dbtoken::read_ids(argv[2]);
-	Dbtoken::dump_eclasses(argv[3]);
-	Dbtoken::dump_ids(argv[4]);
+	// Skip over cscout -M
+	argv += 2;
+
+	// Example invocation:
+	// cscout -M eclasses-5.txt ids-5.txt functionids-5.txt \
+	//           0              1         2
+	//   new-eclasses-5.csv new-ids-5.csv new-functioids-5.csv
+	//   3                  4             5
+	Dbtoken::read_eclasses(argv[0]);
+	Dbtoken::write_eclasses(argv[3]);
+	Dbtoken::read_ids(argv[1]);
+	Dbtoken::write_ids(argv[1], argv[4]);
+	Dbtoken::read_write_functionids(argv[2], argv[5]);
 
 	exit(0);
 }

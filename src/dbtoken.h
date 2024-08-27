@@ -42,6 +42,9 @@ public:
 	Dbtoken() : Token(IDENTIFIER) {}
 
 	// Add a token part
+	void add_part(Tokid t, int len) { parts.push_back(Tpart(t, len)); }
+
+	// Add a token part
 	void add_part(Tokid t, const string &s) {
 		parts.push_back(Tpart(t, s.length()));
 		val += s;
@@ -53,16 +56,19 @@ public:
 		val.clear();
 	}
 
-	// Read tokids and their equivalence classes from file named f
+
+	// Read/write tokids and their eids from file named f
 	static void read_eclasses(const char *f);
-
-	// Read identifiers from file named f
-	static void read_ids(const char *f);
-
 	// Output tokids and their equivalence classes to file named f
-	static void dump_eclasses(const char *f);
+	static void write_eclasses(const char *f);
 
-	// Dump identifiers to file named f
-	static void dump_ids(const char *f);
+	// Read identifiers and associated tokids from file named f
+	static void read_ids(const char *f);
+	// Write identifiers and their eids to file named f
+	static void write_ids(const char *in_path, const char *out_path);
+
+
+	// Read functionids with tokids, write them with their eids
+	static void read_write_functionids(const char *in_path, const char *out_path);
 };
 #endif /* DBTOKEN_ */
