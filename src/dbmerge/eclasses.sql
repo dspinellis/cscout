@@ -20,17 +20,11 @@ WITH ranked_rows AS (
   SELECT eid, fid, foffset,
       ROW_NUMBER() OVER (PARTITION BY eid ORDER BY (SELECT NULL)) AS rn
   FROM tokens
-),
-eid_sentinel_tokens AS (
-  SELECT eid, fid, foffset
-    FROM ranked_rows
-    WHERE rn = 1
 )
 INSERT INTO eid_to_tokid_map
-  SELECT eid, fid_map.global_fid AS fid, foffset
-    FROM eid_sentinel_tokens AS est
-    LEFT JOIN fileid_to_global_map AS fid_map
-      ON fid_map.dbid != 5 AND fid_map.fid = est.fid;
+  SELECT eid, fid, foffset
+    FROM ranked_rows
+    WHERE rn = 1;
 
 -- Same for attached database
 CREATE TEMP TABLE aeid_to_tokid_map(
@@ -68,10 +62,8 @@ SELECT 5 AS dbid, fid_map.global_fid AS fid, foffset, length(name) AS len, eid
   LEFT JOIN adb.ids USING(eid)
   ORDER BY eid;
 
-SELECT 0 AS dbid, fid_map.global_fid AS fid, foffset, length(name) AS len, eid
+SELECT 0 AS dbid, fid, foffset, length(name) AS len, eid
   FROM tokens
-  LEFT JOIN fileid_to_global_map AS fid_map
-    ON fid_map.dbid != 5 AND fid_map.fid = tokens.fid
   LEFT JOIN ids USING(eid)
   ORDER BY eid;
 
@@ -97,15 +89,13 @@ SELECT 5 AS dbid, fid, foffset, ai.*
     LEFT JOIN adb.ids USING(eid)
     ORDER BY functionid, ordinal;
 
-  SELECT fid_map.global_id AS functionid,
+  SELECT functionid,
         ordinal,
         etm.fid,
         etm.foffset,
         length(ids.name) AS len
     FROM functionid
     LEFT JOIN eid_to_tokid_map AS etm USING(eid)
-    LEFT JOIN functionid_to_global_map AS fid_map
-      ON fid_map.dbid != 5 AND fid_map.id = functionid.functionid
     LEFT JOIN ids USING(eid)
     ORDER BY functionid, ordinal;
 
@@ -113,6 +103,14 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 
 -- Invoke CScout to merge and unify the output elements
 .shell cscout -M eclasses-5.txt ids-5.txt functionid-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv
+
+.output old-tokens-5.txt
+SELECT * FROM tokens;
+.output old-ids-5.txt
+SELECT * FROM ids;
+.output old-functionid-5.txt
+SELECT * FROM functionid;
+.output stdout
 
 DELETE FROM tokens;
 DELETE FROM ids;
