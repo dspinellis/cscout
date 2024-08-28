@@ -23,6 +23,6 @@ export TMP=$(mktemp -d /dev/shm/dbmerge.XXXXXX)
 export TMPDIR="$TMP"
 
 cd ../dbs
-../dbmerge/merge.sh
+../dbmerge/merge.sh 32
 
 rm -rf "$TMP"

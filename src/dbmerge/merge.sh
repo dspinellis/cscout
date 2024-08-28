@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Merge the 32 generated database files into one
+# Merge the generated database files into one
 #
 
 set -eu
@@ -10,8 +10,15 @@ DBID_FILE="dbid.txt"
 TOOL_DIR=$(dirname $0)
 LOG_FILE=dbmerge.log
 
-# Get dbids from 33 onward. 1-32 are the databases to merge.
-echo 33 >$DBID_FILE
+if [ $# -ne 1 ] ; then
+  echo "Usage: $(basename $0) nfiles" 1>&2
+  exit 1
+fi
+
+NFILES="$1"
+
+# Get dbids from N+1 onward. 1-N are the databases to merge.
+echo $((NFILES + 1)) >$DBID_FILE
 
 :>$LOG_FILE
 
@@ -167,7 +174,7 @@ merge()
   echo $left_output_db
 }
 
-files=($(seq 1 32 | xargs -n 1 printf 'file-%04d.db '))
+files=($(seq 1 $NFILES | xargs -n 1 printf 'file-%04d.db '))
 
 result=$(merge "${files[@]}")
 log "Finished merging into $result"
