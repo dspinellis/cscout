@@ -91,8 +91,8 @@ merge_onto()
   for i in \
     fileid_to_global_map.sql \
     functionid_to_global_map.sql \
-    eclasses.sql \
     files.sql \
+    eclasses.sql \
     filemetrics.sql \
     definers.sql \
     includers.sql \
