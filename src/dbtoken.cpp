@@ -28,6 +28,7 @@
 #include <map>
 #include <string>
 #include <deque>
+#include <sstream>
 
 using namespace std;
 
@@ -67,9 +68,9 @@ unify_and_clear(Dbtoken &found, Dbtoken &read)
 static int line;
 
 static void
-warn(Tokid ti)
+warn(const char *file_name, Tokid ti)
 {
-	cerr << "Tokens line " << line << ": missing EC for file "
+	cerr << file_name << '(' << line << "): missing EC for file "
 		    << ti.get_fileid().get_id() << " offset "
 		    << (unsigned)ti.get_streampos() << "\n";
 }
@@ -230,7 +231,7 @@ state_process:
 			for (;;) {
 				ec = ti.check_ec();
 				if (ec == NULL) {
-					warn(ti);
+					warn(in_path, ti);
 					found_minus_read = 0;
 					break;
 				}
@@ -275,7 +276,7 @@ state_process:
 				ti = twin(ti);
 				ec = ti.check_ec();
 				if (ec == NULL) {
-					warn(ti);
+					warn(in_path, ti);
 					found_minus_read = 0;
 					break;
 				}
@@ -329,22 +330,92 @@ Dbtoken::write_eclasses(const char *out_path)
 	}
 }
 
-// Read identifiers from file named f
+// Read identifiers from in_path and set the EC attributes
 void
-Dbtoken::read_ids(const char *f)
+Dbtoken::read_ids(const char *in_path)
 {
-#ifdef ndef
-	Dbtoken a, b;
+	int dbid;
+	int fid;
+	unsigned long offset;
+	unsigned long ecid;
+	string name;
+	bool v_readonly;
+	bool v_undefined_macro;
+	bool v_macro;
+	bool v_macro_arg;
+	bool v_ordinary;
+	bool v_suetag;
+	bool v_sumember;
+	bool v_label;
+	bool v_typedef;
+	bool v_enumeration;
+	bool v_yacc;
+	bool v_cfunction;
+	bool v_cscope;
+	bool v_lscope;
+	bool v_unused;
 
-	Tokid ti = Tokid(Fileid(), 3010);
-	Eclass *ec = ti.get_ec();
-	ec->set_attribute(is_readonly);
-	a.add_part(ti, "sys32");
+	ifstream input(in_path);
+	verify_open(in_path, input);
 
-	b.add_part(Tokid(Fileid(), 3200), "sys");
-	b.add_part(Tokid(Fileid(), 3203), "32");
-	Token::unify(b, a);
-#endif
+	line = 0;
+	while (input >> dbid >> fid >> offset >> ecid >> name
+		>> v_readonly
+		>> v_undefined_macro
+		>> v_macro
+		>> v_macro_arg
+		>> v_ordinary
+		>> v_suetag
+		>> v_sumember
+		>> v_label
+		>> v_typedef
+		>> v_enumeration
+		>> v_yacc
+		>> v_cfunction
+		>> v_cscope
+		>> v_lscope
+		>> v_unused) {
+
+		line++;
+		Tokid ti(Fileid(fid), offset);
+		int name_length = name.length();
+		int covered = 0;
+		while (covered < name_length) {
+			Eclass *ec = ti.check_ec();
+
+			if (ec == NULL) {
+				// Try the twin
+				ti = twin(ti);
+				ec = ti.check_ec();
+			}
+
+			if (ec == NULL) {
+				warn(in_path, ti);
+				goto next_line;
+			}
+
+			if (v_readonly) ec->set_attribute(is_readonly);
+			if (v_undefined_macro) ec->set_attribute(is_undefined_macro);
+			if (v_macro) ec->set_attribute(is_macro);
+			if (v_macro_arg) ec->set_attribute(is_macro_arg);
+			if (v_ordinary) ec->set_attribute(is_ordinary);
+			if (v_suetag) ec->set_attribute(is_suetag);
+			if (v_sumember) ec->set_attribute(is_sumember);
+			if (v_label) ec->set_attribute(is_label);
+			if (v_typedef) ec->set_attribute(is_typedef);
+			if (v_enumeration) ec->set_attribute(is_enumeration);
+			if (v_yacc) ec->set_attribute(is_yacc);
+			if (v_cfunction) ec->set_attribute(is_cfunction);
+			if (v_cscope) ec->set_attribute(is_cscope);
+			if (v_lscope) ec->set_attribute(is_lscope);
+			// Unused is a derived attribute, so it is not set
+
+			covered += ec->get_len();
+			ti += ec->get_len();
+		}
+next_line:
+		continue;
+	}
 }
 
 // Dump the details of a single identifier
@@ -357,7 +428,7 @@ dump_id(ostream &of, Eclass *e, const string &name)
 		return;
 	dumped.insert(e);
 	of <<
-	     ptr_offset(e) << ",'" <<
+	     ptr_offset(e) << "," <<
 	     name << ',' <<
 	     e->get_attribute(is_readonly) << ',' <<
 	     e->get_attribute(is_undefined_macro) << ',' <<
@@ -373,7 +444,12 @@ dump_id(ostream &of, Eclass *e, const string &name)
 	     e->get_attribute(is_cfunction) << ',' <<
 	     e->get_attribute(is_cscope) << ',' <<
 	     e->get_attribute(is_lscope) << ',' <<
-	     e->is_unused() <<
+	     /*
+	      * Simplified version of is_unused.
+	      * This can be improved by saving and merging is_declared_unused
+	      * attribute and the identical files table.
+	      */
+	     (e->get_size() == 1) <<
 	     '\n';
 }
 
@@ -388,7 +464,47 @@ Dbtoken::write_ids(const char *in_path, const char *out_path)
 
 	ofstream out(out_path);
 	verify_open(out_path, out);
+
+	string line_record;
+	while (getline(in, line_record)) {
+		line++;
+
+		istringstream line_stream(line_record);
+
+		int dbid;
+		int fid;
+		unsigned long offset;
+		unsigned long ecid;
+		string name;
+		line_stream >> dbid >> fid >> offset >> ecid >> name;
+
+		Tokid ti(Fileid(fid), offset);
+		int name_length = name.length();
+		int covered = 0;
+		while (covered < name_length) {
+			Eclass *ec = ti.check_ec();
+
+			if (ec == NULL) {
+				// Try the twin
+				ti = twin(ti);
+				ec = ti.check_ec();
+			}
+
+			if (ec == NULL) {
+				warn(in_path, ti);
+				goto next_line;
+			}
+
+			dump_id(out, ec, name);
+
+			covered += ec->get_len();
+			ti += ec->get_len();
+		}
+next_line:
+		continue;
+	}
 }
+
 
 void
 Dbtoken::read_write_functionids(const char *in_path, const char *out_path)
