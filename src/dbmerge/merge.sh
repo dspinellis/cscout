@@ -92,20 +92,18 @@ merge_onto()
   log "DB $dbid: BEGIN merge onto $dest $source"
 
   # Order matters here
+  # eclasses populates: tokens, ids, functionids
   for i in \
     fileid_to_global_map.sql \
-    eid_to_global_map.sql \
-    tokens.sql \
-    ids.sql \
+    functionid_to_global_map.sql \
+    eclasses.sql \
     files.sql \
     filemetrics.sql \
     definers.sql \
     includers.sql \
     providers.sql \
     inctriggers.sql \
-    functionid_to_global_map.sql \
     functions.sql \
-    functionid.sql \
     functiondefs.sql \
     functionmetrics.sql \
     fcalls.sql \

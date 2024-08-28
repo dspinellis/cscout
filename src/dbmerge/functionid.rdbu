@@ -1,62 +1,98 @@
 BEGIN SETUP
 
-# Map from adjusted local eid to consilidated global eid
-eid_to_global_map:
-dbid	eid	global_eid
-5	61	1
-5	62	2
-5	63	3
-5	64	4
-5	65	5
-5	66	6
-null	3	1
-null	5	2
-null	8	9
-null	80	10
-null	81	11
-
-functionid_to_global_map:
-dbid	id	global_id
-2	3	1
-2	5	2
-2	5	3
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	21	1
+2	22	2
+2	23	3
 5	51	1
 5	52	2
-5	54	4
-5	55	5
+5	53	3
+
+
+# First id digit 3, second digit database-id
+functionid_to_global_map:
+dbid	id	global_id
+2	321	1
+2	322	2
+2	323	3
+2	324	4
+5	351	1
+5	352	2
+5	353	3
+5	354	4
 
 # Database 2: Existing table with local eids
+tokens:
+fid	foffset	eid
+21	1000	1000
+21	1004	1004
+21	2000	2000
+22	3000	3000
+22	3002	3002
+
+ids:
+eid	name
+1000	abcd
+1004	ef
+2000	hello
+3000	sn
+3002	printf
+
 functionid:
 functionid ordinal eid
-1	   0	   3
-1	   1	   5
-2	   0	   8
-3	   0       80
-3	   1       81
+321	   0	   1000
+321	   1	   1004
+322	   0	   2000
+323	   0       3000
+323	   1       3002
 
 
 # Database 5: Table to be imported, with local eids
-# One repeated, three new
+adb.tokens:
+fid	foffset	eid
+51	1000	100
+51	1002	102
+52	3000	300
+51	4000	400
+
+adb.ids:
+eid	name
+100	ab
+102	cdef
+300	snprintf
+400	sqrt
+
+# abcdef and snprintf repeated, sqrt is new
 adb.functionid:
 functionid ordinal eid
-51	   0	   61
-51	   1	   62
-54	   0       63
-54	   1       64
-55	   0       65
+351	   0	   100
+351	   1	   102
+353	   0       300
+354	   0       400
 END
 
-INCLUDE CREATE functionid.sql
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+
+INCLUDE CREATE eclasses.sql
+
+# Make resuts repeatable by using integer eids
+BEGIN SELECT
+  SELECT
+      functionid, ordinal,
+      Row_number() OVER (ORDER BY functionid) AS eid
+    FROM functionid;
+END
 
 BEGIN RESULT
-functionid:
 functionid ordinal eid
-1	   0	   1
-1	   1	   2
-2	   0	   9
-3	   0       10
-3	   1       11
-4	   0       3
-4	   1       4
-5	   0       5
+1	0	1
+1	1	2
+1	2	3
+2	0	4
+3	0	5
+3	1	6
+4	0	7
 END

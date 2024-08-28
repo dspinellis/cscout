@@ -1,0 +1,58 @@
+# a|b c|d e|f
+# a b|c d|e f
+BEGIN SETUP
+tokens:
+fid	foffset	eid
+1	0	1000
+1	1	1001
+1	3	1003
+1	5	1005
+
+ids:
+eid	name
+1000	a
+1001	bc
+1003	de
+1005	f
+
+adb.tokens:
+fid	foffset	eid
+2	0	100
+2	2	102
+2	4	104
+
+adb.ids:
+eid	name
+100	ab
+102	cd
+104	ef
+
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	1	1
+5	2	1
+5	9	2
+
+END
+
+# Provide empty functionid tables
+INCLUDE CREATE empty-functionid.sql
+
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+
+INCLUDE CREATE eclasses.sql
+
+# Use predictable eids to compare results
+INCLUDE SELECT predictable-token-eids.sql
+
+BEGIN RESULT
+fid	foffset	eid
+1	0	0
+1	1	1
+1	2	2
+1	3	3
+1	4	4
+1	5	5
+END

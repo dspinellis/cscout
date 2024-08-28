@@ -1,0 +1,198 @@
+# Complex EC group case: several chains of connected ECs
+# offset
+# 100	EC only in tokens
+# 200	EC only in atokens
+# 300	One EC in tokens sharing with one EC in atokens
+# 400	One EC in tokens sharing with two EC in atokens
+# 500	Two EC in tokens sharing with one EC in atokens
+# 600	Two EC in tokens sharing with two EC in atokens, one token cross shared
+# 700	Chain of of ECs
+# 800	Merged and split
+
+BEGIN SETUP
+
+# Database 2: Existing table with local eids
+tokens:
+fid	foffset	eid
+21	1000	1000
+21	1010	1000
+21	3000	3000
+21	3010	3000
+21	3110	3000
+21	3120	3000
+21	4000	4000
+21	4010	4000
+21	4110	4000
+21	4120	4000
+21	4310	4000
+21	4320	4000
+21	5010	5000
+21	5020	5000
+21	5110	5000
+21	5120	5000
+21	5030	5100
+21	5040	5100
+21	5210	5100
+21	5220	5100
+21	6010	6000
+21	6020	6000
+21	6110	6000
+21	6120	6000
+21	6030	6100
+21	6040	6100
+21	6330	6100
+21	6430	6100
+21	6990	6000
+21	7000	7000
+21	7010	7000
+21	7030	7100
+21	7040	7100
+21	7050	7100
+22	8000	8000
+22	8005	8001
+
+ids:
+eid	name
+1000	n1000
+3000	n3000
+4000	n4000
+5000	n5000
+5100	n5000
+6000	n6000
+6100	n6100
+7000	n7000
+7100	n7000
+8000	hello
+8001	_world
+
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	21	1
+2	22	2
+5	51	1
+5	52	2
+
+# Database 5: Table to be imported, with local eids
+adb.tokens:
+fid	foffset	eid
+51	2100	21
+51	2200	21
+51	3100	-31
+51	3200	-31
+51	3110	-31
+51	3210	-31
+51	4100	41
+51	4200	41
+51	4110	41
+51	4120	41
+51	4300	42
+51	4400	42
+51	4310	42
+51	4320	42
+51	5100	51
+51	5200	51
+51	5110	51
+51	5120	51
+51	5210	51
+51	5220	51
+51	6100	61
+51	6200	61
+51	6110	61
+51	6120	61
+51	6300	62
+51	6400	62
+51	6330	62
+51	6430	62
+51	6990	62
+51	7010	70
+51	7020	70
+51	7030	70
+51	7050	71
+51	7060	71
+52	8000	81
+
+adb.ids:
+eid	name
+-31	n3000
+21	n2000
+41	n4000
+42	n4000
+51	n5000
+61	n6000
+62	n6000
+70	n7000
+71	n7000
+81	hello_world
+
+END
+
+# Provide empty functionid tables
+INCLUDE CREATE empty-functionid.sql
+
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+
+INCLUDE CREATE eclasses.sql
+
+# Use predictable eids to compare results
+INCLUDE SELECT predictable-token-eids.sql
+
+BEGIN RESULT
+# Remapped tokens
+# The same initial digit should be in the same eid, apart from split 800X.
+fid	foffset	eid
+1	1000	0
+1	1010	0
+1	2100	1
+1	2200	1
+1	3000	2
+1	3010	2
+1	3100	2
+1	3110	2
+1	3120	2
+1	3200	2
+1	3210	2
+1	4000	3
+1	4010	3
+1	4100	3
+1	4110	3
+1	4120	3
+1	4200	3
+1	4300	3
+1	4310	3
+1	4320	3
+1	4400	3
+1	5010	4
+1	5020	4
+1	5030	4
+1	5040	4
+1	5100	4
+1	5110	4
+1	5120	4
+1	5200	4
+1	5210	4
+1	5220	4
+1	6010	5
+1	6020	5
+1	6030	5
+1	6040	5
+1	6100	5
+1	6110	5
+1	6120	5
+1	6200	5
+1	6300	5
+1	6330	5
+1	6400	5
+1	6430	5
+1	6990	5
+1	7000	6
+1	7010	6
+1	7020	6
+1	7030	6
+1	7040	6
+1	7050	6
+1	7060	6
+2	8000	7
+2	8005	8
+END

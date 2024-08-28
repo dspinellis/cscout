@@ -1,0 +1,51 @@
+# Simple case: Merge into empty
+BEGIN SETUP
+tokens:
+fid	foffset	eid
+99	99	99
+
+ids:
+name	eid
+hello	99
+
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+5	2	1
+
+adb.tokens:
+fid	foffset	eid
+2	210	21
+2	220	21
+2	310	-31
+
+adb.ids:
+eid	name
+21	foo
+-31	bart
+
+END
+
+# Provide empty functionid tables
+INCLUDE CREATE empty-functionid.sql
+
+# Clear unneeded tables
+BEGIN CREATE
+DELETE FROM tokens;
+DELETE FROM ids;
+END
+
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+
+INCLUDE CREATE eclasses.sql
+
+# Use predictable eids to compare results
+INCLUDE SELECT predictable-token-eids.sql
+
+BEGIN RESULT
+fid	foffset	eid
+1	210	0
+1	220	0
+1	310	1
+END
