@@ -65,14 +65,21 @@ unify_and_clear(Dbtoken &found, Dbtoken &read)
 	read.clear();
 }
 
-static int line;
+static int line_number;
 
 static void
 warn(const char *file_name, Tokid ti)
 {
-	cerr << file_name << '(' << line << "): missing EC for file "
+	cerr << file_name << '(' << line_number << "): missing EC for file "
 		    << ti.get_fileid().get_id() << " offset "
 		    << (unsigned)ti.get_streampos() << "\n";
+}
+
+static void
+warn(const char *file_name, const string &s)
+{
+	cerr << file_name << '(' << line_number << "): malformed input: "
+		<< s << "\n";
 }
 
 /*
@@ -101,12 +108,7 @@ Dbtoken::read_eclasses(const char *in_path)
 
 	ifstream input(in_path);
 	verify_open(in_path, input);
-	line = 0;
 
-	int dbid;
-	int fid;
-	unsigned long offset;
-	int len;
 	Eclass *ec = NULL, *prev_ec = NULL; // EC pointer as created / found
 	long ecid, prev_ecid = 0; // EC identifier read from file
 	enum {
@@ -126,15 +128,29 @@ Dbtoken::read_eclasses(const char *in_path)
 		s_found_ov,	// A matched EC overflowed the read entry
 	} state = s_read_first;
 
-	Dbtoken found, read;
 	/*
-	 * Invariant: always contains difference in the length of characters
-	 * stored in the above "found" and "read" variables.
+	 * Invariant: found_minus_read always contains difference in the
+	 * length of characters stored in the above "found" and "read"
+	 * variables.
 	 */
+	Dbtoken found, read;
 	int found_minus_read;
-	while (input >> dbid >> fid >> offset >> len >> ecid) {
 
-		line++;
+	string line_record;
+	line_number = 0;
+	while (getline(input, line_record)) {
+		line_number++;
+
+		istringstream line_stream(line_record);
+		int dbid;
+		int fid;
+		unsigned long offset;
+		int len;
+		if (!(line_stream >> dbid >> fid >> offset >> len >> ecid)) {
+			warn(in_path, line_record);
+			continue;
+		}
+
 		// fids from second read part are stored -ve to avoid clashes
 		if (state != s_read_first)
 			fid = -fid;
@@ -143,7 +159,7 @@ Dbtoken::read_eclasses(const char *in_path)
 
 state_process:
 		if (DP())
-			cout << "State " << state << " line " << line << " ti " << ti << '\n';
+			cout << "State " << state << " line_number " << line_number << " ti " << ti << '\n';
 		switch (state) {
 		case s_read_first:
 			if (dbid == 0) {
@@ -330,6 +346,20 @@ Dbtoken::write_eclasses(const char *out_path)
 	}
 }
 
+// Return the Eclass for the specified tokid or its twin.
+// If it isn't found return NULL.
+static Eclass *
+check_ec(const Tokid &ti)
+{
+	Eclass *ec = ti.check_ec();
+
+	if (ec != NULL)
+		return ec;
+
+	// Try the twin
+	return twin(ti).check_ec();
+}
+
 // Read identifiers from in_path and set the EC attributes
 void
 Dbtoken::read_ids(const char *in_path)
@@ -358,7 +388,7 @@ Dbtoken::read_ids(const char *in_path)
 	ifstream input(in_path);
 	verify_open(in_path, input);
 
-	line = 0;
+	line_number = 0;
 	while (input >> dbid >> fid >> offset >> ecid >> name
 		>> v_readonly
 		>> v_undefined_macro
@@ -376,18 +406,12 @@ Dbtoken::read_ids(const char *in_path)
 		>> v_lscope
 		>> v_unused) {
 
-		line++;
+		line_number++;
 		Tokid ti(Fileid(fid), offset);
 		int name_length = name.length();
 		int covered = 0;
 		while (covered < name_length) {
-			Eclass *ec = ti.check_ec();
-
-			if (ec == NULL) {
-				// Try the twin
-				ti = twin(ti);
-				ec = ti.check_ec();
-			}
+			Eclass *ec = check_ec(ti);
 
 			if (ec == NULL) {
 				warn(in_path, ti);
@@ -466,29 +490,26 @@ Dbtoken::write_ids(const char *in_path, const char *out_path)
 	verify_open(out_path, out);
 
 	string line_record;
+	line_number = 0;
 	while (getline(in, line_record)) {
-		line++;
+		line_number++;
 
 		istringstream line_stream(line_record);
-
 		int dbid;
 		int fid;
 		unsigned long offset;
 		unsigned long ecid;
 		string name;
-		line_stream >> dbid >> fid >> offset >> ecid >> name;
+		if (!(line_stream >> dbid >> fid >> offset >> ecid >> name)) {
+			warn(in_path, line_record);
+			continue;
+		}
 
 		Tokid ti(Fileid(fid), offset);
 		int name_length = name.length();
 		int covered = 0;
 		while (covered < name_length) {
-			Eclass *ec = ti.check_ec();
-
-			if (ec == NULL) {
-				// Try the twin
-				ti = twin(ti);
-				ec = ti.check_ec();
-			}
+			Eclass *ec = check_ec(ti);
 
 			if (ec == NULL) {
 				warn(in_path, ti);
@@ -514,4 +535,73 @@ Dbtoken::read_write_functionids(const char *in_path, const char *out_path)
 
 	ofstream out(out_path);
 	verify_open(out_path, out);
+
+	// Avoid duplicate entries
+	static set <int> dumped;
+
+	string line_record;
+	line_number = 0;
+	int out_ordinal = 0;
+	int prev_functionid = -1;
+	while (getline(in, line_record)) {
+		line_number++;
+		if (DP())
+			cout << "Read: " << line_record << '\n';
+
+		istringstream line_stream(line_record);
+		int functionid, in_ordinal;
+		int fileid;
+		unsigned long offset;
+		int len;
+		if (!(line_stream >> functionid >> in_ordinal >> fileid >> offset >> len)) {
+			warn(in_path, line_record);
+			continue;
+		}
+
+		if (dumped.find(functionid) != dumped.end()) {
+			if (DP())
+				cout << "Skip dumped function " << functionid << '\n';
+			continue;
+		}
+
+		if (functionid != prev_functionid) {
+			out_ordinal = 0;
+			if (prev_functionid != -1)
+				dumped.insert(prev_functionid);
+			prev_functionid = functionid;
+		}
+
+		Tokid ti(Fileid(fileid), offset);
+		int covered = 0;
+		while (covered < len) {
+			Eclass *ec = check_ec(ti);
+
+			if (ec == NULL) {
+				warn(in_path, ti);
+				goto next_line;
+			}
+
+			if (DP())
+			    cout << "f: " << functionid
+				<< " len: " << len
+				<< " EC len: " << ec->get_len()
+				<< " in_ordinal: " << in_ordinal
+				<< " in_ordinal: " << in_ordinal
+				<< " out_ordinal: " << out_ordinal
+				<< " covered: " << covered
+				<< '\n';
+
+			out
+				<< functionid << ','
+				<< out_ordinal++ << ','
+				<< ptr_offset(ec)
+				<< '\n';
+
+			covered += ec->get_len();
+			ti += ec->get_len();
+		}
+next_line:
+		continue;
+	}
+
 }
