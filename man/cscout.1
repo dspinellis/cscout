@@ -30,7 +30,7 @@ cscout \- C code analyzer and refactoring browser
 [\fB\-R\fP \fIspecification\fP]
 [\fB\-m\fP \fIspecification\fP]
 [\fB\-t\fP \fIsname\fP]
-[\fB\-o\fP | \fB\-S\fP \fIdb\fP | \fB\-s\fP \fIdb\fP]
+[\fB\-o\fP | \fB\-S\fP \fIdb\fP | \fB\-s\fP \fIdb\fP | \fB\-M\fP \fIfiles\fP]
 \fIfile\fR
 .SH DESCRIPTION
 \fICScout\fP is a source code analyzer and refactoring browser for collections
@@ -214,6 +214,13 @@ supported database back-ends.
 Dump the workspace contents as an SQL script.
 Specify \fIhelp\fP as the database dialect to obtain a list of
 supported database back-ends.
+.IP "\fB\-M\fP \fIfiles\fP"
+Merge the specified
+\fIeclasses\fP, \fIids\fP, and \fIfunctionids\fP files that contain
+token, id, and functionid, details into new records
+saved in three further corresponding files.
+These can be directly imported into the \fItokens\fP,
+\fIids\fP, and \fIfunctionids\fP tables.
 .IP "\fB\-l\fP \fIlog file\fP"
 Specify the location of a file where web requests will be logged.
 .IP "\fB\-R\fP  \fIspecification\fP"

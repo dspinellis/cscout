@@ -3276,7 +3276,7 @@ usage(char *fname)
 #ifndef WIN32
 		"-b|"	// browse-only
 #endif
-		"-C|-c|-d D|-d H|-E RE|-o|"
+		"-C|-c|-d D|-d H|-E RE|-o|-M files|"
 		"-R URL|-r|-S db|-s db|-v] "
 		"[-l file] "
 
@@ -3299,6 +3299,7 @@ usage(char *fname)
 		"\t-E RE\tOutput preprocessed results and exit\n"
 		"\t\t(Will process file(s) matched by the regular expression)\n"
 		"\t-l file\tSpecify access log file\n"
+		"\t-M files\tMerge specified EC files\n"
 		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
 		"\t-o\tCreate obfuscated versions of the processed files\n"
 		"\t-P RE\tProcess only file(s) matched by the regular expression\n"
@@ -3343,11 +3344,13 @@ merge_tokens(char **argv)
 	// Skip over cscout -M
 	argv += 2;
 
-	// Example invocation:
-	// cscout -M eclasses-5.txt ids-5.txt functionids-5.txt \
-	//           0              1         2
-	//   new-eclasses-5.csv new-ids-5.csv new-functioids-5.csv
-	//   3                  4             5
+	/*
+	 * Example invocation:
+	 * cscout -M eclasses-5.txt ids-5.txt functionids-5.txt  \
+	 *           0              1         2
+	 *   new-eclasses-5.csv new-ids-5.csv new-functioids-5.csv
+	 *   3                  4             5
+	 */
 	Dbtoken::read_eclasses(argv[0]);
 	Dbtoken::write_eclasses(argv[3]);
 	Dbtoken::read_ids(argv[1]);
