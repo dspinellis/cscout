@@ -60,15 +60,6 @@ CREATE TABLE functionid_to_global_map(
   PRIMARY KEY(dbid, id)
 );
 CREATE INDEX idx_functionid_to_global_map ON functionid_to_global_map(global_id);
-
--- When changing also update eid_to_global_map.sql
-CREATE TABLE eid_to_global_map(
-  dbid INTEGER,         -- Unmerged database identifier
-  eid INTEGER,          -- Equivalence class identifier in an unmerged database
-  global_eid INTEGER,   -- Corresponding eid used across all databases
-  PRIMARY KEY(dbid, eid)
-);
-CREATE INDEX idx_eid_to_global_map ON eid_to_global_map(global_eid);
 EOF
 }
 
