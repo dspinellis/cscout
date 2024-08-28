@@ -39,6 +39,7 @@ using namespace std;
 #include "fileid.h"
 #include "attr.h"
 #include "cpp.h"
+#include "debug.h"
 
 template <typename StreamType>
 static void
@@ -52,30 +53,11 @@ verify_open(const char *path, StreamType &f)
 
 /*
  * Unify the read token onto the found token.
- * The first tokid of the read token is a dummy anchor, constructed
- * to avoid having it refer to the same EC as the found
- * token but with a different lenght.
- * Consequently, remove related elements from the ECs.
  */
 void
 unify_and_clear(Dbtoken &found, Dbtoken &read)
 {
-
 	Token::unify(found, read);
-
-	// Remove the dummy tokid from "read".
-	const auto& tparts(read.constituents());
-	for (auto tp : tparts) {
-		Tokid ti(tp.get_tokid());
-		if (!ti.get_fileid().is_anonymous())
-			continue;
-		cout << "Remove " << ti << '\n';
-		Eclass *ec = ti.get_ec();
-		ec->remove_tokid(ti);
-		csassert(ti.check_ec() == NULL);
-	}
-	cout << "ECs after removal\n";
-	Tokid::dump_map();
 
 	// Clear the passed token parts for reuse
 	found.clear();
@@ -92,6 +74,23 @@ warn(Tokid ti)
 		    << (unsigned)ti.get_streampos() << "\n";
 }
 
+/*
+ * Return the tokid with its negative fid
+ * ECs are supposed to be unique for each tokid.
+ * When the second file is read some of its ECs may exactly mirror
+ * existing ECs, but others may have the same identifying tokid but
+ * a different length.  To keep the two EC sets distinct, we keep the
+ * second twin set of ECs with their file identifier stored as its negative
+ * value.
+ * Then, when writing out the ECs, we skip twin ECs that are exact mirrors
+ * and write out the others in their non-negative form.
+ */
+static Tokid
+twin(const Tokid &ti)
+{
+	return Tokid(Fileid(-ti.get_fileid().get_id()), ti.get_streampos());
+}
+
 // Read tokids and their equivalence classes
 void
 Dbtoken::read_eclasses(const char *in_path)
@@ -103,7 +102,6 @@ Dbtoken::read_eclasses(const char *in_path)
 	verify_open(in_path, input);
 	line = 0;
 
-	Tokid dummy;
 	int dbid;
 	int fid;
 	unsigned long offset;
@@ -128,15 +126,23 @@ Dbtoken::read_eclasses(const char *in_path)
 	} state = s_read_first;
 
 	Dbtoken found, read;
+	/*
+	 * Invariant: always contains difference in the length of characters
+	 * stored in the above "found" and "read" variables.
+	 */
+	int found_minus_read;
 	while (input >> dbid >> fid >> offset >> len >> ecid) {
-		// Token found with check_ec() / read from file
-		int found_minus_read;
 
 		line++;
+		// fids from second read part are stored -ve to avoid clashes
+		if (state != s_read_first)
+			fid = -fid;
+
 		Tokid ti(Fileid(fid), offset);
 
 state_process:
-		cout << "State " << state << " line " << line << " ti " << ti << '\n';
+		if (DP())
+			cout << "State " << state << " line " << line << " ti " << ti << '\n';
 		switch (state) {
 		case s_read_first:
 			if (dbid == 0) {
@@ -144,6 +150,8 @@ state_process:
 				state = s_read_second;
 				prev_ecid = 0;
 				prev_ec = NULL;
+				// Represent second part tokids with -ve fid
+				ti = twin(ti);
 				goto state_process;
 			}
 
@@ -154,28 +162,33 @@ state_process:
 			}
 
 			ec = new Eclass(ti, len);
-			cout << "Create 1st " << ec << " tokid " << ti << "\n";
+			if (DP())
+				cout << "Create 1st " << ec << " tokid " << ti << "\n";
 			break;
 		case s_read_second:
-			ec = ti.check_ec();
+			ec = twin(ti).check_ec();
 			if (ec == NULL) {
-				cout << "No EC for " << ti << '\n';
+				if (DP())
+					cout << "No EC for " << ti << '\n';
 				if (ecid == prev_ecid) {
 					// Unknown EC is same class:
 					// Add it to existing class
 					ec = prev_ec;
 					ec->add_tokid(ti);
-					cout << "Add to " << ec << " tokid " << ti << "\n";
+					if (DP())
+						cout << "Add to " << ec << " tokid " << ti << "\n";
 				} else {
 					// Add clean new EC at start of an id
 					ec = new Eclass(ti, len);
-					cout << "Create 2nd " << ec << " tokid " << ti << "\n";
+					if (DP())
+						cout << "Create 2nd " << ec << " tokid " << ti << "\n";
 				}
 				break;
 			}
 
 			// From here on existing EC != NULL
-			cout << "In read_second EC len=" << ec->get_len() << " read len=" << len << '\n';
+			if (DP())
+				cout << "In read_second EC_len=" << ec->get_len() << " read_len=" << len << '\n';
 			if (ec->get_len() == len) {
 				// The 2nd-read EC joins two 1st-read ECs
 				if (ecid == prev_ecid && ec != prev_ec)
@@ -187,37 +200,50 @@ state_process:
 			// From here on tokid overlaps complicate things.
 
 			// 1.Store parts in tokens to unify.
-			cout << "Len diff: found=" << ec->get_len() << " read=" << len << '\n';
-			found.add_part(ti, ec->get_len());
-			// Create and use a dummy token, to avoid the cased of
-			// having the same tokid with different EC lengths.
-			dummy = Tokid(Fileid(), ti.get_streampos());
-			read.add_part(dummy, len);
+			read.add_part(ti, len);
+			found_minus_read = -len;
 
 			// 2. Adjust state based on overlap direction
-			found_minus_read = ec->get_len() - len;
 			if (found_minus_read < 0) {
 				state = s_read_ov;
+				ti = twin(ti);
 				goto state_process;
 			}
+			found.add_part(twin(ti), ec->get_len());
+			found_minus_read += ec->get_len();
 			state = s_found_ov;
 			break;
 		case  s_read_ov:
-			// The read data overflowed the found EC;
-			// continue checking ECs until they cover it.
-			cout << "In read_ov found_minus_read=" << found_minus_read << " ti=" << ti << '\n';
-			do {
+			/*
+			 * The read data overflowed the found EC;
+			 * continue checking ECs until they cover it.
+			 * Preconditions:
+			 * - ti points at the beginning of the found area,
+			 *   with a positive fid.
+			 * - The "read" parts contains the read parts up
+			 *   to and including the one that overlapped.
+			 * - The "found" parts contains alla apart from
+			 *   the one that will overlap.
+			 */
+			if (DP())
+				cout << "In read_ov found_minus_read=" << found_minus_read << " ti=" << ti << '\n';
+			for (;;) {
 				ec = ti.check_ec();
 				if (ec == NULL) {
 					warn(ti);
 					found_minus_read = 0;
 					break;
 				}
+				if (DP())
+					cout << "In read_ov found="  << found << '\n';
 				found.add_part(ti, ec->get_len());
 				found_minus_read += ec->get_len();
+				if (found_minus_read >= 0)
+					break;
 				ti += ec->get_len();
-				cout << "In read_ov set ti " << ti << '\n';
-			} while (found_minus_read < 0);
+				if (DP())
+					cout << "In read_ov set ti " << ti << '\n';
+			}
 
 			if (found_minus_read == 0) {
 				unify_and_clear(found, read);
@@ -226,14 +252,33 @@ state_process:
 				state = s_found_ov;
 			break;
 		case  s_found_ov:
-			// The found EC overflowed the read data
-			cout << "In found_ov found_minus_read=" << found_minus_read << '\n';
+			/*
+			 * The found EC overflowed the read data;
+			 * continue reading parts until the found EC is
+			 * covered.
+			 * Preconditions:
+			 * - ti points at the element read after the overflow,
+			 *   with a negative fid.
+			 * - len contains the length of the newly read item.
+			 * - The found and read lists contain the parts that
+			 *   partially overlapped.
+			 */
+			if (DP())
+				cout << "In found_ov found_minus_read=" << found_minus_read << '\n';
 			read.add_part(ti, len);
 			int adjust = found_minus_read;
 			found_minus_read -= len;
-			cout << "In found_ov set found_minus_read " << found_minus_read << '\n';
+			if (DP())
+				cout << "In found_ov set found_minus_read " << found_minus_read << '\n';
 			if (found_minus_read < 0) {
 				ti += adjust;
+				ti = twin(ti);
+				ec = ti.check_ec();
+				if (ec == NULL) {
+					warn(ti);
+					found_minus_read = 0;
+					break;
+				}
 				state = s_read_ov;
 				goto state_process;
 			}
@@ -258,9 +303,27 @@ Dbtoken::write_eclasses(const char *out_path)
 
 	for (auto i = Tokid::begin_ec(); i != Tokid::end_ec(); ++i) {
 		Tokid ti(i->first);
+		int fid = ti.get_fileid().get_id();
+
 		Eclass *ec = i->second;
+
+		if (fid < 0) {
+			Eclass *ec_twin = twin(ti).check_ec();
+			if (ec_twin) {
+				// Mirror EC exists; ignore
+				 if (ec_twin->get_len() != ec->get_len()) {
+					if (DP())
+						cout << "Non-matching ECs:\nFound: " << *ec << "Read: " << *ec_twin;
+					 csassert(ec_twin->get_len() == ec->get_len());
+				 }
+				continue;
+			} else
+				// No twin EC, output the correct fid
+				fid = -fid;
+		}
+
 		of
-		    << ti.get_fileid().get_id() << ','
+		    << fid << ','
 		    << (unsigned)ti.get_streampos() << ','
 		    << ptr_offset(ec) << '\n';
 	}
