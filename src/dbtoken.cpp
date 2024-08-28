@@ -134,7 +134,7 @@ Dbtoken::read_eclasses(const char *in_path)
 	 * variables.
 	 */
 	Dbtoken found, read;
-	int found_minus_read;
+	int found_minus_read = 0;
 
 	string line_record;
 	line_number = 0;
