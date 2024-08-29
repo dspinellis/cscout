@@ -24,7 +24,7 @@
 #ifndef CPP_H
 #define CPP_H
 
-#include <cstdlib>
+#include <cstddef>
 
 using namespace std;
 
@@ -32,9 +32,9 @@ using namespace std;
 typedef long cs_offset_t;
 
 /*
- * Return as an integral value a pointer's offset for writing it to
- * a database.
- * Not strictly portable, but better than casting to unsigned
+ * Return as an integral value a pointer's offset (in units of T) for
+ * writing it to a database.
+ * Not strictly portable, but better than casting to unsigned.
  */
 template <class T>
 inline ptrdiff_t
