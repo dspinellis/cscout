@@ -107,14 +107,6 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 -- Invoke CScout to merge and unify the output elements
 .shell cscout -M eclasses-a-5.txt eclasses-o-5.txt ids-5.txt functionid-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv
 
-.output old-tokens-5.txt
-SELECT * FROM tokens;
-.output old-ids-5.txt
-SELECT * FROM ids;
-.output old-functionid-5.txt
-SELECT * FROM functionid;
-.output stdout
-
 DELETE FROM tokens;
 DELETE FROM ids;
 DELETE FROM functionid;
