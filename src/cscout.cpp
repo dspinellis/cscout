@@ -3346,16 +3346,21 @@ merge_tokens(char **argv)
 
 	/*
 	 * Example invocation:
-	 * cscout -M eclasses-5.txt ids-5.txt functionids-5.txt  \
-	 *           0              1         2
-	 *   new-eclasses-5.csv new-ids-5.csv new-functioids-5.csv
-	 *   3                  4             5
+	 * cscout -M \
+	 *   eclasses-a-5.txt \		# 0
+	 *   eclasses-a-5.txt \		# 1
+	 *   ids-5.txt \		# 2
+	 *   functionids-5.txt \	# 3
+	 *   new-eclasses-5.csv \	# 4
+	 *   new-ids-5.csv \		# 5
+	 *   new-functionds-5.csv	# 6
 	 */
-	Dbtoken::read_eclasses(argv[0]);
-	Dbtoken::write_eclasses(argv[3]);
-	Dbtoken::read_ids(argv[1]);
-	Dbtoken::write_ids(argv[1], argv[4]);
-	Dbtoken::read_write_functionids(argv[2], argv[5]);
+	Dbtoken::add_eclasses_attached(argv[0]);
+	Dbtoken::process_eclasses_original(argv[1]);
+	Dbtoken::write_eclasses(argv[4]);
+	Dbtoken::read_ids(argv[2]);
+	Dbtoken::write_ids(argv[2], argv[5]);
+	Dbtoken::read_write_functionids(argv[3], argv[6]);
 
 	exit(0);
 }

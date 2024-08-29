@@ -58,7 +58,8 @@ public:
 
 
 	// Read/write tokids and their eids from file named f
-	static void read_eclasses(const char *f);
+	static void add_eclasses_attached(const char *f);
+	static void process_eclasses_original(const char *f);
 	// Output tokids and their equivalence classes to file named f
 	static void write_eclasses(const char *f);
 
