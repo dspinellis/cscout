@@ -49,20 +49,23 @@ INSERT INTO aeid_to_tokid_map
     LEFT JOIN fileid_to_global_map AS fid_map
       ON fid_map.dbid = 5 AND fid_map.fid = est.fid;
 
-.output eclasses-5.txt
 .separator ' '
--- Start with the attached database where Eclasses are created more efficiently
+-- Start with the attached database where Eclasses are created more efficiently.
 -- When creating new databases the attached is by definition larger than the
--- (empty) original one
--- This is read by read_eclasses
-SELECT 5 AS dbid, fid_map.global_fid AS fid, foffset, length(name) AS len, eid
+-- (empty) original one.
+-- This is read by read_eclasses_attached.
+.output eclasses-a-5.txt
+SELECT fid_map.global_fid AS fid, foffset, length(name) AS len, eid
   FROM adb.tokens AS at
   LEFT JOIN fileid_to_global_map AS fid_map
     ON fid_map.dbid = 5 AND fid_map.fid = at.fid
   LEFT JOIN adb.ids USING(eid)
   ORDER BY eid;
 
-SELECT 0 AS dbid, fid, foffset, length(name) AS len, eid
+-- Continue with the original classes, which must be processed twice.
+-- This is read by read_eclasses_original.
+.output eclasses-o-5.txt
+SELECT fid, foffset, length(name) AS len, eid
   FROM tokens
   LEFT JOIN ids USING(eid)
   ORDER BY eid;
@@ -102,7 +105,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 .output stdout
 
 -- Invoke CScout to merge and unify the output elements
-.shell cscout -M eclasses-5.txt ids-5.txt functionid-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv
+.shell cscout -M eclasses-a-5.txt eclasses-o-5.txt ids-5.txt functionid-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv
 
 .output old-tokens-5.txt
 SELECT * FROM tokens;

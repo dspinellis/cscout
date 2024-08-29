@@ -1,0 +1,61 @@
+# A simple three part chain
+
+BEGIN SETUP
+
+# Database 2: Existing table with local eids
+tokens:
+fid	foffset	eid
+1	3000	3000
+1	3010	3000
+1	3110	3000
+1	3120	3000
+
+ids:
+eid	name
+3000	n3000
+
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	21	1
+2	22	2
+5	51	1
+5	52	2
+
+# Database 5: Table to be imported, with local eids
+adb.tokens:
+fid	foffset	eid
+51	3100	-31
+51	3200	-31
+51	3110	-31
+51	3210	-31
+
+adb.ids:
+eid	name
+-31	n3000
+
+END
+
+# Provide empty functionid tables
+INCLUDE CREATE empty-functionid.sql
+
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+
+INCLUDE CREATE eclasses.sql
+
+# Use predictable eids to compare results
+INCLUDE SELECT predictable-token-eids.sql
+
+BEGIN RESULT
+# Remapped tokens
+# The same initial digit should be in the same eid, apart from split 800X.
+fid	foffset	eid
+1	3000	0
+1	3010	0
+1	3100	0
+1	3110	0
+1	3120	0
+1	3200	0
+1	3210	0
+END
