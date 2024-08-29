@@ -221,7 +221,7 @@ state_process:
 			found_minus_read = -len;
 
 			// 2. Adjust state based on overlap direction
-			if (found_minus_read < 0) {
+			if (len > ec->get_len()) {
 				state = s_read_ov;
 				ti = twin(ti);
 				goto state_process;
