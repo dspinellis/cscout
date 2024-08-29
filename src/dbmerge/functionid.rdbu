@@ -26,11 +26,11 @@ dbid	id	global_id
 # Database 2: Existing table with local eids
 tokens:
 fid	foffset	eid
-21	1000	1000
-21	1004	1004
-21	2000	2000
-22	3000	3000
-22	3002	3002
+1	1000	1000
+1	1004	1004
+1	2000	2000
+2	3000	3000
+2	3002	3002
 
 ids:
 eid	name
@@ -42,11 +42,11 @@ eid	name
 
 functionid:
 functionid ordinal eid
-321	   0	   1000
-321	   1	   1004
-322	   0	   2000
-323	   0       3000
-323	   1       3002
+1	   0	   1000
+1	   1	   1004
+2	   0	   2000
+3	   0       3000
+3	   1       3002
 
 
 # Database 5: Table to be imported, with local eids
