@@ -102,7 +102,6 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 .output stdout
 
 -- Invoke CScout to merge and unify the output elements
-.print 'Run cscout -M eclasses-5.txt ids-5.txt functionid-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv'
 .shell cscout -M eclasses-5.txt ids-5.txt functionid-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv
 
 .output old-tokens-5.txt
