@@ -178,6 +178,7 @@ UPDATE filemetrics SET iscscout = (
     WHERE filemetrics.fid = files.fid
 );
 VACUUM;
+ANALYZE;
 EOF
 log "Finished completing and vacuuming $result"
 
