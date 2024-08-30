@@ -1,6 +1,19 @@
 -- Add to rest missing file records.
 -- In some merged files identifiers may appear in code in others in tokens.
 -- As some existing elements may be removed, start with a fresh table.
+--
+-- The employed algorithm is a good approximation: it works correctly in 1221
+-- out of 1222 tested files.  However, it may fail when a file
+-- is conditionally compiled in different ways in two merged files,
+-- e.g. /home/dds/src/linux-v6.10.1/include/trace/define_trace.h:89-92
+-- (see debugging notes).
+-- A better algorithm is as follows:
+-- * Order records by file and offset.
+-- * When they match select the one from the first file.
+-- * When they don't match select the shortest one, and continue.
+--   selecting elements from the same file, until they match again.
+-- * When done, remove tokens that fall within the selected code elements.
+--
 
 CREATE TABLE new_rest(
   fid INTEGER, -- File key
