@@ -17,6 +17,10 @@ fid	foffset code
 1	50	"#define"
 2	77	"while ("
 
+# For completeness only
+tokens:
+fid	foffset	eid
+1	0	1000
 
 # Table to be imported, with local fids
 # One same, one new

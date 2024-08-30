@@ -9,7 +9,7 @@ CREATE TABLE new_rest(
   PRIMARY KEY(fid, foffset)
 );
 
--- Elements from both sides
+-- Elements from both rest sides
 WITH all_rest AS (
   SELECT 1 AS dbid,
       fgm.global_fid AS fid,
@@ -39,3 +39,16 @@ INSERT INTO new_rest
 
 DROP TABLE rest;
 ALTER TABLE new_rest RENAME TO rest;
+
+-- Eliminate the few records that have been superseded by matched tokens
+-- Do it here to use the table indices
+WITH matched_rows AS (
+  SELECT rest.fid, rest.foffset
+    FROM rest
+    INNER JOIN tokens ON rest.fid = tokens.fid AND rest.foffset = tokens.foffset
+)
+DELETE FROM rest
+  WHERE (fid, foffset) IN (
+      SELECT fid, foffset FROM matched_rows
+);
+
