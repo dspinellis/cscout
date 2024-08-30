@@ -1,13 +1,41 @@
--- Add to rest missing file records
+-- Add to rest missing file records.
+-- In some merged files identifiers may appear in code in others in tokens.
+-- As some existing elements may be removed, start with a fresh table.
 
-INSERT INTO rest
-  SELECT
-    fgm.global_fid AS fid,
-    fma.foffset,
-    fma.code
-  FROM
-    adb.rest AS fma
+CREATE TABLE new_rest(
+  fid INTEGER, -- File key
+  foffset INTEGER, -- Offset within the file
+  code CHARACTER VARYING, -- The actual code
+  PRIMARY KEY(fid, foffset)
+);
+
+-- Elements from both sides
+WITH all_rest AS (
+  SELECT 1 AS dbid,
+      fgm.global_fid AS fid,
+      fma.foffset,
+      fma.code
+    FROM adb.rest AS fma
     LEFT JOIN fileid_to_global_map AS fgm ON fgm.dbid = 5 AND fgm.fid = fma.fid
-    LEFT JOIN rest AS fmb ON fmb.fid = fgm.global_fid
-      AND fmb.foffset = fma.foffset
-  WHERE fmb.fid IS NULL;
+  UNION
+  SELECT 0 AS dbid, rest.*
+    FROM rest
+),
+-- Match them with numbered rows
+ranked_partitioned AS
+(
+  SELECT *,
+         ROW_NUMBER() OVER (
+             PARTITION BY fid, foffset
+             ORDER BY Length(code) ASC, dbid ASC
+         ) AS rn
+  FROM all_rest
+)
+INSERT INTO new_rest
+  SELECT fid, foffset, code
+    FROM ranked_partitioned
+    -- Give precedence to shorter elements
+    WHERE rn = 1;
+
+DROP TABLE rest;
+ALTER TABLE new_rest RENAME TO rest;

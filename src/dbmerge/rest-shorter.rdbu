@@ -10,20 +10,24 @@ dbid	fid	global_fid
 5	8	2
 5	10	4
 
+# Database 2:
 # Existing table with globally unique fids
 rest:
 fid	foffset code
-1	10	" += "
-1	50	"#define"
-2	77	"while ("
+1	10	"a += 1"
+1	20	"2 + b"
+1	30	"3 + c + "
 
 
+# Database 5:
 # Table to be imported, with local fids
 # One same, one new
 adb.rest:
 fid	foffset code
-4	10	" += "
-10	88	">"
+4	10	" += 1"
+4	20	"2 + "
+4	30	"3 + "
+4	35	" + "
 END
 
 INCLUDE CREATE rest.sql
@@ -31,8 +35,8 @@ INCLUDE CREATE rest.sql
 BEGIN RESULT
 rest:
 fid	foffset code
-1	10	" += "
-1	50	"#define"
-2	77	"while ("
-4	88	">"
+1	10	" += 1"
+1	20	"2 + "
+1	30	"3 + "
+1	35	" + "
 END
