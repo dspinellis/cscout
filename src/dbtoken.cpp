@@ -515,10 +515,11 @@ Dbtoken::write_ids(const char *in_path, const char *out_path)
 				goto next_line;
 			}
 
-			dump_id(out, ec, name);
+			auto len = ec->get_len();
+			dump_id(out, ec, name.substr(covered, len));
 
-			covered += ec->get_len();
-			ti += ec->get_len();
+			covered += len;
+			ti += len;
 		}
 next_line:
 		continue;
