@@ -59,13 +59,8 @@ END
 
 INCLUDE CREATE eclasses.sql
 
-# Make resuts repeatable by using integer eids
-BEGIN SELECT
-  SELECT
-      Row_number() OVER (ORDER BY name) AS eid, 
-name, readonly, undefmacro, macro, macroarg, ordinary, suetag, sumember, label, typedef, enum, yacc, fun, cscope, lscope, unused
-    FROM ids;
-END
+# Use predictable eids to compare results
+INCLUDE SELECT predictable-id-eids.sql
 
 BEGIN RESULT
 eid name readonly undefmacro macro macroarg ordinary suetag sumember label typedef enum yacc fun cscope lscope unused
