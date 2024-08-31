@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --time=40:00:00
 #SBATCH --partition=fat
-#SBATCH --mem=128G
+#SBATCH --mem=256G
 #SBATCH --account=pa240702
 
 set -eu
