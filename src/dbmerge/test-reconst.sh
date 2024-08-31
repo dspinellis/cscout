@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 set -eu
@@ -10,13 +10,14 @@ usage()
 
   cat <<EOF 1>&2
 $message
-Usage: $(basename $0) -t [OPTION]... database.db
-       $(basename $0) -f file [OPTION]... database.db
+Usage: $(basename $0) -t [-ckqs] database.db
+       $(basename $0) -f file [-o] [-b line] [-e line] ... database.db
 
 Test the reconstitution of files in a CScout database
 
   -t        Test the reconstitution of all files.
             Related options:
+  -c        Count correct and incorrect files
   -k        Keep comparing after finding a difference.
   -q        Run a quick diff; do not list the full diff output.
   -s        Provide summary of each file's result.
@@ -27,8 +28,12 @@ Test the reconstitution of files in a CScout database
   -e line   Ending line number.
   -o        Output offset values.
 
-Example:
-  test-reconst -t result.db
+EXAMPLES
+
+Test all files providing a summary.c:
+  test-reconst -tckqs result.db
+
+Reconstitute file.c:
   test-reconst -f file.c result.db
 EOF
   exit 1
@@ -38,6 +43,7 @@ opt_test=''
 opt_keep_going=''
 opt_quick=''
 opt_summary=''
+opt_count=''
 
 opt_file=''
 opt_begin='0'
@@ -45,8 +51,11 @@ opt_end='99999999'
 opt_offset=''
 
 # Process command-line arguments
-while getopts "tkqsf:b:e:o" opt; do
+while getopts "tckqsf:b:e:o" opt; do
   case $opt in
+    c)
+      opt_count=1
+      ;;
     b)
       opt_begin="(SELECT foffset FROM linepos CROSS JOIN selected_file AS sf
         WHERE fid=sf.value AND lnum <= $OPTARG LIMIT 1)"
@@ -142,6 +151,16 @@ fix_nl()
 # Test reconstitution of all files
 test_all()
 {
+  local nfiles=0
+  local same=0
+  local different=0
+
+  # Can't set variables inside the while loop, so output info on FD 9
+  test -n "$opt_count" && exec 9> >(awk 'BEGIN {s = d = 0 }
+    /same/{s++}
+    /different/{d++}
+    END {print s + d " files "  s " same " d " different"}' )
+
   sqlite3 "$DB" 'select distinct fid, name from files;' |
   while IFS='|' read fid path ; do
     echo "SELECT s FROM ( $(all_elements $fid) ) ORDER BY foffset;" |
@@ -149,14 +168,20 @@ tee query.sql |
     sqlite3 "$DB" |
       fix_nl >try.c
 
+    echo files >&9
     if run_diff "$path" ; then
       test -n "$opt_summary" && echo ✓ $path
+      echo same >&9
     else
       result=$?
       test -n "$opt_summary" && echo ✗ $path
       test $result -a -z "$opt_keep_going" && exit 1
+      echo different >&9
     fi
   done
+
+  # Close FD 9 to get the count results
+  test -n "$opt_count" && 9>&-
 }
 
 # List the contents of a single file
