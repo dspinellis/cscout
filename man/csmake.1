@@ -1,4 +1,4 @@
-.TH CSMAKE 1 "2 May 2024"
+.TH CSMAKE 1 "5 September 2024"
 .\"
 .\" (C) Copyright 2020-2024 Diomidis Spinellis
 .\"
@@ -29,6 +29,7 @@ csmake \- CScout make
 [\fB\-s\fP \fIcs-files-directory\fP]
 [\fB\-A\fP]
 [\fB\-T\fP \fItemporary-directory\fP]
+[\fB\-t\fP \fItime-file\fP]
 [\fB\-N\fP \fIrules-file\fP]
 --
 ]
@@ -82,6 +83,10 @@ Run on an existing rules file.
 Set temporary directory.
 Use \fItemporary-directory\fP as temporary directory,
 remember to clear it if you use it multiple times.
+.IP "\fB\-t\fP \fItime-file\fP"
+Record C compiler timing information in the specified file.
+The information recorded is the output of \fItime\fP(1) with
+format \fC'%D %e %F %I %K %M %O %S %U\fP.
 .PP
 .SH EXAMPLES
 The following commands are often the only ones required to process
@@ -142,6 +147,6 @@ CSMAKEFLAGS='-T tmp_dir -A -s cscout_projects -k --' \\
 .DE
 .PP
 .SH "SEE ALSO"
-cscout(1)
+\fIcscout\fP(1), \fItime\fP(1)
 .SH AUTHOR
 (C) Copyright 2006-2024 Diomidis Spinellis.

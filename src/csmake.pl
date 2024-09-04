@@ -64,7 +64,7 @@ if ($ENV{'CSMAKEFLAGS'}) {
 	@ARGV = split(/\s+/, $ENV{'CSMAKEFLAGS'});
 }
 my %options=();  # csmake options
-my $csmake_opts = "AdhkN:o:s:T:";
+my $csmake_opts = "AdhkN:o:s:T:t:";
 # Parse options from CSMAKEFLAGS
 getopts($csmake_opts, \%options);
 
@@ -91,7 +91,7 @@ if (defined $options{d}) {
 
 if (defined $options{h}) {
 print <<HELP;
-usage: csmake [ [-A] [-d] [-k] [-o output] [-s cs_files_directory] [-T temporary_directory ] [-N rules_file] [-h] -- ] [make(1) options]
+usage: csmake [ [-A] [-d] [-k] [-o output] [-s cs_files_directory] [-T temporary_directory ] [-t time_file] [-N rules_file] [-h] -- ] [make(1) options]
     -d                Run in debug mode (it also keeps spy directory in place).
     -h                Print help message.
     -k                Keep temporary directory in place.
@@ -100,6 +100,7 @@ usage: csmake [ [-A] [-d] [-k] [-o output] [-s cs_files_directory] [-T temporary
     -A                Generate cs projects for static libraries.
     -N rules_file     Run on an existing rules file.
     -T temporary_dir  Set temporary directory.
+    -t time_file      Set file to save command timing information.
 HELP
 exit();
 }
@@ -166,6 +167,13 @@ while (<IN>) {
 		next;
     }
 }
+
+my $time_file;
+if (defined $options{t}) {
+	open($time_file, '>', $options{t}) || die "Unable to open timing file $options{t}: $!\n";
+}
+
+
 seek (IN, 0, 0);
 # Read a spy-generated rules file
 while (<IN>) {
@@ -174,6 +182,8 @@ while (<IN>) {
 		($dummy, $old, $new) = split;
 		$old{$new} =$old;
 		next;
+	} elsif (/^COMMENT (.*)/ && defined $options{t}) {
+		print $time_file "$1\n";
 	} elsif (/^BEGIN COMPILE/) {
 		$state = 'COMPILE';
 		undef @rules;
@@ -690,12 +700,24 @@ if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0 || $#afi
 	$rules .= "END LINK\n";
 }
 
+# Finally, execute the real gcc keeping time information
+my $tmpdir = tempdir('time-out-XXXX', DIR => $ENV{CSCOUT_SPY_TMPDIR});
+my $time_out = "$tmpdir/out.txt";
+$rules .= "COMMENT COMPILE $real " . join(' ', @ARGV) . "\n";
+unshift(@ARGV, '-f', '%D %e %F %I %K %M %O %S %U', '-o', $time_out, $real);
+print STDERR "Finally run (/usr/bin/time @ARGV))\n" if ($debug);
+my $exit_code = system(('/usr/bin/time', @ARGV)) / 256;
+open(IN, '<', $time_out) || die "Unable to read time output: $!\n";
+my $time = <IN>;
+$rules .= "COMMENT TIME $time";
+close(IN);
+unlink($time_out);
+rmdir($tmpdir);
+
 syswrite(RULES, $rules);
 close(RULES);
 
-# Finally, execute the real gcc
-print STDERR "Finally run ($real @ARGV))\n" if ($debug);
-exit system(($real, @ARGV)) / 256;
+exit $exit_code;
 
 # Return the absolute file name of a file, if the file exists in the
 # current directory
