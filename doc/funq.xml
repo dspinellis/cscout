@@ -187,7 +187,7 @@ means of the following form.
 
 <option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n51" SIZE=5 MAXLENGTH=10></td></tr>
 <tr><td><input type="radio" name="order" value="52"> </td>
-<td>Halstead complexity</td><td><select name="c52" value="1">
+<td>Halstead volume</td><td><select name="c52" value="1">
 <option value="0">ignore<option value="1">==<option value="2">!=<option value="3">&lt;<option value="4">&gt;</select></td><td><INPUT TYPE="text" NAME="n52" SIZE=5 MAXLENGTH=10></td></tr>
 <tr><td><input type="radio" name="order" value="53"> </td>
 <td>Information flow metric (Henry and Selig)</td><td><select name="c53" value="1">

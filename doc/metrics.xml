@@ -134,7 +134,7 @@ This metric, <em>CC<sub>3</sub></em>, considers each <code>case</code> label as 
 This metric is calculcated as follows.<br />
 <em>C<sub>p</sub></em> = (<em>fan_in</em> * <em>fan_out</em>)<sup>2</sup>
 </dd>
-<dt>Halstead complexity</dt><dd>
+<dt>Halstead volume</dt><dd>
 This metric is calculcated as follows.<br />
 <em>HC</em> = (<em>number_of_operators</em> +
 <em>number_of_operands</em>) *

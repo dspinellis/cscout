@@ -78,7 +78,7 @@ FunMetrics::metric_details_values()
 	v[em_ccycl3]	= MetricDetails(1, 1, 0, "CCYCL3",	"Maximum cyclomatic complexity (includes branching operators and all switch branches)");
 	// Dynamically derived metrics after this point are hardcoded to be stored in the database as REAL
 	v[em_cstruc]	= MetricDetails(1, 1, 0, "CSTRUC",	"Structure complexity (Henry and Kafura)");	// REAL
-	v[em_chal]	= MetricDetails(1, 1, 0, "CHAL",	"Halstead complexity");				// REAL
+	v[em_chal]	= MetricDetails(1, 1, 0, "CHAL",	"Halstead volume");				// REAL
 	v[em_iflow]	= MetricDetails(1, 1, 0, "IFLOW",	"Information flow metric (Henry and Selig)");	// REAL
 	return v;
 };
@@ -107,7 +107,7 @@ FunMetrics::get_metric(int n) const
 		return sqr((double)get_metric(em_fanin) * (double)get_metric(em_fanout));
 	case em_iflow:	// Information flow metric
 		return get_metric(em_cstruc) * get_metric(em_ccycl1);
-	case em_chal:	// Halstead complexity
+	case em_chal:	// Halstead volume
 #define log2(x) (log(x) / log(2.))
 		// We consider numeric constants and character literals to be unique operands
 		double logarg = get_metric(em_nuop) +

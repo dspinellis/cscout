@@ -206,7 +206,7 @@ This is a list of maintained function metrics.
 <li>Extended cyclomatic complexity (includes branching operators)</li>
 <li>Maximum cyclomatic complexity (includes branching operators and all switch branches)</li>
 <li>Structure complexity (Henry and Kafura)</li>
-<li>Halstead complexity</li>
+<li>Halstead volume</li>
 <li>Information flow metric (Henry and Selig)</li>
 </ul>
 </li>

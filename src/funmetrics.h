@@ -77,7 +77,7 @@ public:
 		// Metrics after this point are hardcoded to be stored in the database as REAL
 		em_cstruc,	// Structure complexity (Henry and Kafura)
 		em_real_start = em_cstruc,
-		em_chal,	// Halstead complexity
+		em_chal,	// Halstead volume
 		em_iflow,	// Information flow metric
 		metric_max,
 	};
