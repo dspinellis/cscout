@@ -1035,11 +1035,6 @@ filequery_page(FILE *of,  void *p)
 	html_tail(of);
 }
 
-struct ignore : public binary_function <int, int, bool> {
-	inline bool operator()(int a, int b) const { return true; }
-};
-
-
 // Process a file query
 static void
 xfilequery_page(FILE *of,  void *p)

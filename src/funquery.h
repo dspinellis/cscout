@@ -96,7 +96,7 @@ public:
 	string param_url() const;
 	//
 	// Container comparison functor
-	class specified_order : public binary_function <const Call &, const Call &, bool> {
+	class specified_order {
 	private:
 		/*
 		 * Can only be an instance variable (per C++ PL 17.1.4.5)

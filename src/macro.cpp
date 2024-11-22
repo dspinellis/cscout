@@ -214,7 +214,7 @@ stringize(const PtokenSequence& ts)
 		}
 	}
 	// Remove trailing spaces
-	res.erase((find_if(res.rbegin(), res.rend(), not1(ptr_fun<int, int>(isspace)))).base(), res.end());
+	res.erase(find_if(res.rbegin(), res.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), res.end());
 	return (Ptoken(STRING_LITERAL, res));
 }
 
@@ -315,7 +315,7 @@ void
 Macro::value_rtrim()
 {
 	// Took me three hours to arrive at
-	value.erase((find_if(value.rbegin(), value.rend(), not1(mem_fun_ref(&Ptoken::is_space)))).base(), value.end());
+	value.erase(find_if(value.rbegin(), value.rend(), [&](const Ptoken& token) { return !token.is_space(); }).base(), value.end());
 }
 
 ostream&

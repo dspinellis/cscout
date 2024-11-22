@@ -476,39 +476,33 @@ public:
 // Global metrics
 extern IdMetricsSummary id_msum;
 
-struct add_one : public unary_function<double, double>
-{
+struct add_one {
       double operator()(double x) { return x + 1; }
 };
 
-struct add_n : public unary_function<double, double>
-{
+struct add_n {
       double n;
       add_n(double add) { n = add; }
       double operator()(double x) { return x + n; }
 };
 
-struct set_max : public unary_function<double, double>
-{
+struct set_max {
       double n;
       set_max(double newval) { n = newval; }
       double operator()(double x) { return x > n ? x : n; }
 };
 
-struct set_min : public unary_function<double, double>
-{
+struct set_min {
       double n;
       set_min(double newval) { n = newval; }
       double operator()(double x) { return (x < n && x > 0) ? x : n; }
 };
 
-struct get_max : public binary_function<double, double, double>
-{
+struct get_max {
       double operator()(double x, double y) { return (x < y) ? y : x; }
 };
 
-struct get_min : public binary_function<double, double, double>
-{
+struct get_min {
       double operator()(double x, double y) { return (x > y) ? y : x; }
 };
 

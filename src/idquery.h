@@ -124,7 +124,7 @@ public:
  * Function object to compare IdProp identifier pointers
  * Will compare from end to start if sort_rev is set
  */
-struct idcmp : public binary_function <const IdProp::value_type *, const IdProp::value_type *, bool> {
+struct idcmp {
 	bool operator()(const IdProp::value_type *i1, const IdProp::value_type *i2) const
 	{
 		return Query::string_bi_compare(i1->second.get_id(), i2->second.get_id());

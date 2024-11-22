@@ -75,7 +75,7 @@ public:
 class Call;
 
 // Used to order Call sets by their function location in a file
-struct function_file_order : public binary_function <const Call *, const Call *, bool> {
+struct function_file_order {
       bool operator()(const Call *a, const Call *b) const;
 };
 

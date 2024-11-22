@@ -127,7 +127,7 @@ operator <(const class Fileid a, const class Fileid b)
 }
 
 // Can be used to order Fileid sets
-struct fname_order : public binary_function <const Fileid &, const Fileid &, bool> {
+struct fname_order {
       bool operator()(const Fileid &a, const Fileid &b) const {
 	      return a.get_path() < b.get_path();
       }

@@ -365,10 +365,10 @@ process_defined()
 	     (i = i2 = find_if(i, eval_tokens.end(), [](const Ptoken &t) { return t.get_val() == "defined"; })) != eval_tokens.end(); ) {
 	     	bool need_bracket = false;
 		i2++;
-		arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+		arg = i2 = find_if(i2, eval_tokens.end(), [&](const Ptoken& token) { return !token.is_space(); });
 		if (arg != eval_tokens.end() && (*arg).get_code() == '(') {
 			i2++;
-			arg = i2 = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+			arg = i2 = find_if(i2, eval_tokens.end(), [&](const Ptoken& token) { return !token.is_space(); });
 			need_bracket = true;
 		}
 		if (arg == eval_tokens.end() || (*arg).get_code() != IDENTIFIER) {
@@ -383,7 +383,7 @@ process_defined()
 		}
 		if (need_bracket) {
 			i2++;
-			last = find_if(i2, eval_tokens.end(), not1(mem_fun_ref(&Ptoken::is_space)));
+			last = find_if(i2, eval_tokens.end(), [&](const Ptoken& token) { return !token.is_space(); });
 			if (last == eval_tokens.end() || (*last).get_code() != ')') {
 					/*
 					 * @error
@@ -662,7 +662,7 @@ Pdtoken::process_include(bool next)
 		tokens.push_back(t);
 	} while (t.get_code() != EOF && t.get_code() != '\n');
 	// Remove leading space
-	tokens.erase(tokens.begin(), find_if(tokens.begin(), tokens.end(), not1(mem_fun_ref(&Ptoken::is_space))));
+	tokens.erase(tokens.begin(), find_if(tokens.begin(), tokens.end(), [&](const Ptoken& token) { return !token.is_space(); }));
 	if (tokens.size() == 0) {
 		/*
 		 * @error
