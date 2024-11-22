@@ -1,5 +1,5 @@
 hello-square: global.so hello-square.o
-	cc -o $@ global.so hello-square.o
+	cc -o $@ hello-square.o global.so
 
 global.so: global.o
 	gcc --pic --shared -o $@ $?
