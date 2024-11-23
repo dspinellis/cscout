@@ -196,6 +196,8 @@ public:
 		em_ncontinue,	// Number of continue statements
 		em_ngoto,	// Number of goto statements
 		em_nreturn,	// Number of return statements
+		em_nasm,	// Number of assembly statements
+		em_ntypeof,	// Number of typeof operators
 		/*
 		 * Identifiers (total and unique) categorized during
 		 * identifier processing that takes place when each

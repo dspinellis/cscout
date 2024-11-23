@@ -89,6 +89,8 @@ Metrics::metric_details_values()
 	v[em_ncontinue]		= MetricDetails(1, 1, 1, "NCONTINUE",	"Number of continue statements");
 	v[em_ngoto]		= MetricDetails(1, 1, 1, "NGOTO",	"Number of goto statements");
 	v[em_nreturn]		= MetricDetails(1, 1, 1, "NRETURN",	"Number of return statements");
+	v[em_nasm]		= MetricDetails(1, 1, 1, "NASM",	"Number of assembly statements");
+	v[em_ntypeof]		= MetricDetails(1, 1, 1, "NTYPEOF",	"Number of typeof operators");
 	// Identifiers categorized during identifier processing
 	v[em_npid]		= MetricDetails(1, 1, 1, "NPID",	"Number of project-scope identifiers");
 	v[em_nfid]		= MetricDetails(1, 1, 1, "NFID",	"Number of file-scope (static) identifiers");
@@ -326,6 +328,11 @@ KeywordMetrics::make_keyword_map()
 	km.insert(map_type::value_type("continue", Metrics::em_ncontinue));
 	km.insert(map_type::value_type("goto", Metrics::em_ngoto));
 	km.insert(map_type::value_type("return", Metrics::em_nreturn));
+	km.insert(map_type::value_type("_asm", Metrics::em_nasm));
+	km.insert(map_type::value_type("__asm", Metrics::em_nasm));
+	km.insert(map_type::value_type("__asm__", Metrics::em_nasm));
+	km.insert(map_type::value_type("__typeof", Metrics::em_ntypeof));
+	km.insert(map_type::value_type("__typeof__", Metrics::em_ntypeof));
 
 	return (km);
 }
