@@ -185,7 +185,7 @@ again:
 			break;
 		}
 		expand.push_front(t);
-		expand = macro_expand(expand, true, false);
+		expand = macro_expand(expand, Macro::TokenSourceOption::get_more, Macro::DefinedHandlingOption::process);
 		goto expand_get;
 		// FALLTRHOUGH
 	default:
@@ -446,7 +446,7 @@ eval()
 	}
 
 	// Macro replace, skipping identifiers for defined operator
-	eval_tokens = macro_expand(eval_tokens, false, true);
+	eval_tokens = macro_expand(eval_tokens, Macro::TokenSourceOption::use_supplied, Macro::DefinedHandlingOption::skip);
 
 	if (DP()) {
 		cout << "Tokens after macro replace:\n";
@@ -677,7 +677,7 @@ Pdtoken::process_include(bool next)
 	if (f.get_code() != PATHFNAME && f.get_code() != ABSFNAME) {
 		// Need to macro process
 		// 1. Macro replace
-		tokens = macro_expand(tokens, false, false);
+		tokens = macro_expand(tokens, Macro::TokenSourceOption::use_supplied, Macro::DefinedHandlingOption::process);
 		if (DP()) {
 			cout << "Replaced after macro :\n";
 			copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));

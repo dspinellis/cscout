@@ -375,7 +375,7 @@ static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
  * X3J11/86-196
  */
 PtokenSequence
-macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *caller)
+macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, const Macro *caller)
 {
 	PtokenSequence r;	// Return value
 	auto ts_size = ts.size();
@@ -391,7 +391,7 @@ macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *c
 			continue;
 		}
 
-		if (skip_defined && head.get_code() == IDENTIFIER && head.get_val() == "defined") {
+		if (defined_handling == Macro::DefinedHandlingOption::skip && head.get_code() == IDENTIFIER && head.get_val() == "defined") {
 			// Skip the arguments of the defined operator, if needed
 			PtokenSequence da(gather_defined_operator(ts));
 			r.push_back(head);
@@ -422,10 +422,10 @@ macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *c
 			Token::unify((*mi).second.name_token, head);
 			HideSet hs(head.get_hideset());
 			hs.insert(m.get_name_token());
-			PtokenSequence s(subst(m, m.value, mapArgval(), hs, skip_defined, caller));
+			PtokenSequence s(subst(m, m.value, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, caller));
 			ts.splice(ts.begin(), s);
 			caller = &m;
-		} else if (fill_in(ts, get_more, removed_spaces) && ts.front().get_code() == '(') {
+		} else if (fill_in(ts, token_source == Macro::TokenSourceOption::get_more, removed_spaces) && ts.front().get_code() == '(') {
 			// Application of a function-like macro
 			Token::unify((*mi).second.name_token, head);
 			mapArgval args;			// Map from formal name to value
@@ -440,14 +440,14 @@ macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *c
 				Call::register_call(m.get_mcall());
 			ts.pop_front();
 			Ptoken close;
-			if (!gather_args(name, ts, m.formal_args, args, get_more, m.is_vararg, close))
+			if (!gather_args(name, ts, m.formal_args, args, token_source == Macro::TokenSourceOption::get_more, m.is_vararg, close))
 				continue;	// Attempt to bail-out on error
 			HideSet hs;
 			set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
 				close.get_hideset().begin(), close.get_hideset().end(),
 				inserter(hs, hs.begin()));
 			hs.insert(m.get_name_token());
-			PtokenSequence s(subst(m, m.value, args, hs, skip_defined, caller));
+			PtokenSequence s(subst(m, m.value, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, caller));
 			ts.splice(ts.begin(), s);
 			caller = &m;
 		} else {
@@ -561,7 +561,7 @@ subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool sk
 			if ((ai = find_formal_argument(args, head)) == args.end())
 				break;
 			// Othewise expand head
-			PtokenSequence expanded(macro_expand(ai->second, false, skip_defined, caller));
+			PtokenSequence expanded(macro_expand(ai->second,  Macro::TokenSourceOption::use_supplied, skip_defined ? Macro::DefinedHandlingOption::skip : Macro::DefinedHandlingOption::process, caller));
 			os.splice(os.end(), expanded);
 			continue;
 		}

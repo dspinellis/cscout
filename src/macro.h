@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -51,6 +51,12 @@ typedef map<Tokid, MCall *> mapMacroBody;
 
 // A macro definition
 class Macro {
+public:
+	// Typed options to the macro_expand function
+	// Get more tokens or only use the supplied ones
+	enum class TokenSourceOption { get_more, use_supplied };
+	// Process the defined() function or skip its processing
+	enum class DefinedHandlingOption { process, skip };
 private:
 	Ptoken name_token;		// Name (used for unification)
 	bool is_function;		// True if it is a function-macro
@@ -88,8 +94,8 @@ public:
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Macro &m);
 
-	friend PtokenSequence macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *caller);
+	friend PtokenSequence macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, const Macro *caller);
 };
 
-PtokenSequence macro_expand(PtokenSequence ts, bool get_more, bool skip_defined, const Macro *caller = NULL);
+PtokenSequence macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, const Macro *caller = NULL);
 #endif // MACRO
