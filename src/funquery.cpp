@@ -161,7 +161,7 @@ FunQuery::param_url() const
 	if (id_ec) {
 		char buff[256];
 
-		sprintf(buff, "&ec=%p", id_ec);
+		snprintf(buff, sizeof(buff), "&ec=%p", id_ec);
 		r += buff;
 	} else {
 		r += "&match=";
@@ -169,11 +169,11 @@ FunQuery::param_url() const
 	}
 	r += mquery.param_url();
 	if (call) {
-		sprintf(buff, "&call=%p", call);
+		snprintf(buff, sizeof(buff), "&call=%p", call);
 		r += buff;
 	}
 	if (match_fid) {
-		sprintf(buff, "&fid=%d", fid.get_id());
+		snprintf(buff, sizeof(buff), "&fid=%d", fid.get_id());
 		r += buff;
 	}
 	if (cfun)

@@ -2737,9 +2737,8 @@ yacc_variable:
 		}
 	| '$' INT_CONST
 		{
-			const char *num = $2.get_name().c_str();
 			char *endptr;
-			int val = strtol(num, &endptr, 0);
+			int val = strtol($2.get_name().c_str(), &endptr, 0);
 			if ((unsigned)val >= yacc_dollar.size()) {
 				/*
 				 * @error

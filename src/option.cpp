@@ -75,8 +75,8 @@ BoolOption *Option::cgraph_dot_url;		// Include URLs in dot output
 vector<Option *> Option::options;		// Options in the order they were added
 map<string, Option *> Option::omap;		// For loading options
 
-SelectionOption::SelectionOption(const char *sn, const char *un, char iv, ...) :
-	Option(sn, un), v(iv)
+SelectionOption::SelectionOption(const char *sn, const char *un, int iv, ...) :
+	Option(sn, un), v((char)iv)
 {
 	va_list marker;
 	va_start(marker, iv);

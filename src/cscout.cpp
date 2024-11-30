@@ -1758,7 +1758,7 @@ explore_functions(FILE *fo, Call *f,
 		if (((*i)->*fbegin)() != ((*i)->*fend)()) {
 			/* Functions below; create +/- hyperlink. */
 			char param[1024];
-			sprintf(param, "f%02d%p", level, &(**i));
+			snprintf(param, sizeof(param), "f%02d%p", level, &(**i));
 			char *pval = swill_getvar(param);
 
 			if (pval) {
@@ -1829,14 +1829,14 @@ funlist_page(FILE *fo, void *p)
 		fbegin = &Call::caller_begin;
 		fend = &Call::caller_end;
 		fprintf(fo, "List of %s calling functions\n", calltype);
-		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%%p&to=%p\">call path from function</a>", graph_suffix(), f);
+		snprintf(buff, sizeof(buff), " &mdash; <a href=\"cpath%s?from=%%p&to=%p\">call path from function</a>", graph_suffix(), f);
 		break;
 	case 'd':
 	case 'D':
 		fbegin = &Call::call_begin;
 		fend = &Call::call_end;
 		fprintf(fo, "List of %s called functions\n", calltype);
-		sprintf(buff, " &mdash; <a href=\"cpath%s?from=%p&to=%%p\">call path to function</a>", graph_suffix(), f);
+		snprintf(buff, sizeof(buff), " &mdash; <a href=\"cpath%s?from=%p&to=%%p\">call path to function</a>", graph_suffix(), f);
 		break;
 	}
 	if (swill_getvar("e")) {
@@ -3599,7 +3599,7 @@ main(int argc, char *argv[])
 		cout << Sql::getInterface()->end_commands();
 #ifdef LINUX_STAT_MONITOR
 		char buff[100];
-		sprintf(buff, "cat /proc/%u/stat >%u.stat", getpid(), getpid());
+		snprintf(buff, sizeof(buff), "cat /proc/%u/stat >%u.stat", getpid(), getpid());
 		if (system(buff) != 0) {
 			fprintf(stderr, "Unable to run %s\n", buff);
 			exit(1);

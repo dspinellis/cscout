@@ -110,7 +110,7 @@ get_uniq_fname_string(const char *name)
 		 */
 		Error::error(E_FATAL, "Unable to stat file " + s, false);
 	}
-	sprintf(buff, "%ld:%ld", (long)sb.st_dev, (long)sb.st_ino);
+	snprintf(buff, sizeof(buff), "%ld:%ld", (long)sb.st_dev, (long)sb.st_ino);
 	if (DP())
 		cout << "uniq fname " << name << " = " << buff << "\n";
 	return (buff);
@@ -125,7 +125,7 @@ get_full_path(const char *name)
 	if (name[0] != '/') {
 		// Relative path
 		(void)getcwd(wd, sizeof(wd));
-		sprintf(buff, "%s/%s", wd, name);
+		snprintf(buff, sizeof(buff), "%s/%s", wd, name);
 		return (buff);
 	} else
 		return (name);

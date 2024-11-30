@@ -156,7 +156,7 @@ public:
 	 * Construct from name, short name, initial value, and a NULL-terminated list
 	 * list of arguments of the form "letter:Description"
 	 */
-	SelectionOption(const char *sn, const char *un, char iv, ...);
+	SelectionOption(const char *sn, const char *un, int iv, ...);
 	// Save to a file
 	void save(ofstream &ofs) const { ofs << v; }
 	// Load from a file

@@ -1070,8 +1070,7 @@ Pdtoken::process_pragma()
 			return;
 		}
 		char *endptr;
-		unsigned long offset = strtoul(t.get_val().c_str(), &endptr, 0);
-		offset += 0;	// silence the compiler warning
+		(void)strtoul(t.get_val().c_str(), &endptr, 0);
 		// XXX now do the work
 	} else if (t.get_val() == "nosync") {
 		// XXX now do the work

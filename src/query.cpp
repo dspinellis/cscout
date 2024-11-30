@@ -60,7 +60,7 @@ Query::url(const string &s)
 		else {
 			char buff[4];
 
-			sprintf(buff, "%%%02x", (unsigned)*i);
+			snprintf(buff, sizeof(buff), "%%%02x", (unsigned)*i);
 			r += buff;
 		}
 	return r;

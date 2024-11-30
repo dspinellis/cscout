@@ -192,7 +192,7 @@ IdQuery::param_url() const
 	if (ec) {
 		char buff[256];
 
-		sprintf(buff, "&ec=%p", ec);
+		snprintf(buff, sizeof(buff), "&ec=%p", ec);
 		r += buff;
 	} else {
 		r += "&match=";
