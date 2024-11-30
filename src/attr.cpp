@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2015 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -64,6 +64,8 @@ string Attributes::attribute_names[] = {
 	"Macro",
 	"Undefined macro",
 	"Macro argument",
+	"Used in preprocessor constant",
+	"Value used as preprocessor string operand",
 
 	"File scope",
 	"Project scope",
@@ -90,6 +92,8 @@ string Attributes::attribute_short_names[] = {
 	"macro",
 	"umacro",
 	"macroarg",
+	"cppconst",
+	"cppstrval",
 
 	"fscope",
 	"pscope",

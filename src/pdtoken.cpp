@@ -185,7 +185,7 @@ again:
 			break;
 		}
 		expand.push_front(t);
-		expand = macro_expand(expand, Macro::TokenSourceOption::get_more, Macro::DefinedHandlingOption::process);
+		expand = macro_expand(expand, Macro::TokenSourceOption::get_more, Macro::DefinedHandlingOption::process, Macro::CalledContext::process_c);
 		goto expand_get;
 		// FALLTRHOUGH
 	default:
@@ -397,6 +397,10 @@ process_defined()
 		} else
 			last = arg;
 		last++;
+
+		// Mark the identifier as used as a preprocessor constant
+		arg->set_ec_attribute(is_cpp_const);
+
 		// We are about to erase it
 		string val = (*arg).get_val();
 		if (DP()) cout << "val:" << val << "\n";
@@ -446,7 +450,7 @@ eval()
 	}
 
 	// Macro replace, skipping identifiers for defined operator
-	eval_tokens = macro_expand(eval_tokens, Macro::TokenSourceOption::use_supplied, Macro::DefinedHandlingOption::skip);
+	eval_tokens = macro_expand(eval_tokens, Macro::TokenSourceOption::use_supplied, Macro::DefinedHandlingOption::skip, Macro::CalledContext::process_if);
 
 	if (DP()) {
 		cout << "Tokens after macro replace:\n";
@@ -539,6 +543,10 @@ Pdtoken::process_ifdef(bool isndef)
 			 * directive is not a legal identifier
 			 */
 			Error::error(E_WARN, "#ifdef argument is not an identifier");
+
+		// Mark the identifier as used as a preprocessor constant
+		t.set_ec_attribute(is_cpp_const);
+
 		mapMacro::const_iterator i = macros.find(t.get_val());
 		if (i == macros.end())
 			// Heuristic; assume macro, even if it is not defined
@@ -677,7 +685,7 @@ Pdtoken::process_include(bool next)
 	if (f.get_code() != PATHFNAME && f.get_code() != ABSFNAME) {
 		// Need to macro process
 		// 1. Macro replace
-		tokens = macro_expand(tokens, Macro::TokenSourceOption::use_supplied, Macro::DefinedHandlingOption::process);
+		tokens = macro_expand(tokens, Macro::TokenSourceOption::use_supplied, Macro::DefinedHandlingOption::process, Macro::CalledContext::process_include);
 		if (DP()) {
 			cout << "Replaced after macro :\n";
 			copy(tokens.begin(), tokens.end(), ostream_iterator<Ptoken>(cout));

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2015 Diomidis Spinellis
+ * (C) Copyright 2002-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -32,10 +32,13 @@ using namespace std;
 
 // Attributes that can be set for an EC
 // Keep in sync with attribute_names[] and short_names[]
+// Consider updating workdb_schema, insert_eclass
 enum e_attribute {
 	is_declared_unused,	// Declared with __unused__ attribute
 	is_macro_token,		// Identifier stored in a macro
+				// Used to determine macro nesting
 
+	// User-visible attributes start here
 	is_readonly,		// Read-only; true if any member
 				// comes from an ro file
 	// The four C namespaces
@@ -47,6 +50,10 @@ enum e_attribute {
 	is_macro,		// Name of an object or function-like macro
 	is_undefined_macro,	// Macro (heuristic: ifdef, defined)
 	is_macro_arg,		// Macro argument
+	is_cpp_const,		// Used to derive a preprocessor constant
+				// used in #if, #include, defined()
+	is_cpp_str_val,		// Macro's value is used as a string (pasting
+				// or stringization) in the preprocessor
 	// The following are valid if is_ordinary is true:
 	is_cscope,		// Compilation-unit (file) scoped
 				// identifier  (static)

@@ -57,6 +57,11 @@ public:
 	inline void hideset_insert(Token t) { hideset.insert(t); }
 	inline void hideset_insert(HideSet::const_iterator b, HideSet::const_iterator e) { hideset.insert(b, e); }
 	inline const HideSet& get_hideset() const { return (hideset); }
+	/*
+	 * Set the is_cpp_str_val attribute for the macros that were
+	 * expanded to yield the stringized or pasted token.
+	 */
+	void set_cpp_str_val() const;
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Ptoken &t);
 	inline friend bool operator ==(const Ptoken& a, const Ptoken& b);

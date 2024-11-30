@@ -190,6 +190,7 @@ stringize(const PtokenSequence& ts)
 	bool seen_space = true;		// To delete leading spaces
 
 	for (pi = ts.begin(); pi != ts.end(); pi++) {
+		pi->set_cpp_str_val();
 		switch ((*pi).get_code()) {
 		case '\n':
 		case SPACE:
@@ -363,19 +364,26 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun, bool isimmutable) :
 		mcall = NULL;	// To void nasty surprises
 }
 
-static PtokenSequence subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, const Macro *caller);
+static PtokenSequence subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, Macro::CalledContext context, const Macro *caller);
 static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
 static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
 
 /*
  * Expand a token sequence
- * If skip_defined is true then the defined() keyword is not processed
- * The caller is used for registering invocations from one macro to another
  * This is an implementation of Dave Prosser's algorithm, listed in
- * X3J11/86-196
+ * X3J11/86-196 and in https://www.spinellis.gr/blog/20060626/.
+ * If token_source is get_more, then more tokens can be fetched.
+ * If defined_handling is skip then the defined() keyword is not processed
+ * If context denotes preprocessor then is_cpp_const attribute is set
+ * for identifiers.
+ * The caller is used for registering invocations from one macro to another.
  */
 PtokenSequence
-macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, const Macro *caller)
+macro_expand(PtokenSequence ts,
+    Macro::TokenSourceOption token_source,
+    Macro::DefinedHandlingOption defined_handling,
+    Macro::CalledContext context,
+    const Macro *caller)
 {
 	PtokenSequence r;	// Return value
 	auto ts_size = ts.size();
@@ -398,6 +406,11 @@ macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::De
 			r.splice(r.end(), da);
 			continue;
 		}
+
+		// Mark the identifier as used as a preprocessor constant
+		if (context == Macro::CalledContext::process_include
+		    || context == Macro::CalledContext::process_if)
+			head.set_ec_attribute(is_cpp_const);
 
 		const string name = head.get_val();
 		mapMacro::const_iterator mi(Pdtoken::macros_find(name));
@@ -422,7 +435,7 @@ macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::De
 			Token::unify((*mi).second.name_token, head);
 			HideSet hs(head.get_hideset());
 			hs.insert(m.get_name_token());
-			PtokenSequence s(subst(m, m.value, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, caller));
+			PtokenSequence s(subst(m, m.value, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
 			ts.splice(ts.begin(), s);
 			caller = &m;
 		} else if (fill_in(ts, token_source == Macro::TokenSourceOption::get_more, removed_spaces) && ts.front().get_code() == '(') {
@@ -447,7 +460,7 @@ macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::De
 				close.get_hideset().begin(), close.get_hideset().end(),
 				inserter(hs, hs.begin()));
 			hs.insert(m.get_name_token());
-			PtokenSequence s(subst(m, m.value, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, caller));
+			PtokenSequence s(subst(m, m.value, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
 			ts.splice(ts.begin(), s);
 			caller = &m;
 		} else {
@@ -484,7 +497,7 @@ find_nonspace(dequePtoken::iterator pos, dequePtoken::iterator end)
  * hide set added to it, before getting returned.
  */
 static PtokenSequence
-subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, const Macro *caller)
+subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, Macro::CalledContext context, const Macro *caller)
 {
 	PtokenSequence os;	// output sequence
 
@@ -561,7 +574,7 @@ subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool sk
 			if ((ai = find_formal_argument(args, head)) == args.end())
 				break;
 			// Othewise expand head
-			PtokenSequence expanded(macro_expand(ai->second,  Macro::TokenSourceOption::use_supplied, skip_defined ? Macro::DefinedHandlingOption::skip : Macro::DefinedHandlingOption::process, caller));
+			PtokenSequence expanded(macro_expand(ai->second,  Macro::TokenSourceOption::use_supplied, skip_defined ? Macro::DefinedHandlingOption::skip : Macro::DefinedHandlingOption::process, context, caller));
 			os.splice(os.end(), expanded);
 			continue;
 		}
@@ -588,15 +601,19 @@ glue(PtokenSequence ls, PtokenSequence rs)
 		rs.pop_front();
 	if (ls.empty() && rs.empty())
 		return (ls);
+
+	// Glue ls.back() with rs.front()
 	Tchar::clear();
 	if (!ls.empty()) {
 		if (DP()) cout << "glue LS: " << ls.back() << endl;
 		Tchar::push_input(ls.back());
+		ls.back().set_cpp_str_val();
 		ls.pop_back();
 	}
 	if (!rs.empty()) {
 		if (DP()) cout << "glue RS: " << rs.front() << endl;
 		Tchar::push_input(rs.front());
+		rs.front().set_cpp_str_val();
 		rs.pop_front();
 	}
 	Tchar::rewind_input();

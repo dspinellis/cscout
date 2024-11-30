@@ -160,6 +160,8 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 		     db->boolval(e->get_attribute(is_undefined_macro)) << ',' <<
 		     db->boolval(e->get_attribute(is_macro)) << ',' <<
 		     db->boolval(e->get_attribute(is_macro_arg)) << ',' <<
+		     db->boolval(e->get_attribute(is_cpp_const)) << ',' <<
+		     db->boolval(e->get_attribute(is_cpp_str_val)) << ',' <<
 		     db->boolval(e->get_attribute(is_ordinary)) << ',' <<
 		     db->boolval(e->get_attribute(is_suetag)) << ',' <<
 		     db->boolval(e->get_attribute(is_sumember)) << ',' <<
@@ -390,6 +392,9 @@ workdb_schema(Sql *db, ostream &of)
 		"  UNDEFMACRO " << db->booltype() << ", -- True if it is apparantly an undefined macro\n"
 		"  MACRO " << db->booltype() << ", -- True if it a preprocessor macro\n"
 		"  MACROARG " << db->booltype() << ", -- True if it a preprocessor macro argument\n"
+		"  CPPCONST " << db->booltype() << ", -- True if used in a preprocessor constant\n"
+		"  CPPSTRVAL " << db->booltype() << ", -- True if macro value is used as a preprocessor string operand\n"
+
 		"  ORDINARY " << db->booltype() << ", -- True if it is an ordinary identifier (variable or function)\n"
 		"  SUETAG " << db->booltype() << ", -- True if it is a structure, union, or enumeration tag\n"
 		"  SUMEMBER " << db->booltype() << ", -- True if it is a structure or union member\n"

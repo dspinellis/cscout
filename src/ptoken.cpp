@@ -64,6 +64,19 @@ Ptoken::Ptoken(const Ctoken &t) : Token(t)
 {
 }
 
+/*
+ * Set the is_cpp_str_val attribute for the macros that were
+ * expanded to yield the stringized or pasted token.
+ * Conveniently, these macros are part of the token's hide set.
+ */
+void
+Ptoken::set_cpp_str_val() const
+{
+	for (auto &tok : hideset)
+		tok.set_ec_attribute(is_cpp_str_val);
+}
+
+
 #ifdef UNIT_TEST
 // cl -GX -DWIN32 -c eclass.cpp fileid.cpp tokid.cpp tokname.cpp token.cpp
 // cl -GX -DWIN32 -DUNIT_TEST ptoken.cpp token.obj tokid.obj eclass.obj tokname.obj fileid.obj kernel32.lib
