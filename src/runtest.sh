@@ -474,4 +474,7 @@ if [ ! -z "$FAILED" ]
 then
 	echo "# $NOK/$NTEST tests failed"
 	echo "# The following test(s) failed: $FAILED"
+        exit 1
 fi
+
+exit 0
