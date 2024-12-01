@@ -773,7 +773,6 @@ Pdtoken::process_include(bool next)
 void
 Pdtoken::process_define(bool is_immutable)
 {
-	string name;
 	typedef map <string, Token> mapToken;	// To unify args with body
 	mapToken args;
 	Pltoken t;
@@ -801,7 +800,7 @@ Pdtoken::process_define(bool is_immutable)
 	CTag::add(t, 'd');
 	t.set_ec_attribute(is_macro);
 	Pltoken nametok = t;
-	name = t.get_val();
+	string name = t.get_val();
 	t.getnext<Fchar>();	// Space is significant: a(x) vs a (x)
 	bool is_function = (t.get_code() == '(');
 	Macro m(nametok, true, is_function, is_immutable);
@@ -939,8 +938,17 @@ Pdtoken::process_define(bool is_immutable)
 		macros.insert(mapMacro::value_type(name, m));
 	else if (!mi->second.get_is_immutable())
 		mi->second = m;
-	if (is_function)
+
+	if (is_function) {
 		m.register_macro_body(macro_body_tokens);
+		m.get_name_token().set_ec_attribute(is_fun_macro);
+	} else {
+		m.get_name_token().set_ec_attribute(
+		    is_c_const(m.get_value())
+		    ? is_def_c_const : is_def_not_c_const
+		    );
+	}
+
 	if (DP()) cout << "Macro define " << m;
 	Pltoken::clear_echo();
 }

@@ -37,6 +37,20 @@ enum e_attribute {
 	is_declared_unused,	// Declared with __unused__ attribute
 	is_macro_token,		// Identifier stored in a macro
 				// Used to determine macro nesting
+	// The following are used to determine object-like macros that
+	// can be converted into C constants
+	is_fun_macro,		// Defined as a function-like macro
+	is_cpp_const,		// Used to derive a preprocessor constant
+				// used in #if, #include, defined()
+	is_cpp_str_val,		// Macro's value is used as a string (pasting
+				// or stringization) in the preprocessor
+	// Below are probable values; findings can include both cases.
+	// Findings based on defined object-like macros.
+	is_def_c_const,		// Value seen as a C compile-time constant.
+	is_def_not_c_const,	// Value seen as not a C compile-time constant.
+	// Findings based on expanded object-like macros.
+	is_exp_c_const,		// Value seen as a C compile-time constant.
+	is_exp_not_c_const,	// Value seen as not a C compile-time constant.
 
 	// User-visible attributes start here
 	is_readonly,		// Read-only; true if any member
@@ -50,10 +64,7 @@ enum e_attribute {
 	is_macro,		// Name of an object or function-like macro
 	is_undefined_macro,	// Macro (heuristic: ifdef, defined)
 	is_macro_arg,		// Macro argument
-	is_cpp_const,		// Used to derive a preprocessor constant
-				// used in #if, #include, defined()
-	is_cpp_str_val,		// Macro's value is used as a string (pasting
-				// or stringization) in the preprocessor
+
 	// The following are valid if is_ordinary is true:
 	is_cscope,		// Compilation-unit (file) scoped
 				// identifier  (static)

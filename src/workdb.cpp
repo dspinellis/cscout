@@ -159,9 +159,15 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 		     db->boolval(e->get_attribute(is_readonly)) << ',' <<
 		     db->boolval(e->get_attribute(is_undefined_macro)) << ',' <<
 		     db->boolval(e->get_attribute(is_macro)) << ',' <<
+		     db->boolval(e->get_attribute(is_fun_macro)) << ',' <<
 		     db->boolval(e->get_attribute(is_macro_arg)) << ',' <<
 		     db->boolval(e->get_attribute(is_cpp_const)) << ',' <<
 		     db->boolval(e->get_attribute(is_cpp_str_val)) << ',' <<
+		     db->boolval(e->get_attribute(is_def_c_const)) << ',' <<
+		     db->boolval(e->get_attribute(is_def_not_c_const)) << ',' <<
+		     db->boolval(e->get_attribute(is_exp_c_const)) << ',' <<
+		     db->boolval(e->get_attribute(is_exp_not_c_const)) << ',' <<
+
 		     db->boolval(e->get_attribute(is_ordinary)) << ',' <<
 		     db->boolval(e->get_attribute(is_suetag)) << ',' <<
 		     db->boolval(e->get_attribute(is_sumember)) << ',' <<
@@ -391,9 +397,14 @@ workdb_schema(Sql *db, ostream &of)
 		"  READONLY " << db->booltype() << ", -- True if it appears in at least one read-only file\n"
 		"  UNDEFMACRO " << db->booltype() << ", -- True if it is apparantly an undefined macro\n"
 		"  MACRO " << db->booltype() << ", -- True if it a preprocessor macro\n"
+		"  FUNMACRO " << db->booltype() << ", -- True if it a preprocessor function-like macro\n"
 		"  MACROARG " << db->booltype() << ", -- True if it a preprocessor macro argument\n"
 		"  CPPCONST " << db->booltype() << ", -- True if used in a preprocessor constant\n"
 		"  CPPSTRVAL " << db->booltype() << ", -- True if macro value is used as a preprocessor string operand\n"
+		"  DEFCCONSTVAL " << db->booltype() << ", -- True if macro value defined as a C compile time constant\n"
+		"  NOTDEFCCONSTVAL " << db->booltype() << ", -- True if macro value defined as not a C compile time constant\n"
+		"  EXPCCONSTVAL " << db->booltype() << ", -- True if macro value expanded as a C compile time constant\n"
+		"  NOTEXPCCONSTVAL " << db->booltype() << ", -- True if macro value expanded as not a C compile time constant\n"
 
 		"  ORDINARY " << db->booltype() << ", -- True if it is an ordinary identifier (variable or function)\n"
 		"  SUETAG " << db->booltype() << ", -- True if it is a structure, union, or enumeration tag\n"

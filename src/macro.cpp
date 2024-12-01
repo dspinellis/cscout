@@ -364,7 +364,7 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun, bool isimmutable) :
 		mcall = NULL;	// To void nasty surprises
 }
 
-static PtokenSequence subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, Macro::CalledContext context, const Macro *caller);
+static PtokenSequence subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macro::CalledContext context, const Macro *caller);
 static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
 static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
 
@@ -386,9 +386,10 @@ macro_expand(PtokenSequence ts,
     const Macro *caller)
 {
 	PtokenSequence r;	// Return value
+	set<Macro> expanded_macros; // For adding attributes
 	auto ts_size = ts.size();
 
-	if (DP()) cout << "Expanding: " << ts << endl;
+	if (DP()) cout << "macro_expand: expanding: " << ts << endl;
 	while (!ts.empty()) {
 		const Ptoken head(ts.front());
 		ts.pop_front();
@@ -407,11 +408,6 @@ macro_expand(PtokenSequence ts,
 			continue;
 		}
 
-		// Mark the identifier as used as a preprocessor constant
-		if (context == Macro::CalledContext::process_include
-		    || context == Macro::CalledContext::process_if)
-			head.set_ec_attribute(is_cpp_const);
-
 		const string name = head.get_val();
 		mapMacro::const_iterator mi(Pdtoken::macros_find(name));
 		if (!Pdtoken::macro_is_defined(mi)) {
@@ -420,22 +416,28 @@ macro_expand(PtokenSequence ts,
 			continue;
 		}
 
+		// Mark the macro as used as a preprocessor constant
+		if (context == Macro::CalledContext::process_include
+		    || context == Macro::CalledContext::process_if)
+			head.set_ec_attribute(is_cpp_const);
+
 		const Macro& m = mi->second;
 		if (head.hideset_contains(m.get_name_token())) {
 			// Skip the head token if it is in the hideset
-			if (DP()) cout << "Skipping (head is in HS)" << endl;
+			if (DP()) cout << "macro_expand: skipping (head is in HS)" << endl;
 			r.push_back(head);
 			continue;
 		}
 
-		if (DP()) cout << "replacing for " << name << " tokens " << ts << endl;
+		if (DP()) cout << "macro_expand: replacing for " << name << " tokens " << ts << endl;
+		expanded_macros.insert(m);
 		PtokenSequence removed_spaces;
 		if (!m.is_function) {
 			// Object-like macro
 			Token::unify((*mi).second.name_token, head);
 			HideSet hs(head.get_hideset());
 			hs.insert(m.get_name_token());
-			PtokenSequence s(subst(m, m.value, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
+			PtokenSequence s(subst(m, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
 			ts.splice(ts.begin(), s);
 			caller = &m;
 		} else if (fill_in(ts, token_source == Macro::TokenSourceOption::get_more, removed_spaces) && ts.front().get_code() == '(') {
@@ -444,7 +446,7 @@ macro_expand(PtokenSequence ts,
 			mapArgval args;			// Map from formal name to value
 
 			if (DP())
-				cout << "Expanding " << m << " inside " << caller << "\n";
+				cout << "macro_expand: expanding " << m << " inside " << caller << "\n";
 			if (caller && caller->is_function)
 				// Macro to macro call
 				Call::register_call(caller->get_mcall(), m.get_mcall());
@@ -460,20 +462,35 @@ macro_expand(PtokenSequence ts,
 				close.get_hideset().begin(), close.get_hideset().end(),
 				inserter(hs, hs.begin()));
 			hs.insert(m.get_name_token());
-			PtokenSequence s(subst(m, m.value, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
+			PtokenSequence s(subst(m, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
 			ts.splice(ts.begin(), s);
 			caller = &m;
 		} else {
 			// Function-like macro name lacking a (
-			if (DP()) cout << "splicing: [" << removed_spaces << ']' << endl;
+			if (DP()) cout << "macro_expand: splicing: [" << removed_spaces << ']' << endl;
 			ts.splice(ts.begin(), removed_spaces);
 			r.push_back(head);
 		}
 	}
-	if (DP()) cout << "Result: " << r << endl;
+	if (DP()) cout << "macro_expand: result: " << r << endl;
 
 	Metrics::add_pre_cpp_metric(Metrics::em_nmacrointoken, ts_size);
 	Metrics::add_pre_cpp_metric(Metrics::em_nmacroouttoken, r.size());
+
+	/*
+	 * After all macros have been expanded, mark the expanded macros
+	 * on whether the value can or cannot be a C compile-time constant.
+	 * Over a heuristic check made by examining the macro's definition,
+	 * the expansion method has the advantage of resolving constants
+	 * defined as other macros, (e.g. FLAG_MASK) *provided* the macro is
+	 * actually used.
+	 */
+	if (context == Macro::CalledContext::process_c) {
+		enum e_attribute attr = is_c_const(r)
+			? is_exp_c_const : is_exp_not_c_const;
+		for (const auto &m : expanded_macros)
+			m.get_name_token().set_ec_attribute(attr);
+	}
 
 	return (r);
 }
@@ -492,14 +509,16 @@ find_nonspace(dequePtoken::iterator pos, dequePtoken::iterator end)
 }
 
 /*
- * Substitute the arguments args appearing in the input sequence is
+ * Substitute the arguments args (may be empty) in the body of of macro m,
+ * also handling stringization and concatenation.
  * Result is created in the output sequence os and finally has the specified
  * hide set added to it, before getting returned.
  */
 static PtokenSequence
-subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool skip_defined, Macro::CalledContext context, const Macro *caller)
+subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macro::CalledContext context, const Macro *caller)
 {
-	PtokenSequence os;	// output sequence
+	dequePtoken is(m.get_value());// Input sequence
+	PtokenSequence os;	// Output sequence
 
 	while (!is.empty()) {
 		if (DP())
@@ -573,7 +592,7 @@ subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool sk
 			}
 			if ((ai = find_formal_argument(args, head)) == args.end())
 				break;
-			// Othewise expand head
+			// Othewise expand the formal argument's value
 			PtokenSequence expanded(macro_expand(ai->second,  Macro::TokenSourceOption::use_supplied, skip_defined ? Macro::DefinedHandlingOption::skip : Macro::DefinedHandlingOption::process, context, caller));
 			os.splice(os.end(), expanded);
 			continue;
@@ -584,7 +603,7 @@ subst(const Macro &m, dequePtoken is, const mapArgval &args, HideSet hs, bool sk
 	// Add hs to the hide set of every element of os
 	for (PtokenSequence::iterator oi = os.begin(); oi != os.end(); ++oi)
 		oi->hideset_insert(hs.begin(), hs.end());
-	if (DP()) cout << "os after adding hs: " << os << endl;
+	if (DP()) cout << "subst: os after adding hs: " << os << endl;
 
 	return os;
 }

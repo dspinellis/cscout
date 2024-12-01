@@ -58,7 +58,11 @@ public:
 	// Process the defined() function or skip its processing
 	enum class DefinedHandlingOption { process, skip };
 	// Context in which macro_expand is called
-	enum class CalledContext { process_c, process_if, process_include };
+	enum class CalledContext {
+		process_c,		// From C code
+		process_if,		// From #if #elif
+		process_include,	// From #include file name
+	};
 private:
 	Ptoken name_token;		// Name (used for unification)
 	bool is_function;		// True if it is a function-macro
@@ -83,6 +87,7 @@ public:
 	void form_args_push_back(Ptoken& t) { formal_args.push_back(t); };
 	void value_push_back(Ptoken& t) { value.push_back(t); };
 	MCall *get_mcall() const { return mcall; }
+	const dequePtoken& get_value() const { return value; }
 
 	// Remove trailing whitespace
 	void value_rtrim();
@@ -97,6 +102,11 @@ public:
 	friend ostream& operator<<(ostream& o,const Macro &m);
 
 	friend PtokenSequence macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, Macro::CalledContext context, const Macro *caller);
+	// Name-based comparison for the small set of visible macros
+	// constructed in expand_macro.
+	bool operator<(const Macro& other) const {
+		return name_token < other.name_token;
+	}
 };
 
 PtokenSequence macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, Macro::CalledContext context, const Macro *caller = NULL);

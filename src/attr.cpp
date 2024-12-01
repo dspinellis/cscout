@@ -52,6 +52,13 @@ vector<string> Project::projnames(attr_end);
 string Attributes::attribute_names[] = {
 	"__attribute(__unused__)",
 	"Identifier token from a macro",
+	"Function-like macro",
+	"Used in preprocessor constant",
+	"Value used as preprocessor string operand",
+	"Value defined as a C compile-time constant",
+	"Value defined as not a C compile-time constant",
+	"Value expanded as a C compile-time constant",
+	"Value expanded as not a C compile-time constant",
 
 	// User-visible attributes start here
 	"Read-only",
@@ -64,8 +71,6 @@ string Attributes::attribute_names[] = {
 	"Macro",
 	"Undefined macro",
 	"Macro argument",
-	"Used in preprocessor constant",
-	"Value used as preprocessor string operand",
 
 	"File scope",
 	"Project scope",
@@ -80,6 +85,13 @@ string Attributes::attribute_names[] = {
 string Attributes::attribute_short_names[] = {
 	"__attribute(__unused__)",
 	"idmtoken",
+	"funmacro",
+	"cppconst",
+	"cppstrval",
+	"defcconst",
+	"defnotcconst",
+	"expcconst",
+	"expnotcconst",
 
 	// User-visible attributes start here
 	"ro",
@@ -92,8 +104,6 @@ string Attributes::attribute_short_names[] = {
 	"macro",
 	"umacro",
 	"macroarg",
-	"cppconst",
-	"cppstrval",
 
 	"fscope",
 	"pscope",

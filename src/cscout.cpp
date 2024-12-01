@@ -1392,7 +1392,26 @@ static void
 show_id_prop(FILE *fo, const string &name, bool val)
 {
 	if (!Option::show_true->get() || val)
-		fprintf(fo, ("<li>" + name + ": %s\n").c_str(), val ? "Yes" : "No");
+		fprintf(fo, ("<li>" + name + ": %s</li>\n").c_str(), val ? "Yes" : "No");
+}
+
+// Display whether a macro can be replaced by a C constant
+static void
+show_c_const(FILE *fo, Eclass *e)
+{
+	bool val = !e->get_attribute(is_fun_macro)
+		&& !e->get_attribute(is_cpp_const)
+		&& !e->get_attribute(is_cpp_str_val)
+		&& ((e->get_attribute(is_def_c_const)
+			    && !e->get_attribute(is_def_not_c_const))
+		    || (e->get_attribute(is_exp_c_const)
+			    && !e->get_attribute(is_exp_not_c_const))
+		   );
+	fprintf(fo, "<li>Can be replaced by C constant: %s\n", val ? "Yes" : "No");
+	fprintf(fo, "<ul>\n");
+	for (int i = is_fun_macro; i <= is_exp_not_c_const; i++)
+		show_id_prop(fo, Attributes::name(i), e->get_attribute(i));
+	fprintf(fo, "</ul></li>\n");
 }
 
 // Details for each identifier
@@ -1426,6 +1445,8 @@ identifier_page(FILE *fo, void *p)
 		show_id_prop(fo, Attributes::name(i), e->get_attribute(i));
 	show_id_prop(fo, "Crosses file boundary", id.get_xfile());
 	show_id_prop(fo, "Unused", e->is_unused());
+	if (e->get_attribute(is_macro))
+		show_c_const(fo, e);
 	fprintf(fo, "<li> Matches %d occurence(s)\n", e->get_size());
 	if (Option::show_projects->get()) {
 		fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
