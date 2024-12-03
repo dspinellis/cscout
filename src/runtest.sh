@@ -255,14 +255,16 @@ mkdir -p test/err/chunk
 echo '
 .print "Starting dump"
 
-select s from
-(select name as s, foffset  from ids inner join tokens on
-ids.eid = tokens.eid where fid = 4
-union select code as s, foffset from rest where fid = 4
-union select comment as s, foffset from comments where fid = 4
-union select string as s, foffset from strings where fid = 4
-)
-order by foffset;
+SELECT s FROM (
+  SELECT name AS s, foffset
+    FROM ids
+    INNER JOIN tokens ON ids.eid = tokens.eid
+    WHERE fid = 4
+  UNION SELECT code AS s, foffset FROM rest WHERE fid = 4
+  UNION SELECT comment AS s, foffset FROM comments WHERE fid = 4
+  UNION SELECT string AS s, foffset FROM strings WHERE fid = 4
+  )
+ORDER BY foffset;
 '
 ) |
 sqlite3 |
