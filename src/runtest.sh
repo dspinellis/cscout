@@ -34,6 +34,7 @@
 # SQLFILES=sql08-common-ids.sql ./runtest.sh -TEST_SQL
 #
 
+export LC_ALL=C
 
 echo 'TAP version 13'
 
