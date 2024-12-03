@@ -25,11 +25,13 @@
 # -TEST_CPP
 # -TEST_C
 # -TEST_OBFUSCATION
+# -TEST_SQL
 #
 # To run a single test set the corresponding environment variable e.g.
 # CFILES=c36-endlabel.c ./runtest.sh -TEST_C
 # RCFILES=c36-endlabel.c ./runtest.sh -TEST_RECONST
 # CPPFILES=cpp63-rescan.c ./runtest.sh -TEST_CPP
+# SQLFILES=sql08-common-ids.sql ./runtest.sh -TEST_SQL
 #
 
 
@@ -65,8 +67,12 @@ show_error()
 }
 
 # End a test (arguments directory, name)
+# Expects results in test/out/$NAME.{out,err}
 end_compare()
 {
+        DIR=$1
+        NAME=$2
+
 	if [ "$PRIME" = 1 ]
 	then
 		return 0
@@ -108,6 +114,27 @@ end_test()
 	fi
 }
 
+# Set SQLite output for nice formatting
+sql_output()
+{
+  cat <<\EOF
+.separator "\t"
+.headers on
+.nullvalue NULL
+EOF
+}
+
+# Speed up SQLite processing and standardize its output
+sql_prologue()
+{
+  cat <<\EOF
+PRAGMA synchronous = OFF;
+PRAGMA journal_mode = OFF;
+PRAGMA locking_mode = EXCLUSIVE;
+EOF
+  sql_output
+}
+
 # Test the analysis of a C project
 # runtest name directory csfile
 runtest_c()
@@ -121,15 +148,8 @@ runtest_c()
 (
 echo '.print "Loading database"'
 (cd $DIR ; $SRCPATH/$CSCOUT -s sqlite $CSFILE) 2>test/err/chunk/$NAME.cs
+sql_prologue
 cat <<\EOF
-PRAGMA synchronous = OFF;
-PRAGMA journal_mode = OFF;
-PRAGMA locking_mode = EXCLUSIVE;
-
-.separator "\t"
-.headers on
-.nullvalue NULL
-
 .print "Fixing EIDs"
 
 CREATE TABLE FixedIds(EID BIGINT primary key, fixedid integer);
@@ -322,6 +342,24 @@ runtest_cpp()
 	end_compare $DIR $NAME
 }
 
+# Test the exection of supplied SQL scripts
+# runtest name directory source-path csfile
+runtest_sql()
+{
+  NAME=$1
+  DIR=$2
+  DB=$3
+
+  start_test $DIR $NAME
+  mkdir -p test/err/chunk
+  (
+    sql_output
+    cat test/sql/$NAME
+  ) |
+  sqlite3 $DB >test/nout/$NAME.out 2>test/nout/$NAME.err
+  end_compare $DIR $NAME
+}
+
 # Create a CScout preprocessing project file for the given source code file
 makecs_cpp()
 {
@@ -352,6 +390,7 @@ set_test()
 	TEST_CPP=$1
 	TEST_C=$1
 	TEST_OBFUSCATION=$1
+	TEST_SQL=$1
 }
 
 #
@@ -368,7 +407,7 @@ while test $# -gt 0; do
         case $1 in
 	-p)	PRIME=1
 		echo "Priming test data"
-                rm test/nout/*
+                rm -f test/nout/*
 		;;
 	-k)	CONTINUE=1
 		;;
@@ -449,6 +488,31 @@ if [ $TEST_AWK = 1 ]
 then
 	TEST_GROUP=C
 	runtest_c awk.c ../example ../src awk.cs
+fi
+
+# SQL queries
+if [ $TEST_SQL = 1 ]
+then
+  TEST_GROUP=SQL
+
+  DB=sql.db
+
+  # Populate the database
+  rm -f $DB
+  (
+    cd ../example
+    sql_prologue
+    ../src/$CSCOUT -s sqlite awk.cs 2>../src/test/err/chunk/sql.cs
+    echo "UPDATE files SET name = SUBSTR(name, INSTR(name, '/example/') + 1);"
+    echo "UPDATE files SET name = SUBSTR(name, INSTR(name, '/../../') + 7) WHERE name LIKE '%/../../%';"
+  ) |
+  sqlite3 $DB >/dev/null 2>test/err/chunk/sql.sqlite
+
+  for i in ${SQLFILES:=$(cd test/sql; echo *.sql)}
+  do
+    runtest_sql $i ../example $DB
+  done
+  rm -f $DB
 fi
 
 # Finish priming
