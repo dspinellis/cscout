@@ -12,4 +12,4 @@ SELECT
   INNER JOIN files as filesb ON tokensb.fid = filesb.fid
   WHERE tokensa.eid = tokensb.eid
   GROUP BY tokensa.eid, definerid, basefileid
-  ORDER BY defined, identifier;
+  ORDER BY defined, identifier, used;
