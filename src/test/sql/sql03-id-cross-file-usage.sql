@@ -1,6 +1,6 @@
--- Number of different files that use a given identifier:
+-- Number of different files that use a given identifier
 
-sELECT name, Count(*) AS cf FROM (
+SELECT name, Count(*) AS cf FROM (
   SELECT fid, tokens.eid, Count(*) AS c
     FROM tokens
     GROUP BY eid, fid

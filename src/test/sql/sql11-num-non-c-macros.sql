@@ -1,7 +1,5 @@
 -- Macros that cannot be easily converted into C
 
--- Number of macros using local identifiers or labels
--- Conservative estimate (does not count macros called by other macros)
 CREATE INDEX IF NOT EXISTS idx_tokens_eid ON tokens(eid);
 CREATE INDEX IF NOT EXISTS idx_functiondefs_functionid ON functiondefs(functionid);
 CREATE INDEX IF NOT EXISTS idx_fcalls_destid ON fcalls(destid);

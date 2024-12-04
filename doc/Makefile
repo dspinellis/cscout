@@ -16,7 +16,7 @@ NOTETOOLS=/dds/pubs/courses/tools
 .pic.eps:
 	perl -p -e 'BEGIN {binmode(STDOUT);} s/\r//' $< | $(PIC2PLOT) -Teps >$@
 
-all: mancscout.xml mancswc.xml mancsmake.xml mancscc.xml dbschema.xml
+all: mancscout.xml mancswc.xml mancsmake.xml mancscc.xml dbschema.xml qeg.xml
 	rm -f style.css
 	cp -u ../src/style.css .
 	chmod 666 style.css
@@ -27,6 +27,9 @@ all: mancscout.xml mancswc.xml mancsmake.xml mancscc.xml dbschema.xml
 	cp -u simul.html ${UH}/${DESTDIR}/doc
 	cp -u logo.png ${UH}/${DESTDIR}
 	cp -u stock*.png emacs.css ${UH}/${DESTDIR}/doc
+
+qeg.xml: mksqleg.sh
+	./mksqleg.sh >$@
 
 mancscout.xml: ../man/cscout.1
 	echo '<?xml version="1.0" ?>' >mancscout.xml

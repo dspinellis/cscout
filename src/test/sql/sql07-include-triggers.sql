@@ -1,4 +1,4 @@
--- Show the included files required by other files for each compilation unit and project.
+-- Included files required by other files for each compilation unit and project
 
 SELECT
     projects.name AS projname,

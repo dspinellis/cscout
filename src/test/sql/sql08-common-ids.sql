@@ -1,4 +1,4 @@
--- Obtain identifiers common between files participating in a define/use relationship:
+-- Identifiers common between files participating in a define/use relationship
 
 SELECT
     min(ids.name) as identifier,

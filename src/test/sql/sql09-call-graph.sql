@@ -1,4 +1,4 @@
--- Create a function and macro call graph:
+-- Function and macro call graph
 
 SELECT source.name AS CallingFunction, dest.name AS CalledFunction
   FROM fcalls

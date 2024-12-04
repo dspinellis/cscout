@@ -1,4 +1,4 @@
--- Speed up processing
+-- Index creation to speed up processing
 
 CREATE INDEX IF NOT EXISTS idx_tokens_eid ON tokens(eid);
 CREATE INDEX IF NOT EXISTS idx_tokens_fid_idx on tokens(fid);

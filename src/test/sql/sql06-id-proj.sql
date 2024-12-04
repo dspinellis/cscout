@@ -1,4 +1,4 @@
--- Show the projects each identifier named main belongs to
+-- Projects each identifier named main belongs to
 
 SELECT ids.name, projects.name
   FROM ids
