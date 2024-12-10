@@ -288,6 +288,7 @@ uninstall:
 	rm -f "$(PREFIX)/bin/cswc"
 	rm -f "$(PREFIX)/bin/cscut"
 	rm -f "$(PREFIX)/bin/cssplit"
+	rm -f "$(PREFIX)/bin/csreconst"
 	rm -rf "$(PREFIX)/include/cscout"
 	for i in ../man/*.1 ; do rm -f $(MANDIR)/$$(basename $$i) ; done
 

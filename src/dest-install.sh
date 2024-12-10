@@ -101,5 +101,6 @@ install $TMPFILE "$PREFIX/bin/cscc"
 
 install cscut.sh "$PREFIX/bin/cscut"
 install cssplit.awk "$PREFIX/bin/cssplit"
+install csreconst.sh "$PREFIX/bin/csreconst"
 
 rm -f $TMPFILE

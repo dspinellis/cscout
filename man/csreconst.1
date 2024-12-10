@@ -1,0 +1,103 @@
+.TH CSRECONST 1 "10 December 2024"
+.\"
+.\" (C) Copyright 2024 Diomidis Spinellis
+.\"
+.\" This file is part of CScout.
+.\"
+.\" CScout is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" CScout is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with CScout.  If not, see <http://www.gnu.org/licenses/>.
+.\"
+.SH NAME
+csreconst \- Test the reconstitution of files from a CScout database
+.SH SYNOPSIS
+\fBcsreconst\fP -t [\fB-ckqs\fP] \fIdatabase.db\fP
+.br
+\fBcsreconst\fP -f \fIfile\fP [\fB-o\fP] [\fB-b\fP \fIline\fP] [\fB-e\fP \fIline\fP] ... \fIdatabase.db\fP
+.SH DESCRIPTION
+\fIcsreconst\fP is a utility for testing the reconstitution of files
+stored in a \fICScout\fP database or reconstituting specific files.
+.PP
+The program provides two modes of operation:
+.TP
+\fB-t\fP
+Test the reconstitution of all files in the specified SQLite \fIdatabase.db\fP.
+Additional options can be specified to refine the behavior of the testing:
+.TP
+\fB-c\fP
+Count the number of correct and incorrect files.
+.TP
+\fB-k\fP
+Keep comparing after finding a difference.
+.TP
+\fB-q\fP
+Run a quick diff without listing the full differences.
+.TP
+\fB-s\fP
+Provide a summary of each file's reconstitution result.
+.PP
+\fB-f\fP
+Reconstitute a specified \fIfile\fP stored in SQLite \fIdatabase.db\fP.
+Additional options allow fine-grained control of the reconstitution:
+.TP
+\fB-b \fIline\fP
+Reconstitute starting from the specified beginning line number.
+.TP
+\fB-e \fIline\fP
+Reconstitute up to the specified ending line number.
+.TP
+\fB-o\fP
+Prefix each reconstituted part with its file offset value.
+.SH EXAMPLES
+Test all files in a \fICScout\fP database and provide a summary:
+.PP
+.DS
+.ft C
+.nf
+csreconst -tckqs result.db
+.ft P
+.fi
+.DE
+.PP
+Reconstitute the file \fCmain.c\fP from a \fICScout\fP database:
+.PP
+.DS
+.ft C
+.nf
+csreconst -f main.c result.db
+.ft P
+.fi
+.DE
+.PP
+Reconstitute file \fCmain.c\fP from line 10 to line 50,
+listing the offset of each part:
+.PP
+.DS
+.ft C
+.nf
+csreconst -f main.c -b 10 -e 50 -o result.db
+.ft P
+.fi
+.DE
+.SH EXIT STATUS
+The exit code indicates the result of the comparison operation:
+.TP
+0
+All files compare equal (no differences found).
+.TP
+1
+Differences were found between the reconstituted and original files.
+.SH "SEE ALSO"
+cscout(1),
+csmake(1)
+.SH AUTHOR
+(C) Copyright 2024 Diomidis Spinellis.
