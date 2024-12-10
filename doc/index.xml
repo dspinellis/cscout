@@ -8,6 +8,7 @@
 <ch><ti>Workspace Definition Details</ti><fi>wspd</fi></ch>
 <ch><ti>Automated Generation of the Processing Script</ti><fi>csmake</fi></ch>
 <ch><ti>Tailoring the Build Process to Generate the Processing Script</ti><fi>pragma</fi></ch>
+<ch><ti>Troubleshooting CScout processing</ti><fi>csdebug</fi></ch>
 <ch><ti>CScout Execution</ti><fi>run</fi></ch>
 <ch><ti>Basic Concepts</ti><fi>concept</fi></ch>
 <ch><ti>The Web Interface</ti><fi>web</fi></ch>
