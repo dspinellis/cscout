@@ -3,6 +3,10 @@ dbschema.xml
 fmtcache
 mancscc.xml
 mancscout.xml
+mancscut.xml
 mancsmake.xml
+mancsreconst.xml
+mancssplit.xml
 mancswc.xml
 style.css
+qeg.xml
