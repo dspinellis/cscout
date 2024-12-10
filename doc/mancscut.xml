@@ -1,0 +1,134 @@
+<?xml version="1.0" ?>
+<notes>
+
+
+<a href="#NAME">NAME</a><br>
+<a href="#SYNOPSIS">SYNOPSIS</a><br>
+<a href="#DESCRIPTION">DESCRIPTION</a><br>
+<a href="#EXAMPLE">EXAMPLE</a><br>
+<a href="#SEE ALSO">SEE ALSO</a><br>
+<a href="#AUTHOR">AUTHOR</a><br>
+
+<hr>
+
+
+<h2>NAME
+<a name="NAME"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">cscut -
+Extract portions of a CScout processing script</p>
+
+<h2>SYNOPSIS
+<a name="SYNOPSIS"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em"><b>cscut</b>
+[<b>-e</b>] [<b>-F</b> <i>file-list</i> | <b>-f</b>
+<i>file</i> | <b>-p</b> <i>project</i>]
+<i>cscout-file</i></p>
+
+<h2>DESCRIPTION
+<a name="DESCRIPTION"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">The <i>cscut</i>
+command-line tool extracts specific portions of a
+<i>CScout</i> processing script. It provides a flexible way
+to select parts of the <i>CScout</i> processing script based
+on files or projects.</p>
+
+<p style="margin-left:9%; margin-top: 1em">The following
+options are available:</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="9%"></td>
+<td width="3%">
+
+
+<p><b>-e</b></p></td>
+<td width="6%"></td>
+<td width="70%">
+
+
+<p>Output from the specified point to the end of the
+file.</p> </td>
+<td width="12%">
+</td></tr>
+</table>
+
+<p style="margin-left:9%;"><b>-F</b> <i>file-list</i></p>
+
+<p style="margin-left:18%;">Output a script to process only
+the files specified in <i>file-list</i>, where
+<i>file-list</i> is a file containing a list of
+filenames.</p>
+
+<p style="margin-left:9%;"><b>-f</b> <i>file</i></p>
+
+<p style="margin-left:18%;">Output a script to process only
+the specified <i>file</i>.</p>
+
+<p style="margin-left:9%;"><b>-p</b> <i>project</i></p>
+
+<p style="margin-left:18%;">Output a script to process only
+the specified <i>project</i>.</p>
+
+<p style="margin-left:9%; margin-top: 1em">The last
+argument, <i>cscout-file</i>, specifies the <i>CScout</i>
+processing script to be processed.</p>
+
+<h2>EXAMPLE
+<a name="EXAMPLE"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">Below are some
+typical use cases for <i>cscut</i>.</p>
+
+<p style="margin-left:9%; margin-top: 1em">Extract a script
+to process the file <tt>x86.cs</tt>:</p>
+
+<pre style="margin-left:9%; margin-top: 1em">cscut -f /home/dds/src/linux/arch/x86/kvm/x86.c make.cs &gt;x86.cs</pre>
+
+
+<p style="margin-left:9%; margin-top: 1em">Extract a script
+to process the files listed in <i>file-list.txt</i>:</p>
+
+<pre style="margin-left:9%; margin-top: 1em">cscut -F file-list.txt make.cs &gt;files.cs</pre>
+
+
+<p style="margin-left:9%; margin-top: 1em">Extract a script
+to process only the project <tt>.tmp_vmlinux3</tt>:</p>
+
+<pre style="margin-left:9%; margin-top: 1em">cscut -p /home/dds/src/linux/.tmp_vmlinux3 &gt;linux.cs</pre>
+
+
+<p style="margin-left:9%; margin-top: 1em">Extract a script
+to process from the file <tt>export.c</tt> and onward:</p>
+
+<pre style="margin-left:9%; margin-top: 1em">cscut -f /home/dds/src/linux/fs/ocfs2/export.c linux.cs &gt;ocfs2-export.cs</pre>
+
+
+<h2>SEE ALSO
+<a name="SEE ALSO"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">cscout(1),
+cssplit(1), csmake(1)</p>
+
+<h2>AUTHOR
+<a name="AUTHOR"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">(C) Copyright
+2024 Diomidis Spinellis.</p>
+<hr>
+</notes>

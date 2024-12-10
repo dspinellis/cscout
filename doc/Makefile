@@ -1,7 +1,9 @@
 DESTDIR=/dds/pubs/web/home/cscout
 NOTETOOLS=/dds/pubs/courses/tools
+MANDOC=mancscout.xml mancswc.xml mancsmake.xml mancscc.xml mancscut.xml \
+       mancssplit.xml
 
-.SUFFIXES:.java .dot .ps .gif .pic .eps .png
+.SUFFIXES:.java .dot .ps .gif .pic .eps .png .1
 
 .java.dot:
 	javadoc -docletpath ../lib/UmlGraph.jar -doclet gr.spinellis.umlgraph.doclet.UmlGraph -private $<
@@ -16,7 +18,13 @@ NOTETOOLS=/dds/pubs/courses/tools
 .pic.eps:
 	perl -p -e 'BEGIN {binmode(STDOUT);} s/\r//' $< | $(PIC2PLOT) -Teps >$@
 
-all: mancscout.xml mancswc.xml mancsmake.xml mancscc.xml dbschema.xml qeg.xml
+man%.xml: ../man/%.1
+	echo '<?xml version="1.0" ?>' > $@
+	echo '<notes>' >> $@
+	groff -mhtml -Thtml -man <$< | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>$@
+	echo '</notes>' >> $@
+
+all: $(MANDOC) dbschema.xml qeg.xml
 	rm -f style.css
 	cp -u ../src/style.css .
 	chmod 666 style.css
@@ -30,30 +38,6 @@ all: mancscout.xml mancswc.xml mancsmake.xml mancscc.xml dbschema.xml qeg.xml
 
 qeg.xml: mksqleg.sh
 	./mksqleg.sh >$@
-
-mancscout.xml: ../man/cscout.1
-	echo '<?xml version="1.0" ?>' >mancscout.xml
-	echo '<notes>' >>mancscout.xml
-	groff -mhtml -Thtml -man <../man/cscout.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancscout.xml
-	echo '</notes>' >>mancscout.xml
-
-mancswc.xml: ../man/cswc.1
-	echo '<?xml version="1.0" ?>' >mancswc.xml
-	echo '<notes>' >>mancswc.xml
-	groff -mhtml -Thtml -man <../man/cswc.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancswc.xml
-	echo '</notes>' >>mancswc.xml
-
-mancsmake.xml: ../man/csmake.1
-	echo '<?xml version="1.0" ?>' >mancsmake.xml
-	echo '<notes>' >>mancsmake.xml
-	groff -mhtml -Thtml -man <../man/csmake.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancsmake.xml
-	echo '</notes>' >>mancsmake.xml
-
-mancscc.xml: ../man/cscc.1
-	echo '<?xml version="1.0" ?>' >mancscc.xml
-	echo '<notes>' >>mancscc.xml
-	groff -mhtml -Thtml -man <../man/cscc.1 | sed -e '1,/<body>/d;/<\/body>/,$$d;s/&minus;/-/g;/<h1/d;s/&bull;/\&#8226;/g;s/&quot;/"/g' >>mancscc.xml
-	echo '</notes>' >>mancscc.xml
 
 dbschema.xml: ../src/build/cscout
 	echo '<?xml version="1.0" ?>' >$@

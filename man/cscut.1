@@ -1,0 +1,98 @@
+.TH CSCUT 1 "10 December 2024"
+.\"
+.\" (C) Copyright 2024 Diomidis Spinellis
+.\"
+.\" This file is part of CScout.
+.\"
+.\" CScout is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" CScout is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with CScout.  If not, see <http://www.gnu.org/licenses/>.
+.\"
+.SH NAME
+cscut \- Extract portions of a CScout processing script
+.SH SYNOPSIS
+\fBcscut\fP
+[\fB-e\fP]
+[\fB-F\fP \fIfile-list\fP | \fB-f\fP \fIfile\fP | \fB-p\fP \fIproject\fP]
+\fIcscout-file\fP
+.SH DESCRIPTION
+The \fIcscut\fP command-line tool extracts specific portions of a
+\fICScout\fP processing script.
+It provides a flexible way to select parts of the \fICScout\fP processing
+script based on files or projects.
+.PP
+The following options are available:
+.TP
+\fB-e\fP
+Output from the specified point to the end of the file.
+.TP
+\fB-F \fIfile-list\fP
+Output a script to process only the files specified in \fIfile-list\fP,
+where \fIfile-list\fP is a file containing a list of filenames.
+.TP
+\fB-f \fIfile\fP
+Output a script to process only the specified \fIfile\fP.
+.TP
+\fB-p \fIproject\fP
+Output a script to process only the specified \fIproject\fP.
+.PP
+The last argument, \fIcscout-file\fP, specifies the \fICScout\fP
+processing script to be processed.
+.SH EXAMPLE
+Below are some typical use cases for \fIcscut\fP.
+.PP
+Extract a script to process the file \fCx86.cs\fP:
+.PP
+.DS
+.ft C
+.nf
+cscut -f /home/dds/src/linux/arch/x86/kvm/x86.c make.cs >x86.cs
+.ft P
+.fi
+.DE
+.PP
+Extract a script to process the files listed in \fIfile-list.txt\fP:
+.PP
+.DS
+.ft C
+.nf
+cscut -F file-list.txt make.cs >files.cs
+.ft P
+.fi
+.DE
+.PP
+Extract a script to process only the project \fC.tmp_vmlinux3\fP:
+.PP
+.DS
+.ft C
+.nf
+cscut -p /home/dds/src/linux/.tmp_vmlinux3 >linux.cs
+.ft P
+.fi
+.DE
+.PP
+Extract a script to process from the file \fCexport.c\fP and onward:
+.PP
+.DS
+.ft C
+.nf
+cscut -f /home/dds/src/linux/fs/ocfs2/export.c linux.cs >ocfs2-export.cs
+.ft P
+.fi
+.DE
+.PP
+.SH "SEE ALSO"
+cscout(1),
+cssplit(1),
+csmake(1)
+.SH AUTHOR
+(C) Copyright 2024 Diomidis Spinellis.

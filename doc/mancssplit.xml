@@ -1,0 +1,120 @@
+<?xml version="1.0" ?>
+<notes>
+
+
+<a href="#NAME">NAME</a><br>
+<a href="#SYNOPSIS">SYNOPSIS</a><br>
+<a href="#DESCRIPTION">DESCRIPTION</a><br>
+<a href="#ARGUMENTS">ARGUMENTS</a><br>
+<a href="#EXAMPLE">EXAMPLE</a><br>
+<a href="#SEE ALSO">SEE ALSO</a><br>
+<a href="#AUTHOR">AUTHOR</a><br>
+
+<hr>
+
+
+<h2>NAME
+<a name="NAME"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">cssplit -
+Split a CScout processing script into smaller scripts</p>
+
+<h2>SYNOPSIS
+<a name="SYNOPSIS"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em"><b>cssplit</b>
+<i>N</i></p>
+
+<h2>DESCRIPTION
+<a name="DESCRIPTION"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">The
+<i>cssplit</i> command-line program is a filter that splits
+a <i>CScout</i> processing script into <i>N</i> smaller
+scripts for parallel or distributed processing. Each output
+script is named using a zero-padded sequence, starting with
+<i>file-0001.cs</i>.</p>
+
+<p style="margin-left:9%; margin-top: 1em">The input is
+read from the standard input, and the output files are
+written to the current working directory.</p>
+
+<p style="margin-left:9%; margin-top: 1em">This tool is
+useful for distributing the workload of a large
+<i>CScout</i> analysis across multiple scripts for
+efficiency or manageability.</p>
+
+<h2>ARGUMENTS
+<a name="ARGUMENTS"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="9%"></td>
+<td width="1%">
+
+
+<p style="margin-top: 1em"><i>N</i></p></td>
+<td width="8%"></td>
+<td width="82%">
+
+
+<p style="margin-top: 1em">The number of output scripts to
+generate. The input processing script is divided into
+<i>N</i> approximately equal parts.</p></td></tr>
+</table>
+
+<p style="margin-left:9%; margin-top: 1em">Each output
+script contains the appropriate subset of the input commands
+to ensure no loss of information during the split. Currently
+<i>cssplit</i> supports only processing scripts containing a
+single project.</p>
+
+<h2>EXAMPLE
+<a name="EXAMPLE"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">To split an
+input processing script into 4 smaller scripts:</p>
+
+<pre style="margin-left:9%; margin-top: 1em">cssplit 4 &lt;make.cs</pre>
+
+
+<p style="margin-left:9%; margin-top: 1em">This will create
+the following files in the current directory:</p>
+
+<pre style="margin-left:9%; margin-top: 1em">file-0001.cs
+file-0002.cs
+file-0003.cs
+file-0004.cs</pre>
+
+
+<p style="margin-left:9%; margin-top: 1em">Each file
+contains a portion of the original processing script.</p>
+
+<h2>SEE ALSO
+<a name="SEE ALSO"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">cscout(1),
+cscut(1), csmake(1)</p>
+
+<h2>AUTHOR
+<a name="AUTHOR"></a>
+</h2>
+
+
+<p style="margin-left:9%; margin-top: 1em">(C) Copyright
+2024 Diomidis Spinellis.</p>
+<hr>
+</notes>

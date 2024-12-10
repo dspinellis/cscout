@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# (C) Copyright 2016 Diomidis Spinellis
+# (C) Copyright 2016-2024 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -98,5 +98,8 @@ for f in cswc.pl csmake.pl ; do
 done
 # Install as cscc
 install $TMPFILE "$PREFIX/bin/cscc"
+
+install cscut.sh "$PREFIX/bin/cscut"
+install cssplit.awk "$PREFIX/bin/cssplit"
 
 rm -f $TMPFILE

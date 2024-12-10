@@ -1,0 +1,76 @@
+.TH CSSPLIT 1 "10 December 2024"
+.\"
+.\" (C) Copyright 2024 Diomidis Spinellis
+.\"
+.\" This file is part of CScout.
+.\"
+.\" CScout is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" CScout is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with CScout.  If not, see <http://www.gnu.org/licenses/>.
+.\"
+.SH NAME
+cssplit \- Split a CScout processing script into smaller scripts
+.SH SYNOPSIS
+\fBcssplit\fP \fIN\fP
+.SH DESCRIPTION
+The \fIcssplit\fP command-line program is a filter that splits a \fICScout\fP
+processing script into \fIN\fP smaller scripts for parallel
+or distributed processing.
+Each output script is named using a zero-padded sequence,
+starting with \fIfile-0001.cs\fP.
+.PP
+The input is read from the standard input,
+and the output files are written to the current working directory.
+.PP
+This tool is useful for distributing the workload of a large \fICScout\fP
+analysis across multiple scripts for efficiency or manageability.
+.SH ARGUMENTS
+.TP
+\fIN\fP
+The number of output scripts to generate.
+The input processing script is divided into \fIN\fP approximately equal parts.
+.PP
+Each output script contains the appropriate subset of the input commands to
+ensure no loss of information during the split.
+Currently \fIcssplit\fP supports only processing scripts containing a single
+project.
+.SH EXAMPLE
+To split an input processing script into 4 smaller scripts:
+.PP
+.DS
+.ft C
+.nf
+cssplit 4 <make.cs
+.ft P
+.fi
+.DE
+.PP
+This will create the following files in the current directory:
+.PP
+.DS
+.ft C
+.nf
+file-0001.cs
+file-0002.cs
+file-0003.cs
+file-0004.cs
+.ft P
+.fi
+.DE
+.PP
+Each file contains a portion of the original processing script.
+.SH "SEE ALSO"
+cscout(1),
+cscut(1),
+csmake(1)
+.SH AUTHOR
+(C) Copyright 2024 Diomidis Spinellis.
