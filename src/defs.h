@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2024 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -29,6 +29,8 @@
 #define __FILE__ ""
 #define __LINE__ 0
 #define __PRETTY_FUNCTION__ ""
+
+#define __CSCOUT__ 1
 
 //#define __cplusplus
 #define __STDC__ 1
