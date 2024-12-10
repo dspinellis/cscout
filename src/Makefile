@@ -18,6 +18,7 @@
 #
 
 PREFIX?=/usr/local
+MANDIR?=$(PREFIX)/share/man/man1
 
 # By default a production build is made.
 # For a debug build run make as:
@@ -277,13 +278,18 @@ obfuscation:
 install: build/cscout
 	install -Ds $< "$(PREFIX)/bin/cscout"
 	./dest-install.sh "$(PREFIX)"
+	install -d $(MANDIR)
+	for i in ../man/*.1 ; do install -m 644 $$i $(MANDIR) ; done
 
 uninstall:
 	rm -f "$(PREFIX)/bin/cscc"
 	rm -f "$(PREFIX)/bin/cscout"
 	rm -f "$(PREFIX)/bin/csmake"
 	rm -f "$(PREFIX)/bin/cswc"
+	rm -f "$(PREFIX)/bin/cscut"
+	rm -f "$(PREFIX)/bin/cssplit"
 	rm -rf "$(PREFIX)/include/cscout"
+	for i in ../man/*.1 ; do rm -f $(MANDIR)/$$(basename $$i) ; done
 
 example: build/cscout
 	cd ../example && ../src/build/cscout awk.cs
