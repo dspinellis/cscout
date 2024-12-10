@@ -42,11 +42,17 @@ Here is advice for troubleshooting such errors.
     </li>
     <li>If the <em>CScout</em> script part associated with the offending
       part, contains <code>#pragma process</code> directives for header
-      files, then the above method will not work.
+      files, as in the example below, then the above method will not work.
+      <pre>
+#include "/usr/local/include/cscout/csmake-post-defs.h"
+#pragma process "[...]/include/linux/kconfig.h"
+#pragma process "[...]/init/do_mounts_rd.c"
+      </pre>
       In this case, employ the <em>cscut</em> command to extract from the
       processing script the part associated with the offending file
-      (e.g. into <code>file.cs</code>),
-      and then run <code>cscout -E . file.cs >file.i</code>
+      (e.g. into a file named <code>file.cs</code>),
+	and then run <em>CScout</em> in preprocessing mode on that file:
+	<code>cscout -E . file.cs >file.i</code>
     </li>
     <li>Create a <em>CScout</em> processing script for the preprocessed
       file, such as the following.
@@ -58,8 +64,9 @@ Here is advice for troubleshooting such errors.
 #pragma block_exit
       </pre>
     </li>
-    <li>Process the new script to see the line in which the error occurs
-      in the preprocessed code and handle it as in the first case.
+    <li>Process the new script with <em>CScout</em>to see the line in which
+      the error occurs in the preprocessed code and handle it as in the
+      first case.
     </li>
     <li>To identify the correspondence between the preprocessed code and
       the original source code, try to match identifiers that are likely
@@ -80,7 +87,12 @@ Here is advice for troubleshooting such errors.
     <li>As you advance through the <em>CScout</em> processing script,
       generate a subset of unprocessed parts with a <code>cscut -e</code>
       command or by deleting the processed parts with your editor.
-      (Be careful not to violate the project and file block nestings.)
+      When modifying the processing script by hand,
+      be careful not to violate the project and file block nestings.
+      You can remove the processing of entire projects (an outward
+      <code>#pragma block_enter / block_exit</code> block) or entire
+      files (an inward <code>#pragma block_enter / block_exit</code>),
+      but you should never leave incomplete blocks.
     </li>
   </ul>
   </li>
