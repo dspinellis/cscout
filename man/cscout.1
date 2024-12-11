@@ -131,17 +131,17 @@ The port number must be in the range 1024-32767.
 .IP "\fB\-m\fP \fIspecification\fP"
 Specify the type of identifiers that \fICScout\fP will monitor.
 The identifier attribute specification is given using the syntax:
-Y\fB|\fPL\fB|\fPE\fB|\fPT\fB[:\fP\fIattr1\fB][:\fP\fIattr2\fP\fB]\fP...
+Y\fB|\fPL\fB|\fPE\fB|\fPT\fB[:\fP\fIattr1\fB][:\fP\fIattr2\fP\fB]\fR...
 The meaning of the first letter is:
 .RS 4
 .IP "Y:" 4
-Match any of the specified attributes
+Match anY of the specified attributes
 .IP "L:" 4
-Match all of the specified attributes
+Match alL of the specified attributes
 .IP "E:" 4
-Exclude the specified attributes matched
+ExcludE the specified attributes matched
 .IP "T:" 4
-Exact match of the specified attributes
+ExacT match of the specified attributes
 .RE
 .PP
 Allowable attribute names and their corresponding meanings are:
@@ -152,6 +152,24 @@ Unused identifier
 Writable identifier
 .IP "ro:"
 Read-only identifier
+.IP "idmtoken:"
+Identifier stored in a macro
+.IP "funmacro:"
+Defined as a function-like macro
+.IP "cppconst:"
+Used to derive a preprocessor constant, i.e. used in a \fC#if\fP or
+\fC#include\fP directive or in a \fCdefined()\fP expression
+.IP "cppstrval:"
+Macro's value is used as a string (pasting or stringization)
+in the preprocessor
+.IP "defcconst:"
+Macro value seen as a C compile-time constant
+.IP "defnotcconst:"
+Macro value seen as not a C compile-time constant
+.IP "expcconst:"
+Macro value seen as a C compile-time constant
+.IP "expnotcconst:"
+Macro value seen as not a C compile-time constant
 .IP "tag:"
 Tag for a struct/union/enum
 .IP "member:"
@@ -176,6 +194,10 @@ Identifier with project scope
 Typedef
 .IP "enumconst:"
 Enumeration constant
+.IP "yacc:"
+Yacc identifier
+.IP "function:"
+C function
 .RE
 .PP
 The \fI-m\fP flag can provide enormous savings on the memory \fICScout\fP
