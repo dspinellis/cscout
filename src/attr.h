@@ -32,6 +32,7 @@ using namespace std;
 
 // Attributes that can be set for an EC
 // Keep in sync with attribute_names[] and short_names[]
+// Update "Allowed attribute names" in cscout.1
 // Consider updating workdb_schema, insert_eclass
 enum e_attribute {
 	is_declared_unused,	// Declared with __unused__ attribute
