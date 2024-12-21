@@ -28,8 +28,9 @@ set -eu
 usage()
 {
   cat <<EOF 1>&2
-Usage: $(basename $0) [-e] (-F file-list|-f file|-p project) cscout-file
+Usage: $(basename $0) [-be] (-F file-list|-f file|-p project) cscout-file
 
+  -b            Output from the beginning to the specified point
   -e            Output from specified point to the end
   -F file-list  Process only the specified files contained in file-list file
   -f file       Process only the specified file
@@ -47,22 +48,28 @@ file_list=''
 # Non-empty if a project is being cut
 project=''
 
+# Non-empty if files from the beginning are to be cut
+from_beginning=''
+
 # Non-empty if files until the end are to be cut
 to_end=''
 
 
 # Process command-line arguments
-while getopts "eF:f:p:" opt; do
+while getopts "beF:f:p:" opt; do
   case $opt in
+    b)
+      from_beginning=1
+      ;;
+    e)
+      to_end=1
+      ;;
     f)
       search="$OPTARG"
       file=1
       ;;
     F)
       file_list="$OPTARG"
-      ;;
-    e)
-      to_end=1
       ;;
     p)
       search="project $OPTARG"
@@ -95,7 +102,11 @@ extract()
 
   local pattern=$(echo "$search" | sed 's/\([].\\*$^\/[]\)/\\\1/g')
 
-  local begin="/#pragma echo \"Processing $pattern\\\\n\"/"
+  if [ -n "$from_beginning" ]; then
+    local begin=1
+  else
+    local begin="/#pragma echo \"Processing $pattern\\\\n\"/"
+  fi
 
   if [ -n "$to_end" ]; then
     local end=\$
@@ -106,7 +117,7 @@ extract()
   sed -n "${begin},${end}p" "$csfile"
 }
 
-if [ -z "$project" ] ; then
+if [ -z "$project" -a -z "$from_beginning" ]] ; then
   cat <<\EOF
 #pragma project "cscut"
 #pragma block_enter
