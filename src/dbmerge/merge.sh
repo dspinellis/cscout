@@ -177,6 +177,8 @@ UPDATE filemetrics SET iscscout = (
     FROM files
     WHERE filemetrics.fid = files.fid
 );
+CREATE TABLE cscout_files AS
+  SELECT fid FROM files WHERE name LIKE '%.cs' OR name LIKE '%/csmake-%-defs.h';
 VACUUM;
 ANALYZE;
 EOF
