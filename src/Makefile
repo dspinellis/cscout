@@ -216,7 +216,7 @@ mkerr:
 
 # This ensures that the version.cpp is regenerated iff its SHA doesn't
 # match the current one.
-ifneq ($(shell sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp), $(shell git log -n 1 --format='%H' || sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp))
+ifneq ($(shell sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp 2>/dev/null), $(shell git log -n 1 --format='%H' || sed -n '/Version::revision/s/.* = "\(.*\)";/\1/p' version.cpp))
 version.cpp:
 	sh make-version.sh >$@
 
