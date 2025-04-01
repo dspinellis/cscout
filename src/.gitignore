@@ -1,5 +1,5 @@
 *.swp
-css.c
+css.cpp
 dep
 eval.cpp
 eval.tab.h

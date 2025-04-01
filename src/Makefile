@@ -57,7 +57,7 @@ OBJ=$(addprefix build/, $(OBJBASE))
 
 # C/C++ files that are under version control
 # (Not auto-generated, apart from logo.cpp)
-CFILES=md5.c attr.cpp call.cpp cscout.cpp ctag.cpp ctconst.cpp \
+CFILES=md5.cpp attr.cpp call.cpp cscout.cpp ctag.cpp ctconst.cpp \
   ctoken.cpp debug.cpp dirbrowse.cpp eclass.cpp error.cpp fcall.cpp \
   fchar.cpp fdep.cpp filedetails.cpp fileid.cpp filemetrics.cpp filequery.cpp \
   fileutils.cpp \
@@ -81,7 +81,7 @@ OTHERSRC=style.css csmake.pl cswc.pl tokname.pl runtest.sh eval.y parse.y \
   Makefile
 
 # Auto-generated C files
-AUTOCFILES=css.c eval.cpp logo.cpp parse.cpp tokname.cpp version.cpp
+AUTOCFILES=css.cpp eval.cpp logo.cpp parse.cpp tokname.cpp version.cpp
 
 AUTOHEADERS=parse.tab.h
 
@@ -153,23 +153,13 @@ endif
 
 CPPFLAGS+=$(EXTRA_CPPFLAGS)
 
-# Pattern rules for C and C++ files
-build/%.o: %.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
-
+# Pattern rules for C++ files
 build/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 # Dependency generation rules
 # See https://www.gnu.org/software/make/manual/html_node/Automatic-Prerequisites.html
 dep/%.d: %.cpp
-	@set -e; rm -f $@; \
-	mkdir -p dep ; \
-	$(CXX) -MM $(CPPFLAGS) $< > $@.$$$$; \
-	sed 's,\($*\)\.o[ :]*,build/\1.o $@ : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
-
-dep/%.d: %.c
 	@set -e; rm -f $@; \
 	mkdir -p dep ; \
 	$(CXX) -MM $(CPPFLAGS) $< > $@.$$$$; \
@@ -205,9 +195,9 @@ build/cscout-cc: build/cscout.o  $(OBJ)
 tokname.cpp: parse.tab.h tokname.pl
 	perl tokname.pl parse.tab.h tokname.cpp
 
-build/html.o: html.cpp css.c
+build/html.o: html.cpp css.cpp
 
-css.c: style.css
+css.cpp: style.css
 	tr -d \\r <$? | sed 's/\\/\\\\/g;s/"/\\"/g;s/^/"/;s/$$/\\n"/' >$@
 
 # Create error message documentation
@@ -297,7 +287,7 @@ example: build/cscout
 
 # Include dependencies
 # See https://www.gnu.org/software/make/manual/html_node/Automatic-Prerequisites.html
-include $(patsubst %.c, dep/%.d, $(patsubst %.cpp, dep/%.d, $(CFILES) $(AUTOCFILES)))
+include $(patsubst %.cpp, dep/%.d, $(CFILES) $(AUTOCFILES))
 
 ifdef PICO_QL
 pico_ql_search.cpp: pico_ql_generator.rb cscout-data.sql

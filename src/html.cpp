@@ -166,7 +166,7 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 			putc(val, of);
 	} else
 		fputs(
-		#include "css.c"
+		#include "css.cpp"
 		, of);
 	fputs(
 		"-->"
