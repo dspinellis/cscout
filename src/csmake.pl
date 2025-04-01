@@ -704,12 +704,23 @@ if (!$compile && !$depwrite && ($#ofiles >= 0 || $#implicit_ofiles >= 0 || $#afi
 my $tmpdir = tempdir('time-out-XXXX', DIR => $ENV{CSCOUT_SPY_TMPDIR});
 my $time_out = "$tmpdir/out.txt";
 $rules .= "COMMENT COMPILE $real " . join(' ', @ARGV) . "\n";
-unshift(@ARGV, '-f', '%D %e %F %I %K %M %O %S %U', '-o', $time_out, $real);
+
+# Determina appropriate time flags
+my $time_gnu = `/usr/bin/time --version 2>&1`;
+my @time_flags;
+if ($time_gnu =~ /GNU/) {
+	@time_flags = ('-f', '%D %e %F %I %K %M %O %S %U')
+} else {
+	@time_flags = ('-l')
+}
+
+unshift(@ARGV, @time_flags, '-o', $time_out, $real);
 print STDERR "Finally run (/usr/bin/time @ARGV))\n" if ($debug);
 my $exit_code = system(('/usr/bin/time', @ARGV)) / 256;
 open(IN, '<', $time_out) || die "Unable to read time output: $!\n";
-my $time = <IN>;
-$rules .= "COMMENT TIME $time";
+while (my $time = <IN>) {
+	$rules .= "COMMENT TIME $time";
+}
 close(IN);
 unlink($time_out);
 rmdir($tmpdir);
