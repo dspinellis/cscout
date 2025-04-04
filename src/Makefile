@@ -162,7 +162,7 @@ build/%.o: %.cpp
 dep/%.d: %.cpp
 	@set -e; rm -f $@; \
 	mkdir -p dep ; \
-	$(CXX) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	$(CXX) -MM -MG $(CPPFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,build/\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
