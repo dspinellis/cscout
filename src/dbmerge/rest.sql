@@ -5,7 +5,7 @@
 -- The employed algorithm is a good approximation: it works correctly in 1221
 -- out of 1222 tested files.  However, it may fail when a file
 -- is conditionally compiled in different ways in two merged files,
--- e.g. /home/dds/src/linux-v6.10.1/include/trace/define_trace.h:89-92
+-- e.g. /home/dds/src/linux-v6.14.2/include/trace/define_trace.h:89-92
 -- (see debugging notes).
 -- A better algorithm is as follows:
 -- * Order records by file and offset.
