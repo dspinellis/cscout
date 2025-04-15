@@ -776,6 +776,7 @@ Pdtoken::process_define(bool is_immutable)
 	typedef map <string, Token> mapToken;	// To unify args with body
 	mapToken args;
 	Pltoken t;
+	static Ptoken VA_ARGS(IDENTIFIER, "__VA_ARGS__");
 
 	if (skiplevel >= 1)
 		return;
@@ -841,9 +842,13 @@ Pdtoken::process_define(bool is_immutable)
 						break;
 					}
 				} else {
-					// C99 vararg
-					Ptoken va(IDENTIFIER, "__VA_ARGS__");
-					m.form_args_push_back(va);
+					/*
+					 * C99 vararg
+					 * Create a new formal identifier named
+					 * __VA_ARGS__, which will receive the
+					 * varags arguments.
+					 */
+					m.form_args_push_back(VA_ARGS);
 				}
 				// This applies to C99 and gcc varargs
 				if (t.get_code() == ELLIPSIS) {

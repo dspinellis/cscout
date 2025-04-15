@@ -1,0 +1,10 @@
+int main();
+static void _cscout_dummy1(void) { _cscout_dummy1(); }
+int i;
+int
+a()
+{
+fprintf (stderr, "success!\n"  );
+fprintf (stderr, "success: %d %d!\n" , (i - 2),   3);
+fprintf (stderr, "success: %d %d-%c!\n" , (i - 2),   3, 'a');
+}

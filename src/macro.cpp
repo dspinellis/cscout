@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * You may only use this code if you agree to the terms of the CScout
  * Source Code License agreement (see License.txt).
@@ -46,15 +46,17 @@
 
 
 /*
- * Return a macro argument token from tokens
- * Used by gather_args.
+ * Return a macro argument token from tokens, which can be PtokenSequence
+ * or dequePtoken.
+ * Used by gather_args and gather_arg.
  * If get_more is true when tokens is exhausted read using pdtoken::getnext_noexpand
  * (see explanation on that method's comment for why we use pdtoken, rather than pltoken)
  * Leave in tokens the first token not gathered.
  * If want_space is true return spaces, otherwise discard them
  */
+template <typename TokenContainer>
 static Ptoken
-arg_token(PtokenSequence& tokens, bool get_more, bool want_space)
+arg_token(TokenContainer& tokens, bool get_more, bool want_space)
 {
 	if (want_space) {
 		if (!tokens.empty()) {
@@ -217,6 +219,47 @@ stringize(const PtokenSequence& ts)
 	// Remove trailing spaces
 	res.erase(find_if(res.rbegin(), res.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), res.end());
 	return (Ptoken(STRING_LITERAL, res));
+}
+
+/*
+ * Remove from tokens and return the elements comprising the arguments to a
+ * function macro, such as __VA_OPT__.
+ */
+static PtokenSequence
+gather_function_arg(dequePtoken& tokens)
+{
+	PtokenSequence r;
+	int bracket_nesting = 0;
+
+	for (;;) {
+		Ptoken t(arg_token(tokens, false, true));
+		switch (t.get_code()) {
+		case '(':
+			bracket_nesting++;
+			// Don't save opening bracket
+			if (bracket_nesting == 1)
+				continue;
+			break;
+		case ')':
+			bracket_nesting--;
+			// Don't save closing bracket; return contents
+			if (bracket_nesting == 0) {
+				if (DP())
+					cout << "Gather returns " << r << "\n";
+				return r;
+			}
+			break;
+		case EOF:
+			/*
+			 * @error
+			 * End of file encountered while scanning
+			 * a function-like macro's argument.
+			 */
+			Error::error(E_ERR, "EOF in function-like macro");
+			return (r);
+		}
+		r.push_back(t);
+	}
 }
 
 /*
@@ -519,6 +562,8 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 {
 	dequePtoken is(m.get_value());// Input sequence
 	PtokenSequence os;	// Output sequence
+	static const Ptoken VA_ARGS(IDENTIFIER, "__VA_ARGS__");
+
 
 	while (!is.empty()) {
 		if (DP())
@@ -551,6 +596,31 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 				continue;
 			}
 			break;
+		case IDENTIFIER:
+			if (head.get_val() == "__VA_OPT__") {
+				/*
+				 * Implement the __VA_OPT__ function macro.
+				 * This expands to its argument if the variadic
+				 * argument has any tokens, otherwise it expands
+				 * to empty.
+				 */
+				if (!m.get_is_vararg()) {
+					/*
+					 * @error
+					 * The macro body of a non variadic
+					 * function-like macro contains a call
+					 * to the __VA_OPT__ function macro.
+					 */
+					Error::error(E_ERR, "Call to __VA_OPT__ from a non variadic macro.");
+					break;
+				}
+				PtokenSequence opt(gather_function_arg(is));
+
+				if ((ai = find_formal_argument(args, VA_ARGS)) != args.end() && ai->second.size() != 0)
+					os.splice(os.end(), opt);
+				continue;
+			}
+			// FALLTHROUGH
 		default:
 			ti = find_nonspace(is.begin(), is.end());
 			if (ti != is.end() && ti->get_code() == CPP_CONCAT) {

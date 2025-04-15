@@ -32,6 +32,8 @@ identifiers should not be reported as unused (gcc).
 <li>Allow braces around scalar initializers (common extension).</li>
 <li> Indirect <code>goto</code> targets and the label address-of operator (gcc).
 <li> <code>__typeof</code> keyword (gcc)
+<li> The ‘##’ token paste operator deletes the comma when placed between a comma and an empty variable argument (gcc)
+<li> <code>__VA_OPT__ </code> function macro (C23)
 <li> A compound statement in brackets can be an expression (gcc)
 <li> Macros expanding from <code>/##/</code> into
 <code>//</code> are then treated as a line comment (Microsoft C)
