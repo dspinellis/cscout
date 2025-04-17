@@ -1,6 +1,8 @@
 /*
  * (C) Copyright 2007-2015 Diomidis Spinellis
  *
+ * Define compile-time constants.
+ *
  * This file is part of CScout.
  *
  * CScout is free software: you can redistribute it and/or modify
@@ -28,6 +30,7 @@
 
 #include "error.h"
 
+// A compile-time constant
 class CTConst {
 private:
 	bool known;		// True if value is known

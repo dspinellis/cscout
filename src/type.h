@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -133,8 +133,10 @@ protected:
 	virtual int get_nparam() const;	// Return the number of parameters
 	virtual void add_param();	// Add another parameter to the list
 	virtual CTConst get_value() const {return CTConst(); }	// Return the value of a compile-time constant
-	// Return the number of elements this type can hold (array, structure, union)
-	virtual CTConst get_nelem() const { return CTConst(1); }
+	// Return the number of elements this type can be supplied (array, structure, union)
+	virtual CTConst get_initializer_elements() const { return CTConst(1); }
+	// Return the number of elements this type can be indexed to return their type (array, structure, union)
+	virtual CTConst get_indexed_elements() const { return CTConst(1); }
 	virtual void set_union(bool v);		// True for union false for struct
 	virtual void set_value(CTConst v) {}	// Set the value of a compile-time constant
 	virtual void add_qualifiers(Type t);		// Set our qualifiers to t
@@ -273,7 +275,8 @@ public:
 	void add_param()		{ p->add_param(); }
 	int get_nparam() const		{ return p->get_nparam(); }
 	CTConst get_value() const	{ return p->get_value(); }
-	CTConst get_nelem() const 	{ return p->get_nelem(); }
+	CTConst get_initializer_elements() const 	{ return p->get_initializer_elements(); }
+	CTConst get_indexed_elements() const 	{ return p->get_indexed_elements(); }
 	void set_union(bool v)		{ p->set_union(v); }
 	void set_value(CTConst v)	{ p->set_value(v); }
 	bool is_abstract() const	{ return p->is_abstract(); }

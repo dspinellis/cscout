@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -318,13 +318,23 @@ Tincomplete::get_members_by_ordinal() const
 }
 
 CTConst
-Tincomplete::get_nelem() const
+Tincomplete::get_initializer_elements() const
 {
 	Type c = get_complete_type();
 	if (c.is_incomplete()) {
 		return 1;
 	} else
-		return c.get_nelem();
+		return c.get_initializer_elements();
+}
+
+CTConst
+Tincomplete::get_indexed_elements() const
+{
+	Type c = get_complete_type();
+	if (c.is_incomplete()) {
+		return 1;
+	} else
+		return c.get_indexed_elements();
 }
 
 Type

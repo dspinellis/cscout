@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -41,7 +41,8 @@ public:
 	Type clone() const { return Type(new Tarray(of.clone(), nelem, get_qualifiers())); }
 	Type deref() const { return of; }
 	Type subscript() const { return of; }
-	CTConst get_nelem() const { return nelem; }
+	CTConst get_initializer_elements() const { return nelem; }
+	CTConst get_indexed_elements() const { return nelem; }
 	bool is_ptr() const { return true; }
 	bool is_array() const { return true; }
 	void print(ostream &o) const;
@@ -153,9 +154,13 @@ public:
 	Tsu(const Type &spec) : default_specifier(spec), is_union(false) {}
 	Tsu() : is_union(false) {}
 	virtual ~Tsu() {}
-	// Return number of elements
-	CTConst get_nelem() const {
+	// Return number of elements that can be supplied in an initializer
+	CTConst get_initializer_elements() const {
 		return is_union ? 1 : CTConst(members_by_ordinal.size());
+	}
+	// Return number of elements that can be indexed
+	CTConst get_indexed_elements() const {
+		return CTConst(members_by_ordinal.size());
 	}
 	bool is_su() const { return true; }
 	// Indicate this is a union
@@ -214,7 +219,8 @@ public:
 	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), scope_level, get_qualifiers(), is_union)); }
 	Id const* member(const string& s) const;
 	Type member(int n);
-	CTConst get_nelem() const;
+	CTConst get_initializer_elements() const;
+	CTConst get_indexed_elements() const;
 	const vector <Id>& get_members_by_ordinal() const;
 	void print(ostream &o) const;
 	const Ctoken& get_token() const { return t; }

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -93,19 +93,23 @@ void parse_error(const char *s, ...)
  */
 struct Initializer {
 	int pos;		// Iterator to current structure or array element
-	CTConst end;		// Iterator's end
+	CTConst end;		// Iterator's end for indexing (unions == number of elements)
+	CTConst space;		// Space for initializer elements (unions == 1)
 	Type t;			// Initialized element's type
 	bool braced;		// True if we entered this element through a brace
-	Initializer(Type typ, bool b) : pos(0), t(typ), braced(b) {
-		end = t.get_nelem();
-	}
+	Initializer(Type typ, bool b) :
+		pos(0),
+		end(typ.get_indexed_elements()),
+		space(typ.get_initializer_elements()),
+		t(typ),
+		braced(b) {}
 	friend ostream& operator<<(ostream& o, const Initializer &i);
 };
 
 ostream&
 operator<<(ostream& o,const Initializer &i)
 {
-	o << i.t << " pos:" << i.pos << " end:" << i.end << " braced:" << i.braced << endl;
+	o << i.t << " pos:" << i.pos << " end:" << i.end << " space:" << i.space << " braced:" << i.braced << endl;
 	return o;
 }
 
@@ -160,11 +164,24 @@ initializer_move_top_pos_recursive(Id const *id)
 				return true;
 			initializer_stack.pop(); // Backtrack
 		} else if (id->get_name() == i->get_name()) {
-			ITOS.pos = count;
-			if (DP() && !initializer_stack.empty())
+			// Found match
+			CTConst indexes(ITOS.t.get_indexed_elements());
+			CTConst initializers(ITOS.t.get_initializer_elements());
+			if (indexes.is_const() &&
+			    indexes.get_int_value() == initializers.get_int_value())
+				ITOS.pos = count;
+			else
+				// Union: only the first element will get initialized
+				ITOS.pos = initializers.get_int_value() - 1;
+			if (DP() && !initializer_stack.empty()) {
 				cout << "After move_top_pos to " << id->get_name() << ": " << ITOS;
+				cout << "count:" << count
+				    << " initializers.get_int_value():" << initializers.get_int_value()
+				    << " indexes.get_int_value():" << indexes.get_int_value() << '\n';
+			}
 			return true;
 		}
+		// Examine initializer top of stack (ITOS)
 		count++;
 	}
 	return false;
@@ -183,8 +200,8 @@ initializer_clear_used_elements()
 	if (DP() && !initializer_stack.empty())
 		cout << "Before clear used elements: " << ITOS;
 	while (initializer_stack.size() > 1 &&
-	    ITOS.end.is_const() &&
-	    ITOS.pos == ITOS.end.get_int_value() &&
+	    ITOS.space.is_const() &&
+	    ITOS.pos == ITOS.space.get_int_value() &&
 	    !ITOS.braced) {
 		initializer_stack.pop();
 		ITOS.pos++;
@@ -1705,8 +1722,11 @@ initializer_close:
 				initializer_stack.pop();
 			csassert(!initializer_stack.empty() && ITOS.braced);
 			initializer_stack.pop();
-			if (!initializer_stack.empty())
+			if (!initializer_stack.empty()) {
 				ITOS.pos++;
+				if (DP())
+					cout << "After initializer_close: " << ITOS;
+			}
 		}
 	;
 
@@ -1725,6 +1745,7 @@ initializer:
 			// Remove from the stack all slots that can't hold this expression.
 			initializer_clear_used_elements();
 			if (!initializer_stack.empty()) {
+				// Examine initializer top of stack (ITOS)
 				if (ITOS.end.is_const() &&
 				    ITOS.pos == ITOS.end.get_int_value()) {
 					/*
@@ -1734,7 +1755,7 @@ initializer:
 					 */
 					Error::error(E_WARN, "too many initializers");
 					if (DP())
-						cout << "pos=" << ITOS.pos << " end=" << ITOS.end.get_int_value() << endl;
+						cout << ITOS << '\n';
 				} else {
 					/*
 					 * XXX Here we should find an assignment compatible type.
@@ -1747,7 +1768,7 @@ initializer:
 						if (
 						    // One case that fits: both are su with equal nelem
 						    (currt.is_su() && $1.is_su() &&
-						    $1.get_nelem().get_int_value() == currt.get_nelem().get_int_value()) ||
+						    $1.get_initializer_elements().get_int_value() == currt.get_initializer_elements().get_int_value()) ||
 						    // Other case: string assignment
 						    ($1.is_array() && $1.deref().is_char() && (currt.is_array() || currt.is_ptr()) && currt.deref().is_char()) ||
 						    // Other case: non-struct initializer into non-struct non-array
@@ -1800,7 +1821,7 @@ initializer_member:
 designator:
 	/*
 	 * Range expression means fill all the range (inclusively!)
-	 * with a single scaler value (gcc extension).
+	 * with a single scalar value (gcc extension).
 	 * Therefore, it is enough to advance to the range's
 	 * last element.
 	 */
