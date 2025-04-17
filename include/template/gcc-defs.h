@@ -29,12 +29,77 @@
 #define asm __asm__
 #define __alignof__(x) (sizeof(x) & 0xf)
 #define _Alignof(x) (sizeof(x) & 0xf)
+
 #define _Atomic
-#define __atomic_fetch_add(x,y) (*(x)+=(y))
-#define __atomic_fetch_add_explicit(x,y,z) (*(x)+=(y))
-#define __atomic_fetch_sub(x,y) (*(x)-=(y))
-#define __atomic_fetch_sub_explicit(x,y,z) (*(x)-=(y))
-#define __atomic_thread_fence(x)
+
+/*
+ * Atomic builtins
+ * https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
+ * via https://chatgpt.com/share/6801030d-b528-8011-9eab-811ae81fca54
+ */
+// Load
+#define __atomic_load_n(ptr, memorder) (*(ptr))
+#define __atomic_load(ptr, ret, memorder) (*(ret) = *(ptr))
+
+// Store
+#define __atomic_store_n(ptr, val, memorder) (*(ptr) = (val))
+#define __atomic_store(ptr, val, memorder) (*(ptr) = *(val))
+
+// Exchange
+#define __atomic_exchange_n(ptr, val, memorder) ({ \
+    __typeof__(*(ptr)) __old = *(ptr);            \
+    *(ptr) = (val);                                \
+    __old;                                         \
+})
+#define __atomic_exchange(ptr, val, ret, memorder) (*(ret) = *(ptr), *(ptr) = *(val))
+
+// Compare-and-exchange
+#define __atomic_compare_exchange_n(ptr, expected, desired, weak, succ, fail) ({ \
+    bool __res = (*(ptr) == *(expected));                                       \
+    if (__res) *(ptr) = (desired);                                              \
+    else *(expected) = *(ptr);                                                  \
+    __res;                                                                      \
+})
+#define __atomic_compare_exchange(ptr, expected, desired, weak, succ, fail) ({ \
+    bool __res = (*(ptr) == *(expected));                                      \
+    if (__res) *(ptr) = *(desired);                                            \
+    else *(expected) = *(ptr);                                                 \
+    __res;                                                                     \
+})
+
+// Arithmetic fetch-and-update (return old value)
+#define __atomic_fetch_add(ptr, val, memorder) ({ __typeof__(*(ptr)) __old = *(ptr); *(ptr) += (val); __old; })
+#define __atomic_fetch_sub(ptr, val, memorder) ({ __typeof__(*(ptr)) __old = *(ptr); *(ptr) -= (val); __old; })
+#define __atomic_fetch_and(ptr, val, memorder) ({ __typeof__(*(ptr)) __old = *(ptr); *(ptr) &= (val); __old; })
+#define __atomic_fetch_or(ptr, val, memorder)  ({ __typeof__(*(ptr)) __old = *(ptr); *(ptr) |= (val); __old; })
+#define __atomic_fetch_xor(ptr, val, memorder) ({ __typeof__(*(ptr)) __old = *(ptr); *(ptr) ^= (val); __old; })
+#define __atomic_fetch_nand(ptr, val, memorder) ({ __typeof__(*(ptr)) __old = *(ptr); *(ptr) = ~(*(ptr) & (val)); __old; })
+
+// Arithmetic update-and-fetch (return new value)
+#define __atomic_add_fetch(ptr, val, memorder) (*(ptr) += (val))
+#define __atomic_sub_fetch(ptr, val, memorder) (*(ptr) -= (val))
+#define __atomic_and_fetch(ptr, val, memorder) (*(ptr) &= (val))
+#define __atomic_or_fetch(ptr, val, memorder)  (*(ptr) |= (val))
+#define __atomic_xor_fetch(ptr, val, memorder) (*(ptr) ^= (val))
+#define __atomic_nand_fetch(ptr, val, memorder) (*(ptr) = ~(*(ptr) & (val)))
+
+// Test-and-set / Clear
+#define __atomic_test_and_set(ptr, memorder) ({ \
+    bool __old = (*(bool*)(ptr));              \
+    *(bool*)(ptr) = 1;                          \
+    __old;                                      \
+})
+#define __atomic_clear(ptr, memorder) (*(bool*)(ptr) = 0)
+
+// Fences (no-op)
+#define __atomic_thread_fence(memorder) ((void)0)
+#define __atomic_signal_fence(memorder) ((void)0)
+
+// Lock-free checks (naive assumptions)
+#define __atomic_always_lock_free(size, ptr) (1)
+#define __atomic_is_lock_free(size, ptr) (1)
+
+
 #define __auto_type auto
 #define __builtin_add_overflow(x,y,z) ((x), (y), (z), 1)
 #define __builtin_add_overflow_p(x,y,z) ((x), (y), 1)
