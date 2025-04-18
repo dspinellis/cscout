@@ -31,13 +31,13 @@
 
 
 // The current element we expect is at the stack's top
-Initializer::Stack Initializer::stack;
+Initializer::ElementStack Initializer::element_stack;
 
 /*
  * We need to save and restore these stacks when we're dealing with assignment
  * expressions, because they can have their own initializers.
  */
-stack <Initializer::Stack> Initializer::saved_stacks;
+stack <Initializer::ElementStack> Initializer::saved_stacks;
 
 // The next element expected in an initializer
 Type Initializer::upcoming_element;
@@ -80,10 +80,10 @@ Initializer::move_top_pos_recursive(Id const *id)
 			cout << "pos[" << count << "].name=[" << i->get_name() << ']' << endl;
 		if (i->get_name().length() == 0) {
 			/* Unnamed structure member; apply recursively */
-			stack.push(Initializer(i->get_type(), false));
+			element_stack.push(Initializer(i->get_type(), false));
 			if (move_top_pos_recursive(id))
 				return true;
-			stack.pop(); // Backtrack
+			element_stack.pop(); // Backtrack
 		} else if (id->get_name() == i->get_name()) {
 			// Found match
 			CTConst indexes(ITOS.t.get_indexed_elements());
@@ -94,7 +94,7 @@ Initializer::move_top_pos_recursive(Id const *id)
 			else
 				// Union: only the first element will get initialized
 				ITOS.pos = initializers.get_int_value() - 1;
-			if (DP() && !stack.empty()) {
+			if (DP() && !element_stack.empty()) {
 				cout << "After move_top_pos to " << id->get_name() << ": " << ITOS;
 				cout << "count:" << count
 				    << " initializers.get_int_value():" << initializers.get_int_value()
@@ -119,16 +119,16 @@ Initializer::move_top_pos(Id const *id)
 void
 Initializer::clear_used_elements()
 {
-	if (DP() && !stack.empty())
+	if (DP() && !element_stack.empty())
 		cout << "Before clear used elements: " << ITOS;
-	while (stack.size() > 1 &&
+	while (element_stack.size() > 1 &&
 	    ITOS.space.is_const() &&
 	    ITOS.pos == ITOS.space.get_int_value() &&
 	    !ITOS.braced) {
-		stack.pop();
+		element_stack.pop();
 		ITOS.pos++;
 	}
-	if (DP() && !stack.empty())
+	if (DP() && !element_stack.empty())
 		cout << "After clear used elements: " << ITOS;
 }
 
@@ -136,14 +136,14 @@ Initializer::clear_used_elements()
 void
 Initializer::context_save()
 {
-	saved_stacks.push(stack);
-	stack = Initializer::Stack();
+	saved_stacks.push(element_stack);
+	element_stack = Initializer::ElementStack();
 }
 
 // Restore previously saved context
 void
 Initializer::context_restore()
 {
-	stack = saved_stacks.top();
+	element_stack = saved_stacks.top();
 	saved_stacks.pop();
 }

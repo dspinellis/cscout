@@ -1576,13 +1576,13 @@ initializer_open:
 	'{'
 		/* Push (braced) TOS[pos] */
 		{
-			if (DP() && !Initializer::stack.empty()) {
+			if (DP() && !Initializer::element_stack.empty()) {
 				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
 				cout << "Top initializer before initializer_open: " << ITOS;
 			}
 			Initializer::clear_used_elements();
-			Initializer::stack.push(Initializer(
-			    Initializer::stack.empty() ?
+			Initializer::element_stack.push(Initializer(
+			    Initializer::element_stack.empty() ?
 			    Initializer::upcoming_element :
 			    ITOS.t.member(ITOS.pos), true));
 			if (DP())
@@ -1594,11 +1594,11 @@ initializer_close:
 	'}'
 		/* Pop stack up to and including first brace. */
 		{
-			while (!Initializer::stack.empty() && !ITOS.braced)
-				Initializer::stack.pop();
-			csassert(!Initializer::stack.empty() && ITOS.braced);
-			Initializer::stack.pop();
-			if (!Initializer::stack.empty()) {
+			while (!Initializer::element_stack.empty() && !ITOS.braced)
+				Initializer::element_stack.pop();
+			csassert(!Initializer::element_stack.empty() && ITOS.braced);
+			Initializer::element_stack.pop();
+			if (!Initializer::element_stack.empty()) {
 				ITOS.pos++;
 				if (DP())
 					cout << "After initializer_close: " << ITOS;
@@ -1620,7 +1620,7 @@ initializer:
 		{
 			// Remove from the stack all slots that can't hold this expression.
 			Initializer::clear_used_elements();
-			if (!Initializer::stack.empty()) {
+			if (!Initializer::element_stack.empty()) {
 				// Examine initializer top of stack (ITOS)
 				if (ITOS.end.is_const() &&
 				    ITOS.pos == ITOS.end.get_int_value()) {
@@ -1654,7 +1654,7 @@ initializer:
 							break;
 						} else if (currt.is_su() || currt.is_array()) {
 							if (DP()) cout << "Failed to assign element: " << $1 << endl << " to slot: " << currt << endl << "Pushing ITOS[pos]" << endl;
-							Initializer::stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+							Initializer::element_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
 						} else {
 							/*
 							 * The type of the initializer does not match
@@ -1666,7 +1666,7 @@ initializer:
 					}
 				}
 			}
-			if (DP() && !Initializer::stack.empty())
+			if (DP() && !Initializer::element_stack.empty())
 				cout << "After assignment expression ITOS: " << ITOS;
 		}
         ;
@@ -1704,9 +1704,9 @@ designator:
         '[' range_expression ']'
 		{
 			/* Pop unbraced stack elements. Set pos of TOS to $2. */
-			while (!Initializer::stack.empty() && !ITOS.braced)
-				Initializer::stack.pop();
-			if (Initializer::stack.empty())
+			while (!Initializer::element_stack.empty() && !ITOS.braced)
+				Initializer::element_stack.pop();
+			if (Initializer::element_stack.empty())
 				Error::error(E_ERR, "designator does not appear in a braced initializer");
 			else
 				if ($2.get_value().is_const())
@@ -1717,9 +1717,9 @@ designator:
         | '.' member_name
 		{
 			/* Pop unbraced stack elements. Set pos of TOS to member_name ordinal. */
-			while (!Initializer::stack.empty() && !ITOS.braced)
-				Initializer::stack.pop();
-			if (Initializer::stack.empty())
+			while (!Initializer::element_stack.empty() && !ITOS.braced)
+				Initializer::element_stack.pop();
+			if (Initializer::element_stack.empty())
 				Error::error(E_ERR, "designator does not appear in a braced initializer");
 			else {
 				Id const *id = ITOS.t.member($2.get_name());
@@ -1735,8 +1735,8 @@ designator:
         | designator '[' range_expression ']'
 		{
 			/* Push (unbraced) TOS[pos] and set pos to $3. */
-			csassert(!Initializer::stack.empty());
-			Initializer::stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+			csassert(!Initializer::element_stack.empty());
+			Initializer::element_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
 			if ($3.get_value().is_const())
 				ITOS.pos = $3.get_value().get_int_value();
 			else
@@ -1749,8 +1749,8 @@ designator:
 			if (id) {
 				csassert(id->get_name() == $3.get_name());
 				Token::unify(id->get_token(), $3.get_token());
-				csassert(!Initializer::stack.empty());
-				Initializer::stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+				csassert(!Initializer::element_stack.empty());
+				Initializer::element_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
 				Initializer::move_top_pos(id);
 			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());

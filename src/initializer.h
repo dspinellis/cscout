@@ -54,8 +54,8 @@ public:
 	friend ostream& operator<<(ostream& o, const Initializer &i);
 
 	// The current element we expect is at the stack's top
-	typedef stack <Initializer> Stack;
-	static Stack stack;
+	typedef stack <Initializer> ElementStack;
+	static ElementStack element_stack;
 
 	// The next element expected in an initializer
 	static Type upcoming_element;
@@ -80,10 +80,10 @@ private:
 	 * We need to save and restore these stacks when we're dealing with assignment
 	 * expressions and compound statements, because they can have their own initializers.
 	 */
-	static std::stack <Stack> saved_stacks;
+	static stack <ElementStack> saved_stacks;
 
 	static bool move_top_pos_recursive(Id const *id);
 };
 
 // Initializer top of stack
-#define ITOS (Initializer::stack.top())
+#define ITOS (Initializer::element_stack.top())
