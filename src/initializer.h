@@ -28,6 +28,8 @@
 
 using namespace std;
 
+struct InitializerContext;
+
 /*
  * A stack needed for handling initializers and C99 designators
  * The stack's top always contains the type of the
@@ -80,9 +82,14 @@ private:
 	 * We need to save and restore these stacks when we're dealing with assignment
 	 * expressions and compound statements, because they can have their own initializers.
 	 */
-	static stack <ElementStack> saved_stacks;
+	static stack <InitializerContext> saved_stacks;
 
 	static bool move_top_pos_recursive(Id const *id);
+};
+
+struct InitializerContext {
+	Initializer::ElementStack element_stack;
+	Type upcoming_element;
 };
 
 // Initializer top of stack

@@ -33,14 +33,14 @@
 // The current element we expect is at the stack's top
 Initializer::ElementStack Initializer::element_stack;
 
+// The next element expected in an initializer
+Type Initializer::upcoming_element;
+
 /*
  * We need to save and restore these stacks when we're dealing with assignment
  * expressions, because they can have their own initializers.
  */
-stack <Initializer::ElementStack> Initializer::saved_stacks;
-
-// The next element expected in an initializer
-Type Initializer::upcoming_element;
+stack <InitializerContext> Initializer::saved_stacks;
 
 ostream&
 operator<<(ostream& o,const Initializer &i)
@@ -50,7 +50,7 @@ operator<<(ostream& o,const Initializer &i)
 }
 
 /*
- * Set the type of the next element expected in an initializer
+ * Set the type of the next element expected in an initializer.
  * Should be set after a declaration that could be followed by an
  * initializer, a designator, or after an element is initialized.
  */
@@ -136,14 +136,16 @@ Initializer::clear_used_elements()
 void
 Initializer::context_save()
 {
-	saved_stacks.push(element_stack);
+	saved_stacks.push((struct InitializerContext){element_stack, upcoming_element});
 	element_stack = Initializer::ElementStack();
+	upcoming_element = Type();
 }
 
 // Restore previously saved context
 void
 Initializer::context_restore()
 {
-	element_stack = saved_stacks.top();
+	element_stack = saved_stacks.top().element_stack;
+	upcoming_element = saved_stacks.top().upcoming_element;
 	saved_stacks.pop();
 }
