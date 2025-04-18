@@ -436,19 +436,24 @@ primary_expression:
         | '(' comma_expression ')'
 			{ $$ = $2; }
 	/* gcc extension */
-	| '(' compound_statement ')'
-			{ $$ = $2; }
+	| '(' { Initializer::context_save(); } compound_statement ')'
+		{
+			$$ = $2;
+			Initializer::context_restore();
+		}
 
-	/* Compound literal; C99 feature */
-        | '(' type_name ')' { Initializer::saved_stacks.push(Initializer::stack); Initializer::stack = Initializer::Stack(); Initializer::expect($2); } braced_initializer
+	/*
+	 * Compound literal; C99 feature
+	 * Example: (struct Point){ .x = 1, .y = 2 }
+	 */
+        | '(' type_name ')' { Initializer::context_save(); Initializer::expect($2); } braced_initializer
 		{
 			if (DP()) {
 				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
 				cout << "Type of compound literal " << $2 << "\n";
 			}
 			$$ = $2;
-			Initializer::stack = Initializer::saved_stacks.top();
-			Initializer::saved_stacks.pop();
+			Initializer::context_restore();
 		}
 	| generic_selection
         ;

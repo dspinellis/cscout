@@ -57,12 +57,6 @@ public:
 	typedef stack <Initializer> Stack;
 	static Stack stack;
 
-	/*
-	 * We need to save and restore these stacks when we're dealing with assignment
-	 * expressions, because they can have their own initializers.
-	 */
-	static std::stack <Stack> saved_stacks;
-
 	// The next element expected in an initializer
 	static Type upcoming_element;
 
@@ -78,7 +72,16 @@ public:
 	// Remove from the stack all slots that can't hold this expression.
 	static void clear_used_elements();
 
+	// Save and restore the initializer context to process a new one
+	static void context_save();
+	static void context_restore();
 private:
+	/*
+	 * We need to save and restore these stacks when we're dealing with assignment
+	 * expressions and compound statements, because they can have their own initializers.
+	 */
+	static std::stack <Stack> saved_stacks;
+
 	static bool move_top_pos_recursive(Id const *id);
 };
 

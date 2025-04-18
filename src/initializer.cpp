@@ -131,3 +131,19 @@ Initializer::clear_used_elements()
 	if (DP() && !stack.empty())
 		cout << "After clear used elements: " << ITOS;
 }
+
+// Save existing context to process a new one
+void
+Initializer::context_save()
+{
+	saved_stacks.push(stack);
+	stack = Initializer::Stack();
+}
+
+// Restore previously saved context
+void
+Initializer::context_restore()
+{
+	stack = saved_stacks.top();
+	saved_stacks.pop();
+}
