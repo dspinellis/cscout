@@ -43,7 +43,6 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <stack>
 #include <deque>
 #include <map>
 #include <set>
@@ -75,139 +74,11 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
+#include "initializer.h"
 
 void parse_error(const char *s, ...)
 {
 	Error::error(E_ERR, "syntax error");
-}
-
-/*
- * A stack needed for handling initializers and C99 designators
- * The stack's top always contains the type of the
- * element that can be initialized or designated.
- * For elements that are not braced, when me move past the last
- * element we pop the stack.
- * Braces serve for two purposes:
- * 	Scoping the C99 designators
- *	Forcibly terminating initialization with fewer elements
- */
-struct Initializer {
-	int pos;		// Iterator to current structure or array element
-	CTConst end;		// Iterator's end for indexing (unions == number of elements)
-	CTConst space;		// Space for initializer elements (unions == 1)
-	Type t;			// Initialized element's type
-	bool braced;		// True if we entered this element through a brace
-	Initializer(Type typ, bool b) :
-		pos(0),
-		end(typ.get_indexed_elements()),
-		space(typ.get_initializer_elements()),
-		t(typ),
-		braced(b) {}
-	friend ostream& operator<<(ostream& o, const Initializer &i);
-};
-
-ostream&
-operator<<(ostream& o,const Initializer &i)
-{
-	o << i.t << " pos:" << i.pos << " end:" << i.end << " space:" << i.space << " braced:" << i.braced << endl;
-	return o;
-}
-
-// The current element we expect is at the stack's top
-typedef stack <Initializer> InitializerStack;
-static InitializerStack initializer_stack;
-// Initializer top of stack
-#define ITOS (initializer_stack.top())
-
-/*
- * We need to save and restore these stacks when we're dealing with assignment
- * expressions, because they can have their own initializers.
- */
-static stack <InitializerStack> saved_initializer_stacks;
-
-// The next element expected in an initializer
-static Type upcoming_element;
-
-/*
- * Set the type of the next element expected in an initializer
- * Should be set after a declaration that could be followed by an
- * initializer, a designator, or after an element is initialized.
- */
-static void
-initializer_expect(Type t)
-{
-	upcoming_element = t.type();
-	if (DP())
-		cout << "Expecting type " << t << "\n";
-}
-
-/*
- * Move pos of the initializer's top of stack to the element
- * identified by id.
- * Return true if found in the ITOS elements or in an unnamed subelement.
- * Add elements to the stack if the element is found in a subelement.
- */
-static bool
-initializer_move_top_pos_recursive(Id const *id)
-{
-	int count = 0;
-
-	if (DP())
-		cout << "initializer_move_top_pos " << id->get_name() << ": " << ITOS;
-	for (vector <Id>::const_iterator i = ITOS.t.get_members_by_ordinal().begin(); i != ITOS.t.get_members_by_ordinal().end(); i++) {
-		if (DP())
-			cout << "pos[" << count << "].name=[" << i->get_name() << ']' << endl;
-		if (i->get_name().length() == 0) {
-			/* Unnamed structure member; apply recursively */
-			initializer_stack.push(Initializer(i->get_type(), false));
-			if (initializer_move_top_pos_recursive(id))
-				return true;
-			initializer_stack.pop(); // Backtrack
-		} else if (id->get_name() == i->get_name()) {
-			// Found match
-			CTConst indexes(ITOS.t.get_indexed_elements());
-			CTConst initializers(ITOS.t.get_initializer_elements());
-			if (indexes.is_const() &&
-			    indexes.get_int_value() == initializers.get_int_value())
-				ITOS.pos = count;
-			else
-				// Union: only the first element will get initialized
-				ITOS.pos = initializers.get_int_value() - 1;
-			if (DP() && !initializer_stack.empty()) {
-				cout << "After move_top_pos to " << id->get_name() << ": " << ITOS;
-				cout << "count:" << count
-				    << " initializers.get_int_value():" << initializers.get_int_value()
-				    << " indexes.get_int_value():" << indexes.get_int_value() << '\n';
-			}
-			return true;
-		}
-		// Examine initializer top of stack (ITOS)
-		count++;
-	}
-	return false;
-}
-
-static void
-initializer_move_top_pos(Id const *id)
-{
-	csassert(initializer_move_top_pos_recursive(id));
-}
-
-// Remove from the stack all slots that can't hold this expression.
-static void
-initializer_clear_used_elements()
-{
-	if (DP() && !initializer_stack.empty())
-		cout << "Before clear used elements: " << ITOS;
-	while (initializer_stack.size() > 1 &&
-	    ITOS.space.is_const() &&
-	    ITOS.pos == ITOS.space.get_int_value() &&
-	    !ITOS.braced) {
-		initializer_stack.pop();
-		ITOS.pos++;
-	}
-	if (DP() && !initializer_stack.empty())
-		cout << "After clear used elements: " << ITOS;
 }
 
 /*
@@ -569,15 +440,15 @@ primary_expression:
 			{ $$ = $2; }
 
 	/* Compound literal; C99 feature */
-        | '(' type_name ')' { saved_initializer_stacks.push(initializer_stack); initializer_stack = InitializerStack(); initializer_expect($2); } braced_initializer
+        | '(' type_name ')' { Initializer::saved_stacks.push(Initializer::stack); Initializer::stack = Initializer::Stack(); Initializer::expect($2); } braced_initializer
 		{
 			if (DP()) {
 				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
 				cout << "Type of compound literal " << $2 << "\n";
 			}
 			$$ = $2;
-			initializer_stack = saved_initializer_stacks.top();
-			saved_initializer_stacks.pop();
+			Initializer::stack = Initializer::saved_stacks.top();
+			Initializer::saved_stacks.pop();
 		}
 	| generic_selection
         ;
@@ -1050,7 +921,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			initializer_expect($2);
+			Initializer::expect($2);
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -1060,7 +931,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
         | type_qualifier_list attributed_identifier_declarator
 		{
 			$2.declare();
-			initializer_expect($2);
+			Initializer::expect($2);
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -1070,7 +941,7 @@ default_declaring_list:  /* Can't  redeclare typedef names */
 		{
 			$3.set_abstract($1);
 			$3.declare();
-			initializer_expect($3);
+			Initializer::expect($3);
 			if ($1.qualified_unused() || $3.qualified_unused())
 				$3.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -1096,7 +967,7 @@ declaring_list:
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			initializer_expect($2);
+			Initializer::expect($2);
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -1107,7 +978,7 @@ declaring_list:
 		{
 			$2.set_abstract($1);
 			$2.declare();
-			initializer_expect($2);
+			Initializer::expect($2);
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -1117,7 +988,7 @@ declaring_list:
 		{
 			$3.set_abstract($1);
 			$3.declare();
-			initializer_expect($3);
+			Initializer::expect($3);
 			if ($1.qualified_unused() || $3.qualified_unused())
 				$3.get_token().set_ec_attribute(is_declared_unused);
 		}
@@ -1700,14 +1571,14 @@ initializer_open:
 	'{'
 		/* Push (braced) TOS[pos] */
 		{
-			if (DP() && !initializer_stack.empty()) {
+			if (DP() && !Initializer::stack.empty()) {
 				cout << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
 				cout << "Top initializer before initializer_open: " << ITOS;
 			}
-			initializer_clear_used_elements();
-			initializer_stack.push(Initializer(
-			    initializer_stack.empty() ?
-			    upcoming_element :
+			Initializer::clear_used_elements();
+			Initializer::stack.push(Initializer(
+			    Initializer::stack.empty() ?
+			    Initializer::upcoming_element :
 			    ITOS.t.member(ITOS.pos), true));
 			if (DP())
 				cout << "New initializer: " << ITOS;
@@ -1718,11 +1589,11 @@ initializer_close:
 	'}'
 		/* Pop stack up to and including first brace. */
 		{
-			while (!initializer_stack.empty() && !ITOS.braced)
-				initializer_stack.pop();
-			csassert(!initializer_stack.empty() && ITOS.braced);
-			initializer_stack.pop();
-			if (!initializer_stack.empty()) {
+			while (!Initializer::stack.empty() && !ITOS.braced)
+				Initializer::stack.pop();
+			csassert(!Initializer::stack.empty() && ITOS.braced);
+			Initializer::stack.pop();
+			if (!Initializer::stack.empty()) {
 				ITOS.pos++;
 				if (DP())
 					cout << "After initializer_close: " << ITOS;
@@ -1743,8 +1614,8 @@ initializer:
         | assignment_expression
 		{
 			// Remove from the stack all slots that can't hold this expression.
-			initializer_clear_used_elements();
-			if (!initializer_stack.empty()) {
+			Initializer::clear_used_elements();
+			if (!Initializer::stack.empty()) {
 				// Examine initializer top of stack (ITOS)
 				if (ITOS.end.is_const() &&
 				    ITOS.pos == ITOS.end.get_int_value()) {
@@ -1778,7 +1649,7 @@ initializer:
 							break;
 						} else if (currt.is_su() || currt.is_array()) {
 							if (DP()) cout << "Failed to assign element: " << $1 << endl << " to slot: " << currt << endl << "Pushing ITOS[pos]" << endl;
-							initializer_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+							Initializer::stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
 						} else {
 							/*
 							 * The type of the initializer does not match
@@ -1790,7 +1661,7 @@ initializer:
 					}
 				}
 			}
-			if (DP() && !initializer_stack.empty())
+			if (DP() && !Initializer::stack.empty())
 				cout << "After assignment expression ITOS: " << ITOS;
 		}
         ;
@@ -1828,9 +1699,9 @@ designator:
         '[' range_expression ']'
 		{
 			/* Pop unbraced stack elements. Set pos of TOS to $2. */
-			while (!initializer_stack.empty() && !ITOS.braced)
-				initializer_stack.pop();
-			if (initializer_stack.empty())
+			while (!Initializer::stack.empty() && !ITOS.braced)
+				Initializer::stack.pop();
+			if (Initializer::stack.empty())
 				Error::error(E_ERR, "designator does not appear in a braced initializer");
 			else
 				if ($2.get_value().is_const())
@@ -1841,14 +1712,14 @@ designator:
         | '.' member_name
 		{
 			/* Pop unbraced stack elements. Set pos of TOS to member_name ordinal. */
-			while (!initializer_stack.empty() && !ITOS.braced)
-				initializer_stack.pop();
-			if (initializer_stack.empty())
+			while (!Initializer::stack.empty() && !ITOS.braced)
+				Initializer::stack.pop();
+			if (Initializer::stack.empty())
 				Error::error(E_ERR, "designator does not appear in a braced initializer");
 			else {
 				Id const *id = ITOS.t.member($2.get_name());
 				if (id) {
-					initializer_move_top_pos(id);
+					Initializer::move_top_pos(id);
 					csassert(id->get_name() == $2.get_name());
 					Token::unify(id->get_token(), $2.get_token());
 				} else
@@ -1859,8 +1730,8 @@ designator:
         | designator '[' range_expression ']'
 		{
 			/* Push (unbraced) TOS[pos] and set pos to $3. */
-			csassert(!initializer_stack.empty());
-			initializer_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+			csassert(!Initializer::stack.empty());
+			Initializer::stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
 			if ($3.get_value().is_const())
 				ITOS.pos = $3.get_value().get_int_value();
 			else
@@ -1873,9 +1744,9 @@ designator:
 			if (id) {
 				csassert(id->get_name() == $3.get_name());
 				Token::unify(id->get_token(), $3.get_token());
-				csassert(!initializer_stack.empty());
-				initializer_stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
-				initializer_move_top_pos(id);
+				csassert(!Initializer::stack.empty());
+				Initializer::stack.push(Initializer(ITOS.t.member(ITOS.pos), false));
+				Initializer::move_top_pos(id);
 			} else
 				Error::error(E_ERR, "structure or union does not have a member " + $3.get_name());
 		}

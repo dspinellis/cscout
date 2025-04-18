@@ -38,7 +38,7 @@ OBJBASE=eclass.o fchar.o filedetails.o fileid.o pdtoken.o pltoken.o debug.o \
   logo.o workdb.o obfuscate.o sql.o md5.o os.o pager.o \
   option.o filequery.o mcall.o filemetrics.o funmetrics.o ctconst.o \
   dirbrowse.o html.o fileutils.o gdisplay.o globobj.o ctag.o timer.o \
-  static_init.o
+  static_init.o initializer.o
 
 # monitor.o
 
