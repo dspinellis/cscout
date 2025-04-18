@@ -386,7 +386,9 @@ primary_expression:
 				Id const *id = obj_lookup($1.get_name());
 				if (id) {
 					Token::unify(id->get_token(), $1.get_token());
-					$$ = id->get_type();
+					// The value is modified as the expression is evaluated
+					// so clone it to avoid changing it.
+					$$ = id->get_type().clone();
 					if (DP())
 						cout << "Lookup " << $1.get_name() << " is " << $$ << "\n";
 					if ($$.is_cfunction())
