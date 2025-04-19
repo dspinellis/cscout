@@ -14,10 +14,5 @@ Done processing project Prj2
 Exiting directory test/c
 Done processing directory test/c
 Done processing workspace TestWS
-Post-processing /cscout/example/.cscout/host-defs.h
-Post-processing /cscout/example/.cscout/host-incs.h
-Post-processing /cscout/src/makecs.cs
-Post-processing /cscout/src/test/c/c52-macro-add-metrics.c
-Post-processing /cscout/src/test/c/prj2.c
 Processing identifiers
 3%7%11%14%18%22%25%29%33%37%40%44%48%51%55%59%62%66%70%74%77%81%85%88%92%96%100%

@@ -67,10 +67,12 @@ show_error()
   echo '#...'
 }
 
-# Remove the parent working directory path from the specified files.
+# Remove from the specified files:
+# - The parent working directory path
+# - Lines denoting post-processing as relative paths may differ
 remove_cwd()
 {
-  sed -e "s|[^ ]*$(cd ../.. ; /bin/pwd)||" "$@"
+  sed -e "/Post-processing/d;s|[^ ]*$(cd ../.. ; /bin/pwd)||" "$@"
 }
 
 # End a test (arguments directory, name)
