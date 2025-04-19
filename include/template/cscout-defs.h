@@ -24,7 +24,6 @@
 #define __LINE__ 1
 #define __FUNCTION__ "UNKNOWN"
 #define __func__ "UNKNOWN"
-#define inline
 #define _Pragma(x)
 
 /* To make it appear as a read-only identifier */
