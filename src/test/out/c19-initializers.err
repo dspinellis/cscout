@@ -1,0 +1,27 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c19-initializers.c
+/cscout/src/test/c/c19-initializers.c:20: warning: too many initializers
+The text leading to this warning is: [p2 = &(struct point){.y = 14, 18}]
+Done processing file c19-initializers.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c19-initializers.c
+/cscout/src/test/c/c19-initializers.c:20: warning: too many initializers
+The text leading to this warning is: [p2 = &(struct point){.y = 14, 18}]
+Done processing file c19-initializers.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Post-processing /cscout/example/.cscout/host-defs.h
+Post-processing /cscout/example/.cscout/host-incs.h
+Post-processing /cscout/src/makecs.cs
+Post-processing /cscout/src/test/c/c19-initializers.c
+Post-processing /cscout/src/test/c/prj2.c
+Processing identifiers
+3%6%9%12%15%18%21%24%27%30%33%36%39%42%45%48%51%54%57%60%63%66%69%72%75%78%81%84%87%90%93%96%100%

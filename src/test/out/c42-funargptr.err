@@ -1,0 +1,23 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c42-funargptr.c
+Done processing file c42-funargptr.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c42-funargptr.c
+Done processing file c42-funargptr.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Post-processing /cscout/example/.cscout/host-defs.h
+Post-processing /cscout/example/.cscout/host-incs.h
+Post-processing /cscout/src/makecs.cs
+Post-processing /cscout/src/test/c/c42-funargptr.c
+Post-processing /cscout/src/test/c/prj2.c
+Processing identifiers
+3%6%9%12%16%19%22%25%29%32%35%38%41%45%48%51%54%58%61%64%67%70%74%77%80%83%87%90%93%96%100%

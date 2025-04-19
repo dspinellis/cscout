@@ -1,0 +1,23 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c05-gcc_labels.c
+Done processing file c05-gcc_labels.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c05-gcc_labels.c
+Done processing file c05-gcc_labels.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Post-processing /cscout/example/.cscout/host-defs.h
+Post-processing /cscout/example/.cscout/host-incs.h
+Post-processing /cscout/src/makecs.cs
+Post-processing /cscout/src/test/c/c05-gcc_labels.c
+Post-processing /cscout/src/test/c/prj2.c
+Processing identifiers
+4%9%13%18%22%27%31%36%40%45%50%54%59%63%68%72%77%81%86%90%95%100%

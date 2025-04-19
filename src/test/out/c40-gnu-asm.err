@@ -1,0 +1,23 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c40-gnu-asm.c
+Done processing file c40-gnu-asm.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c40-gnu-asm.c
+Done processing file c40-gnu-asm.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Post-processing /cscout/example/.cscout/host-defs.h
+Post-processing /cscout/example/.cscout/host-incs.h
+Post-processing /cscout/src/makecs.cs
+Post-processing /cscout/src/test/c/c40-gnu-asm.c
+Post-processing /cscout/src/test/c/prj2.c
+Processing identifiers
+5%11%17%23%29%35%41%47%52%58%64%70%76%82%88%94%100%

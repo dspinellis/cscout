@@ -1,0 +1,56 @@
+Processing workspace awk
+Processing project awk
+Entering directory awk
+Processing file awkgram.y
+Done processing file awkgram.y
+Processing file b.c
+Done processing file b.c
+Processing file lex.c
+Done processing file lex.c
+Processing file lib.c
+Done processing file lib.c
+Processing file main.c
+Done processing file main.c
+Processing file maketab.c
+Done processing file maketab.c
+Processing file parse.c
+Done processing file parse.c
+Processing file proctab.c
+Done processing file proctab.c
+Processing file run.c
+Done processing file run.c
+Processing file tran.c
+Done processing file tran.c
+Exiting directory awk
+Done processing project awk
+Done processing workspace awk
+Post-processing /cscout/example/.cscout/host-defs.h
+Post-processing /cscout/example/.cscout/host-incs.h
+Post-processing /cscout/example/awk.cs
+Post-processing /cscout/example/awk/../../include/stdc/_ansi.h
+Post-processing /cscout/example/awk/../../include/stdc/ctype.h
+Post-processing /cscout/example/awk/../../include/stdc/errno.h
+Post-processing /cscout/example/awk/../../include/stdc/locale.h
+Post-processing /cscout/example/awk/../../include/stdc/math.h
+Post-processing /cscout/example/awk/../../include/stdc/setjmp.h
+Post-processing /cscout/example/awk/../../include/stdc/signal.h
+Post-processing /cscout/example/awk/../../include/stdc/stdarg.h
+Post-processing /cscout/example/awk/../../include/stdc/stdio.h
+Post-processing /cscout/example/awk/../../include/stdc/stdlib.h
+Post-processing /cscout/example/awk/../../include/stdc/string.h
+Post-processing /cscout/example/awk/../../include/stdc/time.h
+Post-processing /cscout/example/awk/awk.h
+Post-processing /cscout/example/awk/awkgram.y
+Post-processing /cscout/example/awk/b.c
+Post-processing /cscout/example/awk/lex.c
+Post-processing /cscout/example/awk/lib.c
+Post-processing /cscout/example/awk/main.c
+Post-processing /cscout/example/awk/maketab.c
+Post-processing /cscout/example/awk/parse.c
+Post-processing /cscout/example/awk/proctab.c
+Post-processing /cscout/example/awk/proto.h
+Post-processing /cscout/example/awk/run.c
+Post-processing /cscout/example/awk/tran.c
+Post-processing /cscout/example/awk/ytab.h
+Processing identifiers
+1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99%100%

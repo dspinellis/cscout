@@ -1,0 +1,31 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c53-macro-asm-metrics.c
+/cscout/src/test/c/c53-macro-asm-metrics.c:22: warning: undeclared identifier: printf
+The text leading to this warning is: [printf(]
+/cscout/src/test/c/c53-macro-asm-metrics.c:22: warning: assuming declaration int printf(...)
+The text leading to this warning is: [printf("Calling with input = 0:\n")]
+Done processing file c53-macro-asm-metrics.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c53-macro-asm-metrics.c
+/cscout/src/test/c/c53-macro-asm-metrics.c:22: warning: undeclared identifier: printf
+The text leading to this warning is: [printf(]
+/cscout/src/test/c/c53-macro-asm-metrics.c:22: warning: assuming declaration int printf(...)
+The text leading to this warning is: [printf("Calling with input = 0:\n")]
+Done processing file c53-macro-asm-metrics.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Post-processing /cscout/example/.cscout/host-defs.h
+Post-processing /cscout/example/.cscout/host-incs.h
+Post-processing /cscout/src/makecs.cs
+Post-processing /cscout/src/test/c/c53-macro-asm-metrics.c
+Post-processing /cscout/src/test/c/prj2.c
+Processing identifiers
+5%10%15%20%25%30%35%40%45%50%55%60%65%70%75%80%85%90%95%100%

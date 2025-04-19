@@ -67,6 +67,12 @@ show_error()
   echo '#...'
 }
 
+# Remove the parent working directory path from the specified files.
+remove_cwd()
+{
+  sed -e "s|[^ ]*$(cd ../.. ; /bin/pwd)||" "$@"
+}
+
 # End a test (arguments directory, name)
 # Expects results in test/out/$NAME.{out,err}
 end_compare()
@@ -81,7 +87,7 @@ end_compare()
 	mkdir -p test/err/diff
 	if { test -r test/out/$NAME.err &&
 	     diff -iw test/out/$NAME.out test/nout/$NAME.out >test/err/diff/$NAME &&
-	     sed "s|[^ ]*$(/bin/pwd)||" test/nout/$NAME.err |
+	     remove_cwd test/nout/$NAME.err |
 	     diff -iw test/out/$NAME.err - >>test/err/diff/$NAME ; } ||
 	   { test -r test/out/$NAME &&
 	     diff -iw test/out/$NAME test/nout/$NAME >test/err/diff/$NAME ; }
@@ -140,15 +146,14 @@ EOF
 # runtest name directory csfile
 runtest_c()
 {
-	NAME=$1
+        NAME=$(basename "$1" .c)
 	DIR=$2
 	SRCPATH=$3
 	CSFILE=$4
 	start_test $DIR $NAME
-	mkdir -p test/err/chunk
 (
 echo '.print "Loading database"'
-(cd $DIR ; $SRCPATH/$CSCOUT -s sqlite $CSFILE) 2>test/err/chunk/$NAME.cs
+(cd $DIR ; $SRCPATH/$CSCOUT -s sqlite $CSFILE) 2>test/nout/$NAME.err
 sql_prologue
 cat <<\EOF
 .print "Fixing EIDs"
@@ -256,7 +261,7 @@ SELECT * from Fcalls ORDER BY SourceID, DESTID;
 EOF
 ) |
 sqlite3 |
-sed -e '1,/^Running selections/d' >test/nout/$NAME
+sed -e '1,/^Running selections/d' >test/nout/$NAME.out
 	end_compare $DIR $NAME
 }
 
@@ -520,11 +525,9 @@ fi
 if [ "$PRIME" = "1" ]
 then
 	# Remove absolute path from error files
-	cd test/nout
-	for i in *.err ; do
-	       sed -i "s|[^ ]*$(cd ../.. ; pwd)||i" $i
+	for i in test/nout/*.err ; do
+          remove_cwd -i $i
 	done
-        cd ../..
 
         # Copy files that were changed in more than whitespace
 	for nout in test/nout/* ; do

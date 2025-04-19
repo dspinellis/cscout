@@ -1,0 +1,23 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c45-empty-struct-decl.c
+Done processing file c45-empty-struct-decl.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c45-empty-struct-decl.c
+Done processing file c45-empty-struct-decl.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Post-processing /cscout/example/.cscout/host-defs.h
+Post-processing /cscout/example/.cscout/host-incs.h
+Post-processing /cscout/src/makecs.cs
+Post-processing /cscout/src/test/c/c45-empty-struct-decl.c
+Post-processing /cscout/src/test/c/prj2.c
+Processing identifiers
+7%14%21%28%35%42%50%57%64%71%78%85%92%100%

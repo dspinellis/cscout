@@ -1,0 +1,71 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c20-implicit-fdecl.c
+/cscout/src/test/c/c20-implicit-fdecl.c:9: warning: undeclared identifier: b
+The text leading to this warning is: [b(]
+/cscout/src/test/c/c20-implicit-fdecl.c:9: warning: assuming declaration int b(...)
+The text leading to this warning is: [b()]
+/cscout/src/test/c/c20-implicit-fdecl.c:10: warning: undeclared identifier: c
+The text leading to this warning is: [c(]
+/cscout/src/test/c/c20-implicit-fdecl.c:10: warning: assuming declaration int c(...)
+The text leading to this warning is: [c()]
+/cscout/src/test/c/c20-implicit-fdecl.c:16: error: conflicting declarations for identifier c
+The text leading to this error is: [static int c() {]
+/cscout/src/test/c/c20-implicit-fdecl.c:17: error: conflicting declarations for identifier d
+The text leading to this error is: [static int d() {]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: undeclared identifier: xa1
+The text leading to this warning is: [int xa() { xa1(]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: assuming declaration int xa1(...)
+The text leading to this warning is: [int xa() { xa1()]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: undeclared identifier: xa2
+The text leading to this warning is: [int xa() { xa1(); xa2(]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: assuming declaration int xa2(...)
+The text leading to this warning is: [int xa() { xa1(); xa2()]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: undeclared identifier: xa3
+The text leading to this warning is: [int xa() { xa1(); xa2(); xa3(]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: assuming declaration int xa3(...)
+The text leading to this warning is: [int xa() { xa1(); xa2(); xa3()]
+Done processing file c20-implicit-fdecl.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c20-implicit-fdecl.c
+/cscout/src/test/c/c20-implicit-fdecl.c:9: warning: undeclared identifier: b
+The text leading to this warning is: [b(]
+/cscout/src/test/c/c20-implicit-fdecl.c:9: warning: assuming declaration int b(...)
+The text leading to this warning is: [b()]
+/cscout/src/test/c/c20-implicit-fdecl.c:10: warning: undeclared identifier: c
+The text leading to this warning is: [c(]
+/cscout/src/test/c/c20-implicit-fdecl.c:10: warning: assuming declaration int c(...)
+The text leading to this warning is: [c()]
+/cscout/src/test/c/c20-implicit-fdecl.c:16: error: conflicting declarations for identifier c
+The text leading to this error is: [static int c() {]
+/cscout/src/test/c/c20-implicit-fdecl.c:17: error: conflicting declarations for identifier d
+The text leading to this error is: [static int d() {]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: undeclared identifier: xa1
+The text leading to this warning is: [int xa() { xa1(]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: assuming declaration int xa1(...)
+The text leading to this warning is: [int xa() { xa1()]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: undeclared identifier: xa2
+The text leading to this warning is: [int xa() { xa1(); xa2(]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: assuming declaration int xa2(...)
+The text leading to this warning is: [int xa() { xa1(); xa2()]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: undeclared identifier: xa3
+The text leading to this warning is: [int xa() { xa1(); xa2(); xa3(]
+/cscout/src/test/c/c20-implicit-fdecl.c:20: warning: assuming declaration int xa3(...)
+The text leading to this warning is: [int xa() { xa1(); xa2(); xa3()]
+Done processing file c20-implicit-fdecl.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Post-processing /cscout/example/.cscout/host-defs.h
+Post-processing /cscout/example/.cscout/host-incs.h
+Post-processing /cscout/src/makecs.cs
+Post-processing /cscout/src/test/c/c20-implicit-fdecl.c
+Post-processing /cscout/src/test/c/prj2.c
+Processing identifiers
+4%8%12%16%20%24%28%32%36%40%44%48%52%56%60%64%68%72%76%80%84%88%92%96%100%
