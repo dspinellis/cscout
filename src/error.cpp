@@ -55,14 +55,15 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 		cout << flush;
 	if (showloc)
 		cerr << Fchar::get_path() << ':' << Fchar::get_line_num() << ": ";
+	string name;
 	switch (level) {
-	case E_DEBUG: cerr << "debug message: "; break;
-	case E_WARN: cerr << "warning: "; break;
-	case E_ERR: cerr << "error: "; break;
-	case E_INTERNAL: cerr << "internal error: "; break;
-	case E_FATAL: cerr << "fatal error: "; break;
+	case E_DEBUG: name = "debug message"; break;
+	case E_WARN: name = "warning"; break;
+	case E_ERR: name = "error"; break;
+	case E_INTERNAL: name = "internal error"; break;
+	case E_FATAL: name = "fatal error"; break;
 	}
-	cerr << msg << endl;
+	cerr << name << ": " << msg << endl;
 	switch (level) {
 	case E_DEBUG: break;
 	case E_WARN: num_warnings++; break;
@@ -83,7 +84,7 @@ Error::error(enum e_error_level level, string msg, bool showloc)
 
 	const vectorPdtoken& line = Pdtoken::get_current_line();
 	if (showloc && line.size() > 0 && line[0].get_code() != EOF)
-		cerr << "The text leading to this error is: [" <<
+		cerr << "The text leading to this " << name << " is: [" <<
 			Pdtoken::get_current_line() << "]\n";
 }
 
