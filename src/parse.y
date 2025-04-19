@@ -440,7 +440,7 @@ primary_expression:
 	/* gcc extension */
 	| '(' { Initializer::context_save(); } compound_statement ')'
 		{
-			$$ = $2;
+			$$ = $3;
 			Initializer::context_restore();
 		}
 
