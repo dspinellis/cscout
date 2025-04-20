@@ -235,7 +235,7 @@ private:
 	Type_node *p;
 public:
 	Type(Type_node *n) : p(n) {}
-	Type() { p = new Tbasic(b_undeclared); }
+	Type() : p(new Tbasic(b_undeclared)) {}
 	// Creation functions
 	friend Type basic(enum e_btype t, enum e_sign s,
 			  enum e_storage_class sc, qualifiers_t);
@@ -259,9 +259,13 @@ public:
 	void declare();
 
 	// Manage use count of underlying Type_node
-	Type(const Type& t) : p(t.p) { ++p->use; }	// Copy
-	~Type() { if (--p->use == 0) delete p; }
+	Type(const Type& t) : p(t.p) { if (p) ++p->use; }	// Copy
+	~Type() { if (p && --p->use == 0) delete p; }
 	Type& operator=(const Type& t);
+	// Move constructor
+	Type(Type&& t) noexcept : p(t.p) { t.p = nullptr; }
+	// Move assignment
+	Type& operator=(Type&& rhs) noexcept;
 
 	// Interface to the Type_node functionality
 	Type clone() const 		{ return p->clone(); }

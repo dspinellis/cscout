@@ -61,11 +61,23 @@ Type&
 Type::operator=(const Type& rhs)
 {
 	// The operation sequence handles self-assignment
-	rhs.p->use++;
-	if (--p->use == 0)
+	if (rhs.p) rhs.p->use++;
+	if (p && --p->use == 0)
 		delete p;
 	p = rhs.p;
 	return (*this);
+}
+
+// Move assignment
+Type&
+Type::operator=(Type&& rhs) noexcept {
+	if (this != &rhs) {
+		if (p && --p->use == 0)
+			delete p;
+		p = rhs.p;
+		rhs.p = nullptr;
+	}
+	return *this;
 }
 
 Type
