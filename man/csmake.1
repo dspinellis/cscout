@@ -1,6 +1,6 @@
-.TH CSMAKE 1 "11 December 2024"
+.TH CSMAKE 1 "23 September 2025"
 .\"
-.\" (C) Copyright 2020-2024 Diomidis Spinellis
+.\" (C) Copyright 2020-2025 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -72,6 +72,11 @@ Specify the name of the generated specification file,
 which is by default
 .I make.cs .
 A name of - will output the file on the standard output.
+.IP "\fB\-p\fP \fItoolchain-prefix\fP"
+Specify the cross-compilation toolchain prefix, e.g. \fCaarch64-linux-gnu-\fP.
+This changes the names of monitored toolchain commands by prefixing
+their name as specified, e.g. . \fCaarch64-linux-gnu-gcc\fP and thus
+allows \fIcsmake\fP to be applied in a cross-compilation environment.
 .IP "\fB\-s\fP \fIcs-files-directory\fP"
 Create a separate CScout .cs file for each real executable.
 Save the .cs files into \fIcs-files-directory\fP in the current directory.

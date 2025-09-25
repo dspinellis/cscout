@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# (C) Copyright 2006-2024 Diomidis Spinellis
+# (C) Copyright 2006-2025 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -64,7 +64,7 @@ if ($ENV{'CSMAKEFLAGS'}) {
 	@ARGV = split(/\s+/, $ENV{'CSMAKEFLAGS'});
 }
 my %options=();  # csmake options
-my $csmake_opts = "AdhkN:o:s:T:t:";
+my $csmake_opts = "AdhkN:o:p:s:T:t:";
 # Parse options from CSMAKEFLAGS
 getopts($csmake_opts, \%options);
 
@@ -96,6 +96,7 @@ usage: csmake [ [-A] [-d] [-k] [-o output] [-s cs_files_directory] [-T temporary
     -h                Print help message.
     -k                Keep temporary directory in place.
     -o file           Specify output file; (default make.cs, - for stdout)
+    -p prefix         Cross-compilation tool prefix, e.g. aarch64-linux-gnu-
     -s cs_files_dir   Create a separate CScout .cs file for each executable.
     -A                Generate cs projects for static libraries.
     -N rules_file     Run on an existing rules file.
@@ -105,12 +106,14 @@ HELP
 exit();
 }
 
+my $prefix = $options{p} // '';
+
 if ($0 =~ m/\bcscc$/) {
 	# Run as a C compiler invocation
 	prepare_spy_environment($options{T});
-	spy('gcc', 'spy-gcc');
-	$exit_status = system(("gcc", @MAKEARGS));
-	check_exit('gcc', $exit_status);
+	spy($prefix, 'gcc', 'spy-gcc');
+	$exit_status = system(("${prefix}gcc", @MAKEARGS));
+	check_exit("${prefix}gcc", $exit_status);
 	push(@toclean, 'rules');
 	open(IN, "$ENV{CSCOUT_SPY_TMPDIR}/rules") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/rules for reading: $!\nMake sure you have specified appropriate compiler options.\n";
 } elsif (defined $options{N}) {
@@ -118,15 +121,15 @@ if ($0 =~ m/\bcscc$/) {
 	open(IN, $options{N}) || die "Unable to open $options{N} for reading: $!\n";
 } else {
 	prepare_spy_environment($options{T});
-	spy('gcc', 'spy-gcc');
-	spy('cc', 'spy-gcc');
-	spy('clang', 'spy-gcc');
-	spy('x86_64-linux-gnu-gcc', 'spy-gcc');
-	spy($ENV{'CC'}, 'spy-gcc') if defined($ENV{'CC'});
-	spy('ld', 'spy-ld');
-	spy('ar', 'spy-ar');
-	spy('mv', 'spy-mv');
-	spy('install', 'spy-install');
+	spy($prefix, 'gcc', 'spy-gcc');
+	spy($prefix, 'cc', 'spy-gcc');
+	spy($prefix, 'clang', 'spy-gcc');
+	spy('', 'x86_64-linux-gnu-gcc', 'spy-gcc');
+	spy('', $ENV{'CC'}, 'spy-gcc') if defined($ENV{'CC'});
+	spy($prefix, 'ld', 'spy-ld');
+	spy($prefix, 'ar', 'spy-ar');
+	spy('', 'mv', 'spy-mv');
+	spy('', 'install', 'spy-install');
 	my $exit_status = system(("make", @MAKEARGS));
 	check_exit('make', $exit_status);
 	push(@toclean, 'rules');
@@ -350,10 +353,11 @@ prepare_spy_environment
 # spyProgName should be listed in this file in a BEGIN/END block
 sub spy
 {
-	my($realProgName, $spyProgName) = @_;
+	my($prefix, $realProgName, $spyProgName) = @_;
+	# Read commands from this script
 	open(IN, $script_name) || die "Unable to open $script_name for reading: $!\n";
-	push(@toclean, $realProgName);
-	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$realProgName") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/$realProgName for writing: $!\n";
+	push(@toclean, "$prefix$realProgName");
+	open(OUT, ">$ENV{CSCOUT_SPY_TMPDIR}/$prefix$realProgName") || die "Unable to open $ENV{CSCOUT_SPY_TMPDIR}/$prefix$realProgName for writing: $!\n";
 	print OUT '#!/usr/bin/env perl
 #
 # Automatically-generated file
@@ -377,7 +381,7 @@ my $rules;
 	}
 	close IN;
 	close OUT;
-	chmod(0755, "$ENV{CSCOUT_SPY_TMPDIR}/$realProgName");
+	chmod(0755, "$ENV{CSCOUT_SPY_TMPDIR}/$prefix$realProgName");
 }
 
 # Return a file's original ancestor following a chain of renames
