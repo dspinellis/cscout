@@ -81,6 +81,23 @@ Type::operator=(Type&& rhs) noexcept {
 }
 
 Type
+Tbasic::subscript() const
+{
+	if (qualifiers & q_simd)
+		return basic(b_int);
+
+	/*
+	 * @error
+	 * A basic type is being subscripted using the <code>[]</code>
+	 * operator
+	 */
+	Error::error(E_ERR, "subscript on a basic type");
+	if (DP())
+		this->print(cerr);
+	return basic(b_undeclared);
+}
+
+Type
 Type_node::subscript() const
 {
 	/*
@@ -455,6 +472,7 @@ QType_node::print(ostream &o) const
 	if (qualifiers & q_restrict) o << "restrict ";
 	if (qualifiers & q_unused) o << "__attribute__(unused) ";
 	if (qualifiers & q_volatile) o << "volatile ";
+	if (qualifiers & q_simd) o << "__simd ";
 }
 
 void

@@ -43,7 +43,9 @@ public:
 	Type subscript() const { return of; }
 	CTConst get_initializer_elements() const { return nelem; }
 	CTConst get_indexed_elements() const { return nelem; }
+	// Arrays decay into pointers
 	bool is_ptr() const { return true; }
+	bool is_subscriptable() const { return true; }
 	bool is_array() const { return true; }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
@@ -65,6 +67,7 @@ public:
 	Type deref() const { return to; }
 	Type subscript() const { return to; }
 	bool is_ptr() const { return true; }
+	bool is_subscriptable() const { return true; }
 	Type call() const { return to.call(); }
 	void set_storage_class(Type t) { to.set_storage_class(t); }
 	void clear_storage_class() { to.clear_storage_class(); }

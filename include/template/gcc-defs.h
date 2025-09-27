@@ -243,3 +243,179 @@
 #pragma define_immutable __restrict
 
 #pragma define_immutable _Static_assert(x)
+
+/*
+ * Typedefs for fixed-width SIMD vector types.
+ * Most are defined in terms of CScout's __simd
+ * qualifier which allows array subscripting.
+ * This cannot be done with a typedef like
+ * typedef signed char __Int8x8_t[8];
+ * because in C, a typedef name used as an array type isn't re-usable
+ * as a plain type name — it always expands back into an array.
+ */
+
+#define __fp16 float
+#define __bf16 float
+#define _Float16 float
+
+// 64-bit “d” register width (8 bytes total)
+#define __Int8x8_t __simd signed char
+#define __Int16x4_t __simd short
+#define __Int32x2_t __simd int
+#define __Int64x1_t __simd long long
+
+#define __Uint8x8_t __simd unsigned char
+#define __Uint16x4_t __simd unsigned short
+#define __Uint32x2_t __simd unsigned int
+#define __Uint64x1_t __simd unsigned long long
+
+#define __Float16x4_t __simd _Float16
+#define __Float32x2_t __simd float
+#define __Float64x1_t __simd double
+
+#define __Poly8x8_t __simd unsigned char
+#define __Poly16x4_t __simd unsigned short
+#define __Poly64x1_t __simd unsigned long long
+
+#define __Bfloat16x4_t __simd __bf16
+
+// 128-bit “q” register width (16 bytes total)
+#define __Int8x16_t __simd signed char
+#define __Int16x8_t __simd short
+#define __Int32x4_t __simd int
+#define __Int64x2_t __simd long long
+
+#define __Uint8x16_t __simd unsigned char
+#define __Uint16x8_t __simd unsigned short
+#define __Uint32x4_t __simd unsigned int
+#define __Uint64x2_t __simd unsigned long long
+
+#define __Float16x8_t __simd _Float16
+#define __Float32x4_t __simd float
+#define __Float64x2_t __simd double
+
+#define __Poly8x16_t __simd unsigned char
+#define __Poly16x8_t __simd unsigned short
+#define __Poly64x2_t __simd unsigned long long
+
+#define __Bfloat16x4_t __simd __bf16
+#define __Bfloat16x8_t __simd __bf16
+
+// Scalar polynomial and FP base types
+#define __Poly8_t unsigned char
+#define __Poly16_t unsigned short
+#define __Poly64_t unsigned long long
+#define __Poly128_t unsigned __int128
+
+// Builtin SIMD element types
+#define __builtin_aarch64_simd_qi signed char
+#define __builtin_aarch64_simd_hi short
+#define __builtin_aarch64_simd_si int
+#define __builtin_aarch64_simd_di long long
+
+#define __builtin_aarch64_simd_hf _Float16
+#define __builtin_aarch64_simd_bf __bf16
+#define __builtin_aarch64_simd_sf float
+#define __builtin_aarch64_simd_df double
+
+#define __builtin_aarch64_simd_poly8 unsigned char
+#define __builtin_aarch64_simd_poly16 unsigned short
+#define __builtin_aarch64_simd_poly64 unsigned long long
+#define __builtin_aarch64_simd_poly128 unsigned __int128
+
+// Builtin x2 types
+//     gcc/gcc/config/aarch64/aarch64-builtins.cc handle_arm_neon_h
+#define int8x8x2_t struct { int8x8_t __val[2]; }
+#define int16x4x2_t struct { int16x4_t __val[2]; }
+#define int32x2x2_t struct { int32x2_t __val[2]; }
+#define int64x1x2_t struct { int64x1_t __val[2]; }
+#define float16x4x2_t struct { float16x4_t __val[2]; }
+#define float32x2x2_t struct { float32x2_t __val[2]; }
+#define poly8x8x2_t struct { poly8x8_t __val[2]; }
+#define poly16x4x2_t struct { poly16x4_t __val[2]; }
+#define uint8x8x2_t struct { uint8x8_t __val[2]; }
+#define uint16x4x2_t struct { uint16x4_t __val[2]; }
+#define uint32x2x2_t struct { uint32x2_t __val[2]; }
+#define float64x1x2_t struct { float64x1_t __val[2]; }
+#define uint64x1x2_t struct { uint64x1_t __val[2]; }
+#define int8x16x2_t struct { int8x16_t __val[2]; }
+#define int16x8x2_t struct { int16x8_t __val[2]; }
+#define int32x4x2_t struct { int32x4_t __val[2]; }
+#define int64x2x2_t struct { int64x2_t __val[2]; }
+#define float16x8x2_t struct { float16x8_t __val[2]; }
+#define float32x4x2_t struct { float32x4_t __val[2]; }
+#define float64x2x2_t struct { float64x2_t __val[2]; }
+#define poly8x16x2_t struct { poly8x16_t __val[2]; }
+#define poly16x8x2_t struct { poly16x8_t __val[2]; }
+#define poly64x2x2_t struct { poly64x2_t __val[2]; }
+#define poly64x1x2_t struct { poly64x1_t __val[2]; }
+#define uint8x16x2_t struct { uint8x16_t __val[2]; }
+#define uint16x8x2_t struct { uint16x8_t __val[2]; }
+#define uint32x4x2_t struct { uint32x4_t __val[2]; }
+#define uint64x2x2_t struct { uint64x2_t __val[2]; }
+
+#define int8x8x3_t struct { int8x8_t __val[3]; }
+#define int16x4x3_t struct { int16x4_t __val[3]; }
+#define int32x2x3_t struct { int32x2_t __val[3]; }
+#define int64x1x3_t struct { int64x1_t __val[3]; }
+#define float16x4x3_t struct { float16x4_t __val[3]; }
+#define float32x2x3_t struct { float32x2_t __val[3]; }
+#define poly8x8x3_t struct { poly8x8_t __val[3]; }
+#define poly16x4x3_t struct { poly16x4_t __val[3]; }
+#define uint8x8x3_t struct { uint8x8_t __val[3]; }
+#define uint16x4x3_t struct { uint16x4_t __val[3]; }
+#define uint32x2x3_t struct { uint32x2_t __val[3]; }
+#define float64x1x3_t struct { float64x1_t __val[3]; }
+#define uint64x1x3_t struct { uint64x1_t __val[3]; }
+#define int8x16x3_t struct { int8x16_t __val[3]; }
+#define int16x8x3_t struct { int16x8_t __val[3]; }
+#define int32x4x3_t struct { int32x4_t __val[3]; }
+#define int64x2x3_t struct { int64x2_t __val[3]; }
+#define float16x8x3_t struct { float16x8_t __val[3]; }
+#define float32x4x3_t struct { float32x4_t __val[3]; }
+#define float64x2x3_t struct { float64x2_t __val[3]; }
+#define poly8x16x3_t struct { poly8x16_t __val[3]; }
+#define poly16x8x3_t struct { poly16x8_t __val[3]; }
+#define poly64x2x3_t struct { poly64x2_t __val[3]; }
+#define poly64x1x3_t struct { poly64x1_t __val[3]; }
+#define uint8x16x3_t struct { uint8x16_t __val[3]; }
+#define uint16x8x3_t struct { uint16x8_t __val[3]; }
+#define uint32x4x3_t struct { uint32x4_t __val[3]; }
+#define uint64x2x3_t struct { uint64x2_t __val[3]; }
+
+#define int8x8x4_t struct { int8x8_t __val[4]; }
+#define int16x4x4_t struct { int16x4_t __val[4]; }
+#define int32x2x4_t struct { int32x2_t __val[4]; }
+#define int64x1x4_t struct { int64x1_t __val[4]; }
+#define float16x4x4_t struct { float16x4_t __val[4]; }
+#define float32x2x4_t struct { float32x2_t __val[4]; }
+#define poly8x8x4_t struct { poly8x8_t __val[4]; }
+#define poly16x4x4_t struct { poly16x4_t __val[4]; }
+#define uint8x8x4_t struct { uint8x8_t __val[4]; }
+#define uint16x4x4_t struct { uint16x4_t __val[4]; }
+#define uint32x2x4_t struct { uint32x2_t __val[4]; }
+#define float64x1x4_t struct { float64x1_t __val[4]; }
+#define uint64x1x4_t struct { uint64x1_t __val[4]; }
+#define int8x16x4_t struct { int8x16_t __val[4]; }
+#define int16x8x4_t struct { int16x8_t __val[4]; }
+#define int32x4x4_t struct { int32x4_t __val[4]; }
+#define int64x2x4_t struct { int64x2_t __val[4]; }
+#define float16x8x4_t struct { float16x8_t __val[4]; }
+#define float32x4x4_t struct { float32x4_t __val[4]; }
+#define float64x2x4_t struct { float64x2_t __val[4]; }
+#define poly8x16x4_t struct { poly8x16_t __val[4]; }
+#define poly16x8x4_t struct { poly16x8_t __val[4]; }
+#define poly64x2x4_t struct { poly64x2_t __val[4]; }
+#define poly64x1x4_t struct { poly64x1_t __val[4]; }
+#define uint8x16x4_t struct { uint8x16_t __val[4]; }
+#define uint16x8x4_t struct { uint16x8_t __val[4]; }
+#define uint32x4x4_t struct { uint32x4_t __val[4]; }
+#define uint64x2x4_t struct { uint64x2_t __val[4]; }
+
+
+#define bfloat16x4x2_t struct { __Bfloat16x4_t __val[2]; }
+#define bfloat16x8x2_t struct { __Bfloat16x8_t __val[2]; }
+#define bfloat16x4x3_t struct { __Bfloat16x4_t __val[3]; }
+#define bfloat16x8x3_t struct { __Bfloat16x8_t __val[3]; }
+#define bfloat16x4x4_t struct { __Bfloat16x4_t __val[4]; }
+#define bfloat16x8x4_t struct { __Bfloat16x8_t __val[4]; }

@@ -183,6 +183,8 @@ make_keymap()
 	m["__alignof__"] = ALIGNOF;
 	m["__volatile"] = VOLATILE;
 	m["__volatile__"] = VOLATILE;
+	// CScout
+	m["__simd"] = SIMD; // SIMD basic types
 	return m;
 }
 

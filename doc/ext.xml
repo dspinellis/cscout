@@ -54,6 +54,9 @@ identifiers should not be reported as unused (gcc).
 <li> Support locally declared labels (<code>__label__</code>) (gcc).
 <li> The second argument of a conditional expression can be omitted (gcc).
 <li> Dereferencing a function yields a function (common extension).
+<li> The <code>__simd</code> type qualifier can be used to define
+     basic types that are also indexable, similarly to the gcc
+     extension <code>__attribute__((__vector_size__(…)))</code>.
 </ol>
 Many other compiler-specific extensions are handled by suitable
 macro definitions in the <em>CScout</em> initialization file.

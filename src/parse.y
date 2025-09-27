@@ -464,7 +464,7 @@ postfix_expression:
         primary_expression
         | postfix_expression '[' comma_expression ']'
 			{
-				if ($1.is_array() || $1.is_ptr())
+				if ($1.is_subscriptable())
 					$$ = $1.subscript();
 				else
 					/* Try the infamous 4[a] alternative */
@@ -615,7 +615,7 @@ additive_expression:
         | additive_expression '+' multiplicative_expression
 			{
 				/* Propagate pointer property */
-				if ($3.is_ptr() || $3.is_array())
+				if ($3.is_ptr())
 					$$ = $3;
 				else
 					$$ = $1;
@@ -1046,6 +1046,7 @@ simple_type_qualifier:
         | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, q_restrict); }
         | COMPLEX   { $$ = basic(b_abstract, s_none, c_unspecified, q_complex);  }
         | IMAGINARY   { $$ = basic(b_abstract, s_none, c_unspecified, q_imaginary);  }
+        | SIMD   { $$ = basic(b_abstract, s_none, c_unspecified, q_simd);  }
 	| attribute
         ;
 
@@ -1648,7 +1649,7 @@ initializer:
 						    (currt.is_su() && $1.is_su() &&
 						    $1.get_initializer_elements().get_int_value() == currt.get_initializer_elements().get_int_value()) ||
 						    // Other case: string assignment
-						    ($1.is_array() && $1.deref().is_char() && (currt.is_array() || currt.is_ptr()) && currt.deref().is_char()) ||
+						    ($1.is_ptr() && $1.deref().is_char() && currt.is_ptr() && currt.deref().is_char()) ||
 						    // Other case: non-struct initializer into non-struct non-array
 						    (!$1.is_su() && !currt.is_su() && !currt.is_array())) {
 							ITOS.pos++;

@@ -62,8 +62,9 @@ enum e_qualifier {
 	q_volatile = 	0x02,
 	q_unused =	0x04,	// gcc __attribute__((unused))
 	q_restrict = 	0x08,
-	q_complex = 0x09,
-	q_imaginary = 0x10
+	q_complex =	0x10,
+	q_imaginary =	0x20,
+	q_simd =	0x40,  // SIMD vector-like basic types
 };
 
 
@@ -107,6 +108,7 @@ protected:
 	virtual Type member(int n);	// For > 0 on structure, union, array
 	virtual bool is_abstract() const { return false; }	// True for abstract types
 	virtual bool is_array() const { return false; }	// True for arrays
+	virtual bool is_subscriptable() const { return false; }	// True for arrays, pointers, and SIMD elements
 	virtual bool is_basic() const { return false; }// False for undeclared
 	virtual bool is_cfunction() const { return false; }	// True for functions
 	virtual bool is_identifier() const { return false; }// True only for identifiers
@@ -207,6 +209,8 @@ public:
 		qualifiers_t q = q_none, CTConst v = CTConst()) :
 		QType_node(q), type(t), sign(s), sclass(sc), value(v) {}
 	Type clone() const;
+	Type subscript() const;
+	bool is_subscriptable() const { return qualifiers & q_simd; }
 	bool is_valid() const { return type != b_undeclared && type != b_padbit; }
 	bool is_undeclared() const { return type == b_undeclared; }
 	bool is_abstract() const { return type == b_abstract; }
@@ -284,7 +288,8 @@ public:
 	void set_union(bool v)		{ p->set_union(v); }
 	void set_value(CTConst v)	{ p->set_value(v); }
 	bool is_abstract() const	{ return p->is_abstract(); }
-	bool is_array() const		{ return p->is_array(); }
+	bool is_subscriptable() const	{ return p->is_subscriptable(); }
+	bool is_array() const	{ return p->is_array(); }
 	bool is_basic() const		{ return p->is_basic(); }
 	bool is_cfunction() const	{ return p->is_cfunction(); }
 	bool is_identifier() const	{ return p->is_identifier(); }
