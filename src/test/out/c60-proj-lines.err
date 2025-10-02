@@ -1,0 +1,18 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c60-proj-lines.c
+Done processing file c60-proj-lines.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c60-proj-lines.c
+Done processing file c60-proj-lines.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Processing identifiers
+5%10%15%21%26%31%36%42%47%52%57%63%68%73%78%84%89%94%100%

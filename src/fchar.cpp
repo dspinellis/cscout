@@ -159,6 +159,8 @@ again:
 		default: in.putback(c3); in.putback(c2); return;
 		}
 	case '\n':
+		if (DP())
+			cout << "Set processed fid:" << Fchar::get_fileid().get_fname() << " line:" << line_number << " skip:" << Pdtoken::skipping() << '\n';
 		Filedetails::set_line_processed(Fchar::get_fileid(), !Pdtoken::skipping());
 		line_number++;
 		break;

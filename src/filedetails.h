@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -95,8 +95,10 @@ private:
 	// Line end offsets; collected during postprocessing
 	// when we are generating warning reports
 	vector <streampos> line_ends;
-	// Lines that were processed (rather than skipped)
-	vector <bool> processed_lines;;
+	// Lines that were processed (rather than skipped) across all projects
+	vector <bool> processed_lines;
+	// Lines that were processed (rather than skipped) per project
+	vector <vector <bool>> proj_processed_lines;
 	FileIncMap includes;	// Files we include
 	FileIncMap includers;	// Files that include us
 	FileHash hash;			// MD5 hash for the file's contents
@@ -164,9 +166,16 @@ public:
 	bool is_compilation_unit() const { return compilation_unit; }
 	void set_compilation_unit(bool r) { compilation_unit = r; }
 	void set_line_processed(bool processed);
+	// True if a line was processed by any project
 	bool is_line_processed(unsigned line) const {
 		return line <= processed_lines.size() &&
 			processed_lines[line - 1];
+	};
+	// True if a line was processed by specified project
+	bool is_line_processed(unsigned line, unsigned projid) const {
+		return (projid < proj_processed_lines.size()
+		    && line <= proj_processed_lines[projid].size()
+		    && proj_processed_lines[projid][line - 1]);
 	};
 	// Add and retrieve line numbers
 	// Should be called every time a newline is encountered
@@ -275,9 +284,14 @@ public:
 		get_instance(id).set_line_processed(processed);
 	}
 
-	// Return true if a line is processed
+	// Return true if a line is processed across all projects
 	static bool is_line_processed(Fileid id, int line) {
 		return get_instance(id).is_line_processed(line);
+	}
+;
+	// Return true if a line is processed for specified project
+	static bool is_line_processed(Fileid id, int line, unsigned projid) {
+		return get_instance(id).is_line_processed(line, projid);
 	}
 ;
 	// Return the set of files that are the same as this (including this)

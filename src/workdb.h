@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1995-2024 Diomidis Spinellis
+ * (C) Copyright 1995-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -43,6 +43,7 @@ enum e_table {
 	t_projects,
 	t_idproj,
 	t_fileproj,
+	t_lineproj,
 	t_definers,
 	t_includers,
 	t_providers,

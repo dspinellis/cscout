@@ -145,7 +145,9 @@ EOF
 }
 
 # Test the analysis of a C project
-# runtest name directory csfile
+# runtest_c name test-dir cscout-source-path csfile
+# The name can be a C file path whose base will be used as the name
+# The csfile is specified relative to test-dir.
 runtest_c()
 {
         NAME=$(basename "$1" .c)
@@ -214,6 +216,9 @@ DestId=(SELECT FixedId FROM FixedIds WHERE FixedIds.FunId = Fcalls.DestId);
 
 DROP TABLE FixedIds;
 
+# Delete the .cs file, which contains paths that differ between hosts
+DELETE FROM LinePos WHERE fid = 1;
+
 .print "Running selections"
 .print "Table: Ids"
 SELECT * from Ids WHERE Name != 'PRJ2' ORDER BY Eid;
@@ -240,6 +245,10 @@ from Files WHERE Fid != 1 ORDER BY Fid;
 SELECT * from Filemetrics WHERE Fid != 1 ORDER BY Fid, PreCpp;
 .print "Table: FileProj"
 SELECT * from FileProj ORDER BY Pid, Fid;
+.print "Table: LineProj"
+SELECT * from LineProj ORDER BY Pid, Fid, Lnum;
+.print "Table: LinePos"
+SELECT * from LinePos ORDER BY Fid, Foffset;
 .print "Table: Definers"
 SELECT * from Definers ORDER BY PID, CUID, BASEFILEID, DEFINERID;
 .print "Table: Includers"
@@ -467,6 +476,7 @@ then
 	for i in ${CFILES:=$(cd test/c; echo *.c)}
 	do
 		makecs_c $i
+                # runtest_c test-name test-dir cscout-source-path csfile
 		runtest_c $i . . makecs.cs
 	done
 fi

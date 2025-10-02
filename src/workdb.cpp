@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -88,6 +88,7 @@ table_enable(const char *name)
 		table_enum["PROJECTS"] = t_projects;
 		table_enum["IDPROJ"] = t_idproj;
 		table_enum["FILEPROJ"] = t_fileproj;
+		table_enum["LINEPROJ"] = t_lineproj;
 		table_enum["DEFINERS"] = t_definers;
 		table_enum["INCLUDERS"] = t_includers;
 		table_enum["PROVIDERS"] = t_providers;
@@ -237,6 +238,21 @@ public:
 	}
 };
 
+// Write out the projects for which the given line is processed.
+static void
+line_projects_dump(Sql *db, ostream &of, Fileid fid, int line_number)
+{
+	for (unsigned projid = attr_end; projid < Attributes::get_num_attributes(); projid++)
+		if (Filedetails::get_attribute(fid, projid)
+		    && Filedetails::is_line_processed(fid, line_number, projid))
+			of << "INSERT INTO LINEPROJ VALUES("
+			    << fid.get_id()
+			    << "," << projid
+			    << "," << line_number
+			    << ");\n";
+}
+
+
 // Add the contents of a file to the Tokens, Comments, Strings, and Rest tables
 // As a side-effect insert corresponding identifiers in the database
 // and populate the LineOffset table
@@ -278,6 +294,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 		    (isalnum(c) || c == '_') &&
 		    (ec = ti.check_ec()) &&
 		    ec->is_identifier()) {
+			// Process identifiers
 			id_msum.add_pre_cpp_id(ec);
 			string s;
 			s = (char)val;
@@ -294,20 +311,21 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 				    << ptr_offset(ec) << ");\n";
 		} else {
 			Filedetails::get_pre_cpp_metrics(fid).process_char(c);
+			if (at_bol) {
+				if (table_is_enabled(t_linepos))
+					of << "INSERT INTO LINEPOS VALUES("
+					    << fid.get_id()
+					    << "," << (unsigned)bol
+					    << "," << line_number
+					    << ");\n";
+				if (table_is_enabled(t_linepos))
+					line_projects_dump(db, of, fid, line_number);
+				at_bol = false;
+			}
 			if (c == '\n') {
 				at_bol = true;
 				bol = in.tellg();
 				line_number++;
-			} else {
-				if (at_bol) {
-					if (table_is_enabled(t_linepos))
-						of << "INSERT INTO LINEPOS VALUES("
-						    << fid.get_id()
-						    << "," << (unsigned)bol
-						    << "," << line_number
-						    << ");\n";
-					at_bol = false;
-				}
 			}
 			switch (cstate) {
 			case s_normal:
@@ -389,7 +407,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 void
 workdb_schema(Sql *db, ostream &of)
 {
-	if (table_is_enabled(t_ids)) cout <<
+	if (table_is_enabled(t_ids)) of <<
 		"-- Details of interdependant identifiers appearing in the workspace\n"
 		"CREATE TABLE IDS(\n"
 		"  EID " << db->ptrtype() << " PRIMARY KEY, -- Unique identifier key\n"
@@ -419,7 +437,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  UNUSED " << db->booltype() << " -- True if it is not used\n"
 		");\n";
 
-	if (table_is_enabled(t_files)) cout <<
+	if (table_is_enabled(t_files)) of <<
 		"\n\n-- File details\n"
 		"CREATE TABLE FILES(\n"
 		"  FID INTEGER PRIMARY KEY, -- Unique file key\n"
@@ -428,7 +446,7 @@ workdb_schema(Sql *db, ostream &of)
 		");\n";
 
 	if (table_is_enabled(t_filemetrics)) {
-		cout
+		of
 		    << "\n\n-- File metrics\n"
 		    << "CREATE TABLE FILEMETRICS(\n"
 		    "  FID INTEGER, -- File key\n"
@@ -438,19 +456,19 @@ workdb_schema(Sql *db, ostream &of)
 
 		for (int i = 0; i < FileMetrics::metric_max; i++)
 			if (!Metrics::is_internal<FileMetrics>(i))
-				cout
+				of
 				    << "  "
 				    << Metrics::get_dbfield<FileMetrics>(i)
 				    << " INTEGER, -- "
 				    << Metrics::get_name<FileMetrics>(i)
 				    << "\n";
-		cout <<
+		of <<
 		    "  PRIMARY KEY(FID, PRECPP),\n"
 		    "  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 		    ");\n";
 }
 
-	if (table_is_enabled(t_tokens)) cout <<
+	if (table_is_enabled(t_tokens)) of <<
 		"\n\n-- Instances of identifier tokens within the source code\n"
 		"CREATE TABLE TOKENS(\n"
 		"  FID INTEGER, -- File key\n"
@@ -461,7 +479,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(EID) REFERENCES IDS(EID)\n"
 		");\n";
 
-	if (table_is_enabled(t_comments)) cout <<
+	if (table_is_enabled(t_comments)) of <<
 		"\n\n-- Comments in the code\n"
 		"CREATE TABLE COMMENTS(\n"
 		"  FID INTEGER, -- File key\n"
@@ -471,7 +489,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 		");\n";
 
-	if (table_is_enabled(t_strings)) cout <<
+	if (table_is_enabled(t_strings)) of <<
 		"\n\n-- Strings in the code\n"
 		"CREATE TABLE STRINGS(\n"
 		"  FID INTEGER, -- File key\n"
@@ -481,7 +499,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 		");\n";
 
-	if (table_is_enabled(t_rest)) cout <<
+	if (table_is_enabled(t_rest)) of <<
 		"\n\n-- Remaining, non-identifier source code\n"
 		"CREATE TABLE REST(\n"
 		"  FID INTEGER, -- File key\n"
@@ -491,7 +509,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 		");\n";
 
-	if (table_is_enabled(t_linepos)) cout <<
+	if (table_is_enabled(t_linepos)) of <<
 		"\n\n-- Line number offsets within each file\n"
 		"CREATE TABLE LINEPOS(\n"
 		"  FID INTEGER, -- File key\n"
@@ -502,14 +520,14 @@ workdb_schema(Sql *db, ostream &of)
 		");\n";
 
 
-	if (table_is_enabled(t_projects)) cout <<
+	if (table_is_enabled(t_projects)) of <<
 		"\n\n-- Project details\n"
 		"CREATE TABLE PROJECTS(\n"
 		"  PID INTEGER PRIMARY KEY, -- Unique project key\n"
 		"  NAME " << db->varchar() << " -- Project name\n"
 		");\n";
 
-	if (table_is_enabled(t_idproj)) cout <<
+	if (table_is_enabled(t_idproj)) of <<
 		"\n\n-- Identifiers appearing in projects\n"
 		"CREATE TABLE IDPROJ(\n"
 		"  EID " << db->ptrtype() << ", -- Identifier key\n"
@@ -518,7 +536,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(PID) REFERENCES PROJECTS(PID)\n"
 		");\n";
 
-	if (table_is_enabled(t_fileproj)) cout <<
+	if (table_is_enabled(t_fileproj)) of <<
 		"\n\n-- Files used in projects\n"
 		"CREATE TABLE FILEPROJ(\n"
 		"  FID INTEGER, -- File key\n"
@@ -526,7 +544,19 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(FID) REFERENCES FILES(FID),\n"
 		"  FOREIGN KEY(PID) REFERENCES PROJECTS(PID)\n"
 		");\n";
-	cout <<
+
+	if (table_is_enabled(t_lineproj)) of <<
+		"\n\n-- Lines processed in projects\n"
+		"CREATE TABLE LINEPROJ(\n"
+		"  FID INTEGER, -- File key\n"
+		"  PID INTEGER, -- Project key\n"
+		"  LNUM INTEGER, -- Line number (starts at 1)\n"
+		"  PRIMARY KEY(PID, FID, LNUM),\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID),\n"
+		"  FOREIGN KEY(PID) REFERENCES PROJECTS(PID)\n"
+		");\n";
+
+	of <<
 	    "\n\n"
 	    "-- Foreign keys for the following four tables are not specified, because it is\n" 
 	    "-- difficult to satisfy integrity constraints: files (esp. their metrics,\n" 
@@ -535,7 +565,7 @@ workdb_schema(Sql *db, ostream &of)
 	    "-- Alternatively, inserts to these tables could be wrapped into\n" 
 	    "-- SET REFERENTIAL_INTEGRITY { TRUE | FALSE } calls.\n";
 
-	if (table_is_enabled(t_definers)) cout <<
+	if (table_is_enabled(t_definers)) of <<
 		"\n\n-- Included files defining required elements for a given compilation unit and project\n"
 		"CREATE TABLE DEFINERS(\n"
 		"  PID INTEGER, -- Project key\n"
@@ -548,7 +578,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  -- FOREIGN KEY(DEFINERID) REFERENCES FILES(FID)\n"
 		");\n";
 
-	if (table_is_enabled(t_includers)) cout <<
+	if (table_is_enabled(t_includers)) of <<
 		"\n\n-- Included files including files for a given compilation unit and project\n"
 		"CREATE TABLE INCLUDERS(\n"
 		"  PID INTEGER, -- Project key\n"
@@ -561,7 +591,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  -- FOREIGN KEY(INCLUDERID) REFERENCES FILES(FID)\n"
 		");\n";
 
-	if (table_is_enabled(t_providers)) cout <<
+	if (table_is_enabled(t_providers)) of <<
 		"\n\n-- Included files providing code or data for a given compilation unit and project\n"
 		"CREATE TABLE PROVIDERS(\n"
 		"  PID INTEGER, -- Project key\n"
@@ -572,7 +602,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  -- FOREIGN KEY(PROVIDERID) REFERENCES FILES(FID)\n"
 		");\n";
 
-	if (table_is_enabled(t_inctriggers)) cout <<
+	if (table_is_enabled(t_inctriggers)) of <<
 		"\n\n-- Tokens requiring file inclusion for a given compilation unit and project\n"
 		"CREATE TABLE INCTRIGGERS(\n"
 		"  PID INTEGER, -- Project key\n"
@@ -587,7 +617,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  -- FOREIGN KEY(DEFINERID) REFERENCES FILES(FID)\n"
 		");\n";
 
-	if (table_is_enabled(t_functions)) cout <<
+	if (table_is_enabled(t_functions)) of <<
 		"\n\n-- C functions and function-like macros\n"
 		"CREATE TABLE FUNCTIONS(\n"
 		"  ID " << db->ptrtype() << " PRIMARY KEY, -- Unique function identifier\n"
@@ -602,7 +632,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 		");\n";
 
-	if (table_is_enabled(t_functiondefs)) cout <<
+	if (table_is_enabled(t_functiondefs)) of <<
 		"\n\n-- Details of defined functions and macros\n"
 		"CREATE TABLE FUNCTIONDEFS(\n"
 		"  FUNCTIONID " << db->ptrtype() << " PRIMARY KEY, -- Function identifier key\n"
@@ -614,7 +644,7 @@ workdb_schema(Sql *db, ostream &of)
 		");\n";
 
 	if (table_is_enabled(t_functionmetrics)) {
-		cout
+		of
 		    << "\n\n-- Metrics of defined functions and macros\n"
 		    << "CREATE TABLE FUNCTIONMETRICS(\n"
 		    "  FUNCTIONID " << db->ptrtype() << ", -- Function identifier key\n"
@@ -622,7 +652,7 @@ workdb_schema(Sql *db, ostream &of)
 
 		for (int i = 0; i < FunMetrics::metric_max; i++)
 			if (!Metrics::is_internal<FunMetrics>(i))
-				cout
+				of
 				    << "  "
 				    << Metrics::get_dbfield<FunMetrics>(i)
 				    << (i >= FunMetrics::em_real_start
@@ -630,13 +660,13 @@ workdb_schema(Sql *db, ostream &of)
 				    << ", -- "
 				    << Metrics::get_name<FunMetrics>(i)
 				    << "\n";
-		cout <<
+		of <<
 		    "  PRIMARY KEY(FUNCTIONID, PRECPP),\n"
 		    "  FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)\n"
 		    ");\n";
 	}
 
-	if (table_is_enabled(t_functionid)) cout <<
+	if (table_is_enabled(t_functionid)) of <<
 		"\n\n-- Identifiers comprising a function's name\n"
 		"CREATE TABLE FUNCTIONID(\n"
 		"  FUNCTIONID " << db->ptrtype() << ", -- Function identifier key\n"
@@ -647,7 +677,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(EID) REFERENCES IDS(EID)\n"
 		");\n";
 
-	if (table_is_enabled(t_fcalls)) cout <<
+	if (table_is_enabled(t_fcalls)) of <<
 		"\n\n-- Function calls\n"
 		"CREATE TABLE FCALLS(\n"
 		"  SOURCEID " << db->ptrtype() << ", -- Calling function identifier key\n"
@@ -656,7 +686,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  FOREIGN KEY(DESTID) REFERENCES FUNCTIONS(ID)\n"
 		");\n";
 
-	if (table_is_enabled(t_filecopies)) cout <<
+	if (table_is_enabled(t_filecopies)) of <<
 		"\n\n-- Files occuring in more than one copy\n"
 		"CREATE TABLE FILECOPIES(\n"
 		"  GROUPID INTEGER, -- File group identifier\n"
@@ -674,7 +704,7 @@ workdb_rest(Sql *db, ostream &of)
 	Project::proj_map_type::const_iterator pm;
 	if (table_is_enabled(t_projects))
 		for (pm = m.begin(); pm != m.end(); pm++)
-			cout << "INSERT INTO PROJECTS VALUES("
+			of << "INSERT INTO PROJECTS VALUES("
 				<< pm->second << ",'" << pm->first << "');\n";
 
 	vector <Fileid> files = Fileid::files(true);
@@ -685,44 +715,44 @@ workdb_rest(Sql *db, ostream &of)
 	// As a side effect populate the EC identifier member
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (table_is_enabled(t_files)) {
-			cout << "INSERT INTO FILES VALUES("
+			of << "INSERT INTO FILES VALUES("
 			    << i->get_id() << ",'"
 			    << i->get_path() << "',"
 			    << db->boolval(i->get_readonly());
-			cout << ");\n";
+			of << ");\n";
 			// Pre-cpp
-			cout << "INSERT INTO FILEMETRICS VALUES("
+			of << "INSERT INTO FILEMETRICS VALUES("
 			    << i->get_id() << ","
 			    << db->boolval(true);
 			for (int j = 0; j < FileMetrics::metric_max; j++) {
 				if (Metrics::is_internal<FileMetrics>(j))
 					continue;
 				if (Metrics::is_pre_cpp<FileMetrics>(j))
-					cout << ',' << Filedetails::get_pre_cpp_metrics(*i).get_metric(j);
+					of << ',' << Filedetails::get_pre_cpp_metrics(*i).get_metric(j);
 				else
-					cout << ",NULL";
+					of << ",NULL";
 			}
-			cout << ");\n";
+			of << ");\n";
 			// Post-cpp
-			cout << "INSERT INTO FILEMETRICS VALUES("
+			of << "INSERT INTO FILEMETRICS VALUES("
 			    << i->get_id() << ","
 			    << db->boolval(false);
 			for (int j = 0; j < FileMetrics::metric_max; j++) {
 				if (Metrics::is_internal<FileMetrics>(j))
 					continue;
 				if (Metrics::is_post_cpp<FileMetrics>(j))
-					cout << ',' << Filedetails::get_post_cpp_metrics(*i).get_metric(j);
+					of << ',' << Filedetails::get_post_cpp_metrics(*i).get_metric(j);
 				else
-					cout << ",NULL";
+					of << ",NULL";
 			}
-			cout << ");\n";
+			of << ");\n";
 		}
 		// This invalidates the file's metrics
-		file_dump(db, cout, *i);
+		file_dump(db, of, *i);
 		// The projects this file belongs to
 		for (unsigned j = attr_end; j < Attributes::get_num_attributes(); j++)
 			if (Filedetails::get_attribute(*i, j) && table_is_enabled(t_fileproj))
-				cout << "INSERT INTO FILEPROJ VALUES("
+				of << "INSERT INTO FILEPROJ VALUES("
 				     << i->get_id() << ',' << j << ");\n";
 
 		// Copies of the file
@@ -731,7 +761,7 @@ workdb_rest(Sql *db, ostream &of)
 		    && table_is_enabled(t_filecopies)
 		    && copies.begin()->get_id() == i->get_id()) {
 			for (set <Fileid>::const_iterator j = copies.begin(); j != copies.end(); j++)
-				cout << "INSERT INTO FILECOPIES VALUES("
+				of << "INSERT INTO FILECOPIES VALUES("
 				     << groupnum << ',' << j->get_id()
 				     << ");\n";
 			groupnum++;

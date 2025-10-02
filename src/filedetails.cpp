@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -132,6 +132,8 @@ void
 Filedetails::set_line_processed(bool processed)
 {
 	int lnum = Fchar::get_line_num() - 1;
+
+	// Across all projects
 	int s = processed_lines.size();
 	if (DP())
 		cout << "Process line " << name << ':' << lnum << endl;
@@ -148,6 +150,17 @@ Filedetails::set_line_processed(bool processed)
 		}
 		csassert(0);
 	}
+
+	// For current project
+	size_t projid = Project::get_current_projid();
+	if (proj_processed_lines.size() <= projid)
+		proj_processed_lines.resize(projid + 1);
+	s = proj_processed_lines[projid].size();
+	if (s == lnum)
+		// New line processed
+		proj_processed_lines[projid].push_back(processed);
+	else if (s > lnum)
+		proj_processed_lines[projid][lnum] = (proj_processed_lines[projid][lnum] || processed);
 }
 
 int
