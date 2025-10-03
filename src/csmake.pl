@@ -271,7 +271,7 @@ $process
 	} elsif ($state eq 'AR') {
 		if (/^END AR/) {
 			die "Missing library in rules file" unless defined ($lib);
-			# Output is a library; just remember the rules
+			# Output is a library; just remember the rules.
 			undef $rule;
 			for $o (@obj) {
 				$o = ancestor($o);
@@ -468,6 +468,7 @@ $origline =~ s/\n/ /g;
 @ARGV2 = @ARGV;
 $op = shift @ARGV2;
 
+# r: insert, m: move, q: quick append
 if ($op !~ m/[rmq]/) {
 	print STDERR "Just run ($real @ARGV))\n" if ($debug);
 	$exit = system(($real, @ARGV)) / 256;
@@ -475,7 +476,7 @@ if ($op !~ m/[rmq]/) {
 	exit $exit;
 }
 
-# Remove archive name
+# Remove relative placement archive member name, if specified
 shift @ARGV2 if ($op =~ m/[abi]/);
 
 # Remove count
@@ -485,15 +486,19 @@ $archive = shift @ARGV2;
 
 @ofiles = @ARGV2;
 
-if ($#ofiles >= 0) {
-	$rules .= "BEGIN AR\n";
-	$rules .= "CMDLINE $origline\n";
-	$rules .= 'OUTAR ' . robust_abs_path($archive) . "\n";
-	for $ofile (@ofiles) {
-		$rules .= "INOBJ " . abs_path($ofile) . "\n";
-	}
-	$rules .= "END AR\n";
+# Move into an existing archive, so effectively input it.
+push(@ofiles, $archive) if ($op =~ m/m/);
+
+$rules .= "BEGIN AR\n";
+$rules .= "CMDLINE $origline\n";
+$rules .= 'OUTAR ' . robust_abs_path($archive) . "\n";
+
+# May be empty e.g. for archives of non-configured subsystems.
+# Make rules empty rather than undefined to avoid spurious warnings.
+for $ofile (@ofiles) {
+	$rules .= "INOBJ " . abs_path($ofile) . "\n";
 }
+$rules .= "END AR\n";
 
 syswrite(RULES, $rules);
 close(RULES);
