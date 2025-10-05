@@ -31,6 +31,8 @@
 #host-defs			*		*		*
 #csmake-defs			*		*
 
+set -e
+
 PREFIX="${1-/usr/local}"
 TMPFILE="/tmp/$0-$$"
 INC=../include
@@ -39,15 +41,15 @@ INCLUDE_DIR="$PREFIX/include/cscout"
 HMODE=644
 
 # Workarounds for all compilers
-WORKAROUNDS_PRE="$INC/template/gcc-defs.h $INC/template/llvm-defs.h $INC/template/cscout-defs.h"
-WORKAROUNDS_POST="$INC/template/llvm-undefs.h"
+WORKAROUNDS_PRE="$INC/template/gcc-pre-defs.h $INC/template/llvm-pre-defs.h $INC/template/cscout-pre-defs.h"
+WORKAROUNDS_POST="$INC/template/gcc-post-defs.h $INC/template/llvm-post-defs.h"
 
 # Create required directories
 install -d "$INCLUDE_DIR/stdc" "$PREFIX/bin"
 
 # Generic C definitions
 install -m $HMODE $INC/stdc/*.h "$INCLUDE_DIR/stdc/"
-cat $INC/template/cscout-defs.h $INC/template/stdc-defs.h >$TMPFILE
+cat $INC/template/cscout-pre-defs.h $INC/template/stdc-defs.h >$TMPFILE
 install -m $HMODE $TMPFILE "$INCLUDE_DIR/stdc-defs.h"
 
 # Generic C include path specification
