@@ -71,5 +71,7 @@ public:
 
 	// Read functionids with tokids, write them with their eids
 	static void read_write_functionids(const char *in_path, const char *out_path);
+	static void read_write_idproj(const char *in_path, const char *out_path);
+
 };
 #endif /* DBTOKEN_ */

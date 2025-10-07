@@ -3367,16 +3367,19 @@ merge_tokens(char **argv)
 	 *   eclasses-a-5.txt \		# 1
 	 *   ids-5.txt \		# 2
 	 *   functionids-5.txt \	# 3
-	 *   new-eclasses-5.csv \	# 4
-	 *   new-ids-5.csv \		# 5
-	 *   new-functionds-5.csv	# 6
+	 *   idproj-5.txt \		# 4
+	 *   new-eclasses-5.csv \	# 5
+	 *   new-ids-5.csv \		# 6
+	 *   new-functionds-5.csv	# 7
+	 *   new-idproj-5.csv		# 8
 	 */
 	Dbtoken::add_eclasses_attached(argv[0]);
 	Dbtoken::process_eclasses_original(argv[1]);
-	Dbtoken::write_eclasses(argv[4]);
+	Dbtoken::write_eclasses(argv[5]);
 	Dbtoken::read_ids(argv[2]);
-	Dbtoken::write_ids(argv[2], argv[5]);
-	Dbtoken::read_write_functionids(argv[3], argv[6]);
+	Dbtoken::write_ids(argv[2], argv[6]);
+	Dbtoken::read_write_functionids(argv[3], argv[7]);
+	Dbtoken::read_write_idproj(argv[4], argv[8]);
 
 	exit(0);
 }

@@ -29,6 +29,7 @@
 #include <string>
 #include <deque>
 #include <sstream>
+#include <tuple>
 
 using namespace std;
 
@@ -603,5 +604,71 @@ Dbtoken::read_write_functionids(const char *in_path, const char *out_path)
 next_line:
 		continue;
 	}
+}
 
+void
+Dbtoken::read_write_idproj(const char *in_path, const char *out_path)
+{
+	ifstream in(in_path);
+	verify_open(out_path, in);
+
+	ofstream out(out_path);
+	verify_open(out_path, out);
+
+	// Avoid duplicate entries, keyed by fid, foffset, len
+	static set<tuple<Eclass *, int>> dumped;
+
+	string line_record;
+	line_number = 0;
+	while (getline(in, line_record)) {
+		line_number++;
+		if (DP())
+			cout << in_path << '(' << line_number << "): " << line_record << '\n';
+
+		istringstream line_stream(line_record);
+		int pid;
+		int fileid;
+		unsigned long offset;
+		int len;
+		if (!(line_stream >> fileid >> offset >> len >> pid)) {
+			warn(in_path, line_record);
+			continue;
+		}
+
+
+		Tokid ti(Fileid(fileid), offset);
+		int covered = 0;
+		while (covered < len) {
+			Eclass *ec = check_ec(ti);
+
+			if (ec == NULL) {
+				warn(in_path, "Obtain idproj EC", ti);
+				goto next_line;
+			}
+
+			auto key = std::make_tuple(ec, pid);
+			if (dumped.find(key) == dumped.end()) {
+				out << ptr_offset(ec) << ',' << pid << '\n';
+				dumped.insert(key);
+			} else {
+				if (DP())
+					cout << "Skip dumped entry " << ec << pid << '\n';
+			}
+
+			if (DP())
+			    cout << "fileid: " << fileid
+				<< " offset: " << offset
+				<< " len: " << len
+				<< " EC len: " << ec->get_len()
+				<< " covered: " << covered
+				<< " pid: " << pid
+				<< '\n';
+
+
+			covered += ec->get_len();
+			ti += ec->get_len();
+		}
+next_line:
+		continue;
+	}
 }

@@ -1,6 +1,6 @@
-.TH CSCOUT 1 "11 December 2024"
+.TH CSCOUT 1 "8 October 2025"
 .\"
-.\" (C) Copyright 2003-2024 Diomidis Spinellis
+.\" (C) Copyright 2003-2025 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -23,11 +23,12 @@ cscout \- C code analyzer and refactoring browser
 \fBcscout\fP
 [\fB\-bCcrv3\fP]
 [\fB\-d D\fP]
-[\fB\-E\fP \fIfile specification\fP]
 [\fB\-d H\fP]
+[\fB\-E\fP \fIfile specification\fP]
 [\fB\-l\fP \fIlog file\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-R\fP \fIspecification\fP]
+[\fB\-M\fP \fIfiles\fP]
 [\fB\-m\fP \fIspecification\fP]
 [\fB\-t\fP \fIsname\fP]
 [\fB\-o\fP | \fB\-S\fP \fIdb\fP | \fB\-s\fP \fIdb\fP | \fB\-M\fP \fIfiles\fP]
@@ -128,6 +129,12 @@ option's argument and send the result to the standard output.
 The web server will listen for requests on the TCP port number specified.
 By default the \fICScout\fP server will listen at port 8081.
 The port number must be in the range 1024-32767.
+.IP "\fB\-M\fP \fIfiles\fP"
+Specify names of CSV input files to merge into
+specified generated output files.
+These merge sharded database tables involving equivalence classes.
+Further details can be found in the file \fCeclasses.sql\fP, which
+utilized this feature.
 .IP "\fB\-m\fP \fIspecification\fP"
 Specify the type of identifiers that \fICScout\fP will monitor.
 The identifier attribute specification is given using the syntax:
