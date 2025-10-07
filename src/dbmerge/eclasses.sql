@@ -1,13 +1,7 @@
--- Merge elements that are identified by eids.
--- This requires running CScout's token homogenization alrogithm as follows.
--- 1. Read tokids and their eids and merge them into new equivalence classes.
--- 2. Write out tokids and their new eids.
--- 3. Read ids and their tokids, identify (possibly multiple shorter) ECs,
---    set EC attributes.
--- 4. Write out deduplicated new ids with their eids.
--- 5. Read functionids with their tokids, write them out deduplicated and
---    with their new eids
--- In steps 4, 5 split where required by new lengths.
+-- Merge elements that are identified by equivalence class (EC) ids (eids).
+-- This requires running CScout's token homogenization alrogithm
+-- by writing out tables identifying ECs by fid/foffset, invoking CScout
+-- to merge them, and then reading them back.
 
 -- A map from eids to an identifying tokid
 CREATE TEMP TABLE eid_to_tokid_map(
@@ -102,19 +96,38 @@ SELECT 5 AS dbid, fid, foffset, ai.*
     LEFT JOIN ids USING(eid)
     ORDER BY functionid, ordinal;
 
+.output idproj-5.txt
+  SELECT etm.fid,
+        etm.foffset,
+        length(ids.name) AS len,
+        pid
+    FROM adb.idproj AS idproj
+    LEFT JOIN aeid_to_tokid_map AS etm USING(eid)
+    LEFT JOIN adb.ids USING(eid);
+
+  SELECT etm.fid,
+        etm.foffset,
+        length(ids.name) AS len,
+        pid
+    FROM idproj
+    LEFT JOIN eid_to_tokid_map AS etm USING(eid)
+    LEFT JOIN ids USING(eid);
+
 .output stdout
 
 -- Invoke CScout to merge and unify the output elements
-.shell cscout -M eclasses-a-5.txt eclasses-o-5.txt ids-5.txt functionid-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv
+.shell cscout -M eclasses-a-5.txt eclasses-o-5.txt ids-5.txt functionid-5.txt idproj-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv new-idproj-5.csv
 
 DELETE FROM tokens;
 DELETE FROM ids;
 DELETE FROM functionid;
+DELETE FROM idproj;
 
 .mode csv
 .import new-eclasses-5.csv tokens
 .import new-ids-5.csv ids
 .import new-functionid-5.csv functionid
+.import new-idproj-5.csv idproj
 .mode list
 
 -- Drop temporary tables

@@ -27,8 +27,9 @@ dbid	fid	global_fid
 5	9	2
 END
 
-# Provide empty functionid tables
+# Provide empty but required tables.
 INCLUDE CREATE empty-functionid.sql
+INCLUDE CREATE empty-idproj.sql
 
 # Extend ids with all their fields
 INCLUDE CREATE extend-ids.sql

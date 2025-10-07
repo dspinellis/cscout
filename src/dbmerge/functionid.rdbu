@@ -75,6 +75,7 @@ END
 
 # Extend ids with all their fields
 INCLUDE CREATE extend-ids.sql
+INCLUDE CREATE empty-idproj.sql
 
 INCLUDE CREATE eclasses.sql
 

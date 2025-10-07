@@ -91,6 +91,9 @@ merge_onto()
 
   # Order matters here
   # eclasses populates: tokens, ids, functionids
+  # We assume that projects are defined with the same names and order
+  # in all shards.  This is the way csshard works.  So there's nothing to do
+  # for the projects table.
   for i in \
     fileid_to_global_map.sql \
     functionid_to_global_map.sql \

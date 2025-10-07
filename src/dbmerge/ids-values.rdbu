@@ -57,6 +57,7 @@ DELETE FROM functionid;
 DELETE FROM adb.functionid;
 END
 
+INCLUDE CREATE empty-idproj.sql
 INCLUDE CREATE eclasses.sql
 
 # Use predictable eids to compare results

@@ -34,6 +34,7 @@ functionid fidbegin foffsetbegin fidend foffsetend
 54	   6        66           6      666
 END
 
+INCLUDE CREATE empty-idproj.sql
 INCLUDE CREATE functiondefs.sql
 
 BEGIN RESULT

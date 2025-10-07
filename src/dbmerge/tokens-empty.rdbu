@@ -26,8 +26,9 @@ eid	name
 
 END
 
-# Provide empty functionid tables
+# Provide empty but required tables.
 INCLUDE CREATE empty-functionid.sql
+INCLUDE CREATE empty-idproj.sql
 
 # Clear unneeded tables
 BEGIN CREATE
