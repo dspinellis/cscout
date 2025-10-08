@@ -44,6 +44,8 @@ INSERT OR REPLACE INTO functionmetrics
     Max(Coalesce(fma.ncontinue, fmb.ncontinue), Coalesce(fmb.ncontinue, fma.ncontinue)) AS ncontinue,
     Max(Coalesce(fma.ngoto, fmb.ngoto), Coalesce(fmb.ngoto, fma.ngoto)) AS ngoto,
     Max(Coalesce(fma.nreturn, fmb.nreturn), Coalesce(fmb.nreturn, fma.nreturn)) AS nreturn,
+    Max(Coalesce(fma.nasm, fmb.nasm), Coalesce(fmb.nasm, fma.nasm)) AS nasm,
+    Max(Coalesce(fma.ntypeof, fmb.ntypeof), Coalesce(fmb.ntypeof, fma.ntypeof)) AS ntypeof,
     Max(Coalesce(fma.npid, fmb.npid), Coalesce(fmb.npid, fma.npid)) AS npid,
     Max(Coalesce(fma.nfid, fmb.nfid), Coalesce(fmb.nfid, fma.nfid)) AS nfid,
     Max(Coalesce(fma.nmid, fmb.nmid), Coalesce(fmb.nmid, fma.nmid)) AS nmid,
