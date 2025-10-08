@@ -372,7 +372,14 @@ Dbtoken::read_ids(const char *in_path)
 	bool v_readonly;
 	bool v_undefined_macro;
 	bool v_macro;
+	bool v_fun_macro;
 	bool v_macro_arg;
+	bool v_cpp_const;
+	bool v_cpp_str_val;
+	bool v_def_c_const;
+	bool v_def_not_c_const;
+	bool v_exp_c_const;
+	bool v_exp_not_c_const;
 	bool v_ordinary;
 	bool v_suetag;
 	bool v_sumember;
@@ -393,7 +400,15 @@ Dbtoken::read_ids(const char *in_path)
 		>> v_readonly
 		>> v_undefined_macro
 		>> v_macro
+		>> v_fun_macro
 		>> v_macro_arg
+		>> v_cpp_const
+		>> v_cpp_str_val
+		>> v_def_c_const
+		>> v_def_not_c_const
+		>> v_exp_c_const
+		>> v_exp_not_c_const
+
 		>> v_ordinary
 		>> v_suetag
 		>> v_sumember
@@ -421,7 +436,15 @@ Dbtoken::read_ids(const char *in_path)
 			if (v_readonly) ec->set_attribute(is_readonly);
 			if (v_undefined_macro) ec->set_attribute(is_undefined_macro);
 			if (v_macro) ec->set_attribute(is_macro);
+			if (v_fun_macro) ec->set_attribute(is_fun_macro);
 			if (v_macro_arg) ec->set_attribute(is_macro_arg);
+			if (v_cpp_const) ec->set_attribute(is_cpp_const);
+			if (v_cpp_str_val) ec->set_attribute(is_cpp_str_val);
+			if (v_def_c_const) ec->set_attribute(is_def_c_const);
+			if (v_def_not_c_const) ec->set_attribute(is_def_not_c_const);
+			if (v_exp_c_const) ec->set_attribute(is_exp_c_const);
+			if (v_exp_not_c_const) ec->set_attribute(is_exp_not_c_const);
+
 			if (v_ordinary) ec->set_attribute(is_ordinary);
 			if (v_suetag) ec->set_attribute(is_suetag);
 			if (v_sumember) ec->set_attribute(is_sumember);
@@ -457,7 +480,15 @@ dump_id(ostream &of, Eclass *e, const string &name)
 	     e->get_attribute(is_readonly) << ',' <<
 	     e->get_attribute(is_undefined_macro) << ',' <<
 	     e->get_attribute(is_macro) << ',' <<
+	     e->get_attribute(is_fun_macro) << ',' <<
 	     e->get_attribute(is_macro_arg) << ',' <<
+	     e->get_attribute(is_cpp_const) << ',' <<
+	     e->get_attribute(is_cpp_str_val) << ',' <<
+	     e->get_attribute(is_def_c_const) << ',' <<
+	     e->get_attribute(is_def_not_c_const) << ',' <<
+	     e->get_attribute(is_exp_c_const) << ',' <<
+	     e->get_attribute(is_exp_not_c_const) << ',' <<
+
 	     e->get_attribute(is_ordinary) << ',' <<
 	     e->get_attribute(is_suetag) << ',' <<
 	     e->get_attribute(is_sumember) << ',' <<
