@@ -30,7 +30,7 @@ WITH all_rest AS (
       fma.code
     FROM adb.rest AS fma
     LEFT JOIN fileid_to_global_map AS fgm ON fgm.dbid = 5 AND fgm.fid = fma.fid
-  UNION
+  UNION ALL
   SELECT 0 AS dbid, rest.*
     FROM rest
 ),

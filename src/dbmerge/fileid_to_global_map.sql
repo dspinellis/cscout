@@ -20,7 +20,7 @@ INSERT INTO fileid_to_global_map
         global_fid
       FROM joined_files
       WHERE global_fid IS NOT NULL
-  UNION
+  UNION ALL
     -- Newly mapped files
     SELECT 5 AS dbid,
       fid,

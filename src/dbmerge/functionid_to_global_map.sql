@@ -25,7 +25,7 @@ INSERT INTO functionid_to_global_map
         global_id
       FROM joined_functions
       WHERE global_id IS NOT NULL
-  UNION
+  UNION ALL
     -- Newly mapped functions
     SELECT 5 AS dbid,
       id,
