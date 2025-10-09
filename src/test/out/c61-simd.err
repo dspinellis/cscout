@@ -2,12 +2,12 @@ Processing workspace TestWS
 Processing directory test/c
 Entering directory test/c
 Processing project Prj1
-Processing file c60-simd.c
-Done processing file c60-simd.c
+Processing file c61-simd.c
+Done processing file c61-simd.c
 Done processing project Prj1
 Processing project Prj2
-Processing file c60-simd.c
-Done processing file c60-simd.c
+Processing file c61-simd.c
+Done processing file c61-simd.c
 Processing file prj2.c
 Done processing file prj2.c
 Done processing project Prj2
