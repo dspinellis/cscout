@@ -13,6 +13,7 @@ dbid	fid	global_fid
 5	7	6
 5	9	7
 
+# fid refers to dbid 2 global_id
 functions:
 id	fid 	foffset	name
 1	1	11	f1
@@ -23,7 +24,8 @@ dbid	id	global_id
 2	3	1
 2	5	2
 
-# One common, one new in shared fid, one new in new fid
+# f1 is common, f111 new in shared fid, f66 new in new fid
+# fid refers to dbid 5
 adb.functions:
 id	fid 	foffset	name
 52	3	11	f1
