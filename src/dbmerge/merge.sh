@@ -39,13 +39,15 @@ create_empty()
   rm -f "$name"
   sqlite3 file-0001.db .schema | sqlite3 "$name"
   cat <<\EOF | sqlite3 "$name"
-CREATE INDEX IF NOT EXISTS idx_files_name ON files(name);
-CREATE INDEX idx_filemetrics_composite ON filemetrics(fid, precpp);
 CREATE INDEX idx_definers_composite ON definers(cuid, basefileid, definerid);
+CREATE INDEX idx_filemetrics_composite ON filemetrics(fid, precpp);
+CREATE INDEX idx_files_name ON files(name);
+CREATE INDEX idx_functions_id ON functions(id);
+CREATE INDEX idx_functionid_eid ON functionid(eid);
 CREATE INDEX idx_includers_composite ON includers(cuid, basefileid, includerid);
 CREATE INDEX idx_inctriggers_composite ON inctriggers(cuid, basefileid, definerid, foffset, len);
-CREATE INDEX IF NOT EXISTS idx_functions_composite ON functions(fid, foffset);
-CREATE INDEX IF NOT EXISTS idx_tokens_foffset ON tokens(foffset);
+CREATE INDEX idx_tokens_eid ON tokens(eid);
+CREATE INDEX idx_tokens_foffset ON tokens(foffset);
 
 
 CREATE TABLE fileid_to_global_map(
@@ -90,7 +92,7 @@ merge_onto()
   log "DB $dbid: BEGIN merge onto $dest $source"
 
   # Order matters here
-  # eclasses populates: tokens, ids, functionids
+  # eclasses populates: tokens, ids, functionid.
   # We assume that projects are defined with the same names and order
   # in all shards.  This is the way csshard works.  So there's nothing to do
   # for the projects table.
