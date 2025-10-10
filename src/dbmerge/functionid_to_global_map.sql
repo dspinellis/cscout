@@ -15,22 +15,26 @@ WITH max_id AS (
 -- by their first tokid and their name.
 -- It is incorrect to match them by fid, foffset stored in functions:
 -- search for __do_sys_dup in the CScout source code.
+-- Add a fid, foffset to be used as portable identifiers.
 local_functions AS (
-  SELECT functions.id, functions.name, tokens.fid, tokens.foffset
-    FROM functions
-    LEFT JOIN functionid
-      ON functions.id = functionid.functionid AND functionid.ordinal = 0
-    LEFT JOIN tokens
-      ON functionid.eid = tokens.eid
+  SELECT f.id, f.name, t.fid, t.foffset
+    FROM functions AS f
+    LEFT JOIN functionid AS fi
+      ON f.id = fi.functionid AND fi.ordinal = 0
+    LEFT JOIN tokens AS t ON t.rowid =
+      -- Get a single fid, foffset.
+      (SELECT rowid FROM tokens WHERE tokens.eid = fi.eid LIMIT 1)
 ),
 
+-- Add a fid, foffset to be used as portable identifiers.
 attached_functions AS (
-  SELECT afunctions.id, afunctions.name, atokens.fid, atokens.foffset
-    FROM adb.functions AS afunctions
-    LEFT JOIN adb.functionid AS afunctionid
-      ON afunctions.id = afunctionid.functionid AND afunctionid.ordinal = 0
-    LEFT JOIN adb.tokens AS atokens
-      ON afunctionid.eid = atokens.eid
+  SELECT f.id, f.name, t.fid, t.foffset
+    FROM adb.functions AS f
+    LEFT JOIN adb.functionid AS fi
+      ON f.id = fi.functionid AND fi.ordinal = 0
+    LEFT JOIN adb.tokens AS t ON t.rowid =
+      -- Get a single fid, foffset.
+      (SELECT rowid FROM tokens WHERE tokens.eid = fi.eid LIMIT 1)
 ),
 
 joined_functions AS (
