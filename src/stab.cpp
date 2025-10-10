@@ -285,7 +285,7 @@ obj_define(const Token& tok, Type typ)
 			fc = dynamic_cast<FCall *>(Call::get_call(utok));
 			if (!fc) {
 				if (DP())
-					cout << "Creating new call\n";
+					cout << "Creating new function call\n";
 				fc = new FCall(utok, typ, tok.get_name());
 			}
 		}

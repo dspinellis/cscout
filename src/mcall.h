@@ -42,6 +42,7 @@ public:
 	virtual bool is_macro() const { return true; }
 	virtual const string & entity_type_name() const;
 
+	// ctor; never call it if the call for t already exists
 	MCall(const Token& tok, const string &s) :
 		Call(s, tok)
 	{}

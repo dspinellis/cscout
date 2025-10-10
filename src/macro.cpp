@@ -399,8 +399,11 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun, bool isimmutable) :
 	if (isfun) {
 		Token uname(name.unique());	// Take care of identical files
 		mcall = dynamic_cast<MCall *>(Call::get_call(name));
-		if (!mcall)
+		if (!mcall) {
+			if (DP())
+				cout << "Creating new macro call\n";
 			mcall = new MCall(name, name.get_name());
+		}
 		if (DP())
 			cout << "Mcall is " << mcall << "\n";
 	} else

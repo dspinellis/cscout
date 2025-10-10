@@ -55,7 +55,7 @@
 #include "eclass.h"
 #include "ctag.h"
 
-// Constructor
+// ctor; never call it if the call for t already exists
 FCall::FCall(const Token& tok, Type typ, const string &s) :
 		Call(s, tok),
 		type(typ),

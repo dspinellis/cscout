@@ -182,9 +182,11 @@ Call::clear_print_flags()
 		i->second->printed = false;
 }
 
+// Get a call site for a given Token
 Call *
 Call::get_call(const Token &t)
 {
+	// Get all possible multimap matches
 	pair <const_fmap_iterator_type, const_fmap_iterator_type> maybe(all.equal_range(t.get_parts_begin()->get_tokid()));
 	const_fmap_iterator_type i;
 
@@ -197,6 +199,8 @@ Call::get_call(const Token &t)
 			return i->second;
 		}
 	}
+	if (DP())
+		cout << "Get call for " << t << " returns NULL\n";
 	return NULL;
 }
 

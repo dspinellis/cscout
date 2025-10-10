@@ -621,7 +621,7 @@ workdb_schema(Sql *db, ostream &of)
 		"\n\n-- C functions and function-like macros\n"
 		"CREATE TABLE FUNCTIONS(\n"
 		"  ID " << db->ptrtype() << " PRIMARY KEY, -- Unique function identifier\n"
-		"  NAME " << db->varchar() << ", -- Function name (redundant; see FUNCTIONID)\n"
+		"  NAME " << db->varchar() << ", -- Function name (denormalized; see the FUNCTIONID table)\n"
 		"  ISMACRO " << db->booltype() << ", -- True if a function-like macro (otherwise a C function)\n"
 		"  DEFINED " << db->booltype() << ", -- True if the function is defined within the workspace\n"
 		"  DECLARED " << db->booltype() << ", -- True if the function is declared within the workspace\n"

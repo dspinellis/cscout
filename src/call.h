@@ -66,16 +66,28 @@ private:
 	// Container for storing called and calling functions
 	typedef set <Call *> fun_container;
 	/*
-	 * When processing the program a Call * is stored with each Id
-	 * This allows accurate lookup of calls within a linkage unit.
+	 * When processing the program, a Call * is stored with each Id.
+	 * This allows accurate lookup of calls within a linkage unit
+	 * through the symbol table.
 	 * However, once a linkage unit goes out of scope, we need further
 	 * help to reunite functions from varying projects and also locate
 	 * function declarations when processing the source code.  A function
-	 * can be identified well enough by using the Tokid of its declaration.
+	 * can often¹ be identified by using the Tokid of its declaration.
 	 * However, the same Tokid can through token pasting be used for
 	 * declaring multiple functions.  Therefore we use a multimap, and
 	 * as a second step when we lookup a function we compare the
 	 * corresponding tokens.
+	 *
+	 * ¹ But not always, see e.g. the following two names:
+	 * Get call for Token code:IDENTIFIER(296):[__do_sys_dup]
+	 * Parts:
+	 * linux/arch/arm64/include/asm/syscall_wrapper.h(2007),l=8[__do_sys],
+	 * linux/include/linux/syscalls.h(6695),l=1[_],
+	 * file.c(238),l=3[dup]
+	 * Parts:
+	 * linux/include/linux/syscalls.h(7895),l=8[__do_sys],
+	 * linux/include/linux/syscalls.h(6695),l=1[_],
+	 * file.c(238),l=3[dup]
 	 */
 	typedef multimap <Tokid, Call *> fun_map;
 
@@ -169,7 +181,7 @@ public:
 
 	void set_visited() { visited = true; }
 	// Bit-or the specified visit flag
-	void set_visited(unsigned char v) { visited |= v; }
+	void set_visited(unsigned char v) { visited  = v; }
 	bool is_visited() const { return (bool)visited; }
 	bool is_visited(unsigned short visit_id) const { return (bool)(visited & visit_id); }
 	unsigned char get_visited() const { return visited; }
