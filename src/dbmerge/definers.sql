@@ -1,5 +1,9 @@
 -- Insert into the global definers table suitably mapped new entries
 
+CREATE INDEX IF NOT EXISTS adb.idx_definers_cuid ON definers(cuid);
+CREATE INDEX IF NOT EXISTS adb.idx_definers_basefileid ON definers(basefileid);
+CREATE INDEX IF NOT EXISTS adb.idx_definers_definerid ON definers(definerid);
+
 INSERT INTO definers
   SELECT 
     Coalesce(definers.pid, adefiners.pid) AS pid,
