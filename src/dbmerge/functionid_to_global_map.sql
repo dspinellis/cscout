@@ -17,36 +17,40 @@ WITH max_id AS (
 -- search for __do_sys_dup in the CScout source code.
 -- Add a fid, foffset to be used as portable identifiers.
 local_functions AS (
-  SELECT f.id, f.name, t.fid, t.foffset
+  SELECT f.id, f.name, fi.eid
     FROM functions AS f
     LEFT JOIN functionid AS fi
       ON f.id = fi.functionid AND fi.ordinal = 0
-    LEFT JOIN tokens AS t ON t.rowid =
-      -- Get a single fid, foffset.
-      (SELECT rowid FROM tokens WHERE tokens.eid = fi.eid LIMIT 1)
 ),
 
 -- Add a fid, foffset to be used as portable identifiers.
 attached_functions AS (
-  SELECT f.id, f.name, t.fid, t.foffset
+  SELECT f.id, f.name, fi.eid
     FROM adb.functions AS f
     LEFT JOIN adb.functionid AS fi
       ON f.id = fi.functionid AND fi.ordinal = 0
-    LEFT JOIN adb.tokens AS t ON t.rowid =
-      -- Get a single fid, foffset.
-      (SELECT rowid FROM tokens WHERE tokens.eid = fi.eid LIMIT 1)
 ),
 
+-- Join adb.functions with functions based on tokens
+-- with a common EID and common name
 joined_functions AS (
     -- Local and global fids
     SELECT afunctions.id AS id, lfunctions.id AS global_id
       FROM attached_functions AS afunctions
-      LEFT JOIN fileid_to_global_map AS fidmap
-        ON fidmap.dbid = 5 AND fidmap.fid = afunctions.fid
+      LEFT JOIN tokens AS ltokens ON ltokens.rowid = (
+        SELECT ltokens2.rowid
+          FROM adb.tokens AS atokens2
+          LEFT JOIN fileid_to_global_map AS fidmap
+            ON fidmap.dbid = 5 AND fidmap.fid = atokens2.fid
+          JOIN tokens AS ltokens2
+            ON ltokens2.fid = fidmap.global_fid
+              AND ltokens2.foffset = atokens2.foffset
+          WHERE atokens2.eid = afunctions.eid
+          LIMIT 1
+      )
       LEFT JOIN local_functions AS lfunctions
-        ON lfunctions.fid = fidmap.global_fid
-        AND lfunctions.foffset = afunctions.foffset
-        AND lfunctions.name = afunctions.name
+        ON lfunctions.eid = ltokens.eid
+          AND lfunctions.name = afunctions.name
 )
 
 INSERT INTO functionid_to_global_map

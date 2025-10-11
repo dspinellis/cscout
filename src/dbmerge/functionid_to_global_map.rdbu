@@ -22,8 +22,10 @@ id	name
 1	f1
 2	f2
 
+# The 1/555 is to make naive join on an arbitrary fid/foffset fail
 tokens:
 fid	foffset	eid
+1	555	100
 1	11	100
 1	15	101
 4	44	200
@@ -57,8 +59,10 @@ id	name
 56	f56
 57	f57
 
+# The 3/777 is to make naive join on an arbitrary fid/foffset fail
 adb.tokens:
 fid	foffset	eid
+3	777	100
 3	11	100
 3	90	101
 3	111	300
