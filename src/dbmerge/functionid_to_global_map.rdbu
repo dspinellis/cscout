@@ -21,6 +21,7 @@ functions:
 id	name
 1	f1
 2	f2
+3	f1
 
 # The 1/555 is to make naive join on an arbitrary fid/foffset fail
 tokens:
@@ -30,6 +31,7 @@ fid	foffset	eid
 1	15	101
 4	44	200
 4	90	201
+1	333	133
 
 functionid:
 functionid	ordinal	eid
@@ -37,11 +39,14 @@ functionid	ordinal	eid
 1		1	101
 2		0	200
 2		1	201
+3		0	100
+3		1	300
 
 functionid_to_global_map:
 dbid	id	global_id
 2	3	1
 2	5	2
+2	9	3
 
 # f1 is common, f111 new in shared fid, f66 new in new fid,
 # f56 f57 share EC in current DB, f57 shares EC with other db.
@@ -86,6 +91,8 @@ END
 INCLUDE CREATE functionid_to_global_map.sql
 
 BEGIN RESULT
+# TODO fix according to the actual results, ensuring no
+# duplicate dbid, id pairs.
 functionid_to_global_map:
 dbid	id	global_id
 2	3	1
