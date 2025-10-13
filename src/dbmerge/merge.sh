@@ -110,6 +110,8 @@ merge_onto()
     functiondefs.sql \
     functionmetrics.sql \
     fcalls.sql \
+    fileproj.sql \
+    lineproj.sql \
     comments.sql \
     strings.sql \
     rest.sql \

@@ -1,0 +1,38 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consilidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	7	1
+2	8	2
+5	9	3
+5	4	1
+5	8	2
+5	10	4
+
+# Existing table with globally unique fids
+lineproj:
+fid	pid	lnum
+1	1	12
+1	5	12
+2	7	13
+
+
+# Table to be imported, with local fids
+# One same, one new
+adb.lineproj:
+fid	pid	lnum
+4	1	12
+10	8	19
+END
+
+INCLUDE CREATE lineproj.sql
+
+BEGIN RESULT
+lineproj:
+fid	pid	lnum
+1	1	12
+1	5	12
+2	7	13
+4	8	19
+END
