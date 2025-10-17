@@ -532,6 +532,7 @@ workdb_schema(Sql *db, ostream &of)
 		"CREATE TABLE IDPROJ(\n"
 		"  EID " << db->ptrtype() << ", -- Identifier key\n"
 		"  PID INTEGER, -- Project key\n"
+		"  PRIMARY KEY(EID, PID),\n"
 		"  FOREIGN KEY(EID) REFERENCES IDS(EID),\n"
 		"  FOREIGN KEY(PID) REFERENCES PROJECTS(PID)\n"
 		");\n";
@@ -541,6 +542,7 @@ workdb_schema(Sql *db, ostream &of)
 		"CREATE TABLE FILEPROJ(\n"
 		"  FID INTEGER, -- File key\n"
 		"  PID INTEGER, -- Project key\n"
+		"  PRIMARY KEY(PID, FID),\n"
 		"  FOREIGN KEY(FID) REFERENCES FILES(FID),\n"
 		"  FOREIGN KEY(PID) REFERENCES PROJECTS(PID)\n"
 		");\n";
