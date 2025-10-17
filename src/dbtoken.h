@@ -65,12 +65,16 @@ public:
 
 	// Read identifiers and associated tokids from file named f
 	static void read_ids(const char *f);
+
 	// Write identifiers and their eids to file named f
+	// Avoid duplicate entries (could also have a dumped Eclass attr)
+	static set <Eclass *> dumped_ids;
 	static void write_ids(const char *in_path, const char *out_path);
+	static void dump_id(ostream &of, Eclass *e, const string &name);
 
 
 	// Read functionids with tokids, write them with their eids
-	static void read_write_functionids(const char *in_path, const char *out_path);
+	static void read_write_functionids(const char *fid_in_path, const char *fid_out_path, const char *map_out_path);
 	static void read_write_idproj(const char *in_path, const char *out_path);
 
 };

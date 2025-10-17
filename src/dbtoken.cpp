@@ -223,7 +223,7 @@ add_eclasses_original(const char *in_path)
  * (of different length).
  * Put together tokens of the same length, and unify them.
  *
- * Got through the file rather than the EC map, because the map changes
+ * Go through the file rather than the EC map, because the map changes
  * as tokens get unified.
  */
 static void
@@ -465,15 +465,14 @@ next_line:
 	}
 }
 
+set <Eclass *> Dbtoken::dumped_ids;
+
 // Dump the details of a single identifier
-static void
-dump_id(ostream &of, Eclass *e, const string &name)
+void
+Dbtoken::dump_id(ostream &of, Eclass *e, const string &name)
 {
-	// Avoid duplicate entries (could also have a dumped Eclass attr)
-	static set <Eclass *> dumped;
-	if (dumped.find(e) != dumped.end())
+	if (!dumped_ids.insert(e).second)
 		return;
-	dumped.insert(e);
 	of <<
 	     ptr_offset(e) << "," <<
 	     name << ',' <<
@@ -556,85 +555,145 @@ Dbtoken::write_ids(const char *in_path, const char *out_path)
 next_line:
 		continue;
 	}
+	dumped_ids.clear();
 }
 
 
+/*
+ * Read functionid data and generate merged functionid and
+ * corresponding local to global map.
+ */
 void
-Dbtoken::read_write_functionids(const char *in_path, const char *out_path)
+Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_path, const char *map_out_path)
 {
-	ifstream in(in_path);
-	verify_open(out_path, in);
+	// functionid: dbid, functionid, fid, foffset, len
+	ifstream in(fid_in_path);
+	verify_open(fid_out_path, in);
 
-	ofstream out(out_path);
-	verify_open(out_path, out);
+	// New functionid: id, ordinal, eid
+	ofstream fid_out(fid_out_path);
+	verify_open(fid_out_path, fid_out);
 
-	// Avoid duplicate entries
-	static set <int> dumped;
+	// functionid_to_global_map: dbid, id, global_map
+	ofstream map_out(map_out_path);
+	verify_open(map_out_path, map_out);
 
 	string line_record;
 	line_number = 0;
-	int out_ordinal = 0;
 	int prev_functionid = -1;
+	int prev_dbid = -1;
+
+	int dbid, functionid;
+	int fileid;
+	unsigned long offset;
+	Dbtoken token;
+	// Keep track of new assigned functionids
+	// map Dbtokens (as read from functionids) into new functionid
+	map <Dbtoken, int> fnid;
+
+	// Called for each complete functionid read.
+	auto complete_functionid = [&](int functionid, int dbid) {
+		if (functionid == -1)
+			return;
+
+		int new_id = static_cast<int>(fnid.size()) + 1;
+
+		if (DP())
+			cout << "\nLook for token " << token;
+		auto [it, inserted] = fnid.insert({token, new_id});
+		if (DP())
+			cout << "Function " << functionid << " inserted: " << inserted << '\n';
+		int global_functionid = it->second;
+		// Write the global map record.
+		map_out
+			<< dbid << ','
+			<< functionid << ','
+			<< global_functionid
+			<< '\n';
+		if (!inserted)
+			// This functionid has already been written.
+			return;
+
+		// Write out the new functionid.
+		int ordinal = 0;
+		for (auto i = token.get_parts_begin(); i != token.get_parts_end(); i++) {
+			Tokid ti(i->get_tokid());
+			int len = i->get_len();
+			int covered = 0;
+			while (covered < len) {
+				Eclass *ec = check_ec(ti);
+
+				if (ec == NULL) {
+					warn(fid_in_path, "Obtain function EC", ti);
+					goto next_record;
+				}
+
+				if (DP())
+				    cout << "f: " << functionid
+					<< " len: " << len
+					<< " EC len: " << ec->get_len()
+					<< " ordinal: " << ordinal
+					<< " covered: " << covered
+					<< '\n';
+
+				// New functionid: id, ordinal, eid
+				fid_out
+					<< global_functionid << ','
+					<< ordinal++ << ','
+					<< ptr_offset(ec)
+					<< '\n';
+			next_record:
+				covered += ec->get_len();
+				ti += ec->get_len();
+			}
+		}
+	};
+
 	while (getline(in, line_record)) {
 		line_number++;
+		int len;
 		if (DP())
-			cout << in_path << '(' << line_number << "): " << line_record << '\n';
+			cout << fid_in_path << '(' << line_number << "): " << line_record << '\n';
 
 		istringstream line_stream(line_record);
-		int functionid, in_ordinal;
-		int fileid;
-		unsigned long offset;
-		int len;
-		if (!(line_stream >> functionid >> in_ordinal >> fileid >> offset >> len)) {
-			warn(in_path, line_record);
-			continue;
-		}
-
-		if (dumped.find(functionid) != dumped.end()) {
-			if (DP())
-				cout << "Skip dumped function " << functionid << '\n';
+		if (!(line_stream >> dbid >> functionid >> fileid >> offset >> len)) {
+			warn(fid_in_path, line_record);
 			continue;
 		}
 
 		if (functionid != prev_functionid) {
-			out_ordinal = 0;
-			if (prev_functionid != -1)
-				dumped.insert(prev_functionid);
-			prev_functionid = functionid;
+			complete_functionid(prev_functionid, prev_dbid);
+			token.clear();
 		}
-
 		Tokid ti(Fileid(fileid), offset);
+
+		// Push into token the EC Tokids associated with the read len.
 		int covered = 0;
 		while (covered < len) {
 			Eclass *ec = check_ec(ti);
 
 			if (ec == NULL) {
-				warn(in_path, "Obtain function EC", ti);
+				warn(fid_in_path, "Obtain functionid EC", ti);
 				goto next_line;
 			}
 
 			if (DP())
-			    cout << "f: " << functionid
+			    cout << "fileid: " << fileid
+				<< " offset: " << offset
 				<< " len: " << len
 				<< " EC len: " << ec->get_len()
-				<< " in_ordinal: " << in_ordinal
-				<< " in_ordinal: " << in_ordinal
-				<< " out_ordinal: " << out_ordinal
 				<< " covered: " << covered
 				<< '\n';
 
-			out
-				<< functionid << ','
-				<< out_ordinal++ << ','
-				<< ptr_offset(ec)
-				<< '\n';
-
+			token.add_part(ti, ec->get_len());
 			covered += ec->get_len();
 			ti += ec->get_len();
 		}
-next_line:
-		continue;
+	next_line:
+		prev_functionid = functionid;
+		prev_dbid = dbid;
 	}
+	complete_functionid(prev_functionid, prev_dbid);
 }
 
 void
@@ -647,7 +706,7 @@ Dbtoken::read_write_idproj(const char *in_path, const char *out_path)
 	verify_open(out_path, out);
 
 	// Avoid duplicate entries, keyed by fid, foffset, len
-	static set<tuple<Eclass *, int>> dumped;
+	set<tuple<Eclass *, int>> dumped;
 
 	string line_record;
 	line_number = 0;

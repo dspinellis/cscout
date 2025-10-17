@@ -89,7 +89,7 @@ YACC=../btyacc/btyacc
 #YACC=yacc
 
 CPPFLAGS+=-pipe -Wall -I. -DPREFIX='"$(PREFIX)"'
-CXXFLAGS+=-std=gnu++11
+CXXFLAGS+=-std=c++17
 ifdef DEBUG
 # Debug build
 # To get yacc debugging info set YYDEBUG environment variable to 1
