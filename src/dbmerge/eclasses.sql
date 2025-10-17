@@ -74,20 +74,18 @@ SELECT 5 AS dbid, fid, foffset, ai.*
   LEFT JOIN aeid_to_tokid_map USING(eid);
 
 .output functionid-5.txt
-  SELECT fid_map.global_id AS functionid,
-        ordinal,
+  SELECT 5 AS dbid,
+        functionid,
         etm.fid,
         etm.foffset,
         length(ids.name) AS len
     FROM adb.functionid AS afunctionid
     LEFT JOIN aeid_to_tokid_map AS etm USING(eid)
-    LEFT JOIN functionid_to_global_map AS fid_map
-      ON fid_map.dbid = 5 AND fid_map.id = afunctionid.functionid
     LEFT JOIN adb.ids USING(eid)
     ORDER BY functionid, ordinal;
 
-  SELECT functionid,
-        ordinal,
+  SELECT 0 AS dbid,
+        functionid,
         etm.fid,
         etm.foffset,
         length(ids.name) AS len
@@ -116,18 +114,20 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 .output stdout
 
 -- Invoke CScout to merge and unify the output elements
-.shell cscout -M eclasses-a-5.txt eclasses-o-5.txt ids-5.txt functionid-5.txt idproj-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv new-idproj-5.csv
+.shell cscout -M eclasses-a-5.txt eclasses-o-5.txt ids-5.txt functionid-5.txt idproj-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv new-idproj-5.csv functionid-to-global-map.csv
 
 DELETE FROM tokens;
 DELETE FROM ids;
 DELETE FROM functionid;
 DELETE FROM idproj;
+DELETE FROM functionid_to_global_map;
 
 .mode csv
 .import new-eclasses-5.csv tokens
 .import new-ids-5.csv ids
 .import new-functionid-5.csv functionid
 .import new-idproj-5.csv idproj
+.import functionid-to-global-map.csv functionid_to_global_map
 .mode list
 
 -- Drop temporary tables

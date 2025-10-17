@@ -92,13 +92,12 @@ merge_onto()
   log "DB $dbid: BEGIN merge onto $dest $source"
 
   # Order matters here
-  # eclasses populates: tokens, ids, functionid.
+  # eclasses populates: tokens, ids, functionid, functionid_to_global_map.
   # We assume that projects are defined with the same names and order
   # in all shards.  This is the way csshard works.  So there's nothing to do
   # for the projects table.
   for i in \
     fileid_to_global_map.sql \
-    functionid_to_global_map.sql \
     files.sql \
     eclasses.sql \
     filemetrics.sql \

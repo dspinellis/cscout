@@ -1,6 +1,6 @@
 BEGIN SETUP
 
-# Map from adjusted local fid to consilidated global fid
+# Map from adjusted local fid to consolidated global fid
 fileid_to_global_map:
 dbid	fid	global_fid
 2	2	1
@@ -23,15 +23,23 @@ id	name
 2	f2
 3	f1
 
-# The 1/555 is to make naive join on an arbitrary fid/foffset fail
+ids:
+eid	name
+100	f
+101	1
+200	f
+201	2
+300	1
+133	unused
+
 tokens:
 fid	foffset	eid
-1	555	100
 1	11	100
-1	15	101
+1	90	101
 4	44	200
 4	90	201
 1	333	133
+1	15	300
 
 functionid:
 functionid	ordinal	eid
@@ -52,8 +60,8 @@ dbid	id	global_id
 # f56 f57 share EC in current DB, f57 shares EC with other db.
 # fid refers to dbid 5
 # The fid/foffset is as follows
-# 52: 3/11
-# 53: 3/111
+# 52: 3/11, 3/90
+# 53: 3/111, 3/191
 # 54: 6/66
 adb.functions:
 id	name
@@ -64,16 +72,17 @@ id	name
 56	f56
 57	f57
 
-# The 3/777 is to make naive join on an arbitrary fid/foffset fail
 adb.tokens:
 fid	foffset	eid
-3	777	100
 3	11	100
 3	90	101
 3	111	300
 3	191	301
+3	400	400
 3	66	500
-3	11	600
+3	5010	510
+3	5020	520
+3	600	600
 
 adb.functionid:
 functionid	ordinal	eid
@@ -83,24 +92,61 @@ functionid	ordinal	eid
 53		1	301
 54		0	400
 55		0	500
+55		1	510
 56		0	500
+56		1	520
 57		0	600
+
+adb.ids:
+eid	name
+100	f
+101	1
+300	f
+301	111
+400	f66
+500	f5
+510	5
+520	6
+600	f57
 
 END
 
-INCLUDE CREATE functionid_to_global_map.sql
+INCLUDE CREATE extend-ids.sql
+INCLUDE CREATE empty-idproj.sql
+INCLUDE CREATE eclasses.sql
+
+# Order deterministically results and map global_id accordingly
+BEGIN SELECT
+
+WITH ordered AS (
+  SELECT dbid, id, global_id
+  FROM functionid_to_global_map
+  ORDER BY dbid, id
+),
+remapped AS (
+  SELECT
+    dbid,
+    id,
+    global_id,
+    DENSE_RANK() OVER (ORDER BY global_id) AS new_global_id
+  FROM ordered
+)
+SELECT dbid, id, new_global_id
+FROM remapped
+ORDER BY dbid, id;
+
+END
+
 
 BEGIN RESULT
-# TODO fix according to the actual results, ensuring no
-# duplicate dbid, id pairs.
-functionid_to_global_map:
 dbid	id	global_id
-2	3	1
-2	5	2
+0	1	1
+0	2	7
+0	3	8
 5	52	1
-5	53	3
-5	54	4
-5	55	5
-5	56	6
-5	57	7
+5	53	2
+5	54	3
+5	55	4
+5	56	5
+5	57	6
 END
