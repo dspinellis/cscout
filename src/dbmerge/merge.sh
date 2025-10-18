@@ -41,15 +41,15 @@ create_empty()
   rm -f "$name"
   sqlite3 file-0001.db .schema | sqlite3 "$name"
   cat <<\EOF | sqlite3 "$name"
-CREATE INDEX idx_definers_composite ON definers(cuid, basefileid, definerid);
-CREATE INDEX idx_filemetrics_composite ON filemetrics(fid, precpp);
-CREATE INDEX idx_files_name ON files(name);
-CREATE INDEX idx_functions_id ON functions(id);
-CREATE INDEX idx_functionid_eid ON functionid(eid);
-CREATE INDEX idx_includers_composite ON includers(cuid, basefileid, includerid);
-CREATE INDEX idx_inctriggers_composite ON inctriggers(cuid, basefileid, definerid, foffset, len);
-CREATE INDEX idx_tokens_eid ON tokens(eid);
-CREATE INDEX idx_tokens_foffset ON tokens(foffset);
+CREATE INDEX IF NOT EXISTS idx_definers_composite ON definers(cuid, basefileid, definerid);
+CREATE INDEX IF NOT EXISTS idx_filemetrics_composite ON filemetrics(fid, precpp);
+CREATE INDEX IF NOT EXISTS idx_files_name ON files(name);
+CREATE INDEX IF NOT EXISTS idx_functions_id ON functions(id);
+CREATE INDEX IF NOT EXISTS idx_functionid_eid ON functionid(eid);
+CREATE INDEX IF NOT EXISTS idx_includers_composite ON includers(cuid, basefileid, includerid);
+CREATE INDEX IF NOT EXISTS idx_inctriggers_composite ON inctriggers(cuid, basefileid, definerid, foffset, len);
+CREATE INDEX IF NOT EXISTS idx_tokens_eid ON tokens(eid);
+CREATE INDEX IF NOT EXISTS idx_tokens_foffset ON tokens(foffset);
 
 
 CREATE TABLE fileid_to_global_map(
