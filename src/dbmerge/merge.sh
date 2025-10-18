@@ -135,6 +135,10 @@ merge_onto()
      sqlite3 "$dest" 2>&1 |
      while read -r line ; do log "DB $dbid: $line" ; done
    done
+  if [[ ${source##*/} == temp-*.db ]]; then
+    log "DB $dbid: delete $source"
+    rm -f $source
+  fi
   log "DB $dbid: END merge onto $dest $source"
 }
 
@@ -143,7 +147,7 @@ merge()
   local files=("$@")
 
   if [ "${#files[@]}" -eq 2 ]; then
-    output="temp-$(get_dbid).db"
+    output="$TMPDIR/temp-$(get_dbid).db"
     create_empty "$output"
     merge_onto $output "${files[0]}"
     merge_onto $output "${files[1]}"
