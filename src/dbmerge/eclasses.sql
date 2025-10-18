@@ -2,6 +2,9 @@
 -- This requires running CScout's token homogenization alrogithm
 -- by writing out tables identifying ECs by fid/foffset, invoking CScout
 -- to merge them, and then reading them back.
+--
+-- When the script is run from merge.sh the ././ sequence gets replaced
+-- with $TMPDIR and 5 with the appropriate database identifier.
 
 -- A map from eids to an identifying tokid
 CREATE TEMP TABLE eid_to_tokid_map(
@@ -48,7 +51,7 @@ INSERT INTO aeid_to_tokid_map
 -- When creating new databases the attached is by definition larger than the
 -- (empty) original one.
 -- This is read by read_eclasses_attached.
-.output eclasses-a-5.txt
+.output ././eclasses-a-5.txt
 SELECT fid_map.global_fid AS fid, foffset, length(name) AS len, eid
   FROM adb.tokens AS at
   LEFT JOIN fileid_to_global_map AS fid_map
@@ -58,13 +61,13 @@ SELECT fid_map.global_fid AS fid, foffset, length(name) AS len, eid
 
 -- Continue with the original classes, which must be processed twice.
 -- This is read by read_eclasses_original.
-.output eclasses-o-5.txt
+.output ././eclasses-o-5.txt
 SELECT fid, foffset, length(name) AS len, eid
   FROM tokens
   LEFT JOIN ids USING(eid)
   ORDER BY eid;
 
-.output ids-5.txt
+.output ././ids-5.txt
 SELECT 0 AS dbid, fid, foffset, ids.*
   FROM ids
   LEFT JOIN eid_to_tokid_map USING(eid);
@@ -73,7 +76,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
   FROM adb.ids AS ai
   LEFT JOIN aeid_to_tokid_map USING(eid);
 
-.output functionid-5.txt
+.output ././functionid-5.txt
   SELECT 5 AS dbid,
         functionid,
         etm.fid,
@@ -94,7 +97,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
     LEFT JOIN ids USING(eid)
     ORDER BY functionid, ordinal;
 
-.output idproj-5.txt
+.output ././idproj-5.txt
   SELECT etm.fid,
         etm.foffset,
         length(ids.name) AS len,
@@ -114,7 +117,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 .output stdout
 
 -- Invoke CScout to merge and unify the output elements
-.shell cscout -M eclasses-a-5.txt eclasses-o-5.txt ids-5.txt functionid-5.txt idproj-5.txt new-eclasses-5.csv new-ids-5.csv new-functionid-5.csv new-idproj-5.csv functionid-to-global-map.csv
+.shell cscout -M ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv ././functionid-to-global-map.csv
 
 DELETE FROM tokens;
 DELETE FROM ids;
@@ -123,11 +126,11 @@ DELETE FROM idproj;
 DELETE FROM functionid_to_global_map;
 
 .mode csv
-.import new-eclasses-5.csv tokens
-.import new-ids-5.csv ids
-.import new-functionid-5.csv functionid
-.import new-idproj-5.csv idproj
-.import functionid-to-global-map.csv functionid_to_global_map
+.import ././new-eclasses-5.csv tokens
+.import ././new-ids-5.csv ids
+.import ././new-functionid-5.csv functionid
+.import ././new-idproj-5.csv idproj
+.import ././functionid-to-global-map.csv functionid_to_global_map
 .mode list
 
 -- Drop temporary tables

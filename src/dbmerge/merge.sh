@@ -9,7 +9,9 @@ set -o pipefail
 # Limit the damage of a fault leading to a fork bomb
 ulimit -u 500
 
-DBID_FILE="dbid.txt"
+: "${TMPDIR:=/tmp}"
+export TMPDIR
+DBID_FILE="$TMPDIR/dbid.txt"
 TOOL_DIR=$(dirname $0)
 LOG_FILE=dbmerge.log
 
@@ -126,8 +128,9 @@ merge_onto()
        # Time issued commands
        echo ".timer on"
        echo "ATTACH DATABASE '$source' AS adb;"
-       # Replace hard-coded database id 5 used for testing
-       sed "s/\\<5\\>/$dbid/g" "$TOOL_DIR/$i"
+       # Replace hard-coded database id 5 used for testing.
+       # Replace ././ with $TMPDIR/.
+       sed "s/\\<5\\>/$dbid/g;s|\./\./|$TMPDIR/|g" "$TOOL_DIR/$i"
      } |
      sqlite3 "$dest" 2>&1 |
      while read -r line ; do log "DB $dbid: $line" ; done
