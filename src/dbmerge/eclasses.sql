@@ -117,7 +117,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 .output stdout
 
 -- Invoke CScout to merge and unify the output elements
-.shell cscout -M ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv ././functionid-to-global-map.csv
+.shell cscout -M ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv ././functionid-to-global-map-5.csv
 
 DELETE FROM tokens;
 DELETE FROM ids;
@@ -130,9 +130,11 @@ DELETE FROM functionid_to_global_map;
 .import ././new-ids-5.csv ids
 .import ././new-functionid-5.csv functionid
 .import ././new-idproj-5.csv idproj
-.import ././functionid-to-global-map.csv functionid_to_global_map
+.import ././functionid-to-global-map-5.csv functionid_to_global_map
 .mode list
 
+-- Remove temporary files
+.shell rm ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv ././functionid-to-global-map-5.csv
 -- Drop temporary tables
 DROP TABLE aeid_to_tokid_map;
 DROP TABLE eid_to_tokid_map;
