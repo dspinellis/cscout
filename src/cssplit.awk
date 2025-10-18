@@ -22,7 +22,7 @@
 #
 
 function begin_project() {
-	outfile = sprintf("file-%04d.cs", ++file_number)
+	outfile = sprintf("file-%04d.cs", file_number++)
 	print "#pragma project \"cssplit\"" >outfile
 	print "#pragma block_enter" >outfile
 }
@@ -40,6 +40,7 @@ BEGIN {
 
 	N = ARGV[1]
 	ARGV[1] = ""
+	file_number = 0
 }
 
 # CU processing path name starts with a /
