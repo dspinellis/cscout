@@ -176,12 +176,12 @@ merge()
   midpoint=$((${#files[@]} / 2))
 
   local left=("${files[@]:0:midpoint}")
-  local left_output=$(mktemp XXXXX.txt)
+  local left_output=$(mktemp $TMPDIR/XXXXX.txt)
   merge "${left[@]}" >$left_output &
   pid_left=$!
 
   local right=("${files[@]:midpoint}")
-  local right_output=$(mktemp XXXXX.txt)
+  local right_output=$(mktemp $TMPDIR/XXXXX.txt)
   merge "${right[@]}" >$right_output &
   pid_right=$!
 
