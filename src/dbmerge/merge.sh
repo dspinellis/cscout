@@ -83,6 +83,22 @@ get_dbid()
     ) 200<> "$DBID_FILE"
 }
 
+# Output instructions for fast SQLite operation without any
+# durability guarantees.
+sqllite_fast_and_loose()
+{
+  cat <<\EOF
+PRAGMA journal_mode = MEMORY;
+PRAGMA synchronous = OFF;
+PRAGMA temp_store = MEMORY;
+PRAGMA locking_mode = EXCLUSIVE;
+PRAGMA cache_size = -80000;        -- ~80 MB cache in memory
+PRAGMA mmap_size = 268435456;      -- 256 MB memory-mapped I/O
+PRAGMA foreign_keys = OFF;         -- disable FK checks if not needed
+PRAGMA wal_autocheckpoint = 0;     -- disable WAL checkpoints
+EOF
+}
+
 merge_onto()
 {
   local dest="$1"
@@ -123,6 +139,8 @@ merge_onto()
      set -o pipefail
      {
        log "DB $dbid: running $i"
+       # Disable all durability guarantees
+       sqllite_fast_and_loose
        # Exit on errors
        echo ".bail on"
        # Time issued commands
