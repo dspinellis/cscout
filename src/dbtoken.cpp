@@ -30,6 +30,7 @@
 #include <deque>
 #include <sstream>
 #include <tuple>
+#include <cstdint>
 
 using namespace std;
 
@@ -131,7 +132,7 @@ Dbtoken::add_eclasses_attached(const char *in_path)
 	verify_open(in_path, input);
 
 	Eclass *ec = NULL; // EC pointer as created / found
-	long ecid, prev_ecid = 0; // EC identifier read from file
+	intptr_t ecid, prev_ecid = 0; // EC identifier read from file
 
 	string line_record;
 	line_number = 0;
@@ -177,7 +178,7 @@ add_eclasses_original(const char *in_path)
 	verify_open(in_path, input);
 
 	Eclass *ec = NULL; // EC pointer as created / found
-	long ecid, prev_ecid = 0; // EC identifier read from file
+	intptr_t ecid, prev_ecid = 0; // EC identifier read from file
 
 	string line_record;
 	line_number = 0;
@@ -239,7 +240,7 @@ merge_eclasses_original(const char *in_path)
 		line_number++;
 
 		istringstream line_stream(line_record);
-		long ecid; // EC identifier read from file
+		intptr_t ecid; // EC identifier read from file
 		int fid;
 		unsigned long offset;
 		int len;
@@ -367,7 +368,7 @@ Dbtoken::read_ids(const char *in_path)
 	int dbid;
 	int fid;
 	unsigned long offset;
-	unsigned long ecid;
+	intptr_t ecid;
 	string name;
 	bool v_readonly;
 	bool v_undefined_macro;
@@ -528,7 +529,7 @@ Dbtoken::write_ids(const char *in_path, const char *out_path)
 		int dbid;
 		int fid;
 		unsigned long offset;
-		unsigned long ecid;
+		intptr_t ecid;
 		string name;
 		if (!(line_stream >> dbid >> fid >> offset >> ecid >> name)) {
 			warn(in_path, line_record);
@@ -580,10 +581,11 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 
 	string line_record;
 	line_number = 0;
-	int prev_functionid = -1;
+	intptr_t prev_functionid = -1;
 	int prev_dbid = -1;
 
-	int dbid, functionid;
+	int dbid;
+	intptr_t functionid;
 	int fileid;
 	unsigned long offset;
 	Dbtoken token;
