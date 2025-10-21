@@ -202,20 +202,27 @@ files=($(seq 0 $(($NFILES - 1)) | xargs -n 1 printf 'file-%04d.db '))
 result=$(merge "${files[@]}")
 log "Finished merging into $result. Continuing with optimization."
 
+rm -f merged.db
+
 cat <<\EOF | sqlite3 "$result"
+DROP TABLE fileid_to_global_map;
+DROP TABLE functionid_to_global_map;
+
 ALTER TABLE filemetrics ADD COLUMN iscscout BOOLEAN;
+
 UPDATE filemetrics SET iscscout = (
   SELECT (name LIKE '%.cs')
     FROM files
     WHERE filemetrics.fid = files.fid
 );
+
 CREATE TABLE cscout_files AS
   SELECT fid FROM files WHERE name LIKE '%.cs' OR name LIKE '%/csmake-%-defs.h';
-VACUUM;
+
+VACUUM INTO 'merged.db';
 ANALYZE;
 EOF
-log "Finished vacuuming and optimizing $result"
 
-rm -f merged.db
-ln "$result" merged.db
-echo "Result in: merged.db"
+log "Finished vacuuming and optimizing merged.db"
+
+rm "$result"
