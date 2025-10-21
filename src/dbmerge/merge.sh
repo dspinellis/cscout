@@ -197,10 +197,10 @@ merge()
   echo $left_output_db
 }
 
-files=($(seq 1 $NFILES | xargs -n 1 printf 'file-%04d.db '))
+files=($(seq 0 $(($NFILES - 1)) | xargs -n 1 printf 'file-%04d.db '))
 
 result=$(merge "${files[@]}")
-log "Finished merging into $result"
+log "Finished merging into $result. Continuing with optimization."
 
 cat <<\EOF | sqlite3 "$result"
 ALTER TABLE filemetrics ADD COLUMN iscscout BOOLEAN;
@@ -214,7 +214,7 @@ CREATE TABLE cscout_files AS
 VACUUM;
 ANALYZE;
 EOF
-log "Finished completing and vacuuming $result"
+log "Finished vacuuming and optimizing $result"
 
 rm -f merged.db
 ln "$result" merged.db
