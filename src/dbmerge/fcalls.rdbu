@@ -1,21 +1,67 @@
 BEGIN SETUP
 
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	51	1
+5	51	1
+
+# Will be populated by CScout
 functionid_to_global_map:
 dbid	id	global_id
-2	3	1
-2	5	2
-2	5	3
-5	51	1
-5	52	2
-5	54	4
-5	55	5
+99	99	99
+
+# Database 2: Existing table with local eids
+tokens:
+fid	foffset	eid
+1	1000	1000
+1	2000	2000
+1	3000	3000
+
+ids:
+eid	name
+1000	f1
+2000	f2
+3000	f3
+
+functionid:
+functionid ordinal eid
+1	   0	   1000
+2	   0	   2000
+3	   0       3000
+
+
+# Database 5: Table to be imported, with local eids
+adb.tokens:
+fid	foffset	eid
+51	1000	100
+51	2000	200
+51	4000	400
+51	5000	500
+
+adb.ids:
+eid	name
+100	f1
+200	f2
+400	f54
+500	f55
+
+adb.functionid:
+functionid ordinal eid
+51	   0	   100
+52	   0	   200
+54	   0	   400
+55	   0	   500
 
 fcalls:
 sourceid destid
 1	 2
 2	 3
 
-# One common, one missing, one new in shared id, one new in new id
+# One call common: 1/51 → 2/52
+# One call missing: 2 → 3
+# One call new with a shared id: 2/52 → 54
+# One call new with new ids 55 → 54
 adb.fcalls:
 sourceid destid
 51	 52
@@ -23,13 +69,28 @@ sourceid destid
 55	 54
 END
 
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+INCLUDE CREATE empty-idproj.sql
+
+INCLUDE CREATE eclasses.sql
 INCLUDE CREATE fcalls.sql
 
+# Make resuts repeatable by using identifiers
+BEGIN SELECT
+  SELECT sids.name AS sourcename, dids.name AS destname
+    FROM fcalls
+    LEFT JOIN functionid AS sfid ON sfid.functionid = fcalls.sourceid
+    LEFT JOIN ids AS sids ON sids.eid = sfid.eid
+    LEFT JOIN functionid AS dfid ON dfid.functionid = fcalls.destid
+    LEFT JOIN ids AS dids ON dids.eid = dfid.eid
+    ORDER by sids.name, dids.name;
+END
+
 BEGIN RESULT
-fcalls:
-sourceid destid
-1	 2
-2	 3
-2	 4
-5	 4
+sourcename	destname
+f1		f2
+f2		f3
+f2		f54
+f55		f54
 END
