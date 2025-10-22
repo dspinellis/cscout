@@ -592,7 +592,7 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 	map <Dbtoken, int> fnid;
 
 	// Called for each complete functionid read.
-	auto complete_functionid = [&](int functionid, int dbid) {
+	auto complete_functionid = [&](intptr_t functionid, int dbid) {
 		if (functionid == -1)
 			return;
 
