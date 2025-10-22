@@ -1,9 +1,94 @@
--- Add to functionmetrics missing file records, and update any existing ones
--- with the maximum of the existing and the new ones.
+-- Create global functiondefs table with suitably mapped entries
+-- with the maximum of the merged ones.
 
-INSERT OR REPLACE INTO functionmetrics
+CREATE TABLE new_FUNCTIONMETRICS(
+  FUNCTIONID BIGINT, -- Function identifier key
+  PRECPP BOOLEAN, -- True for values before the cpp false for values after it
+  NCHAR INTEGER, -- Number of characters
+  NCCOMMENT INTEGER, -- Number of comment characters
+  NSPACE INTEGER, -- Number of space characters
+  NLCOMMENT INTEGER, -- Number of line comments
+  NBCOMMENT INTEGER, -- Number of block comments
+  NLINE INTEGER, -- Number of lines
+  MAXLINELEN INTEGER, -- Maximum number of characters in a line
+  MAXSTMTLEN INTEGER, -- Maximum number of tokens in a statement
+  MAXSTMTNEST INTEGER, -- Maximum level of statement nesting
+  MAXBRACENEST INTEGER, -- Maximum level of brace nesting
+  MAXBRACKNEST INTEGER, -- Maximum level of bracket nesting
+  BRACENEST INTEGER, -- Dangling brace nesting
+  BRACKNEST INTEGER, -- Dangling bracket nesting
+  NULINE INTEGER, -- Number of unprocessed lines
+  NPPDIRECTIVE INTEGER, -- Number of C preprocessor directives
+  NPPCOND INTEGER, -- Number of processed C preprocessor conditionals (ifdef, if, elif)
+  NPPFMACRO INTEGER, -- Number of defined C preprocessor function-like macros
+  NPPOMACRO INTEGER, -- Number of defined C preprocessor object-like macros
+  NTOKEN INTEGER, -- Number of tokens
+  NSTMT INTEGER, -- Number of statements or declarations
+  NOP INTEGER, -- Number of operators
+  NUOP INTEGER, -- Number of unique operators
+  NNCONST INTEGER, -- Number of numeric constants
+  NCLIT INTEGER, -- Number of character literals
+  NSTRING INTEGER, -- Number of character strings
+  NPPCONCATOP INTEGER, -- Number of token concatenation operators (##)
+  NPPSTRINGOP INTEGER, -- Number of token stringification operators (#)
+  NIF INTEGER, -- Number of if statements
+  NELSE INTEGER, -- Number of else clauses
+  NSWITCH INTEGER, -- Number of switch statements
+  NCASE INTEGER, -- Number of case labels
+  NDEFAULT INTEGER, -- Number of default labels
+  NBREAK INTEGER, -- Number of break statements
+  NFOR INTEGER, -- Number of for statements
+  NWHILE INTEGER, -- Number of while statements
+  NDO INTEGER, -- Number of do statements
+  NCONTINUE INTEGER, -- Number of continue statements
+  NGOTO INTEGER, -- Number of goto statements
+  NRETURN INTEGER, -- Number of return statements
+  NASM INTEGER, -- Number of assembly statements
+  NTYPEOF INTEGER, -- Number of typeof operators
+  NPID INTEGER, -- Number of project-scope identifiers
+  NFID INTEGER, -- Number of file-scope (static) identifiers
+  NMID INTEGER, -- Number of macro identifiers
+  NID INTEGER, -- Total number of object and object-like identifiers
+  NUPID INTEGER, -- Number of unique project-scope identifiers
+  NUFID INTEGER, -- Number of unique file-scope (static) identifiers
+  NUMID INTEGER, -- Number of unique macro identifiers
+  NUID INTEGER, -- Number of unique object and object-like identifiers
+  NLABEL INTEGER, -- Number of goto labels
+  NMACROEXPANDTOKEN INTEGER, -- Tokens added by macro expansion
+  NGNSOC INTEGER, -- Number of global namespace occupants at function's top
+  NMPARAM INTEGER, -- Number of parameters (for macros)
+  NFPARAM INTEGER, -- Number of parameters (for functions)
+  NEPARAM INTEGER, -- Number of passed non-expression macro parameters
+  FANIN INTEGER, -- Fan-in (number of calling functions)
+  FANOUT INTEGER, -- Fan-out (number of called functions)
+  CCYCL1 INTEGER, -- Cyclomatic complexity (control statements)
+  CCYCL2 INTEGER, -- Extended cyclomatic complexity (includes branching operators)
+  CCYCL3 INTEGER, -- Maximum cyclomatic complexity (includes branching operators and all switch branches)
+  CSTRUC REAL, -- Structure complexity (Henry and Kafura)
+  CHAL REAL, -- Halstead volume
+  IFLOW REAL, -- Information flow metric (Henry and Selig)
+  PRIMARY KEY(FUNCTIONID, PRECPP),
+  FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)
+);
+
+
+-- Pair with global map
+WITH fma AS (
+  SELECT functionid_map.global_id AS gfunctionid, f.*
+    FROM adb.functionmetrics AS f
+    LEFT JOIN functionid_to_global_map AS functionid_map
+      ON functionid_map.dbid = 5 AND functionid_map.id = f.functionid
+),
+fmb AS (
+  SELECT functionid_map.global_id AS gfunctionid, f.*
+    FROM functionmetrics AS f
+    LEFT JOIN functionid_to_global_map AS functionid_map
+      ON functionid_map.dbid != 5 AND functionid_map.id = f.functionid
+)
+-- Merge
+INSERT INTO new_functionmetrics
   SELECT
-    fgm.global_id AS functionid,
+    Coalesce(fma.gfunctionid, fmb.gfunctionid) AS functionid,
     Coalesce(fma.precpp, fmb.precpp) AS precpp,
     Max(Coalesce(fma.nchar, fmb.nchar), Coalesce(fmb.nchar, fma.nchar)) AS nchar,
     Max(Coalesce(fma.nccomment, fmb.nccomment), Coalesce(fmb.nccomment, fma.nccomment)) AS nccomment,
@@ -68,9 +153,9 @@ INSERT OR REPLACE INTO functionmetrics
     Max(Coalesce(fma.cstruc, fmb.cstruc), Coalesce(fmb.cstruc, fma.cstruc)) AS cstruc,
     Max(Coalesce(fma.chal, fmb.chal), Coalesce(fmb.chal, fma.chal)) AS chal,
     Max(Coalesce(fma.iflow, fmb.iflow), Coalesce(fmb.iflow, fma.iflow)) AS iflow
-  FROM
-    adb.functionmetrics AS fma
-    LEFT JOIN functionid_to_global_map AS fgm ON fgm.dbid = 5
-      AND fgm.id = fma.functionid
-    LEFT JOIN functionmetrics AS fmb ON fmb.functionid = fgm.global_id
-      AND fmb.precpp = fma.precpp;
+  -- Pair if possible
+  FROM fma FULL OUTER JOIN fmb
+    ON fma.gfunctionid = fmb.gfunctionid AND fma.precpp = fmb.precpp;
+
+DROP TABLE functionmetrics;
+ALTER TABLE new_functionmetrics RENAME TO functionmetrics;
