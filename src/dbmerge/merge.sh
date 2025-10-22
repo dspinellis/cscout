@@ -15,12 +15,13 @@ DBID_FILE="$TMPDIR/dbid.txt"
 TOOL_DIR=$(dirname $0)
 LOG_FILE=dbmerge.log
 
-if [ $# -ne 1 ] ; then
-  echo "Usage: $(basename $0) nfiles" 1>&2
+if [ $# -ne 2 ] ; then
+  echo "Usage: $(basename $0) nfiles merged.db" 1>&2
   exit 1
 fi
 
 NFILES="$1"
+MERGED="$2"
 
 # Get dbids from N+1 onward. 1-N are the databases to merge.
 echo $((NFILES + 1)) >$DBID_FILE
@@ -202,9 +203,9 @@ files=($(seq 0 $(($NFILES - 1)) | xargs -n 1 printf 'file-%04d.db '))
 result=$(merge "${files[@]}")
 log "Finished merging into $result. Continuing with optimization."
 
-rm -f merged.db
+rm -f "$MERGED"
 
-cat <<\EOF | sqlite3 "$result"
+cat <<EOF | sqlite3 "$result"
 DROP TABLE fileid_to_global_map;
 DROP TABLE functionid_to_global_map;
 
@@ -219,10 +220,11 @@ UPDATE filemetrics SET iscscout = (
 CREATE TABLE cscout_files AS
   SELECT fid FROM files WHERE name LIKE '%.cs' OR name LIKE '%/csmake-%-defs.h';
 
-VACUUM INTO 'merged.db';
+VACUUM INTO '$MERGED';
 ANALYZE;
 EOF
 
-log "Finished vacuuming and optimizing merged.db"
+log "Finished vacuuming and optimizing $MERGED"
+log "Time taken (self u/s, children u/s):$(echo $(times))"
 
 rm "$result"
