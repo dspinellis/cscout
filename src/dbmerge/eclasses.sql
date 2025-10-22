@@ -43,7 +43,7 @@ eid_sentinel_tokens AS (
 INSERT INTO aeid_to_tokid_map
   SELECT eid, fid_map.global_fid AS fid, foffset
     FROM eid_sentinel_tokens AS est
-    LEFT JOIN fileid_to_global_map AS fid_map
+    INNER JOIN fileid_to_global_map AS fid_map
       ON fid_map.dbid = 5 AND fid_map.fid = est.fid;
 
 .separator ' '
@@ -54,7 +54,7 @@ INSERT INTO aeid_to_tokid_map
 .output ././eclasses-a-5.txt
 SELECT fid_map.global_fid AS fid, foffset, length(name) AS len, eid
   FROM adb.tokens AS at
-  LEFT JOIN fileid_to_global_map AS fid_map
+  INNER JOIN fileid_to_global_map AS fid_map
     ON fid_map.dbid = 5 AND fid_map.fid = at.fid
   LEFT JOIN adb.ids USING(eid)
   ORDER BY eid;
@@ -70,11 +70,11 @@ SELECT fid, foffset, length(name) AS len, eid
 .output ././ids-5.txt
 SELECT 0 AS dbid, fid, foffset, ids.*
   FROM ids
-  LEFT JOIN eid_to_tokid_map USING(eid);
+  INNER JOIN eid_to_tokid_map USING(eid);
 
 SELECT 5 AS dbid, fid, foffset, ai.*
   FROM adb.ids AS ai
-  LEFT JOIN aeid_to_tokid_map USING(eid);
+  INNER JOIN aeid_to_tokid_map USING(eid);
 
 .output ././functionid-5.txt
   SELECT 5 AS dbid,
@@ -83,7 +83,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
         etm.foffset,
         length(ids.name) AS len
     FROM adb.functionid AS afunctionid
-    LEFT JOIN aeid_to_tokid_map AS etm USING(eid)
+    INNER JOIN aeid_to_tokid_map AS etm USING(eid)
     LEFT JOIN adb.ids USING(eid)
     ORDER BY functionid, ordinal;
 
@@ -93,7 +93,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
         etm.foffset,
         length(ids.name) AS len
     FROM functionid
-    LEFT JOIN eid_to_tokid_map AS etm USING(eid)
+    INNER JOIN eid_to_tokid_map AS etm USING(eid)
     LEFT JOIN ids USING(eid)
     ORDER BY functionid, ordinal;
 
@@ -103,7 +103,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
         length(ids.name) AS len,
         pid
     FROM adb.idproj AS idproj
-    LEFT JOIN aeid_to_tokid_map AS etm USING(eid)
+    INNER JOIN aeid_to_tokid_map AS etm USING(eid)
     LEFT JOIN adb.ids USING(eid);
 
   SELECT etm.fid,
@@ -111,7 +111,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
         length(ids.name) AS len,
         pid
     FROM idproj
-    LEFT JOIN eid_to_tokid_map AS etm USING(eid)
+    INNER JOIN eid_to_tokid_map AS etm USING(eid)
     LEFT JOIN ids USING(eid);
 
 .output stdout

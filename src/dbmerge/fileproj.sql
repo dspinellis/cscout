@@ -5,7 +5,7 @@ INSERT INTO fileproj
     fgm.global_fid AS fid,
     ipa.pid
   FROM adb.fileproj AS ipa
-    LEFT JOIN fileid_to_global_map AS fgm
+    INNER JOIN fileid_to_global_map AS fgm
       ON fgm.dbid = 5 AND fgm.fid = ipa.fid
     LEFT JOIN fileproj AS fmb
       ON fmb.fid = fgm.global_fid

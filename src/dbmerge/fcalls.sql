@@ -9,20 +9,20 @@ INSERT INTO new_fcalls
   SELECT source_map.global_id AS sourceid,
     dest_map.global_id AS destid
     FROM adb.fcalls AS afcalls
-    LEFT JOIN functionid_to_global_map AS source_map
+    INNER JOIN functionid_to_global_map AS source_map
       ON source_map.dbid = 5
         AND source_map.id = afcalls.sourceid
-    LEFT JOIN functionid_to_global_map AS dest_map
+    INNER JOIN functionid_to_global_map AS dest_map
       ON dest_map.dbid = 5
         AND dest_map.id = afcalls.destid
   UNION
   SELECT source_map.global_id AS sourceid,
     dest_map.global_id AS destid
     FROM fcalls AS ofcalls
-    LEFT JOIN functionid_to_global_map AS source_map
+    INNER JOIN functionid_to_global_map AS source_map
       ON source_map.dbid != 5
         AND source_map.id = ofcalls.sourceid
-    LEFT JOIN functionid_to_global_map AS dest_map
+    INNER JOIN functionid_to_global_map AS dest_map
       ON dest_map.dbid != 5
         AND dest_map.id = ofcalls.destid;
 

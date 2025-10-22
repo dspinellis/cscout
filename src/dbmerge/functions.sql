@@ -18,9 +18,9 @@ CREATE TABLE fa AS
       name, ismacro, defined, declared, filescoped,
       fileid_map.global_fid AS fid, foffset, fanin
     FROM adb.functions AS f
-    LEFT JOIN fileid_to_global_map AS fileid_map
+    INNER JOIN fileid_to_global_map AS fileid_map
       ON fileid_map.dbid = 5 AND fileid_map.fid = f.fid
-    LEFT JOIN functionid_to_global_map AS functionid_map
+    INNER JOIN functionid_to_global_map AS functionid_map
       ON functionid_map.dbid = 5 AND functionid_map.id = f.id;
 
 CREATE TABLE fb AS
@@ -28,9 +28,9 @@ CREATE TABLE fb AS
       name, ismacro, defined, declared, filescoped,
       fileid_map.global_fid AS fid, foffset, fanin
     FROM functions AS f
-    LEFT JOIN fileid_to_global_map AS fileid_map
+    INNER JOIN fileid_to_global_map AS fileid_map
       ON fileid_map.dbid != 5 AND fileid_map.global_fid = f.fid
-    LEFT JOIN functionid_to_global_map AS functionid_map
+    INNER JOIN functionid_to_global_map AS functionid_map
       ON functionid_map.dbid != 5 AND functionid_map.id = f.id;
 
 CREATE UNIQUE INDEX idx_fa_id  ON fa(id);

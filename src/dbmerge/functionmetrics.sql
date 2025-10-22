@@ -76,13 +76,13 @@ CREATE TABLE new_FUNCTIONMETRICS(
 CREATE TABLE fma AS
   SELECT functionid_map.global_id AS gfunctionid, f.*
     FROM adb.functionmetrics AS f
-    LEFT JOIN functionid_to_global_map AS functionid_map
+    INNER JOIN functionid_to_global_map AS functionid_map
       ON functionid_map.dbid = 5 AND functionid_map.id = f.functionid;
 
 CREATE TABLE fmb AS
   SELECT functionid_map.global_id AS gfunctionid, f.*
     FROM functionmetrics AS f
-    LEFT JOIN functionid_to_global_map AS functionid_map
+    INNER JOIN functionid_to_global_map AS functionid_map
       ON functionid_map.dbid != 5 AND functionid_map.id = f.functionid;
 
 CREATE UNIQUE INDEX idx_fma_gfunctiond_precpp  ON fma(gfunctionid, precpp);

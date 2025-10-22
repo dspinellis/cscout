@@ -5,7 +5,7 @@ INSERT INTO files
   SELECT fileid_to_global_map.global_fid AS fid,
       afiles.name, afiles.ro
     FROM adb.files AS afiles
-    LEFT JOIN fileid_to_global_map ON
+    INNER JOIN fileid_to_global_map ON
       fileid_to_global_map.dbid = 5
       AND fileid_to_global_map.fid = afiles.fid
     LEFT JOIN files ON

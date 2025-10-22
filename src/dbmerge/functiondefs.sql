@@ -16,11 +16,11 @@ INSERT INTO new_functiondefs
       fileid_end_map.global_fid AS fidend,
       foffsetend
     FROM adb.functiondefs AS f
-    LEFT JOIN fileid_to_global_map AS fileid_begin_map
+    INNER JOIN fileid_to_global_map AS fileid_begin_map
       ON fileid_begin_map.dbid = 5 AND fileid_begin_map.fid = f.fidbegin
-    LEFT JOIN fileid_to_global_map AS fileid_end_map
+    INNER JOIN fileid_to_global_map AS fileid_end_map
       ON fileid_end_map.dbid = 5 AND fileid_end_map.fid = f.fidend
-    LEFT JOIN functionid_to_global_map AS functionid_map
+    INNER JOIN functionid_to_global_map AS functionid_map
       ON functionid_map.dbid = 5 AND functionid_map.id = f.functionid;
 
 INSERT OR IGNORE INTO new_functiondefs
@@ -30,13 +30,13 @@ INSERT OR IGNORE INTO new_functiondefs
       fileid_end_map.global_fid AS fidend,
       foffsetend
     FROM functiondefs AS f
-    LEFT JOIN fileid_to_global_map AS fileid_begin_map
+    INNER JOIN fileid_to_global_map AS fileid_begin_map
       ON fileid_begin_map.dbid != 5
         AND fileid_begin_map.global_fid = f.fidbegin
-    LEFT JOIN fileid_to_global_map AS fileid_end_map
+    INNER JOIN fileid_to_global_map AS fileid_end_map
       ON fileid_end_map.dbid != 5
         AND fileid_end_map.global_fid = f.fidend
-    LEFT JOIN functionid_to_global_map AS functionid_map
+    INNER JOIN functionid_to_global_map AS functionid_map
       ON functionid_map.dbid != 5 AND functionid_map.id = f.functionid;
 
 DROP TABLE functiondefs;

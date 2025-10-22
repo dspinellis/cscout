@@ -68,6 +68,6 @@ INSERT OR REPLACE INTO filemetrics
     Max(Coalesce(fma.nemember, fmb.nemember), Coalesce(fmb.nemember, fma.nemember)) AS nemember
   FROM
     adb.filemetrics AS fma
-    LEFT JOIN fileid_to_global_map AS fgm ON fgm.dbid = 5 AND fgm.fid = fma.fid
+    INNER JOIN fileid_to_global_map AS fgm ON fgm.dbid = 5 AND fgm.fid = fma.fid
     LEFT JOIN filemetrics AS fmb ON fmb.fid = fgm.global_fid
       AND fmb.precpp = fma.precpp;
