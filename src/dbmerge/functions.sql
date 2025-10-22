@@ -13,7 +13,7 @@ CREATE TABLE new_functions(
   FOREIGN KEY(FID) REFERENCES FILES(FID)
 );
 
-WITH fa AS (
+CREATE TABLE fa AS
   SELECT functionid_map.global_id AS id,
       name, ismacro, defined, declared, filescoped,
       fileid_map.global_fid AS fid, foffset, fanin
@@ -21,9 +21,9 @@ WITH fa AS (
     LEFT JOIN fileid_to_global_map AS fileid_map
       ON fileid_map.dbid = 5 AND fileid_map.fid = f.fid
     LEFT JOIN functionid_to_global_map AS functionid_map
-      ON functionid_map.dbid = 5 AND functionid_map.id = f.id
-),
-fb AS (
+      ON functionid_map.dbid = 5 AND functionid_map.id = f.id;
+
+CREATE TABLE fb AS
   SELECT functionid_map.global_id AS id,
       name, ismacro, defined, declared, filescoped,
       fileid_map.global_fid AS fid, foffset, fanin
@@ -31,8 +31,11 @@ fb AS (
     LEFT JOIN fileid_to_global_map AS fileid_map
       ON fileid_map.dbid != 5 AND fileid_map.global_fid = f.fid
     LEFT JOIN functionid_to_global_map AS functionid_map
-      ON functionid_map.dbid != 5 AND functionid_map.id = f.id
-)
+      ON functionid_map.dbid != 5 AND functionid_map.id = f.id;
+
+CREATE UNIQUE INDEX idx_fa_id  ON fa(id);
+CREATE UNIQUE INDEX idx_fb_id  ON fb(id);
+
 INSERT INTO new_functions
   SELECT
       Coalesce(fa.id, fb.id) AS id,
@@ -47,4 +50,7 @@ INSERT INTO new_functions
     FROM fa FULL OUTER JOIN fb ON fa.id = fb.id;
 
 DROP TABLE functions;
+DROP TABLE fa;
+DROP TABLE fb;
+
 ALTER TABLE new_functions RENAME TO functions;

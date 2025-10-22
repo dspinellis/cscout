@@ -73,18 +73,21 @@ CREATE TABLE new_FUNCTIONMETRICS(
 
 
 -- Pair with global map
-WITH fma AS (
+CREATE TABLE fma AS
   SELECT functionid_map.global_id AS gfunctionid, f.*
     FROM adb.functionmetrics AS f
     LEFT JOIN functionid_to_global_map AS functionid_map
-      ON functionid_map.dbid = 5 AND functionid_map.id = f.functionid
-),
-fmb AS (
+      ON functionid_map.dbid = 5 AND functionid_map.id = f.functionid;
+
+CREATE TABLE fmb AS
   SELECT functionid_map.global_id AS gfunctionid, f.*
     FROM functionmetrics AS f
     LEFT JOIN functionid_to_global_map AS functionid_map
-      ON functionid_map.dbid != 5 AND functionid_map.id = f.functionid
-)
+      ON functionid_map.dbid != 5 AND functionid_map.id = f.functionid;
+
+CREATE UNIQUE INDEX idx_fma_gfunctiond_precpp  ON fma(gfunctionid, precpp);
+CREATE UNIQUE INDEX idx_fmb_gfunctiond_precpp  ON fmb(gfunctionid, precpp);
+
 -- Merge
 INSERT INTO new_functionmetrics
   SELECT
@@ -158,4 +161,7 @@ INSERT INTO new_functionmetrics
     ON fma.gfunctionid = fmb.gfunctionid AND fma.precpp = fmb.precpp;
 
 DROP TABLE functionmetrics;
+DROP TABLE fma;
+DROP TABLE fmb;
+
 ALTER TABLE new_functionmetrics RENAME TO functionmetrics;
