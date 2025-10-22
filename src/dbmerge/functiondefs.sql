@@ -9,7 +9,7 @@ CREATE TABLE new_FUNCTIONDEFS(
   FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID)
 );
 
-WITH fa AS (
+INSERT INTO new_functiondefs
   SELECT functionid_map.global_id AS functionid,
       fileid_begin_map.global_fid AS fidbegin,
       foffsetbegin,
@@ -21,9 +21,9 @@ WITH fa AS (
     LEFT JOIN fileid_to_global_map AS fileid_end_map
       ON fileid_end_map.dbid = 5 AND fileid_end_map.fid = f.fidend
     LEFT JOIN functionid_to_global_map AS functionid_map
-      ON functionid_map.dbid = 5 AND functionid_map.id = f.functionid
-),
-fb AS (
+      ON functionid_map.dbid = 5 AND functionid_map.id = f.functionid;
+
+INSERT OR IGNORE INTO new_functiondefs
   SELECT functionid_map.global_id AS functionid,
       fileid_begin_map.global_fid AS fidbegin,
       foffsetbegin,
@@ -37,16 +37,7 @@ fb AS (
       ON fileid_end_map.dbid != 5
         AND fileid_end_map.global_fid = f.fidend
     LEFT JOIN functionid_to_global_map AS functionid_map
-      ON functionid_map.dbid != 5 AND functionid_map.id = f.functionid
-)
-INSERT INTO new_functiondefs
-  SELECT
-      Coalesce(fa.functionid, fb.functionid) AS id,
-      Coalesce(fa.fidbegin, fb.fidbegin) AS fidbegin,
-      Coalesce(fa.foffsetbegin, fb.foffsetbegin) AS foffsetbegin,
-      Coalesce(fa.fidend, fb.fidend) AS fidend,
-      Coalesce(fa.foffsetend, fb.foffsetend) AS foffsetend
-    FROM fa FULL OUTER JOIN fb ON fa.functionid = fb.functionid;
+      ON functionid_map.dbid != 5 AND functionid_map.id = f.functionid;
 
 DROP TABLE functiondefs;
 ALTER TABLE new_functiondefs RENAME TO functiondefs;
