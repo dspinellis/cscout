@@ -225,6 +225,8 @@ ANALYZE;
 EOF
 
 log "Finished vacuuming and optimizing $MERGED"
-log "Time taken (self u/s, children u/s):$(echo $(times))"
+log "Time taken (self u/s, children u/s):"
+# This cannot be put in $(), because then it will report 0.
+times >>$LOG_FILE
 
 rm "$result"
