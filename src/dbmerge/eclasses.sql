@@ -77,6 +77,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
   INNER JOIN aeid_to_tokid_map USING(eid);
 
 .output ././functionid-5.txt
+  -- Ordinal implied by position
   SELECT 5 AS dbid,
         functionid,
         etm.fid,
