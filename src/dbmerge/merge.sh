@@ -9,24 +9,8 @@ set -o pipefail
 # Limit the damage of a fault leading to a fork bomb
 ulimit -u 500
 
-: "${TMPDIR:=/tmp}"
-export TMPDIR
-DBID_FILE="$TMPDIR/dbid.txt"
 TOOL_DIR=$(dirname $0)
 LOG_FILE=dbmerge.log
-
-if [ $# -ne 2 ] ; then
-  echo "Usage: $(basename $0) nfiles merged.db" 1>&2
-  exit 1
-fi
-
-NFILES="$1"
-MERGED="$2"
-
-# Get dbids from N+1 onward. 1-N are the databases to merge.
-echo $((NFILES + 1)) >$DBID_FILE
-
-:>$LOG_FILE
 
 # Log the specified message with a timestamp
 log()
@@ -98,8 +82,11 @@ PRAGMA mmap_size = 268435456;      -- 256 MB memory-mapped I/O
 PRAGMA foreign_keys = OFF;         -- disable FK checks if not needed
 PRAGMA wal_autocheckpoint = 0;     -- disable WAL checkpoints
 
-.bail on                           -- Exit on errors
-.timer on                          -- Time issued commands
+-- Exit on errors
+.bail on
+
+-- Time issued commands
+.timer on
 EOF
 }
 
@@ -143,17 +130,31 @@ merge_onto()
      set -o pipefail
      {
        log "DB $dbid: running $i"
+
        # Disable all durability guarantees
        sqllite_config
-       echo "ATTACH DATABASE '$source' AS adb;"
-       # Replace hard-coded database id 5 used for testing.
-       # Replace ././ with $TMPDIR/.
-       sed "s/\\<5\\>/$dbid/g;s|\./\./|$TMPDIR/|g" "$TOOL_DIR/$i"
+
+       # Configure script as needed
+       sed "
+         # Attach database to be merged.
+         1i\
+         ATTACH DATABASE '$source' AS adb;
+
+         # Replace hard-coded database id 5 used for testing.
+         s/\\<5\\>/$dbid/g
+
+         # Replace ././ with $TEMP_DIR/.
+         s|\./\./|$TEMP_DIR/|g
+
+         # Keep temporary files if -k has been specified.
+         ${DELETE_RM:-}
+       " "$TOOL_DIR/$i"
      } |
      sqlite3 "$dest" 2>&1 |
      while read -r line ; do log "DB $dbid: $line" ; done
-   done
-  if [[ ${source##*/} == temp-*.db ]]; then
+  done
+
+  if [[ ${source##*/} == temp-*.db && -z ${KEEP:-} ]]; then
     log "DB $dbid: delete $source"
     rm -f $source
   fi
@@ -165,7 +166,7 @@ merge()
   local files=("$@")
 
   if [ "${#files[@]}" -eq 2 ]; then
-    output="$TMPDIR/temp-$(get_dbid).db"
+    output="$TEMP_DIR/temp-$(get_dbid).db"
     create_empty "$output"
     merge_onto $output "${files[0]}"
     merge_onto $output "${files[1]}"
@@ -176,12 +177,12 @@ merge()
   midpoint=$((${#files[@]} / 2))
 
   local left=("${files[@]:0:midpoint}")
-  local left_output=$(mktemp $TMPDIR/XXXXX.txt)
+  local left_output=$(mktemp $TEMP_DIR/XXXXX.txt)
   merge "${left[@]}" >$left_output &
   pid_left=$!
 
   local right=("${files[@]:midpoint}")
-  local right_output=$(mktemp $TMPDIR/XXXXX.txt)
+  local right_output=$(mktemp $TEMP_DIR/XXXXX.txt)
   merge "${right[@]}" >$right_output &
   pid_right=$!
 
@@ -202,7 +203,7 @@ optimize_result()
 {
   log "Finished merging into $result. Continuing with optimization."
 
-  rm -f "$MERGED"
+  test -z "${KEEP:-}" && rm -f "$MERGED"
 
   cat <<EOF | sqlite3 "$result"
 DROP TABLE fileid_to_global_map;
@@ -232,9 +233,72 @@ EOF
   rm "$result"
 }
 
+# Display usage information and exit
+usage()
+{
+  cat <<EOF 1>&2
+Usage: $(basename $0) [OPTION] nfiles merged.db
+
+  -k        Keep temporary files
+  -T dir    Specify temporary directory to use
+EOF
+  exit 1
+}
+
+# Process command-line arguments
+while getopts "kT:" opt; do
+  case $opt in
+    k)
+      KEEP=1
+      ;;
+    T)
+      TEMP_DIR_LOCATION="=$OPTARG"
+      ;;
+    \?) # Illegal option
+      usage
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      usage
+      ;;
+  esac
+done
+
+# Create temporary directory in specified location, or $TMPDIR, or /tmp.
+TEMP_DIR=$(mktemp -d --tmpdir${TEMP_DIR_LOCATION:-} csmerge.XXXX)
+export TEMP_DIR
+
+DBID_FILE="$TEMP_DIR/dbid.txt"
+
+if [ -z "${KEEP:-}" ] ; then
+  # Clean up on exit or signals
+  trap 'rm -rf "$TEMP_DIR"' 0 1 2 3 15
+else
+  # Sed command to delete SQLLite command that removes temporary files
+  DELETE_RM='/^\.shell rm/d'
+fi
+
+shift "$((OPTIND-1))"
+
+if [ $# -ne 2 ] ; then
+  usage
+fi
+
+NFILES="$1"
+MERGED="$2"
+
+# Get dbids from N+1 onward. 1-N are the databases to merge.
+echo $((NFILES + 1)) >$DBID_FILE
+
+:>$LOG_FILE
+
 # Create array of files to merge
 files=($(seq 0 $(($NFILES - 1)) | xargs -n 1 printf 'file-%04d.db '))
 
 result=$(merge "${files[@]}")
 
 optimize_result
+
+if [ -n "${KEEP:-}" ] ; then
+  echo "Temporary files left on "$TEMP_DIR" 1>&2
+fi
