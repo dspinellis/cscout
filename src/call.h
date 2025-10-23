@@ -88,6 +88,12 @@ private:
 	 * linux/include/linux/syscalls.h(7895),l=8[__do_sys],
 	 * linux/include/linux/syscalls.h(6695),l=1[_],
 	 * file.c(238),l=3[dup]
+	 *
+	 * Warning: It's incorrect to use the Tokid's EC rather than the
+	 * tokid, because tokids from diverse similarly-named functions
+	 * can be merged into the same EC.  Example:
+	 * __io_bw() in Linux's arch/arm64/include/asm/io.h and
+	 * arch/riscv/include/asm/mmio.h.
 	 */
 	typedef multimap <Tokid, Call *> fun_map;
 
