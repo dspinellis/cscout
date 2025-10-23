@@ -11,10 +11,17 @@ dbid	fid	global_fid
 5	53	3
 
 
-# Will be populated by CScout
+# First id digit 3, second digit database-id
 functionid_to_global_map:
 dbid	id	global_id
-99	99	99
+2	321	1
+2	322	2
+2	323	3
+2	324	4
+5	351	1
+5	352	2
+5	353	3
+5	354	4
 
 # Database 2: Existing table with local eids
 tokens:
@@ -72,21 +79,21 @@ INCLUDE CREATE empty-idproj.sql
 
 INCLUDE CREATE eclasses.sql
 
-# Make resuts repeatable by using identifiers
+# Make resuts repeatable by using integer eids
 BEGIN SELECT
-  SELECT functionid, ordinal, name
-    FROM functionid
-    LEFT JOIN ids USING(eid)
-    ORDER by name;
+  SELECT
+      functionid, ordinal,
+      Row_number() OVER (ORDER BY functionid) AS eid
+    FROM functionid;
 END
 
 BEGIN RESULT
-functionid ordinal name
-1	0	ab
-1	1	cd
-1	2	ef
-4	0	hello
-2	1	printf
-2	0	sn
-3	0	sqrt
+functionid ordinal eid
+1	0	1
+1	1	2
+1	2	3
+2	0	4
+3	0	5
+3	1	6
+4	0	7
 END

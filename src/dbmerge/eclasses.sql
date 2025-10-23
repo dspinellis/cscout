@@ -56,7 +56,7 @@ SELECT fid_map.global_fid AS fid, foffset, length(name) AS len, eid
   FROM adb.tokens AS at
   INNER JOIN fileid_to_global_map AS fid_map
     ON fid_map.dbid = 5 AND fid_map.fid = at.fid
-  LEFT JOIN adb.ids USING(eid)
+  INNER JOIN adb.ids USING(eid)
   ORDER BY eid;
 
 -- Continue with the original classes, which must be processed twice.
@@ -64,7 +64,7 @@ SELECT fid_map.global_fid AS fid, foffset, length(name) AS len, eid
 .output ././eclasses-o-5.txt
 SELECT fid, foffset, length(name) AS len, eid
   FROM tokens
-  LEFT JOIN ids USING(eid)
+  INNER JOIN ids USING(eid)
   ORDER BY eid;
 
 .output ././ids-5.txt
@@ -78,24 +78,24 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 
 .output ././functionid-5.txt
   -- Ordinal implied by position
-  SELECT 5 AS dbid,
-        functionid,
+  SELECT fid_map.global_id AS functionid,
         etm.fid,
         etm.foffset,
         length(ids.name) AS len
     FROM adb.functionid AS afunctionid
     INNER JOIN aeid_to_tokid_map AS etm USING(eid)
-    LEFT JOIN adb.ids USING(eid)
+    INNER JOIN functionid_to_global_map AS fid_map
+      ON fid_map.dbid = 5 AND fid_map.id = afunctionid.functionid
+    INNER JOIN adb.ids USING(eid)
     ORDER BY functionid, ordinal;
 
-  SELECT 0 AS dbid,
-        functionid,
+  SELECT functionid,
         etm.fid,
         etm.foffset,
         length(ids.name) AS len
     FROM functionid
     INNER JOIN eid_to_tokid_map AS etm USING(eid)
-    LEFT JOIN ids USING(eid)
+    INNER JOIN ids USING(eid)
     ORDER BY functionid, ordinal;
 
 .output ././idproj-5.txt
@@ -105,7 +105,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
         pid
     FROM adb.idproj AS idproj
     INNER JOIN aeid_to_tokid_map AS etm USING(eid)
-    LEFT JOIN adb.ids USING(eid);
+    INNER JOIN adb.ids USING(eid);
 
   SELECT etm.fid,
         etm.foffset,
@@ -113,29 +113,27 @@ SELECT 5 AS dbid, fid, foffset, ai.*
         pid
     FROM idproj
     INNER JOIN eid_to_tokid_map AS etm USING(eid)
-    LEFT JOIN ids USING(eid);
+    INNER JOIN ids USING(eid);
 
 .output stdout
 
 -- Invoke CScout to merge and unify the output elements
-.shell cscout -M ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv ././functionid-to-global-map-5.csv
+.shell cscout -M ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv
 
 DELETE FROM tokens;
 DELETE FROM ids;
 DELETE FROM functionid;
 DELETE FROM idproj;
-DELETE FROM functionid_to_global_map;
 
 .mode csv
 .import ././new-eclasses-5.csv tokens
 .import ././new-ids-5.csv ids
 .import ././new-functionid-5.csv functionid
 .import ././new-idproj-5.csv idproj
-.import ././functionid-to-global-map-5.csv functionid_to_global_map
 .mode list
 
 -- Remove temporary files
-.shell rm ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv ././functionid-to-global-map-5.csv
+.shell rm ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv
 -- Drop temporary tables
 DROP TABLE aeid_to_tokid_map;
 DROP TABLE eid_to_tokid_map;
