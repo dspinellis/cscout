@@ -197,14 +197,14 @@ merge()
   echo $left_output_db
 }
 
-files=($(seq 0 $(($NFILES - 1)) | xargs -n 1 printf 'file-%04d.db '))
+# Create the final result
+optimize_result()
+{
+  log "Finished merging into $result. Continuing with optimization."
 
-result=$(merge "${files[@]}")
-log "Finished merging into $result. Continuing with optimization."
+  rm -f "$MERGED"
 
-rm -f "$MERGED"
-
-cat <<EOF | sqlite3 "$result"
+  cat <<EOF | sqlite3 "$result"
 DROP TABLE fileid_to_global_map;
 DROP TABLE functionid_to_global_map;
 
@@ -217,15 +217,24 @@ UPDATE filemetrics SET iscscout = (
 );
 
 CREATE TABLE cscout_files AS
-  SELECT fid FROM files WHERE name LIKE '%.cs' OR name LIKE '%/csmake-%-defs.h';
+  SELECT fid FROM files
+  WHERE name LIKE '%.cs' OR name LIKE '%/csmake-%-defs.h';
 
 VACUUM INTO '$MERGED';
 ANALYZE;
 EOF
 
-log "Finished vacuuming and optimizing $MERGED"
-log "Time taken (self u/s, children u/s):"
-# This cannot be put in $(), because then it will report 0.
-times >>$LOG_FILE
+  log "Finished vacuuming and optimizing $MERGED"
+  log "Time taken (self u/s, children u/s):"
+  # This cannot be put in log $(), because then it will report 0.
+  times >>$LOG_FILE
 
-rm "$result"
+  rm "$result"
+}
+
+# Create array of files to merge
+files=($(seq 0 $(($NFILES - 1)) | xargs -n 1 printf 'file-%04d.db '))
+
+result=$(merge "${files[@]}")
+
+optimize_result
