@@ -40,7 +40,7 @@ create_empty()
   local name="$1"
   log "Create empty $name"
   rm -f "$name"
-  sqlite3 file-0001.db .schema | sqlite3 "$name"
+  sqlite3 file-0000.db .schema | sqlite3 "$name"
   cat <<\EOF | sqlite3 "$name"
 CREATE INDEX IF NOT EXISTS idx_definers_composite ON definers(cuid, basefileid, definerid);
 CREATE INDEX IF NOT EXISTS idx_filemetrics_composite ON filemetrics(fid, precpp);
@@ -84,11 +84,11 @@ get_dbid()
     ) 200<> "$DBID_FILE"
 }
 
-# Output instructions for fast SQLite operation without any
-# durability guarantees.
-sqllite_fast_and_loose()
+# Configure SQLite for fast operation, time logging, fast failure.
+sqllite_config()
 {
   cat <<\EOF
+-- Configure fast SQLite operation without any durability guarantees.
 PRAGMA journal_mode = MEMORY;
 PRAGMA synchronous = OFF;
 PRAGMA temp_store = MEMORY;
@@ -97,6 +97,9 @@ PRAGMA cache_size = -80000;        -- ~80 MB cache in memory
 PRAGMA mmap_size = 268435456;      -- 256 MB memory-mapped I/O
 PRAGMA foreign_keys = OFF;         -- disable FK checks if not needed
 PRAGMA wal_autocheckpoint = 0;     -- disable WAL checkpoints
+
+.bail on                           -- Exit on errors
+.timer on                          -- Time issued commands
 EOF
 }
 
@@ -141,11 +144,7 @@ merge_onto()
      {
        log "DB $dbid: running $i"
        # Disable all durability guarantees
-       sqllite_fast_and_loose
-       # Exit on errors
-       echo ".bail on"
-       # Time issued commands
-       echo ".timer on"
+       sqllite_config
        echo "ATTACH DATABASE '$source' AS adb;"
        # Replace hard-coded database id 5 used for testing.
        # Replace ././ with $TMPDIR/.
