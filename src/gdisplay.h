@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -43,8 +43,8 @@ public:
 	bool uses_swill = true;
 	bool all = false;
 	bool only_visited = false;
-	char *gtype = NULL;
-	char *ltype = NULL;
+	string gtype;
+	string ltype;
 
 	GraphDisplay(FILE *f) : fo(f), fdot(NULL) {}
 	virtual void head(const char *fname, const char *title, bool empty_node) {};

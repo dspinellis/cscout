@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -32,7 +32,7 @@ public:
 	virtual ~Sql() {}
 	// Set the database to the specified engine
 	// Return true if OK
-	static bool setEngine(const char *dbengine);
+	static bool setEngine(string_view dbengine);
 	static Sql *getInterface() { return instance; }
 	virtual const char * begin_commands() { return ""; };
 	virtual const char * end_commands() { return ""; };

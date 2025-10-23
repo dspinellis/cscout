@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -85,15 +85,15 @@ Sql::escape(string s)
 }
 
 bool
-Sql::setEngine(const char *dbengine)
+Sql::setEngine(string_view dbengine)
 {
-	if (strcmp(dbengine, "mysql") == 0)
+	if (dbengine =="mysql")
 		instance = new Mysql();
-	else if (strcmp(dbengine, "hsqldb") == 0)
+	else if (dbengine =="hsqldb")
 		instance = new Hsqldb();
-	else if (strcmp(dbengine, "postgres") == 0)
+	else if (dbengine =="postgres")
 		instance = new Postgres();
-	else if (strcmp(dbengine, "sqlite") == 0)
+	else if (dbengine =="sqlite")
 		instance = new Sqlite();
 	else {
 		cerr << "Unknown database engine " << dbengine << "\n";

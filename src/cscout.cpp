@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -39,7 +39,6 @@
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
 #include <cstdlib>		// atoi
-#include <cstring>		// strdup
 #include <cerrno>		// errno
 #include <regex.h> // regex
 
@@ -120,7 +119,7 @@ static enum e_process {
 	pm_call_graph
 } process_mode;
 static int portno = 8081;		// Port number (-p n)
-static char *db_engine;			// Create SQL output for a specific db_iface
+static string db_engine;		// Create SQL output for a specific db_iface
 
 // Workspace modification state
 static enum e_modification_state {
@@ -2220,15 +2219,14 @@ static void
 fgraph_page(GraphDisplay *gd)
 {
 
-	char *gtype = NULL;
-	char *ltype = NULL;
+	const char *gtype = NULL;
+	const char *ltype = NULL;
 	if (gd->uses_swill) {
 		gtype = swill_getvar("gtype");		// Graph type
 		ltype = swill_getvar("n");
-	}
-	else {
-		gtype = gd->gtype;
-		ltype = gd->ltype;
+	} else {
+		gtype = gd->gtype.c_str();
+		ltype = gd->ltype.c_str();
 	}
 	if (!gtype || !*gtype || (*gtype == 'F' && !ltype)) {
 		gd->head("fgraph", "Error", false);
@@ -2457,7 +2455,8 @@ vector<string> split_by_delimiter(string &s, char delim) {
 
 
 // Produce call graphs with -R option
-static void produce_call_graphs(const vector <string> &call_graphs)
+static void
+produce_call_graphs(const vector <string> &call_graphs)
 {
 	char base_splitter = '?';
 	char opts_splitter = '&';
@@ -2495,9 +2494,9 @@ static void produce_call_graphs(const vector <string> &call_graphs)
 				} else if (!key.compare(gdargskeys.ONLY_VISITED)) {
 					gd.only_visited = (bool) atoi(val.c_str());
 				} else if (!key.compare(gdargskeys.GTYPE)) {
-					gd.gtype = strdup(val.c_str());
+					gd.gtype = val;
 				} else if (!key.compare(gdargskeys.LTYPE)) {
-					gd.ltype = strdup(val.c_str());
+					gd.ltype = val;
 					Option::cgraph_show->set_hard(val.c_str());
 				} else if (!key.compare("type")) {
 					Option::show_function_type->set_hard((bool) atoi(val.c_str()));
@@ -3488,7 +3487,7 @@ main(int argc, char *argv[])
 				usage(argv[0]);
 			if (!optarg)
 				usage(argv[0]);
-			db_engine = strdup(optarg);
+			db_engine = optarg;
 			if (!Sql::setEngine(optarg))
 				return 1;
 			workdb_schema(Sql::getInterface(), cout);
@@ -3499,7 +3498,7 @@ main(int argc, char *argv[])
 			if (!optarg)
 				usage(argv[0]);
 			process_mode = pm_database;
-			db_engine = strdup(optarg);
+			db_engine = optarg;
 			break;
 		case 't':
 			if (!optarg)
