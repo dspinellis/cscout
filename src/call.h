@@ -76,7 +76,16 @@ private:
 	 * However, the same Tokid can through token pasting be used for
 	 * declaring multiple functions.  Therefore we use a multimap, and
 	 * as a second step when we lookup a function we compare the
-	 * corresponding tokens.
+	 * corresponding tokens through the get_call invocation from
+	 * stab.cpp.
+	 *
+	 * Warnings:
+	 * The same function can be declared in different files in two
+	 * different projects.²
+	 *
+	 * It's incorrect to use the Tokid's EC rather than the
+	 * tokid, because tokids from diverse similarly-named functions
+	 * can be merged into the same EC.³
 	 *
 	 * ¹ But not always, see e.g. the following two names:
 	 * Get call for Token code:IDENTIFIER(296):[__do_sys_dup]
@@ -89,11 +98,14 @@ private:
 	 * linux/include/linux/syscalls.h(6695),l=1[_],
 	 * file.c(238),l=3[dup]
 	 *
-	 * Warning: It's incorrect to use the Tokid's EC rather than the
-	 * tokid, because tokids from diverse similarly-named functions
-	 * can be merged into the same EC.  Example:
-	 * __io_bw() in Linux's arch/arm64/include/asm/io.h and
-	 * arch/riscv/include/asm/mmio.h.
+	 * ² Example: arch_release_task_struct is declared in 
+	 * linux/include/linux/thread_info.h line 273 and also in
+	 * linux/arch/riscv/include/asm/thread_info.h line 98
+	 *
+	 * ³ Example: __io_bw() in Linux's arch/arm64/include/asm/io.h
+	 * and arch/riscv/include/asm/mmio.h.
+	 *
+	 * (All references to Linux are for v6.14.2)
 	 */
 	typedef multimap <Tokid, Call *> fun_map;
 
