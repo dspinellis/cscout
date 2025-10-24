@@ -1,54 +1,86 @@
 BEGIN SETUP
 
-# Map from adjusted local fid to consilidated global fid
+# Map from adjusted local fid to consolidated global fid
 fileid_to_global_map:
 dbid	fid	global_fid
-2	2	101
-2	3	102
-2	4	103
-2	5	104
-5	2	102
-5	4	103
-5       6       105
-5	7	106
-5	9	107
+2	1	1
+5	51	1
 
 
+# Will be populated by CScout
 functionid_to_global_map:
 dbid	id	global_id
-2	2	12
-2	3	13
-5	52	12
-5	53	13
-5	57	17
-5	58	18
+99	99	99
+
+
+# Database 2: Existing table with local eids
+tokens:
+fid	foffset	eid
+1	2000	2000
+1	3000	3000
+
+ids:
+eid	name
+2000	f2
+3000	f3
+
+functionid:
+functionid ordinal eid
+12	   0	   2000
+13	   0       3000
+
 
 # Existing table with globally unique function and file ids
 functions:
 id	name ismacro defined declared filescoped fid foffset fanin
-12  	f2   0       0       1        1          102 25      2
-13  	f3   0       0       1        1          102 35      3
+12  	f2   0       0       1        1          1   25      2
+13  	f3   0       0       1        1          1   35      3
+
+# Database 5: Table to be imported, with local eids
+adb.tokens:
+fid	foffset	eid
+51	2000	200
+51	3000	300
+51	8000	800
+
+adb.ids:
+eid	name
+200	f2
+300	f3
+800	f8
+
+adb.functionid:
+functionid ordinal eid
+52	   0	   200
+53	   0	   300
+58	   0	   800
 
 # Table to be imported, with local function and file ids
 # One repeated, one updated, one new
 adb.functions:
 id	name ismacro defined declared filescoped fid foffset fanin
-52  	f2   0       0       1        1          2   25      2
-53  	f3   0       1       1        1          2   35      9
-58  	f8   0       0       1        1          4   45      4
+52  	f2   0       0       1        1          51  25      2
+53  	f3   0       1       1        1          51  35      9
+58  	f8   0       0       1        1          51  45      4
 END
 
-# Add index to simulate primary key clashing behavior
-BEGIN CREATE
-CREATE UNIQUE INDEX pk ON functions(id);
-END
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+INCLUDE CREATE empty-idproj.sql
 
+INCLUDE CREATE eclasses.sql
 INCLUDE CREATE functions.sql
 
+# Make resuts repeatable by using identifiers
+BEGIN SELECT
+  SELECT name, ismacro, defined, declared, filescoped, fid, foffset, fanin
+    FROM functions
+    ORDER BY name;
+END
+
 BEGIN RESULT
-functions:
-id	name ismacro defined declared filescoped fid foffset fanin
-12  	f2   0       0       1        1          102 25      2
-13  	f3   0       1       1        1          102 35      9
-18  	f8   0       0       1        1          103 45      4
+name ismacro defined declared filescoped fid foffset fanin
+f2   0       0       1        1          1   25      2
+f3   0       1       1        1          1   35      9
+f8   0       0       1        1          1   45      4
 END
