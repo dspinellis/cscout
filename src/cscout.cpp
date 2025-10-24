@@ -751,7 +751,7 @@ function_argument_replace(string::const_iterator begin, string::const_iterator e
 	for (string::const_iterator i = begin; i != end;)
 		if (*i == '@') {
 			vector<string>::size_type n;
-			char modifier;
+			char modifier = '=';
 			string::const_iterator b2, e2;
 			const char *error;
 			bool valid = parse_function_call_replacement(i, end, n, modifier, b2, e2, &error);
