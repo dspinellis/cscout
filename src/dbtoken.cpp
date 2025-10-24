@@ -558,9 +558,12 @@ next_line:
 }
 
 
-// Read functionid data and generate EC-merged and deduplicated output.
+/*
+ * Read functionid data and generate merged functionid and
+ * corresponding local to global map.
+ */
 void
-Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_path)
+Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_path, const char *map_out_path)
 {
 	// functionid: dbid, functionid, fid, foffset, len
 	ifstream in(fid_in_path);
@@ -570,34 +573,43 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 	ofstream fid_out(fid_out_path);
 	verify_open(fid_out_path, fid_out);
 
+	// functionid_to_global_map: dbid, id, global_map
+	ofstream map_out(map_out_path);
+	verify_open(map_out_path, map_out);
+
 	string line_record;
 	line_number = 0;
 	intptr_t prev_functionid = -1;
+	int prev_dbid = -1;
 
+	int dbid;
 	intptr_t functionid;
 	int fileid;
 	unsigned long offset;
 	Dbtoken token;
-	// Keep track of output functionids to avoid duplicates.
-	// Functionids from the second database (possibly even
-	// with a different composition) are ignores, as is also
-	// happening in CScout's analysis.
-	set <intptr_t> output_ids;
+	// Keep track of new assigned functionids
+	// map Dbtokens (as read from functionids) into new functionid
+	map <Dbtoken, int> fnid;
 
-	/*
-	 * Called for each complete functionid read.
-	 * Create a covering token for it, and based on it
-	 * assign or obtain a new global function id.
-	 * Then, also write the corresponding functionid entries
-	 * with the new global function id.
-	 */
-	auto complete_functionid = [&](intptr_t functionid) {
+	// Called for each complete functionid read.
+	auto complete_functionid = [&](intptr_t functionid, int dbid) {
 		if (functionid == -1)
 			return;
 
-		auto [it, inserted] = output_ids.insert(functionid);
+		int new_id = static_cast<int>(fnid.size()) + 1;
+
+		if (DP())
+			cout << "\nLook for token " << token;
+		auto [it, inserted] = fnid.insert({token, new_id});
 		if (DP())
 			cout << "Function " << functionid << " inserted: " << inserted << '\n';
+		int global_functionid = it->second;
+		// Write the global map record.
+		map_out
+			<< dbid << ','
+			<< functionid << ','
+			<< global_functionid
+			<< '\n';
 		if (!inserted)
 			// This functionid has already been written.
 			return;
@@ -606,25 +618,34 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 		int ordinal = 0;
 		for (auto i = token.get_parts_begin(); i != token.get_parts_end(); i++) {
 			Tokid ti(i->get_tokid());
-			Eclass *ec = check_ec(ti);
+			int len = i->get_len();
+			int covered = 0;
+			while (covered < len) {
+				Eclass *ec = check_ec(ti);
 
-			if (ec == NULL) {
-				warn(fid_in_path, "Obtain function EC", ti);
-				continue;
+				if (ec == NULL) {
+					warn(fid_in_path, "Obtain function EC", ti);
+					goto next_record;
+				}
+
+				if (DP())
+				    cout << "f: " << functionid
+					<< " len: " << len
+					<< " EC len: " << ec->get_len()
+					<< " ordinal: " << ordinal
+					<< " covered: " << covered
+					<< '\n';
+
+				// New functionid: id, ordinal, eid
+				fid_out
+					<< global_functionid << ','
+					<< ordinal++ << ','
+					<< ptr_offset(ec)
+					<< '\n';
+			next_record:
+				covered += ec->get_len();
+				ti += ec->get_len();
 			}
-
-			if (DP())
-			    cout << "f: " << functionid
-				<< " len: " << i->get_len()
-				<< " EC len: " << ec->get_len()
-				<< " ordinal: " << ordinal
-				<< '\n';
-
-			// New functionid: id, ordinal, eid
-			fid_out << functionid << ','
-				<< ordinal++ << ','
-				<< ptr_offset(ec)
-				<< '\n';
 		}
 	};
 
@@ -635,13 +656,13 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 			cout << fid_in_path << '(' << line_number << "): " << line_record << '\n';
 
 		istringstream line_stream(line_record);
-		if (!(line_stream >> functionid >> fileid >> offset >> len)) {
+		if (!(line_stream >> dbid >> functionid >> fileid >> offset >> len)) {
 			warn(fid_in_path, line_record);
 			continue;
 		}
 
 		if (functionid != prev_functionid) {
-			complete_functionid(prev_functionid);
+			complete_functionid(prev_functionid, prev_dbid);
 			token.clear();
 		}
 		Tokid ti(Fileid(fileid), offset);
@@ -670,8 +691,9 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 		}
 	next_line:
 		prev_functionid = functionid;
+		prev_dbid = dbid;
 	}
-	complete_functionid(prev_functionid);
+	complete_functionid(prev_functionid, prev_dbid);
 }
 
 void
