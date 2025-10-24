@@ -88,6 +88,8 @@ AUTOHEADERS=parse.tab.h
 YACC=../btyacc/btyacc
 #YACC=yacc
 
+# Compile with CPPFLAGS=-DNO_DP to remove debugpoint support and thereby
+# improve processing throughput.
 CPPFLAGS+=-pipe -Wall -I. -DPREFIX='"$(PREFIX)"'
 CXXFLAGS+=-std=c++17
 ifdef DEBUG
