@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2024 Diomidis Spinellis
+ * (C) Copyright 2003-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -321,23 +321,18 @@ Call::dumpSql(Sql *db, ostream &of)
 			of << ");\n";
 		}
 
-		int start = 0, ord = 0;
-		for (dequeTpart::const_iterator j = fun->get_token().get_parts_begin(); j != fun->get_token().get_parts_end(); j++) {
-			Tokid t2 = j->get_tokid();
-			int len = j->get_len() - start;
-			int pos = 0;
-			while (pos < len) {
-				Eclass *ec = t2.get_ec();
-				if (table_is_enabled(t_functionid))
-					of << "INSERT INTO FUNCTIONID VALUES("
-					    << ptr_offset(fun) << ','
-					    << ord << ','
-					    << ptr_offset(ec) << ");\n";
-				pos += ec->get_len();
-				t2 += ec->get_len();
-				ord++;
+		if (table_is_enabled(t_functionid)) {
+			int ord = 0;
+			for (auto j : fun->get_token().constituents()) {
+				Tokid ti(j.get_tokid());
+
+				of << "INSERT INTO FUNCTIONID VALUES("
+				    << ptr_offset(fun) << ','
+				    << ord++ << ','
+				    << ti.get_fileid().get_id() << ','
+				    << (unsigned)(ti.get_streampos())
+				    << ");\n";
 			}
-			start += j->get_len();
 		}
 	}
 

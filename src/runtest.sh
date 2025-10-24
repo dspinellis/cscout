@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# (C) Copyright 2001-2024 Diomidis Spinellis
+# (C) Copyright 2001-2025 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -189,8 +189,6 @@ UPDATE Ids SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = Ids.Eid);
 UPDATE Tokens SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = Tokens.Eid);
 
 UPDATE IdProj SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = IdProj.Eid);
-
-UPDATE FunctionId SET Eid=(SELECT FixedId FROM FixedIds WHERE FixedIds.Eid = FunctionId.Eid);
 
 DROP TABLE FixedIds;
 .print "Fixing FUNCTION IDs"

@@ -673,10 +673,11 @@ workdb_schema(Sql *db, ostream &of)
 		"CREATE TABLE FUNCTIONID(\n"
 		"  FUNCTIONID " << db->ptrtype() << ", -- Function identifier key\n"
 		"  ORDINAL INTEGER, -- Position of the identifier within the function name (0-based)\n"
-		"  EID " << db->ptrtype() << ", -- Identifier key\n"
+		"  FID INTEGER, -- File key of the identifier\n"
+		"  FOFFSET INTEGER, -- Offset of the identifier within the file\n"
 		"  PRIMARY KEY(FUNCTIONID, ORDINAL),\n"
 		"  FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID),\n"
-		"  FOREIGN KEY(EID) REFERENCES IDS(EID)\n"
+		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 		");\n";
 
 	if (table_is_enabled(t_fcalls)) of <<
