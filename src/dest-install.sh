@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# (C) Copyright 2016-2024 Diomidis Spinellis
+# (C) Copyright 2016-2025 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -102,7 +102,7 @@ done
 install $TMPFILE "$PREFIX/bin/cscc"
 
 install cscut.sh "$PREFIX/bin/cscut"
-install cssplit.awk "$PREFIX/bin/cssplit"
+install cssplit.py "$PREFIX/bin/cssplit"
 install csreconst.sh "$PREFIX/bin/csreconst"
 
 rm -f $TMPFILE

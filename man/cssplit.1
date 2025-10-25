@@ -1,6 +1,6 @@
-.TH CSSPLIT 1 "10 December 2024"
+.TH CSSPLIT 1 "25 October 2025"
 .\"
-.\" (C) Copyright 2024 Diomidis Spinellis
+.\" (C) Copyright 2025 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -20,36 +20,45 @@
 .SH NAME
 cssplit \- Split a CScout processing script into smaller scripts
 .SH SYNOPSIS
-\fBcssplit\fP \fIN\fP
+.B cssplit
+.RB [ \-h ]
+.B \-s
+.I N
+.I file
+.RI [ file\ ... ]
 .SH DESCRIPTION
-The \fIcssplit\fP command-line program is a filter that splits a \fICScout\fP
+The \fIcssplit\fP command-line program splits a \fICScout\fP
 processing script into \fIN\fP smaller scripts for parallel
 or distributed processing.
 Each output script is named using a zero-padded sequence,
-starting with \fIfile-0001.cs\fP.
+starting with \fIfile-0000.cs\fP.
 .PP
-The input is read from the standard input,
-and the output files are written to the current working directory.
+The input is read from the specified file(s),
+and the output files are written into the current working directory.
 .PP
 This tool is useful for distributing the workload of a large \fICScout\fP
 analysis across multiple scripts for efficiency or manageability.
-.SH ARGUMENTS
+.SH OPTIONS
 .TP
-\fIN\fP
-The number of output scripts to generate.
+.BR \-s ", " \-\-shards " " N
+Specifies the number of output scripts to generate.
 The input processing script is divided into \fIN\fP approximately equal parts.
-.PP
 Each output script contains the appropriate subset of the input commands to
 ensure no loss of information during the split.
-Currently \fIcssplit\fP supports only processing scripts containing a single
-project.
+Compilation units from multiple inter-dependent projects
+(e.g. different configurations of the same executable)
+are distributed to the scripts so as to maximize locality of reference.
+
+.TP
+.BR \-h ", " \-\-help
+Display a brief usage message and exit.
 .SH EXAMPLE
 To split an input processing script into 4 smaller scripts:
 .PP
 .DS
 .ft C
 .nf
-cssplit 4 <make.cs
+cssplit -s 4  make.cs
 .ft P
 .fi
 .DE
@@ -59,10 +68,10 @@ This will create the following files in the current directory:
 .DS
 .ft C
 .nf
+file-0000.cs
 file-0001.cs
 file-0002.cs
 file-0003.cs
-file-0004.cs
 .ft P
 .fi
 .DE
@@ -73,4 +82,4 @@ cscout(1),
 cscut(1),
 csmake(1)
 .SH AUTHOR
-(C) Copyright 2024 Diomidis Spinellis.
+(C) Copyright 2024-2025 Diomidis Spinellis.
