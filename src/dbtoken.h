@@ -56,7 +56,6 @@ public:
 		val.clear();
 	}
 
-
 	// Read/write tokids and their eids from file named f
 	static void add_eclasses_attached(const char *f);
 	static void process_eclasses_original(const char *f);
@@ -72,9 +71,9 @@ public:
 	static void write_ids(const char *in_path, const char *out_path);
 	static void dump_id(ostream &of, Eclass *e, const string &name);
 
-
 	// Read functionids with tokids, write them with their eids
-	static void read_write_functionids(const char *fid_in_path, const char *fid_out_path, const char *map_out_path);
+	static void read_write_functionids(const char *fid_in_path_attached, const char *fid_in_path_original, const char *fid_out_path, const char *map_out_path);
+
 	static void read_write_idproj(const char *in_path, const char *out_path);
 
 };

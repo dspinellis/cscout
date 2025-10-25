@@ -98,7 +98,28 @@ static Tokid
 twin(const Tokid &ti)
 {
 	return Tokid(Fileid(-ti.get_fileid().get_id()), ti.get_streampos());
+	//                  ^
 }
+
+// Convert a Tokid into its canonical form by removing the twin marker.
+static Tokid
+untwin(const Tokid &ti)
+{
+	if (ti.get_fileid().get_id() < 0)
+		return twin(ti);
+	return ti;
+}
+
+// Convert a dequeTpart into its canonical form by untwinning any twins.
+static dequeTpart
+untwin(const dequeTpart &parts)
+{
+	dequeTpart r;
+	for (auto i : parts)
+		r.push_back(Tpart(untwin(i.get_tokid()), i.get_len()));
+	return (r);
+}
+
 
 // Return the Eclass for the specified tokid or its twin.
 // If it isn't found return NULL.
@@ -118,7 +139,8 @@ check_ec(const Tokid &ti)
  * First, read tokids and their equivalence classes from the attached
  * (often larger) file.
  * As ECs come from a single file, all are guaranteed to be unique
- * and non-overlapping. Therefore, Create ECs or add entries to existing ECs.
+ * and non-overlapping. Therefore, Create (non-twin) ECs or add entries
+ * to existing ECs.
  */
 void
 Dbtoken::add_eclasses_attached(const char *in_path)
@@ -336,6 +358,7 @@ Dbtoken::write_eclasses(const char *out_path)
 		Eclass *ec = i->second;
 
 		if (fid < 0) {
+			// This is a twin (negative) EC; obtain its sibling.
 			Eclass *ec_twin = twin(ti).check_ec();
 			if (ec_twin) {
 				// Mirror EC exists; ignore
@@ -563,11 +586,17 @@ next_line:
  * corresponding local to global map.
  */
 void
-Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_path, const char *map_out_path)
+Dbtoken::read_write_functionids(
+    const char *fid_in_path_attached,
+    const char *fid_in_path_original,
+    const char *fid_out_path,
+    const char *map_out_path)
 {
-	// functionid: dbid, functionid, fid, foffset, len
-	ifstream in(fid_in_path);
-	verify_open(fid_out_path, in);
+	Dbtoken token;
+	// Keep track of new assigned functionids. Map
+	// constituent token parts (as read from functionids)
+	// into the new functionid
+	map <dequeTpart, int> fnid;
 
 	// New functionid: id, ordinal, eid
 	ofstream fid_out(fid_out_path);
@@ -576,20 +605,6 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 	// functionid_to_global_map: dbid, id, global_map
 	ofstream map_out(map_out_path);
 	verify_open(map_out_path, map_out);
-
-	string line_record;
-	line_number = 0;
-	intptr_t prev_functionid = -1;
-	int prev_dbid = -1;
-
-	int dbid;
-	intptr_t functionid;
-	int fileid;
-	unsigned long offset;
-	Dbtoken token;
-	// Keep track of new assigned functionids
-	// map Dbtokens (as read from functionids) into new functionid
-	map <Dbtoken, int> fnid;
 
 	// Called for each complete functionid read.
 	auto complete_functionid = [&](intptr_t functionid, int dbid) {
@@ -600,7 +615,14 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 
 		if (DP())
 			cout << "\nLook for token " << token;
-		auto [it, inserted] = fnid.insert({token, new_id});
+
+		// Obtain constituents from the EC/twin universe
+		// in which ECs are stored, but map old to new
+		// functionids using the canonical Tokid representation
+		// to keep the map key unique and to write out
+		// canonical tokids.
+		dequeTpart parts(untwin(token.constituents()));
+		auto [it, inserted] = fnid.insert({parts, new_id});
 		if (DP())
 			cout << "Function " << functionid << " inserted: " << inserted << '\n';
 		int global_functionid = it->second;
@@ -616,84 +638,77 @@ Dbtoken::read_write_functionids(const char *fid_in_path, const char *fid_out_pat
 
 		// Write out the new functionid.
 		int ordinal = 0;
-		for (auto i = token.get_parts_begin(); i != token.get_parts_end(); i++) {
-			Tokid ti(i->get_tokid());
-			int len = i->get_len();
-			int covered = 0;
-			while (covered < len) {
-				Eclass *ec = check_ec(ti);
+		for (auto i : parts) {
+			Tokid ti(i.get_tokid());
+			Eclass *ec = check_ec(ti);
 
-				if (ec == NULL) {
-					warn(fid_in_path, "Obtain function EC", ti);
-					goto next_record;
-				}
 
-				if (DP())
-				    cout << "f: " << functionid
-					<< " len: " << len
-					<< " EC len: " << ec->get_len()
-					<< " ordinal: " << ordinal
-					<< " covered: " << covered
-					<< '\n';
-
-				// New functionid: id, ordinal, eid
-				fid_out
-					<< global_functionid << ','
-					<< ordinal++ << ','
-					<< ptr_offset(ec)
-					<< '\n';
-			next_record:
-				covered += ec->get_len();
-				ti += ec->get_len();
-			}
+			// New functionid: id, ordinal, eid
+			fid_out
+				<< global_functionid << ','
+				<< ordinal++ << ','
+				<< ti.get_fileid().get_id() << ','
+				<< (unsigned)(ti.get_streampos()) << ','
+				<< ec->get_len()
+				<< '\n';
 		}
 	};
 
-	while (getline(in, line_record)) {
-		line_number++;
-		int len;
-		if (DP())
-			cout << fid_in_path << '(' << line_number << "): " << line_record << '\n';
+	// Called to read a functionid input file.
+	// The twinning argument specifies whether Tokids should
+	// be created in the twin space.
+	auto read_functionid = [&](const char *fid_in_path, bool twinning) {
+		// functionid: dbid, functionid, fid, foffset, len
+		ifstream in(fid_in_path);
+		verify_open(fid_out_path, in);
 
-		istringstream line_stream(line_record);
-		if (!(line_stream >> dbid >> functionid >> fileid >> offset >> len)) {
-			warn(fid_in_path, line_record);
-			continue;
-		}
+		string line_record;
+		line_number = 0;
+		intptr_t prev_functionid = -1;
+		int prev_dbid = -1;
 
-		if (functionid != prev_functionid) {
-			complete_functionid(prev_functionid, prev_dbid);
-			token.clear();
-		}
-		Tokid ti(Fileid(fileid), offset);
 
-		// Push into token the EC Tokids associated with the read len.
-		int covered = 0;
-		while (covered < len) {
-			Eclass *ec = check_ec(ti);
+		while (getline(in, line_record)) {
+			line_number++;
+			int len;
+			if (DP())
+				cout << fid_in_path << '(' << line_number << "): " << line_record << '\n';
 
-			if (ec == NULL) {
-				warn(fid_in_path, "Obtain functionid EC", ti);
-				goto next_line;
+			int dbid;
+			intptr_t functionid;
+			int fileid;
+			unsigned long offset;
+
+			istringstream line_stream(line_record);
+			if (!(line_stream >> dbid >> functionid >> fileid >> offset >>len)) {
+				warn(fid_in_path, line_record);
+				continue;
 			}
 
-			if (DP())
-			    cout << "fileid: " << fileid
-				<< " offset: " << offset
-				<< " len: " << len
-				<< " EC len: " << ec->get_len()
-				<< " covered: " << covered
-				<< '\n';
+			if (functionid != prev_functionid) {
+				complete_functionid(prev_functionid, prev_dbid);
+				token.clear();
+			}
+			Tokid ti(Fileid(fileid), offset);
+			if (twinning)
+				token.add_part(twin(ti), len);
+			else
+				token.add_part(ti, len);
 
-			token.add_part(ti, ec->get_len());
-			covered += ec->get_len();
-			ti += ec->get_len();
+			if (DP())
+				cout << "fileid: " << fileid
+				    << " offset: " << offset
+				    << " len: " << len
+				    << '\n';
+
+			prev_functionid = functionid;
+			prev_dbid = dbid;
 		}
-	next_line:
-		prev_functionid = functionid;
-		prev_dbid = dbid;
-	}
-	complete_functionid(prev_functionid, prev_dbid);
+		complete_functionid(prev_functionid, prev_dbid);
+	};
+
+	read_functionid(fid_in_path_attached, false);
+	read_functionid(fid_in_path_original, true);
 }
 
 void

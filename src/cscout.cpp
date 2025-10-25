@@ -3359,27 +3359,47 @@ merge_tokens(char **argv)
 	// Skip over cscout -M
 	argv += 2;
 
+	// Files in the order they appear in argv
+	enum arg_files {
+		in_eclasses_attached,
+		in_eclasses_original,
+		in_ids,
+		in_functionids_attached,
+		in_functionids_original,
+		in_idproj,
+		new_eclasses,
+		new_ids,
+		new_functionids,
+		new_idproj,
+		new_functionid_to_global_map,
+	};
+
 	/*
 	 * Example invocation:
 	 * cscout -M \
-	 *   eclasses-a-5.txt \		# 0
-	 *   eclasses-a-5.txt \		# 1
-	 *   ids-5.txt \		# 2
-	 *   functionids-5.txt \	# 3
-	 *   idproj-5.txt \		# 4
-	 *   new-eclasses-5.csv \	# 5
-	 *   new-ids-5.csv \		# 6
-	 *   new-functionds-5.csv	# 7
-	 *   new-idproj-5.csv		# 8
-	 *   functionid-to-global-map.csv #9
+	 *   eclasses-a-5.txt \
+	 *   eclasses-o-5.txt \
+	 *   ids-5.txt \
+	 *   functionids-a-5.txt \
+	 *   functionids-o-5.txt \
+	 *   idproj-5.txt \
+	 *   new-eclasses-5.csv \
+	 *   new-ids-5.csv \
+	 *   new-functionds-5.csv
+	 *   new-idproj-5.csv
+	 *   new-functionid-to-global-map.csv
 	 */
-	Dbtoken::add_eclasses_attached(argv[0]);
-	Dbtoken::process_eclasses_original(argv[1]);
-	Dbtoken::write_eclasses(argv[5]);
-	Dbtoken::read_ids(argv[2]);
-	Dbtoken::write_ids(argv[2], argv[6]);
-	Dbtoken::read_write_functionids(argv[3], argv[7], argv[9]);
-	Dbtoken::read_write_idproj(argv[4], argv[8]);
+	Dbtoken::add_eclasses_attached(argv[in_eclasses_attached]);
+	Dbtoken::process_eclasses_original(argv[in_eclasses_original]);
+	Dbtoken::read_write_functionids(
+	    argv[in_functionids_attached],
+	    argv[in_functionids_original],
+	    argv[new_functionids],
+	    argv[new_functionid_to_global_map]);
+	Dbtoken::write_eclasses(argv[new_eclasses]);
+	Dbtoken::read_ids(argv[in_ids]);
+	Dbtoken::write_ids(argv[in_ids], argv[new_ids]);
+	Dbtoken::read_write_idproj(argv[in_idproj], argv[new_idproj]);
 
 	exit(0);
 }

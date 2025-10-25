@@ -326,11 +326,14 @@ Call::dumpSql(Sql *db, ostream &of)
 			for (auto j : fun->get_token().constituents()) {
 				Tokid ti(j.get_tokid());
 
+				Eclass *ec = ti.get_ec();
+				int len = ec->get_len();
 				of << "INSERT INTO FUNCTIONID VALUES("
 				    << ptr_offset(fun) << ','
 				    << ord++ << ','
 				    << ti.get_fileid().get_id() << ','
-				    << (unsigned)(ti.get_streampos())
+				    << (unsigned)(ti.get_streampos()) << ','
+				    << len
 				    << ");\n";
 			}
 		}

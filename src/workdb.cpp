@@ -675,6 +675,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  ORDINAL INTEGER, -- Position of the identifier within the function name (0-based)\n"
 		"  FID INTEGER, -- File key of the identifier\n"
 		"  FOFFSET INTEGER, -- Offset of the identifier within the file\n"
+		"  LEN INTEGER, -- Length of the identifier part\n"
 		"  PRIMARY KEY(FUNCTIONID, ORDINAL),\n"
 		"  FOREIGN KEY(FUNCTIONID) REFERENCES FUNCTIONS(ID),\n"
 		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
