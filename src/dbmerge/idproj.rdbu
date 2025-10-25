@@ -40,25 +40,18 @@ eid	pid
 3002	2
 5000	1
 
-# First id digit 3, second digit database-id
+# Will be completed by eclasses
 functionid_to_global_map:
 dbid	id	global_id
-2	321	1
-2	322	2
-2	323	3
-2	324	4
-5	351	1
-5	352	2
-5	353	3
-5	354	4
+999	999	999
 
 functionid:
-functionid ordinal eid
-1	   0	   1000
-1	   1	   1004
-2	   0	   2000
-3	   0       3000
-3	   1       3002
+functionid	ordinal	fid	foffset	len
+1	   	0	1	1000	4
+1	   	1	1	1004	2
+2	   	0	1	2000	5
+3	   	0       2	3000	2
+3	   	1       2	3002	6
 
 
 # Database 5: Table to be imported, with local eids
@@ -89,11 +82,11 @@ eid	pid
 
 # abcdef and snprintf repeated, sqrt is new
 adb.functionid:
-functionid ordinal eid
-351	   0	   100
-351	   1	   102
-353	   0       300
-354	   0       400
+functionid	ordinal	fid	foffset	len
+351	   	0	51	1000	2
+351	   	1	51	1002	4
+353	   	0       52	3000	8
+354	   	0       52	4000	4
 END
 
 # Extend ids with all their fields

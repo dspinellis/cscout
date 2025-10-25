@@ -3,13 +3,19 @@
 CREATE TABLE FUNCTIONID(
   FUNCTIONID BIGINT,
   ORDINAL INTEGER,
-  EID BIGINT
+  FID INTEGER, -- File key of the identifier
+  FOFFSET INTEGER, -- Offset of the identifier within the file
+  LEN INTEGER, -- Length of the identifier part
+  PRIMARY KEY(FUNCTIONID, ORDINAL)
 );
 
 CREATE TABLE adb.FUNCTIONID(
   FUNCTIONID BIGINT,
   ORDINAL INTEGER,
-  EID BIGINT
+  FID INTEGER, -- File key of the identifier
+  FOFFSET INTEGER, -- Offset of the identifier within the file
+  LEN INTEGER, -- Length of the identifier part
+  PRIMARY KEY(FUNCTIONID, ORDINAL)
 );
 
 CREATE TABLE functionid_to_global_map(

@@ -38,17 +38,18 @@ eid name readonly undefmacro macro funmacro macroarg cppconst cppstrval defccons
 400 d 0 0 1 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0
 
 functionid:
-functionid	ordinal	eid
-99		0	8000
-99		1	8001
+functionid	ordinal	fid	foffset	len
+99		0	1	8000	2
+99		1	1	8001	2
 
 adb.functionid:
-functionid	ordinal	eid
-99		0	8000
+functionid	ordinal	fid	foffset	len
+99		0	1	8000	2
 
+# Will be completed by eclasses
 functionid_to_global_map:
 dbid	id	global_id
-2	3	1
+99	99	999
 END
 
 # Clear unneeded tables

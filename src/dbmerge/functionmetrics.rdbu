@@ -27,10 +27,10 @@ eid	name
 3000	f3
 
 functionid:
-functionid ordinal eid
-11	   0	   1000
-12	   0	   2000
-13	   0	   3000
+functionid	ordinal	fid	foffset	len
+11	   	0	1	1000	2
+12	   	0	1	2000	2
+13	   	0	1	3000	2
 
 # Existing table with globally unique function and file ids
 functions:
@@ -75,10 +75,10 @@ eid	name
 400	f4
 
 adb.functionid:
-functionid ordinal eid
-51	   0	   100
-52	   0	   200
-54	   0	   400
+functionid	ordinal	fid	foffset	len
+51	   	0	51	1000	2
+52	   	0	51	2000	2
+54	   	0	51	4000	2
 
 # Table to be imported, with local function and file ids
 adb.functions:
