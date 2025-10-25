@@ -299,5 +299,5 @@ result=$(merge "${files[@]}")
 optimize_result
 
 if [ -n "${KEEP:-}" ] ; then
-  echo "Temporary files left on "$TEMP_DIR" 1>&2
+  echo "Temporary files left on $TEMP_DIR" 1>&2
 fi
