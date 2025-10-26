@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -179,6 +179,7 @@ make_keymap()
 	m["__signed__"] = SIGNED;
 	m["__typeof"] = TYPEOF;
 	m["__typeof__"] = TYPEOF;
+	m["__typeof_unqual__"] = TYPEOF_UNQUAL;
 	m["__alignof"] = ALIGNOF;
 	m["__alignof__"] = ALIGNOF;
 	m["__volatile"] = VOLATILE;

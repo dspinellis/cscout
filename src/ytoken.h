@@ -72,8 +72,10 @@
 /* gcc extensions */
 /* __asm__ directive */
 %token GNUC_ASM
-/* __typeof operator */
+/* __typeof operators */
 %token TYPEOF
+/* __typeof_unqual__ operator */
+%token TYPEOF_UNQUAL
 /* __alignof operator */
 %token ALIGNOF
 /* __label__ declaration */

@@ -333,6 +333,7 @@ KeywordMetrics::make_keyword_map()
 	km.insert(map_type::value_type("__asm__", Metrics::em_nasm));
 	km.insert(map_type::value_type("__typeof", Metrics::em_ntypeof));
 	km.insert(map_type::value_type("__typeof__", Metrics::em_ntypeof));
+	km.insert(map_type::value_type("__typeof_unqual__", Metrics::em_ntypeof));
 
 	return (km);
 }

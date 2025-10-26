@@ -54,4 +54,22 @@ main()
 
        typeof(int [4]) k;
        k[2] = 4;
+
+       const int ci = 42;
+
+	/* With typeof_unqual: drops const */
+	__typeof_unqual__(ci) ncb = ci;		// b is plain int.
+	ncb = 10; // OK — shows unqualification works.
+
+	const int x = 5;
+	const int *pc = &x;
+
+	/* typeof keeps pointer-to-const */
+	__typeof(pc) p1 = pc;			// p1 has type const int *.
+	__typeof_unqual__(pc) p3 = pc;		// p3 has type int *.
+
+	/* Assign through p2 would be unsafe logically, but compiles fine */
+	int y2 = 99;
+	p2 = &y2;				// OK: shows type difference.
+
 }

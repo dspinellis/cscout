@@ -1120,6 +1120,12 @@ typedef_declaration_specifier:       /* Storage Class + typedef types */
 			$$.set_storage_class($1);
 			$$.add_qualifiers($1);
 		}
+        | declaration_qualifier_list TYPEOF_UNQUAL '(' typeof_argument ')'
+		{
+			$$ = $4.clone();
+			$$.clear_storage_class();
+			$$.set_storage_class($1);
+		}
         | typedef_declaration_specifier declaration_qualifier
 		{
 			$$ = merge($1, $2);
@@ -1143,11 +1149,21 @@ typedef_type_specifier:              /* typedef types */
 			$$ = $3.clone();
 			$$.clear_storage_class();
 		}
+	| TYPEOF_UNQUAL '(' typeof_argument ')'
+		{
+			$$ = $3.clone();
+			$$.clear_storage_class();
+		}
 	| type_qualifier_list TYPEOF '(' typeof_argument ')'
 		{
 			$$ = $4.clone();
 			$$.clear_storage_class();
 			$$.add_qualifiers($1);
+		}
+	| type_qualifier_list TYPEOF_UNQUAL '(' typeof_argument ')'
+		{
+			$$ = $4.clone();
+			$$.clear_storage_class();
 		}
         | typedef_type_specifier type_qualifier
 		{ $$ = merge($1, $2); }
