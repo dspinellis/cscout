@@ -202,7 +202,7 @@ optimize_result()
 {
   log "Finished merging into $result. Continuing with optimization."
 
-  test -z "${KEEP:-}" && rm -f "$MERGED"
+  rm -f "$MERGED"
 
   cat <<EOF | sqlite3 "$result"
 DROP TABLE fileid_to_global_map;
@@ -229,7 +229,7 @@ EOF
   # This cannot be put in log $(), because then it will report 0.
   times >>$LOG_FILE
 
-  rm "$result"
+  test -z "${KEEP:-}" && rm "$result"
 }
 
 # Display usage information and exit
