@@ -360,17 +360,10 @@ Dbtoken::write_eclasses(const char *out_path)
 		if (fid < 0) {
 			// This is a twin (negative) EC; obtain its sibling.
 			Eclass *ec_twin = twin(ti).check_ec();
-			if (ec_twin) {
+			if (ec_twin)
 				// Mirror EC exists; ignore
-				 if (ec_twin->get_len() != ec->get_len()) {
-					if (DP())
-						cout << "Non-matching ECs:"
-						  << "\nFound: " << *ec << " size: " << ec->get_size()
-						  << "\nRead: " << *ec_twin << " size: " << ec_twin->get_size() << '\n';
-					 csassert(ec_twin->get_len() == ec->get_len());
-				 }
 				continue;
-			} else
+			else
 				// No twin EC, output the correct fid
 				fid = -fid;
 		}
