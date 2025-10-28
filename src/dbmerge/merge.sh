@@ -94,8 +94,12 @@ merge_onto()
   local dest="$1"
   local source="$2"
 
-  # Obtain the unique identifier for the database being merged
-  local dbid=$(echo $source | awk -F'[-.]' '{print $2 + 0}')
+  # Obtain the unique identifier for the database being merged,
+  # for example, /tmp/csmerge.o48j/temp-6.db or file-0007.db.
+  local dbid=$(
+    echo $source |
+      awk '{ match($0, /(file|temp)-([0-9]+)\.db$/, m); print m[2] + 0 }'
+    )
 
   log "DB $dbid: BEGIN merge onto $dest $source"
 
