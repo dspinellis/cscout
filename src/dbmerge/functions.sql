@@ -26,10 +26,8 @@ CREATE TABLE fa AS
 CREATE TABLE fb AS
   SELECT functionid_map.global_id AS id,
       name, ismacro, defined, declared, filescoped,
-      fileid_map.global_fid AS fid, foffset, fanin
+      f.fid, foffset, fanin
     FROM functions AS f
-    INNER JOIN fileid_to_global_map AS fileid_map
-      ON fileid_map.dbid != 5 AND fileid_map.global_fid = f.fid
     INNER JOIN functionid_to_global_map AS functionid_map
       ON functionid_map.dbid != 5 AND functionid_map.id = f.id;
 
