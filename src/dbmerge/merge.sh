@@ -242,20 +242,24 @@ usage()
   cat <<EOF 1>&2
 Usage: $(basename $0) [OPTION] nfiles merged.db
 
-  -k        Keep temporary files
-  -T dir    Specify temporary directory to use
+  -k        Keep temporary files.
+  -l file   Specify log file name (default dbmerge.log).
+  -T dir    Specify temporary directory to use (default \$TMPDIR, /tmp).
 EOF
   exit 1
 }
 
 # Process command-line arguments
-while getopts "kT:" opt; do
+while getopts "kl:T:" opt; do
   case $opt in
     k)
       KEEP=1
       ;;
+    l)
+      LOG_FILE="$OPTARG"
+      ;;
     T)
-      TEMP_DIR_LOCATION="=$OPTARG"
+      TEMP_DIR_LOCATION="$OPTARG"
       ;;
     \?) # Illegal option
       usage
