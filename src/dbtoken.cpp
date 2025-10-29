@@ -122,17 +122,22 @@ untwin(const dequeTpart &parts)
 
 
 // Return the Eclass for the specified tokid or its twin.
-// If it isn't found return NULL.
+// Return the shortest of the two, which may be the result of subsequent
+// splitting.
+// If an EC isn't found return NULL.
 static Eclass *
 check_ec(const Tokid &ti)
 {
 	Eclass *ec = ti.check_ec();
+	Eclass *ec_twin = twin(ti).check_ec();
 
-	if (ec != NULL)
+	if (ec == NULL)
+		return ec_twin;
+	else if (ec_twin == NULL)
 		return ec;
-
-	// Try the twin
-	return twin(ti).check_ec();
+	else if (ec->get_len() <= ec_twin->get_len())
+		return ec;
+	return ec_twin;
 }
 
 /*
