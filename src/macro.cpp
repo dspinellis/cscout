@@ -437,83 +437,52 @@ macro_expand(PtokenSequence ts,
     Macro::CalledContext context,
     const Macro *caller)
 {
+	PtokenSequence r;	// Return value
 	set<Macro> expanded_macros; // For adding attributes
 	auto ts_size = ts.size();
 
 	if (DP()) cout << "macro_expand: expanding sequence: " << ts << endl;
+	while (!ts.empty()) {
+		const Ptoken head(ts.front());
+		ts.pop_front();
 
-	/*
-	 * The following is the Prosser's recursive expand function.
-	 * It is defined as a self-capturing lambda within the
-	 * function so as to avoid the overhead of passing the
-	 * additional argumens.
-	 * It takes itsself as an argument so that it can be
-	 * recursively invoked.
-	 */
-	auto expand = [&](auto&& self,
-	    PtokenSequence ts, const Macro *caller) -> PtokenSequence {
-		if (ts.empty())
-			return PtokenSequence();
-
-		// Valid as long as we don't modify ts
-		Ptoken& head_ref = ts.front();
-
-		PtokenSequence r;	// Return value
-
-		// Below "•" separates the list head from its tail
-		if (head_ref.get_code() != IDENTIFIER) {
+		if (head.get_code() != IDENTIFIER) {
 			// Only attempt to expand identifiers (not e.g. string literals)
-			// Return T • expand(TS')
-			r.splice(r.end(), ts, ts.begin()); // T
-			PtokenSequence rest(self(self, move(ts), caller));
-			r.splice(r.end(), rest);
-			return r;
+			r.push_back(head);
+			continue;
 		}
 
-		if (defined_handling == Macro::DefinedHandlingOption::skip && head_ref.get_code() == IDENTIFIER && head_ref.get_val() == "defined") {
+		if (defined_handling == Macro::DefinedHandlingOption::skip && head.get_code() == IDENTIFIER && head.get_val() == "defined") {
 			// Skip the arguments of the defined operator, if needed
-			r.splice(r.end(), ts, ts.begin());
 			PtokenSequence da(gather_defined_operator(ts));
-			r.splice(r.end(), move(da));
-
-			PtokenSequence rest(self(self, move(ts), caller));
-			r.splice(r.end(), rest);
-			return r;
+			r.push_back(head);
+			r.splice(r.end(), da);
+			continue;
 		}
 
-		const string name = head_ref.get_val();
+		const string name = head.get_val();
 		mapMacro::const_iterator mi(Pdtoken::macros_find(name));
 		if (!Pdtoken::macro_is_defined(mi)) {
 			// Nothing to do if the identifier is not a macro
-			// Return T • expand(TS')
-			r.splice(r.end(), ts, ts.begin());
-			PtokenSequence rest(self(self, move(ts), caller));
-			r.splice(r.end(), rest);
-			return r;
+			r.push_back(head);
+			continue;
 		}
 
 		// Mark the macro as used as a preprocessor constant
 		if (context == Macro::CalledContext::process_include
 		    || context == Macro::CalledContext::process_if)
-			head_ref.set_ec_attribute(is_cpp_const);
+			head.set_ec_attribute(is_cpp_const);
 
 		const Macro& m = mi->second;
-		if (head_ref.hideset_contains(m.get_name_token())) {
+		if (head.hideset_contains(m.get_name_token())) {
 			// Skip the head token if it is in the hideset
-			if (DP()) cout << "expand: skipping (head is in HS)" << endl;
-			// Return T • expand(TS')
-			r.splice(r.end(), ts, ts.begin());
-			PtokenSequence rest(self(self, move(ts), caller));
-			r.splice(r.end(), rest);
-			return r;
+			if (DP()) cout << "macro_expand: skipping (head is in HS)" << endl;
+			r.push_back(head);
+			continue;
 		}
 
-		// From now on TS is the tail of TS
-		Ptoken head(move(ts.front()));
-		ts.pop_front();
-
 		if (DP())
-			cout << "expand: replacing for \""
+			cout << "macro_expand: replacing for \""
 				<< name << "\" "
 				<< nest_begin("tokens: [")
 				<< ts
@@ -521,25 +490,22 @@ macro_expand(PtokenSequence ts,
 		expanded_macros.insert(m);
 		PtokenSequence removed_spaces;
 		if (!m.is_function) {
-			// Object-like macro: Return expand(subst(…) • TS').
+			// Object-like macro
 			if (DP())
-				cout << "expand: expanding object-like " << m;
+				cout << "macro_expand: expanding object-like " << m;
 			Token::unify((*mi).second.name_token, head);
 			HideSet hs(head.get_hideset());
 			hs.insert(m.get_name_token());
-			PtokenSequence new_ts(subst(m, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
-			new_ts.splice(new_ts.end(), ts);
-			return self(self, move(new_ts), &m);
-		}
-
-		if (fill_in(ts, token_source == Macro::TokenSourceOption::get_more, removed_spaces) && ts.front().get_code() == '(') {
+			PtokenSequence s(subst(m, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
+			ts.splice(ts.begin(), s);
+			caller = &m;
+		} else if (fill_in(ts, token_source == Macro::TokenSourceOption::get_more, removed_spaces) && ts.front().get_code() == '(') {
 			// Application of a function-like macro
-			// Return expand(subst(…) • TS'').
 			Token::unify((*mi).second.name_token, head);
 			mapArgval args;			// Map from formal name to value
 
 			if (DP()) {
-				cout << "expand: expanding function-like " << m << " inside ";
+				cout << "macro_expand: expanding function-like " << m << " inside ";
 				if (caller)
 					cout << *caller << '\n';
 				else
@@ -554,32 +520,22 @@ macro_expand(PtokenSequence ts,
 			ts.pop_front();
 			Ptoken close;
 			if (!gather_args(name, ts, m.formal_args, args, token_source == Macro::TokenSourceOption::get_more, m.is_vararg, close))
-				// Attempt to bail-out on error
-				return ts;
+				continue;	// Attempt to bail-out on error
 			HideSet hs;
 			set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
 				close.get_hideset().begin(), close.get_hideset().end(),
 				inserter(hs, hs.begin()));
 			hs.insert(m.get_name_token());
-			PtokenSequence new_ts(subst(m, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
-			new_ts.splice(new_ts.end(), ts);
-			return self(self, move(new_ts), &m);
+			PtokenSequence s(subst(m, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
+			ts.splice(ts.begin(), s);
+			caller = &m;
+		} else {
+			// Function-like macro name lacking a (
+			if (DP()) cout << "macro_expand: splicing: [" << removed_spaces << ']' << endl;
+			ts.splice(ts.begin(), removed_spaces);
+			r.push_back(head);
 		}
-
-		// Function-like macro name lacking a (
-		// Return T • expand(concat(removed_spaces, TS'))
-		if (DP()) cout << "expand: splicing: [" << removed_spaces << ']' << endl;
-		ts.splice(ts.begin(), removed_spaces);
-		PtokenSequence rest(self(self, move(ts), caller));
-		r.push_back(head);
-		r.splice(r.end(), rest);
-		return r;
-	};
-
-
-	// Return value
-	PtokenSequence r(expand(expand, move(ts), caller));
-
+	}
 	if (DP()) cout << "macro_expand: result: " << r << endl;
 
 	Metrics::add_pre_cpp_metric(Metrics::em_nmacrointoken, ts_size);
