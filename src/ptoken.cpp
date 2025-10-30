@@ -39,15 +39,21 @@
 #include "token.h"
 #include "ptoken.h"
 #include "ctoken.h"
+#include "debug_out.h"
 
 ostream&
 operator<<(ostream& o,const Ptoken &t)
 {
-	o << (Token)t;
-	o << "Value: [" << t.val << "] HS(";
-	for (HideSet::const_iterator i = t.hideset.begin(); i != t.hideset.end(); i++)
-		o << *i;
-	o << ')' << endl;
+	o << nest_begin("PToken: {")
+	    << (Token)t
+	    << nest("value") << t.val << '\n';
+	if (!t.hideset.empty()) {
+		o << nest_begin("hide_set: [");
+		for (HideSet::const_iterator i = t.hideset.begin(); i != t.hideset.end(); i++)
+			o << *i;
+		o << nest_end("]");
+	}
+	o << nest_end("}");
 	return (o);
 }
 

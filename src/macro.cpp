@@ -25,6 +25,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "debug_out.h"
 #include "error.h"
 #include "attr.h"
 #include "metrics.h"
@@ -365,17 +366,22 @@ Macro::value_rtrim()
 ostream&
 operator<<(ostream& o,const Macro &m)
 {
-	o << m.name_token.get_val();
+	o << nest_begin("Macro: {")
+		<< nest("name") << m.name_token.get_val() << '\n';
 	if (m.is_function) {
-		o << "(";
+		o << nest("function") << "true" << '\n';
+		o << nest("args");
 		for (dequePtoken::const_iterator i = m.formal_args.begin(); i != m.formal_args.end(); i++)
 			o << (*i).get_val() << ", ";
-		o << ")";
+		o << '\n';
 	}
-	o << " ";
+
+	o << nest("body");
 	for (dequePtoken::const_iterator i = m.value.begin(); i != m.value.end(); i++)
 		o << (*i).get_val();
-	o << "\n";
+	o << '\n';
+
+	o << nest_end("}");
 	return (o);
 }
 
@@ -435,7 +441,7 @@ macro_expand(PtokenSequence ts,
 	set<Macro> expanded_macros; // For adding attributes
 	auto ts_size = ts.size();
 
-	if (DP()) cout << "macro_expand: expanding: " << ts << endl;
+	if (DP()) cout << "macro_expand: expanding sequence: " << ts << endl;
 	while (!ts.empty()) {
 		const Ptoken head(ts.front());
 		ts.pop_front();
@@ -475,11 +481,18 @@ macro_expand(PtokenSequence ts,
 			continue;
 		}
 
-		if (DP()) cout << "macro_expand: replacing for " << name << " tokens " << ts << endl;
+		if (DP())
+			cout << "macro_expand: replacing for \""
+				<< name << "\" "
+				<< nest_begin("tokens: [")
+				<< ts
+				<< nest_end("]");
 		expanded_macros.insert(m);
 		PtokenSequence removed_spaces;
 		if (!m.is_function) {
 			// Object-like macro
+			if (DP())
+				cout << "macro_expand: expanding object-like " << m;
 			Token::unify((*mi).second.name_token, head);
 			HideSet hs(head.get_hideset());
 			hs.insert(m.get_name_token());
@@ -491,8 +504,13 @@ macro_expand(PtokenSequence ts,
 			Token::unify((*mi).second.name_token, head);
 			mapArgval args;			// Map from formal name to value
 
-			if (DP())
-				cout << "macro_expand: expanding " << m << " inside " << caller << "\n";
+			if (DP()) {
+				cout << "macro_expand: expanding function-like " << m << " inside ";
+				if (caller)
+					cout << *caller << '\n';
+				else
+					cout << "NULL\n";
+			}
 			if (caller && caller->is_function)
 				// Macro to macro call
 				Call::register_call(caller->get_mcall(), m.get_mcall());
@@ -570,7 +588,9 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 
 	while (!is.empty()) {
 		if (DP())
-			cout << "subst: is=" << is << " os=" << os << endl;
+			cout << "subst: "
+			    << nest_begin("is: {") << is << nest_end("}")
+			    << nest_begin("os: {") << os << nest_end("}");
 		const Ptoken head(is.front());
 		is.pop_front();		// is is now the tail
 		dequePtoken::iterator ti, ti2;
@@ -676,7 +696,8 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 	// Add hs to the hide set of every element of os
 	for (PtokenSequence::iterator oi = os.begin(); oi != os.end(); ++oi)
 		oi->hideset_insert(hs.begin(), hs.end());
-	if (DP()) cout << "subst: os after adding hs: " << os << endl;
+	if (DP()) cout << "subst: after adding hs: "
+	    << nest_begin("os: ") << os << nest_end("}");
 
 	return os;
 }

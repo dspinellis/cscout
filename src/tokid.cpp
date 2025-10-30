@@ -33,6 +33,7 @@
 
 #include "cpp.h"
 #include "debug.h"
+#include "debug_out.h"
 #include "error.h"
 #include "attr.h"
 #include "metrics.h"
@@ -57,7 +58,10 @@ mapTokidEclass tokid_map;		// Dummy; used for printing
 ostream&
 operator<<(ostream& o,const Tokid t)
 {
-	o << t.fi.get_path() << "(" << t.offs << ")";
+	o << nest_begin("Tokid: {")
+		<< nest("path") << t.fi.get_path() << '\n'
+		<< nest("offset") << t.offs << '\n'
+		<< nest_end("}");
 	return o;
 }
 

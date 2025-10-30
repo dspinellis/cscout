@@ -47,32 +47,58 @@
 #include "fdep.h"
 #include "idquery.h"
 #include "fchar.h"
+#include "debug_out.h"
 
 bool Token::check_clashes;
 bool Token::found_clashes;
 
-// Display a token part
+// Display the token part
 ostream&
 operator<<(ostream& o,const Tpart &t)
 {
-	cout << t.ti << ",l=" << t.len;
+	o << nest_begin("part: {")
+		<< t.ti
+		<< nest("len") << t.len << '\n';
 	ifstream in(t.ti.get_path().c_str());
-	if (in.fail())
+	if (in.fail()) {
+		o << nest_end("}");
 		return o;
+	}
 	in.seekg(t.ti.get_streampos());
-	o << '[';
+	o << nest("value");
 	for (int i = 0; i < t.len; i++)
 		o << (char)in.get();
-	o << ']';
+	o << '\n' << nest_end("}");
 	return o;
 }
 
 ostream&
 operator<<(ostream& o,const Token &t)
 {
-	cout << "Token code:" << t.name() << "(" << t.code << "):[" << t.val << "]\n";
-	cout << "Parts:" << t.parts << "\n";
+	o << nest_begin("Token: {")
+		<< nest("name") << t.name() << '\n'
+		<< nest("code") << t.code << '\n'
+		<< nest("value") << t.val << '\n'
+		<< t.parts
+		<< nest_end("}");
 	return o;
+}
+
+ostream&
+operator<<(ostream& o,const dequeTpart& dt)
+{
+	dequeTpart::const_iterator i;
+
+	if (dt.empty())
+		return o;
+	o << nest_begin("Parts: [");
+	for (i = dt.begin(); i != dt.end(); i++) {
+		o << *i;
+		if (i + 1 != dt.end())
+			o << ", ";
+	}
+	o << nest_end("]");
+	return (o);
 }
 
 const string
@@ -284,19 +310,6 @@ Token::unify(const Token &a /* definition */, const Token &b /* reference */)
 	}
 	if (!check_clashes)
 		csassert(bi == bc.end());
-}
-
-ostream&
-operator<<(ostream& o,const dequeTpart& dt)
-{
-	dequeTpart::const_iterator i;
-
-	for (i = dt.begin(); i != dt.end(); i++) {
-		o << *i;
-		if (i + 1 != dt.end())
-			o << ", ";
-	}
-	return (o);
 }
 
 /*
