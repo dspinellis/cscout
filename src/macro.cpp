@@ -45,6 +45,30 @@
 #include "mcall.h"
 #include "metrics.h"
 
+/*
+ * Register a call associated with a given macro substituting
+ * the specified token.
+ * This gives registers a call from the macro that produced the
+ * token (caller) to the macro substituting the token (callee).
+ * If the caller is NULL then a call from the enclosing C
+ * function is registered.
+ */
+static void
+register_call(const Macro *substitutor, const Ptoken &substituted)
+{
+	if (DP())
+		cout << "register_call substitutor: " << *substitutor
+		    << "substituted: " << substituted;
+
+	const Macro *caller = substituted.get_producer();
+	if (caller && caller->get_is_function())
+		// Macro to macro call
+		Call::register_call(caller->get_mcall(), substitutor->get_mcall());
+	else
+		// Function to macro call
+		Call::register_call(substitutor->get_mcall());
+}
+
 
 /*
  * Return a macro argument token from tokens, which can be PtokenSequence
@@ -54,14 +78,16 @@
  * (see explanation on that method's comment for why we use pdtoken, rather than pltoken)
  * Leave in tokens the first token not gathered.
  * If want_space is true return spaces, otherwise discard them
+ * collector is the macro collecting tokens for its substitution.
  */
 template <typename TokenContainer>
 static Ptoken
-arg_token(TokenContainer& tokens, bool get_more, bool want_space)
+arg_token(TokenContainer& tokens, bool get_more, bool want_space, const Macro *collector)
 {
 	if (want_space) {
 		if (!tokens.empty()) {
 			Ptoken r(tokens.front());
+			register_call(collector, r);
 			tokens.pop_front();
 			return (r);
 		} else if (get_more) {
@@ -75,6 +101,7 @@ arg_token(TokenContainer& tokens, bool get_more, bool want_space)
 			tokens.pop_front();
 		if (!tokens.empty()) {
 			Ptoken r(tokens.front());
+			register_call(collector, r);
 			tokens.pop_front();
 			return (r);
 		} else if (get_more) {
@@ -93,12 +120,14 @@ arg_token(TokenContainer& tokens, bool get_more, bool want_space)
  * removing them from tokens, then, if get_more is true, from pdtoken.getnext_noexpand.
  * The opening bracket has already been gathered.
  * Build the map from formal name to argument value args.
+ * collector is the macro collecting tokens for its substitution.
  * Return in close the closing bracket token (used for its hideset)
  * Return true if ok, false on error.
  */
 static bool
-gather_args(const string& name, PtokenSequence& tokens, const dequePtoken& formal_args, mapArgval& args, bool get_more, bool is_vararg, Ptoken &close)
+gather_args(const Macro *collector, PtokenSequence& tokens, mapArgval& args, bool get_more, Ptoken &close)
 {
+	const dequePtoken& formal_args(collector->get_formal_args());
 	Ptoken t;
 	dequePtoken::const_iterator i;
 	for (i = formal_args.begin(); i != formal_args.end(); i++) {
@@ -106,14 +135,14 @@ gather_args(const string& name, PtokenSequence& tokens, const dequePtoken& forma
 		char terminate;
 		if (i + 1 == formal_args.end())
 			terminate = ')';
-		else if (is_vararg && i + 2 == formal_args.end())
+		else if (collector->get_is_vararg() && i + 2 == formal_args.end())
 			terminate = '.';	// Vararg last argument is optional; terminate with ) or ,
 		else
 			terminate = ',';
 		int bracket = 0;
 		// Get a single argument
 		for (;;) {
-			t = arg_token(tokens, get_more, true);
+			t = arg_token(tokens, get_more, true, collector);
 			if (bracket == 0 && (
 				(terminate == '.' && (t.get_code() == ',' || t.get_code() == ')')) ||
 				(terminate != '.' && t.get_code() == terminate)))
@@ -131,7 +160,7 @@ gather_args(const string& name, PtokenSequence& tokens, const dequePtoken& forma
 				 * The end of file was reached while
 				 * gathering a macro's arguments
 				 */
-				Error::error(E_ERR, "macro [" + name + "]: EOF while reading function macro arguments");
+				Error::error(E_ERR, "macro [" + collector->get_name() + "]: EOF while reading function macro arguments");
 				return (false);
 			}
 			v.push_back(t);
@@ -147,14 +176,14 @@ gather_args(const string& name, PtokenSequence& tokens, const dequePtoken& forma
 		close = t;
 	}
 	if (formal_args.size() == 0) {
-		t = arg_token(tokens, get_more, false);
+		t = arg_token(tokens, get_more, false, collector);
 		if (t.get_code() != ')') {
 			/*
 			 * @error
 			 * The arguments to a function-like macro did
 			 * not terminate with a closing bracket
 			 */
-			Error::error(E_ERR, "macro [" + name + "]: close bracket expected for function-like macro");
+			Error::error(E_ERR, "macro [" + collector->get_name() + "]: close bracket expected for function-like macro");
 			return (false);
 		}
 	}
@@ -183,7 +212,8 @@ escape(const string& s)
 /*
  * Convert a list of tokens into a string as specified by the # operator
  * Multiple spaces are converted to a single space, \ and " are
- * escaped
+ * escaped.
+ * Macro is the invoking macro.  It is used for registering calls.
  */
 static Ptoken
 stringize(const PtokenSequence& ts)
@@ -225,15 +255,16 @@ stringize(const PtokenSequence& ts)
 /*
  * Remove from tokens and return the elements comprising the arguments to a
  * function macro, such as __VA_OPT__.
+ * collector is the macro collecting tokens for its substitution.
  */
 static PtokenSequence
-gather_function_arg(dequePtoken& tokens)
+gather_function_arg(dequePtoken& tokens, const Macro *collector)
 {
 	PtokenSequence r;
 	int bracket_nesting = 0;
 
 	for (;;) {
-		Ptoken t(arg_token(tokens, false, true));
+		Ptoken t(arg_token(tokens, false, true, collector));
 		switch (t.get_code()) {
 		case '(':
 			bracket_nesting++;
@@ -416,7 +447,7 @@ Macro::Macro( const Ptoken& name, bool id, bool isfun, bool isimmutable) :
 		mcall = NULL;	// To void nasty surprises
 }
 
-static PtokenSequence subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macro::CalledContext context, const Macro *caller);
+static PtokenSequence subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macro::MacroType macro_type, Macro::CalledContext context);
 static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
 static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
 
@@ -424,18 +455,34 @@ static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
  * Expand a token sequence
  * This is an implementation of Dave Prosser's algorithm, listed in
  * X3J11/86-196 and in https://www.spinellis.gr/blog/20060626/.
+ * with recursion converted to iteration.
+ * (Commit 5b08cdebf7778e3f10c0faa3a39dc5a46991ea00 contains
+ * a recursive version.)
+ * This function goes through sequence ts token by token and expands macros.
  * If token_source is get_more, then more tokens can be fetched.
  * If defined_handling is skip then the defined() keyword is not processed
  * If context denotes preprocessor then is_cpp_const attribute is set
  * for identifiers.
- * The caller is used for registering invocations from one macro to another.
+ *
+ * # Call handling
+ * Tokens are recursively substituted left to right.  Therefore,
+ * neither expand() nor subst() can be used directly to create the caller
+ * callee relationships via a passed caller argument.  Instead, associate
+ * the producing macro with tokens, and use that as the caller.
+ *
+ * When invoking subst, the macro M being substituted is the callee.
+ * So, in a function-like macro context, input sequence tokens
+ * generate calls from their producer to M.
+ * The output sequence tokens are tagged as produced by M.
+ *
+ * When substituting an object-like macro, the input token's producer
+ * is propagated.
  */
 PtokenSequence
 macro_expand(PtokenSequence ts,
     Macro::TokenSourceOption token_source,
     Macro::DefinedHandlingOption defined_handling,
-    Macro::CalledContext context,
-    const Macro *caller)
+    Macro::CalledContext context)
 {
 	PtokenSequence r;	// Return value
 	set<Macro> expanded_macros; // For adding attributes
@@ -496,39 +543,27 @@ macro_expand(PtokenSequence ts,
 			Token::unify((*mi).second.name_token, head);
 			HideSet hs(head.get_hideset());
 			hs.insert(m.get_name_token());
-			PtokenSequence s(subst(m, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
+			PtokenSequence s(subst(m, mapArgval(), hs, defined_handling == Macro::DefinedHandlingOption::skip, Macro::MacroType::object_like, context));
 			ts.splice(ts.begin(), s);
-			caller = &m;
 		} else if (fill_in(ts, token_source == Macro::TokenSourceOption::get_more, removed_spaces) && ts.front().get_code() == '(') {
 			// Application of a function-like macro
 			Token::unify((*mi).second.name_token, head);
+			register_call(&m, head);
 			mapArgval args;			// Map from formal name to value
 
-			if (DP()) {
-				cout << "macro_expand: expanding function-like " << m << " inside ";
-				if (caller)
-					cout << *caller << '\n';
-				else
-					cout << "NULL\n";
-			}
-			if (caller && caller->is_function)
-				// Macro to macro call
-				Call::register_call(caller->get_mcall(), m.get_mcall());
-			else
-				// Function to macro call
-				Call::register_call(m.get_mcall());
+			if (DP())
+				cout << "macro_expand: expanding function-like " << m;
 			ts.pop_front();
 			Ptoken close;
-			if (!gather_args(name, ts, m.formal_args, args, token_source == Macro::TokenSourceOption::get_more, m.is_vararg, close))
+			if (!gather_args(&m, ts, args, token_source == Macro::TokenSourceOption::get_more, close))
 				continue;	// Attempt to bail-out on error
 			HideSet hs;
 			set_intersection(head.get_hideset().begin(), head.get_hideset().end(),
 				close.get_hideset().begin(), close.get_hideset().end(),
 				inserter(hs, hs.begin()));
 			hs.insert(m.get_name_token());
-			PtokenSequence s(subst(m, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, context, caller));
+			PtokenSequence s(subst(m, args, hs, defined_handling == Macro::DefinedHandlingOption::skip, Macro::MacroType::function_like, context));
 			ts.splice(ts.begin(), s);
-			caller = &m;
 		} else {
 			// Function-like macro name lacking a (
 			if (DP()) cout << "macro_expand: splicing: [" << removed_spaces << ']' << endl;
@@ -574,12 +609,14 @@ find_nonspace(dequePtoken::iterator pos, dequePtoken::iterator end)
 
 /*
  * Substitute the arguments args (may be empty) in the body of of macro m,
- * also handling stringization and concatenation.
+ * also handling stringization and concatenation returning the macro's
+ * replacement text.
+ * This is Prosser's subst() function.
  * Result is created in the output sequence os and finally has the specified
- * hide set added to it, before getting returned.
+ * hide set and producer macro added to it, before getting returned.
  */
 static PtokenSequence
-subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macro::CalledContext context, const Macro *caller)
+subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macro::MacroType macro_type, Macro::CalledContext context)
 {
 	dequePtoken is(m.get_value());// Input sequence
 	PtokenSequence os;	// Output sequence
@@ -589,8 +626,8 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 	while (!is.empty()) {
 		if (DP())
 			cout << "subst: "
-			    << nest_begin("is: {") << is << nest_end("}")
-			    << nest_begin("os: {") << os << nest_end("}");
+			    << nest_begin("IS: {") << is << nest_end("}")
+			    << nest_begin("OS: {") << os << nest_end("}");
 		const Ptoken head(is.front());
 		is.pop_front();		// is is now the tail
 		dequePtoken::iterator ti, ti2;
@@ -600,7 +637,9 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 			ti = find_nonspace(is.begin(), is.end());
 			if (ti != is.end() && (ai = find_formal_argument(args, *ti)) != args.end()) {
 				is.erase(is.begin(), ++ti);
-				os.push_back(stringize(ai->second));
+				Ptoken str(stringize(ai->second));
+				str.set_producer(&m);
+				os.push_back(str);
 				continue;
 			}
 			break;
@@ -637,7 +676,7 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 					Error::error(E_ERR, "Call to __VA_OPT__ from a non variadic macro.");
 					break;
 				}
-				PtokenSequence opt(gather_function_arg(is));
+				PtokenSequence opt(gather_function_arg(is, &m));
 
 				if ((ai = find_formal_argument(args, VA_ARGS)) != args.end() && ai->second.size() != 0)
 					os.splice(os.end(), opt);
@@ -682,11 +721,13 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 					os.splice(os.end(), actual);
 				}
 				continue;
-			}
+			} // end of ## before a rest argument
+
 			if ((ai = find_formal_argument(args, head)) == args.end())
 				break;
+
 			// Othewise expand the formal argument's value
-			PtokenSequence expanded(macro_expand(ai->second,  Macro::TokenSourceOption::use_supplied, skip_defined ? Macro::DefinedHandlingOption::skip : Macro::DefinedHandlingOption::process, context, caller));
+			PtokenSequence expanded(macro_expand(ai->second,  Macro::TokenSourceOption::use_supplied, skip_defined ? Macro::DefinedHandlingOption::skip : Macro::DefinedHandlingOption::process, context));
 			os.splice(os.end(), expanded);
 			continue;
 		}
@@ -698,6 +739,14 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 		oi->hideset_insert(hs.begin(), hs.end());
 	if (DP()) cout << "subst: after adding hs: "
 	    << nest_begin("os: ") << os << nest_end("}");
+
+	// Set all output tokens at produced by the function-like macro.
+	if (macro_type == Macro::MacroType::function_like) {
+		if (DP())
+			cout << "Set producer " << m << "for " << os;
+		for (Ptoken &t : os)
+			t.set_producer(&m);
+	}
 
 	return os;
 }

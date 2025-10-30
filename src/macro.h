@@ -55,8 +55,13 @@ public:
 	// Typed options and arguments to the macro_expand function
 	// Get more tokens or only use the supplied ones
 	enum class TokenSourceOption { get_more, use_supplied };
+
 	// Process the defined() function or skip its processing
 	enum class DefinedHandlingOption { process, skip };
+
+	// Type of macro being substituted
+	enum class MacroType { function_like, object_like };
+
 	// Context in which macro_expand is called
 	enum class CalledContext {
 		process_c,		// From C code
@@ -78,10 +83,13 @@ public:
 	// Accessor functions
 	const Ptoken& get_name_token() const {return name_token; };
 	void set_is_function(bool v) { is_function = v; };
+	bool get_is_function() const { return is_function; };
 	void set_is_vararg(bool v) { is_vararg = v; };
 	bool get_is_defined() const { return is_defined; };
 	bool get_is_vararg() const { return is_vararg; };
 	bool get_is_immutable() const { return is_immutable; };
+	const dequePtoken& get_formal_args() const { return formal_args; }
+	const string get_name() const { return name_token.get_val(); }
 	// Return the number of formal arguments
 	int get_num_args() const { return formal_args.size(); }
 	void form_args_push_back(Ptoken& t) { formal_args.push_back(t); };
@@ -101,13 +109,11 @@ public:
 	// Print it (for debugging)
 	friend ostream& operator<<(ostream& o,const Macro &m);
 
-	friend PtokenSequence macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, Macro::CalledContext context, const Macro *caller);
+	friend PtokenSequence macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, Macro::CalledContext context);
 	// Name-based comparison for the small set of visible macros
 	// constructed in expand_macro.
 	bool operator<(const Macro& other) const {
 		return name_token < other.name_token;
 	}
 };
-
-PtokenSequence macro_expand(PtokenSequence ts, Macro::TokenSourceOption token_source, Macro::DefinedHandlingOption defined_handling, Macro::CalledContext context, const Macro *caller = NULL);
 #endif // MACRO

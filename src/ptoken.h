@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2025 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -39,24 +39,49 @@ using namespace std;
 #include "parse.tab.h"
 
 class Ctoken;
+class Macro;
 
 typedef set <Token> HideSet;
 
 class Ptoken : public Token {
 private:
 	HideSet hideset;	// Hide set used for macro expansions
+	const Macro *producer;	// Macro that produced this token
+				// This is the caller when further
+				// replacements are made.
 public:
 	// Construct it based on the token code and the contents
-	Ptoken(int icode, const string& ival) : Token(icode, ival) {};
+	Ptoken(int icode, const string& ival)
+		: Token(icode, ival), producer(nullptr) {};
 	// Efficient constructor
-	Ptoken() {}
+	Ptoken() : Token(), producer(nullptr) {}
 	// Construct it from a CToken
 	Ptoken(const Ctoken &t);
+
+	// Copy ctor and assignment to propagate producer
+	Ptoken(const Ptoken& other)
+	    : Token(other),
+	      hideset(other.hideset),
+	      producer(other.producer)
+	{}
+
+	Ptoken& operator=(const Ptoken& other) {
+		if (this != &other) {
+			Token::operator=(other);
+			hideset = other.hideset;
+			producer = other.producer;
+		}
+		return *this;
+	}
+
 	// Accessor methods
 	inline bool hideset_contains(const Ptoken &t) const { return (hideset.find(t) != hideset.end()); }
 	inline void hideset_insert(Token t) { hideset.insert(t); }
 	inline void hideset_insert(HideSet::const_iterator b, HideSet::const_iterator e) { hideset.insert(b, e); }
 	inline const HideSet& get_hideset() const { return (hideset); }
+
+	inline const Macro *get_producer() const { return producer; }
+	inline void set_producer(const Macro *m) { producer = m; }
 	/*
 	 * Set the is_cpp_str_val attribute for the macros that were
 	 * expanded to yield the stringized or pasted token.

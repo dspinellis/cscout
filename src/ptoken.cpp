@@ -44,7 +44,7 @@
 ostream&
 operator<<(ostream& o,const Ptoken &t)
 {
-	o << nest_begin("PToken: {")
+	o << nest_begin("Ptoken: {")
 	    << (Token)t
 	    << nest("value") << t.val << '\n';
 	if (!t.hideset.empty()) {
@@ -53,20 +53,27 @@ operator<<(ostream& o,const Ptoken &t)
 			o << *i;
 		o << nest_end("]");
 	}
+	o << nest("producer");
+	if (t.producer)
+		o << *t.producer;
+	else
+		o << "NULL\n";
 	o << nest_end("}");
 	return (o);
 }
 
-ostream& operator<<(ostream& o,const PtokenSequence &t)
+ostream& operator<<(ostream& o,const PtokenSequence &ts)
 {
 	PtokenSequence::const_iterator i;
 
-	for (i = t.begin(); i != t.end(); i++)
-		o << *i;
+	o << nest_begin("PtokenSequence: [");
+	for (auto t : ts)
+		o << t;
+	o << nest_end("]");
 	return (o);
 }
 
-Ptoken::Ptoken(const Ctoken &t) : Token(t)
+Ptoken::Ptoken(const Ctoken &t) : Token(t), producer(NULL)
 {
 }
 
