@@ -212,6 +212,9 @@ optimize_result()
 DROP TABLE fileid_to_global_map;
 DROP TABLE functionid_to_global_map;
 
+ATTACH 'file-0000.db' as adb;
+INSERT INTO projects SELECT * FROM adb.projects;
+
 ALTER TABLE filemetrics ADD COLUMN iscscout BOOLEAN;
 
 UPDATE filemetrics SET iscscout = (
