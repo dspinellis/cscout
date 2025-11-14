@@ -151,7 +151,7 @@ void
 Dbtoken::add_eclasses_attached(const char *in_path)
 {
 	Fileid::disable_filedetails();
-	Project::set_current_project("dbmerge");
+	Project::set_current_project("csmerge");
 
 	ifstream input(in_path);
 	verify_open(in_path, input);
@@ -342,7 +342,7 @@ void
 Dbtoken::process_eclasses_original(const char *in_path)
 {
 	Fileid::disable_filedetails();
-	Project::set_current_project("dbmerge");
+	Project::set_current_project("csmerge");
 	add_eclasses_original(in_path);
 	if (DP())
 		cout << "Start merge pass\n";

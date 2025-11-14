@@ -10,7 +10,7 @@ set -o pipefail
 ulimit -u 500 2>/dev/null || true
 
 TOOL_DIR=$(dirname $0)
-LOG_FILE=dbmerge.log
+LOG_FILE=csmerge.log
 
 # Log the specified message with a timestamp
 log()
@@ -246,7 +246,7 @@ usage()
 Usage: $(basename $0) [OPTION] nfiles merged.db
 
   -k        Keep temporary files.
-  -l file   Specify log file name (default dbmerge.log).
+  -l file   Specify log file name (default csmerge.log).
   -T dir    Specify temporary directory to use (default \$TMPDIR, /tmp).
 EOF
   exit 1
