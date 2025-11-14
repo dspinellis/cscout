@@ -6,8 +6,8 @@
 set -eu
 set -o pipefail
 
-# Limit the damage of a fault leading to a fork bomb
-ulimit -u 500
+# Try to limit the damage of a fault leading to a fork bomb
+ulimit -u 500 2>/dev/null || true
 
 TOOL_DIR=$(dirname $0)
 LOG_FILE=dbmerge.log
