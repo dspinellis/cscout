@@ -1,0 +1,42 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consilidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	7	1
+2	8	2
+5	9	3
+5	4	1
+5	8	2
+5	10	4
+
+# Existing table with globally unique fids
+rest:
+fid	foffset code
+1	10	" += "
+1	50	"#define"
+2	77	"while ("
+
+# For completeness only
+tokens:
+fid	foffset	eid
+1	0	1000
+
+# Table to be imported, with local fids
+# One same, one new
+adb.rest:
+fid	foffset code
+4	10	" += "
+10	88	">"
+END
+
+INCLUDE CREATE rest.sql
+
+BEGIN RESULT
+rest:
+fid	foffset code
+1	10	" += "
+1	50	"#define"
+2	77	"while ("
+4	88	">"
+END

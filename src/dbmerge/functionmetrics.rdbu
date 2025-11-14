@@ -1,0 +1,120 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	21	1
+5	51	1
+
+
+# Will be populated by CScout
+functionid_to_global_map:
+dbid	id	global_id
+99	99	99
+
+
+# Database 2: Existing table with local eids
+tokens:
+fid	foffset	eid
+1	1000	1000
+1	2000	2000
+1	3000	3000
+
+ids:
+eid	name
+1000	f1
+2000	f2
+3000	f3
+
+functionid:
+functionid	ordinal	fid	foffset	len
+11	   	0	1	1000	2
+12	   	0	1	2000	2
+13	   	0	1	3000	2
+
+# Existing table with globally unique function and file ids
+functions:
+id	name ismacro defined declared filescoped fid foffset fanin
+11  	f1   0       0       1        1          1   1000    2
+12  	f2   0       0       1        1          1   2000    2
+13  	f3   0       0       1        1          1   3000    2
+
+# Existing table with globally unique ids
+functionmetrics:
+functionid precpp nchar nccomment nspace nlcomment nbcomment nline maxlinelen maxstmtlen maxstmtnest maxbracenest maxbracknest bracenest bracknest nuline nppdirective nppcond nppfmacro nppomacro ntoken nstmt nop nuop nnconst nclit nstring nppconcatop nppstringop nif nelse nswitch ncase ndefault nbreak nfor nwhile ndo ncontinue ngoto nreturn nasm ntypeof npid nfid nmid nid nupid nufid numid nuid nlabel nmacroexpandtoken ngnsoc nmparam nfparam neparam fanin fanout ccycl1 ccycl2 ccycl3 cstruc chal iflow
+12 0 22 9 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+12 1 222 99 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+11 0 11 null 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+11 1 111 null 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+13 0 33 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+13 1 333 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+
+# Database 5: Table to be imported, with local eids
+# Table to be imported, with local ids
+# No data for 3, higher or non-null data for 1, lower or null data for 2, new 4
+adb.functionmetrics:
+functionid precpp nchar nccomment nspace nlcomment nbcomment nline maxlinelen maxstmtlen maxstmtnest maxbracenest maxbracknest bracenest bracknest nuline nppdirective nppcond nppfmacro nppomacro ntoken nstmt nop nuop nnconst nclit nstring nppconcatop nppstringop nif nelse nswitch ncase ndefault nbreak nfor nwhile ndo ncontinue ngoto nasm ntypeof nreturn npid nfid nmid nid nupid nufid numid nuid nlabel nmacroexpandtoken ngnsoc nmparam nfparam neparam fanin fanout ccycl1 ccycl2 ccycl3 cstruc chal iflow
+51 0 12 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+51 1 112 33 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+52 0 21 null 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+52 1 221 null 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+54 0 44 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4
+54 1 444 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4
+
+adb.tokens:
+fid	foffset	eid
+51	1000	100
+51	2000	200
+51	4000	400
+
+adb.ids:
+eid	name
+100	f1
+200	f2
+400	f4
+
+adb.functionid:
+functionid	ordinal	fid	foffset	len
+51	   	0	51	1000	2
+52	   	0	51	2000	2
+54	   	0	51	4000	2
+
+# Table to be imported, with local function and file ids
+adb.functions:
+id	name ismacro defined declared filescoped fid foffset fanin
+51  	f1   0       1       1        1          51  1000    9
+52  	f2   0       0       1        1          51  2000    2
+54  	f4   0       0       1        1          51  4000    4
+
+END
+
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+
+INCLUDE CREATE empty-idproj.sql
+INCLUDE CREATE eclasses.sql
+
+# To use names
+INCLUDE CREATE functions.sql
+
+INCLUDE CREATE functionmetrics.sql
+
+# Make resuts repeatable by using identifiers
+BEGIN SELECT
+  SELECT name, precpp, nchar, nccomment, nspace, nlcomment, nbcomment, nline, maxlinelen, maxstmtlen, maxstmtnest, maxbracenest, maxbracknest, bracenest, bracknest, nuline, nppdirective, nppcond, nppfmacro, nppomacro, ntoken, nstmt, nop, nuop, nnconst, nclit, nstring, nppconcatop, nppstringop, nif, nelse, nswitch, ncase, ndefault, nbreak, nfor, nwhile, ndo, ncontinue, ngoto, nasm, ntypeof, nreturn, npid, nfid, nmid, nid, nupid, nufid, numid, nuid, nlabel, nmacroexpandtoken, ngnsoc, nmparam, nfparam, neparam, functionmetrics.fanin, fanout, ccycl1, ccycl2, ccycl3, cstruc, chal, iflow
+    FROM functions INNER JOIN functionmetrics ON functions.id = functionmetrics.functionid
+    ORDER BY name;
+END
+
+BEGIN RESULT
+name precpp nchar nccomment nspace nlcomment nbcomment nline maxlinelen maxstmtlen maxstmtnest maxbracenest maxbracknest bracenest bracknest nuline nppdirective nppcond nppfmacro nppomacro ntoken nstmt nop nuop nnconst nclit nstring nppconcatop nppstringop nif nelse nswitch ncase ndefault nbreak nfor nwhile ndo ncontinue ngoto nasm ntypeof nreturn npid nfid nmid nid nupid nufid numid nuid nlabel nmacroexpandtoken ngnsoc nmparam nfparam neparam fanin fanout ccycl1 ccycl2 ccycl3 cstruc chal iflow
+f1 0 12 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+f1 1 112 33 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+f2 0 22 9 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+f2 1 222 99 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+f3 0 33 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+f3 1 333 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+f4 0 44 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4
+f4 1 444 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4
+END

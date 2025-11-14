@@ -1,0 +1,50 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consilidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	2	1
+2	3	2
+2	4	3
+2	5	4
+5	10	1
+5	20	2
+5	30	3
+5	40	4
+5	50	5
+5	60	6
+5	70	7
+5	80	8
+5	90	9
+
+
+# Database 2:
+# Existing table with globally unique fids
+includers:
+pid cuid basefileid includerid
+1   1    2          3
+1   2    3          4
+
+# Database 5:
+# Table to be imported, with local fids
+# One repeated, two partially new, one completely new data row
+adb.includers:
+pid cuid basefileid includerid
+1   10   20         30
+1   20   20         50
+1   20   60         30
+1   90   70         80
+END
+
+INCLUDE CREATE includers.sql
+
+BEGIN RESULT
+includers:
+pid cuid basefileid includerid
+1   1    2          3
+1   2    3          4
+1   2    2          5
+1   2    6          3
+1   9    7          8
+END
+

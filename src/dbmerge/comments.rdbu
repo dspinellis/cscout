@@ -1,0 +1,43 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consilidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	7	1
+2	8	2
+5	9	3
+5	4	1
+5	8	2
+5	10	4
+
+# Existing table with globally unique fids
+comments:
+fid	foffset comment
+1	10	"/* This is a comment */"
+1	50	"// Another"
+2	77	"// Away"
+
+
+# Table to be imported, with local fids
+# One same, one new
+adb.comments:
+fid	foffset comment
+4	10	"/* This is a comment */"
+10	88	"/* new comment */"
+END
+
+# Add index to simulate primary key clashing behavior
+BEGIN CREATE
+CREATE UNIQUE INDEX pk ON comments(fid, foffset);
+END
+
+INCLUDE CREATE comments.sql
+
+BEGIN RESULT
+comments:
+fid	foffset comment
+1	10	"/* This is a comment */"
+1	50	"// Another"
+2	77	"// Away"
+4	88	"/* new comment */"
+END

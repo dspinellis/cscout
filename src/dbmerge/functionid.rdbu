@@ -1,0 +1,93 @@
+BEGIN SETUP
+
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	21	1
+2	22	2
+2	23	3
+5	51	1
+5	52	2
+5	53	3
+
+
+# Will be populated by CScout
+functionid_to_global_map:
+dbid	id	global_id
+99	99	99
+
+# Database 2: Existing table with local eids
+tokens:
+fid	foffset	eid
+1	1000	1000
+1	1004	1004
+1	2000	2000
+2	3000	3000
+2	3002	3002
+
+ids:
+eid	name
+1000	abcd
+1004	ef
+2000	hello
+3000	sn
+3002	printf
+
+functionid:
+functionid	ordinal	fid	foffset	len
+1	   	0	1	1000	4
+1	   	1	1	1004	2
+2	   	0	1	2000	5
+3	   	0       2	3000	2
+3	   	1       2	3002	6
+
+
+# Database 5: Table to be imported, with local eids
+adb.tokens:
+fid	foffset	eid
+51	1000	100
+51	1002	102
+52	3000	300
+51	4000	400
+
+adb.ids:
+eid	name
+100	ab
+102	cdef
+300	snprintf
+400	sqrt
+
+# abcdef and snprintf repeated, sqrt is new
+adb.functionid:
+functionid	ordinal	fid	foffset	len
+351	   	0	51	1000	2
+351	   	1	51	1002	4
+353	   	0       52	3000	8
+354	   	0       51	4000	4
+END
+
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+INCLUDE CREATE empty-idproj.sql
+
+INCLUDE CREATE eclasses.sql
+
+# Make resuts deterministic by using identifiers
+BEGIN SELECT
+  SELECT functionid, ordinal, name
+    FROM functionid
+    INNER JOIN tokens USING(fid, foffset)
+    INNER JOIN ids USING(eid)
+    ORDER by name;
+END
+
+BEGIN RESULT
+functionid	ordinal name
+1		0	ab
+1		1	cd
+1		2	ef
+4		0	hello
+2		1	printf
+2		0	sn
+3		0	sqrt
+END

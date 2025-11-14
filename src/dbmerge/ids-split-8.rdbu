@@ -1,0 +1,59 @@
+# a|b c|d e|f
+# a b|c d|e f
+BEGIN SETUP
+tokens:
+fid	foffset	eid
+1	0	1000
+1	1	1001
+1	3	1003
+1	5	1005
+
+ids:
+eid	name
+1000	a
+1001	bc
+1003	de
+1005	f
+
+adb.tokens:
+fid	foffset	eid
+2	0	100
+2	2	102
+2	4	104
+
+adb.ids:
+eid	name
+100	ab
+102	cd
+104	ef
+
+# Map from adjusted local fid to consolidated global fid
+fileid_to_global_map:
+dbid	fid	global_fid
+2	1	1
+5	2	1
+5	9	2
+
+END
+
+# Provide empty but required tables.
+INCLUDE CREATE empty-functionid.sql
+INCLUDE CREATE empty-idproj.sql
+
+# Extend ids with all their fields
+INCLUDE CREATE extend-ids.sql
+
+INCLUDE CREATE eclasses.sql
+
+# Use predictable eids to compare results
+INCLUDE SELECT predictable-id-eids.sql
+
+BEGIN RESULT
+eid name readonly undefmacro macro funmacro macroarg cppconst cppstrval defcconstval notdefcconstval expcconstval notexpcconstval ordinary suetag sumember label typedef enum yacc fun cscope lscope unused
+1 a 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0
+2 b 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0
+3 c 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0
+4 d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0
+5 e 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0
+6 f 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0
+END
