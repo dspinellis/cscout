@@ -1,4 +1,4 @@
-.TH CSSPLIT 1 "25 October 2025"
+.TH CSSPLIT 1 "16 November 2025"
 .\"
 .\" (C) Copyright 2025 Diomidis Spinellis
 .\"
@@ -27,17 +27,21 @@ cssplit \- Split a CScout processing script into smaller scripts
 .I file
 .RI [ file\ ... ]
 .SH DESCRIPTION
-The \fIcssplit\fP command-line program splits a \fICScout\fP
+The \fIcssplit\fP(1) command-line program splits a \fICScout\fP
 processing script into \fIN\fP smaller scripts for parallel
 or distributed processing.
-Each output script is named using a zero-padded sequence,
-starting with \fIfile-0000.cs\fP.
+This is useful for distributing the workload of a large \fICScout\fP
+analysis across multiple scripts for efficiency or manageability.
+Split scripts can be used to speed-up an initial check
+of the processing with \fCcscout -c\fP
+or to create a set of \fISQLite\fP database files that
+are then merged with \fIcsmerge\fP(1).
 .PP
 The input is read from the specified file(s),
 and the output files are written into the current working directory.
-.PP
-This tool is useful for distributing the workload of a large \fICScout\fP
-analysis across multiple scripts for efficiency or manageability.
+The input file(s) must have been created with \fIcsmake\fP(1).
+Each output script is named using a zero-padded sequence,
+starting with \fIfile-0000.cs\fP.
 .SH OPTIONS
 .TP
 .BR \-s ", " \-\-shards " " N
@@ -78,8 +82,10 @@ file-0003.cs
 .PP
 Each file contains a portion of the original processing script.
 .SH "SEE ALSO"
-cscout(1),
-cscut(1),
-csmake(1)
+\fIcscout\fP(1),
+\fIcscut\fP(1),
+\fIcsmake\fP(1),
+\fIcsmerge\fP(1),
+\fIpython\fP(1)
 .SH AUTHOR
 (C) Copyright 2024-2025 Diomidis Spinellis.

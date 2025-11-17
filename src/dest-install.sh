@@ -45,7 +45,7 @@ WORKAROUNDS_PRE="$INC/template/gcc-pre-defs.h $INC/template/llvm-pre-defs.h $INC
 WORKAROUNDS_POST="$INC/template/gcc-post-defs.h $INC/template/llvm-post-defs.h"
 
 # Create required directories
-install -d "$INCLUDE_DIR/stdc" "$PREFIX/bin"
+install -d "$INCLUDE_DIR/stdc" "$PREFIX/bin" "$PREFIX/lib/csmerge"
 
 # Generic C definitions
 install -m $HMODE $INC/stdc/*.h "$INCLUDE_DIR/stdc/"
@@ -104,5 +104,8 @@ install $TMPFILE "$PREFIX/bin/cscc"
 install cscut.sh "$PREFIX/bin/cscut"
 install cssplit.py "$PREFIX/bin/cssplit"
 install csreconst.sh "$PREFIX/bin/csreconst"
+
+install csmerge/csmerge.sh "$PREFIX/bin/csmerge"
+install -m 644 csmerge/*.sql "$PREFIX/lib/csmerge/"
 
 rm -f $TMPFILE

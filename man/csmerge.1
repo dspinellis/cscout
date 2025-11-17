@@ -1,0 +1,124 @@
+.\" -*- roff -*-
+.\"
+.\" (C) Copyright 2025 Diomidis Spinellis
+.\"
+.\" This file is part of CScout.
+.\"
+.\" CScout is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" CScout is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with CScout.  If not, see <http://www.gnu.org/licenses/>.
+.\"
+.TH CSMERGE 1 "16 November 2025"
+.SH NAME
+csmerge \- merge multiple CScout database shards
+.SH SYNOPSIS
+.B csmerge
+[\fB-k\fR]
+[\fB-l\fR \fIfile\fR]
+[\fB-T\fR \fIdir\fR]
+\fInfiles\fR \fImerged.db\fR
+.SH DESCRIPTION
+.B csmerge
+merges a set of CScout SQLite database shards into a single database.
+
+The program expects as input
+.I nfiles
+SQLite database files.
+These are merged into the specified
+.I merged.db
+output database file.
+The resulting file preserves the semantics of \fICScout\fP
+processing, including primary key assignments, foreign key references,
+and token splits.
+The number of input databases must be a power of two, e.g. 2, 4, 16, or 64.
+Each input database is named using a zero-padded sequence,
+starting with \fIfile-0000.db\fP.
+The databases are typically produced by \fICScout\fP processing
+a larger \fICScout\fP file split into multiple parts
+with \fIcssplit\fP(1).
+.pp
+Large temporary files are created during the merge and removed when finished,
+unless instructed otherwise.
+During the processing the commands \fIsqlite3\fP(1) and \fIcscout\fP(1)
+are invoked to handle the merging.
+
+.SH OPTIONS
+.TP
+.B -k
+Preserve temporary files created during execution.
+.TP
+.BI -l " file"
+Write logs to the specified file.  
+The default log file is
+.IR dbmerge.log .
+.TP
+.BI -T " dir"
+Use
+.I dir
+as the temporary directory.
+Defaults to the value of
+.B TMPDIR
+if set, otherwise
+.IR /tmp .
+
+.SH EXIT STATUS
+Returns 0 on success, nonzero on errors.
+
+.SH ENVIRONMENT
+.TP
+.B TMPDIR
+Temporary directory if
+.BR -T
+is not provided.
+The temporary directory must have enough space to store the resulting database,
+which will be about 30% larger than the total size of the combined database
+files.
+
+.SH FILES
+.TP
+.I dbmerge.log
+Default log output.
+
+.SH EXAMPLES
+Below is a complete example of splitting the processing of several
+Linux kernel configurations into 64 chunks and then merging the results.
+.ft C
+.nf
+# Create and use a space for the split data.
+mkdir parallel
+cd parallel
+
+# Split configurations into multiple files.
+cssplit -s 64 ../linux-*.cs
+
+# Run CScout on all split files in parallel.
+for f in file-*.cs ; do
+  cscout -s sqlite $f | sqlite3 $f.db &
+done
+
+# Wait for the CScout jobs to finish.
+while wait -n; do :; done
+
+# Merge the results into a single database.
+csmerge 64 ../merged.db
+.fi
+.ft P
+
+.SH "SEE ALSO"
+\fIcscout\fP(1),
+\fIcssplit\fP(1),
+\fIcsmake\fP(1),
+\fIsqlite3\fP(1),
+\fImktemp\fP(1)
+
+.SH AUTHOR
+(C) Copyright 2025 Diomidis Spinellis.

@@ -9,7 +9,7 @@ set -o pipefail
 # Try to limit the damage of a fault leading to a fork bomb
 ulimit -u 500 2>/dev/null || true
 
-TOOL_DIR=$(dirname $0)
+LIB_DIR=$(dirname $0)/../lib/csmerge
 LOG_FILE=csmerge.log
 
 # Log the specified message with a timestamp
@@ -151,7 +151,7 @@ merge_onto()
 
          # Keep temporary files if -k has been specified.
          ${DELETE_RM:-}
-       " "$TOOL_DIR/$i"
+       " "$LIB_DIR/$i"
      } |
      sqlite3 "$dest" 2>&1 |
      while read -r line ; do log "DB $dbid: $line" ; done

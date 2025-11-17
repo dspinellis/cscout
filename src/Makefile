@@ -220,6 +220,7 @@ endif
 test:
 	./runtest.sh $(TEST_FLAGS)
 	cd test/csmake && ./runtest.sh
+	make -C csmerge test
 
 tags:
 	ctags *.cpp *.h *.y
@@ -283,6 +284,7 @@ uninstall:
 	rm -f "$(PREFIX)/bin/cssplit"
 	rm -f "$(PREFIX)/bin/csreconst"
 	rm -rf "$(PREFIX)/include/cscout"
+	rm -rf "$(PREFIX)/lib/csmerge"
 	for i in ../man/*.1 ; do rm -f $(MANDIR)/$$(basename $$i) ; done
 
 example: build/cscout
