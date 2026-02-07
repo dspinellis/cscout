@@ -42,8 +42,6 @@ jobs:
       - name: Install dependencies
         run: |
           brew install make
-          brew install perl
-          brew install sqlite
 
       - name: Verify installations
         run: |
