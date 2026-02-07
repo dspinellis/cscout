@@ -2,12 +2,12 @@ Processing workspace TestWS
 Processing directory test/c
 Entering directory test/c
 Processing project Prj1
-Processing file c51-macro-metrics.c
-Done processing file c51-macro-metrics.c
+Processing file c63-macro-metrics.c
+Done processing file c63-macro-metrics.c
 Done processing project Prj1
 Processing project Prj2
-Processing file c51-macro-metrics.c
-Done processing file c51-macro-metrics.c
+Processing file c63-macro-metrics.c
+Done processing file c63-macro-metrics.c
 Processing file prj2.c
 Done processing file prj2.c
 Done processing project Prj2
