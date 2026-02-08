@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -192,7 +192,7 @@ IdQuery::param_url() const
 	if (ec) {
 		char buff[256];
 
-		snprintf(buff, sizeof(buff), "&ec=%p", ec);
+		snprintf(buff, sizeof(buff), "&ec=%p", (void *)ec);
 		r += buff;
 	} else {
 		r += "&match=";

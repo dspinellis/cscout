@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -103,7 +103,7 @@ using namespace picoQL;
 	do { \
 		if (browse_only) { \
 			nonbrowse_operation_prohibited(file); \
-			return; \
+			return 0; \
 		} \
 	} while (0)
 
@@ -191,7 +191,7 @@ static int num_id_replacements = 0;
 static int num_fun_call_refactorings = 0;
 
 
-void index_page(FILE *of, void *data);
+static int index_page(FILE *of, void *data);
 
 // Return the page suffix for the select call graph type
 static const char *
@@ -229,7 +229,7 @@ progress(typename container::const_iterator i, const container &c)
 static void
 html(FILE *of, const IdPropElem &i)
 {
-	fprintf(of, "<a href=\"id.html?id=%p\">", i.first);
+	fprintf(of, "<a href=\"id.html?id=%p\">", (void *)i.first);
 	html_string(of, (i.second).get_id());
 	fputs("</a>", of);
 }
@@ -237,7 +237,7 @@ html(FILE *of, const IdPropElem &i)
 static void
 html(FILE *of, const Call &c)
 {
-	fprintf(of, "<a href=\"fun.html?f=%p\">", &c);
+	fprintf(of, "<a href=\"fun.html?f=%p\">", (void *)&c);
 	html_string(of, c.get_name());
 	fputs("</a>", of);
 }
@@ -377,8 +377,9 @@ file_analyze(Fileid fi)
 					ids.insert(idi, IdProp::value_type(ec, Identifier(ec, s)));
 				if (ec->is_unused())
 					has_unused = true;
-				else
+				else {
 					; // TODO fi.set_associated_files(ec);
+				}
 			} else {
 				/*
 				 * This equivalence class is not needed.
@@ -1009,8 +1010,8 @@ html_file(FILE *of, Fileid fi)
 }
 
 // File query page
-static void
-filequery_page(FILE *of,  void *p)
+static int
+filequery_page(FILE *of,  void *)
 {
 	html_head(of, "filequery", "File Query");
 	fputs("<FORM ACTION=\"xfilequery.html\" METHOD=\"GET\">\n"
@@ -1032,18 +1033,19 @@ filequery_page(FILE *of,  void *p)
 	"</FORM>\n"
 	, of);
 	html_tail(of);
+	return 0;
 }
 
 // Process a file query
-static void
-xfilequery_page(FILE *of,  void *p)
+static int
+xfilequery_page(FILE *of,  void *)
 {
 	Timer timer;
 	char *qname = swill_getvar("n");
 	FileQuery query(of, Option::file_icase->get(), current_project);
 
 	if (!query.is_valid())
-		return;
+		return 0;
 
 	multiset <Fileid, FileQuery::specified_order> sorted_files;
 
@@ -1078,6 +1080,7 @@ xfilequery_page(FILE *of,  void *p)
 	pager.end();
 	timer.print_elapsed(of);
 	html_tail(of);
+	return 0;
 }
 
 
@@ -1138,8 +1141,8 @@ display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &so
 
 
 // Identifier query page
-static void
-iquery_page(FILE *of,  void *p)
+static int
+iquery_page(FILE *of,  void *)
 {
 	html_head(of, "iquery", "Identifier Query");
 	fputs("<FORM ACTION=\"xiquery.html\" METHOD=\"GET\">\n"
@@ -1183,11 +1186,12 @@ iquery_page(FILE *of,  void *p)
 	"</FORM>\n"
 	, of);
 	html_tail(of);
+	return 0;
 }
 
 // Function query page
-static void
-funquery_page(FILE *of,  void *p)
+static int
+funquery_page(FILE *of,  void *)
 {
 	html_head(of, "funquery", "Function Query");
 	fputs("<FORM ACTION=\"xfunquery.html\" METHOD=\"GET\">\n"
@@ -1259,6 +1263,7 @@ funquery_page(FILE *of,  void *p)
 	"</FORM>\n"
 	, of);
 	html_tail(of);
+	return 0;
 }
 
 void
@@ -1290,8 +1295,8 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 }
 
 // Process an identifier query
-static void
-xiquery_page(FILE *of,  void *p)
+static int
+xiquery_page(FILE *of,  void *)
 {
 	Timer timer;
 	prohibit_remote_access(of);
@@ -1307,7 +1312,7 @@ xiquery_page(FILE *of,  void *p)
 
 	if (!query.is_valid()) {
 		html_tail(of);
-		return;
+		return 0;
 	}
 
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
@@ -1342,11 +1347,12 @@ xiquery_page(FILE *of,  void *p)
 
 	timer.print_elapsed(of);
 	html_tail(of);
+	return 0;
 }
 
 // Process a function query
-static void
-xfunquery_page(FILE *of,  void *p)
+static int
+xfunquery_page(FILE *of,  void *)
 {
 	prohibit_remote_access(of);
 	Timer timer;
@@ -1359,7 +1365,7 @@ xfunquery_page(FILE *of,  void *p)
 	FunQuery query(of, Option::file_icase->get(), current_project);
 
 	if (!query.is_valid())
-		return;
+		return 0;
 
 	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
 	cerr << "Evaluating function query" << endl;
@@ -1384,6 +1390,7 @@ xfunquery_page(FILE *of,  void *p)
 		display_files(of, query, sorted_files);
 	timer.print_elapsed(of);
 	html_tail(of);
+	return 0;
 }
 
 // Display an identifier property
@@ -1414,20 +1421,20 @@ show_c_const(FILE *fo, Eclass *e)
 }
 
 // Details for each identifier
-void
-identifier_page(FILE *fo, void *p)
+static int
+identifier_page(FILE *fo, void *)
 {
 	Eclass *e;
 	if (!swill_getargs("p(id)", &e)) {
 		fprintf(fo, "Missing value");
-		return;
+		return 0;
 	}
 	char *subst;
 	Identifier &id = ids[e];
 	if ((subst = swill_getvar("sname"))) {
 		if (modification_state == ms_hand_edit) {
 			change_prohibited(fo);
-			return;
+			return 0;
 		}
 		prohibit_browsers(fo);
 		prohibit_remote_access(fo);
@@ -1458,8 +1465,8 @@ identifier_page(FILE *fo, void *p)
 				fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
 		fprintf(fo, "</ul>\n");
 	}
-	fprintf(fo, "<li><a href=\"xiquery.html?ec=%p&n=Dependent+Files+for+Identifier+%s&qf=1\">Dependent files</a>", e, id.get_id().c_str());
-	fprintf(fo, "<li><a href=\"xfunquery.html?ec=%p&qi=1&n=Functions+Containing+Identifier+%s\">Associated functions</a>", e, id.get_id().c_str());
+	fprintf(fo, "<li><a href=\"xiquery.html?ec=%p&n=Dependent+Files+for+Identifier+%s&qf=1\">Dependent files</a>", (void *)e, id.get_id().c_str());
+	fprintf(fo, "<li><a href=\"xfunquery.html?ec=%p&qi=1&n=Functions+Containing+Identifier+%s\">Associated functions</a>", (void *)e, id.get_id().c_str());
 	if (e->get_attribute(is_cfunction) || e->get_attribute(is_macro)) {
 		bool found = false;
 		// Loop through all declared functions
@@ -1471,7 +1478,7 @@ identifier_page(FILE *fo, void *p)
 				}
 				fprintf(fo, "\n<li>");
 				html_string(fo, i->second);
-				fprintf(fo, " &mdash; <a href=\"fun.html?f=%p\">function page</a>", i->second);
+				fprintf(fo, " &mdash; <a href=\"fun.html?f=%p\">function page</a>", (void *)i->second);
 			}
 		}
 		if (found)
@@ -1485,23 +1492,24 @@ identifier_page(FILE *fo, void *p)
 			"<INPUT TYPE=\"text\" NAME=\"sname\" VALUE=\"%s\" SIZE=10 MAXLENGTH=256> "
 			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n",
 			(id.get_replaced() ? id.get_newid() : id.get_id()).c_str());
-		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", e);
+		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", (void *)e);
 		if (!id.get_active())
 			fputs("<br>(This substitution is inactive.  Visit the <a href='replacements.html'>replacements page</a> to activate it again.)", fo);
 	}
 	fprintf(fo, "</ul>\n");
 	fprintf(fo, "</FORM>\n");
 	html_tail(fo);
+	return 0;
 }
 
 // Details for each function
-void
-function_page(FILE *fo, void *p)
+static int
+function_page(FILE *fo, void *)
 {
 	Call *f;
 	if (!swill_getargs("p(f)", &f)) {
 		fprintf(fo, "Missing value");
-		return;
+		return 0;
 	}
 	char *subst;
 	if ((subst = swill_getvar("ncall"))) {
@@ -1509,16 +1517,16 @@ function_page(FILE *fo, void *p)
 		const char *error;
 		if (!is_function_call_replacement_valid(ssubst.begin(), ssubst.end(), &error)) {
 			fprintf(fo, "Invalid function call refactoring template: %s", error);
-			return;
+			return 0;
 		}
 		Eclass *ec;
 		if (!swill_getargs("p(id)", &ec)) {
 			fprintf(fo, "Missing value");
-			return;
+			return 0;
 		}
 		if (modification_state == ms_hand_edit) {
 			change_prohibited(fo);
-			return;
+			return 0;
 		}
 		prohibit_browsers(fo);
 		prohibit_remote_access(fo);
@@ -1541,7 +1549,7 @@ function_page(FILE *fo, void *p)
 			t.get_fileid().get_id(), lnum, lnum);
 			fprintf(fo, " &mdash; <a href=\"qsrc.html?qt=fun&id=%u&match=Y&call=%p&n=Declaration+of+%s\">marked source</a>",
 				t.get_fileid().get_id(),
-				f, f->get_name().c_str());
+				(void *)f, f->get_name().c_str());
 			if (modification_state != ms_subst && !browse_only)
 				fprintf(fo, " &mdash; <a href=\"fedit.html?id=%u&re=%s\">edit</a>",
 				t.get_fileid().get_id(), f->get_name().c_str());
@@ -1561,15 +1569,15 @@ function_page(FILE *fo, void *p)
 		fprintf(fo, "<li> No definition found\n");
 	// Functions that are Down from us in the call graph
 	fprintf(fo, "<li> Calls directly %d functions", f->get_num_call());
-	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d&e=1\">Explore directly called functions</a>\n", f);
-	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=D\">List of all called functions</a>\n", f);
-	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=D\">Call graph of all called functions</a>", graph_suffix(), f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=d&e=1\">Explore directly called functions</a>\n", (void *)f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=D\">List of all called functions</a>\n", (void *)f);
+	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=D\">Call graph of all called functions</a>", graph_suffix(), (void *)f);
 	// Functions that are Up from us in the call graph
 	fprintf(fo, "<li> Called directly by %d functions", f->get_num_caller());
-	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u&e=1\">Explore direct callers</a>\n", f);
-	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", f);
-	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", graph_suffix(), f);
-	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=B\">Call graph of all calling and called functions</a> (function in context)", graph_suffix(), f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=u&e=1\">Explore direct callers</a>\n", (void *)f);
+	fprintf(fo, "<li> <a href=\"funlist.html?f=%p&n=U\">List of all callers</a>\n", (void *)f);
+	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=U\">Call graph of all callers</a>", graph_suffix(), (void *)f);
+	fprintf(fo, "<li> <a href=\"cgraph%s?all=1&f=%p&n=B\">Call graph of all calling and called functions</a> (function in context)", graph_suffix(), (void *)f);
 
 	// Allow function call refactoring only if there is a one to one relationship between the identifier and the function
 	Eclass *ec;
@@ -1603,8 +1611,8 @@ function_page(FILE *fo, void *p)
 				"<INPUT TYPE=\"text\" NAME=\"ncall\" VALUE=\"%s\" SIZE=40 MAXLENGTH=256> "
 				"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n",
 				repl_temp.str().c_str());
-			fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", ec);
-			fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"f\" VALUE=\"%p\">\n", f);
+			fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", (void *)ec);
+			fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"f\" VALUE=\"%p\">\n", (void *)f);
 			if (rfc != RefFunCall::store.end() && !rfc->second.is_active())
 				fputs("<br>(This refactoring is inactive.  Visit the <a href='funargrefs.html'>refactorings page</a> to activate it again.)", fo);
 		}
@@ -1637,6 +1645,7 @@ function_page(FILE *fo, void *p)
 	}
 	fprintf(fo, "</FORM>\n");
 	html_tail(fo);
+	return 0;
 }
 
 /*
@@ -1778,7 +1787,7 @@ explore_functions(FILE *fo, Call *f,
 		if (((*i)->*fbegin)() != ((*i)->*fend)()) {
 			/* Functions below; create +/- hyperlink. */
 			char param[1024];
-			snprintf(param, sizeof(param), "f%02d%p", level, &(**i));
+			snprintf(param, sizeof(param), "f%02d%p", level, (void *)&(**i));
 			char *pval = swill_getvar(param);
 
 			if (pval) {
@@ -1809,8 +1818,8 @@ explore_functions(FILE *fo, Call *f,
 }
 
 // List of functions associated with a given one
-static void
-funlist_page(FILE *fo, void *p)
+static int
+funlist_page(FILE *fo, void *)
 {
 	Call *f;
 	char buff[256];
@@ -1818,7 +1827,7 @@ funlist_page(FILE *fo, void *p)
 	char *ltype = swill_getvar("n");
 	if (!swill_getargs("p(f)", &f) || !ltype) {
 		fprintf(fo, "Missing value");
-		return;
+		return 0;
 	}
 	html_head(fo, "funlist", "Function List");
 	fprintf(fo, "<h2>Function ");
@@ -1837,7 +1846,7 @@ funlist_page(FILE *fo, void *p)
 		break;
 	default:
 		fprintf(fo, "Illegal value");
-		return;
+		return 0;
 	}
 	// Pointers to the ...begin and ...end methods
 	Call::const_fiterator_type (Call::*fbegin)() const;
@@ -1849,14 +1858,14 @@ funlist_page(FILE *fo, void *p)
 		fbegin = &Call::caller_begin;
 		fend = &Call::caller_end;
 		fprintf(fo, "List of %s calling functions\n", calltype);
-		snprintf(buff, sizeof(buff), " &mdash; <a href=\"cpath%s?from=%%p&to=%p\">call path from function</a>", graph_suffix(), f);
+		snprintf(buff, sizeof(buff), " &mdash; <a href=\"cpath%s?from=%%p&to=%p\">call path from function</a>", graph_suffix(), (void *)f);
 		break;
 	case 'd':
 	case 'D':
 		fbegin = &Call::call_begin;
 		fend = &Call::call_end;
 		fprintf(fo, "List of %s called functions\n", calltype);
-		snprintf(buff, sizeof(buff), " &mdash; <a href=\"cpath%s?from=%p&to=%%p\">call path to function</a>", graph_suffix(), f);
+		snprintf(buff, sizeof(buff), " &mdash; <a href=\"cpath%s?from=%p&to=%%p\">call path to function</a>", graph_suffix(), (void *)f);
 		break;
 	}
 	if (swill_getvar("e")) {
@@ -1869,6 +1878,7 @@ funlist_page(FILE *fo, void *p)
 		fprintf(fo, "</ul>\n");
 	}
 	html_tail(fo);
+	return 0;
 }
 
 // Display the call paths between functions from and to
@@ -1911,18 +1921,18 @@ call_path(GraphDisplay *gd, Call *from, Call *to, bool generate_nodes)
 }
 
 // List the call graph from one function to another
-static void
+static int
 cpath_page(GraphDisplay *gd)
 {
 	Call *from, *to;
 
 	if (!swill_getargs("p(from)", &from)) {
 		fprintf(stderr, "Missing from value");
-		return;
+		return 0;
 	}
 	if (!swill_getargs("p(to)", &to)) {
 		fprintf(stderr, "Missing to value");
-		return;
+		return 0;
 	}
 	gd->head("callpath", "Function Call Path", Option::cgraph_show->get() == 'e');
 	gd->subhead(string("Path ") +
@@ -1935,12 +1945,13 @@ cpath_page(GraphDisplay *gd)
 	Call::clear_visit_flags();
 	call_path(gd, from, to, false);
 	gd->tail();
+	return 0;
 }
 
 
 // Front-end global options page
-void
-options_page(FILE *fo, void *p)
+static int
+options_page(FILE *fo, void *)
 {
 	html_head(fo, "options", "Global Options");
 	fprintf(fo, "<FORM ACTION=\"soptions.html\" METHOD=\"GET\">\n");
@@ -1950,17 +1961,18 @@ options_page(FILE *fo, void *p)
 	fprintf(fo, "<INPUT TYPE=\"submit\" NAME=\"set\" VALUE=\"Apply\">\n");
 	fprintf(fo, "</FORM>\n");
 	html_tail(fo);
+	return 0;
 }
 
 // Front-end global options page
-void
+static int
 set_options_page(FILE *fo, void *p)
 {
 	prohibit_remote_access(fo);
 
 	if (string(swill_getvar("set")) == "Cancel") {
 		index_page(fo, p);
-		return;
+		return 0;
 	}
 	Option::set_all();
 	if (Option::sfile_re_string->get().length()) {
@@ -1969,18 +1981,18 @@ set_options_page(FILE *fo, void *p)
 			html_head(fo, "regerror", "Regular Expression Error");
 			fprintf(fo, "<h2>Filename regular expression error</h2>%s", sfile_re.getError().c_str());
 			html_tail(fo);
-			return;
+			return 0;
 		}
 	}
 	if (string(swill_getvar("set")) == "Apply")
-		options_page(fo, p);
+		return options_page(fo, p);
 	else
-		index_page(fo, p);
+		return index_page(fo, p);
 }
 
 // Save options in .cscout/options
-static void
-save_options_page(FILE *fo, void *p)
+static int
+save_options_page(FILE *fo, void *)
 {
 	prohibit_browsers(fo);
 	prohibit_remote_access(fo);
@@ -1990,13 +2002,14 @@ save_options_page(FILE *fo, void *p)
 	string fname;
 	if (!cscout_output_file("options", out, fname)) {
 		html_perror(fo, "Unable to open " + fname + " for writing");
-		return;
+		return 0;
 	}
 	Option::save_all(out);
 	out.close();
 	fprintf(fo, "Options have been saved in the file \"%s\".\n", fname.c_str());
 	fprintf(fo, "They will be loaded when CScout is executed again.");
 	html_tail(fo);
+	return 0;
 }
 
 // Load the CScout options.
@@ -2022,34 +2035,37 @@ options_load()
 	fprintf(stderr, "Options loaded from %s\n", fname.c_str());
 }
 
-void
-file_metrics_page(FILE *fo, void *p)
+static int
+file_metrics_page(FILE *fo, void *)
 {
 	html_head(fo, "filemetrics", "File Metrics");
 	ostringstream mstring;
 	mstring << file_msum;
 	fputs(mstring.str().c_str(), fo);
 	html_tail(fo);
+	return 0;
 }
 
-void
-function_metrics_page(FILE *fo, void *p)
+static int
+function_metrics_page(FILE *fo, void *)
 {
 	html_head(fo, "funmetrics", "Function Metrics");
 	ostringstream mstring;
 	mstring << fun_msum;
 	fputs(mstring.str().c_str(), fo);
 	html_tail(fo);
+	return 0;
 }
 
-void
-id_metrics_page(FILE *fo, void *p)
+static int
+id_metrics_page(FILE *fo, void *)
 {
 	html_head(fo, "idmetrics", "Identifier Metrics");
 	ostringstream mstring;
 	mstring << id_msum;
 	fputs(mstring.str().c_str(), fo);
 	html_tail(fo);
+	return 0;
 }
 
 /*
@@ -2166,7 +2182,7 @@ single_file_function_graph()
 }
 
 // Call graph
-static void
+static int
 cgraph_page(GraphDisplay *gd)
 {
 	bool all, only_visited;
@@ -2212,10 +2228,11 @@ cgraph_page(GraphDisplay *gd)
 	}
 end:
 	gd->tail();
+	return 0;
 }
 
 // File dependency graph
-static void
+static int
 fgraph_page(GraphDisplay *gd)
 {
 
@@ -2232,7 +2249,7 @@ fgraph_page(GraphDisplay *gd)
 		gd->head("fgraph", "Error", false);
 		gd->error("Missing value");
 		gd->tail();
-		return;
+		return 0;
 	}
 	bool all, only_visited;
 	EdgeMatrix edges;
@@ -2283,7 +2300,7 @@ fgraph_page(GraphDisplay *gd)
 		gd->head("fgraph", "Error", empty_node);
 		gd->error("Unknown graph type");
 		gd->tail();
-		return;
+		return 0;
 	}
 	int count = 0;
 	// First generate the node labels
@@ -2362,10 +2379,11 @@ fgraph_page(GraphDisplay *gd)
 	}
 end:
 	gd->tail();
+	return 0;
 }
 
 // Graph: text
-static void
+static int
 graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	// Add output and outfile argument to enable output to outfile
@@ -2382,61 +2400,67 @@ graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 		GDTxt gd(fo);
 		graph_fun(&gd);
 	}
-
+	return 0;
 }
 
 // Graph: HTML
-static void
+static int
 graph_html_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	GDHtml gd(fo);
 	graph_fun(&gd);
+	return 0;
 }
 
 // Graph: dot
-static void
+static int
 graph_dot_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	GDDot gd(fo);
 	graph_fun(&gd);
+	return 0;
 }
 
 // Graph: SVG via dot
-static void
+static int
 graph_svg_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	prohibit_remote_access(fo);
 	GDSvg gd(fo);
 	graph_fun(&gd);
+	return 0;
 }
 
 // Graph: GIF via dot
-static void
+static int
 graph_gif_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	prohibit_remote_access(fo);
 	GDGif gd(fo);
 	graph_fun(&gd);
+	return 0;
 }
 
 
 // Graph: PNG via dot
-static void
+static int
 graph_png_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	prohibit_remote_access(fo);
 	GDPng gd(fo);
 	graph_fun(&gd);
+	return 0;
 }
 
 
 // Graph: PDF via dot
-static void
+static int
 graph_pdf_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 {
 	prohibit_remote_access(fo);
 	GDPdf gd(fo);
 	graph_fun(&gd);
+	return 0;
 }
 
 
@@ -2529,7 +2553,7 @@ produce_call_graphs(const vector <string> &call_graphs)
 
 // Setup graph handling for all supported graph output types
 static void
-graph_handle(string name, void (*graph_fun)(GraphDisplay *))
+graph_handle(string name, int (*graph_fun)(GraphDisplay *))
 {
 	swill_handle((name + ".html").c_str(), graph_html_page, graph_fun);
 	swill_handle((name + ".txt").c_str(), graph_txt_page, graph_fun);
@@ -2541,8 +2565,8 @@ graph_handle(string name, void (*graph_fun)(GraphDisplay *))
 }
 
 // Display all projects, allowing user to select
-void
-select_project_page(FILE *fo, void *p)
+static int
+select_project_page(FILE *fo, void *)
 {
 	html_head(fo, "sproject", "Select Active Project");
 	fprintf(fo, "<ul>\n");
@@ -2551,10 +2575,11 @@ select_project_page(FILE *fo, void *p)
 		fprintf(fo, "<li> <a href=\"setproj.html?projid=%u\">%s</a>\n", (unsigned)j, Project::get_projname(j).c_str());
 	fprintf(fo, "\n</ul>\n");
 	html_tail(fo);
+	return 0;
 }
 
 // Select a single project (or none) to restrict file/identifier results
-void
+static int
 set_project_page(FILE *fo, void *p)
 {
 	prohibit_browsers(fo);
@@ -2562,9 +2587,10 @@ set_project_page(FILE *fo, void *p)
 
 	if (!swill_getargs("i(projid)", &current_project)) {
 		fprintf(fo, "Missing value");
-		return;
+		return 0;
 	}
 	index_page(fo, p);
+	return 0;
 }
 
 // Return version information
@@ -2609,18 +2635,19 @@ version_info(bool html)
 }
 
 // Display information about CScout
-void
-about_page(FILE *fo, void *p)
+static int
+about_page(FILE *fo, void *)
 {
 	html_head(fo, "about", "About CScout");
 	fputs(version_info(true).c_str(), fo);
 	html_tail(fo);
+	return 0;
 }
 
 
 // Index
-void
-index_page(FILE *of, void *data)
+static int
+index_page(FILE *of, void *)
 {
 	html_head(of, "index", "CScout Main Page", "<img src=\"logo.png\">Scout Main Page");
 	fputs(
@@ -2714,15 +2741,16 @@ index_page(FILE *of, void *data)
 			"</ul></div>", of);
 	fputs("</td></tr></table>\n", of);
 	html_tail(of);
+	return 0;
 }
 
-void
-file_page(FILE *of, void *p)
+static int
+file_page(FILE *of, void *)
 {
 	int id;
 	if (!swill_getargs("i(id)", &id)) {
 		fprintf(of, "Missing value");
-		return;
+		return 0;
 	}
 	Fileid i(id);
 	const string &pathname = i.get_path();
@@ -2750,7 +2778,7 @@ file_page(FILE *of, void *p)
 	}
 	if (Filedetails::is_hand_edited(i))
 		fprintf(of, "<li>Hand edited\n");
-	fprintf(of, "<li> <a href=\"dir.html?dir=%p\">File's directory</a>", dir_add_file(i));
+	fprintf(of, "<li> <a href=\"dir.html?dir=%p\">File's directory</a>", (void *)dir_add_file(i));
 
 	fprintf(of, "</ul>\n<h2>Listings</h2><ul>\n<li> <a href=\"src.html?id=%u\">Source code</a>\n", i.get_id());
 	fprintf(of, "<li> <a href=\"src.html?id=%u&marku=1\">Source code with unprocessed regions marked</a>\n", i.get_id());
@@ -2831,29 +2859,31 @@ file_page(FILE *of, void *p)
 	fprintf(of, "</table>\n");
 
 	html_tail(of);
+	return 0;
 }
 
-void
-source_page(FILE *of, void *p)
+static int
+source_page(FILE *of, void *)
 {
 	int id;
 	if (!swill_getargs("i(id)", &id)) {
 		fprintf(of, "Missing value");
-		return;
+		return 0;
 	}
 	Fileid i(id);
 	const string &pathname = i.get_path();
 	html_head(of, "src", string("Source: ") + html(pathname));
 	file_hypertext(of, i, false);
 	html_tail(of);
+	return 0;
 }
 
-static void
-fedit_page(FILE *of, void *p)
+static int
+fedit_page(FILE *of, void *)
 {
 	if (modification_state == ms_subst) {
 		change_prohibited(of);
-		return;
+		return 0;
 	}
 	prohibit_browsers(of);
 	prohibit_remote_access(of);
@@ -2861,7 +2891,7 @@ fedit_page(FILE *of, void *p)
 	int id;
 	if (!swill_getargs("i(id)", &id)) {
 		fprintf(of, "Missing value");
-		return;
+		return 0;
 	}
 	Fileid i(id);
 	Filedetails::set_hand_edited(i);
@@ -2871,21 +2901,22 @@ fedit_page(FILE *of, void *p)
 	cerr << "Running " << buff << endl;
 	if (system(buff) != 0) {
 		html_error(of, string("Launching ") + buff + " failed");
-		return;
+		return 0;
 	}
 	html_head(of, "fedit", "External Editor");
 	fprintf(of, "The editor should have started in a separate window");
-	html_tail(of);
 	modification_state = ms_hand_edit;
+	html_tail(of);
+	return 0;
 }
 
-void
-query_source_page(FILE *of, void *p)
+static int
+query_source_page(FILE *of, void *)
 {
 	int id;
 	if (!swill_getargs("i(id)", &id)) {
 		fprintf(of, "Missing value");
-		return;
+		return 0;
 	}
 	Fileid i(id);
 	const string &pathname = i.get_path();
@@ -2897,15 +2928,16 @@ query_source_page(FILE *of, void *p)
 	fputs("<p>Use the tab key to move to each marked element.</p>", of);
 	file_hypertext(of, i, true);
 	html_tail(of);
+	return 0;
 }
 
-void
-query_include_page(FILE *of, void *p)
+static int
+query_include_page(FILE *of, void *)
 {
 	int id;
 	if (!swill_getargs("i(id)", &id)) {
 		fprintf(of, "Missing value");
-		return;
+		return 0;
 	}
 	Fileid f(id);
 	const string &pathname = f.get_path();
@@ -2945,16 +2977,18 @@ query_include_page(FILE *of, void *p)
 	html_file_end(of);
 	fputs("</ul>\n", of);
 	html_tail(of);
+	return 0;
 }
 
-static void
-logo_page(FILE *fo, void *p)
+static int
+logo_page(FILE *fo, void *)
 {
 	Logo::logo(fo);
+	return 0;
 }
 
-static void
-replacements_page(FILE *of, void *p)
+static int
+replacements_page(FILE *of, void *)
 {
 	prohibit_remote_access(of);
 	html_head(of, "replacements", "Identifier Replacements");
@@ -2971,17 +3005,18 @@ replacements_page(FILE *of, void *p)
 			fprintf(of,
 				"</td><td><input type=\"text\" name=\"r%p\" value=\"%s\" size=\"10\" maxlength=\"256\"></td>"
 				"<td><input type=\"checkbox\" name=\"a%p\" value=\"1\" %s></td></tr>\n",
-				&(i->second), i->second.get_newid().c_str(),
-				&(i->second), i->second.get_active() ? "checked" : "");
+				(void *)&(i->second), i->second.get_newid().c_str(),
+				(void *)&(i->second), i->second.get_active() ? "checked" : "");
 		}
 	}
 	cerr << endl;
 	fputs("</table><p><INPUT TYPE=\"submit\" name=\"repl\" value=\"OK\">\n", of);
 	html_tail(of);
+	return 0;
 }
 
 // Process an identifier replacements form
-static void
+static int
 xreplacements_page(FILE *of,  void *p)
 {
 	prohibit_browsers(of);
@@ -2993,24 +3028,25 @@ xreplacements_page(FILE *of,  void *p)
 		progress(i, ids);
 		if (i->second.get_replaced()) {
 			char varname[128];
-			snprintf(varname, sizeof(varname), "r%p", &(i->second));
+			snprintf(varname, sizeof(varname), "r%p", (void *)&(i->second));
 			char *subst;
 			if ((subst = swill_getvar(varname))) {
 				string ssubst(subst);
 				i->second.set_newid(ssubst);
 			}
 
-			snprintf(varname, sizeof(varname), "a%p", &(i->second));
+			snprintf(varname, sizeof(varname), "a%p", (void *)&(i->second));
 			i->second.set_active(!!swill_getvar(varname));
 		}
 	}
 	cerr << endl;
 	index_page(of, p);
+	return 0;
 }
 
 
-static void
-funargrefs_page(FILE *of, void *p)
+static int
+funargrefs_page(FILE *of, void *)
 {
 	prohibit_remote_access(of);
 	html_head(of, "funargrefs", "Function Argument Refactorings");
@@ -3024,15 +3060,16 @@ funargrefs_page(FILE *of, void *p)
 		fprintf(of,
 			"</td><td><input type=\"text\" name=\"r%p\" value=\"%s\" size=\"10\" maxlength=\"256\"></td>"
 			"<td><input type=\"checkbox\" name=\"a%p\" value=\"1\" %s></td></tr>\n",
-			i->first, i->second.get_replacement().c_str(),
-			i->first, i->second.is_active() ? "checked" : "");
+			(void *)i->first, i->second.get_replacement().c_str(),
+			(void *)i->first, i->second.is_active() ? "checked" : "");
 	}
 	fputs("</table><p><INPUT TYPE=\"submit\" name=\"repl\" value=\"OK\">\n", of);
 	html_tail(of);
+	return 0;
 }
 
 // Process a function argument refactorings form
-static void
+static int
 xfunargrefs_page(FILE *of,  void *p)
 {
 	prohibit_browsers(of);
@@ -3040,21 +3077,22 @@ xfunargrefs_page(FILE *of,  void *p)
 
 	for (RefFunCall::store_type::iterator i = RefFunCall::store.begin(); i != RefFunCall::store.end(); i++) {
 		char varname[128];
-		snprintf(varname, sizeof(varname), "r%p", i->first);
+		snprintf(varname, sizeof(varname), "r%p", (void *)i->first);
 		char *subst;
 		if ((subst = swill_getvar(varname))) {
 			string ssubst(subst);
 			i->second.set_replacement(ssubst);
 		}
 
-		snprintf(varname, sizeof(varname), "a%p", i->first);
+		snprintf(varname, sizeof(varname), "a%p", (void *)i->first);
 		i->second.set_active(!!swill_getvar(varname));
 	}
 	index_page(of, p);
+	return 0;
 }
 
 
-void
+static int
 write_quit_page(FILE *of, void *exit)
 {
 	prohibit_browsers(of);
@@ -3070,7 +3108,7 @@ write_quit_page(FILE *of, void *exit)
 			"Either set the filename substitution rule option, "
 			"or select the save and exit operation.", of);
 			html_tail(of);
-			return;
+			return 0;
 		}
 		html_head(of, "save", "Saving changes");
 	}
@@ -3106,7 +3144,7 @@ write_quit_page(FILE *of, void *exit)
 	if (Token::found_clashes) {
 		fprintf(of, "Renamed identifier clashes detected. Errors reported on console output. No files were saved.");
 		html_tail(of);
-		return;
+		return 0;
 	}
 
 	cerr << "Examining function calls for refactoring" << endl;
@@ -3131,10 +3169,11 @@ write_quit_page(FILE *of, void *exit)
 		must_exit = true;
 	} else
 		html_tail(of);
+	return 0;
 }
 
-void
-quit_page(FILE *of, void *p)
+static int
+quit_page(FILE *of, void *)
 {
 	prohibit_browsers(of);
 	prohibit_remote_access(of);
@@ -3143,6 +3182,7 @@ quit_page(FILE *of, void *p)
 	fprintf(of, "No changes were saved.");
 	fprintf(of, "<p>Bye...</body></html>");
 	must_exit = true;
+	return 0;
 }
 
 // Parse the access control list acl.
@@ -3339,7 +3379,7 @@ usage(char *fname)
 static CompiledRE
 verified_compiled_re(const char *s)
 {
-	CompiledRE pre(optarg, REG_EXTENDED | REG_NOSUB);
+	CompiledRE pre(s, REG_EXTENDED | REG_NOSUB);
 
 	if (!pre.isCorrect()) {
 		cerr << "Filename regular expression error:" <<
@@ -3685,7 +3725,7 @@ main(int argc, char *argv[])
 		swill_handle("about.html", about_page, NULL);
 		swill_handle("setproj.html", set_project_page, NULL);
 		swill_handle("logo.png", logo_page, NULL);
-		swill_handle("index.html", (void (*)(FILE *, void *))((char *)index_page), 0);
+		swill_handle("index.html", index_page, 0);
 	}
 
 

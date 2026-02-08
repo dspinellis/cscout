@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -178,7 +178,7 @@ Type_node::get_token() const
 }
 
 void
-Type_node::set_union(bool v)
+Type_node::set_union(bool)
 {
 	Error::error(E_INTERNAL, "attempt to call set_union on a non struct/union type");
 	this->print(cerr);
@@ -246,7 +246,7 @@ Type_node::get_qualifiers() const
 }
 
 const Id *
-Type_node::member(const string& s) const
+Type_node::member(const string&) const
 {
 	Error::error(E_ERR, "invalid member access: not a structure or union");
 	if (DP())
@@ -576,7 +576,7 @@ Tsu::print(ostream &o) const
  * - Add each structure member to members_by_name so that name
  *   lookups also work as expected.
  */
-Tsu::Tsu(Tsu_unnamed a, const Type &typ) :
+Tsu::Tsu(Tsu_unnamed, const Type &typ) :
 		default_specifier(basic(b_undeclared)), is_union(false) {
 
 	members_by_ordinal.push_back(Id(typ));
@@ -905,7 +905,7 @@ merge(Type a, Type b)
 }
 
 void
-Type_node::set_abstract(Type t)
+Type_node::set_abstract(Type)
 {
 	/*
 	 * @error
@@ -1043,7 +1043,7 @@ Tstorage::set_storage_class(Type t)
 }
 
 void
-Type_node::set_storage_class(Type t)
+Type_node::set_storage_class(Type)
 {
 	Error::error(E_INTERNAL, "object can not set storage class");
 	this->print(cerr);
@@ -1065,14 +1065,14 @@ Type_node::clear_storage_class()
 
 
 void
-Type_node::add_qualifiers(Type t)
+Type_node::add_qualifiers(Type)
 {
 	Error::error(E_INTERNAL, "object can not add qualifiers");
 	this->print(cerr);
 }
 
 void
-Type_node::add_member(const Token &tok, const Type &typ)
+Type_node::add_member(const Token &, const Type &)
 {
 	Error::error(E_INTERNAL, "add_member: object is not a structure/union");
 	this->print(cerr);

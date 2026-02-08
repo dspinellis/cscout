@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -88,9 +88,7 @@ public:
 	// Will read characters from file named s
 	static void set_input(const string& s);
 	// From now on will read from s; on EOF resume with previous file
-	// Offset is the location of the include file path where the file
-	// was located, and is used for implementing include_next
-	static void push_input(const string& s, int offset = 0);
+	static void push_input(const string& s);
 	// Next constructor will return c
 	static void putback(Fchar c);
 	/*

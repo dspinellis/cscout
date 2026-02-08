@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -106,7 +106,7 @@ Fdep::reset()
  * compilation unit cu
  */
 void
-Fdep::dumpSql(Sql *db, Fileid cu)
+Fdep::dumpSql(Sql *, Fileid cu)
 {
 	if (table_is_enabled(t_definers))
 		for (FSFMap::const_iterator di = definers.begin(); di != definers.end(); di++) {

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001-2024 Diomidis Spinellis
+# (C) Copyright 2001-2026 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -91,7 +91,7 @@ YACC=../btyacc/btyacc
 
 # Compile with CPPFLAGS=-DNO_DP to remove debugpoint support and thereby
 # improve processing throughput.
-CPPFLAGS+=-pipe -Wall -I. -DPREFIX='"$(PREFIX)"'
+CPPFLAGS+=-pipe -Wall -Wextra -Wpedantic -I. -DPREFIX='"$(PREFIX)"'
 CXXFLAGS+=-std=c++17
 ifdef DEBUG
 # Debug build

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -47,10 +47,10 @@ public:
 	string ltype;
 
 	GraphDisplay(FILE *f) : fo(f), fdot(NULL) {}
-	virtual void head(const char *fname, const char *title, bool empty_node) {};
-	virtual void subhead(const string &text) {};
-	virtual void node(Call *p) {};
-	virtual void node(Fileid f) {};
+	virtual void head(const char *, const char *, bool) {};
+	virtual void subhead(const string &) {};
+	virtual void node(Call *) {};
+	virtual void node(Fileid) {};
 	virtual void edge(Call *a, Call *b) = 0;
 	virtual void edge(Fileid a, Fileid b) = 0;
 	virtual void error(const char *msg) = 0;
@@ -62,7 +62,7 @@ public:
 class GDHtml: public GraphDisplay {
 public:
 	GDHtml(FILE *f) : GraphDisplay(f) {}
-	virtual void head(const char *fname, const char *title, bool empty_node) {
+	virtual void head(const char *fname, const char *title, bool) {
 		html_head(fo, fname, title);
 		fprintf(fo, "<table border=\"0\">\n");
 	}
@@ -130,9 +130,9 @@ public:
 	GDDot(FILE *f) : GraphDisplay(f) {}
 	virtual void head(const char *fname, const char *title, bool empty_node);
 	virtual void node(Call *p) {
-		fprintf(fdot, "\t_%p [label=\"%s\"", p, Option::cgraph_show->get() == 'e' ? "" : function_label(p, false).c_str());
+		fprintf(fdot, "\t_%p [label=\"%s\"", (void *)p, Option::cgraph_show->get() == 'e' ? "" : function_label(p, false).c_str());
 		if (isHyperlinked())
-			fprintf(fdot, ", URL=\"fun.html?f=%p\"", p);
+			fprintf(fdot, ", URL=\"fun.html?f=%p\"", (void *)p);
 		fprintf(fdot, "];\n");
 	}
 
@@ -144,7 +144,7 @@ public:
 	}
 
 	virtual void edge(Call *a, Call *b) {
-		fprintf(fdot, "\t_%p -> _%p;\n", a, b);
+		fprintf(fdot, "\t_%p -> _%p;\n", (void *)a, (void *)b);
 	}
 
 	virtual void edge(Fileid a, Fileid b) {

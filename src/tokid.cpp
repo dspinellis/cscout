@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -66,7 +66,7 @@ operator<<(ostream& o,const Tokid t)
 }
 
 ostream&
-operator<<(ostream& o,const mapTokidEclass& t)
+operator<<(ostream& o,const mapTokidEclass&)
 {
 	mapTokidEclass::const_iterator i;
 

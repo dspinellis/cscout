@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -394,6 +394,7 @@ again:
 				parse_lval.t = basic(b_int);
 				parse_lval.t.set_value(unescape_char(s, si));
 			}
+			return (CHAR_LITERAL);
 		default:
 			return (c);
 		}

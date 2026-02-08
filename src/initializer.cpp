@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2025 Diomidis Spinellis
+ * (C) Copyright 2025-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -136,7 +136,7 @@ Initializer::clear_used_elements()
 void
 Initializer::context_save()
 {
-	saved_stacks.push((struct InitializerContext){element_stack, upcoming_element});
+	saved_stacks.push(InitializerContext{element_stack, upcoming_element});
 	element_stack = Initializer::ElementStack();
 	upcoming_element = Type();
 }

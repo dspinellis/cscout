@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -240,7 +240,7 @@ public:
 
 // Write out the projects for which the given line is processed.
 static void
-line_projects_dump(Sql *db, ostream &of, Fileid fid, int line_number)
+line_projects_dump(ostream &of, Fileid fid, int line_number)
 {
 	for (unsigned projid = attr_end; projid < Attributes::get_num_attributes(); projid++)
 		if (Filedetails::get_attribute(fid, projid)
@@ -319,7 +319,7 @@ file_dump(Sql *db, ostream &of, Fileid fid)
 					    << "," << line_number
 					    << ");\n";
 				if (table_is_enabled(t_linepos))
-					line_projects_dump(db, of, fid, line_number);
+					line_projects_dump(of, fid, line_number);
 				at_bol = false;
 			}
 			if (c == '\n') {

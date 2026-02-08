@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -108,7 +108,7 @@ public:
 
 	// Erase the tokid's EC from the map
 	inline void erase_ec(mapTokidEclass::iterator i) const;
-	inline void erase_ec(Eclass *e) const;
+	inline void erase_ec() const;
 	// Returns the Tokids participating in all ECs for a token of length l
 	dequeTpart constituents(int l);
 	// Set the Tokid's equivalence class attribute
@@ -157,7 +157,7 @@ Tokid::operator +=(int i)
 }
 
 inline Tokid
-Tokid::operator ++(int dummy)
+Tokid::operator ++(int)
 {
 	offs++;
 	return (*this);
@@ -235,7 +235,7 @@ Tokid::erase_ec(mapTokidEclass::iterator i) const
 }
 
 inline void
-Tokid::erase_ec(Eclass *e) const
+Tokid::erase_ec() const
 {
 	mapTokidEclass::iterator i = tm.find(*this);
 	csassert(i != tm.end());

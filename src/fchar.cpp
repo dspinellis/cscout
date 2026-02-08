@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -80,7 +80,7 @@ Fchar::set_input(const string& s)
 }
 
 void
-Fchar::push_input(const string& s, int offset)
+Fchar::push_input(const string& s)
 {
 	Fileid includer = fi;
 	int include_lnum = line_number - 1;

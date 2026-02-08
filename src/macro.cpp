@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * You may only use this code if you agree to the terms of the CScout
  * Source Code License agreement (see License.txt).
@@ -202,7 +202,7 @@ escape(const string& s)
 		case '\\':
 		case '"':
 			r += '\\';
-			// FALTHROUGH
+			[[fallthrough]];
 		default:
 			r += *i;
 		}
@@ -682,7 +682,7 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 					os.splice(os.end(), opt);
 				continue;
 			}
-			// FALLTHROUGH
+			[[fallthrough]];
 		default:
 			ti = find_nonspace(is.begin(), is.end());
 			if (ti != is.end() && ti->get_code() == CPP_CONCAT) {

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2015 Diomidis Spinellis
+ * (C) Copyright 2008-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -33,7 +33,7 @@ class Fileid;
 // Add a file to the directory tree for later browsing
 void *dir_add_file(Fileid f);
 // Display a directory's contents
-void dir_page(FILE *of, void *p);
+int dir_page(FILE *of, void *p);
 // Display on of a URL for browsing the project's top dir
 void dir_top(FILE *of, const char *name);
 

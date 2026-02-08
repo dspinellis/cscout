@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2015 Diomidis Spinellis
+ * (C) Copyright 2008-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -130,7 +130,7 @@ public:
 
 	// Display a link to the directory's contents as HTML on of with the specified name
 	void html(FILE *of, const char *n) const {
-		fprintf(of, "<a href=\"dir.html?dir=%p\">%s</a><br />", this, n);
+		fprintf(of, "<a href=\"dir.html?dir=%p\">%s</a><br />", (void *)this, n);
 	}
 
 	// Display a link to the directory's contents as HTML on of
@@ -141,7 +141,7 @@ public:
 	// Display the directory's contents as HTML on of
 	void dirlist(FILE *of) const {
 		if (parent != this)
-			fprintf(of, "<a href=\"dir.html?dir=%p\">..</a><br />", parent);
+			fprintf(of, "<a href=\"dir.html?dir=%p\">..</a><br />", (void *)parent);
 		for (DirContents::const_iterator i = dir.begin(); i != dir.end(); i++)
 			i->second->html(of);
 	}
@@ -188,18 +188,19 @@ dir_add_file(Fileid f)
 
 
 // Display a directory's contents
-void
-dir_page(FILE *of, void *p)
+int
+dir_page(FILE *of, void *)
 {
 	DirDir *d;
 
 	if (!swill_getargs("p(dir)", &d)) {
 		fprintf(of, "Missing value");
-		return;
+		return 0;
 	}
 	html_head(of, "directory", string("Directory: ") + html(d->get_path()));
 	d->dirlist(of);
 	html_tail(of);
+	return 0;
 }
 
 // Display on of a URL for browsing the project's top dir

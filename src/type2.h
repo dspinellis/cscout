@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -252,7 +252,7 @@ public:
 	const Ctoken& get_token() const { return t; }
 	bool is_identifier() const { return (true); }
 	const string get_name() const { return t.get_name(); }
-	Type type(Type dflt) const { return of; }
+	Type type(Type) const { return of; }
 	Id const* member(const string& s) const
 		{ return of.member(s); }
 	Type member(int n)

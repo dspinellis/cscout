@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -109,7 +109,7 @@ Pltoken::getnext_analyze()
 	 */
 	case '\n':	// Needed for processing directives
 		context = cpp_normal;
-		// FALLTRHOUGH
+		[[fallthrough]];
 	case '[': case ']': case '(': case ')':
 	case '~': case '?': case ':': case ',':
 	case '{': case '}':

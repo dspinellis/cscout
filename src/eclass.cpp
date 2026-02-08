@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -59,7 +59,7 @@ Eclass::remove_from_tokid_map()
 	if (DP())
 		cout << "Destructing " << *this << "\n";
 	for (setTokid::const_iterator i = members.begin(); i != members.end(); i++)
-		(*i).erase_ec(this);
+		(*i).erase_ec();
 }
 
 // Merge the source EC into the dst EC.
@@ -150,7 +150,7 @@ void
 Eclass::remove_tokid(Tokid t)
 {
 	members.erase(t);
-	t.erase_ec(this);
+	t.erase_ec();
 }
 
 // Return a set of all files where the equivalence class appears

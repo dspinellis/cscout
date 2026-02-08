@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -187,7 +187,7 @@ again:
 		expand.push_front(t);
 		expand = macro_expand(expand, Macro::TokenSourceOption::get_more, Macro::DefinedHandlingOption::process, Macro::CalledContext::process_c);
 		goto expand_get;
-		// FALLTRHOUGH
+		[[fallthrough]];
 	default:
 		*this = t;
 		break;

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2015 Diomidis Spinellis
+ * (C) Copyright 2006-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -244,9 +244,9 @@ public:
 	// Constructor
 	TitleOption(const char *un) : Option("", un) {}
 	// Save to a file - noop
-	void save(ofstream &ofs) const {}
+	void save(ofstream &) const {}
 	// Load from a file - noop
-	void load(ifstream &ifs) {}
+	void load(ifstream &) {}
 	// Set from a submitted page - noop
 	void set() {}
 	// Return true if the option can be saved

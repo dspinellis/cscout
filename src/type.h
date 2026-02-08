@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -140,7 +140,7 @@ protected:
 	// Return the number of elements this type can be indexed to return their type (array, structure, union)
 	virtual CTConst get_indexed_elements() const { return CTConst(1); }
 	virtual void set_union(bool v);		// True for union false for struct
-	virtual void set_value(CTConst v) {}	// Set the value of a compile-time constant
+	virtual void set_value(CTConst) {}	// Set the value of a compile-time constant
 	virtual void add_qualifiers(Type t);		// Set our qualifiers to t
 	virtual void add_member(const Token &tok, const Type &typ);
 	virtual Type get_default_specifier() const;

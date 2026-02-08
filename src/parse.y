@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -76,7 +76,7 @@
 #include "mcall.h"
 #include "initializer.h"
 
-void parse_error(const char *s, ...)
+void parse_error(const char *, ...)
 {
 	Error::error(E_ERR, "syntax error");
 }

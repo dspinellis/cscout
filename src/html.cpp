@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2024 Diomidis Spinellis
+ * (C) Copyright 2008-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -237,7 +237,7 @@ function_label(Call *f, bool hyperlink)
 	char buff[256];
 
 	if (hyperlink) {
-		snprintf(buff, sizeof(buff), "<a href=\"fun.html?f=%p\">", f);
+		snprintf(buff, sizeof(buff), "<a href=\"fun.html?f=%p\">", (void *)f);
 		result = buff;
 	}
 	if (Option::show_function_type->get()) {
