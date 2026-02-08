@@ -7,8 +7,6 @@ FATAL	fprintf
 FATAL	va_end
 FATAL	va_start
 FATAL	vfprintf
-NN	NN
-NN	isarr
 RET	printf
 RET	tokname
 SYNTAX	cursource
