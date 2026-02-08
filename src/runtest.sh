@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# (C) Copyright 2001-2025 Diomidis Spinellis
+# (C) Copyright 2001-2026 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -514,21 +514,21 @@ then
   DB=awk.db
 
   # Populate the database
-  if ! [ -r $DB ] ; then
-    (
-      cd ../example
-      sql_prologue
-      ../src/$CSCOUT -s sqlite awk.cs 2>../src/test/err/chunk/sql.cs
-      echo "UPDATE files SET name = SUBSTR(name, INSTR(name, '/example/') + 1);"
-      echo "UPDATE files SET name = SUBSTR(name, INSTR(name, '/../../') + 7) WHERE name LIKE '%/../../%';"
-    ) |
-    sqlite3 $DB >/dev/null 2>test/err/chunk/sql.sqlite
-  fi
+  rm -f $DB
+  (
+    cd ../example
+    sql_prologue
+    ../src/$CSCOUT -s sqlite awk.cs 2>../src/test/err/chunk/sql.cs
+    echo "UPDATE files SET name = SUBSTR(name, INSTR(name, '/example/') + 1);"
+    echo "UPDATE files SET name = SUBSTR(name, INSTR(name, '/../../') + 7) WHERE name LIKE '%/../../%';"
+  ) |
+  sqlite3 $DB >/dev/null 2>test/err/chunk/sql.sqlite
 
   for i in ${SQLFILES:=$(cd test/sql; echo *.sql)}
   do
     runtest_sql $i ../example $DB
   done
+  rm -f $DB
 fi
 
 # Finish priming
