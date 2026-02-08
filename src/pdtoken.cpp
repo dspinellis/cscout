@@ -400,6 +400,10 @@ process_defined()
 			}
 			i = find_if(i, eval_tokens.end(), non_space);
 		}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+		// False-positive GCC 14.2.0-19 -Warray-bounds warning here.
 		if (i == eval_tokens.end() || i->get_code() != IDENTIFIER) {
 			/*
 			 * @error
@@ -410,6 +414,8 @@ process_defined()
 			Error::error(E_ERR, "No identifier following defined operator");
 			return false;
 		}
+#pragma GCC diagnostic pop
+
 		auto arg = i;
 
 		// Consume bracket if needed; set last part to delete.
