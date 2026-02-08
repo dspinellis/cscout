@@ -352,26 +352,55 @@ eval_lex()
 	return (l);
 }
 
+static void
+early_defined_end_error()
+{
+	/*
+	 * @error
+	 * The * <code>defined</code> operator was not followed
+	 * by an identifier or an open bracket
+	 */
+	Error::error(E_ERR, "Early end after defined operator");
+}
+
 /*
- * Process the defined() operator, substituting 1 or 0 depending
- * on whether the identifier is defined or not.
+ * Process all instanced of the defined() operator, substituting 1 or 0
+ * depending on whether the identifier is defined or not.
  * Return false on error.
  */
 static bool
 process_defined()
 {
-	PtokenSequence::iterator arg, last, i2;
-	for (auto i = eval_tokens.begin();
-	     (i = i2 = find_if(i, eval_tokens.end(), [](const Ptoken &t) { return t.get_val() == "defined"; })) != eval_tokens.end(); ) {
+	auto is_defined = [](const Ptoken& t){ return t.get_val() == "defined"; };
+	auto non_space  = [](const Ptoken& t){ return !t.is_space(); };
+
+	auto start = eval_tokens.begin();
+	for (;;) {
+		// Find "defined" keyword.
+		start = find_if(start, eval_tokens.end(), is_defined);
+		if (start == eval_tokens.end())
+			break;
+
+		// Check for following bracket; set arg to next
+		// non-space token.
 	     	bool need_bracket = false;
-		i2++;
-		arg = i2 = find_if(i2, eval_tokens.end(), [&](const Ptoken& token) { return !token.is_space(); });
-		if (arg != eval_tokens.end() && (*arg).get_code() == '(') {
-			i2++;
-			arg = i2 = find_if(i2, eval_tokens.end(), [&](const Ptoken& token) { return !token.is_space(); });
-			need_bracket = true;
+		auto i = next(start);
+		if (i == eval_tokens.end()) {
+			early_defined_end_error();
+			return false;
 		}
-		if (arg == eval_tokens.end() || (*arg).get_code() != IDENTIFIER) {
+
+		i = find_if(i, eval_tokens.end(), non_space);
+		if (i != eval_tokens.end() && i->get_code() == '(') {
+			need_bracket = true;
+			i = next(i);
+			if (i == eval_tokens.end()) {
+				early_defined_end_error();
+				return false;
+			}
+			i = find_if(i, eval_tokens.end(), non_space);
+		}
+		if (i == eval_tokens.end() || i->get_code() != IDENTIFIER) {
 			/*
 			 * @error
 			 * The
@@ -381,37 +410,45 @@ process_defined()
 			Error::error(E_ERR, "No identifier following defined operator");
 			return false;
 		}
+		auto arg = i;
+
+		// Consume bracket if needed; set last part to delete.
+		PtokenSequence::iterator last;
 		if (need_bracket) {
-			i2++;
-			last = find_if(i2, eval_tokens.end(), [&](const Ptoken& token) { return !token.is_space(); });
-			if (last == eval_tokens.end() || (*last).get_code() != ')') {
+			i = next(i);
+			if (i == eval_tokens.end()) {
+				early_defined_end_error();
+				return false;
+			}
+			last = find_if(i, eval_tokens.end(), non_space);
+			if (last == eval_tokens.end() || last->get_code() != ')') {
 					/*
 					 * @error
 					 * The identifier of a
-					 * <code>defined</code> operator was not
-					 * followed by a closing bracket
+					 * <code>defined</code> operator was
+					 * not followed by a closing bracket
 					 */
 					Error::error(E_ERR, "Missing close bracket in defined operator");
 					return false;
 			}
 		} else
 			last = arg;
-		last++;
+		last = next(last);
 
 		// Mark the identifier as used as a preprocessor constant
 		arg->set_ec_attribute(is_cpp_const);
 
 		// We are about to erase it
-		string val = (*arg).get_val();
+		string val = arg->get_val();
 		if (DP()) cout << "val:" << val << "\n";
 		mapMacro::const_iterator mi = Pdtoken::macros_find(val);
 		if (mi != Pdtoken::macros_end())
-			Token::unify((*mi).second.get_name_token(), *arg);
+			Token::unify(mi->second.get_name_token(), *arg);
 		else
 			Pdtoken::create_undefined_macro(*arg);
-		eval_tokens.erase(i, last);
-		eval_tokens.insert(last, Ptoken(PP_NUMBER, Pdtoken::macro_is_defined(mi) ? "1" : "0"));
-		i = last;
+		last = eval_tokens.erase(start, last);
+		last = eval_tokens.insert(last, Ptoken(PP_NUMBER, Pdtoken::macro_is_defined(mi) ? "1" : "0"));
+		start = last;
 	}
 
 	if (DP()) {
