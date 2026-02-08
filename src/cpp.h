@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2015 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -25,6 +25,7 @@
 #define CPP_H
 
 #include <cstddef>
+#include <cstdint>
 
 using namespace std;
 
@@ -37,10 +38,10 @@ typedef long cs_offset_t;
  * Not strictly portable, but better than casting to unsigned.
  */
 template <class T>
-inline ptrdiff_t
+inline uintptr_t
 ptr_offset(T p)
 {
-	return p - (T)0;
+	return reinterpret_cast<uintptr_t>(p);
 }
 
 #ifdef NDEBUG

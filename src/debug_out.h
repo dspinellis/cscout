@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2025 Diomidis Spinellis
+ * (C) Copyright 2025-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -72,7 +72,7 @@ struct nest_begin_t {
 
 // Start a new group, e.g. Object or Array
 inline nest_begin_t nest_begin(string s) {
-	return { move(s) };
+	return { std::move(s) };
 }
 
 struct nest_end_t {
@@ -87,7 +87,7 @@ struct nest_end_t {
 
 // End a new group with the specified delimiter, e.g. } or ]
 inline nest_end_t nest_end(string s = {}) {
-	return { move(s) };
+	return { std::move(s) };
 }
 
 struct nest_t {
@@ -101,5 +101,5 @@ struct nest_t {
 
 // Output a nested string
 inline nest_t nest(string s = {}) {
-	return { move(s) };
+	return { std::move(s) };
 }
