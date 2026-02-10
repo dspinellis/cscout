@@ -1087,6 +1087,7 @@ void
 Pdtoken::process_pragma()
 {
 	static stack <string> dirstack;
+	static bool preprocessed = false;
 
 	if (skiplevel >= 1)
 		return;
@@ -1218,9 +1219,13 @@ Pdtoken::process_pragma()
 		}
 		if (preprocessed_output_spec.isSet()) {
 			// Skip or enable preprocessed output
-			if (preprocessed_output_spec.exec(t.get_val().c_str(),
-						0, NULL, 0) != REG_NOMATCH)
+			if (!preprocessed &&
+			    preprocessed_output_spec.exec(t.get_val().c_str(),
+						0, NULL, 0) != REG_NOMATCH) {
 				preprocess_to_output(t.get_val());
+				// Preprocess only one file.
+				preprocessed = true;
+			}
 		} else if (!processed_files_spec.isSet()
 		    || processed_files_spec.exec(t.get_val().c_str(),
 			    0, NULL, 0) != REG_NOMATCH) {
