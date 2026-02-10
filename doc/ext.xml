@@ -36,6 +36,7 @@ identifiers should not be reported as unused (GCC).
 <li> <code>__typeof__unqual__</code> keyword (GCC)
 <li> The ‘##’ token paste operator deletes the comma when placed between a comma and an empty variable argument (GCC)
 <li> <code>__VA_OPT__ </code> function macro (C23)
+<li> <code>auto</code> (C23) and <code>__auto_type</code> (GCC)
 <li> A compound statement in brackets can be an expression (GCC)
 <li> Macros expanding from <code>/##/</code> into
 <code>//</code> are then treated as a line comment (Microsoft C)

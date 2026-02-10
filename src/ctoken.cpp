@@ -166,6 +166,7 @@ make_keymap()
 	m["__asm__"] = GNUC_ASM;
 	m["__attribute"] = ATTRIBUTE;
 	m["__attribute__"] = ATTRIBUTE;
+	m["__auto_type"] = AUTO;
 	m["__builtin_choose_expr"] = CHOOSE_EXPR;
 	m["__const"] = TCONST;
 	m["__const__"] = TCONST;

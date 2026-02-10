@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2024 Diomidis Spinellis
+ * (C) Copyright 2002-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -100,7 +100,6 @@
 #define __atomic_is_lock_free(size, ptr) (1)
 
 
-#define __auto_type auto
 #define __builtin_add_overflow(x,y,z) ((x), (y), (z), 1)
 #define __builtin_add_overflow_p(x,y,z) ((x), (y), 1)
 #define __builtin_alloca_with_align_and_max (x,y,z) ((x), (y), (z), 1)
