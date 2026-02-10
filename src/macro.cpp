@@ -122,6 +122,9 @@ arg_token(TokenContainer& tokens, bool get_more, bool want_space, const Macro *c
  * Build the map from formal name to argument value args.
  * collector is the macro collecting tokens for its substitution.
  * Return in close the closing bracket token (used for its hideset)
+ * Argument values are whitespace-trimmed to prevent spaces making
+ * empty arguments falsely appear as non-empty. (Macro substitution
+ * tests emptiness in numerous places.)
  * Return true if ok, false on error.
  */
 static bool
@@ -131,7 +134,7 @@ gather_args(const Macro *collector, PtokenSequence& tokens, mapArgval& args, boo
 	Ptoken t;
 	dequePtoken::const_iterator i;
 	for (i = formal_args.begin(); i != formal_args.end(); i++) {
-		PtokenSequence& v = args[(*i).get_val()];
+		PtokenSequence& v = args[i->get_val()];
 		char terminate;
 		if (i + 1 == formal_args.end())
 			terminate = ')';
@@ -139,10 +142,12 @@ gather_args(const Macro *collector, PtokenSequence& tokens, mapArgval& args, boo
 			terminate = '.';	// Vararg last argument is optional; terminate with ) or ,
 		else
 			terminate = ',';
-		int bracket = 0;
 		// Get a single argument
+		bool want_space = false;	// To trim leading spaces
+		int bracket = 0;
 		for (;;) {
-			t = arg_token(tokens, get_more, true, collector);
+			t = arg_token(tokens, get_more, want_space, collector);
+			want_space = true;
 			if (bracket == 0 && (
 				(terminate == '.' && (t.get_code() == ',' || t.get_code() == ')')) ||
 				(terminate != '.' && t.get_code() == terminate)))
@@ -165,12 +170,15 @@ gather_args(const Macro *collector, PtokenSequence& tokens, mapArgval& args, boo
 			}
 			v.push_back(t);
 		}
+		// Remove trailing whitespace.
+		while (!v.empty() && v.back().is_space())
+			v.pop_back();
 		if (DP()) cout << "Gather args returns: " << v << "\n";
 		// Check if varargs last optional argument was not supplied
 		if (terminate == '.' && t.get_code() == ')') {
 			i++;
 			// Instantiate argument with an empty value list
-			args[(*i).get_val()];
+			args[i->get_val()];
 			break;
 		}
 		close = t;
