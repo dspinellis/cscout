@@ -275,7 +275,7 @@ while getopts "kl:T:" opt; do
 done
 
 # Create temporary directory in specified location, or $TMPDIR, or /tmp.
-TEMP_DIR=$(mktemp -d --tmpdir${TEMP_DIR_LOCATION:-} csmerge.XXXX)
+TEMP_DIR=$(mktemp -d --tmpdir=${TEMP_DIR_LOCATION:-} csmerge.XXXX)
 export TEMP_DIR
 
 DBID_FILE="$TEMP_DIR/dbid.txt"
