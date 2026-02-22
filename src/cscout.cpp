@@ -142,6 +142,8 @@ static bool browse_only = false;
 // Maximum number of nodes and edges allowed to browsing-only clients
 #define MAX_BROWSING_GRAPH_ELEMENTS 1000
 
+static bool quiet = false;           //added a global variable for quiet 
+
 static CompiledRE sfile_re;			// Saved files replacement location RE
 
 // Identifiers to monitor (-m parameter)
@@ -293,7 +295,8 @@ file_analyze(Fileid fi)
 	Call *cfun = NULL;			// Current function
 	stack <Call *> fun_nesting;
 
-	cerr << "Post-processing " << fname << endl;
+	if (!quiet)
+	    cerr << "Post-processing " << fname << endl;
 	in.open(fname.c_str(), ios::binary);
 	if (in.fail()) {
 		perror(fname.c_str());
@@ -856,7 +859,8 @@ file_refactor(FILE *of, Fileid fid)
 	fifstream in;
 	ofstream out;
 
-	cerr << "Processing file " << fid.get_path() << endl;
+	if (!quiet)
+	    cerr << "Processing file " << fid.get_path() << endl;
 
 	if (RefFunCall::store.size())
 		establish_argument_boundaries(fid.get_path());
@@ -1316,7 +1320,8 @@ xiquery_page(FILE *of,  void *)
 	}
 
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
-	cerr << "Evaluating identifier query" << endl;
+	if (!quiet)
+	    cerr << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (!query.eval(*i))
@@ -1331,7 +1336,8 @@ xiquery_page(FILE *of,  void *)
 			funs.insert(ecfuns.begin(), ecfuns.end());
 		}
 	}
-	cerr << endl;
+	if (!quiet)
+	    cerr << endl;
 	if (q_id) {
 		fputs("<h2>Matching Identifiers</h2>\n", of);
 		display_sorted(of, query, sorted_ids);
@@ -1368,7 +1374,8 @@ xfunquery_page(FILE *of,  void *)
 		return 0;
 
 	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
-	cerr << "Evaluating function query" << endl;
+	if (!quiet)
+	    cerr << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 		progress(i, Call::functions());
 		if (!query.eval(i->second))
@@ -1378,7 +1385,8 @@ xfunquery_page(FILE *of,  void *)
 		if (q_file)
 			sorted_files.insert(i->second->get_fileid());
 	}
-	cerr << endl;
+	if (!quiet)
+	    cerr << endl;
 	if (q_id) {
 		fputs("<h2>Matching Functions</h2>\n", of);
 		if (query.get_sort_order() != -1)
@@ -2992,7 +3000,9 @@ replacements_page(FILE *of, void *)
 {
 	prohibit_remote_access(of);
 	html_head(of, "replacements", "Identifier Replacements");
-	cerr << "Creating identifier list" << endl;
+	
+	if (!quiet)
+	    cerr << "Creating identifier list" << endl;
 	fputs("<p><form action=\"xreplacements.html\" method=\"get\">\n"
 		"<table><tr><th>Identifier</th><th>Replacement</th><th>Active</th></tr>\n"
 	, of);
@@ -3009,7 +3019,8 @@ replacements_page(FILE *of, void *)
 				(void *)&(i->second), i->second.get_active() ? "checked" : "");
 		}
 	}
-	cerr << endl;
+	if (!quiet)
+	    cerr << endl;
 	fputs("</table><p><INPUT TYPE=\"submit\" name=\"repl\" value=\"OK\">\n", of);
 	html_tail(of);
 	return 0;
@@ -3022,7 +3033,8 @@ xreplacements_page(FILE *of,  void *p)
 	prohibit_browsers(of);
 	prohibit_remote_access(of);
 
-	cerr << "Creating identifier list" << endl;
+	if (!quiet)
+	    cerr << "Creating identifier list" << endl;
 
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
@@ -3039,7 +3051,8 @@ xreplacements_page(FILE *of,  void *p)
 			i->second.set_active(!!swill_getvar(varname));
 		}
 	}
-	cerr << endl;
+	if (!quiet)
+	    cerr << endl;
 	index_page(of, p);
 	return 0;
 }
@@ -3115,7 +3128,8 @@ write_quit_page(FILE *of, void *exit)
 
 	// Determine files we need to process
 	IFSet process;
-	cerr << "Examining identifiers for renaming" << endl;
+	if (!quiet)
+	    cerr << "Examining identifiers for renaming" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (i->second.get_replaced() && i->second.get_active()) {
@@ -3124,12 +3138,14 @@ write_quit_page(FILE *of, void *exit)
 			process.insert(ifiles.begin(), ifiles.end());
 		}
 	}
-	cerr << endl;
+	if (!quiet)
+	    cerr << endl;
 
 	// Check for identifier clashes
 	Token::found_clashes = false;
 	if (Option::refactor_check_clashes->get() && process.size()) {
-		cerr << "Checking rename refactorings for name clashes." << endl;
+		if (!quiet)
+		    cerr << "Checking rename refactorings for name clashes." << endl;
 		Token::check_clashes = true;
 		// Reparse everything
 		Fchar::set_input(input_file_id.get_path());
@@ -3147,7 +3163,8 @@ write_quit_page(FILE *of, void *exit)
 		return 0;
 	}
 
-	cerr << "Examining function calls for refactoring" << endl;
+	if (!quiet) 
+	    cerr << "Examining function calls for refactoring" << endl;
 	for (RefFunCall::store_type::iterator i = RefFunCall::store.begin(); i != RefFunCall::store.end(); i++) {
 		progress(i, RefFunCall::store);
 		if (!i->second.is_active())
@@ -3156,10 +3173,12 @@ write_quit_page(FILE *of, void *exit)
 		IFSet ifiles = e->sorted_files();
 		process.insert(ifiles.begin(), ifiles.end());
 	}
-	cerr << endl;
+	if (!quiet)
+	    cerr << endl;
 
 	// Now do the replacements
-	cerr << "Processing files" << endl;
+	if (!quiet)
+	    cerr << "Processing files" << endl;
 	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++)
 		file_refactor(of, *i);
 	fprintf(of, "A total of %d replacements and %d function call refactorings were made in %d files.",
@@ -3457,7 +3476,7 @@ main(int argc, char *argv[])
 	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:Mm:l:oR:S:s:t:" PICO_QL_OPTIONS)) != EOF)
+	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:Mm:l:oR:S:s:t:q" PICO_QL_OPTIONS)) != EOF)  //added q for quiet
 		switch (c) {
 		case '3':
 			Fchar::enable_trigraphs();
@@ -3522,6 +3541,9 @@ main(int argc, char *argv[])
 		case 'b':
 			browse_only = true;
 			break;
+		case 'q':                          //case 'q' for quiet
+            quiet = true;
+            break;
 		case 'l':
 			if (!optarg)
 				usage(argv[0]);
@@ -3663,7 +3685,8 @@ main(int argc, char *argv[])
 	GlobObj::set_file_dependencies();
 
 	// Set xfile and  metrics for each identifier
-	cerr << "Processing identifiers" << endl;
+	if (!quiet)
+	    cerr << "Processing identifiers" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		Eclass *e = (*i).first;
@@ -3672,7 +3695,8 @@ main(int argc, char *argv[])
 		// Update metrics
 		id_msum.add_unique_id(e);
 	}
-	cerr << endl;
+	if (!quiet)
+	    cerr << endl;
 
 	if (DP())
 		cout << "Size " << file_msum.get_pre_cpp_total(Metrics::em_nchar) << endl;
