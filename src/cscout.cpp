@@ -243,6 +243,18 @@ html(FILE *of, const Call &c)
 	html_string(of, c.get_name());
 	fputs("</a>", of);
 }
+// Display an identifier as plain text
+static void
+plain_text_display(FILE *of, const IdPropElem &i)
+{
+	fprintf(of, "%s\n", (i.second).get_id().c_str());
+}
+// Display a function as plain text
+static void
+plain_text_display(FILE *of, const Call &c)
+{
+        fprintf(of, "%s\n", c.get_name().c_str());
+}
 
 // Display a hyperlink based on a string and its starting tokid
 static void
@@ -1033,8 +1045,8 @@ filequery_page(FILE *of,  void *)
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
-	"</FORM>\n"
 	, of);
 	html_tail(of);
 	return 0;
@@ -1046,6 +1058,7 @@ xfilequery_page(FILE *of,  void *)
 {
 	Timer timer;
 	char *qname = swill_getvar("n");
+	bool plain_text = !!swill_getvar("txt");
 	FileQuery query(of, Option::file_icase->get(), current_project);
 
 	if (!query.is_valid())
@@ -1053,37 +1066,47 @@ xfilequery_page(FILE *of,  void *)
 
 	multiset <Fileid, FileQuery::specified_order> sorted_files;
 
-	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
+	if (!plain_text)
+		html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (query.eval(*i))
 			sorted_files.insert(*i);
 	}
-	html_file_begin(of);
+	if (!plain_text) {
+		html_file_begin(of);
 	if (modification_state != ms_subst && !browse_only)
 		fprintf(of, "<th></th>\n");
 	if (query.get_sort_order() != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
+	}
 	Pager pager(of, Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
-	html_file_set_begin(of);
+	if (!plain_text)
+		html_file_set_begin(of);
 	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
-			html_file(of, *i);
-			if (modification_state != ms_subst && !browse_only)
-				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
-				i->get_id());
-			if (query.get_sort_order() != -1)
-				fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
-			html_file_record_end(of);
+			if (plain_text)
+				fprintf(of, "%s\n", i->get_path().c_str());
+			else {
+				html_file(of, *i);
+				if (modification_state != ms_subst && !browse_only)
+					fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
+					i->get_id());
+				if (query.get_sort_order() != -1)
+					fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
+				html_file_record_end(of);
+			}
 		}
 	}
-	html_file_end(of);
-	pager.end();
-	timer.print_elapsed(of);
-	html_tail(of);
+	if (!plain_text) {
+		html_file_end(of);
+		pager.end();
+		timer.print_elapsed(of);
+		html_tail(of);
+	}
 	return 0;
 }
 
@@ -1094,27 +1117,35 @@ xfilequery_page(FILE *of,  void *)
  */
 template <typename container>
 static void
-display_sorted(FILE *of, const Query &query, const container &sorted_ids)
+display_sorted(FILE *of, const Query &query, const container &sorted_ids, bool plain_text = false)
 {
-	if (Option::sort_rev->get())
-		fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
-	else
-		fputs("<p>\n", of);
+	if (!plain_text) {
+		if (Option::sort_rev->get())
+			fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
+		else
+			fputs("<p>\n", of);
+	}
 
 	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
 	typename container::const_iterator i;
 	for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
 		if (pager.show_next()) {
-			html(of, **i);
-			fputs("<br>\n", of);
+			if (plain_text)
+				plain_text_display(of, **i);
+			else {
+				html(of, **i);
+				fputs("<br>\n", of);
+			}
 		}
 	}
 
-	if (Option::sort_rev->get())
-		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
-	else
-		fputs("</p>\n", of);
-	pager.end();
+	if (!plain_text) {
+		if (Option::sort_rev->get())
+			fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
+		else
+			fputs("</p>\n", of);
+		pager.end();
+	}
 }
 
 /*
@@ -1126,9 +1157,9 @@ static void
 display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &sorted_ids)
 {
 	fprintf(of, "<table class=\"metrics\"><tr>"
-	    "<th width='50%%' align='left'>Name</th>"
-	    "<th width='50%%' align='right'>%s</th>\n",
-	    Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
+		"<th width='50%%' align='left'>Name</th>"
+		"<th width='50%%' align='right'>%s</th>\n",
+		Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
 
 	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
 	for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
@@ -1136,7 +1167,7 @@ display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &so
 			fputs("<tr><td witdh='50%'>", of);
 			html(of, **i);
 			fprintf(of, "</td><td witdh='50%%' align='right'>%g</td></tr>\n",
-			    (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+				(*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
 		}
 	}
 	fputs("</table>\n", of);
@@ -1184,6 +1215,7 @@ iquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qfun\" VALUE=\"Show functions\">\n"
@@ -1262,6 +1294,7 @@ funquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show functions\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
@@ -1271,31 +1304,38 @@ funquery_page(FILE *of,  void *)
 }
 
 void
-display_files(FILE *of, const Query &query, const IFSet &sorted_files)
+display_files(FILE *of, const Query &query, const IFSet &sorted_files, bool plain_text = false)
 {
 	const string query_url(query.param_url());
-
-	fputs("<h2>Matching Files</h2>\n", of);
-	html_file_begin(of);
-	html_file_set_begin(of);
+	if (!plain_text) {
+		fputs("<h2>Matching Files</h2>\n", of);
+		html_file_begin(of);
+		html_file_set_begin(of);
+	}
 	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qf=1", query.bookmarkable());
 	for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
-			html_file(of, *i);
-			fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
-				f.get_id(),
-				query_url.c_str());
-			if (modification_state != ms_subst && !browse_only)
-				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
-				f.get_id());
-			html_file_record_end(of);
+			if (plain_text)
+				fprintf(of, "%s\n", f.get_path().c_str());
+			else {
+				html_file(of, *i);
+				fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
+					f.get_id(),
+					query_url.c_str());
+				if (modification_state != ms_subst && !browse_only)
+					fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
+					f.get_id());
+				html_file_record_end(of);
+			}
 		}
 	}
-	html_file_end(of);
-	pager.end();
+	if (!plain_text) {
+		html_file_end(of);
+		pager.end();
+	}
 }
 
 // Process an identifier query
@@ -1311,6 +1351,7 @@ xiquery_page(FILE *of,  void *)
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	bool q_fun = !!swill_getvar("qfun");	// Show matching functions
+	bool plain_text = !!swill_getvar("txt");  //Plain text output
 	char *qname = swill_getvar("n");
 	IdQuery query(of, Option::file_icase->get(), current_project);
 
@@ -1319,9 +1360,10 @@ xiquery_page(FILE *of,  void *)
 		return 0;
 	}
 
-	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
+	if (!plain_text)
+		html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
 	if (!quiet)
-	    cerr << "Evaluating identifier query" << endl;
+		cerr << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (!query.eval(*i))
@@ -1337,22 +1379,27 @@ xiquery_page(FILE *of,  void *)
 		}
 	}
 	if (!quiet)
-	    cerr << endl;
+		cerr << endl;
 	if (q_id) {
-		fputs("<h2>Matching Identifiers</h2>\n", of);
-		display_sorted(of, query, sorted_ids);
+		if (!plain_text)
+			fputs("<h2>Matching Identifiers</h2>\n", of);
+		display_sorted(of, query, sorted_ids, plain_text);
 	}
 	if (q_file)
-		display_files(of, query, sorted_files);
+		display_files(of, query, sorted_files, plain_text);
 	if (q_fun) {
-		fputs("<h2>Matching Functions</h2>\n", of);
+		if (!plain_text)
+			fputs("<h2>Matching Functions</h2>\n", of);
 		Sfuns sorted_funs;
 		sorted_funs.insert(funs.begin(), funs.end());
-		display_sorted(of, query, sorted_funs);
+		display_sorted(of, query, sorted_funs, plain_text);
 	}
 
-	timer.print_elapsed(of);
-	html_tail(of);
+	if (!plain_text) {
+		timer.print_elapsed(of);
+		html_tail(of);
+
+}
 	return 0;
 }
 
@@ -1367,15 +1414,17 @@ xfunquery_page(FILE *of,  void *)
 	IFSet sorted_files;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
+	bool plain_text = !!swill_getvar("txt"); // Plain text output
 	char *qname = swill_getvar("n");
 	FunQuery query(of, Option::file_icase->get(), current_project);
 
 	if (!query.is_valid())
 		return 0;
 
-	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
+	if (!plain_text)
+		html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
 	if (!quiet)
-	    cerr << "Evaluating function query" << endl;
+		cerr << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 		progress(i, Call::functions());
 		if (!query.eval(i->second))
@@ -1386,18 +1435,21 @@ xfunquery_page(FILE *of,  void *)
 			sorted_files.insert(i->second->get_fileid());
 	}
 	if (!quiet)
-	    cerr << endl;
+		cerr << endl;
 	if (q_id) {
-		fputs("<h2>Matching Functions</h2>\n", of);
+		if (!plain_text)
+			fputs("<h2>Matching Functions</h2>\n", of);
 		if (query.get_sort_order() != -1)
 			display_sorted_function_metrics(of, query, sorted_funs);
 		else
-			display_sorted(of, query, sorted_funs);
+			display_sorted(of, query, sorted_funs, plain_text);
 	}
 	if (q_file)
-		display_files(of, query, sorted_files);
-	timer.print_elapsed(of);
-	html_tail(of);
+		display_files(of, query, sorted_files, plain_text);
+	if (!plain_text) {
+		timer.print_elapsed(of);
+		html_tail(of);
+	}
 	return 0;
 }
 
@@ -1417,10 +1469,10 @@ show_c_const(FILE *fo, Eclass *e)
 		&& !e->get_attribute(is_cpp_const)
 		&& !e->get_attribute(is_cpp_str_val)
 		&& ((e->get_attribute(is_def_c_const)
-			    && !e->get_attribute(is_def_not_c_const))
-		    || (e->get_attribute(is_exp_c_const)
-			    && !e->get_attribute(is_exp_not_c_const))
-		   );
+				&& !e->get_attribute(is_def_not_c_const))
+			|| (e->get_attribute(is_exp_c_const)
+			&& !e->get_attribute(is_exp_not_c_const))
+			);
 	fprintf(fo, "<li>Can be replaced by C constant: %s\n", val ? "Yes" : "No");
 	fprintf(fo, "<ul>\n");
 	for (int i = is_fun_macro; i <= is_exp_not_c_const; i++)
@@ -1494,8 +1546,8 @@ identifier_page(FILE *fo, void *)
 	}
 
 	if ((!e->get_attribute(is_readonly) || Option::rename_override_ro->get()) &&
-	    modification_state != ms_hand_edit &&
-	    !browse_only) {
+		modification_state != ms_hand_edit &&
+		!browse_only) {
 		fprintf(fo, "<li> Substitute with: \n"
 			"<INPUT TYPE=\"text\" NAME=\"sname\" VALUE=\"%s\" SIZE=10 MAXLENGTH=256> "
 			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n",
@@ -1590,11 +1642,11 @@ function_page(FILE *fo, void *)
 	// Allow function call refactoring only if there is a one to one relationship between the identifier and the function
 	Eclass *ec;
 	if (f->get_token().get_parts_size() == 1 &&
-	    modification_state != ms_hand_edit &&
-	    !browse_only &&
-	    (ec = f->get_token().get_parts_begin()->get_tokid().check_ec()) &&
-	    (!ec->get_attribute(is_readonly) || Option::refactor_fun_arg_override_ro->get())
-	    ) {
+		modification_state != ms_hand_edit &&
+		!browse_only &&
+		(ec = f->get_token().get_parts_begin()->get_tokid().check_ec()) &&
+		(!ec->get_attribute(is_readonly) || Option::refactor_fun_arg_override_ro->get())
+		) {
 		// Count associated declared functions
 		int nfun = 0;
 		for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++)
@@ -1603,7 +1655,7 @@ function_page(FILE *fo, void *)
 		if (nfun == 1) {
 			ostringstream repl_temp;		// Replacement template
 			RefFunCall::store_type::const_iterator rfc;
-		    	if ((rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end())
+				if ((rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end())
 				repl_temp << html(rfc->second.get_replacement());
 			else if (f->is_defined()) {
 				int nparam = f->is_cfun()
@@ -1629,15 +1681,15 @@ function_page(FILE *fo, void *)
 	if (f->is_defined()) {
 		// Metrics
 		fprintf(fo, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr>"
-		    "<th>Metric</th>"
-		    "<th>Pre-cpp Value</th>"
-		    "<th>Post-cpp Value</th>"
-		    "</tr>\n");
+			"<th>Metric</th>"
+			"<th>Pre-cpp Value</th>"
+			"<th>Post-cpp Value</th>"
+			"</tr>\n");
 		for (int j = 0; j < FunMetrics::metric_max; j++) {
 			if (Metrics::is_internal<FunMetrics>(j))
 				continue;
 			fprintf(fo, "<tr><td>%s</td>",
-			    Metrics::get_name<FunMetrics>(j).c_str());
+				Metrics::get_name<FunMetrics>(j).c_str());
 			if (Metrics::is_pre_cpp<FunMetrics>(j))
 				fprintf(fo, "<td align='right'>%g</td>",
 				    f->get_pre_cpp_metrics().get_metric(j));
@@ -1645,7 +1697,7 @@ function_page(FILE *fo, void *)
 				fprintf(fo, "<td align='right'>&mdash;</td>");
 			if (Metrics::is_post_cpp<FunMetrics>(j))
 				fprintf(fo, "<td align='right'>%g</td></tr>",
-				    f->get_post_cpp_metrics().get_metric(j));
+					f->get_post_cpp_metrics().get_metric(j));
 			else
 				fprintf(fo, "<td align='right'>&mdash;</td></tr>");
 		}
@@ -2805,29 +2857,29 @@ file_page(FILE *of, void *)
 
 	fprintf(of, "</ul>\n<h2>File Dependencies</h2><ul>\n");
 	fprintf(of, "<li> Graph of files that depend on this file at compile time: "
-	    "<a href=\"fgraph%s?gtype=C&f=%d&n=D\">writable</a>, "
-	    "<a href=\"fgraph%s?gtype=C&all=1&f=%d&n=D\">all</a>",
-	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+		"<a href=\"fgraph%s?gtype=C&f=%d&n=D\">writable</a>, "
+		"<a href=\"fgraph%s?gtype=C&all=1&f=%d&n=D\">all</a>",
+		graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
 	fprintf(of, "<li> Graph of files on which this file depends at compile time: "
-	    "<a href=\"fgraph%s?gtype=C&f=%d&n=U\">writable</a>, "
-	    "<a href=\"fgraph%s?gtype=C&all=1&f=%d&n=U\">all</a>",
-	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+		"<a href=\"fgraph%s?gtype=C&f=%d&n=U\">writable</a>, "
+		"<a href=\"fgraph%s?gtype=C&all=1&f=%d&n=U\">all</a>",
+		graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
 	fprintf(of, "<li> Graph of files whose functions this file calls (control dependency): "
-	    "<a href=\"fgraph%s?gtype=F&f=%d&n=D\">writable</a>, "
-	    "<a href=\"fgraph%s?gtype=F&all=1&f=%d&n=D\">all</a>",
-	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+		"<a href=\"fgraph%s?gtype=F&f=%d&n=D\">writable</a>, "
+		"<a href=\"fgraph%s?gtype=F&all=1&f=%d&n=D\">all</a>",
+		graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
 	fprintf(of, "<li> Graph of files calling this file's functions (control dependency): "
-	    "<a href=\"fgraph%s?gtype=F&f=%d&n=U\">writable</a>, "
-	    "<a href=\"fgraph%s?gtype=F&all=1&f=%d&n=U\">all</a>",
-	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+		"<a href=\"fgraph%s?gtype=F&f=%d&n=U\">writable</a>, "
+		"<a href=\"fgraph%s?gtype=F&all=1&f=%d&n=U\">all</a>",
+		graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
 	fprintf(of, "<li> Graph of files whose global variables this file accesses (data dependency): "
-	    "<a href=\"fgraph%s?gtype=G&f=%d&n=D\">writable</a>, "
-	    "<a href=\"fgraph%s?gtype=G&all=1&f=%d&n=D\">all</a>",
-	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+		"<a href=\"fgraph%s?gtype=G&f=%d&n=D\">writable</a>, "
+		"<a href=\"fgraph%s?gtype=G&all=1&f=%d&n=D\">all</a>",
+		graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
 	fprintf(of, "<li> Graph of files accessing this file's global variables (data dependency): "
-	    "<a href=\"fgraph%s?gtype=G&f=%d&n=U\">writable</a>, "
-	    "<a href=\"fgraph%s?gtype=G&all=1&f=%d&n=U\">all</a>",
-	    graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
+		"<a href=\"fgraph%s?gtype=G&f=%d&n=U\">writable</a>, "
+		"<a href=\"fgraph%s?gtype=G&all=1&f=%d&n=U\">all</a>",
+		graph_suffix(), i.get_id(), graph_suffix(), i.get_id());
 
 	fprintf(of, "</ul>\n<h2>Include Files</h2><ul>\n");
 	fprintf(of, "<li> <a href=\"qinc.html?id=%u&direct=1&writable=1&includes=1&n=Directly+Included+Writable+Files\">Writable files that this file directly includes</a>\n", i.get_id());
@@ -2842,10 +2894,10 @@ file_page(FILE *of, void *)
 
 	// Metrics
 	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr>"
-	    "<th>Metric</th>"
-	    "<th>Pre-cpp Value</th>"
-	    "<th>Post-cpp Value</th>"
-	    "</tr>\n");
+		"<th>Metric</th>"
+		"<th>Pre-cpp Value</th>"
+		"<th>Post-cpp Value</th>"
+		"</tr>\n");
 	for (int j = 0; j < FileMetrics::metric_max; j++) {
 		if (!Metrics::is_file<FileMetrics>(j))
 			continue;
@@ -2966,9 +3018,9 @@ query_include_page(FILE *of, void *)
 		Fileid f2 = (*i).first;
 		const IncDetails &id = (*i).second;
 		if ((!writable || !f2.get_readonly()) &&
-		    (!direct || id.is_directly_included()) &&
-		    (!used || id.is_required()) &&
-		    (!unused || !id.is_required())) {
+			(!direct || id.is_directly_included()) &&
+			(!used || id.is_required()) &&
+			(!unused || !id.is_required())) {
 			html_file(of, f2);
 			if (id.is_directly_included()) {
 				fprintf(of, "<td>line ");
@@ -3002,7 +3054,7 @@ replacements_page(FILE *of, void *)
 	html_head(of, "replacements", "Identifier Replacements");
 	
 	if (!quiet)
-	    cerr << "Creating identifier list" << endl;
+		cerr << "Creating identifier list" << endl;
 	fputs("<p><form action=\"xreplacements.html\" method=\"get\">\n"
 		"<table><tr><th>Identifier</th><th>Replacement</th><th>Active</th></tr>\n"
 	, of);
@@ -3034,7 +3086,7 @@ xreplacements_page(FILE *of,  void *p)
 	prohibit_remote_access(of);
 
 	if (!quiet)
-	    cerr << "Creating identifier list" << endl;
+		cerr << "Creating identifier list" << endl;
 
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
@@ -3052,7 +3104,7 @@ xreplacements_page(FILE *of,  void *p)
 		}
 	}
 	if (!quiet)
-	    cerr << endl;
+		cerr << endl;
 	index_page(of, p);
 	return 0;
 }
@@ -3139,13 +3191,13 @@ write_quit_page(FILE *of, void *exit)
 		}
 	}
 	if (!quiet)
-	    cerr << endl;
+		cerr << endl;
 
 	// Check for identifier clashes
 	Token::found_clashes = false;
 	if (Option::refactor_check_clashes->get() && process.size()) {
 		if (!quiet)
-		    cerr << "Checking rename refactorings for name clashes." << endl;
+			cerr << "Checking rename refactorings for name clashes." << endl;
 		Token::check_clashes = true;
 		// Reparse everything
 		Fchar::set_input(input_file_id.get_path());
@@ -3164,7 +3216,7 @@ write_quit_page(FILE *of, void *exit)
 	}
 
 	if (!quiet) 
-	    cerr << "Examining function calls for refactoring" << endl;
+		cerr << "Examining function calls for refactoring" << endl;
 	for (RefFunCall::store_type::iterator i = RefFunCall::store.begin(); i != RefFunCall::store.end(); i++) {
 		progress(i, RefFunCall::store);
 		if (!i->second.is_active())
@@ -3174,7 +3226,7 @@ write_quit_page(FILE *of, void *exit)
 		process.insert(ifiles.begin(), ifiles.end());
 	}
 	if (!quiet)
-	    cerr << endl;
+		cerr << endl;
 
 	// Now do the replacements
 	if (!quiet)
@@ -3262,14 +3314,14 @@ warning_report()
 		const char *message;
 		const char *query;
 	} reports[] = {
-		{ "unused project scoped writable identifier",
-		  "L:writable:unused:pscope" },
-		{ "unused file scoped writable identifier",
-		  "L:writable:unused:fscope" },
-		{ "unused writable macro",
-		  "L:writable:unused:macro" },
-		{ "writable identifier should be made static",
-		  "T:writable:obj:pscope" }, // xfile is implicitly 0
+		{"unused project scoped writable identifier",
+		"L:writable:unused:pscope" },
+		{"unused file scoped writable identifier",
+		"L:writable:unused:fscope" },
+		{"unused writable macro",
+		"L:writable:unused:macro" },
+		{"writable identifier should be made static",
+		"T:writable:obj:pscope" }, // xfile is implicitly 0
 	};
 
 	// Generate identifier warnings
@@ -3302,9 +3354,9 @@ warning_report()
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (i->get_readonly() ||		// Don't report on RO files
-		    !Filedetails::is_compilation_unit(*i) ||		// Algorithm only works for CUs
-		    *i == input_file_id ||		// Don't report on main file
-		    Filedetails::get_includers(*i).size() > 1)	// For files that are both CUs and included
+			!Filedetails::is_compilation_unit(*i) ||		// Algorithm only works for CUs
+			*i == input_file_id ||		// Don't report on main file
+			Filedetails::get_includers(*i).size() > 1)	// For files that are both CUs and included
 							// by others all bets are off
 			continue;
 		const FileIncMap &m = Filedetails::get_includes(*i);
