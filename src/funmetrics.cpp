@@ -71,8 +71,8 @@ FunMetrics::metric_details_values()
 	v[em_nfparam]	= MetricDetails(0, 1, 0, "NFPARAM",	"Number of parameters (for functions)");
 	v[em_nneparam]	= MetricDetails(1, 0, 0, "NEPARAM",	"Number of passed non-expression macro parameters");
 	// Metrics dynamically derived
-	v[em_fanin]	= MetricDetails(1, 1, 0, "FANIN",	"Fan-in (number of calling functions)");
-	v[em_fanout]	= MetricDetails(1, 1, 0, "FANOUT",	"Fan-out (number of called functions)");
+	v[em_fanin]	= MetricDetails(0, 1, 0, "FANIN",	"Fan-in (number of calling functions)");
+	v[em_fanout]	= MetricDetails(0, 1, 0, "FANOUT",	"Fan-out (number of called functions)");
 	v[em_ccycl1]	= MetricDetails(1, 1, 0, "CCYCL1",	"Cyclomatic complexity (control statements)");
 	v[em_ccycl2]	= MetricDetails(1, 1, 0, "CCYCL2",	"Extended cyclomatic complexity (includes branching operators)");
 	v[em_ccycl3]	= MetricDetails(1, 1, 0, "CCYCL3",	"Maximum cyclomatic complexity (includes branching operators and all switch branches)");
