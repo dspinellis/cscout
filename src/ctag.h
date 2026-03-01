@@ -54,31 +54,26 @@ public:
 		kind(k),
 		tag(t){}
 	// ctor for enumerators, functions, variables, typedefs
-	CTag(const Token &tok, const Type &typ, enum e_storage_class sc) :
+	CTag(const Token &tok, const Type &typ, enum e_storage_class sc,
+	     enum e_storage_duration sd = sd_none, enum e_linkage lk = lk_none) :
 		name(tok.get_name()),
 		definition(tok.get_defining_tokid()) {
-		switch (sc) {
-		case c_static:
+		if (sd == sd_static || lk == lk_internal) {
 			if (typ.is_cfunction())
 				kind = 'f';
 			else
 				kind = 'v';
 			is_static = true;
-			break;
-		case c_typedef:
+		} else if (sc == c_typedef) {
 			kind = 't';
-			break;
-		case c_enum:
+		} else if (sc == c_enum) {
 			kind = 'e';
-			break;
-		default:
+		} else {
 			if (typ.is_cfunction())
 				kind = 'f';
 			else
 				kind = 'v';
 			is_static = false;
-			break;
-			break;
 		}
 	}
 	// Add enum, struct, union tags
@@ -87,9 +82,10 @@ public:
 			ctags.insert(CTag(tok, typ));
 	}
 	// Add enumerators, functions, variables, typedefs
-	static void add(const Token &tok, const Type &typ, enum e_storage_class sc) {
+	static void add(const Token &tok, const Type &typ, enum e_storage_class sc,
+			enum e_storage_duration sd = sd_none, enum e_linkage lk = lk_none) {
 		if (enabled)
-			ctags.insert(CTag(tok, typ, sc));
+			ctags.insert(CTag(tok, typ, sc, sd, lk));
 	}
 	// Add macros
 	static void add(const Token &tok, char kind) {

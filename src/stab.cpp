@@ -165,6 +165,8 @@ obj_define(const Token& tok, Type typ)
 {
 	tok.set_ec_attribute(is_ordinary);
 	enum e_storage_class sc = typ.get_storage_class();
+	enum e_storage_duration sd = typ.get_storage_duration();
+	enum e_linkage lk = typ.get_linkage();
 	Id const * id;
 
 	if (DP())
@@ -186,20 +188,24 @@ obj_define(const Token& tok, Type typ)
 		(Block::param_block.obj).define(tok, typ);
 		return;
 	}
-	if (sc == c_unspecified && typ.is_cfunction())
+	if (sc == c_unspecified && lk == lk_none && typ.is_cfunction())
 		// If the declaration of an identifier for a function has no
 		// storage-class specifier, its linkage is determined exactly
 		// as if it were declared with the storage class specifier
 		// extern 6.2.2-5
-		sc = c_extern;
-	if (sc == c_extern && (id = obj_lookup(tok.get_name()))) {
+		lk = lk_external;
+	if (lk == lk_external && (id = obj_lookup(tok.get_name()))) {
 		// If the declaration of an identifier contains extern the identifier
 		// has the same linkage as the prior visible declaration of the identifier
 		// 6.2.2-4
 		enum e_storage_class sc2 = id->get_type().get_storage_class();
-		if (sc2 != sc) {
-			typ.set_storage_class(basic(b_abstract, s_none, sc2));
+		enum e_storage_duration sd2 = id->get_type().get_storage_duration();
+		enum e_linkage lk2 = id->get_type().get_linkage();
+		if (sd2 != sd || lk2 != lk || sc2 != sc) {
+			typ.set_storage_class(basic(b_abstract, s_none, sc2, sd2, lk2));
 			sc = sc2;
+			sd = sd2;
+			lk = lk2;
 		}
 	}
 	if (DP())
@@ -209,16 +215,18 @@ obj_define(const Token& tok, Type typ)
 	if (Block::get_scope_level() == Block::cu_block) {
 		// Function *definitions* are added from FCall::set_current_fun
 		// We don't add extern variables
-		if (!typ.is_cfunction() && sc != c_extern)
-			CTag::add(tok, typ, sc);
+		if (!typ.is_cfunction() && lk != lk_external)
+			CTag::add(tok, typ, sc, sd, lk);
 
 		// Special rules for definitions at file scope
 		// ANSI 6.1.2.2 p. 21
-		switch (sc) {
-		case c_static:
+		if (lk == lk_internal || sd == sd_static) {
+			// static
 			tok.set_ec_attribute(is_cscope);
 			if ((id = Block::scope_block[Block::cu_block].obj.lookup(tok.get_name()))) {
-				if (id->get_type().get_storage_class() == c_unspecified)
+				if (id->get_type().get_storage_class() == c_unspecified &&
+				    id->get_type().get_storage_duration() == sd_none &&
+				    id->get_type().get_linkage() == lk_none)
 					/*
 					 * @error
 					 * An identifier is declared twice
@@ -231,29 +239,25 @@ obj_define(const Token& tok, Type typ)
 			}
 			if (!typ.is_cfunction())
 				Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_fvar();
-			break;
-		case c_typedef:
+		} else if (sc == c_typedef) {
 			tok.set_ec_attribute(is_cscope);
-			break;
-		case c_enum:
+		} else if (sc == c_enum) {
 			tok.set_ec_attribute(is_cscope);
 			tok.set_ec_attribute(is_enumeration);
-			break;
-		default:
+		} else {
 			if (!typ.is_cfunction())
 				Filedetails::get_post_cpp_metrics(Fchar::get_fileid()).add_pvar();
 			tok.set_ec_attribute(is_lscope);
-			break;
 		}
 		// A definition contributing data to the current CU
-		if (sc != c_extern && sc != c_typedef && sc != c_enum && !typ.is_cfunction()) {
+		if (lk != lk_external && sc != c_typedef && sc != c_enum && !typ.is_cfunction()) {
 			if (DP())
 				Error::error(E_DEBUG, "Add provider through obj_define");
 			Fdep::add_provider(Fchar::get_fileid());
 		}
 	} else {
 		// Definitions at function block scope
-		if (sc != c_extern &&
+		if (lk != lk_external &&
 		    Block::scope_block[Block::current_block].obj.lookup(tok.get_name())) {
 			/*
 			 * @error
@@ -270,7 +274,7 @@ obj_define(const Token& tok, Type typ)
 		if (DP())
 			cout << "Looking for function " << tok.get_name() << '\n';
 		tok.set_ec_attribute(is_cfunction);
-		if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
+		if (lk == lk_external || (lk == lk_none && sc == c_unspecified && Block::current_block == Block::cu_block)) {
 			// Extern linkage: get it from the lu block which we do not normaly search
 			if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())) != NULL)
 				fc = id->get_fcall();
@@ -299,7 +303,7 @@ obj_define(const Token& tok, Type typ)
 	 * definitions.  These definitions are not searched, for locating objects,
 	 * but are used for unification of objects, simulating the linking phase.
 	 */
-	if (sc == c_extern || (sc == c_unspecified && Block::current_block == Block::cu_block)) {
+	if (lk == lk_external || (lk == lk_none && sc == c_unspecified && Block::current_block == Block::cu_block)) {
 		GlobObj *go = NULL;
 		if ((id = Block::scope_block[Block::lu_block].obj.lookup(tok.get_name())) != NULL) {
 			Token::unify(id->get_token(), tok);
@@ -328,7 +332,7 @@ obj_define(const Token& tok, Type typ)
 		 * We test go, because it might be null if the object is defined as a function in one
 		 * and as a variable in another.
 		 */
-		if (go && !typ.is_cfunction() && sc == c_unspecified && Block::current_block == Block::cu_block)
+		if (go && !typ.is_cfunction() && sc == c_unspecified && lk == lk_none && Block::current_block == Block::cu_block)
 			go->add_def(Fchar::get_fileid());
 	}
 }
@@ -407,9 +411,10 @@ obj_lookup(const string& name)
 	pair <Id const *, int> r = Block::lookup(objptr, name);
 	Id const *id = r.first;
 	if (id) {
+		enum e_linkage lk = r.first->get_type().get_linkage();
 		enum e_storage_class sc = r.first->get_type().get_storage_class();
 		if (!r.first->get_type().is_cfunction() &&
-		    (sc == c_extern || (sc == c_unspecified && r.second == Block::cu_block))) {
+		    (lk == lk_external || (lk == lk_none && sc == c_unspecified && r.second == Block::cu_block))) {
 			if (DP())
 				cout << "Lookup global variable identifier " << name << endl;
 			GlobObj *go = id->get_glob();
