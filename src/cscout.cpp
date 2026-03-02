@@ -35,6 +35,7 @@
 #include <utility>
 #include <functional>
 #include <algorithm>		// set_difference
+#include <climits>
 #include <cctype>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
@@ -1033,6 +1034,7 @@ filequery_page(FILE *of,  void *)
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
 	, of);
@@ -1064,20 +1066,25 @@ xfilequery_page(FILE *of,  void *)
 		fprintf(of, "<th></th>\n");
 	if (query.get_sort_order() != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
-	Pager pager(of, Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
+	bool plain_text = !!swill_getvar("txt");
+	Pager pager(of, plain_text ? INT_MAX : Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
 	html_file_set_begin(of);
 	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
-			html_file(of, *i);
-			if (modification_state != ms_subst && !browse_only)
-				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
-				i->get_id());
-			if (query.get_sort_order() != -1)
-				fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
-			html_file_record_end(of);
+			if (plain_text) {
+				fprintf(of, "%s\n", f.get_path().c_str());
+			} else {
+				html_file(of, *i);
+				if (modification_state != ms_subst && !browse_only)
+					fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
+					i->get_id());
+				if (query.get_sort_order() != -1)
+					fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
+				html_file_record_end(of);
+			}
 		}
 	}
 	html_file_end(of);
@@ -1096,25 +1103,60 @@ template <typename container>
 static void
 display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 {
-	if (Option::sort_rev->get())
-		fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
-	else
-		fputs("<p>\n", of);
+	bool plain_text = !!swill_getvar("txt");
 
-	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
+	if (!plain_text) {
+		if (Option::sort_rev->get())
+			fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
+		else
+			fputs("<p>\n", of);
+	}
+
+	Pager pager(of, plain_text ? INT_MAX : Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
 	typename container::const_iterator i;
 	for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
 		if (pager.show_next()) {
-			html(of, **i);
-			fputs("<br>\n", of);
+			if (plain_text) {
+				output_plain_text_element(of, *i);
+				fputc('\n', of);
+			} else {
+				html(of, **i);
+				fputs("<br>\n", of);
+			}
 		}
 	}
 
-	if (Option::sort_rev->get())
-		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
-	else
-		fputs("</p>\n", of);
-	pager.end();
+	if (!plain_text) {
+		if (Option::sort_rev->get())
+			fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
+		else
+			fputs("</p>\n", of);
+		pager.end();
+	}
+}
+
+// Helper function to output plain text for different element types
+template <typename T>
+void output_plain_text_element(FILE *of, const T &element) {
+	fputs(element.c_str(), of);
+}
+
+// Specialization for identifier pairs (Eclass*, Identifier)
+template <>
+void output_plain_text_element(FILE *of, const std::pair<Eclass* const, Identifier> &element) {
+	fputs(element.second.get_id().c_str(), of);
+}
+
+// Specialization for function pointers (Call*)
+template <>
+void output_plain_text_element(FILE *of, const Call* const &element) {
+	fputs(element->get_name().c_str(), of);
+}
+
+// Specialization for pointer to identifier pairs (const std::pair<Eclass* const, Identifier>*)
+template <>
+void output_plain_text_element(FILE *of, const std::pair<Eclass* const, Identifier>* const &element) {
+	fputs(element->second.get_id().c_str(), of);
 }
 
 /*
@@ -1125,22 +1167,34 @@ display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 static void
 display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &sorted_ids)
 {
-	fprintf(of, "<table class=\"metrics\"><tr>"
-	    "<th width='50%%' align='left'>Name</th>"
-	    "<th width='50%%' align='right'>%s</th>\n",
-	    Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
+	bool plain_text = !!swill_getvar("txt");
 
-	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
+	if (plain_text)
+		fprintf(of, "Function Name\t%s\n", Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
+	else
+		fprintf(of, "<table class=\"metrics\"><tr>"
+		    "<th width='50%%' align='left'>Name</th>"
+		    "<th width='50%%' align='right'>%s</th>\n",
+		    Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
+
+	Pager pager(of, plain_text ? INT_MAX : Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
 	for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
 		if (pager.show_next()) {
-			fputs("<tr><td witdh='50%'>", of);
-			html(of, **i);
-			fprintf(of, "</td><td witdh='50%%' align='right'>%g</td></tr>\n",
-			    (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+			if (plain_text) {
+				fputs((*i)->get_name().c_str(), of);
+				fprintf(of, "\t%g\n", (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+			} else {
+				fputs("<tr><td witdh='50%'>", of);
+				html(of, **i);
+				fprintf(of, "</td><td witdh='50%%' align='right'>%g</td></tr>\n",
+				    (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+			}
 		}
 	}
-	fputs("</table>\n", of);
-	pager.end();
+	if (!plain_text) {
+		fputs("</table>\n", of);
+		pager.end();
+	}
 }
 
 
@@ -1184,6 +1238,7 @@ iquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qfun\" VALUE=\"Show functions\">\n"
@@ -1262,6 +1317,7 @@ funquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show functions\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
