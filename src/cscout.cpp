@@ -3888,7 +3888,7 @@ garbage_collect(Fileid root)
 		if (*i != root && *i != input_file_id)
 			Filedetails::set_includes(root, *i, /* directly included (conservatively) */ false, Filedetails::is_required(*i));
 	if (process_mode == pm_database)
-		Fdep::dumpSql(Sql::getInterface(), root);
+		Fdep::dumpSql(Sql::getInterface(), cout, root);
 	Fdep::reset();
 
 	return;
