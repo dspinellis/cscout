@@ -3381,8 +3381,9 @@ usage(char *fname)
 		"\t\t(the port number must be in the range 1024-32767)\n"
 #ifdef PICO_QL
 		"\t-q\tProvide a PiCO_QL query interface\n"
-#endif
+#else
 		"\t-q\tSuppress progress messages on standard error\n"
+#endif
 		"\t-r\tGenerate an identifier and include file warning report\n"
 		"\t-S db\tGenerate the SQL schema for the specified RDBMS\n"
 		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
