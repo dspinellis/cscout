@@ -1045,7 +1045,7 @@ filequery_page(FILE *of,  void *)
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
-	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"json\" VALUE=\"1\"> JSON output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	, of);
 	html_tail(of);
@@ -1058,57 +1058,70 @@ xfilequery_page(FILE *of,  void *)
 {
 	Timer timer;
 	char *qname = swill_getvar("n");
-	bool plain_text = !!swill_getvar("txt");
+	bool json_output = !!swill_getvar("json");
 	FileQuery query(of, Option::file_icase->get(), current_project);
-
 	if (!query.is_valid())
 		return 0;
-
 	multiset <Fileid, FileQuery::specified_order> sorted_files;
-
-	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results", NULL, plain_text);
-
+	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results", NULL, json_output);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (query.eval(*i))
 			sorted_files.insert(*i);
 	}
-	if (!plain_text) {
-		html_file_begin(of);
+	if (json_output) {
+		int skip = 0;
+		swill_getargs("I(skip)", &skip);
+		int pagesize = Option::entries_per_page->get();
+		int total = sorted_files.size();
+		int current = 0;
+		fprintf(of, "{\n");
+		fprintf(of, "\t\"total\": %d,\n", total);
+		fprintf(of, "\t\"page_size\": %d,\n", pagesize);
+		fprintf(of, "\t\"skip\": %d,\n", skip);
+		fprintf(of, "\t\"results\": [\n");
+		bool first = true;
+		for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !Filedetails::get_attribute(f, current_project))
+				continue;
+			if (current >= skip && current < skip + pagesize) {
+				if (!first)
+					fprintf(of, ",\n");
+				fprintf(of, "\t\t\"%s\"", i->get_path().c_str());
+				first = false;
+			}
+			current++;
+		}
+		fprintf(of, "\n\t]\n}\n");
+		return 0;
+	}
+	html_file_begin(of);
 	if (modification_state != ms_subst && !browse_only)
 		fprintf(of, "<th></th>\n");
 	if (query.get_sort_order() != -1)
 		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
-	}
 	Pager pager(of, Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
-	if (!plain_text)
 		html_file_set_begin(of);
 	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
-			if (plain_text)
-				fprintf(of, "%s\n", i->get_path().c_str());
-			else {
-				html_file(of, *i);
-				if (modification_state != ms_subst && !browse_only)
-					fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
-					i->get_id());
-				if (query.get_sort_order() != -1)
-					fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
-				html_file_record_end(of);
-			}
+			html_file(of, *i);
+			if (modification_state != ms_subst && !browse_only)
+				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
+				i->get_id());
+			if (query.get_sort_order() != -1)
+				fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
+			html_file_record_end(of);
 		}
 	}
-	if (!plain_text) {
 		html_file_end(of);
 		pager.end();
 		timer.print_elapsed(of);
 		html_tail(of);
-	}
 	return 0;
 }
-
 
 /*
  * Display the sorted identifiers or functions, taking into account the reverse sort property
@@ -1116,9 +1129,9 @@ xfilequery_page(FILE *of,  void *)
  */
 template <typename container>
 static void
-display_sorted(FILE *of, const Query &query, const container &sorted_ids, bool plain_text = false)
+display_sorted(FILE *of, const Query &query, const container &sorted_ids, bool json_output = false)
 {
-	if (!plain_text) {
+	if (!json_output) {
 		if (Option::sort_rev->get())
 			fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
 		else
@@ -1129,7 +1142,7 @@ display_sorted(FILE *of, const Query &query, const container &sorted_ids, bool p
 	typename container::const_iterator i;
 	for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
 		if (pager.show_next()) {
-			if (plain_text)
+			if (json_output)
 				plain_text_display(of, **i);
 			else {
 				html(of, **i);
@@ -1138,7 +1151,7 @@ display_sorted(FILE *of, const Query &query, const container &sorted_ids, bool p
 		}
 	}
 
-	if (!plain_text) {
+	if (!json_output) {
 		if (Option::sort_rev->get())
 			fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
 		else
@@ -1214,7 +1227,7 @@ iquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
-	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"json\" VALUE=\"1\"> JSON output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qfun\" VALUE=\"Show functions\">\n"
@@ -1293,7 +1306,7 @@ funquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
-	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"json\" VALUE=\"1\"> JSON output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show functions\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
@@ -1303,10 +1316,10 @@ funquery_page(FILE *of,  void *)
 }
 
 void
-display_files(FILE *of, const Query &query, const IFSet &sorted_files, bool plain_text = false)
+display_files(FILE *of, const Query &query, const IFSet &sorted_files, bool json_output = false)
 {
 	const string query_url(query.param_url());
-	if (!plain_text) {
+	if (!json_output) {
 		fputs("<h2>Matching Files</h2>\n", of);
 		html_file_begin(of);
 		html_file_set_begin(of);
@@ -1317,9 +1330,9 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files, bool plai
 		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
 		if (pager.show_next()) {
-			if (plain_text)
+			if (json_output) {
 				fprintf(of, "%s\n", f.get_path().c_str());
-			else {
+			} else {
 				html_file(of, *i);
 				fprintf(of, "<td><a href=\"qsrc.html?id=%u&%s\">marked source</a></td>",
 					f.get_id(),
@@ -1331,7 +1344,7 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files, bool plai
 			}
 		}
 	}
-	if (!plain_text) {
+	if (!json_output) {
 		html_file_end(of);
 		pager.end();
 	}
@@ -1350,7 +1363,7 @@ xiquery_page(FILE *of,  void *)
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	bool q_fun = !!swill_getvar("qfun");	// Show matching functions
-	bool plain_text = !!swill_getvar("txt");  //Plain text output
+	bool json_output = !!swill_getvar("json");	// JSON output
 	char *qname = swill_getvar("n");
 	IdQuery query(of, Option::file_icase->get(), current_project);
 
@@ -1359,7 +1372,7 @@ xiquery_page(FILE *of,  void *)
 		return 0;
 	}
 
-	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results", NULL, plain_text);
+	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results", NULL, json_output);
 	if (!quiet)
 		cerr << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
@@ -1379,21 +1392,21 @@ xiquery_page(FILE *of,  void *)
 	if (!quiet)
 		cerr << endl;
 	if (q_id) {
-		if (!plain_text)
+		if (!json_output)
 			fputs("<h2>Matching Identifiers</h2>\n", of);
-		display_sorted(of, query, sorted_ids, plain_text);
+		display_sorted(of, query, sorted_ids, json_output);
 	}
 	if (q_file)
-		display_files(of, query, sorted_files, plain_text);
+		display_files(of, query, sorted_files, json_output);
 	if (q_fun) {
-		if (!plain_text)
+		if (!json_output)
 			fputs("<h2>Matching Functions</h2>\n", of);
 		Sfuns sorted_funs;
 		sorted_funs.insert(funs.begin(), funs.end());
-		display_sorted(of, query, sorted_funs, plain_text);
+		display_sorted(of, query, sorted_funs, json_output);
 	}
 
-	if (!plain_text) {
+	if (!json_output) {
 		timer.print_elapsed(of);
 		html_tail(of);
 
@@ -1412,14 +1425,14 @@ xfunquery_page(FILE *of,  void *)
 	IFSet sorted_files;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
-	bool plain_text = !!swill_getvar("txt"); // Plain text output
+	bool json_output = !!swill_getvar("json");	// JSON output
 	char *qname = swill_getvar("n");
 	FunQuery query(of, Option::file_icase->get(), current_project);
 
 	if (!query.is_valid())
 		return 0;
 
-	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results", NULL, plain_text);
+	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results", NULL, json_output);
 	if (!quiet)
 		cerr << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
@@ -1434,16 +1447,16 @@ xfunquery_page(FILE *of,  void *)
 	if (!quiet)
 		cerr << endl;
 	if (q_id) {
-		if (!plain_text)
+		if (!json_output)
 			fputs("<h2>Matching Functions</h2>\n", of);
 		if (query.get_sort_order() != -1)
 			display_sorted_function_metrics(of, query, sorted_funs);
 		else
-			display_sorted(of, query, sorted_funs, plain_text);
+			display_sorted(of, query, sorted_funs, json_output);
 	}
 	if (q_file)
-		display_files(of, query, sorted_files, plain_text);
-	if (!plain_text) {
+		display_files(of, query, sorted_files, json_output);
+	if (!json_output) {
 		timer.print_elapsed(of);
 		html_tail(of);
 	}
