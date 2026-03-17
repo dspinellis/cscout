@@ -101,7 +101,7 @@ standard output.
 Depending on the access control list specified, you may also be
 able to perform some operations over the network.
 However, since <em>CScout</em> operates as a single-threaded process,
-you may experience delays when another user sends a complex query.
+you may experience delays when another user sends a complex query.</p>
 
 <h2>Preprocessor invocation</h2>
 As an aid for configuring <em>CScout</em> for a different compiler
@@ -147,7 +147,7 @@ and functions are moved to different files, header files that were once
 needed may no longer be required.
 Their existence can confuse the programmers reading the code
 (why is this header file included?) and unnecessarily burden the compilation
-process.
+process.</p>
 <em>CScout</em> can detect such files by keeping track of dependencies across
 files, and report included files that are not required.
 The following is an example of <em>CScout</em>'s output:
@@ -184,8 +184,8 @@ Processing identifiers
 </pre>
 Notice that there are two types of unused include files:
 <ol>
-<li> Directly included files
-<li> Included files that are only indirectly included
+<li> Directly included files</li>
+<li> Included files that are only indirectly included</li>
 </ol>
 
 You will typically remove the <code>#include</code> directives for the
@@ -220,4 +220,15 @@ The project consisted of 231 files, containing 5249 include directives.
 Following <em>CScout</em>'s analysis 765 include directives from
 178 files were removed, without a single problem.
 </p>
+
+<h2>Quiet mode</h2>
+The <code>-q</code> command-line option suppresses the progress messages
+that <em>CScout</em> usually prints on its standard error output
+when processing and analyzing files.
+This is useful when <em>CScout</em> is invoked programmatically,
+for example from an editor or IDE plugin,
+where such messages would appear as unnecessary noise.
+Note that fatal error messages and the server readiness notification
+(<code>CScout is now ready to serve you</code>) are always printed
+regardless of this option.
 </notes>

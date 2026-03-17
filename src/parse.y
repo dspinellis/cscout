@@ -160,7 +160,7 @@ make_yacc_identifier(Type t, enum e_yacc_symbol_type ytype)
 		if (id)
 			Token::unify(id->get_token(), t.get_token());
 		else
-			obj_define(t.get_token(), basic(b_int, s_none, c_static));
+			obj_define(t.get_token(), basic(b_int, s_none, c_unspecified, sd_static, lk_internal));
 	}
 	/*
 	 * Define t as a yacc identifier.
@@ -1041,12 +1041,12 @@ declaration_qualifier:
         ; /* default rules */
 
 simple_type_qualifier:
-        TCONST		{ $$ = basic(b_abstract, s_none, c_unspecified, q_const); }
-        | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, q_volatile); }
-        | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, q_restrict); }
-        | COMPLEX   { $$ = basic(b_abstract, s_none, c_unspecified, q_complex);  }
-        | IMAGINARY   { $$ = basic(b_abstract, s_none, c_unspecified, q_imaginary);  }
-        | SIMD   { $$ = basic(b_abstract, s_none, c_unspecified, q_simd);  }
+        TCONST		{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_const); }
+        | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_volatile); }
+        | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_restrict); }
+        | COMPLEX   { $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_complex);  }
+        | IMAGINARY   { $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_imaginary);  }
+        | SIMD   { $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_simd);  }
 	| attribute
         ;
 
@@ -1175,11 +1175,11 @@ typeof_argument: comma_expression
 
 storage_class:
         TYPEDEF		{ $$ = basic(b_abstract, s_none, c_typedef); }
-        | EXTERN	{ $$ = basic(b_abstract, s_none, c_extern); }
-        | STATIC	{ $$ = basic(b_abstract, s_none, c_static); }
-        | AUTO		{ $$ = basic(b_abstract, s_none, c_auto); }
-        | REGISTER	{ $$ = basic(b_abstract, s_none, c_register); }
-        | THREAD_LOCAL	{ $$ = basic(b_abstract, s_none, c_thread_local); }
+        | EXTERN	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_external); }
+        | STATIC	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_static, lk_internal); }
+        | AUTO		{ $$ = basic(b_abstract, s_none, c_unspecified, sd_auto); }
+        | REGISTER	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_auto); }
+        | THREAD_LOCAL	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_thread); }
         ;
 
 basic_type_name:
@@ -2201,7 +2201,7 @@ attribute:
 	 * int enter(void) __asm__("enter");
 	 */
 	UNUSED
-		{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
+		{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_unused); }
 	;
 
 asm_or_attribute_list:

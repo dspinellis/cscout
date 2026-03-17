@@ -1,6 +1,6 @@
 .TH CSCOUT 1 "17 October 2025"
 .\"
-.\" (C) Copyright 2003-2025 Diomidis Spinellis
+.\" (C) Copyright 2003-2026 Diomidis Spinellis
 .\"
 .\" This file is part of CScout.
 .\"
@@ -26,6 +26,7 @@ cscout \- C code analyzer and refactoring browser
 [\fB\-d H\fP]
 [\fB\-E\fP \fIfile specification\fP]
 [\fB\-l\fP \fIlog file\fP]
+[\fB\-q\fP]
 [\fB\-p\fP \fIport\fP]
 [\fB\-R\fP \fIspecification\fP]
 [\fB\-M\fP \fIfiles\fP]
@@ -223,6 +224,15 @@ scoped identifiers and unused included files.
 The error message format is compatible with \fIgcc\fP and can
 therefore be automatically processed by editors that recognize this
 format.
+.IP "\fB\-q\fP"
+Suppress the progress messages that
+\fICScout\fP normally prints on its standard error output
+while processing and analyzing files.
+This is useful when \fICScout\fP is invoked programmatically,
+for example from an editor or IDE plugin,
+where such messages would appear as unnecessary noise.
+Note that fatal error messages and the server readiness notification
+are always printed regardless of this option.
 .IP "\fB\-v\fP"
 Display  the \fICScout\fP version and copyright information and exit.
 .IP "\fB\-3\fP"
@@ -381,4 +391,4 @@ We are now ready to serve you at http://localhost:8081
 \fIcsmerge\fP(1),
 \fIcswc\fP(1).
 .SH AUTHOR
-(c) Copyright 2003-2024 Diomidis Spinellis.
+(c) Copyright 2003-2026 Diomidis Spinellis.
