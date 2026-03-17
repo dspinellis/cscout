@@ -90,7 +90,7 @@ public:
 	// Clear definers and providers starting another round
 	static void reset();
 	// Create SQL dump
-	static void dumpSql(Sql *db, Fileid cu);
+	static void dumpSql(Sql *db, ostream &of, Fileid cu);
 };
 
 

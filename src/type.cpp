@@ -237,6 +237,61 @@ Type_node::get_storage_class() const
 	return c_unspecified;
 }
 
+enum e_storage_duration
+Type_node::get_storage_duration() const
+{
+	Error::error(E_INTERNAL, "object has no storage duration");
+	this->print(cerr);
+	return sd_none;
+}
+
+enum e_linkage
+Type_node::get_linkage() const
+{
+	Error::error(E_INTERNAL, "object has no linkage");
+	this->print(cerr);
+	return lk_none;
+}
+
+// Merge two storage durations.
+// C11 6.7.1: _Thread_local may be combined with static or extern.
+enum e_storage_duration
+merge_storage_duration(enum e_storage_duration a, enum e_storage_duration b)
+{
+	if (a == sd_none)
+		return b;
+	if (b == sd_none)
+		return a;
+	// C11 6.7.1: _Thread_local is allowed with static or extern
+	if ((a == sd_thread && b == sd_static) || (a == sd_static && b == sd_thread))
+		return sd_thread;
+	/*
+	 * @error
+	 * Incompatible storage duration specifiers were used together
+	 * (e.g. <code>auto</code> and <code>static</code>)
+	 */
+	Error::error(E_ERR, "conflicting storage duration specifiers");
+	return a;
+}
+
+// Merge two linkages.
+// Only one non-none linkage allowed.
+enum e_linkage
+merge_linkage(enum e_linkage a, enum e_linkage b)
+{
+	if (a == lk_none)
+		return b;
+	if (b == lk_none)
+		return a;
+	/*
+	 * @error
+	 * Incompatible linkage specifiers were used together
+	 * (e.g. <code>extern</code> and <code>static</code>)
+	 */
+	Error::error(E_ERR, "conflicting linkage specifiers");
+	return a;
+}
+
 qualifiers_t
 Type_node::get_qualifiers() const
 {
@@ -367,9 +422,10 @@ Tincomplete::get_indexed_elements() const
 }
 
 Type
-basic(enum e_btype t, enum e_sign s, enum e_storage_class sc, qualifiers_t q)
+basic(enum e_btype t, enum e_sign s, enum e_storage_class sc,
+	enum e_storage_duration sd, enum e_linkage lk, qualifiers_t q)
 {
-	return Type(new Tbasic(t, s, sc, q));
+	return Type(new Tbasic(t, s, sc, sd, lk, q));
 }
 
 Type
@@ -456,12 +512,18 @@ Tstorage::print(ostream &o) const
 	switch (sclass) {
 	case c_unspecified: break;
 	case c_typedef: o << "typedef "; break;
-	case c_extern: o << "extern "; break;
-	case c_static: o << "static "; break;
-	case c_auto: o << "auto "; break;
-	case c_register: o << "register "; break;
 	case c_enum: o << "enum_const "; break;
-	case c_thread_local: o << "_Thread_local "; break;
+	}
+	switch (duration) {
+	case sd_none: break;
+	case sd_auto: o << "auto "; break;
+	case sd_static: o << "static "; break;
+	case sd_thread: o << "_Thread_local "; break;
+	}
+	switch (linkage) {
+	case lk_none: break;
+	case lk_external: o << "extern "; break;
+	case lk_internal: break; // internal linkage implied by static
 	}
 }
 
@@ -629,6 +691,8 @@ Tbasic::merge(Tbasic *b)
 	enum e_btype t;
 	enum e_sign s;
 	enum e_storage_class c;
+	enum e_storage_duration sd;
+	enum e_linkage lk;
 	enum e_qualifier q;
 
 	if (b == NULL)
@@ -686,32 +750,40 @@ Tbasic::merge(Tbasic *b)
 		s = s_none;
 	}
 
+	/*
+	 * @error
+	 * More than one storage class specifier was given in the same
+	 * declaration (e.g. <code>static typedef</code>)
+	 */
 	if (this->sclass.get_storage_class() == c_unspecified)
 		c = b->sclass.get_storage_class();
 	else if (b->sclass.get_storage_class() == c_unspecified)
 		c = this->sclass.get_storage_class();
 	else {
-		/*
-		 * @error
-		 * More than one storage class was given for the same
-		 * object
-		 */
 		Error::error(E_ERR, "at most one storage class can be specified");
 		c = this->sclass.get_storage_class();
 	}
 
+	sd = merge_storage_duration(this->sclass.get_storage_duration(),
+				    b->sclass.get_storage_duration());
+
+	lk = merge_linkage(this->sclass.get_linkage(),
+			   b->sclass.get_linkage());
+
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
 	if (DP()) {
 		cout << "merge a=" << Type(this->clone()) << "\nmerge b=" <<
-			Type(b) << "\nmerge r=" <<  Type(basic(t, s, c, q)) << "\n";
+			Type(b) << "\nmerge r=" << Type(basic(t, s, c, sd, lk, q)) << "\n";
 	}
-	return basic(t, s, c, q);
+	return basic(t, s, c, sd, lk, q);
 }
 
 Type
 Tsu::merge(Tbasic *b)
 {
 	enum e_storage_class c;
+	enum e_storage_duration sd;
+	enum e_linkage lk;
 	enum e_qualifier q;
 
 	if (b == NULL)
@@ -734,8 +806,12 @@ Tsu::merge(Tbasic *b)
 	else
 		c = this->get_storage_class();
 
+	sd = merge_storage_duration(this->get_storage_duration(),
+				    b->get_storage_duration());
+	lk = merge_linkage(this->get_linkage(), b->get_linkage());
+
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
-	return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), c, q, is_union));
+	return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), c, sd, lk, q, is_union));
 }
 
 Type
@@ -771,7 +847,9 @@ Tpointer::merge(Tbasic *b)
 	if (b == NULL)
 		return Type_node::merge(b);
 	if (!b->is_abstract() ||
-	    b->get_storage_class() != c_unspecified) {
+	    b->get_storage_class() != c_unspecified ||
+	    b->get_storage_duration() != sd_none ||
+	    b->get_linkage() != lk_none) {
 		/*
 		 * @error
 		 * The type specifier or storage class can not be applied on
@@ -794,7 +872,9 @@ Tarray::merge(Tbasic *b)
 	if (b == NULL)
 		return Type_node::merge(b);
 	if (!b->is_abstract() ||
-	    b->get_storage_class() != c_unspecified) {
+	    b->get_storage_class() != c_unspecified ||
+	    b->get_storage_duration() != sd_none ||
+	    b->get_linkage() != lk_none) {
 		/*
 		 * @error
 		 * The type specifier or storage class can not be applied on
@@ -813,6 +893,8 @@ Type
 Tincomplete::merge(Tbasic *b)
 {
 	enum e_storage_class c;
+	enum e_storage_duration sd;
+	enum e_linkage lk;
 	enum e_qualifier q;
 
 	if (b == NULL)
@@ -830,14 +912,20 @@ Tincomplete::merge(Tbasic *b)
 	else
 		c = this->get_storage_class();
 
+	sd = merge_storage_duration(this->get_storage_duration(),
+				    b->get_storage_duration());
+	lk = merge_linkage(this->get_linkage(), b->get_linkage());
+
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
-	return Type(new Tincomplete(t, c, scope_level, q, is_union));
+	return Type(new Tincomplete(t, c, sd, lk, scope_level, q, is_union));
 }
 
 Type
 Tenum::merge(Tbasic *b)
 {
 	enum e_storage_class c;
+	enum e_storage_duration sd;
+	enum e_linkage lk;
 	enum e_qualifier q;
 
 	if (b == NULL)
@@ -860,8 +948,12 @@ Tenum::merge(Tbasic *b)
 	else
 		c = this->get_storage_class();
 
+	sd = merge_storage_duration(this->get_storage_duration(),
+				    b->get_storage_duration());
+	lk = merge_linkage(this->get_linkage(), b->get_linkage());
+
 	q = (enum e_qualifier)(this->get_qualifiers() | b->get_qualifiers());
-	return Type(new Tenum(c, q));
+	return Type(new Tenum(c, sd, lk, q));
 }
 
 
@@ -1009,37 +1101,43 @@ Type::declare()
 Type
 Tbasic::clone() const
 {
-	return Type(new Tbasic(type, sign, sclass.get_storage_class(), get_qualifiers(), value));
+	return Type(new Tbasic(type, sign, sclass.get_storage_class(),
+		sclass.get_storage_duration(), sclass.get_linkage(),
+		get_qualifiers(), value));
 }
 
 void
 Tstorage::set_storage_class(Type t)
 {
 	enum e_storage_class newclass = t.get_storage_class();
+	enum e_storage_duration newdur = t.get_storage_duration();
+	enum e_linkage newlk = t.get_linkage();
 
 	if (DP()) {
 		cout << "Set_storage_class of ";
 		this->print(cout);
 		cout << "\nto " << t << endl;
 	}
-	if (sclass == newclass)
-		return;
-	if (sclass != c_unspecified &&
-	    sclass != c_typedef &&
-	    newclass != c_unspecified &&
-	    // new static overrides previous extern 6.2.2-4
-	    !(sclass == c_extern && newclass == c_static))
-		/*
-		 * @error
-		 * Incompatible storage classes were specified in a single
-		 * type declaration
-		 */
-		Error::error(E_ERR, "multiple storage classes in type declaration");
-	// if sclass is already e.g. extern and t is just volatile don't destroy sclass
-	// also a subsequent static overrides an previous extern declaration 6.2.2-4
-	if (sclass == c_unspecified || sclass == c_typedef ||
-	    (sclass == c_extern && newclass == c_static))
+
+	/*
+	 * @error
+	 * Multiple conflicting storage-class specifiers were given in
+	 * the same declaration (e.g. <code>extern static</code>)
+	 */
+	if (sclass == c_unspecified || sclass == c_typedef)
 		sclass = newclass;
+	else if (newclass != c_unspecified && newclass != sclass)
+		Error::error(E_ERR, "multiple storage classes in type declaration");
+
+	// Merge storage duration using the merge function
+	duration = merge_storage_duration(duration, newdur);
+
+	// Merge linkage using the merge function
+	// new static overrides previous extern 6.2.2-4
+	if (linkage == lk_external && newlk == lk_internal)
+		linkage = lk_internal;
+	else
+		linkage = merge_linkage(linkage, newlk);
 }
 
 void
@@ -1053,6 +1151,8 @@ void
 Tstorage::clear_storage_class()
 {
 	sclass = c_unspecified;
+	duration = sd_none;
+	linkage = lk_none;
 }
 
 void

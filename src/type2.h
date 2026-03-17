@@ -52,6 +52,8 @@ public:
 	void set_storage_class(Type t) { of.set_storage_class(t); }
 	void clear_storage_class() { of.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const {return of.get_storage_duration(); }
+	enum e_linkage get_linkage() const {return of.get_linkage(); }
 	Type merge(Tbasic *b);
 	Type member(int n);
 };
@@ -72,6 +74,8 @@ public:
 	void set_storage_class(Type t) { to.set_storage_class(t); }
 	void clear_storage_class() { to.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return to.get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const {return to.get_storage_duration(); }
+	enum e_linkage get_linkage() const {return to.get_linkage(); }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	int get_nparam() const { return to.get_nparam(); }
@@ -96,6 +100,8 @@ public:
 	void set_storage_class(Type t) { returning.set_storage_class(t); }
 	void clear_storage_class() { returning.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return returning.get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const {return returning.get_storage_duration(); }
+	enum e_linkage get_linkage() const {return returning.get_linkage(); }
 	void add_qualifiers(Type t) { returning.add_qualifiers(t); }
 	bool qualified_const() const { return returning.qualified_const(); }
 	bool qualified_restrict() const { return returning.qualified_restrict(); }
@@ -111,11 +117,16 @@ class Tenum: public QType_node {
 private:
 	Tstorage sclass;
 public:
-	Tenum(enum e_storage_class sc = c_unspecified, qualifiers_t q = q_none) :
-		 QType_node(q), sclass(sc) {}
-	Type clone() const { return Type(new Tenum(sclass.get_storage_class(), get_qualifiers()));}
+	Tenum(enum e_storage_class sc = c_unspecified,
+	      enum e_storage_duration sd = sd_none,
+	      enum e_linkage lk = lk_none,
+	      qualifiers_t q = q_none) :
+		 QType_node(q), sclass(sc, sd, lk) {}
+	Type clone() const { return Type(new Tenum(sclass.get_storage_class(), sclass.get_storage_duration(), sclass.get_linkage(), get_qualifiers()));}
 	void print(ostream &o) const;
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const { return sclass.get_storage_duration(); }
+	enum e_linkage get_linkage() const { return sclass.get_linkage(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 	void clear_storage_class() { sclass.clear_storage_class(); }
 	Type merge(Tbasic *b);
@@ -146,12 +157,14 @@ public:
 		}
 	}
 	Tsu(Tsu_unnamed dummy, const Type &typ);
-	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds, enum e_storage_class sc, qualifiers_t q, bool u) :
+	Tsu(const Stab &mbn, const vector <Id> &mbo, Type ds,
+	    enum e_storage_class sc, enum e_storage_duration sd,
+	    enum e_linkage lk, qualifiers_t q, bool u) :
 			QType_node(q),
 			members_by_name(mbn),
 			members_by_ordinal(mbo),
 			default_specifier(ds),
-			sclass(sc),
+			sclass(sc, sd, lk),
 			is_union(u)
 			{}
 	Tsu(const Type &spec) : default_specifier(spec), is_union(false) {}
@@ -168,7 +181,7 @@ public:
 	bool is_su() const { return true; }
 	// Indicate this is a union
 	void set_union(bool v) { is_union = v; }
-	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class(), get_qualifiers(), is_union)); }
+	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class(), sclass.get_storage_duration(), sclass.get_linkage(), get_qualifiers(), is_union)); }
 	void add_member(const Token &tok, const Type &typ) {
 		tok.set_ec_attribute(is_sumember);
 		members_by_name.define(tok, typ);
@@ -195,6 +208,8 @@ public:
 	const vector <Id>& get_members_by_ordinal() const { return members_by_ordinal; }
 	void print(ostream &o) const;
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const { return sclass.get_storage_duration(); }
+	enum e_linkage get_linkage() const { return sclass.get_linkage(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 	void clear_storage_class() { sclass.clear_storage_class(); }
 	Type merge(Tbasic *b);
@@ -211,15 +226,17 @@ private:
 	Type get_complete_type() const;
 public:
 	Tincomplete(const Ctoken& tok, int l) : t(tok), scope_level(l), is_union(false) {}
-	Tincomplete(const Ctoken& tok, enum e_storage_class sc, int l, qualifiers_t q, bool u) :
+	Tincomplete(const Ctoken& tok, enum e_storage_class sc,
+		    enum e_storage_duration sd, enum e_linkage lk,
+		    int l, qualifiers_t q, bool u) :
 		QType_node(q),
 		t(tok),
-		sclass(sc),
+		sclass(sc, sd, lk),
 		scope_level(l),
 		is_union(u)
 		{}
 	virtual ~Tincomplete() {}
-	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), scope_level, get_qualifiers(), is_union)); }
+	Type clone() const { return Type(new Tincomplete(t, sclass.get_storage_class(), sclass.get_storage_duration(), sclass.get_linkage(), scope_level, get_qualifiers(), is_union)); }
 	Id const* member(const string& s) const;
 	Type member(int n);
 	CTConst get_initializer_elements() const;
@@ -228,6 +245,8 @@ public:
 	void print(ostream &o) const;
 	const Ctoken& get_token() const { return t; }
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const { return sclass.get_storage_duration(); }
+	enum e_linkage get_linkage() const { return sclass.get_linkage(); }
 	void set_storage_class(Type t) { sclass.set_storage_class(t); };
 	void clear_storage_class() { sclass.clear_storage_class(); }
 	bool is_incomplete() const { return true; }
@@ -263,6 +282,8 @@ public:
 	void set_storage_class(Type t) { of.set_storage_class(t); }
 	void clear_storage_class() { of.clear_storage_class(); }
 	enum e_storage_class get_storage_class() const {return of.get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const {return of.get_storage_duration(); }
+	enum e_linkage get_linkage() const {return of.get_linkage(); }
 	void add_qualifiers(Type t) { of.add_qualifiers(t); }
 	bool qualified_const() const { return of.qualified_const(); }
 	bool qualified_restrict() const { return of.qualified_restrict(); }

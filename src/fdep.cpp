@@ -106,13 +106,13 @@ Fdep::reset()
  * compilation unit cu
  */
 void
-Fdep::dumpSql(Sql *, Fileid cu)
+Fdep::dumpSql(Sql *, ostream &of, Fileid cu)
 {
 	if (table_is_enabled(t_definers))
 		for (FSFMap::const_iterator di = definers.begin(); di != definers.end(); di++) {
 			const set <Fileid> &defs = di->second;
 			for (set <Fileid>::const_iterator i = defs.begin(); i != defs.end(); i++)
-				cout << "INSERT INTO DEFINERS VALUES(" <<
+				of << "INSERT INTO DEFINERS VALUES(" <<
 				Project::get_current_projid() << ',' <<
 				cu.get_id() << ',' <<
 				di->first.get_id() << ',' <<
@@ -122,7 +122,7 @@ Fdep::dumpSql(Sql *, Fileid cu)
 		for (FSFMap::const_iterator ii = includers.begin(); ii != includers.end(); ii++) {
 			const set <Fileid> &incs = ii->second;
 			for (set <Fileid>::const_iterator i = incs.begin(); i != incs.end(); i++)
-				cout << "INSERT INTO INCLUDERS VALUES(" <<
+				of << "INSERT INTO INCLUDERS VALUES(" <<
 				Project::get_current_projid() << ',' <<
 				cu.get_id() << ',' <<
 				ii->first.get_id() << ',' <<
@@ -130,14 +130,14 @@ Fdep::dumpSql(Sql *, Fileid cu)
 		}
 	if (table_is_enabled(t_providers))
 		for (set <Fileid>::const_iterator i = providers.begin(); i != providers.end(); i++)
-			cout << "INSERT INTO PROVIDERS VALUES(" <<
+			of << "INSERT INTO PROVIDERS VALUES(" <<
 			Project::get_current_projid() << ',' <<
 			cu.get_id() << ',' <<
 			i->get_id() << ");\n";
 	if (table_is_enabled(t_inctriggers))
 		for (ITMap::const_iterator i = include_triggers.begin(); i != include_triggers.end(); i++)
 			for (include_trigger_value::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
-				cout << "INSERT INTO INCTRIGGERS VALUES(" <<
+				of << "INSERT INTO INCTRIGGERS VALUES(" <<
 				Project::get_current_projid() << ',' <<
 				cu.get_id() << ',' <<
 				i->first.second.get_id() << ',' <<
