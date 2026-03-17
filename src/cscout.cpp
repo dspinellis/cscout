@@ -1066,8 +1066,7 @@ xfilequery_page(FILE *of,  void *)
 
 	multiset <Fileid, FileQuery::specified_order> sorted_files;
 
-	if (!plain_text)
-		html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
+	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results", NULL, plain_text);
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (query.eval(*i))
@@ -1360,8 +1359,7 @@ xiquery_page(FILE *of,  void *)
 		return 0;
 	}
 
-	if (!plain_text)
-		html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
+	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results", NULL, plain_text);
 	if (!quiet)
 		cerr << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
@@ -1421,8 +1419,7 @@ xfunquery_page(FILE *of,  void *)
 	if (!query.is_valid())
 		return 0;
 
-	if (!plain_text)
-		html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
+	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results", NULL, plain_text);
 	if (!quiet)
 		cerr << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
