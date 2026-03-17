@@ -330,8 +330,19 @@ def main():
         converted += 1
         print(f"  OK: {xml_path.name} -> {md_filename}")
 
-    print(f"\nDone: {converted} converted, {skipped} skipped (auto-generated)")
+    # Copy image assets
+    import shutil
+
+    img_count = 0
+    for ext in ("*.gif", "*.png"):
+        for img in doc_dir.glob(ext):
+            shutil.copy2(img, out_dir / img.name)
+            img_count += 1
+
+    print(f"\nDone: {converted} converted, {skipped} skipped, {img_count} images copied")
     print(f"Output: {out_dir}")
+    print(f"\nTo build HTML: cd docs && mkdocs build")
+    print(f"To preview:    cd docs && mkdocs serve")
 
 
 if __name__ == "__main__":
