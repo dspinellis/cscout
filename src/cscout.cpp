@@ -1629,10 +1629,10 @@ function_page(FILE *fo, void *)
 	if (f->is_defined()) {
 		// Metrics
 		fprintf(fo, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr>"
-		    "<th>Metric</th>"
-		    "<th>Pre-cpp Value</th>"
-		    "<th>Post-cpp Value</th>"
-		    "</tr>\n");
+			"<th>Metric</th>"
+			"<th>Pre-cpp Value</th>"
+			"<th>Post-cpp Value</th>"
+			"</tr>\n");
 		for (int j = 0; j < FunMetrics::metric_max; j++) {
 			if (Metrics::is_internal<FunMetrics>(j))
 				continue;
@@ -2842,10 +2842,10 @@ file_page(FILE *of, void *)
 
 	// Metrics
 	fprintf(of, "<h2>Metrics</h2>\n<table class='metrics'>\n<tr>"
-	    "<th>Metric</th>"
-	    "<th>Pre-cpp Value</th>"
-	    "<th>Post-cpp Value</th>"
-	    "</tr>\n");
+		"<th>Metric</th>"
+		"<th>Pre-cpp Value</th>"
+		"<th>Post-cpp Value</th>"
+		"</tr>\n");
 	for (int j = 0; j < FileMetrics::metric_max; j++) {
 		if (!Metrics::is_file<FileMetrics>(j))
 			continue;
