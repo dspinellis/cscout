@@ -3351,7 +3351,7 @@ usage(char *fname)
 		"-b|"	// browse-only
 #endif
 		"-C|-c|-d D|-d H|-E RE|-o|-M files|"
-		"-R URL|-r|-S db|-s db|-v] "
+		"-q|-R URL|-r|-S db|-s db|-v] "
 		"[-l file] "
 
 #ifdef PICO_QL
@@ -3381,6 +3381,8 @@ usage(char *fname)
 		"\t\t(the port number must be in the range 1024-32767)\n"
 #ifdef PICO_QL
 		"\t-q\tProvide a PiCO_QL query interface\n"
+#else
+		"\t-q\tSuppress progress messages on standard error\n"
 #endif
 		"\t-r\tGenerate an identifier and include file warning report\n"
 		"\t-S db\tGenerate the SQL schema for the specified RDBMS\n"
@@ -3541,9 +3543,9 @@ main(int argc, char *argv[])
 		case 'b':
 			browse_only = true;
 			break;
-		case 'q':                          //case 'q' for quiet
-            quiet = true;
-            break;
+		case 'q':
+			quiet = true;
+			break;
 		case 'l':
 			if (!optarg)
 				usage(argv[0]);
