@@ -2328,8 +2328,16 @@ postfix_identifier_declarator:
 			if ($$.qualified_unused())
 				$$.get_token().set_ec_attribute(is_declared_unused);
 		}
-        | '(' unary_identifier_declarator ')'
-		{ $$ = $2; }
+		/* void (*f(int a))(void): f is function taking int a returning pointer to function */
+		| paren_identifier_declarator '(' { Block::enter(); } parameter_type_list { Block::param_exit(); } ')'
+				{
+						$1.set_abstract(function_returning(basic(), $4.get_nparam()));
+						$$ = $1;
+						if ($$.qualified_unused())
+								$$.get_token().set_ec_attribute(is_declared_unused);
+				}
+		| '(' unary_identifier_declarator ')'
+				{ $$ = $2; }
 	/*  int (*a)[10]: declare a as pointer to array 10 of int */
         | '(' unary_identifier_declarator ')' postfixing_abstract_declarator
 		{
