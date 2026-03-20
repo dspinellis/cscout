@@ -563,18 +563,14 @@ unary_expression:
 			{ $$ = pointer_to($2); }
         | '*' cast_expression
 			{ $$ = $2.deref(); }
-	/*
-	 * XXX We should be able to evaluate these as constant expressions,
-	 * but we aren't.
-	 */
         | SIZEOF unary_expression
-			{ $$ = basic(b_int); }
+			{ $$ = basic(b_int); $$.set_value(CTConst($2.get_sizeof())); }
         | SIZEOF '(' type_name ')'
-			{ $$ = basic(b_int); }
+			{ $$ = basic(b_int); $$.set_value(CTConst($3.get_sizeof())); }
         | ALIGNOF unary_expression
-			{ $$ = basic(b_int); }
+			{ $$ = basic(b_int); $$.set_value(CTConst(4)); }
         | ALIGNOF '(' type_name ')'
-			{ $$ = basic(b_int); }
+			{ $$ = basic(b_int); $$.set_value(CTConst(4)); }
 	/* gcc extension */
         | AND_OP identifier_or_typedef_name
 		{ label_use($2.get_token()); }

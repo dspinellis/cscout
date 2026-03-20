@@ -1202,3 +1202,20 @@ int Type_node::get_count()
 	return count;
 }
 #endif
+
+int Tsu::get_sizeof() const {
+    int total_size = 0;
+    int max_size = 0;
+    
+    for (unsigned i = 0; i < members_by_ordinal.size(); i++) {
+        int member_size = members_by_ordinal[i].get_type().get_sizeof();
+        total_size += member_size;
+        if (member_size > max_size) {
+            max_size = member_size;
+        }
+    }
+    
+    int raw_size = is_union ? max_size : total_size;
+    // Fallback to 1 if empty struct/union to be safe
+    return (raw_size == 0) ? 1 : raw_size;
+}

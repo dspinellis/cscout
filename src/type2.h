@@ -47,6 +47,7 @@ public:
 	bool is_ptr() const { return true; }
 	bool is_subscriptable() const { return true; }
 	bool is_array() const { return true; }
+        int get_sizeof() const { return (nelem.is_const() ? nelem.get_int_value() : 1) * of.get_sizeof(); }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { of.set_storage_class(t); }
@@ -70,6 +71,7 @@ public:
 	Type subscript() const { return to; }
 	bool is_ptr() const { return true; }
 	bool is_subscriptable() const { return true; }
+        int get_sizeof() const { return 8; }
 	Type call() const { return to.call(); }
 	void set_storage_class(Type t) { to.set_storage_class(t); }
 	void clear_storage_class() { to.clear_storage_class(); }
@@ -95,6 +97,7 @@ public:
 	// Common extension: dereferencing a function yields a function
 	Type deref() const { return clone(); }
 	bool is_cfunction() const { return true; }
+        int get_sizeof() const { return 1; }
 	void print(ostream &o) const;
 	void set_abstract(Type t);
 	void set_storage_class(Type t) { returning.set_storage_class(t); }
@@ -179,6 +182,7 @@ public:
 		return CTConst(members_by_ordinal.size());
 	}
 	bool is_su() const { return true; }
+        int get_sizeof() const;
 	// Indicate this is a union
 	void set_union(bool v) { is_union = v; }
 	Type clone() const { return Type(new Tsu(members_by_name, members_by_ordinal, default_specifier.clone(), sclass.get_storage_class(), sclass.get_storage_duration(), sclass.get_linkage(), get_qualifiers(), is_union)); }
@@ -270,6 +274,7 @@ public:
 	Type clone() const { return Type(new Tidentifier(t, of.clone())); }
 	const Ctoken& get_token() const { return t; }
 	bool is_identifier() const { return (true); }
+        int get_sizeof() const { return of.get_sizeof(); }
 	const string get_name() const { return t.get_name(); }
 	Type type(Type) const { return of; }
 	Id const* member(const string& s) const
