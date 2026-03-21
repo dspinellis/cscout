@@ -150,7 +150,7 @@ protected:
 	virtual void add_param();	// Add another parameter to the list
 	virtual CTConst get_value() const {return CTConst(); }	// Return the value of a compile-time constant
 	// Return the number of elements this type can be supplied (array, structure, union)
-        virtual int get_sizeof() const { return 1; }
+        virtual size_t get_sizeof() const { return 0; }
 	virtual CTConst get_initializer_elements() const { return CTConst(1); }
 	// Return the number of elements this type can be indexed to return their type (array, structure, union)
 	virtual CTConst get_indexed_elements() const { return CTConst(1); }
@@ -240,14 +240,19 @@ public:
 	bool is_void() const { return type == b_void; }
 	bool is_padbit() const { return type == b_padbit; }
 	bool is_char() const { return type == b_char; }
-        int get_sizeof() const {
+        size_t get_sizeof() const {
                 switch (type) {
                 case b_void: case b_char: case b_bool: return 1;
-                case b_short: return 2;
-                case b_int: case b_float: case b_imaginary: return 4;
-                case b_long: case b_double: case b_llong: case b_complex: return 8;
-                case b_ldouble: return 16;
-                default: return 1;
+                case b_short: return sizeof(short);
+                case b_int: return sizeof(int);
+                case b_float: return sizeof(float);
+                case b_imaginary: return sizeof(float);
+                case b_long: return sizeof(long);
+                case b_double: return sizeof(double);
+                case b_llong: return sizeof(long long);
+                case b_complex: return sizeof(double) * 2;
+                case b_ldouble: return sizeof(long double);
+                default: return 0;
                 }
         }
 	void print(ostream &o) const;
@@ -318,7 +323,7 @@ public:
 	void add_param()		{ p->add_param(); }
 	int get_nparam() const		{ return p->get_nparam(); }
 	CTConst get_value() const	{ return p->get_value(); }
-        int get_sizeof() const          { return p->get_sizeof(); }
+        size_t get_sizeof() const          { return p->get_sizeof(); }
 	CTConst get_initializer_elements() const 	{ return p->get_initializer_elements(); }
 	CTConst get_indexed_elements() const 	{ return p->get_indexed_elements(); }
 	void set_union(bool v)		{ p->set_union(v); }
