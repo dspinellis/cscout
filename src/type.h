@@ -150,6 +150,8 @@ protected:
 	virtual void add_param();	// Add another parameter to the list
 	virtual CTConst get_value() const {return CTConst(); }	// Return the value of a compile-time constant
 	// Return the number of elements this type can be supplied (array, structure, union)
+        virtual size_t get_sizeof() const { return 0; }
+	virtual size_t get_alignof() const { return 0; }
 	virtual CTConst get_initializer_elements() const { return CTConst(1); }
 	// Return the number of elements this type can be indexed to return their type (array, structure, union)
 	virtual CTConst get_indexed_elements() const { return CTConst(1); }
@@ -239,6 +241,36 @@ public:
 	bool is_void() const { return type == b_void; }
 	bool is_padbit() const { return type == b_padbit; }
 	bool is_char() const { return type == b_char; }
+        size_t get_sizeof() const {
+                switch (type) {
+                case b_void: case b_char: case b_bool: return 1;
+                case b_short: return sizeof(short);
+                case b_int: return sizeof(int);
+                case b_float: return sizeof(float);
+                case b_imaginary: return sizeof(float);
+                case b_long: return sizeof(long);
+                case b_double: return sizeof(double);
+                case b_llong: return sizeof(long long);
+                case b_complex: return sizeof(double) * 2;
+                case b_ldouble: return sizeof(long double);
+                default: return 0;
+                }
+        }
+	size_t get_alignof() const {
+		switch (type) {
+		case b_void: case b_char: case b_bool: return 1;
+		case b_short: return alignof(short);
+		case b_int: return alignof(int);
+		case b_float: return alignof(float);
+		case b_imaginary: return alignof(float);
+		case b_long: return alignof(long);
+		case b_double: return alignof(double);
+		case b_llong: return alignof(long long);
+		case b_complex: return alignof(double);
+		case b_ldouble: return alignof(long double);
+		default: return 0;
+		}
+	}
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
 	Tbasic *tobasic() { return this; }
@@ -307,6 +339,8 @@ public:
 	void add_param()		{ p->add_param(); }
 	int get_nparam() const		{ return p->get_nparam(); }
 	CTConst get_value() const	{ return p->get_value(); }
+        size_t get_sizeof() const          { return p->get_sizeof(); }
+	size_t get_alignof() const	{ return p->get_alignof(); }
 	CTConst get_initializer_elements() const 	{ return p->get_initializer_elements(); }
 	CTConst get_indexed_elements() const 	{ return p->get_indexed_elements(); }
 	void set_union(bool v)		{ p->set_union(v); }
