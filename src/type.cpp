@@ -1207,7 +1207,7 @@ size_t Tsu::get_sizeof() const {
 	// Approximate C layout by accounting for member alignment/padding.
 	// We conservatively use each member's size as its alignment (minimum 1).
 	if (members_by_ordinal.empty())
-		return 1;
+		return 0;
 
 	auto align_up = [](size_t value, size_t align) -> size_t {
 		if (align <= 1)

@@ -564,13 +564,23 @@ unary_expression:
         | '*' cast_expression
 			{ $$ = $2.deref(); }
         | SIZEOF unary_expression
-			{ $$ = basic(b_int); $$.set_value(CTConst($2.get_sizeof())); }
+			{
+				$$ = basic(b_int);
+				auto s = $2.get_sizeof();
+				if (s != 0)
+					$$.set_value(CTConst(s));
+			}
         | SIZEOF '(' type_name ')'
-			{ $$ = basic(b_int); $$.set_value(CTConst($3.get_sizeof())); }
+			{
+				$$ = basic(b_int);
+				auto s = $3.get_sizeof();
+				if (s != 0)
+					$$.set_value(CTConst(s));
+			}
         | ALIGNOF unary_expression
-			{ $$ = basic(b_int); $$.set_value(CTConst(4)); }
+			{ $$ = basic(b_int); }
         | ALIGNOF '(' type_name ')'
-			{ $$ = basic(b_int); $$.set_value(CTConst(4)); }
+			{ $$ = basic(b_int); }
 	/* gcc extension */
         | AND_OP identifier_or_typedef_name
 		{ label_use($2.get_token()); }
