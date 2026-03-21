@@ -535,6 +535,8 @@ QType_node::print(ostream &o) const
 	if (qualifiers & q_unused) o << "__attribute__(unused) ";
 	if (qualifiers & q_volatile) o << "volatile ";
 	if (qualifiers & q_simd) o << "__simd ";
+	if (qualifiers & q_complex) o << "_Complex ";
+	if (qualifiers & q_imaginary) o << "_Imaginary ";
 }
 
 void
@@ -563,8 +565,8 @@ Tbasic::print(ostream &o) const
 	case b_ldouble: o << "long double "; break;
 	case b_padbit: o << "padbit "; break;
 	case b_undeclared: o << "UNDECLARED "; break;
-	case b_complex: o << "_Complex"; break;
-	case b_imaginary: o << "_Imaginary"; break;
+	case b_complex: o << "_Complex "; break;
+	case b_imaginary: o << "_Imaginary "; break;
 	}
 
 	if (value.is_const())
@@ -740,11 +742,11 @@ Tbasic::merge(Tbasic *b)
 		s = s_none;
 	}
 
-	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble || t == b_bool)) {
+	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble || t == b_bool || t == b_complex || t == b_imaginary)) {
 		/*
 		 * @error
 		 * Signedness specifications are not allowed on
-		 * double, float, long double, and _Bool types
+		 * double, float, long double, _Bool, _Complex, and _Imaginary types
 		 */
 		Error::error(E_WARN, "illegal sign specification - ignored");
 		s = s_none;
