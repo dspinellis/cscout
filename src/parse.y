@@ -578,9 +578,19 @@ unary_expression:
 					$$.set_value(CTConst(s));
 			}
         | ALIGNOF unary_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				auto a = $2.get_alignof();
+				if (a != 0)
+					$$.set_value(CTConst(a));
+			}
         | ALIGNOF '(' type_name ')'
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				auto a = $3.get_alignof();
+				if (a != 0)
+					$$.set_value(CTConst(a));
+			}
 	/* gcc extension */
         | AND_OP identifier_or_typedef_name
 		{ label_use($2.get_token()); }
