@@ -1,0 +1,28 @@
+// workspace TestWS
+#pragma echo "Processing workspace TestWS\n"
+// directory test/perl
+#pragma echo "Processing directory test/perl\n"
+#pragma echo "Entering directory test/perl\n"
+#pragma pushd "test/perl"
+// project Prj1
+#pragma echo "Processing project Prj1\n"
+#pragma project "Prj1"
+#pragma block_enter
+// file hello.c
+#pragma echo "Processing file hello.c\n"
+#pragma block_enter
+#pragma clear_defines
+#pragma clear_include
+#pragma process "/host-defs.h"
+#define FOO 1
+#include "/host-incs.h"
+#pragma process "hello.c"
+
+#pragma block_exit
+#pragma echo "Done processing file hello.c\n"
+#pragma block_exit
+#pragma echo "Done processing project Prj1\n"
+#pragma echo "Exiting directory test/perl\n"
+#pragma popd
+#pragma echo "Done processing directory test/perl\n"
+#pragma echo "Done processing workspace TestWS\n"
