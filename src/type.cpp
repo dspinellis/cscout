@@ -1202,3 +1202,65 @@ int Type_node::get_count()
 	return count;
 }
 #endif
+
+size_t Tsu::get_sizeof() const {
+	// Approximate C layout by accounting for member alignment/padding.
+	// Member alignment is obtained from each member type's get_alignof().
+	if (members_by_ordinal.empty())
+		return 0;
+
+	auto align_up = [](size_t value, size_t align) -> size_t {
+		if (align <= 1)
+			return value;
+		return ((value + align - 1) / align) * align;
+	};
+
+	size_t max_align = 1;
+
+	if (is_union) {
+		size_t max_size = 0;
+		for (unsigned i = 0; i < members_by_ordinal.size(); i++) {
+			Type member_type = members_by_ordinal[i].get_type();
+			size_t member_size = member_type.get_sizeof();
+			size_t member_align = member_type.get_alignof();
+			if (member_size == 0 || member_align == 0)
+				return 0; // Unknown member size -> unknown union size
+			if (member_size > max_size)
+				max_size = member_size;
+			if (member_align > max_align)
+				max_align = member_align;
+		}
+		return align_up(max_size, max_align);
+	}
+
+	size_t total_size = 0;
+	for (unsigned i = 0; i < members_by_ordinal.size(); i++) {
+		Type member_type = members_by_ordinal[i].get_type();
+		size_t member_size = member_type.get_sizeof();
+		size_t member_align = member_type.get_alignof();
+		if (member_size == 0 || member_align == 0)
+			return 0; // Unknown member size -> unknown struct size
+		if (member_align > max_align)
+			max_align = member_align;
+		total_size = align_up(total_size, member_align);
+		total_size += member_size;
+	}
+
+	return align_up(total_size, max_align);
+}
+
+size_t Tsu::get_alignof() const {
+	if (members_by_ordinal.empty())
+		return 0;
+
+	size_t max_align = 1;
+	for (unsigned i = 0; i < members_by_ordinal.size(); i++) {
+		size_t member_align = members_by_ordinal[i].get_type().get_alignof();
+		if (member_align == 0)
+			return 0;
+		if (member_align > max_align)
+			max_align = member_align;
+	}
+
+	return max_align;
+}
