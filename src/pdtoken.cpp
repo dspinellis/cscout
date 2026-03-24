@@ -562,10 +562,7 @@ void
 Pdtoken::create_undefined_macro(const Ptoken &name)
 {
 	name.set_ec_attribute(is_undefined_macro);
-	mapMacro::value_type v(name.get_val(), Macro(name, false, false, false));
-	// XXX Passing the above value directly causes a crash with
-	// gcc version 3.2
-	macros.insert(v);
+	macros.insert(mapMacro::value_type(name.get_val(), Macro(name, false, false, false)));
 }
 
 void
