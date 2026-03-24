@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+use strict;
+use warnings;
 #
 # Process a PicoQL schema file replacing the #schema sections with
 # the actual fields
@@ -11,8 +13,8 @@ while (<>) {
 		my $schema = $3;
 		my $type = $4;
 		my $expr = $5;
-		open(IN, $file) || die "Unable to open $file: $!\n";
-		while (<IN>) {
+		open(my $in, '<', $file) || die "Unable to open $file: $!\n";
+		while (<$in>) {
 			if (/BEGIN AUTOSCHEMA $schema$/ .. /END AUTOSCHEMA $schema$/) {
 				if (/\{\s*(\w+)\,\s*\"(\w+)\"\,\s*\"([^"]+)\"/) {
 					my $fieldname = $1;

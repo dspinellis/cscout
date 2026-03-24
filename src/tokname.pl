@@ -1,6 +1,8 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
 #
-# (C) Copyright 2001-2015 Diomidis Spinellis
+# (C) Copyright 2001-2026 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -21,8 +23,8 @@
 #
 #
 
-open(IN, $ARGV[0]) || die;
-open(STDOUT, ">$ARGV[1]") || die;
+open(my $in, '<', $ARGV[0]) || die "Unable to open $ARGV[0]: $!\n";
+open(STDOUT, '>', $ARGV[1]) || die "Unable to open $ARGV[1]: $!\n";
 print "
 /*
  * Automatically generated file.
@@ -59,7 +61,7 @@ Token::name() const
 {
 	switch (code) {
 ';
-while (<IN>) {
+while (<$in>) {
 	if (/\#\s*define\s+(\w+)\s+\d+/) {
 		print "\tcase $1: return(\"$1\"); break;\n";
 	}

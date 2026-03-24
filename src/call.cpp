@@ -305,7 +305,7 @@ Call::dumpSql(Sql *db, ostream &of)
 				if (Metrics::is_pre_cpp<FunMetrics>(j))
 					of << ',' << fun->get_pre_cpp_metrics().get_metric(j);
 				else
-					of << ",NULL";
+					of << ",NULL";	// was incorrectly writing to cout instead of 'of'
 			}
 			of << ");\n";
 			of << "INSERT INTO FUNCTIONMETRICS VALUES("
