@@ -2501,15 +2501,28 @@ produce_call_graphs(const vector <string> &call_graphs)
 			cerr << url << "is not a valid url" << endl;
 			continue;
 		}
-		FILE *target = fopen(split_base_and_opts[0].c_str() , "w+");
+
 		string base = split_base_and_opts[0];
-		GDTxt gd(target);
-		// Disable swill
-		gd.uses_swill = false;
+		FILE *target = fopen(base.c_str() , "w+");
+		if (!target) {
+			cerr << "Unable to open " << base << " for writing" << endl;
+			continue;
+		}
+
+		GraphDisplay *gd;
+		if (base.find(".png") != string::npos) gd = new GDPng(target);
+		else if (base.find(".svg") != string::npos) gd = new GDSvg(target);
+		else if (base.find(".gif") != string::npos) gd = new GDGif(target);
+		else if (base.find(".pdf") != string::npos) gd = new GDPdf(target);
+		else if (base.find(".dot") != string::npos) gd = new GDDot(target);
+		else if (base.find(".html") != string::npos) gd = new GDHtml(target);
+		else gd = new GDTxt(target);
+
+		// Disable swill interaction
+		gd->uses_swill = false;
 		vector<string> opts;
 
 		if (split_base_and_opts.size() != 1) {
-
 			opts = split_by_delimiter(split_base_and_opts[1], opts_splitter);
 
 			// Parse opts
@@ -2522,13 +2535,13 @@ produce_call_graphs(const vector <string> &call_graphs)
 				string val = opt_tmp[1];
 
 				if (!key.compare(gdargskeys.ALL)) {
-					gd.all = (bool) atoi(val.c_str());
+					gd->all = (bool) atoi(val.c_str());
 				} else if (!key.compare(gdargskeys.ONLY_VISITED)) {
-					gd.only_visited = (bool) atoi(val.c_str());
+					gd->only_visited = (bool) atoi(val.c_str());
 				} else if (!key.compare(gdargskeys.GTYPE)) {
-					gd.gtype = val;
+					gd->gtype = val;
 				} else if (!key.compare(gdargskeys.LTYPE)) {
-					gd.ltype = val;
+					gd->ltype = val;
 					Option::cgraph_show->set_hard(val.c_str());
 				} else if (!key.compare("type")) {
 					Option::show_function_type->set_hard((bool) atoi(val.c_str()));
@@ -2539,18 +2552,16 @@ produce_call_graphs(const vector <string> &call_graphs)
 				} else if (!key.compare("nodes")) {
 					Option::print_nodes->set_hard((bool) atoi(val.c_str()));
 				}
-
 			}
-
 		}
 
-		if (!base.compare(gdargskeys.CGRAPH)) {
-			cgraph_page(&gd);
-		}
-		else if (!base.compare(gdargskeys.FGRAPH)) {
-			fgraph_page(&gd);
+		if (base.find("cgraph") != string::npos) {
+			cgraph_page(gd);
+		} else if (base.find("fgraph") != string::npos) {
+			fgraph_page(gd);
 		}
 
+		delete gd;
 		fclose(target);
 	}
 
