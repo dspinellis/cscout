@@ -165,10 +165,9 @@ public:
 // Generate a graph of the specified format by calling dot
 class GDDotImage: public GDDot {
 private:
-	char dot_dir[256];	// Directory for input and output files
-	char img[256];		// Absolute image file path
-	char dot[256];		// Absolute dot file path
-	char cmd[1024];		// dot command
+	string dot_dir;		// Directory for input and output files
+	string img;		// Absolute image file path
+	string dot;		// Absolute dot file path
 	const char *format;	// Output format
 	FILE *result;		// Resulting image
 public:
