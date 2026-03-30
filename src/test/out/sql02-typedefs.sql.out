@@ -13,6 +13,7 @@ fa
 fpos_t
 jmp_buf
 ldiv_t
+off_t
 rrow
 sig_atomic_t
 size_t
