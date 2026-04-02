@@ -74,8 +74,9 @@ typedef char *va_list;
 typedef int ptrdiff_t;
 typedef unsigned int size_t;
 typedef int wchar_t;
+typedef long long off_t;
 typedef struct __sfpos {
-long long _pos;  
+off_t _pos;
 } fpos_t;
 struct __sbuf {
 unsigned char *_base;
@@ -195,7 +196,7 @@ struct tm *localtime (const time_t *);
 time_t mktime (struct tm *);
 size_t strftime (char *, size_t, const char *, const struct tm *);
 time_t time (time_t *);
-main() 
-{ 
-printf("hello, world\n"); 
-} 
+main()
+{
+printf("hello, world\n");
+}

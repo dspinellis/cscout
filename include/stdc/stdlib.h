@@ -72,7 +72,10 @@ typedef struct {
 
 #define	RAND_MAX	0x7fffffff
 
-#define	MB_CUR_MAX	1	/* XXX */
+#ifndef MB_LEN_MAX
+#define MB_LEN_MAX 6
+#endif
+#define	MB_CUR_MAX	MB_LEN_MAX
 
 void	 abort (void);
 int	 abs (int);
