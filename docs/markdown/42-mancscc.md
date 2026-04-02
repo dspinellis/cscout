@@ -51,7 +51,7 @@ CC=x86_64-w64-gcc cscc
 .DE
 
 
-## See also
+## See Also
 
 cscout(1),
 csmake(1)

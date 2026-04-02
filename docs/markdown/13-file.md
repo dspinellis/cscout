@@ -5,37 +5,37 @@ all file queries produce file-list data as their result.
 Clicking on an element of a file list leads you to a page
 with a summary of the file.
 
-File's directory
+[File's directory](simul.html)
 
 ### Listings
 
--  Source code
--  Source code with unprocessed regions marked
--  Source code with identifier hyperlinks
+-  [Source code](simul.html)
+-  [Source code with unprocessed regions marked](simul.html)
+-  [Source code with identifier hyperlinks](simul.html)
 
--  Source code with hyperlinks to project-global writable identifiers
--  Source code with hyperlinks to function and macro declarations
--  Edit the file
+-  [Source code with hyperlinks to project-global writable identifiers](simul.html)
+-  [Source code with hyperlinks to function and macro declarations](simul.html)
+-  [Edit the file](simul.html)
 
 ### Functions
 
--  Defined project-scoped functions
--  Defined file-scoped functions
+-  [Defined project-scoped functions](simul.html)
+-  [Defined file-scoped functions](simul.html)
 
--  Function and macro call graph
+-  [Function and macro call graph](simul.html)
 
 ### File Dependencies
 
--  Graph of files that depend on this file at compile time: writable, all-  Graph of files on which this file depends at compile time: writable, all-  Graph of files whose functions this file calls (control dependency): writable, all-  Graph of files calling this file's functions (control dependency): writable, all-  Graph of files whose global variables this file accesses (data dependency): writable, all-  Graph of files accessing this file's global variables (data dependency): writable, all
+-  Graph of files that depend on this file at compile time: [writable](simul.html), [all](simul.html)-  Graph of files on which this file depends at compile time: [writable](simul.html), [all](simul.html)-  Graph of files whose functions this file calls (control dependency): [writable](simul.html), [all](simul.html)-  Graph of files calling this file's functions (control dependency): [writable](simul.html), [all](simul.html)-  Graph of files whose global variables this file accesses (data dependency): [writable](simul.html), [all](simul.html)-  Graph of files accessing this file's global variables (data dependency): [writable](simul.html), [all](simul.html)
 
 ### Include Files
 
--  Writable files that this file directly includes
--  All files that this file includes
--  Include graph of all included files-  Include graph of writable included files-  Include graph of all including files-  All writable files that this file must include
+-  [Writable files that this file directly includes](simul.html)
+-  [All files that this file includes](simul.html)
+-  [Include graph of all included files](simul.html)-  [Include graph of writable included files](simul.html)-  [Include graph of all including files](simul.html)-  [All writable files that this file must include](simul.html)
 
--  Unused directly included files
--  Files including this file
+-  [Unused directly included files](simul.html)
+-  [Files including this file](simul.html)
 
 ### Metrics
 
@@ -68,9 +68,9 @@ File's directory
 | Number of declared enumeration elements | 0 |
 | Number of directly included files | 8 |
 
-Main page
- — Web: Home
-Manual
+[Main page](simul.html)
+ — Web: [Home](simul.html)
+[Manual](simul.html)
   
 
 ---
@@ -135,39 +135,40 @@ You may want to use the marked parts as a guide to construct a
 more inclusive workspace definition (perhaps by processing the
 project multiple times, with different preprocessor options).
 
-| 360 #if defined(__GNUC__) && defined(__STDC__)   361 static __inline int __sputc(int _c, FILE *_p) {   362         if (--_p->_w >= 0 || (_p->_w >= _p->_lbfsize && (char)_c != '\n'))    363                 return (*_p->_p++ = _c);   364         else   365                 return (__swbuf(_c, _p));   366 }    367 #else   368 /*   369  * This has been tuned to generate reasonable code on the vax using pcc.    370  */   371 #define __sputc(c, p) \   372         (--(p)->_w < 0 ? \   373                 (p)->_w >= (p)->_lbfsize ? \    374                         (*(p)->_p = (c)), *(p)->_p != '\n' ? \   375                                 (int)*(p)->_p++ : \    376                                 __swbuf('\n', p) : \   377                         __swbuf((int)(c), p) : \   378                 (*(p)->_p = (c), (int)*(p)->_p++))    379 #endif   380 |
-| --- |
+```
+360 #if defined(__GNUC__) && defined(__STDC__)   361 static __inline int __sputc(int _c, FILE *_p) {   362         if (--_p->_w >= 0 || (_p->_w >= _p->_lbfsize && (char)_c != '\n'))    363                 return (*_p->_p++ = _c);   364         else   365                 return (__swbuf(_c, _p));   366 }    367 #else   368 /*   369  * This has been tuned to generate reasonable code on the vax using pcc.    370  */   371 #define __sputc(c, p) \   372         (--(p)->_w < 0 ? \   373                 (p)->_w >= (p)->_lbfsize ? \    374                         (*(p)->_p = (c)), *(p)->_p != '\n' ? \   375                                 (int)*(p)->_p++ : \    376                                 __swbuf('\n', p) : \   377                         __swbuf((int)(c), p) : \   378                 (*(p)->_p = (c), (int)*(p)->_p++))    379 #endif   380
+```
 
 1.  Source code with identifier hyperlinks, will provide you with
 a page of the file's code text where each identifier is represented as
 a hyperlink leading to the identifier's page.
 The following is a representative example.
 
-copy_fifo(from_stat, exists)  
+[copy_fifo](simul.html)([from_stat](simul.html), [exists](simul.html))  
 
-        struct stat *from_stat;  
+        struct [stat](simul.html) *[from_stat](simul.html);  
 
-        int exists;  
+        int [exists](simul.html);  
 
 {  
 
-        if (exists && unlink(to.p_path)) {  
+        if ([exists](simul.html) && [unlink](simul.html)([to](simul.html).[p_path](simul.html))) {  
 
-                warn("unlink: %s", to.p_path);  
-
-                return (1);  
-
-        }  
-
-        if (mkfifo(to.p_path, from_stat->st_mode)) {  
-
-                warn("mkfifo: %s", to.p_path);  
+                [warn](simul.html)("unlink: %s", [to](simul.html).[p_path](simul.html));  
 
                 return (1);  
 
         }  
 
-        return (pflag ? setfile(from_stat, 0) : 0);  
+        if ([mkfifo](simul.html)([to](simul.html).[p_path](simul.html), [from_stat](simul.html)->[st_mode](simul.html))) {  
+
+                [warn](simul.html)("mkfifo: %s", [to](simul.html).[p_path](simul.html));  
+
+                return (1);  
+
+        }  
+
+        return ([pflag](simul.html) ? [setfile](simul.html)([from_stat](simul.html), 0) : 0);  
 
 }  
 
@@ -175,15 +176,16 @@ copy_fifo(from_stat, exists)
 
 `
 
-| int |
-| --- |
+```
+int
+```
 
 1.  As the above display can be overwhelming, you may prefer
 to browse the source code with hyperlinks only to project-global writable
 identifiers, which are typically the most important identifiers.
 Consider again how the above example would be displayed:
 
-copy_fifo(from_stat, exists)  
+[copy_fifo](simul.html)(from_stat, exists)  
 
         struct stat *from_stat;  
 
@@ -191,52 +193,53 @@ copy_fifo(from_stat, exists)
 
 {  
 
-        if (exists && unlink(to.p_path)) {  
+        if (exists && unlink([to](simul.html).p_path)) {  
 
-                warn("unlink: %s", to.p_path);  
-
-                return (1);  
-
-        }  
-
-        if (mkfifo(to.p_path, from_stat->st_mode)) {  
-
-                warn("mkfifo: %s", to.p_path);  
+                warn("unlink: %s", [to](simul.html).p_path);  
 
                 return (1);  
 
         }  
 
-        return (pflag ? setfile(from_stat, 0) : 0);  
+        if (mkfifo([to](simul.html).p_path, from_stat->st_mode)) {  
+
+                warn("mkfifo: %s", [to](simul.html).p_path);  
+
+                return (1);  
+
+        }  
+
+        return ([pflag](simul.html) ? [setfile](simul.html)(from_stat, 0) : 0);  
 
 }  
 
-| int |
-| --- |
+```
+int
+```
 
 1.  Source code with hyperlinks to function and macro declarations
 provides you hyperlinks to the *function* pages for each
 function declaration (implicit or explict) and macro definition.
 Again, here is an example:
-digittoint __P((int));  
+[digittoint](simul.html) __P((int));  
 
-<a id="86"></a>int     isascii __P((int));  
+<a id="86"></a>int     [isascii](simul.html) __P((int));  
 
-<a id="87"></a>int     isblank __P((int));  
+<a id="87"></a>int     [isblank](simul.html) __P((int));  
 
-<a id="88"></a>int     ishexnumber __P((int));  
+<a id="88"></a>int     [ishexnumber](simul.html) __P((int));  
 
-<a id="89"></a>int     isideogram __P((int));  
+<a id="89"></a>int     [isideogram](simul.html) __P((int));  
 
-<a id="90"></a>int     isnumber __P((int));  
+<a id="90"></a>int     [isnumber](simul.html) __P((int));  
 
-<a id="91"></a>int     isphonogram __P((int));  
+<a id="91"></a>int     [isphonogram](simul.html) __P((int));  
 
-<a id="92"></a>int     isrune __P((int));  
+<a id="92"></a>int     [isrune](simul.html) __P((int));  
 
-<a id="93"></a>int     isspecial __P((int));  
+<a id="93"></a>int     [isspecial](simul.html) __P((int));  
 
-<a id="94"></a>int     toascii __P((int));  
+<a id="94"></a>int     [toascii](simul.html) __P((int));  
 
 <a id="95"></a>#endif  
 
@@ -244,42 +247,43 @@ digittoint __P((int));
 
 <a id="97"></a>  
 
-<a id="98"></a>#define __istype(c,f)    (!!__maskrune((c),(f)))  
+<a id="98"></a>#define [__istype](simul.html)(c,f)    (!!__maskrune((c),(f)))  
 
 <a id="99"></a>  
 
-<a id="100"></a>#define isalnum(c)       __istype((c), _CTYPE_A|_CTYPE_D)  
+<a id="100"></a>#define [isalnum](simul.html)(c)       __istype((c), _CTYPE_A|_CTYPE_D)  
 
-<a id="101"></a>#define isalpha(c)       __istype((c), _CTYPE_A)  
+<a id="101"></a>#define [isalpha](simul.html)(c)       __istype((c), _CTYPE_A)  
 
-<a id="102"></a>#define iscntrl(c)       __istype((c), _CTYPE_C)  
+<a id="102"></a>#define [iscntrl](simul.html)(c)       __istype((c), _CTYPE_C)  
 
-<a id="103"></a>#define isdigit(c)       __isctype((c), _CTYPE_D) /* ANSI -- locale independent */  
+<a id="103"></a>#define [isdigit](simul.html)(c)       __isctype((c), _CTYPE_D) /* ANSI -- locale independent */  
 
-<a id="104"></a>#define isgraph(c)       __istype((c), _CTYPE_G)  
+<a id="104"></a>#define [isgraph](simul.html)(c)       __istype((c), _CTYPE_G)  
 
-<a id="105"></a>#define islower(c)       __istype((c), _CTYPE_L)  
+<a id="105"></a>#define [islower](simul.html)(c)       __istype((c), _CTYPE_L)  
 
-<a id="106"></a>#define isprint(c)       __istype((c), _CTYPE_R)  
+<a id="106"></a>#define [isprint](simul.html)(c)       __istype((c), _CTYPE_R)  
 
-<a id="107"></a>#define ispunct(c)       __istype((c), _CTYPE_P)  
+<a id="107"></a>#define [ispunct](simul.html)(c)       __istype((c), _CTYPE_P)  
 
-<a id="108"></a>#define isspace(c)       __istype((c), _CTYPE_S)  
+<a id="108"></a>#define [isspace](simul.html)(c)       __istype((c), _CTYPE_S)  
 
-<a id="109"></a>#define isupper(c)       __istype((c), _CTYPE_U)  
+<a id="109"></a>#define [isupper](simul.html)(c)       __istype((c), _CTYPE_U)  
 
-<a id="110"></a>#define isxdigit(c)      __isctype((c), _CTYPE_X) /* ANSI -- locale independent */  
+<a id="110"></a>#define [isxdigit](simul.html)(c)      __isctype((c), _CTYPE_X) /* ANSI -- locale independent */  
 
-<a id="111"></a>#define tolower(c)       __tolower(c)  
+<a id="111"></a>#define [tolower](simul.html)(c)       __tolower(c)  
 
-<a id="112"></a>#define toupper(c)       __toupper(c)  
+<a id="112"></a>#define [toupper](simul.html)(c)       __toupper(c)  
 
 <a id="113"></a>  
 
 `
 
-| #if !defined(_ANSI_SOURCE) && !defined(_POSIX_SOURCE) int |
-| --- |
+```
+#if !defined(_ANSI_SOURCE) && !defined(_POSIX_SOURCE) int
+```
 
 Finally, you can also choose to launch your editor on the file.
 The way the editor is launched is specified in *CScout*'s
@@ -352,9 +356,9 @@ Number of elements: 15
 | Number of declared enumeration elements | 0 | 0 | 0 | 0 |
 | Number of directly included files | 24 | 0 | 20 | 1.6 |
 
-Main page
- — Web: Home
-Manual
+[Main page](simul.html)
+ — Web: [Home](simul.html)
+[Manual](simul.html)
   
 
 ---
@@ -397,61 +401,62 @@ source files, and directly and indirectly included files.
 You can use this list to create a "bill of materials" for the files your
 workspace requires to compile.
 The following is an example of the output:
-/home/dds/src/cscout/cscout_defs.h
-1. /home/dds/src/cscout/cscout_incs.h
-1. /usr/home/dds/src/cscout/bin.c
-1. /usr/include/ctype.h
-1. /usr/include/err.h
-1. /usr/include/errno.h
-1. /usr/include/fcntl.h
-1. /usr/include/fts.h
-1. /usr/include/limits.h
-1. /usr/include/locale.h
-1. /usr/include/machine/ansi.h
-1. /usr/include/machine/endian.h
-1. /usr/include/machine/limits.h
-1. /usr/include/machine/param.h
-1. /usr/include/machine/signal.h
-1. /usr/include/machine/trap.h
-1. /usr/include/machine/types.h
-1. /usr/include/machine/ucontext.h
-1. /usr/include/runetype.h
-1. /usr/include/stdio.h
-1. /usr/include/stdlib.h
-1. /usr/include/string.h
-1. /usr/include/sys/_posix.h
-1. /usr/include/sys/cdefs.h
-1. /usr/include/sys/inttypes.h
-1. /usr/include/sys/param.h
-1. /usr/include/sys/signal.h
-1. /usr/include/sys/stat.h
-1. /usr/include/sys/syslimits.h
-1. /usr/include/sys/time.h
-1. /usr/include/sys/types.h
-1. /usr/include/sys/ucontext.h
-1. /usr/include/sys/unistd.h
-1. /usr/include/sysexits.h
-1. /usr/include/syslog.h
-1. /usr/include/time.h
-1. /usr/include/unistd.h
-1. /vol/src/bin/cp/cp.c
-1. /vol/src/bin/cp/extern.h
-1. /vol/src/bin/cp/utils.c
-1. /vol/src/bin/date/date.c
-1. /vol/src/bin/date/extern.h
-1. /vol/src/bin/date/vary.h
-1. /vol/src/bin/echo/echo.c
+[/home/dds/src/cscout/cscout_defs.h](simul.html)
+1. [/home/dds/src/cscout/cscout_incs.h](simul.html)
+1. [/usr/home/dds/src/cscout/bin.c](simul.html)
+1. [/usr/include/ctype.h](simul.html)
+1. [/usr/include/err.h](simul.html)
+1. [/usr/include/errno.h](simul.html)
+1. [/usr/include/fcntl.h](simul.html)
+1. [/usr/include/fts.h](simul.html)
+1. [/usr/include/limits.h](simul.html)
+1. [/usr/include/locale.h](simul.html)
+1. [/usr/include/machine/ansi.h](simul.html)
+1. [/usr/include/machine/endian.h](simul.html)
+1. [/usr/include/machine/limits.h](simul.html)
+1. [/usr/include/machine/param.h](simul.html)
+1. [/usr/include/machine/signal.h](simul.html)
+1. [/usr/include/machine/trap.h](simul.html)
+1. [/usr/include/machine/types.h](simul.html)
+1. [/usr/include/machine/ucontext.h](simul.html)
+1. [/usr/include/runetype.h](simul.html)
+1. [/usr/include/stdio.h](simul.html)
+1. [/usr/include/stdlib.h](simul.html)
+1. [/usr/include/string.h](simul.html)
+1. [/usr/include/sys/_posix.h](simul.html)
+1. [/usr/include/sys/cdefs.h](simul.html)
+1. [/usr/include/sys/inttypes.h](simul.html)
+1. [/usr/include/sys/param.h](simul.html)
+1. [/usr/include/sys/signal.h](simul.html)
+1. [/usr/include/sys/stat.h](simul.html)
+1. [/usr/include/sys/syslimits.h](simul.html)
+1. [/usr/include/sys/time.h](simul.html)
+1. [/usr/include/sys/types.h](simul.html)
+1. [/usr/include/sys/ucontext.h](simul.html)
+1. [/usr/include/sys/unistd.h](simul.html)
+1. [/usr/include/sysexits.h](simul.html)
+1. [/usr/include/syslog.h](simul.html)
+1. [/usr/include/time.h](simul.html)
+1. [/usr/include/unistd.h](simul.html)
+1. [/vol/src/bin/cp/cp.c](simul.html)
+1. [/vol/src/bin/cp/extern.h](simul.html)
+1. [/vol/src/bin/cp/utils.c](simul.html)
+1. [/vol/src/bin/date/date.c](simul.html)
+1. [/vol/src/bin/date/extern.h](simul.html)
+1. [/vol/src/bin/date/vary.h](simul.html)
+1. [/vol/src/bin/echo/echo.c](simul.html)
 
 You can bookmark this page to save the respective query
 
-Main page
+[Main page](simul.html)
   
 
 ---
 CScout 1.6 - 2003/06/04 15:14:51
 
-| All Files |
-| --- |
+```
+All Files
+```
 
 ## Read-only files 
 
@@ -459,73 +464,73 @@ The "Read-only files" link will typically show you the system files your
 project used.
 The following output was generated using the "Show file lists with file name in context" option.
 
-ctype.h
+[ctype.h](simul.html)
 
-err.h
+[err.h](simul.html)
 
-errno.h
+[errno.h](simul.html)
 
-fcntl.h
+[fcntl.h](simul.html)
 
-fts.h
+[fts.h](simul.html)
 
-limits.h
+[limits.h](simul.html)
 
-locale.h
+[locale.h](simul.html)
 
-ansi.h
+[ansi.h](simul.html)
 
-endian.h
+[endian.h](simul.html)
 
-limits.h
+[limits.h](simul.html)
 
-param.h
+[param.h](simul.html)
 
-signal.h
+[signal.h](simul.html)
 
-trap.h
+[trap.h](simul.html)
 
-types.h
+[types.h](simul.html)
 
-ucontext.h
+[ucontext.h](simul.html)
 
-runetype.h
+[runetype.h](simul.html)
 
-stdio.h
+[stdio.h](simul.html)
 
-stdlib.h
+[stdlib.h](simul.html)
 
-string.h
+[string.h](simul.html)
 
-_posix.h
+[_posix.h](simul.html)
 
-cdefs.h
+[cdefs.h](simul.html)
 
-inttypes.h
+[inttypes.h](simul.html)
 
-param.h
+[param.h](simul.html)
 
-signal.h
+[signal.h](simul.html)
 
-stat.h
+[stat.h](simul.html)
 
-syslimits.h
+[syslimits.h](simul.html)
 
-time.h
+[time.h](simul.html)
 
-types.h
+[types.h](simul.html)
 
-ucontext.h
+[ucontext.h](simul.html)
 
-unistd.h
+[unistd.h](simul.html)
 
-sysexits.h
+[sysexits.h](simul.html)
 
-syslog.h
+[syslog.h](simul.html)
 
-time.h
+[time.h](simul.html)
 
-unistd.h
+[unistd.h](simul.html)
 
 | Directory | File |
 | --- | --- |
@@ -566,10 +571,10 @@ unistd.h
 
 You can bookmark this page to save the respective query
 
-Main page
+[Main page](simul.html)
 
- - Web: Home
-Manual
+ - Web: [Home](simul.html)
+[Manual](simul.html)
   
 
 ---
@@ -618,27 +623,28 @@ CScout 2.0 - 2004/07/31 12:37:12
 Correspondingly the "Writable files" link will only show you all your 
 workspace's source files:
 
-/home/dds/src/cscout/cscout_defs.h
-1. /home/dds/src/cscout/cscout_incs.h
-1. /usr/home/dds/src/cscout/bin.c
-1. /vol/src/bin/cp/cp.c
-1. /vol/src/bin/cp/extern.h
-1. /vol/src/bin/cp/utils.c
-1. /vol/src/bin/date/date.c
-1. /vol/src/bin/date/extern.h
-1. /vol/src/bin/date/vary.h
-1. /vol/src/bin/echo/echo.c
+[/home/dds/src/cscout/cscout_defs.h](simul.html)
+1. [/home/dds/src/cscout/cscout_incs.h](simul.html)
+1. [/usr/home/dds/src/cscout/bin.c](simul.html)
+1. [/vol/src/bin/cp/cp.c](simul.html)
+1. [/vol/src/bin/cp/extern.h](simul.html)
+1. [/vol/src/bin/cp/utils.c](simul.html)
+1. [/vol/src/bin/date/date.c](simul.html)
+1. [/vol/src/bin/date/extern.h](simul.html)
+1. [/vol/src/bin/date/vary.h](simul.html)
+1. [/vol/src/bin/echo/echo.c](simul.html)
 
 You can bookmark this page to save the respective query
 
-Main page
+[Main page](simul.html)
   
 
 ---
 CScout 1.6 - 2003/06/04 15:14:51
 
-| Writable Files |
-| --- |
+```
+Writable Files
+```
 
 ## Files containing unused project-scoped writable identifiers 
 
@@ -657,9 +663,9 @@ generated through the use of the system's library functions.
 
 In our example, the following list is generated:
 
-cp.cmarked source
+[cp.c](simul.html)[marked source](simul.html)
 
-date.cmarked source
+[date.c](simul.html)[marked source](simul.html)
 
 | Directory | File |
 | --- | --- |
@@ -668,10 +674,10 @@ date.cmarked source
 
 You can bookmark this page to save the respective query
 
-Main page
- - Web: Home
+[Main page](simul.html)
+ - Web: [Home](simul.html)
 
-Manual
+[Manual](simul.html)
   
 
 ---
@@ -692,7 +698,7 @@ simply follow the link with your browser and press `tab`
 to go to each hyperlink.
 In our example the identifier will appear as follows:
 
-setthetime(fmt, p, jflag, nflag)  
+[setthetime](simul.html)(fmt, p, jflag, nflag)  
 
         const char *fmt;  
 
@@ -714,8 +720,9 @@ setthetime(fmt, p, jflag, nflag)
 
 `
 
-| void |
-| --- |
+```
+void
+```
 
 (In our case the function `setthetime` is declared as
 `static`, but not defined as such.)
@@ -737,13 +744,13 @@ generated through the use of the system's library functions.
 
 In our example, the following list is generated:
 
-cp.cmarked source
+[cp.c](simul.html)[marked source](simul.html)
 
-utils.cmarked source
+[utils.c](simul.html)[marked source](simul.html)
 
-date.cmarked source
+[date.c](simul.html)[marked source](simul.html)
 
-echo.cmarked source
+[echo.c](simul.html)[marked source](simul.html)
 
 | Directory | File |
 | --- | --- |
@@ -754,9 +761,9 @@ echo.cmarked source
 
 You can bookmark this page to save the respective query
 
-Main page
- - Web: Home
-Manual
+[Main page](simul.html)
+ - Web: [Home](simul.html)
+[Manual](simul.html)
   
 
 ---
@@ -774,7 +781,7 @@ In our case all identifiers located were the
 `copyright` and the `rcsid`
 identifiers.
 
-copyright[] =  
+[copyright](simul.html)[] =  
 
 "@(#) Copyright (c) 1989, 1993\n\  
 
@@ -792,7 +799,7 @@ static char sccsid[] = "@(#)echo.c      8.1 (Berkeley) 5/31/93";
 
 #endif  
 
-static const char rcsid[] =  
+static const char [rcsid](simul.html)[] =  
 
   "$FreeBSD: src/bin/echo/echo.c,v 1.8.2.1 2001/08/01 02:33:32 obrien Exp $";  
 
@@ -802,8 +809,9 @@ static const char rcsid[] =
 
 `
 
-| #ifndef lint static char const |
-| --- |
+```
+#ifndef lint static char const
+```
 
 Later on we will explain how an identifier query could have used a regular
 expression to filter-out the noise generated by these two identifiers.
@@ -820,18 +828,19 @@ In our example,
 the result set only contains the processing script
 (the compiled workspace definition file).
 
-/usr/home/dds/src/cscout/bin.c
+[/usr/home/dds/src/cscout/bin.c](simul.html)
 
 You can bookmark this page to save the respective query
 
-Main page
+[Main page](simul.html)
   
 
 ---
 CScout 1.6 - 2003/06/04 15:14:51
 
-| Writable .c Files Without Any Statments |
-| --- |
+```
+Writable .c Files Without Any Statments
+```
 
 The processing script (the compiled workspace definition file)
 follows the C syntax,
@@ -849,17 +858,17 @@ The files are ordered according to the number of unprocessed lines
 
 In our case the results are:
 
-utils.c
+[utils.c](simul.html)
 
-cscout_defs.h
+[cscout_defs.h](simul.html)
 
-echo.c
+[echo.c](simul.html)
 
-date.c
+[date.c](simul.html)
 
-cp.c
+[cp.c](simul.html)
 
-cscout_incs.h
+[cscout_incs.h](simul.html)
 
 | Directory | File | Number of unprocessed lines |
 | --- | --- | --- |
@@ -872,10 +881,10 @@ cscout_incs.h
 
 You can bookmark this page to save the respective query
 
-Main page
- - Web: Home
+[Main page](simul.html)
+ - Web: [Home](simul.html)
 
-Manual
+[Manual](simul.html)
   
 
 ---
@@ -914,24 +923,25 @@ strings.
 
 In our case the results are:
 
-/home/dds/src/cscout/cscout_defs.h
-1. /home/dds/src/cscout/cscout_incs.h
-1. /usr/home/dds/src/cscout/bin.c
-1. /vol/src/bin/cp/cp.c
-1. /vol/src/bin/cp/utils.c
-1. /vol/src/bin/date/date.c
-1. /vol/src/bin/echo/echo.c
+[/home/dds/src/cscout/cscout_defs.h](simul.html)
+1. [/home/dds/src/cscout/cscout_incs.h](simul.html)
+1. [/usr/home/dds/src/cscout/bin.c](simul.html)
+1. [/vol/src/bin/cp/cp.c](simul.html)
+1. [/vol/src/bin/cp/utils.c](simul.html)
+1. [/vol/src/bin/date/date.c](simul.html)
+1. [/vol/src/bin/echo/echo.c](simul.html)
 
 You can bookmark this page to save the respective query
 
-Main page
+[Main page](simul.html)
   
 
 ---
 CScout 1.6 - 2003/06/04 15:14:51
 
-| Writable Files Containing Strings |
-| --- |
+```
+Writable Files Containing Strings
+```
 
 ## Writable .h files with #include directives 
 
@@ -943,15 +953,16 @@ use recursive `#include` invocations as a matter of course.
 
 In our example, the result is:
 
-/vol/src/bin/cp/extern.h
+[/vol/src/bin/cp/extern.h](simul.html)
 
 You can bookmark this page to save the respective query
 
-Main page
+[Main page](simul.html)
   
 
 ---
 CScout 1.6 - 2003/06/04 15:14:51
 
-| Writable .h Files With #include directives |
-| --- |
+```
+Writable .h Files With #include directives
+```

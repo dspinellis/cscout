@@ -4,83 +4,85 @@ The operations *CScout* provides group together functions
 that globally affect its operation.
 The global options link leads you to the following page.
 
-| File and Identifier Pages |
-| --- |
-| Show only true identifier classes (brief view) |  |
-| Show associated projects |  |
-| Show a list of identical files |  |
-| Source Listings |
-| Show line numbers |  |
-| Tab width |  |
-| Refactoring |
-| Allow the renaming of read-only identifiers |  |
-| Allow the refactoring of function arguments of read-only functions |  |
-| Check for renamed identifier clashes when saving refactored code |  |
-| Queries |
-| Case-insensitive file name regular expression match |  |
-| Query Result Lists |
-| Number of entries on a page |  |
-| Show file lists with file name in context |  |
-| Sort identifiers starting from their last character |  |
-| Call and File Dependency Graphs |
-| Graph links should lead to pages of: | dot GIF HTML PDF plain text PNG SVG |
-| Call graphs should contain: | only edges function names file and function names path and function names |
-| File graphs should contain: | only edges file names path and file names |
-| Maximum number of call levels in a call graph |  |
-| Maximum dependency depth in a file graph |  |
-| Include URLs in dot output |  |
-| Graph options |  |
-| Node options |  |
-| Edge options |  |
-| Saved Files |
-| When saving modified files replace RE |  |
-| ... with the string |  |
-| Editing |
-| External editor invocation command |  |
+```
+File and Identifier Pages
+Show only true identifier classes (brief view) |
+Show associated projects |
+Show a list of identical files |
+Source Listings
+Show line numbers |
+Tab width |
+Refactoring
+Allow the renaming of read-only identifiers |
+Allow the refactoring of function arguments of read-only functions |
+Check for renamed identifier clashes when saving refactored code |
+Queries
+Case-insensitive file name regular expression match |
+Query Result Lists
+Number of entries on a page |
+Show file lists with file name in context |
+Sort identifiers starting from their last character |
+Call and File Dependency Graphs
+Graph links should lead to pages of: | dot GIF HTML PDF plain text PNG SVG
+Call graphs should contain: | only edges function names file and function names path and function names
+File graphs should contain: | only edges file names path and file names
+Maximum number of call levels in a call graph |
+Maximum dependency depth in a file graph |
+Include URLs in dot output |
+Graph options |
+Node options |
+Edge options |
+Saved Files
+When saving modified files replace RE |
+... with the string |
+Editing
+External editor invocation command |
+```
 
-Main page
- — Web: Home
+[Main page](simul.html)
+ — Web: [Home](simul.html)
 
-Manual
+[Manual](simul.html)
   
 
 ---
 CScout
 
-| File and Identifier Pages |
-| --- |
-| Show only true identifier classes (brief view) |  |
-| Show associated projects |  |
-| Show a list of identical files |  |
-| Source Listings |
-| Show line numbers |  |
-| Tab width |  |
-| Refactoring |
-| Allow the renaming of read-only identifiers |  |
-| Allow the refactoring of function arguments of read-only functions |  |
-| Check for renamed identifier clashes when saving refactored code |  |
-| Queries |
-| Case-insensitive file name regular expression match |  |
-| Query Result Lists |
-| Number of entries on a page |  |
-| Show file lists with file name in context |  |
-| Sort identifiers starting from their last character |  |
-| Call and File Dependency Graphs |
-| Graph links should lead to pages of: | dot GIF HTML PDF plain text PNG SVG |
-| Call graphs should contain: | only edges function names file and function names path and function names |
-| File graphs should contain: | only edges file names path and file names |
-| Maximum number of call levels in a call graph |  |
-| Maximum dependency depth in a file graph |  |
-| Include URLs in dot output |  |
-| Graph options |  |
-| Node options |  |
-| Edge options |  |
-| Saved Files |
-| When saving modified files replace RE |  |
-| ... with the string |  |
-| Editing |
-| External editor invocation command |  |
-| External editor invocation command |  |  |
+```
+File and Identifier Pages
+Show only true identifier classes (brief view) |
+Show associated projects |
+Show a list of identical files |
+Source Listings
+Show line numbers |
+Tab width |
+Refactoring
+Allow the renaming of read-only identifiers |
+Allow the refactoring of function arguments of read-only functions |
+Check for renamed identifier clashes when saving refactored code |
+Queries
+Case-insensitive file name regular expression match |
+Query Result Lists
+Number of entries on a page |
+Show file lists with file name in context |
+Sort identifiers starting from their last character |
+Call and File Dependency Graphs
+Graph links should lead to pages of: | dot GIF HTML PDF plain text PNG SVG
+Call graphs should contain: | only edges function names file and function names path and function names
+File graphs should contain: | only edges file names path and file names
+Maximum number of call levels in a call graph |
+Maximum dependency depth in a file graph |
+Include URLs in dot output |
+Graph options |
+Node options |
+Edge options |
+Saved Files
+When saving modified files replace RE |
+... with the string |
+Editing
+External editor invocation command |
+External editor invocation command |  |
+```
 
 The meaning of each option is described in the following sections.
 
@@ -93,7 +95,7 @@ Setting the option ``show only true identifier classes (brief view)''
 will remove from each identifier page all identifier properties
 marked as no, resulting in a less verbose page.
 
-cp.cmarked source
+[cp.c](simul.html)[marked source](simul.html)
 
 | Directory | File |
 | --- | --- |
@@ -101,16 +103,16 @@ cp.cmarked source
 
 ### Dependent Files (All)
 
-cp.cmarked source
+[cp.c](simul.html)[marked source](simul.html)
 
 | Directory | File |
 | --- | --- |
 | /vol/src/bin/cp/ |  |  |
 
-Main page
- - Web: Home
+[Main page](simul.html)
+ - Web: [Home](simul.html)
 
-Manual
+[Manual](simul.html)
   
 
 ---
@@ -151,8 +153,9 @@ Line numbers can be useful when you are editing or viewing the same
 file with an editor.
 A file with line numbers shown appears as follows:
 
-| 78 fa *makedfa(const char *s, int anchor)  /* returns dfa for reg expr s */    79 {    80         int i, use, nuse;    81         fa *pfa;    82         static int now = 1;    83     84         if (setvec == 0) {      /* first time through any RE */    85                 maxsetvec = MAXLIN;    86                 setvec = (int *) malloc(maxsetvec * sizeof(int));    87                 tmpset = (int *) malloc(maxsetvec * sizeof(int));    88                 if (setvec == 0 || tmpset == 0)    89                         overflo("out of space initializing makedfa");    90         }    91     92         if (compile_time)       /* a constant for sure */    93                 return mkdfa(s, anchor);    94         for (i = 0; i < nfatab; i++)    /* is it there already? */    95                 if (fatab[i]->anchor == anchor    96                   && strcmp((const char *) fatab[i]->restr, s) == 0) {    97                         fatab[i]->use = now++;    98                         return fatab[i];    99                 }   100         pfa = mkdfa(s, anchor);   101         if (nfatab < NFA) {     /* room for another */   102                 fatab[nfatab] = pfa;   103                 fatab[nfatab]->use = now++;   104                 nfatab++;   105                 return pfa;   106         } |
-| --- |
+```
+78 fa *makedfa(const char *s, int anchor)  /* returns dfa for reg expr s */    79 {    80         int i, use, nuse;    81         fa *pfa;    82         static int now = 1;    83     84         if (setvec == 0) {      /* first time through any RE */    85                 maxsetvec = MAXLIN;    86                 setvec = (int *) malloc(maxsetvec * sizeof(int));    87                 tmpset = (int *) malloc(maxsetvec * sizeof(int));    88                 if (setvec == 0 || tmpset == 0)    89                         overflo("out of space initializing makedfa");    90         }    91     92         if (compile_time)       /* a constant for sure */    93                 return mkdfa(s, anchor);    94         for (i = 0; i < nfatab; i++)    /* is it there already? */    95                 if (fatab[i]->anchor == anchor    96                   && strcmp((const char *) fatab[i]->restr, s) == 0) {    97                         fatab[i]->use = now++;    98                         return fatab[i];    99                 }   100         pfa = mkdfa(s, anchor);   101         if (nfatab < NFA) {     /* room for another */   102                 fatab[nfatab] = pfa;   103                 fatab[nfatab]->use = now++;   104                 nfatab++;   105                 return pfa;   106         }
+```
 
 ###  Tab Width 
  
@@ -226,73 +229,73 @@ will result in file lists showing the file name (the last component
 of the complete path) in the same position,
 as in the following example:
 
-ctype.h
+[ctype.h](simul.html)
 
-err.h
+[err.h](simul.html)
 
-errno.h
+[errno.h](simul.html)
 
-fcntl.h
+[fcntl.h](simul.html)
 
-fts.h
+[fts.h](simul.html)
 
-limits.h
+[limits.h](simul.html)
 
-locale.h
+[locale.h](simul.html)
 
-ansi.h
+[ansi.h](simul.html)
 
-endian.h
+[endian.h](simul.html)
 
-limits.h
+[limits.h](simul.html)
 
-param.h
+[param.h](simul.html)
 
-signal.h
+[signal.h](simul.html)
 
-trap.h
+[trap.h](simul.html)
 
-types.h
+[types.h](simul.html)
 
-ucontext.h
+[ucontext.h](simul.html)
 
-runetype.h
+[runetype.h](simul.html)
 
-stdio.h
+[stdio.h](simul.html)
 
-stdlib.h
+[stdlib.h](simul.html)
 
-string.h
+[string.h](simul.html)
 
-_posix.h
+[_posix.h](simul.html)
 
-cdefs.h
+[cdefs.h](simul.html)
 
-inttypes.h
+[inttypes.h](simul.html)
 
-param.h
+[param.h](simul.html)
 
-signal.h
+[signal.h](simul.html)
 
-stat.h
+[stat.h](simul.html)
 
-syslimits.h
+[syslimits.h](simul.html)
 
-time.h
+[time.h](simul.html)
 
-types.h
+[types.h](simul.html)
 
-ucontext.h
+[ucontext.h](simul.html)
 
-unistd.h
+[unistd.h](simul.html)
 
-sysexits.h
+[sysexits.h](simul.html)
 
-syslog.h
+[syslog.h](simul.html)
 
-time.h
+[time.h](simul.html)
 
-unistd.h
+[unistd.h](simul.html)
 
 | Directory | File |
 | --- | --- |
@@ -333,7 +336,7 @@ unistd.h
 
 You can bookmark this page to save the respective query
 
-Main page
+[Main page](simul.html)
 
 | Directory | File |
 | --- | --- |
@@ -385,123 +388,123 @@ The following list contains our example's typedefs ordered by the last
 character, making it easy to distinguish typedefs not ending
 in `_t`
 
-FILE  
+[FILE](simul.html)  
 
-FTS  
+[FTS](simul.html)  
 
-FTSENT  
+[FTSENT](simul.html)  
 
-PATH_T  
+[PATH_T](simul.html)  
 
-_RuneRange  
+[_RuneRange](simul.html)  
 
-_RuneLocale  
+[_RuneLocale](simul.html)  
 
-u_long  
+[u_long](simul.html)  
 
-fd_mask  
+[fd_mask](simul.html)  
 
-u_char  
+[u_char](simul.html)  
 
-physadr  
+[physadr](simul.html)  
 
-int32_t  
+[int32_t](simul.html)  
 
-__int32_t  
+[__int32_t](simul.html)  
 
-u_int32_t  
+[u_int32_t](simul.html)  
 
-uint32_t  
+[uint32_t](simul.html)  
 
-__uint32_t  
+[__uint32_t](simul.html)  
 
-inthand2_t  
+[inthand2_t](simul.html)  
 
-ointhand2_t  
+[ointhand2_t](simul.html)  
 
-int64_t  
+[int64_t](simul.html)  
 
 [... 40 lines removed]  
 
-in_addr_t  
+[in_addr_t](simul.html)  
 
-caddr_t  
+[caddr_t](simul.html)  
 
-c_caddr_t  
+[c_caddr_t](simul.html)  
 
-v_caddr_t  
+[v_caddr_t](simul.html)  
 
-daddr_t  
+[daddr_t](simul.html)  
 
-ufs_daddr_t  
+[ufs_daddr_t](simul.html)  
 
-u_daddr_t  
+[u_daddr_t](simul.html)  
 
-qaddr_t  
+[qaddr_t](simul.html)  
 
-__sighandler_t  
+[__sighandler_t](simul.html)  
 
-__siginfohandler_t  
+[__siginfohandler_t](simul.html)  
 
-timer_t  
+[timer_t](simul.html)  
 
-register_t  
+[register_t](simul.html)  
 
-u_register_t  
+[u_register_t](simul.html)  
 
-intptr_t  
+[intptr_t](simul.html)  
 
-__intptr_t  
+[__intptr_t](simul.html)  
 
-uintptr_t  
+[uintptr_t](simul.html)  
 
-__uintptr_t  
+[__uintptr_t](simul.html)  
 
-fpos_t  
+[fpos_t](simul.html)  
 
-timecounter_pps_t  
+[timecounter_pps_t](simul.html)  
 
-timecounter_get_t  
+[timecounter_get_t](simul.html)  
 
-vm_offset_t  
+[vm_offset_t](simul.html)  
 
-vm_ooffset_t  
+[vm_ooffset_t](simul.html)  
 
-sigset_t  
+[sigset_t](simul.html)  
 
-osigset_t  
+[osigset_t](simul.html)  
 
-fixpt_t  
+[fixpt_t](simul.html)  
 
-in_port_t  
+[in_port_t](simul.html)  
 
-mcontext_t  
+[mcontext_t](simul.html)  
 
-ucontext_t  
+[ucontext_t](simul.html)  
 
-dev_t  
+[dev_t](simul.html)  
 
-div_t  
+[div_t](simul.html)  
 
-ldiv_t  
+[ldiv_t](simul.html)  
 
-vm_pindex_t  
+[vm_pindex_t](simul.html)  
 
-key_t  
+[key_t](simul.html)  
 
-segsz_t  
+[segsz_t](simul.html)  
 
-fd_set  
+[fd_set](simul.html)  
 
-u_int  
+[u_int](simul.html)  
 
-uint  
+[uint](simul.html)  
 
-u_short  
+[u_short](simul.html)  
 
-ushort  
+[ushort](simul.html)  
 
-_RuneEntry  
+[_RuneEntry](simul.html)  
 
  
 |  |  |

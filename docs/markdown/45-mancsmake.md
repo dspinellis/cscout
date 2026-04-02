@@ -135,7 +135,7 @@ CSMAKEFLAGS='-T tmp_dir -A -s cscout_projects -k --' \\
 .DE
 
 
-## See also
+## See Also
 
 *cscout*(1),
 *cscut*(1),

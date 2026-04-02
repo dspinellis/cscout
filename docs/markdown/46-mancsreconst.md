@@ -17,34 +17,26 @@ csreconst - Test the reconstitution of files from a CScout database
 stored in a *CScout*(1) database or reconstituting specific files.
 
 The program provides two modes of operation:
-
-**-t**  
+**-t**
 Test the reconstitution of all files in the specified SQLite *database.db*.
 Additional options can be specified to refine the behavior of the testing:
-
-**-c**  
+**-c**
 Count the number of correct and incorrect files.
-
-**-k**  
+**-k**
 Keep comparing after finding a difference.
-
-**-q**  
+**-q**
 Run a quick diff without listing the full differences.
-
-**-s**  
+**-s**
 Provide a summary of each file's reconstitution result.
 
 **-f**
 Reconstitute a specified *file* stored in SQLite *database.db*.
 Additional options allow fine-grained control of the reconstitution:
-
-**-b \fIline**  
+**-b \fIline**
 Reconstitute starting from the specified beginning line number.
-
-**-e \fIline**  
+**-e \fIline**
 Reconstitute up to the specified ending line number.
-
-**-o**  
+**-o**
 Prefix each reconstituted part with its file offset value.
 
 ## Examples
@@ -88,7 +80,7 @@ All files compare equal (no differences found).
 1
 Differences were found between the reconstituted and original files.
 
-## See also
+## See Also
 
 *cscout*(1),
 *csmake*(1)

@@ -3,18 +3,18 @@
 Every function (C function or function like macro) is associated with
 a page like the following.
 
-format]
+[format](simul.html)]
 
--  Declared in file C:\dds\src\Research\cscout\example\awk\proto.h line 166  
+-  Declared in file [C:\dds\src\Research\cscout\example\awk\proto.h](simul.html) [line 166](simul.html)  
 (and possibly in other places)
- — marked source — edit-  Defined in file C:\dds\src\Research\cscout\example\awk\run.c line 793
+ — [marked source](simul.html) — [edit](simul.html)-  Defined in file [C:\dds\src\Research\cscout\example\awk\run.c](simul.html) [line 793](simul.html)
 
- — edit-  Calls directly 14 functions-  Explore directly called functions
--  List of all called functions
--  Call graph of all called functions-  Called directly by 2 functions-  Explore direct callers
+ — [edit](simul.html)-  Calls directly 14 functions-  [Explore directly called functions](simul.html)
+-  [List of all called functions](simul.html)
+-  [Call graph of all called functions](simul.html)-  Called directly by 2 functions-  [Explore direct callers](simul.html)
 
--  List of all callers
--  Call graph of all callers-  Call graph of all calling and called functions (function in context)-  Refactor arguments into: 
+-  [List of all callers](simul.html)
+-  [Call graph of all callers](simul.html)-  [Call graph of all calling and called functions](simul.html) (function in context)-  Refactor arguments into: 
  
 
 ### Metrics
@@ -74,9 +74,9 @@ format]
 | Halstead volume | 3416.45 |
 | Information flow metric (Henry and Selig) | 18032 |
 
-Main page
- — Web: Home
-Manual
+[Main page](simul.html)
+ — Web: [Home](simul.html)
+[Manual](simul.html)
   
 
 ---
