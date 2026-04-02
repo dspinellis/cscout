@@ -261,7 +261,7 @@ Character lirerals must include a character.<p><li> <code>Illegal combination of
 The signedness specifiers used can not be combined
 (e.g. <code>unsigned signed</code>).<p><li> <code>Illegal sign specification - ignored</code><br>
 Signedness specifications are not allowed on
-double, float, long double, and _Bool types.<p><li> <code>Included file does not end with a newline.</code><br>
+double, float, long double, _Bool, _Complex, and _Imaginary types.<p><li> <code>Included file does not end with a newline.</code><br>
 An included file does not end with a newline
 character.
 The processing of the first following preprocessor
