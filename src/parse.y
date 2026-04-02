@@ -160,7 +160,7 @@ make_yacc_identifier(Type t, enum e_yacc_symbol_type ytype)
 		if (id)
 			Token::unify(id->get_token(), t.get_token());
 		else
-			obj_define(t.get_token(), basic(b_int, s_none, c_static));
+			obj_define(t.get_token(), basic(b_int, s_none, c_unspecified, sd_static, lk_internal));
 	}
 	/*
 	 * Define t as a yacc identifier.
@@ -563,18 +563,34 @@ unary_expression:
 			{ $$ = pointer_to($2); }
         | '*' cast_expression
 			{ $$ = $2.deref(); }
-	/*
-	 * XXX We should be able to evaluate these as constant expressions,
-	 * but we aren't.
-	 */
         | SIZEOF unary_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				auto s = $2.get_sizeof();
+				if (s != 0)
+					$$.set_value(CTConst(s));
+			}
         | SIZEOF '(' type_name ')'
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				auto s = $3.get_sizeof();
+				if (s != 0)
+					$$.set_value(CTConst(s));
+			}
         | ALIGNOF unary_expression
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				auto a = $2.get_alignof();
+				if (a != 0)
+					$$.set_value(CTConst(a));
+			}
         | ALIGNOF '(' type_name ')'
-			{ $$ = basic(b_int); }
+			{
+				$$ = basic(b_int);
+				auto a = $3.get_alignof();
+				if (a != 0)
+					$$.set_value(CTConst(a));
+			}
 	/* gcc extension */
         | AND_OP identifier_or_typedef_name
 		{ label_use($2.get_token()); }
@@ -1041,12 +1057,12 @@ declaration_qualifier:
         ; /* default rules */
 
 simple_type_qualifier:
-        TCONST		{ $$ = basic(b_abstract, s_none, c_unspecified, q_const); }
-        | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, q_volatile); }
-        | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, q_restrict); }
-        | COMPLEX   { $$ = basic(b_abstract, s_none, c_unspecified, q_complex);  }
-        | IMAGINARY   { $$ = basic(b_abstract, s_none, c_unspecified, q_imaginary);  }
-        | SIMD   { $$ = basic(b_abstract, s_none, c_unspecified, q_simd);  }
+        TCONST		{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_const); }
+        | VOLATILE	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_volatile); }
+        | RESTRICT	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_restrict); }
+        | COMPLEX   { $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_complex);  }
+        | IMAGINARY   { $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_imaginary);  }
+        | SIMD   { $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_simd);  }
 	| attribute
         ;
 
@@ -1175,11 +1191,11 @@ typeof_argument: comma_expression
 
 storage_class:
         TYPEDEF		{ $$ = basic(b_abstract, s_none, c_typedef); }
-        | EXTERN	{ $$ = basic(b_abstract, s_none, c_extern); }
-        | STATIC	{ $$ = basic(b_abstract, s_none, c_static); }
-        | AUTO		{ $$ = basic(b_abstract, s_none, c_auto); }
-        | REGISTER	{ $$ = basic(b_abstract, s_none, c_register); }
-        | THREAD_LOCAL	{ $$ = basic(b_abstract, s_none, c_thread_local); }
+        | EXTERN	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_external); }
+        | STATIC	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_static, lk_internal); }
+        | AUTO		{ $$ = basic(b_abstract, s_none, c_unspecified, sd_auto); }
+        | REGISTER	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_auto); }
+        | THREAD_LOCAL	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_thread); }
         ;
 
 basic_type_name:
@@ -2201,7 +2217,7 @@ attribute:
 	 * int enter(void) __asm__("enter");
 	 */
 	UNUSED
-		{ $$ = basic(b_abstract, s_none, c_unspecified, q_unused); }
+		{ $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_unused); }
 	;
 
 asm_or_attribute_list:
@@ -2328,8 +2344,8 @@ postfix_identifier_declarator:
 			if ($$.qualified_unused())
 				$$.get_token().set_ec_attribute(is_declared_unused);
 		}
-        | '(' unary_identifier_declarator ')'
-		{ $$ = $2; }
+		| '(' unary_identifier_declarator ')'
+				{ $$ = $2; }
 	/*  int (*a)[10]: declare a as pointer to array 10 of int */
         | '(' unary_identifier_declarator ')' postfixing_abstract_declarator
 		{

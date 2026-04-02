@@ -26,6 +26,7 @@
 # -TEST_C
 # -TEST_OBFUSCATION
 # -TEST_SQL
+# -TEST_PERL
 #
 # To run a single test set the corresponding environment variable e.g.
 # CFILES=c36-endlabel.c ./runtest.sh -TEST_C
@@ -406,6 +407,7 @@ set_test()
 	TEST_C=$1
 	TEST_OBFUSCATION=$1
 	TEST_SQL=$1
+	TEST_PERL=$1
 }
 
 #
@@ -529,6 +531,24 @@ then
     runtest_sql $i ../example $DB
   done
   rm -f $DB
+fi
+
+# Perl scripts
+mkdir -p test/err/diff
+if [ $TEST_PERL = 1 ]
+then
+		TEST_GROUP=Perl
+		start_test Perl tokname
+		perl tokname.pl ytoken.h test/nout/tokname 2>test/err/chunk/tokname.err
+		end_compare . tokname
+
+		start_test Perl mkerr
+		perl mkerr.pl *.cpp *.h >test/nout/mkerr 2>test/err/chunk/mkerr.err
+		end_compare . mkerr
+
+		start_test Perl cswc
+		perl cswc.pl -d ../example/.cscout <test/perl/cswc-input.ws 2>test/err/chunk/cswc.err | sed "s|$(cd ../example/.cscout && /bin/pwd)||g" >test/nout/cswc
+		end_compare . cswc
 fi
 
 # Finish priming

@@ -48,13 +48,25 @@ enum e_sign {
 enum e_storage_class {
 	c_unspecified,
 	c_typedef,
-	c_extern,
-	c_static,
-	c_auto,
-	c_register,
-	c_enum,
-	c_thread_local
+	c_enum
 };
+
+enum e_storage_duration {
+	sd_none,
+	sd_auto,
+	sd_static,
+	sd_thread
+};
+
+enum e_linkage {
+	lk_none,
+	lk_external,
+	lk_internal
+};
+
+// Merge functions for C11 storage-class combinations
+enum e_storage_duration merge_storage_duration(enum e_storage_duration a, enum e_storage_duration b);
+enum e_linkage merge_linkage(enum e_linkage a, enum e_linkage b);
 
 enum e_qualifier {
 	q_none = 	0x00,
@@ -131,11 +143,15 @@ protected:
 	virtual void set_storage_class(Type t);	// Set typedef's underlying storage class to t
 	virtual void clear_storage_class();	// Clear underlying storage class
 	virtual enum e_storage_class get_storage_class() const;// Return the declaration's storage class
+	virtual enum e_storage_duration get_storage_duration() const;// Return the declaration's storage duration
+	virtual enum e_linkage get_linkage() const;// Return the declaration's linkage
 	virtual int get_qualifiers() const;// Return the declaration's qualifiers
 	virtual int get_nparam() const;	// Return the number of parameters
 	virtual void add_param();	// Add another parameter to the list
 	virtual CTConst get_value() const {return CTConst(); }	// Return the value of a compile-time constant
 	// Return the number of elements this type can be supplied (array, structure, union)
+        virtual size_t get_sizeof() const { return 0; }
+	virtual size_t get_alignof() const { return 0; }
 	virtual CTConst get_initializer_elements() const { return CTConst(1); }
 	// Return the number of elements this type can be indexed to return their type (array, structure, union)
 	virtual CTConst get_indexed_elements() const { return CTConst(1); }
@@ -149,7 +165,7 @@ protected:
 	virtual const vector <Id>& get_members_by_ordinal() const;
 
 	bool is_typedef() const { return get_storage_class() == c_typedef; }// True for typedefs
-	bool is_static() const { return get_storage_class() == c_static; }// True for static
+	bool is_static() const { return get_storage_duration() == sd_static; }// True for static
 public:
 	// For merging
 	virtual Type merge(Tbasic *b);
@@ -164,10 +180,15 @@ public:
 class Tstorage {
 private:
 	enum e_storage_class sclass;
+	enum e_storage_duration duration;
+	enum e_linkage linkage;
 public:
-	Tstorage (enum e_storage_class sc) : sclass(sc) {}
-	Tstorage() : sclass(c_unspecified) {}
+	Tstorage (enum e_storage_class sc, enum e_storage_duration sd = sd_none, enum e_linkage lk = lk_none)
+		: sclass(sc), duration(sd), linkage(lk) {}
+	Tstorage() : sclass(c_unspecified), duration(sd_none), linkage(lk_none) {}
 	enum e_storage_class get_storage_class() const {return sclass; }
+	enum e_storage_duration get_storage_duration() const {return duration; }
+	enum e_linkage get_linkage() const {return linkage; }
 	void set_storage_class(Type t);
 	void clear_storage_class();
 	void print(ostream &o) const;
@@ -206,8 +227,10 @@ private:
 public:
 	Tbasic(enum e_btype t = b_abstract, enum e_sign s = s_none,
 		enum e_storage_class sc = c_unspecified,
+		enum e_storage_duration sd = sd_none,
+		enum e_linkage lk = lk_none,
 		qualifiers_t q = q_none, CTConst v = CTConst()) :
-		QType_node(q), type(t), sign(s), sclass(sc), value(v) {}
+		QType_node(q), type(t), sign(s), sclass(sc, sd, lk), value(v) {}
 	Type clone() const;
 	Type subscript() const;
 	bool is_subscriptable() const { return qualifiers & q_simd; }
@@ -218,10 +241,42 @@ public:
 	bool is_void() const { return type == b_void; }
 	bool is_padbit() const { return type == b_padbit; }
 	bool is_char() const { return type == b_char; }
+        size_t get_sizeof() const {
+                switch (type) {
+                case b_void: case b_char: case b_bool: return 1;
+                case b_short: return sizeof(short);
+                case b_int: return sizeof(int);
+                case b_float: return sizeof(float);
+                case b_imaginary: return sizeof(float);
+                case b_long: return sizeof(long);
+                case b_double: return sizeof(double);
+                case b_llong: return sizeof(long long);
+                case b_complex: return sizeof(double) * 2;
+                case b_ldouble: return sizeof(long double);
+                default: return 0;
+                }
+        }
+	size_t get_alignof() const {
+		switch (type) {
+		case b_void: case b_char: case b_bool: return 1;
+		case b_short: return alignof(short);
+		case b_int: return alignof(int);
+		case b_float: return alignof(float);
+		case b_imaginary: return alignof(float);
+		case b_long: return alignof(long);
+		case b_double: return alignof(double);
+		case b_llong: return alignof(long long);
+		case b_complex: return alignof(double);
+		case b_ldouble: return alignof(long double);
+		default: return 0;
+		}
+	}
 	void print(ostream &o) const;
 	Type merge(Tbasic *b);
 	Tbasic *tobasic() { return this; }
 	enum e_storage_class get_storage_class() const { return sclass.get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const { return sclass.get_storage_duration(); }
+	enum e_linkage get_linkage() const { return sclass.get_linkage(); }
 	inline void set_storage_class(Type t);
 	inline void clear_storage_class();
 	void set_abstract(Type t);		//For padbits
@@ -242,7 +297,8 @@ public:
 	Type() : p(new Tbasic(b_undeclared)) {}
 	// Creation functions
 	friend Type basic(enum e_btype t, enum e_sign s,
-			  enum e_storage_class sc, qualifiers_t);
+			  enum e_storage_class sc, enum e_storage_duration sd,
+			  enum e_linkage lk, qualifiers_t);
 	friend Type array_of(Type t, CTConst nelem);
 	friend Type pointer_to(Type t);
 	friend Type function_returning(Type t, int n);
@@ -283,6 +339,8 @@ public:
 	void add_param()		{ p->add_param(); }
 	int get_nparam() const		{ return p->get_nparam(); }
 	CTConst get_value() const	{ return p->get_value(); }
+        size_t get_sizeof() const          { return p->get_sizeof(); }
+	size_t get_alignof() const	{ return p->get_alignof(); }
 	CTConst get_initializer_elements() const 	{ return p->get_initializer_elements(); }
 	CTConst get_indexed_elements() const 	{ return p->get_indexed_elements(); }
 	void set_union(bool v)		{ p->set_union(v); }
@@ -314,6 +372,10 @@ public:
 	const Ctoken& get_token() const { return p->get_token(); }
 	enum e_storage_class get_storage_class() const
 					{return p->get_storage_class(); }
+	enum e_storage_duration get_storage_duration() const
+					{return p->get_storage_duration(); }
+	enum e_linkage get_linkage() const
+					{return p->get_linkage(); }
 	Type get_default_specifier() const
 					{ return p->get_default_specifier(); }
 	void add_member(const Token &tok, const Type &typ)
@@ -330,7 +392,9 @@ public:
 
 Type identifier(const Ctoken& c);
 Type basic(enum e_btype t = b_abstract, enum e_sign s = s_none,
-  enum e_storage_class sc = c_unspecified, qualifiers_t = q_none);
+  enum e_storage_class sc = c_unspecified,
+  enum e_storage_duration sd = sd_none, enum e_linkage lk = lk_none,
+  qualifiers_t = q_none);
 Type enum_tag();
 Type struct_union();
 Type incomplete(const Ctoken& c, int l);

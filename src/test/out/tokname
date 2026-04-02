@@ -1,0 +1,46 @@
+
+/*
+ * Automatically generated file.
+ * Modify the generator tokname.pl or
+ * ytoken.h (or more probably the file that generated it)
+ */
+
+
+#include <iostream>
+#include <map>
+#include <string>
+#include <deque>
+#include <vector>
+#include <list>
+#include <set>
+
+#include "cpp.h"
+#include "error.h"
+#include "attr.h"
+#include "metrics.h"
+#include "fileid.h"
+#include "tokid.h"
+#include "token.h"
+
+#include "parse.tab.h"
+
+
+/*
+ * Return the name of a token code
+ */
+string
+Token::name() const
+{
+	switch (code) {
+ 
+	default:
+		if (code < 255) {
+			string s;
+			s = (char)code;
+			return (s);
+		} else {
+			csassert(0);
+			return ("");
+		}
+	}
+}

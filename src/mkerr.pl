@@ -2,6 +2,14 @@
 # Generate the warning and error message list
 #
 #
+use strict;
+use warnings;
+
+my $expl;
+my ($sev, $msg);
+my %seen;
+my %error;
+my %title;
 
 
 push(@ARGV, <*.cpp>);
@@ -44,7 +52,7 @@ print '<?xml version="1.0" ?>
 <notes>
 ';
 
-for $sev (keys %error) {
+for my $sev (sort keys %error) {
 	print "<h2>$title{$sev}</h2>\n<ul>\n";
 	print sort @{$error{$sev}};
 	print "</ul>\n";
