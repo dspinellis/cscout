@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# (C) Copyright 2006-2025 Diomidis Spinellis
+# (C) Copyright 2006-2026 Diomidis Spinellis
 #
 # This file is part of CScout.
 #

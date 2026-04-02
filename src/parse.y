@@ -2328,8 +2328,8 @@ postfix_identifier_declarator:
 			if ($$.qualified_unused())
 				$$.get_token().set_ec_attribute(is_declared_unused);
 		}
-        | '(' unary_identifier_declarator ')'
-		{ $$ = $2; }
+		| '(' unary_identifier_declarator ')'
+				{ $$ = $2; }
 	/*  int (*a)[10]: declare a as pointer to array 10 of int */
         | '(' unary_identifier_declarator ')' postfixing_abstract_declarator
 		{
