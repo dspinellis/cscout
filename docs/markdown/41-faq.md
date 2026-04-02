@@ -26,7 +26,7 @@
 You can either define macros that will cover all conditional cases,
 or process the same project multiple times using different macro
 definitions.
-See [this page](short.md).
+See [this page](38-short.md).
 
 <a id="auto"></a> 
 ## How can I handle automatically generated files?

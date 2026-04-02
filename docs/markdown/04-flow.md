@@ -17,11 +17,11 @@ an RDBMS.
 
 There are three ways to generate the processing script:
 
-1.  [Through a workspace definition file](wsp.md), processed by the workspace compiler *cswc*.
+1.  [Through a workspace definition file](05-wsp.md), processed by the workspace compiler *cswc*.
 
-1.  [By having the csmake command monitor the build process](csmake.md).  
+1.  [By having the csmake command monitor the build process](07-csmake.md).  
 
-1.  [By tailoring a project's build process](pragma.md) to generate a processing script.  
+1.  [By tailoring a project's build process](08-pragma.md) to generate a processing script.  
 
 Each method has different advantages and disadvantages.
 Therefore, you should probably select the method that better suits your needs,

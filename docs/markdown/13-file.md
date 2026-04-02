@@ -5,37 +5,37 @@ all file queries produce file-list data as their result.
 Clicking on an element of a file list leads you to a page
 with a summary of the file.
 
-[File's directory](simul.md)
+File's directory
 
 ### Listings
 
--  [Source code](simul.md)
--  [Source code with unprocessed regions marked](simul.md)
--  [Source code with identifier hyperlinks](simul.md)
+-  Source code
+-  Source code with unprocessed regions marked
+-  Source code with identifier hyperlinks
 
--  [Source code with hyperlinks to project-global writable identifiers](simul.md)
--  [Source code with hyperlinks to function and macro declarations](simul.md)
--  [Edit the file](simul.md)
+-  Source code with hyperlinks to project-global writable identifiers
+-  Source code with hyperlinks to function and macro declarations
+-  Edit the file
 
 ### Functions
 
--  [Defined project-scoped functions](simul.md)
--  [Defined file-scoped functions](simul.md)
+-  Defined project-scoped functions
+-  Defined file-scoped functions
 
--  [Function and macro call graph](simul.md)
+-  Function and macro call graph
 
 ### File Dependencies
 
--  Graph of files that depend on this file at compile time: [writable](simul.md), [all](simul.md)-  Graph of files on which this file depends at compile time: [writable](simul.md), [all](simul.md)-  Graph of files whose functions this file calls (control dependency): [writable](simul.md), [all](simul.md)-  Graph of files calling this file's functions (control dependency): [writable](simul.md), [all](simul.md)-  Graph of files whose global variables this file accesses (data dependency): [writable](simul.md), [all](simul.md)-  Graph of files accessing this file's global variables (data dependency): [writable](simul.md), [all](simul.md)
+-  Graph of files that depend on this file at compile time: writable, all-  Graph of files on which this file depends at compile time: writable, all-  Graph of files whose functions this file calls (control dependency): writable, all-  Graph of files calling this file's functions (control dependency): writable, all-  Graph of files whose global variables this file accesses (data dependency): writable, all-  Graph of files accessing this file's global variables (data dependency): writable, all
 
 ### Include Files
 
--  [Writable files that this file directly includes](simul.md)
--  [All files that this file includes](simul.md)
--  [Include graph of all included files](simul.md)-  [Include graph of writable included files](simul.md)-  [Include graph of all including files](simul.md)-  [All writable files that this file must include](simul.md)
+-  Writable files that this file directly includes
+-  All files that this file includes
+-  Include graph of all included files-  Include graph of writable included files-  Include graph of all including files-  All writable files that this file must include
 
--  [Unused directly included files](simul.md)
--  [Files including this file](simul.md)
+-  Unused directly included files
+-  Files including this file
 
 ### Metrics
 
@@ -68,9 +68,9 @@ with a summary of the file.
 | Number of declared enumeration elements | 0 |
 | Number of directly included files | 8 |
 
-[Main page](simul.md)
- — Web: [Home](simul.md)
-[Manual](simul.md)
+Main page
+ — Web: Home
+Manual
   
 
 ---
@@ -143,31 +143,31 @@ a page of the file's code text where each identifier is represented as
 a hyperlink leading to the identifier's page.
 The following is a representative example.
 
-[copy_fifo](simul.md)([from_stat](simul.md), [exists](simul.md))  
+copy_fifo(from_stat, exists)  
 
-        struct [stat](simul.md) *[from_stat](simul.md);  
+        struct stat *from_stat;  
 
-        int [exists](simul.md);  
+        int exists;  
 
 {  
 
-        if ([exists](simul.md) && [unlink](simul.md)([to](simul.md).[p_path](simul.md))) {  
+        if (exists && unlink(to.p_path)) {  
 
-                [warn](simul.md)("unlink: %s", [to](simul.md).[p_path](simul.md));  
-
-                return (1);  
-
-        }  
-
-        if ([mkfifo](simul.md)([to](simul.md).[p_path](simul.md), [from_stat](simul.md)->[st_mode](simul.md))) {  
-
-                [warn](simul.md)("mkfifo: %s", [to](simul.md).[p_path](simul.md));  
+                warn("unlink: %s", to.p_path);  
 
                 return (1);  
 
         }  
 
-        return ([pflag](simul.md) ? [setfile](simul.md)([from_stat](simul.md), 0) : 0);  
+        if (mkfifo(to.p_path, from_stat->st_mode)) {  
+
+                warn("mkfifo: %s", to.p_path);  
+
+                return (1);  
+
+        }  
+
+        return (pflag ? setfile(from_stat, 0) : 0);  
 
 }  
 
@@ -183,7 +183,7 @@ to browse the source code with hyperlinks only to project-global writable
 identifiers, which are typically the most important identifiers.
 Consider again how the above example would be displayed:
 
-[copy_fifo](simul.md)(from_stat, exists)  
+copy_fifo(from_stat, exists)  
 
         struct stat *from_stat;  
 
@@ -191,23 +191,23 @@ Consider again how the above example would be displayed:
 
 {  
 
-        if (exists && unlink([to](simul.md).p_path)) {  
+        if (exists && unlink(to.p_path)) {  
 
-                warn("unlink: %s", [to](simul.md).p_path);  
-
-                return (1);  
-
-        }  
-
-        if (mkfifo([to](simul.md).p_path, from_stat->st_mode)) {  
-
-                warn("mkfifo: %s", [to](simul.md).p_path);  
+                warn("unlink: %s", to.p_path);  
 
                 return (1);  
 
         }  
 
-        return ([pflag](simul.md) ? [setfile](simul.md)(from_stat, 0) : 0);  
+        if (mkfifo(to.p_path, from_stat->st_mode)) {  
+
+                warn("mkfifo: %s", to.p_path);  
+
+                return (1);  
+
+        }  
+
+        return (pflag ? setfile(from_stat, 0) : 0);  
 
 }  
 
@@ -218,25 +218,25 @@ Consider again how the above example would be displayed:
 provides you hyperlinks to the *function* pages for each
 function declaration (implicit or explict) and macro definition.
 Again, here is an example:
-[digittoint](simul.md) __P((int));  
+digittoint __P((int));  
 
-<a id="86"></a>int     [isascii](simul.md) __P((int));  
+<a id="86"></a>int     isascii __P((int));  
 
-<a id="87"></a>int     [isblank](simul.md) __P((int));  
+<a id="87"></a>int     isblank __P((int));  
 
-<a id="88"></a>int     [ishexnumber](simul.md) __P((int));  
+<a id="88"></a>int     ishexnumber __P((int));  
 
-<a id="89"></a>int     [isideogram](simul.md) __P((int));  
+<a id="89"></a>int     isideogram __P((int));  
 
-<a id="90"></a>int     [isnumber](simul.md) __P((int));  
+<a id="90"></a>int     isnumber __P((int));  
 
-<a id="91"></a>int     [isphonogram](simul.md) __P((int));  
+<a id="91"></a>int     isphonogram __P((int));  
 
-<a id="92"></a>int     [isrune](simul.md) __P((int));  
+<a id="92"></a>int     isrune __P((int));  
 
-<a id="93"></a>int     [isspecial](simul.md) __P((int));  
+<a id="93"></a>int     isspecial __P((int));  
 
-<a id="94"></a>int     [toascii](simul.md) __P((int));  
+<a id="94"></a>int     toascii __P((int));  
 
 <a id="95"></a>#endif  
 
@@ -244,35 +244,35 @@ Again, here is an example:
 
 <a id="97"></a>  
 
-<a id="98"></a>#define [__istype](simul.md)(c,f)    (!!__maskrune((c),(f)))  
+<a id="98"></a>#define __istype(c,f)    (!!__maskrune((c),(f)))  
 
 <a id="99"></a>  
 
-<a id="100"></a>#define [isalnum](simul.md)(c)       __istype((c), _CTYPE_A|_CTYPE_D)  
+<a id="100"></a>#define isalnum(c)       __istype((c), _CTYPE_A|_CTYPE_D)  
 
-<a id="101"></a>#define [isalpha](simul.md)(c)       __istype((c), _CTYPE_A)  
+<a id="101"></a>#define isalpha(c)       __istype((c), _CTYPE_A)  
 
-<a id="102"></a>#define [iscntrl](simul.md)(c)       __istype((c), _CTYPE_C)  
+<a id="102"></a>#define iscntrl(c)       __istype((c), _CTYPE_C)  
 
-<a id="103"></a>#define [isdigit](simul.md)(c)       __isctype((c), _CTYPE_D) /* ANSI -- locale independent */  
+<a id="103"></a>#define isdigit(c)       __isctype((c), _CTYPE_D) /* ANSI -- locale independent */  
 
-<a id="104"></a>#define [isgraph](simul.md)(c)       __istype((c), _CTYPE_G)  
+<a id="104"></a>#define isgraph(c)       __istype((c), _CTYPE_G)  
 
-<a id="105"></a>#define [islower](simul.md)(c)       __istype((c), _CTYPE_L)  
+<a id="105"></a>#define islower(c)       __istype((c), _CTYPE_L)  
 
-<a id="106"></a>#define [isprint](simul.md)(c)       __istype((c), _CTYPE_R)  
+<a id="106"></a>#define isprint(c)       __istype((c), _CTYPE_R)  
 
-<a id="107"></a>#define [ispunct](simul.md)(c)       __istype((c), _CTYPE_P)  
+<a id="107"></a>#define ispunct(c)       __istype((c), _CTYPE_P)  
 
-<a id="108"></a>#define [isspace](simul.md)(c)       __istype((c), _CTYPE_S)  
+<a id="108"></a>#define isspace(c)       __istype((c), _CTYPE_S)  
 
-<a id="109"></a>#define [isupper](simul.md)(c)       __istype((c), _CTYPE_U)  
+<a id="109"></a>#define isupper(c)       __istype((c), _CTYPE_U)  
 
-<a id="110"></a>#define [isxdigit](simul.md)(c)      __isctype((c), _CTYPE_X) /* ANSI -- locale independent */  
+<a id="110"></a>#define isxdigit(c)      __isctype((c), _CTYPE_X) /* ANSI -- locale independent */  
 
-<a id="111"></a>#define [tolower](simul.md)(c)       __tolower(c)  
+<a id="111"></a>#define tolower(c)       __tolower(c)  
 
-<a id="112"></a>#define [toupper](simul.md)(c)       __toupper(c)  
+<a id="112"></a>#define toupper(c)       __toupper(c)  
 
 <a id="113"></a>  
 
@@ -352,9 +352,9 @@ Number of elements: 15
 | Number of declared enumeration elements | 0 | 0 | 0 | 0 |
 | Number of directly included files | 24 | 0 | 20 | 1.6 |
 
-[Main page](simul.md)
- — Web: [Home](simul.md)
-[Manual](simul.md)
+Main page
+ — Web: Home
+Manual
   
 
 ---
@@ -397,54 +397,54 @@ source files, and directly and indirectly included files.
 You can use this list to create a "bill of materials" for the files your
 workspace requires to compile.
 The following is an example of the output:
-[/home/dds/src/cscout/cscout_defs.h](simul.md)
-1. [/home/dds/src/cscout/cscout_incs.h](simul.md)
-1. [/usr/home/dds/src/cscout/bin.c](simul.md)
-1. [/usr/include/ctype.h](simul.md)
-1. [/usr/include/err.h](simul.md)
-1. [/usr/include/errno.h](simul.md)
-1. [/usr/include/fcntl.h](simul.md)
-1. [/usr/include/fts.h](simul.md)
-1. [/usr/include/limits.h](simul.md)
-1. [/usr/include/locale.h](simul.md)
-1. [/usr/include/machine/ansi.h](simul.md)
-1. [/usr/include/machine/endian.h](simul.md)
-1. [/usr/include/machine/limits.h](simul.md)
-1. [/usr/include/machine/param.h](simul.md)
-1. [/usr/include/machine/signal.h](simul.md)
-1. [/usr/include/machine/trap.h](simul.md)
-1. [/usr/include/machine/types.h](simul.md)
-1. [/usr/include/machine/ucontext.h](simul.md)
-1. [/usr/include/runetype.h](simul.md)
-1. [/usr/include/stdio.h](simul.md)
-1. [/usr/include/stdlib.h](simul.md)
-1. [/usr/include/string.h](simul.md)
-1. [/usr/include/sys/_posix.h](simul.md)
-1. [/usr/include/sys/cdefs.h](simul.md)
-1. [/usr/include/sys/inttypes.h](simul.md)
-1. [/usr/include/sys/param.h](simul.md)
-1. [/usr/include/sys/signal.h](simul.md)
-1. [/usr/include/sys/stat.h](simul.md)
-1. [/usr/include/sys/syslimits.h](simul.md)
-1. [/usr/include/sys/time.h](simul.md)
-1. [/usr/include/sys/types.h](simul.md)
-1. [/usr/include/sys/ucontext.h](simul.md)
-1. [/usr/include/sys/unistd.h](simul.md)
-1. [/usr/include/sysexits.h](simul.md)
-1. [/usr/include/syslog.h](simul.md)
-1. [/usr/include/time.h](simul.md)
-1. [/usr/include/unistd.h](simul.md)
-1. [/vol/src/bin/cp/cp.c](simul.md)
-1. [/vol/src/bin/cp/extern.h](simul.md)
-1. [/vol/src/bin/cp/utils.c](simul.md)
-1. [/vol/src/bin/date/date.c](simul.md)
-1. [/vol/src/bin/date/extern.h](simul.md)
-1. [/vol/src/bin/date/vary.h](simul.md)
-1. [/vol/src/bin/echo/echo.c](simul.md)
+/home/dds/src/cscout/cscout_defs.h
+1. /home/dds/src/cscout/cscout_incs.h
+1. /usr/home/dds/src/cscout/bin.c
+1. /usr/include/ctype.h
+1. /usr/include/err.h
+1. /usr/include/errno.h
+1. /usr/include/fcntl.h
+1. /usr/include/fts.h
+1. /usr/include/limits.h
+1. /usr/include/locale.h
+1. /usr/include/machine/ansi.h
+1. /usr/include/machine/endian.h
+1. /usr/include/machine/limits.h
+1. /usr/include/machine/param.h
+1. /usr/include/machine/signal.h
+1. /usr/include/machine/trap.h
+1. /usr/include/machine/types.h
+1. /usr/include/machine/ucontext.h
+1. /usr/include/runetype.h
+1. /usr/include/stdio.h
+1. /usr/include/stdlib.h
+1. /usr/include/string.h
+1. /usr/include/sys/_posix.h
+1. /usr/include/sys/cdefs.h
+1. /usr/include/sys/inttypes.h
+1. /usr/include/sys/param.h
+1. /usr/include/sys/signal.h
+1. /usr/include/sys/stat.h
+1. /usr/include/sys/syslimits.h
+1. /usr/include/sys/time.h
+1. /usr/include/sys/types.h
+1. /usr/include/sys/ucontext.h
+1. /usr/include/sys/unistd.h
+1. /usr/include/sysexits.h
+1. /usr/include/syslog.h
+1. /usr/include/time.h
+1. /usr/include/unistd.h
+1. /vol/src/bin/cp/cp.c
+1. /vol/src/bin/cp/extern.h
+1. /vol/src/bin/cp/utils.c
+1. /vol/src/bin/date/date.c
+1. /vol/src/bin/date/extern.h
+1. /vol/src/bin/date/vary.h
+1. /vol/src/bin/echo/echo.c
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
+Main page
   
 
 ---
@@ -459,73 +459,73 @@ The "Read-only files" link will typically show you the system files your
 project used.
 The following output was generated using the "Show file lists with file name in context" option.
 
-[ctype.h](simul.md)
+ctype.h
 
-[err.h](simul.md)
+err.h
 
-[errno.h](simul.md)
+errno.h
 
-[fcntl.h](simul.md)
+fcntl.h
 
-[fts.h](simul.md)
+fts.h
 
-[limits.h](simul.md)
+limits.h
 
-[locale.h](simul.md)
+locale.h
 
-[ansi.h](simul.md)
+ansi.h
 
-[endian.h](simul.md)
+endian.h
 
-[limits.h](simul.md)
+limits.h
 
-[param.h](simul.md)
+param.h
 
-[signal.h](simul.md)
+signal.h
 
-[trap.h](simul.md)
+trap.h
 
-[types.h](simul.md)
+types.h
 
-[ucontext.h](simul.md)
+ucontext.h
 
-[runetype.h](simul.md)
+runetype.h
 
-[stdio.h](simul.md)
+stdio.h
 
-[stdlib.h](simul.md)
+stdlib.h
 
-[string.h](simul.md)
+string.h
 
-[_posix.h](simul.md)
+_posix.h
 
-[cdefs.h](simul.md)
+cdefs.h
 
-[inttypes.h](simul.md)
+inttypes.h
 
-[param.h](simul.md)
+param.h
 
-[signal.h](simul.md)
+signal.h
 
-[stat.h](simul.md)
+stat.h
 
-[syslimits.h](simul.md)
+syslimits.h
 
-[time.h](simul.md)
+time.h
 
-[types.h](simul.md)
+types.h
 
-[ucontext.h](simul.md)
+ucontext.h
 
-[unistd.h](simul.md)
+unistd.h
 
-[sysexits.h](simul.md)
+sysexits.h
 
-[syslog.h](simul.md)
+syslog.h
 
-[time.h](simul.md)
+time.h
 
-[unistd.h](simul.md)
+unistd.h
 
 | Directory | File |
 | --- | --- |
@@ -566,10 +566,10 @@ The following output was generated using the "Show file lists with file name in 
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
+Main page
 
- - Web: [Home](simul.md)
-[Manual](simul.md)
+ - Web: Home
+Manual
   
 
 ---
@@ -618,20 +618,20 @@ CScout 2.0 - 2004/07/31 12:37:12
 Correspondingly the "Writable files" link will only show you all your 
 workspace's source files:
 
-[/home/dds/src/cscout/cscout_defs.h](simul.md)
-1. [/home/dds/src/cscout/cscout_incs.h](simul.md)
-1. [/usr/home/dds/src/cscout/bin.c](simul.md)
-1. [/vol/src/bin/cp/cp.c](simul.md)
-1. [/vol/src/bin/cp/extern.h](simul.md)
-1. [/vol/src/bin/cp/utils.c](simul.md)
-1. [/vol/src/bin/date/date.c](simul.md)
-1. [/vol/src/bin/date/extern.h](simul.md)
-1. [/vol/src/bin/date/vary.h](simul.md)
-1. [/vol/src/bin/echo/echo.c](simul.md)
+/home/dds/src/cscout/cscout_defs.h
+1. /home/dds/src/cscout/cscout_incs.h
+1. /usr/home/dds/src/cscout/bin.c
+1. /vol/src/bin/cp/cp.c
+1. /vol/src/bin/cp/extern.h
+1. /vol/src/bin/cp/utils.c
+1. /vol/src/bin/date/date.c
+1. /vol/src/bin/date/extern.h
+1. /vol/src/bin/date/vary.h
+1. /vol/src/bin/echo/echo.c
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
+Main page
   
 
 ---
@@ -657,9 +657,9 @@ generated through the use of the system's library functions.
 
 In our example, the following list is generated:
 
-[cp.c](simul.md)[marked source](simul.md)
+cp.cmarked source
 
-[date.c](simul.md)[marked source](simul.md)
+date.cmarked source
 
 | Directory | File |
 | --- | --- |
@@ -668,10 +668,10 @@ In our example, the following list is generated:
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
- - Web: [Home](simul.md)
+Main page
+ - Web: Home
 
-[Manual](simul.md)
+Manual
   
 
 ---
@@ -692,7 +692,7 @@ simply follow the link with your browser and press `tab`
 to go to each hyperlink.
 In our example the identifier will appear as follows:
 
-[setthetime](simul.md)(fmt, p, jflag, nflag)  
+setthetime(fmt, p, jflag, nflag)  
 
         const char *fmt;  
 
@@ -737,13 +737,13 @@ generated through the use of the system's library functions.
 
 In our example, the following list is generated:
 
-[cp.c](simul.md)[marked source](simul.md)
+cp.cmarked source
 
-[utils.c](simul.md)[marked source](simul.md)
+utils.cmarked source
 
-[date.c](simul.md)[marked source](simul.md)
+date.cmarked source
 
-[echo.c](simul.md)[marked source](simul.md)
+echo.cmarked source
 
 | Directory | File |
 | --- | --- |
@@ -754,9 +754,9 @@ In our example, the following list is generated:
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
- - Web: [Home](simul.md)
-[Manual](simul.md)
+Main page
+ - Web: Home
+Manual
   
 
 ---
@@ -774,7 +774,7 @@ In our case all identifiers located were the
 `copyright` and the `rcsid`
 identifiers.
 
-[copyright](simul.md)[] =  
+copyright[] =  
 
 "@(#) Copyright (c) 1989, 1993\n\  
 
@@ -792,7 +792,7 @@ static char sccsid[] = "@(#)echo.c      8.1 (Berkeley) 5/31/93";
 
 #endif  
 
-static const char [rcsid](simul.md)[] =  
+static const char rcsid[] =  
 
   "$FreeBSD: src/bin/echo/echo.c,v 1.8.2.1 2001/08/01 02:33:32 obrien Exp $";  
 
@@ -820,11 +820,11 @@ In our example,
 the result set only contains the processing script
 (the compiled workspace definition file).
 
-[/usr/home/dds/src/cscout/bin.c](simul.md)
+/usr/home/dds/src/cscout/bin.c
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
+Main page
   
 
 ---
@@ -849,17 +849,17 @@ The files are ordered according to the number of unprocessed lines
 
 In our case the results are:
 
-[utils.c](simul.md)
+utils.c
 
-[cscout_defs.h](simul.md)
+cscout_defs.h
 
-[echo.c](simul.md)
+echo.c
 
-[date.c](simul.md)
+date.c
 
-[cp.c](simul.md)
+cp.c
 
-[cscout_incs.h](simul.md)
+cscout_incs.h
 
 | Directory | File | Number of unprocessed lines |
 | --- | --- | --- |
@@ -872,10 +872,10 @@ In our case the results are:
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
- - Web: [Home](simul.md)
+Main page
+ - Web: Home
 
-[Manual](simul.md)
+Manual
   
 
 ---
@@ -914,17 +914,17 @@ strings.
 
 In our case the results are:
 
-[/home/dds/src/cscout/cscout_defs.h](simul.md)
-1. [/home/dds/src/cscout/cscout_incs.h](simul.md)
-1. [/usr/home/dds/src/cscout/bin.c](simul.md)
-1. [/vol/src/bin/cp/cp.c](simul.md)
-1. [/vol/src/bin/cp/utils.c](simul.md)
-1. [/vol/src/bin/date/date.c](simul.md)
-1. [/vol/src/bin/echo/echo.c](simul.md)
+/home/dds/src/cscout/cscout_defs.h
+1. /home/dds/src/cscout/cscout_incs.h
+1. /usr/home/dds/src/cscout/bin.c
+1. /vol/src/bin/cp/cp.c
+1. /vol/src/bin/cp/utils.c
+1. /vol/src/bin/date/date.c
+1. /vol/src/bin/echo/echo.c
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
+Main page
   
 
 ---
@@ -943,11 +943,11 @@ use recursive `#include` invocations as a matter of course.
 
 In our example, the result is:
 
-[/vol/src/bin/cp/extern.h](simul.md)
+/vol/src/bin/cp/extern.h
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
+Main page
   
 
 ---
