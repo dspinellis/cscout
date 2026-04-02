@@ -314,8 +314,7 @@ again:
 				num = s.c_str();
 
 				unsigned long val = strtoul(num, &endptr, 0);
-				if (*endptr == 0 || *endptr == 'l' || *endptr =='L' ||
-				    *endptr == 'u' || *endptr == 'U') {
+				if (is_int_suffix(endptr)) {
 					parse_lval.t = basic(b_int);
 					parse_lval.t.set_value(val);
 					return (INT_CONST);
