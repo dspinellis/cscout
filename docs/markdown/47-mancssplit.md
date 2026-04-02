@@ -72,7 +72,7 @@ file-0003.cs
 
 Each file contains a portion of the original processing script.
 
-## See also
+## See Also
 
 *cscout*(1),
 *cscut*(1),

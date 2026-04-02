@@ -18,22 +18,23 @@ On the other hand, the pages containing results of identifier, function, or
 file queries can be freely bookmarked and are identified with a comment
 specifying the fact and a corresponding link.
 
-ADD  
+[ADD](simul.html)  
 
 ...  
 
-BTRUE  
+[BTRUE](simul.html)  
 
-CALL  
+[CALL](simul.html)  
 
 Elements 1 to 20 of 416.  
-Select page: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 next all  
-You can bookmark this link to save the respective query.
+Select page: 1 [2](simul.html) [3](simul.html) [4](simul.html) [5](simul.html) [6](simul.html) [7](simul.html) [8](simul.html) [9](simul.html) [10](simul.html) [11](simul.html) [12](simul.html) [13](simul.html) [14](simul.html) [15](simul.html) [16](simul.html) [17](simul.html) [18](simul.html) [19](simul.html) [20](simul.html) [21](simul.html) [next](simul.html) [all](simul.html)  
+You can bookmark [this link](simul.html) to save the respective query.
 
-Main page
+[Main page](simul.html)
 
-| File-spanning Writable Identifiers Matching Identifiers |
-| --- |
+```
+File-spanning Writable Identifiers Matching Identifiers
+```
 
 You can therefore use your browser's bookmark facility to ``store'' such
 queries for future use, or pass the URL around so that others can reproduce

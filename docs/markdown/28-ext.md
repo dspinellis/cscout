@@ -39,8 +39,10 @@ identifiers should not be reported as unused (GCC).
 1. Allow braces around scalar initializers (common extension).
 
 1.  Indirect `goto` targets and the label address-of operator (GCC).
-1.  `__typeof` keyword (GCC)
-1.  `__typeof__unqual__` keyword (GCC)
+1.  `typeof` (C23) and `__typeof`, `__typeof__` keywords (GCC)
+1.  `typeof_unqual` (C23) and `__typeof_unqual__` keyword (GCC)
+1.  `constexpr` storage class specifier (C23)
+1.  `nullptr` null pointer literal (C23)
 1.  The ‘##’ token paste operator deletes the comma when placed between a comma and an empty variable argument (GCC)
 1.  `__VA_OPT__ ` function macro (C23)
 1.  `auto` (C23) and `__auto_type` (GCC)

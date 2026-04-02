@@ -14,9 +14,9 @@ the following form.
 Query title 
   
 
-Main page
- — Web: Home
-Manual
+[Main page](simul.html)
+ — Web: [Home](simul.html)
+[Manual](simul.html)
   
 
 ---
@@ -76,7 +76,7 @@ the `copyright` and `rcsid` identifiers:
 Query title 
   
 
-Main page
+[Main page](simul.html)
   
 
 ---

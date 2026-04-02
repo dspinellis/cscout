@@ -21,21 +21,16 @@ It provides a flexible way to select parts of the *CScout* processing
 script based on files or projects.
 
 The following options are available:
-
-**-b**  
+**-b**
 Output from the file's beginning until the specified point.
-
-**-e**  
+**-e**
 Output from the specified point to the end of the file.
-
-**-F \fIfile-list**  
+**-F \fIfile-list**
 Output a script to process only the files specified in *file-list*,
 where *file-list* is a file containing a list of filenames.
-
-**-f \fIfile**  
+**-f \fIfile**
 Output a script to process only the specified *file*.
-
-**-p \fIproject**  
+**-p \fIproject**
 Output a script to process only the specified *project*.
 
 The last argument, *cscout-file*, specifies the *CScout*
@@ -86,7 +81,7 @@ cscut -f /home/dds/src/linux/fs/ocfs2/export.c linux.cs >ocfs2-export.cs
 .DE
 
 
-## See also
+## See Also
 
 cscout(1),
 cssplit(1),

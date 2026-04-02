@@ -54,9 +54,9 @@ File names should ( not)
 Query title 
   
 
-Main page
- — Web: Home
-Manual
+[Main page](simul.html)
+ — Web: [Home](simul.html)
+[Manual](simul.html)
   
 
 ---

@@ -96,7 +96,7 @@ csmerge 64 ../merged.db
 .fi
 .ft P
 
-## See also
+## See Also
 
 *cscout*(1),
 *cssplit*(1),
