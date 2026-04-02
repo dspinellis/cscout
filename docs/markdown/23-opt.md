@@ -38,10 +38,10 @@ The global options link leads you to the following page.
 | Editing |
 | External editor invocation command |  |
 
-[Main page](simul.md)
- — Web: [Home](simul.md)
+Main page
+ — Web: Home
 
-[Manual](simul.md)
+Manual
   
 
 ---
@@ -93,7 +93,7 @@ Setting the option ``show only true identifier classes (brief view)''
 will remove from each identifier page all identifier properties
 marked as no, resulting in a less verbose page.
 
-[cp.c](simul.md)[marked source](simul.md)
+cp.cmarked source
 
 | Directory | File |
 | --- | --- |
@@ -101,16 +101,16 @@ marked as no, resulting in a less verbose page.
 
 ### Dependent Files (All)
 
-[cp.c](simul.md)[marked source](simul.md)
+cp.cmarked source
 
 | Directory | File |
 | --- | --- |
 | /vol/src/bin/cp/ |  |  |
 
-[Main page](simul.md)
- - Web: [Home](simul.md)
+Main page
+ - Web: Home
 
-[Manual](simul.md)
+Manual
   
 
 ---
@@ -226,73 +226,73 @@ will result in file lists showing the file name (the last component
 of the complete path) in the same position,
 as in the following example:
 
-[ctype.h](simul.md)
+ctype.h
 
-[err.h](simul.md)
+err.h
 
-[errno.h](simul.md)
+errno.h
 
-[fcntl.h](simul.md)
+fcntl.h
 
-[fts.h](simul.md)
+fts.h
 
-[limits.h](simul.md)
+limits.h
 
-[locale.h](simul.md)
+locale.h
 
-[ansi.h](simul.md)
+ansi.h
 
-[endian.h](simul.md)
+endian.h
 
-[limits.h](simul.md)
+limits.h
 
-[param.h](simul.md)
+param.h
 
-[signal.h](simul.md)
+signal.h
 
-[trap.h](simul.md)
+trap.h
 
-[types.h](simul.md)
+types.h
 
-[ucontext.h](simul.md)
+ucontext.h
 
-[runetype.h](simul.md)
+runetype.h
 
-[stdio.h](simul.md)
+stdio.h
 
-[stdlib.h](simul.md)
+stdlib.h
 
-[string.h](simul.md)
+string.h
 
-[_posix.h](simul.md)
+_posix.h
 
-[cdefs.h](simul.md)
+cdefs.h
 
-[inttypes.h](simul.md)
+inttypes.h
 
-[param.h](simul.md)
+param.h
 
-[signal.h](simul.md)
+signal.h
 
-[stat.h](simul.md)
+stat.h
 
-[syslimits.h](simul.md)
+syslimits.h
 
-[time.h](simul.md)
+time.h
 
-[types.h](simul.md)
+types.h
 
-[ucontext.h](simul.md)
+ucontext.h
 
-[unistd.h](simul.md)
+unistd.h
 
-[sysexits.h](simul.md)
+sysexits.h
 
-[syslog.h](simul.md)
+syslog.h
 
-[time.h](simul.md)
+time.h
 
-[unistd.h](simul.md)
+unistd.h
 
 | Directory | File |
 | --- | --- |
@@ -333,7 +333,7 @@ as in the following example:
 
 You can bookmark this page to save the respective query
 
-[Main page](simul.md)
+Main page
 
 | Directory | File |
 | --- | --- |
@@ -385,123 +385,123 @@ The following list contains our example's typedefs ordered by the last
 character, making it easy to distinguish typedefs not ending
 in `_t`
 
-[FILE](simul.md)  
+FILE  
 
-[FTS](simul.md)  
+FTS  
 
-[FTSENT](simul.md)  
+FTSENT  
 
-[PATH_T](simul.md)  
+PATH_T  
 
-[_RuneRange](simul.md)  
+_RuneRange  
 
-[_RuneLocale](simul.md)  
+_RuneLocale  
 
-[u_long](simul.md)  
+u_long  
 
-[fd_mask](simul.md)  
+fd_mask  
 
-[u_char](simul.md)  
+u_char  
 
-[physadr](simul.md)  
+physadr  
 
-[int32_t](simul.md)  
+int32_t  
 
-[__int32_t](simul.md)  
+__int32_t  
 
-[u_int32_t](simul.md)  
+u_int32_t  
 
-[uint32_t](simul.md)  
+uint32_t  
 
-[__uint32_t](simul.md)  
+__uint32_t  
 
-[inthand2_t](simul.md)  
+inthand2_t  
 
-[ointhand2_t](simul.md)  
+ointhand2_t  
 
-[int64_t](simul.md)  
+int64_t  
 
 [... 40 lines removed]  
 
-[in_addr_t](simul.md)  
+in_addr_t  
 
-[caddr_t](simul.md)  
+caddr_t  
 
-[c_caddr_t](simul.md)  
+c_caddr_t  
 
-[v_caddr_t](simul.md)  
+v_caddr_t  
 
-[daddr_t](simul.md)  
+daddr_t  
 
-[ufs_daddr_t](simul.md)  
+ufs_daddr_t  
 
-[u_daddr_t](simul.md)  
+u_daddr_t  
 
-[qaddr_t](simul.md)  
+qaddr_t  
 
-[__sighandler_t](simul.md)  
+__sighandler_t  
 
-[__siginfohandler_t](simul.md)  
+__siginfohandler_t  
 
-[timer_t](simul.md)  
+timer_t  
 
-[register_t](simul.md)  
+register_t  
 
-[u_register_t](simul.md)  
+u_register_t  
 
-[intptr_t](simul.md)  
+intptr_t  
 
-[__intptr_t](simul.md)  
+__intptr_t  
 
-[uintptr_t](simul.md)  
+uintptr_t  
 
-[__uintptr_t](simul.md)  
+__uintptr_t  
 
-[fpos_t](simul.md)  
+fpos_t  
 
-[timecounter_pps_t](simul.md)  
+timecounter_pps_t  
 
-[timecounter_get_t](simul.md)  
+timecounter_get_t  
 
-[vm_offset_t](simul.md)  
+vm_offset_t  
 
-[vm_ooffset_t](simul.md)  
+vm_ooffset_t  
 
-[sigset_t](simul.md)  
+sigset_t  
 
-[osigset_t](simul.md)  
+osigset_t  
 
-[fixpt_t](simul.md)  
+fixpt_t  
 
-[in_port_t](simul.md)  
+in_port_t  
 
-[mcontext_t](simul.md)  
+mcontext_t  
 
-[ucontext_t](simul.md)  
+ucontext_t  
 
-[dev_t](simul.md)  
+dev_t  
 
-[div_t](simul.md)  
+div_t  
 
-[ldiv_t](simul.md)  
+ldiv_t  
 
-[vm_pindex_t](simul.md)  
+vm_pindex_t  
 
-[key_t](simul.md)  
+key_t  
 
-[segsz_t](simul.md)  
+segsz_t  
 
-[fd_set](simul.md)  
+fd_set  
 
-[u_int](simul.md)  
+u_int  
 
-[uint](simul.md)  
+uint  
 
-[u_short](simul.md)  
+u_short  
 
-[ushort](simul.md)  
+ushort  
 
-[_RuneEntry](simul.md)  
+_RuneEntry  
 
  
 |  |  |

@@ -110,10 +110,10 @@ If we decide to change one instance of the `foo` identifier,
 *CScout* will change all the instances marked below,
 in order to obtain a program that has the same meaning as the original
 one.
-[foo](simul.md) {
+foo {
   
 
-<a id="2"></a>        int [foo](simul.md);
+<a id="2"></a>        int foo;
 
   
 
@@ -126,7 +126,7 @@ one.
 <a id="5"></a>struct bar {
   
 
-<a id="6"></a>        int [foo](simul.md);
+<a id="6"></a>        int foo;
   
 
 <a id="7"></a>};
@@ -138,7 +138,7 @@ one.
 <a id="9"></a>#define getpart(tag, name) (((struct tag *)p)->name)
   
 
-<a id="10"></a>#define getfoo(var) (var.[foo](simul.md))
+<a id="10"></a>#define getfoo(var) (var.foo)
   
 
 <a id="11"></a>#define get(name) (name(0) + ((struct name *)p)->name)
@@ -154,14 +154,14 @@ one.
 <a id="14"></a>int
   
 
-<a id="15"></a>[foo](simul.md)(void *p)
+<a id="15"></a>foo(void *p)
 
   
 
 <a id="16"></a>{
   
 
-<a id="17"></a>        struct [foo](simul.md) f;
+<a id="17"></a>        struct foo f;
   
 
 <a id="18"></a>        struct bar b;
@@ -170,27 +170,27 @@ one.
 <a id="19"></a>
   
 
-<a id="20"></a>[foo](simul.md):
+<a id="20"></a>foo:
   
 
-<a id="21"></a>        if (p && getpart([foo](simul.md), [foo](simul.md)))
+<a id="21"></a>        if (p && getpart(foo, foo))
 
   
 
-<a id="22"></a>                return getpart(bar, [foo](simul.md));
+<a id="22"></a>                return getpart(bar, foo);
   
 
 <a id="23"></a>        else if (getfoo(f))
   
 
-<a id="24"></a>                return get([foo](simul.md));
+<a id="24"></a>                return get(foo);
   
 
 <a id="25"></a>        else if (getfoo(b))
 
   
 
-<a id="26"></a>                conditional([foo](simul.md));
+<a id="26"></a>                conditional(foo);
   
 
 <a id="27"></a>        else
@@ -246,26 +246,26 @@ For instance,
 the page for the `_` (underscore) identifier in the
 `typefun` macro example we saw earlier
 will appear as follows.
-[int](simul.md)][[_](simul.md)][[add](simul.md)] - [function page](simul.md)
+int][_][add] - function page
 
-  1. [[int](simul.md)][[_](simul.md)][[sub](simul.md)] - [function page](simul.md)
-  1. [[int](simul.md)][[_](simul.md)][[mul](simul.md)] - [function page](simul.md)
+  1. [int][_][sub] - function page
+  1. [int][_][mul] - function page
 
-  1. [[int](simul.md)][[_](simul.md)][[div](simul.md)] - [function page](simul.md)
-  1. [[double](simul.md)][[_](simul.md)][[add](simul.md)] - [function page](simul.md)
+  1. [int][_][div] - function page
+  1. [double][_][add] - function page
 
-  1. [[double](simul.md)][[_](simul.md)][[sub](simul.md)] - [function page](simul.md)
-  1. [[double](simul.md)][[_](simul.md)][[mul](simul.md)] - [function page](simul.md)
+  1. [double][_][sub] - function page
+  1. [double][_][mul] - function page
 
-  1. [[double](simul.md)][[_](simul.md)][[div](simul.md)] - [function page](simul.md)
+  1. [double][_][div] - function page
   
 
 1.  Substitute with: 
  
 
-[Main page](simul.md)
- - Web: [Home](simul.md)
-[Manual](simul.md)
+Main page
+ - Web: Home
+Manual
   
 
 ---

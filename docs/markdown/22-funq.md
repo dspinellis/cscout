@@ -84,10 +84,10 @@ Exact match
 Query title 
   
 
-[Main page](simul.md)
- — Web: [Home](simul.md)
+Main page
+ — Web: Home
 
-[Manual](simul.md)
+Manual
   
 
 ---

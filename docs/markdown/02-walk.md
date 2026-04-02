@@ -114,69 +114,69 @@ specify.
 Our browser will show us a page like the following:
   
 
-[File metrics](simul.md)
+File metrics
 
 - 
-[Browse file tree](simul.md)  
--  [All files](simul.md)
--  [Read-only files](simul.md)
--  [Writable files](simul.md)
--  [Files containing unused project-scoped writable identifiers](simul.md)
--  [Files containing unused file-scoped writable identifiers](simul.md)
+Browse file tree  
+-  All files
+-  Read-only files
+-  Writable files
+-  Files containing unused project-scoped writable identifiers
+-  Files containing unused file-scoped writable identifiers
 
--  [Writable .c files without any statements](simul.md)
--  [Writable files containing unprocessed lines](simul.md)
--  [Writable files containing strings](simul.md)
--  [Writable .h files with #include directives](simul.md)
--  [Specify new file query](simul.md)
+-  Writable .c files without any statements
+-  Writable files containing unprocessed lines
+-  Writable files containing strings
+-  Writable .h files with #include directives
+-  Specify new file query
 
 ### File Dependencies
 
--  File include graph: [writable files](simul.md), [all files](simul.md)-  Compile-time dependency graph: [writable files](simul.md), [all files](simul.md)-  Control dependency graph (through function calls): [writable files](simul.md), [all files](simul.md)-  Data dependency graph (through global variables): [writable files](simul.md), [all files](simul.md)
+-  File include graph: writable files, all files-  Compile-time dependency graph: writable files, all files-  Control dependency graph (through function calls): writable files, all files-  Data dependency graph (through global variables): writable files, all files
 
 ### Functions and Macros
 
--  [Function metrics](simul.md)
--  [All functions](simul.md)
--  [Non-static function call graph](simul.md)-  [Function and macro call graph](simul.md)-  [Project-scoped writable functions](simul.md)
--  [File-scoped writable functions](simul.md)
+-  Function metrics
+-  All functions
+-  Non-static function call graph-  Function and macro call graph-  Project-scoped writable functions
+-  File-scoped writable functions
 
--  [Writable functions that are not directly called](simul.md)
--  [Writable functions that are called exactly once](simul.md)
--  [Specify new function query](simul.md)
+-  Writable functions that are not directly called
+-  Writable functions that are called exactly once
+-  Specify new function query
 
-[Identifier metrics](simul.md)
+Identifier metrics
 
--  [All identifiers](simul.md)
--  [Read-only identifiers](simul.md)
--  [Writable identifiers](simul.md)
--  [File-spanning writable identifiers](simul.md)
--  [Unused project-scoped writable identifiers](simul.md)
--  [Unused file-scoped writable identifiers](simul.md)
+-  All identifiers
+-  Read-only identifiers
+-  Writable identifiers
+-  File-spanning writable identifiers
+-  Unused project-scoped writable identifiers
+-  Unused file-scoped writable identifiers
 
--  [Unused writable macros](simul.md)
--  [Writable variable identifiers that should be made static](simul.md)
--  [Writable function identifiers that should be made static](simul.md)
--  [Specify new identifier query](simul.md)
+-  Unused writable macros
+-  Writable variable identifiers that should be made static
+-  Writable function identifiers that should be made static
+-  Specify new identifier query
 
 ### Operations
 
--  [Global options](simul.md)
+-  Global options
 
- — [save global options](simul.md)
--  [Identifier replacements](simul.md)
--  [Select active project](simul.md)
--  [Save changes and continue](simul.md)
--  [Exit — saving changes](simul.md)
+ — save global options
+-  Identifier replacements
+-  Select active project
+-  Save changes and continue
+-  Exit — saving changes
 
--  [Exit — ignore changes](simul.md)
+-  Exit — ignore changes
 
 | Files | Identifiers |
 | --- | --- |
 
-[Main page](simul.md)
- — Web: [Home](simul.md)
-[Manual](simul.md)
+Main page
+ — Web: Home
+Manual
   
 
 ---
@@ -195,98 +195,7 @@ By navigating through the links
 *idtest.c*, and
 *Source code with identifier hyperlinks* we can see the
 source code with each recognised identifier marked as a hyperlink:
-[getval](simul.md)([x](simul.md)) (([x](simul.md)).[val](simul.md))
-  
-
-  
-
-struct [number](simul.md) {
-  
-
-        int [id](simul.md);
-  
-
-        double [val](simul.md);
-  
-
-} [n](simul.md);
-  
-
-  
-
-struct [character](simul.md) {
-  
-
-        int [id](simul.md);
-  
-
-        char [val](simul.md);
-  
-
-} [c](simul.md);
-  
-
-  
-
-static int [val](simul.md);
-  
-
-  
-
-[main](simul.md)(int [argc](simul.md), char *[argv](simul.md)[])
-  
-
-{
-  
-
-        int [val](simul.md);
-  
-
-  
-
-        if ([argc](simul.md) > 2)
-  
-
-                goto [val](simul.md);
-  
-
-        return [getval](simul.md)([n](simul.md)) + [getval](simul.md)([c](simul.md));
-  
-
-        [val](simul.md): return 0;
-  
-
-}
-  
-
----
-`
-
-[Main page](simul.md)
-
-| Source Code With Identifier Hyperlinks: your_path/idtest.c (Use the tab key to move to each marked element.)#define |
-| --- |
-
-Clicking on the first identifier `val` (in the macro definition)
-we are taken to a page specifying the identifier's details.
-There we can specify the identifier's new name, e.g. `value`.
-[your_path/idtest.c](simul.md) - [marked source](simul.md)
-
-### Dependent Files (All)
-
-- [your_path/idtest.c](simul.md) - [marked source](simul.md)
-
-[Main page](simul.md)
-
-| Identifier: val   Read-only: No Tag for struct/union/enum: No Member of struct/union: Yes Label: No Ordinary identifier: No Macro: No Undefined macro: No Macro argument: No File scope: No Project scope: No Typedef: No Crosses file boundary: No Unused: No  Matches 3 occurence(s)  Appears in project(s):   idtest   Substitute with:      Dependent Files (Writable) |
-| --- |
-
-Clicking on the *marked source* hyperlink,
-*CScout* will show us again the corresponding source
-code, but with only the identifiers `val` matches marked as
-hyperlinks:
-
-[val](simul.md))
+getval(x) ((x).val)
   
 
   
@@ -297,7 +206,7 @@ struct number {
         int id;
   
 
-        double [val](simul.md);
+        double val;
   
 
 } n;
@@ -311,7 +220,7 @@ struct character {
         int id;
   
 
-        char [val](simul.md);
+        char val;
   
 
 } c;
@@ -353,7 +262,98 @@ main(int argc, char *argv[])
 ---
 `
 
-[Main page](simul.md)
+Main page
+
+| Source Code With Identifier Hyperlinks: your_path/idtest.c (Use the tab key to move to each marked element.)#define |
+| --- |
+
+Clicking on the first identifier `val` (in the macro definition)
+we are taken to a page specifying the identifier's details.
+There we can specify the identifier's new name, e.g. `value`.
+your_path/idtest.c - marked source
+
+### Dependent Files (All)
+
+- your_path/idtest.c - marked source
+
+Main page
+
+| Identifier: val   Read-only: No Tag for struct/union/enum: No Member of struct/union: Yes Label: No Ordinary identifier: No Macro: No Undefined macro: No Macro argument: No File scope: No Project scope: No Typedef: No Crosses file boundary: No Unused: No  Matches 3 occurence(s)  Appears in project(s):   idtest   Substitute with:      Dependent Files (Writable) |
+| --- |
+
+Clicking on the *marked source* hyperlink,
+*CScout* will show us again the corresponding source
+code, but with only the identifiers `val` matches marked as
+hyperlinks:
+
+val)
+  
+
+  
+
+struct number {
+  
+
+        int id;
+  
+
+        double val;
+  
+
+} n;
+  
+
+  
+
+struct character {
+  
+
+        int id;
+  
+
+        char val;
+  
+
+} c;
+  
+
+  
+
+static int val;
+  
+
+  
+
+main(int argc, char *argv[])
+  
+
+{
+  
+
+        int val;
+  
+
+  
+
+        if (argc > 2)
+  
+
+                goto val;
+  
+
+        return getval(n) + getval(c);
+  
+
+        val: return 0;
+  
+
+}
+  
+
+---
+`
+
+Main page
 
 | Identifier val: C:\dds\src\Research\cscout\refactor\idtest.c (Use the tab key to move to each marked element.)#define getval(x) ((x). |
 | --- |

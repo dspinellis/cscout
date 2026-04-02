@@ -54,9 +54,9 @@ File names should ( not)
 Query title 
   
 
-[Main page](simul.md)
- — Web: [Home](simul.md)
-[Manual](simul.md)
+Main page
+ — Web: Home
+Manual
   
 
 ---

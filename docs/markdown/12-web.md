@@ -18,19 +18,19 @@ On the other hand, the pages containing results of identifier, function, or
 file queries can be freely bookmarked and are identified with a comment
 specifying the fact and a corresponding link.
 
-[ADD](simul.md)  
+ADD  
 
 ...  
 
-[BTRUE](simul.md)  
+BTRUE  
 
-[CALL](simul.md)  
+CALL  
 
 Elements 1 to 20 of 416.  
-Select page: 1 [2](simul.md) [3](simul.md) [4](simul.md) [5](simul.md) [6](simul.md) [7](simul.md) [8](simul.md) [9](simul.md) [10](simul.md) [11](simul.md) [12](simul.md) [13](simul.md) [14](simul.md) [15](simul.md) [16](simul.md) [17](simul.md) [18](simul.md) [19](simul.md) [20](simul.md) [21](simul.md) [next](simul.md) [all](simul.md)  
-You can bookmark [this link](simul.md) to save the respective query.
+Select page: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 next all  
+You can bookmark this link to save the respective query.
 
-[Main page](simul.md)
+Main page
 
 | File-spanning Writable Identifiers Matching Identifiers |
 | --- |
