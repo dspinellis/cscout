@@ -38,6 +38,15 @@ char unescape_char(const string& s, string::const_iterator& si);
 
 typedef map<string, int> mapKeyword;
 
+// Returns true if endptr points to an integer suffix or end of string,
+// meaning the PP_NUMBER token is an integer constant, not a float.
+inline bool
+is_int_suffix(const char *endptr)
+{
+    return (*endptr == 0 || *endptr == 'l' || *endptr == 'L' ||
+            *endptr == 'u' || *endptr == 'U');
+}
+
 class Ctoken: public Token {
 private:
 	static mapKeyword keywords;

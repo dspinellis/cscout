@@ -303,8 +303,7 @@ again:
 
 			num = s.c_str();
 			eval_lval.v.u = strtoul(num, &endptr, 0);
-			if (*endptr == 0 || *endptr == 'l' || *endptr =='L' ||
-			    *endptr == 'u' || *endptr == 'U') {
+			if (is_int_suffix(endptr)) {
 				eval_lval.su = e_signed;
 				for (; *endptr; endptr++)
 					if (*endptr == 'u' || *endptr == 'U')

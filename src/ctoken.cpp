@@ -304,25 +304,25 @@ again:
 			continue;
 		case PP_NUMBER:
 			/* We need the value in the $x yacc variables */
-			if (Fchar::is_yacc_file())
+			if (Fchar::is_yacc_file()) {
 				parse_lval.t = identifier(t);
-			else {
+				return (INT_CONST);
+			} else {
 				const char *num;
 				char *endptr;
 				string s(t.get_val());
 				num = s.c_str();
-				/*
-				 * Could be more clever here and set
-				 * signed/unsigned based on *endptr,
-				 * but it is not worth the trouble.
-				 * Search fo PP_NUMBER in pdtoken.cpp
-				 * to see how this is done.
-				 */
-				parse_lval.t = basic(b_int);
-				parse_lval.t.set_value(strtoul(num, &endptr, 0));
+
+				unsigned long val = strtoul(num, &endptr, 0);
+				if (is_int_suffix(endptr)) {
+					parse_lval.t = basic(b_int);
+					parse_lval.t.set_value(val);
+					return (INT_CONST);
+				} else {
+					parse_lval.t = basic(b_float);
+					return (FLOAT_CONST);
+				}
 			}
-			// XXX Could also be invalid, or FLOAT_CONST
-			return (INT_CONST);
 		case IDENTIFIER:
 			if (DP()) cout << "id: [" << t.get_val() << "]\n";
 			parse_lval.t = identifier(t);
