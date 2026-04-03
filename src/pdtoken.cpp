@@ -1304,6 +1304,7 @@ Pdtoken::process_pragma()
 	else if (t.get_val() == "block_exit")
 		Block::exit();
 	else if (t.get_val() == "define_immutable") {
+		// Define a macro that cannot be redefined or undefined
 		process_define(true);
 		return;
 	} else if (t.get_val() == "set_dp") {
