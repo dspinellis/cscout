@@ -2501,6 +2501,7 @@ produce_call_graphs(const vector <string> &call_graphs)
 			cerr << url << "is not a valid url" << endl;
 			continue;
 		}
+
 		FILE *target = fopen(split_base_and_opts[0].c_str() , "w+");
 		string base = split_base_and_opts[0];
 		GDTxt gd(target);
