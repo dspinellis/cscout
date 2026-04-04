@@ -154,6 +154,9 @@ make_keymap()
 	/* C11 */
 	m["_Thread_local"] = THREAD_LOCAL;
 	m["_Generic"] = GENERIC;
+	m["_Alignas"] = ALIGNAS;
+	m["_Noreturn"] = NORETURN;
+	m["_Static_assert"] = STATIC_ASSERT;
 
 	/* Microsoft */
 	m["_asm"] = MSC_ASM;
