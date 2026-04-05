@@ -1,0 +1,64 @@
+site_name: CScout Documentation
+site_description: Source code analyzer and refactoring browser for C programs
+site_url: https://www.spinellis.gr/cscout/
+
+docs_dir: markdown
+site_dir: ../doc/html
+
+nav:
+  - Home: README.md
+  - Introduction: 01-intro.md
+  - Walkthrough: 02-walk.md
+  - Installation and Setup: 03-setup.md
+  - Workflow: 04-flow.md
+  - Defining Workspaces: 05-wsp.md
+  - Workspace Definition Details: 06-wspd.md
+  - Automated Script Generation: 07-csmake.md
+  - Tailoring the Build Process: 08-pragma.md
+  - Troubleshooting: 09-csdebug.md
+  - CScout Execution: 10-run.md
+  - Basic Concepts: 11-concept.md
+  - The Web Interface: 12-web.md
+  - File Elements: 13-file.md
+  - Generic File Queries: 14-fileq.md
+  - Include Graphs: 15-ig.md
+  - C Namespaces: 16-name.md
+  - Identifier Elements: 17-id.md
+  - Generic Identifier Queries: 18-idq.md
+  - Function Elements: 19-fun.md
+  - Refactoring Function Arguments: 20-funarg.md
+  - Call Graphs: 21-cg.md
+  - Generic Function Queries: 22-funq.md
+  - Global Options: 23-opt.md
+  - Option Files: 24-optf.md
+  - Operations: 25-op.md
+  - Hand-Editing: 26-hedit.md
+  - Version Management: 27-cvs.md
+  - Language Extensions: 28-ext.md
+  - Processing Yacc Files: 29-yacc.md
+  - Regular Expression Syntax: 30-re.md
+  - Access Control: 31-access.md
+  - Obfuscation Back-end: 32-obf.md
+  - SQL Back-end: 33-sql.md
+  - Database Schema: 34-dbschema.md
+  - SQL Query Examples: 35-qeg.md
+  - Source Code Reconstitution: 36-reconst.md
+  - Collected Metrics: 37-metrics.md
+  - Shortcomings: 38-short.md
+  - Error Messages: 39-error.md
+  - License: 40-license.md
+  - FAQ: 41-faq.md
+  - Man Pages:
+    - cscc: 42-mancscc.md
+    - cscout: 43-mancscout.md
+    - cscut: 44-mancscut.md
+    - csmake: 45-mancsmake.md
+    - csreconst: 46-mancsreconst.md
+    - cssplit: 47-mancssplit.md
+    - csmerge: 48-mancsmerge.md
+    - cswc: 49-mancswc.md
+  - Bibliography: 50-bib.md
+  - Change History: 51-change.md
+
+theme:
+  name: readthedocs
