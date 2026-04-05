@@ -25,6 +25,7 @@
 #define FILEQUERY_
 
 #include <string>
+#include <functional>
 
 using namespace std;
 
@@ -96,6 +97,24 @@ public:
 	int get_sort_order() const { return mquery.get_sort_order(); }
 	// Return true if the query's URL can be bookmarked across CScout invocations
 	bool bookmarkable() const { return true; }
+
+	// Modern C++11 comparator type using std::function
+	using FileComparator = std::function<bool(const Fileid &, const Fileid &)>;
+
+	// Returns a comparator capturing the current sort order
+	FileComparator get_comparator() const {
+		int o = mquery.get_sort_order();
+		bool r = mquery.get_reverse();
+		return [o, r](const Fileid &a, const Fileid &b) {
+			bool val;
+			if (o == -1)
+				val = (a.get_path() < b.get_path());
+			else
+				val = (Filedetails::get_pre_cpp_const_metrics(a).get_metric(o) <
+					Filedetails::get_pre_cpp_const_metrics(b).get_metric(o));
+			return r ? !val : val;
+		};
+	}
 };
 
 #endif // FILEQUERY_

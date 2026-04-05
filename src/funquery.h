@@ -25,6 +25,7 @@
 #define FUNQUERY_
 
 #include <string>
+#include <functional>
 
 using namespace std;
 
@@ -122,8 +123,26 @@ public:
 	int get_sort_order() const { return mquery.get_sort_order(); }
 	// Return true if the query's URL can be bookmarked across CScout invocations
 	bool bookmarkable() const { return id_ec == NULL; }
+
+	// Modern C++11 comparator type using std::function
+	using FunComparator = std::function<bool(const Call *, const Call *)>;
+
+	// Returns a comparator capturing the current sort order
+	FunComparator get_comparator() const {
+		int o = mquery.get_sort_order();
+		bool r = mquery.get_reverse();
+		return [o, r](const Call *a, const Call *b) {
+			bool val;
+			if (o == -1)
+				val = Query::string_bi_compare(a->get_name(), b->get_name());
+			else
+				val = (a->get_pre_cpp_const_metrics().get_metric(o) <
+					b->get_pre_cpp_const_metrics().get_metric(o));
+			return r ? !val : val;
+		};
+	}
 };
 
-typedef multiset <const Call *, FunQuery::specified_order> Sfuns;
+typedef multiset <const Call *, FunQuery::FunComparator> Sfuns;
 
 #endif // FUNQUERY_
