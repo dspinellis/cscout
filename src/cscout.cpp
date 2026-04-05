@@ -1051,7 +1051,7 @@ xfilequery_page(FILE *of,  void *)
 	if (!query.is_valid())
 		return 0;
 
-	multiset <Fileid, FileQuery::specified_order> sorted_files;
+	multiset <Fileid, FileQuery::FileComparator> sorted_files(query.get_comparator());
 
 	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
 
@@ -1066,7 +1066,7 @@ xfilequery_page(FILE *of,  void *)
 		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
 	Pager pager(of, Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
 	html_file_set_begin(of);
-	for (multiset <Fileid, FileQuery::specified_order>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+	for (multiset <Fileid, FileQuery::FileComparator>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
 		Fileid f = *i;
 		if (current_project && !Filedetails::get_attribute(f, current_project))
 			continue;
@@ -1346,7 +1346,9 @@ xiquery_page(FILE *of,  void *)
 		display_files(of, query, sorted_files);
 	if (q_fun) {
 		fputs("<h2>Matching Functions</h2>\n", of);
-		Sfuns sorted_funs;
+		Sfuns sorted_funs([](const Call *a, const Call *b) {
+			return Query::string_bi_compare(a->get_name(), b->get_name());
+		});
 		sorted_funs.insert(funs.begin(), funs.end());
 		display_sorted(of, query, sorted_funs);
 	}
@@ -1363,12 +1365,12 @@ xfunquery_page(FILE *of,  void *)
 	prohibit_remote_access(of);
 	Timer timer;
 
-	Sfuns sorted_funs;
 	IFSet sorted_files;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	char *qname = swill_getvar("n");
 	FunQuery query(of, Option::file_icase->get(), current_project);
+	Sfuns sorted_funs(query.get_comparator());
 
 	if (!query.is_valid())
 		return 0;

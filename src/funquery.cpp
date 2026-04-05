@@ -71,9 +71,6 @@
 #include "mquery.h"
 #include "funquery.h"
 
-int FunQuery::specified_order::order;
-bool FunQuery::specified_order::reverse;
-
 // Construct an object based on URL parameters
 FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool r) :
 	Query(!e, r, true),
@@ -141,7 +138,6 @@ FunQuery::FunQuery(FILE *of, bool icase, Attributes::size_type cp, bool e, bool 
 	    !compile_re(of, "Called function name", "fdre", fdre, match_fdre, str_fdre) ||
 	    !compile_re(of, "Filename", "fre", fre, match_fre, str_fre, (icase ? REG_ICASE : 0)))
 	    	return;
-	specified_order::set_order(mquery.get_sort_order(), mquery.get_reverse());
 }
 
 // Return the URL for re-executing this query
