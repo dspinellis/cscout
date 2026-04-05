@@ -37,6 +37,7 @@
 %token DO              IF              STATIC          WHILE
 %token RESTRICT        INLINE	       BOOL	       THREAD_LOCAL
 %token GENERIC	       COMPLEX         IMAGINARY
+%token NORETURN        STATIC_ASSERT
 
 /* ANSI Grammar suggestions */
 %token IDENTIFIER         STRING_LITERAL
@@ -78,6 +79,8 @@
 %token TYPEOF_UNQUAL
 /* __alignof operator */
 %token ALIGNOF
+/* _Alignas alignment specifier (C11) */
+%token ALIGNAS
 /* __label__ declaration */
 %token LABEL
 /* __builtin_choose_expr */

@@ -248,6 +248,7 @@ yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 %type <t> member_default_declaring_list
 %type <t> member_declaring_list
 %type <t> member_declarator
+%type <t> static_assert_declaration
 %type <t> member_identifier_declarator
 %type <t> elaborated_type_name
 %type <t> aggregate_name
@@ -935,6 +936,13 @@ declaration:
 	| label_declaring_list ';'
         ;
 
+static_assert_declaration:
+	STATIC_ASSERT '(' constant_expression ',' string_literal_list ')' ';'
+		{ $$ = basic(b_undeclared); }
+	| STATIC_ASSERT '(' constant_expression ')' ';'
+		{ $$ = basic(b_undeclared); }
+	;
+
     /* Note that if a typedef were  redeclared,  then  a  declaration
     specifier must be supplied */
 
@@ -1064,6 +1072,8 @@ simple_type_qualifier:
         | IMAGINARY   { $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_imaginary);  }
         | SIMD   { $$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_simd);  }
 	| attribute
+	| ALIGNAS '(' typeof_argument ')'
+		{ $$ = basic(); }
         ;
 
 type_qualifier:
@@ -1073,6 +1083,7 @@ type_qualifier:
 
 function_specifier:
 	INLINE		{ $$ = basic(); }
+	| NORETURN	{ $$ = basic(); }
 	;
 
 basic_declaration_specifier:      /* Storage Class+Arithmetic or void */
@@ -1306,7 +1317,7 @@ member_declaration:
 		{ $$ = $1; }
 	| ';'
 		{ $$ = basic(b_undeclared); }
-        ;
+	;
 
 member_default_declaring_list:        /* doesn't redeclare typedef */
 	/* volatile @ a[3] */
@@ -1868,6 +1879,8 @@ statement_or_declaration:
 		[ YYVALID; $$ = basic(b_void); ]
 	| statement
 		[ YYVALID; $$ = $1; ]
+	| static_assert_declaration
+		[ YYVALID; $$ = basic(b_void); ]
 	;
 
 statement_list:
@@ -2014,6 +2027,8 @@ external_definition:
 			[ YYVALID; Block::param_clear(); ]
 	| assembly_statement
 	| ';'		/* Common extension - I believe */
+	| static_assert_declaration
+			[ YYVALID; Block::param_clear(); ]
         ;
 
 function_definition:

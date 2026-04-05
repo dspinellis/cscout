@@ -1,0 +1,18 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c69-c11-specifiers.c
+Done processing file c69-c11-specifiers.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c69-c11-specifiers.c
+Done processing file c69-c11-specifiers.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Processing identifiers
+4%9%13%18%22%27%31%36%40%45%50%54%59%63%68%72%77%81%86%90%95%100%
