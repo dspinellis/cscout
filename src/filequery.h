@@ -55,31 +55,6 @@ private:
 	MQuery<FileMetrics, Fileid &> mquery;
 
 public:
-	// Container comparison functor
-	class specified_order {
-	private:
-		/*
-		 * Can only be an instance variable (per C++ PL 17.1.4.5)
-		 * only when the corresponding constructor is passed a
-		 * compile-time constant.
-		 * This hack works around the limitation.
-		 */
-		static int order;
-		static bool reverse;
-	public:
-		// Should be called exactly once before instantiating the set
-		static void set_order(int o, bool r) { order = o; reverse = r; }
-		bool operator()(const Fileid &a, const Fileid &b) const {
-			bool val;
-			if (order == -1)
-				// Order by name
-				val = (a.get_path() < b.get_path());
-			else
-				val = (Filedetails::get_pre_cpp_const_metrics(a).get_metric(order) < Filedetails::get_pre_cpp_const_metrics(b).get_metric(order));
-			return reverse ? !val : val;
-		}
-	};
-
 	// Construct object based on URL parameters
 	FileQuery(FILE *f, bool icase, Attributes::size_type current_project, bool e = true, bool r = true);
 	// Default
