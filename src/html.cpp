@@ -141,8 +141,10 @@ html_string(FILE *of, string s)
 // Create a new HTML file with a given filename and title
 // The heading, if not given, will be the same as the title
 void
-html_head(FILE *of, const string fname, const string title, const char *heading)
+html_head(FILE *of, const string fname, const string title, const char *heading, bool json_output)
 {
+	if (json_output)
+		return;
 	swill_title(title.c_str());
 	if (DP())
 		cerr << "Write to " << fname << endl;
