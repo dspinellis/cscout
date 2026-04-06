@@ -36,7 +36,7 @@ class Call;
 const char * html(char c);
 string html(const string &s);
 void html_string(FILE *of, string s);
-void html_head(FILE *of, const string fname, const string title, const char *heading = NULL);
+void html_head(FILE *of, const string fname, const string title, const char *heading = NULL, bool json_output = false);
 void html_tail(FILE *of);
 void html_perror(FILE *of, const string &user_msg, bool svg = false);
 void html_error(FILE *of, const string &user_msg);
