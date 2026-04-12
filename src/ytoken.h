@@ -37,7 +37,7 @@
 %token DO              IF              STATIC          WHILE
 %token RESTRICT        INLINE	       BOOL	       THREAD_LOCAL
 %token GENERIC	       COMPLEX         IMAGINARY
-%token NORETURN        STATIC_ASSERT
+%token NORETURN        STATIC_ASSERT   ATOMIC
 
 /* ANSI Grammar suggestions */
 %token IDENTIFIER         STRING_LITERAL
