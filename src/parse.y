@@ -1074,6 +1074,10 @@ simple_type_qualifier:
 	| attribute
 	| ALIGNAS '(' typeof_argument ')'
 		{ $$ = basic(); }
+	| ATOMIC '(' typeof_argument ')'
+		{ $$ = basic(); }
+	| ATOMIC
+		{ $$ = basic(); }
         ;
 
 type_qualifier:
