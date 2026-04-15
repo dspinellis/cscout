@@ -150,7 +150,7 @@ shift_expression
         | shift_expression LEFT_OP additive_expression	{ binop($$, $1, <<, $3); }
         | shift_expression RIGHT_OP additive_expression
 			{
-				$$.su = (($1.su == $3.su) ? $1.su : e_unsigned);
+			$$.su = $1.su;
 				if ($1.su == e_signed)
 					$$.v.s = ($1.v.s >> $3.v.u);
 				else
