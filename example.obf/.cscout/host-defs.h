@@ -14,6 +14,9 @@
 #define __TIME__ "12:34:56"
 #define __FILE__ "UNKNOWN.c"
 #define __LINE__ 1
+#define __FUNCTION__ "UNKNOWN"
+#define __func__ "UNKNOWN"
+#define _Pragma(x)
 #define __STDC__ 1
 
 /* To make it appear as a read-only identifier */
