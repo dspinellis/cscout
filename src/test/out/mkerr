@@ -38,15 +38,7 @@ string.<p><li> <code>#pragma set_dp: line number expected</code><br>
 The file name in the
 <code>#pragma set_dp</code>
 CScout-specific directive was not followed by a
-line number.<p><li> <code>#pragma sync: integer expected</code><br>
-The filename of the
-<code>#pragma sync</code>
-CScout-specific directive was not followed by an
-integer.<p><li> <code>#pragma sync: string expected</code><br>
-The
-<code>#pragma sync</code>
-CScout-specific directive was not followed by a
-string.<p><li> <code>% not followed by yacc keyword</code><br>
+line number.<p><li> <code>% not followed by yacc keyword</code><br>
 In the definitions section of a yacc file the
 % symbol was not followed by a legal yacc keyword.<p><li> <code>%union does not have a member  ...</code><br>
 The member used in a $&lt;name&gt;X yacc construct
