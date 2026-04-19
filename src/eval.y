@@ -147,10 +147,17 @@ additive_expression
 
 shift_expression
         : additive_expression
-        | shift_expression LEFT_OP additive_expression	{ binop($$, $1, <<, $3); }
+        | shift_expression LEFT_OP additive_expression
+			{
+				$$.su = $1.su;
+				if ($1.su == e_signed)
+					$$.v.s = ($1.v.s << $3.v.u);
+				else
+					$$.v.u = ($1.v.u << $3.v.u);
+			}
         | shift_expression RIGHT_OP additive_expression
 			{
-			$$.su = $1.su;
+				$$.su = $1.su;
 				if ($1.su == e_signed)
 					$$.v.s = ($1.v.s >> $3.v.u);
 				else
