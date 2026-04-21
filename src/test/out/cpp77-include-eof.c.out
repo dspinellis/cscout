@@ -1,0 +1,4 @@
+int main(); 
+static void _cscout_dummy1(void) { _cscout_dummy1(); } 
+INCLUDED_NO_TRAILING_NEWLINE
+[AFTER_INCLUDE]
