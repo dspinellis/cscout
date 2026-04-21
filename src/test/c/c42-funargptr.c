@@ -27,3 +27,11 @@ int f3(int f3a)
 	}
 	return f4(f3a);
 }
+
+void (*g(int a))(void)
+{
+	while (a--)
+		;
+	return 0;
+}
+

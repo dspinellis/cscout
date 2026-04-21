@@ -297,6 +297,18 @@ fi
 NFILES="$1"
 MERGED="$2"
 
+case "$NFILES" in
+  ''|*[!0-9]*)
+    echo "Error: nfiles must be a positive integer." 1>&2
+    usage
+    ;;
+esac
+
+if [ "$NFILES" -lt 2 ] ; then
+  echo "Error: nfiles must be at least 2." 1>&2
+  usage
+fi
+
 # Get dbids from N+1 onward. 1-N are the databases to merge.
 echo $((NFILES + 1)) >$DBID_FILE
 

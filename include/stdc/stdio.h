@@ -54,8 +54,12 @@ typedef	_CSCOUT_SIZE_T_	size_t;
 #define	NULL	0
 #endif
 
+#ifndef _OFF_T_DEFINED_
+typedef long long off_t;
+#define _OFF_T_DEFINED_
+#endif
 typedef struct __sfpos {
-	long long _pos;			/* XXX must be the same as off_t */
+	off_t _pos;
 } fpos_t;
 
 /*
@@ -170,7 +174,10 @@ extern FILE __sF[];
 #define	FILENAME_MAX	1024	/* must be <= PATH_MAX <sys/syslimits.h> */
 
 /* System V/ANSI C; this is the wrong way to do this, do *not* use these. */
-#define	L_tmpnam	1024	/* XXX must be == PATH_MAX */
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+#define	L_tmpnam	PATH_MAX
 #define	TMP_MAX		308915776
 
 #ifndef SEEK_SET

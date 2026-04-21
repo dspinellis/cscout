@@ -535,6 +535,8 @@ QType_node::print(ostream &o) const
 	if (qualifiers & q_unused) o << "__attribute__(unused) ";
 	if (qualifiers & q_volatile) o << "volatile ";
 	if (qualifiers & q_simd) o << "__simd ";
+	if (qualifiers & q_complex) o << "_Complex ";
+	if (qualifiers & q_imaginary) o << "_Imaginary ";
 }
 
 void
@@ -563,8 +565,8 @@ Tbasic::print(ostream &o) const
 	case b_ldouble: o << "long double "; break;
 	case b_padbit: o << "padbit "; break;
 	case b_undeclared: o << "UNDECLARED "; break;
-	case b_complex: o << "_Complex"; break;
-	case b_imaginary: o << "_Imaginary"; break;
+	case b_complex: o << "_Complex "; break;
+	case b_imaginary: o << "_Imaginary "; break;
 	}
 
 	if (value.is_const())
@@ -740,11 +742,11 @@ Tbasic::merge(Tbasic *b)
 		s = s_none;
 	}
 
-	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble || t == b_bool)) {
+	if (s != s_none && (t == b_float || t == b_double || t == b_ldouble || t == b_bool || t == b_complex || t == b_imaginary)) {
 		/*
 		 * @error
 		 * Signedness specifications are not allowed on
-		 * double, float, long double, and _Bool types
+		 * double, float, long double, _Bool, _Complex, and _Imaginary types
 		 */
 		Error::error(E_WARN, "illegal sign specification - ignored");
 		s = s_none;
@@ -1202,3 +1204,65 @@ int Type_node::get_count()
 	return count;
 }
 #endif
+
+size_t Tsu::get_sizeof() const {
+	// Approximate C layout by accounting for member alignment/padding.
+	// Member alignment is obtained from each member type's get_alignof().
+	if (members_by_ordinal.empty())
+		return 0;
+
+	auto align_up = [](size_t value, size_t align) -> size_t {
+		if (align <= 1)
+			return value;
+		return ((value + align - 1) / align) * align;
+	};
+
+	size_t max_align = 1;
+
+	if (is_union) {
+		size_t max_size = 0;
+		for (unsigned i = 0; i < members_by_ordinal.size(); i++) {
+			Type member_type = members_by_ordinal[i].get_type();
+			size_t member_size = member_type.get_sizeof();
+			size_t member_align = member_type.get_alignof();
+			if (member_size == 0 || member_align == 0)
+				return 0; // Unknown member size -> unknown union size
+			if (member_size > max_size)
+				max_size = member_size;
+			if (member_align > max_align)
+				max_align = member_align;
+		}
+		return align_up(max_size, max_align);
+	}
+
+	size_t total_size = 0;
+	for (unsigned i = 0; i < members_by_ordinal.size(); i++) {
+		Type member_type = members_by_ordinal[i].get_type();
+		size_t member_size = member_type.get_sizeof();
+		size_t member_align = member_type.get_alignof();
+		if (member_size == 0 || member_align == 0)
+			return 0; // Unknown member size -> unknown struct size
+		if (member_align > max_align)
+			max_align = member_align;
+		total_size = align_up(total_size, member_align);
+		total_size += member_size;
+	}
+
+	return align_up(total_size, max_align);
+}
+
+size_t Tsu::get_alignof() const {
+	if (members_by_ordinal.empty())
+		return 0;
+
+	size_t max_align = 1;
+	for (unsigned i = 0; i < members_by_ordinal.size(); i++) {
+		size_t member_align = members_by_ordinal[i].get_type().get_alignof();
+		if (member_align == 0)
+			return 0;
+		if (member_align > max_align)
+			max_align = member_align;
+	}
+
+	return max_align;
+}

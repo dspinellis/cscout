@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# (C) Copyright 2003-2019 Diomidis Spinellis
+# (C) Copyright 2003-2026 Diomidis Spinellis
 #
 # This file is part of CScout.
 #
@@ -55,6 +55,14 @@
 #
 
 use Getopt::Std;
+
+use strict;
+use warnings;
+
+our ($opt_d, $opt_g, $opt_v);
+my ($instdir, $f, $unit, $name);
+my (@units, @names, @readonlys, @files);
+my (%defines, %ipaths, %readonly, %dir);
 if (!getopts('d:gv')) {
 	print STDERR "usage: $0 [-gv] [-d directory] [file]\n";
 	exit(1);
@@ -63,7 +71,7 @@ if (!getopts('d:gv')) {
 if ($opt_v) {
 	print STDERR "cswc - CScout workspace compiler\n\n" .
 	# 80 column terminal width----------------------------------------------------
-	"(C) Copyright 2003-2019 Diomidis Spinelllis.\n\n" .
+	"(C) Copyright 2003-2026 Diomidis Spinelllis.\n\n" .
 	"CScout is distributed as open source software under the GNU General Public\n" .
 	"License, available in the CScout documentation and online at\n" .
 	"http://www.gnu.org/licenses/.\n" .
@@ -130,7 +138,7 @@ while (<>) {
 		beginunit($1, $2);
 	} elsif (/^file\s+(.*[^{])$/) {
 		@files = split(/\s+/, $1);
-		for $f (@files) {
+		for my $f (@files) {
 			beginunit('file', $f);
 			endunit();
 		}

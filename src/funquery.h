@@ -25,6 +25,7 @@
 #define FUNQUERY_
 
 #include <string>
+#include <functional>
 
 using namespace std;
 
@@ -94,36 +95,30 @@ public:
 	string base_url() const;
 	// Return the query's parameters as a URL
 	string param_url() const;
-	//
-	// Container comparison functor
-	class specified_order {
-	private:
-		/*
-		 * Can only be an instance variable (per C++ PL 17.1.4.5)
-		 * only when the corresponding constructor is passed a
-		 * compile-time constant.
-		 * This hack works around the limitation.
-		 */
-		static int order;
-		static bool reverse;
-	public:
-		// Should be called exactly once before instantiating the set
-		static void set_order(int o, bool r) { order = o; reverse = r; }
-		bool operator()(const Call *a, const Call *b) const {
-			bool val;
-			if (order == -1)
-				// Order by name
-				val = Query::string_bi_compare(a->get_name(), b->get_name());
-			else
-				val = (a->get_pre_cpp_const_metrics().get_metric(order) < b->get_pre_cpp_const_metrics().get_metric(order));
-			return reverse ? !val : val;
-		}
-	};
+
 	int get_sort_order() const { return mquery.get_sort_order(); }
 	// Return true if the query's URL can be bookmarked across CScout invocations
 	bool bookmarkable() const { return id_ec == NULL; }
+
+	// Modern C++11 comparator type using std::function
+	using FunComparator = std::function<bool(const Call *, const Call *)>;
+
+	// Returns a comparator capturing the current sort order
+	FunComparator get_comparator() const {
+		int o = mquery.get_sort_order();
+		bool r = mquery.get_reverse();
+		return [o, r](const Call *a, const Call *b) {
+			bool val;
+			if (o == -1)
+				val = Query::string_bi_compare(a->get_name(), b->get_name());
+			else
+				val = (a->get_pre_cpp_const_metrics().get_metric(o) <
+					b->get_pre_cpp_const_metrics().get_metric(o));
+			return r ? !val : val;
+		};
+	}
 };
 
-typedef multiset <const Call *, FunQuery::specified_order> Sfuns;
+typedef multiset <const Call *, FunQuery::FunComparator> Sfuns;
 
 #endif // FUNQUERY_

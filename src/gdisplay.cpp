@@ -103,25 +103,23 @@ void
 GDDotImage::head(const char *fname, const char *title, bool empty_node)
 {
 	#if defined(unix) || defined(__unix__) || defined(__MACH__)
-	strcpy(dot_dir, "/tmp");
+	dot_dir = "/tmp";
 	#elif defined(WIN32)
 	char *tmp = getenv("TEMP");
-	strcpy(dot_dir, tmp ? tmp : ".");
+	dot_dir = tmp ? tmp : ".";
 	#else
 	#error "Don't know how to obtain temporary directory"
 	#endif
-	strcat(dot_dir, "/CS-XXXXXX");
-	if (mkdtemp(dot_dir) == NULL) {
-		html_perror(fo, "Unable to create temporary directory " + string(dot), true);
+	dot_dir += "/CS-XXXXXX";
+	if (mkdtemp(&dot_dir[0]) == NULL) {
+		html_perror(fo, "Unable to create temporary directory " + dot_dir, true);
 		return;
 	}
-	strcpy(dot, dot_dir);
-	strcat(dot, "/in.dot");
-	strcpy(img, dot_dir);
-	strcat(img, "/out.img");
-	fdot = fopen(dot, "w");
+	dot = dot_dir + "/in.dot";
+	img = dot_dir + "/out.img";
+	fdot = fopen(dot.c_str(), "w");
 	if (fdot == NULL) {
-		html_perror(fo, "Unable to open " + string(dot) + " for writing", true);
+		html_perror(fo, "Unable to open " + dot + " for writing", true);
 		return;
 	}
 	GDDot::head(fname, title, empty_node);
@@ -136,17 +134,16 @@ GDDotImage::tail()
 	 * Changing to the tmp directory overcomes the problem of Cygwin
 	 * differences between CScout and dot file paths
 	 */
-	snprintf(cmd, sizeof(cmd), "cd %s && dot -T%s in.dot -oout.img",
-			dot_dir, format);
+	cmd = "cd \"" + dot_dir + "\" && dot -T" + string(format) + " in.dot -oout.img";
 	if (DP())
 		cout << cmd << '\n';
-	if (system(cmd) != 0) {
-		html_perror(fo, "Unable to execute " + string(cmd) + ". Shell execution", true);
+	if (system(cmd.c_str()) != 0) {
+		html_perror(fo, "Unable to execute " + cmd + ". Shell execution", true);
 		return;
 	}
-	FILE *fimg = fopen(img, "rb");
+	FILE *fimg = fopen(img.c_str(), "rb");
 	if (fimg == NULL) {
-		html_perror(fo, "Unable to open " + string(img) + " for reading", true);
+		html_perror(fo, "Unable to open " + img + " for reading", true);
 		return;
 	}
 	int c;
@@ -156,7 +153,7 @@ GDDotImage::tail()
 	while ((c = getc(fimg)) != EOF)
 		putc(c, result);
 	fclose(fimg);
-	(void)unlink(dot);
-	(void)unlink(img);
-	(void)rmdir(dot_dir);
+	(void)unlink(dot.c_str());
+	(void)unlink(img.c_str());
+	(void)rmdir(dot_dir.c_str());
 }

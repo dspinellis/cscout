@@ -303,8 +303,7 @@ again:
 
 			num = s.c_str();
 			eval_lval.v.u = strtoul(num, &endptr, 0);
-			if (*endptr == 0 || *endptr == 'l' || *endptr =='L' ||
-			    *endptr == 'u' || *endptr == 'U') {
+			if (is_int_suffix(endptr)) {
 				eval_lval.su = e_signed;
 				for (; *endptr; endptr++)
 					if (*endptr == 'u' || *endptr == 'U')
@@ -562,10 +561,7 @@ void
 Pdtoken::create_undefined_macro(const Ptoken &name)
 {
 	name.set_ec_attribute(is_undefined_macro);
-	mapMacro::value_type v(name.get_val(), Macro(name, false, false, false));
-	// XXX Passing the above value directly causes a crash with
-	// gcc version 3.2
-	macros.insert(v);
+	macros.insert(mapMacro::value_type(name.get_val(), Macro(name, false, false, false)));
 }
 
 void
@@ -1308,6 +1304,7 @@ Pdtoken::process_pragma()
 	else if (t.get_val() == "block_exit")
 		Block::exit();
 	else if (t.get_val() == "define_immutable") {
+		// Define a macro that cannot be redefined or undefined
 		process_define(true);
 		return;
 	} else if (t.get_val() == "set_dp") {

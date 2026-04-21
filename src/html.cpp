@@ -170,8 +170,7 @@ html_head(FILE *of, const string fname, const string title, const char *heading)
 		, of);
 	fputs(
 		"-->"
-		"</style>"
-		"</head>", of);
+		"</style>", of);
 	fprintf(of,
 		"<title>%s</title>\n"
 		"</head>\n"
