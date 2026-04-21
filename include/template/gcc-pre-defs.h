@@ -106,6 +106,7 @@
 #define __builtin_alloca_with_align (x,y) ((x), (y), 1)
 #define __builtin_alloca(x) ((x), 1)
 #define __builtin_assume_aligned(x,y,...) ((x), (y), 1)
+#define __builtin_assoc_barrier(x) (x)
 #define __builtin_bswap16(x) (x)
 #define __builtin_bswap32(x) (x)
 #define __builtin_bswap64(x) (x)
@@ -118,6 +119,9 @@
 #define __builtin_clzl(z) ((z),1)
 #define __builtin_clzll(z) ((z),1)
 #define __builtin_complex(x,y) ((x), (y))
+#define __builtin_classify_type(x) ((x), 0)
+#define __builtin_clear_padding(x) ((void)(x))
+#define __builtin_counted_by_ref(x) ((x), (void *)0)
 #define __builtin_constant_p(_x) ((_x), 0)
 #define __builtin_constant(x) ((x), 0)
 #define __builtin_ctzll(x) ((x),1)
@@ -139,6 +143,7 @@
 #define __builtin_FUNCTION() 1
 #define __builtin_goacc_parlevel_id(x) (x)
 #define __builtin_goacc_parlevel_size(x) (x)
+#define __builtin_has_attribute(x, a) (1)
 #define __builtin_huge_val() 1
 #define __builtin_huge_valf() 1
 #define __builtin_huge_valfn() 1
