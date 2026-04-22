@@ -313,10 +313,12 @@ gather_defined_operator(PtokenSequence& tokens)
 	PtokenSequence r;
 
 	// Skip leading space
-	while (tokens.front().get_code() == SPACE) {
+	while (!tokens.empty() && tokens.front().get_code() == SPACE) {
 		r.push_back(tokens.front());
 		tokens.pop_front();
 	}
+	if (tokens.empty())
+		goto error;
 	switch (tokens.front().get_code()) {
 	case IDENTIFIER:
 		// defined X form
@@ -328,20 +330,20 @@ gather_defined_operator(PtokenSequence& tokens)
 		r.push_back(tokens.front());
 		tokens.pop_front();
 		// Skip space
-		while (tokens.front().get_code() == SPACE) {
+		while (!tokens.empty() && tokens.front().get_code() == SPACE) {
 			r.push_back(tokens.front());
 			tokens.pop_front();
 		}
-		if (tokens.front().get_code() != IDENTIFIER)
+		if (tokens.empty() || tokens.front().get_code() != IDENTIFIER)
 			goto error;
 		r.push_back(tokens.front());
 		tokens.pop_front();
 		// Skip space
-		while (tokens.front().get_code() == SPACE) {
+		while (!tokens.empty() && tokens.front().get_code() == SPACE) {
 			r.push_back(tokens.front());
 			tokens.pop_front();
 		}
-		if (tokens.front().get_code() != ')')
+		if (tokens.empty() || tokens.front().get_code() != ')')
 			goto error;
 		r.push_back(tokens.front());
 		tokens.pop_front();
