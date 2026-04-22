@@ -244,6 +244,20 @@ html(FILE *of, const Call &c)
 	fputs("</a>", of);
 }
 
+// Return the display name of an identifier for JSON output
+static string
+get_display_name(const IdPropElem &i)
+{
+	return (i.second).get_id();
+}
+
+// Return the display name of a function for JSON output
+static string
+get_display_name(const Call &c)
+{
+	return c.get_name();
+}
+
 // Display a hyperlink based on a string and its starting tokid
 static void
 html_string(FILE *of, const string &s, Tokid t)
@@ -1033,6 +1047,7 @@ filequery_page(FILE *of,  void *)
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"json\" VALUE=\"1\"> JSON output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
 	, of);
@@ -1046,18 +1061,42 @@ xfilequery_page(FILE *of,  void *)
 {
 	Timer timer;
 	char *qname = swill_getvar("n");
+	bool json_output = !!swill_getvar("json");
 	FileQuery query(of, Option::file_icase->get(), current_project);
-
 	if (!query.is_valid())
 		return 0;
-
 	multiset <Fileid, FileQuery::FileComparator> sorted_files(query.get_comparator());
-
-	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
-
+	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results", NULL, json_output);
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (query.eval(*i))
 			sorted_files.insert(*i);
+	}
+	if (json_output) {
+		int skip = 0;
+		swill_getargs("I(skip)", &skip);
+		int pagesize = Option::entries_per_page->get();
+		int total = sorted_files.size();
+		int current = 0;
+		fprintf(of, "{\n");
+		fprintf(of, "\t\"total\": %d,\n", total);
+		fprintf(of, "\t\"page_size\": %d,\n", pagesize);
+		fprintf(of, "\t\"skip\": %d,\n", skip);
+		fprintf(of, "\t\"results\": [\n");
+		bool first = true;
+		for (multiset <Fileid, FileQuery::FileComparator>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !Filedetails::get_attribute(f, current_project))
+				continue;
+			if (current >= skip && current < skip + pagesize) {
+				if (!first)
+					fprintf(of, ",\n");
+				fprintf(of, "\t\t\"%s\"", i->get_path().c_str());
+				first = false;
+			}
+			current++;
+		}
+		fprintf(of, "\n\t]\n}\n");
+		return 0;
 	}
 	html_file_begin(of);
 	if (modification_state != ms_subst && !browse_only)
@@ -1094,8 +1133,34 @@ xfilequery_page(FILE *of,  void *)
  */
 template <typename container>
 static void
-display_sorted(FILE *of, const Query &query, const container &sorted_ids)
+display_sorted(FILE *of, const Query &query, const container &sorted_ids, bool json_output = false)
 {
+	if (json_output) {
+		int skip = 0;
+		swill_getargs("I(skip)", &skip);
+		int pagesize = Option::entries_per_page->get();
+		int total = sorted_ids.size();
+		int current = 0;
+		fprintf(of, "{\n");
+		fprintf(of, "\t\"total\": %d,\n", total);
+		fprintf(of, "\t\"page_size\": %d,\n", pagesize);
+		fprintf(of, "\t\"skip\": %d,\n", skip);
+		fprintf(of, "\t\"results\": [\n");
+		bool first = true;
+		typename container::const_iterator i;
+		for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
+			if (current >= skip && current < skip + pagesize) {
+				if (!first)
+					fprintf(of, ",\n");
+				fprintf(of, "\t\t\"%s\"", get_display_name(**i).c_str());
+				first = false;
+			}
+			current++;
+		}
+		fprintf(of, "\n\t]\n}\n");
+		return;
+	}
+
 	if (Option::sort_rev->get())
 		fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
 	else
@@ -1184,6 +1249,7 @@ iquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"json\" VALUE=\"1\"> JSON output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qfun\" VALUE=\"Show functions\">\n"
@@ -1262,6 +1328,7 @@ funquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"json\" VALUE=\"1\"> JSON output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show functions\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
@@ -1271,9 +1338,37 @@ funquery_page(FILE *of,  void *)
 }
 
 void
-display_files(FILE *of, const Query &query, const IFSet &sorted_files)
+display_files(FILE *of, const Query &query, const IFSet &sorted_files, bool json_output = false)
 {
 	const string query_url(query.param_url());
+
+	if (json_output) {
+		int skip = 0;
+		swill_getargs("I(skip)", &skip);
+		int pagesize = Option::entries_per_page->get();
+		int total = sorted_files.size();
+		int current = 0;
+		fprintf(of, "{\n");
+		fprintf(of, "\t\"total\": %d,\n", total);
+		fprintf(of, "\t\"page_size\": %d,\n", pagesize);
+		fprintf(of, "\t\"skip\": %d,\n", skip);
+		fprintf(of, "\t\"results\": [\n");
+		bool first = true;
+		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !Filedetails::get_attribute(f, current_project))
+				continue;
+			if (current >= skip && current < skip + pagesize) {
+				if (!first)
+					fprintf(of, ",\n");
+				fprintf(of, "\t\t\"%s\"", f.get_path().c_str());
+				first = false;
+			}
+			current++;
+		}
+		fprintf(of, "\n\t]\n}\n");
+		return;
+	}
 
 	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
@@ -1311,6 +1406,7 @@ xiquery_page(FILE *of,  void *)
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
 	bool q_fun = !!swill_getvar("qfun");	// Show matching functions
+	bool json_output = !!swill_getvar("json");	// JSON output
 	char *qname = swill_getvar("n");
 	IdQuery query(of, Option::file_icase->get(), current_project);
 
@@ -1319,7 +1415,7 @@ xiquery_page(FILE *of,  void *)
 		return 0;
 	}
 
-	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
+	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results", NULL, json_output);
 	if (!quiet)
 	    cerr << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
@@ -1339,22 +1435,26 @@ xiquery_page(FILE *of,  void *)
 	if (!quiet)
 	    cerr << endl;
 	if (q_id) {
-		fputs("<h2>Matching Identifiers</h2>\n", of);
-		display_sorted(of, query, sorted_ids);
+		if (!json_output)
+			fputs("<h2>Matching Identifiers</h2>\n", of);
+		display_sorted(of, query, sorted_ids, json_output);
 	}
 	if (q_file)
-		display_files(of, query, sorted_files);
+		display_files(of, query, sorted_files, json_output);
 	if (q_fun) {
-		fputs("<h2>Matching Functions</h2>\n", of);
+		if (!json_output)
+			fputs("<h2>Matching Functions</h2>\n", of);
 		Sfuns sorted_funs([](const Call *a, const Call *b) {
 			return Query::string_bi_compare(a->get_name(), b->get_name());
 		});
 		sorted_funs.insert(funs.begin(), funs.end());
-		display_sorted(of, query, sorted_funs);
+		display_sorted(of, query, sorted_funs, json_output);
 	}
 
-	timer.print_elapsed(of);
-	html_tail(of);
+	if (!json_output) {
+		timer.print_elapsed(of);
+		html_tail(of);
+	}
 	return 0;
 }
 
@@ -1368,6 +1468,7 @@ xfunquery_page(FILE *of,  void *)
 	IFSet sorted_files;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
 	bool q_file = !!swill_getvar("qf");	// Show matching files
+	bool json_output = !!swill_getvar("json");	// JSON output
 	char *qname = swill_getvar("n");
 	FunQuery query(of, Option::file_icase->get(), current_project);
 	Sfuns sorted_funs(query.get_comparator());
@@ -1375,7 +1476,7 @@ xfunquery_page(FILE *of,  void *)
 	if (!query.is_valid())
 		return 0;
 
-	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
+	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results", NULL, json_output);
 	if (!quiet)
 	    cerr << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
@@ -1390,16 +1491,19 @@ xfunquery_page(FILE *of,  void *)
 	if (!quiet)
 	    cerr << endl;
 	if (q_id) {
-		fputs("<h2>Matching Functions</h2>\n", of);
+		if (!json_output)
+			fputs("<h2>Matching Functions</h2>\n", of);
 		if (query.get_sort_order() != -1)
 			display_sorted_function_metrics(of, query, sorted_funs);
 		else
-			display_sorted(of, query, sorted_funs);
+			display_sorted(of, query, sorted_funs, json_output);
 	}
 	if (q_file)
-		display_files(of, query, sorted_files);
-	timer.print_elapsed(of);
-	html_tail(of);
+		display_files(of, query, sorted_files, json_output);
+	if (!json_output) {
+		timer.print_elapsed(of);
+		html_tail(of);
+	}
 	return 0;
 }
 
