@@ -183,7 +183,7 @@ Fchar::getnext()
 		simple_getnext();
 
 		static int oval;
-		if (val == EOF && oval != '\n')
+		if (val == EOF && oval != '\n') {
 			/*
 			 * @error
 			 * An included file does not end with a newline
@@ -192,6 +192,23 @@ Fchar::getnext()
 			 * command is unspecified.
 			 */
 			Error::error(E_WARN, "Included file does not end with a newline.");
+			/*
+			 * For included files (context stack non-empty), synthesize a
+			 * newline so the next file's first line is not concatenated
+			 * with this file's last line (fixes #48).
+			 * The actual EOF cleanup runs on the following getnext() call
+			 * when the stream returns EOF again with oval == '\n'.
+			 */
+			if (!cs.empty() && cs.size() != stack_lock_size) {
+				Filedetails::set_line_processed(fi, !Pdtoken::skipping());
+				line_number++;
+				val = '\n';
+				oval = '\n';
+				if (DP())
+					cout << "getnext returns synthetic newline for missing EOL\n";
+				return;
+			}
+		}
 		if (val != EOF)
 			oval = val;
 		if (val == EOF) {
