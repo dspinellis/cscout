@@ -1093,40 +1093,7 @@ Pdtoken::process_pragma()
 		eat_to_eol();
 		return;
 	}
-	if (t.get_val() == "sync") {
-		t.getnext_nospc<Fchar>();
-		if (t.get_code() != STRING_LITERAL) {
-			/*
-			 * @error
-			 * The
-			 * <code>#pragma sync</code>
-			 * CScout-specific directive was not followed by a
-			 * string
-			 */
-			Error::error(E_ERR, "#pragma sync: string expected");
-			eat_to_eol();
-			return;
-		}
-		string fname = t.get_val();
-		t.getnext_nospc<Fchar>();
-		if (t.get_code() != PP_NUMBER) {
-			/*
-			 * @error
-			 * The filename of the
-			 * <code>#pragma sync</code>
-			 * CScout-specific directive was not followed by an
-			 * integer
-			 */
-			Error::error(E_ERR, "#pragma sync: integer expected");
-			eat_to_eol();
-			return;
-		}
-		char *endptr;
-		(void)strtoul(t.get_val().c_str(), &endptr, 0);
-		// XXX now do the work
-	} else if (t.get_val() == "nosync") {
-		// XXX now do the work
-	} else if (t.get_val() == "once") {
+	if (t.get_val() == "once") {
 		// Mark the file for skipping next time it is included.
 		Fileid fid(Fchar::get_fileid());
 		if (DP()) cout << "Pragma once on " << fid.get_path() << "\n";
