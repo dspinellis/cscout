@@ -1,0 +1,41 @@
+# Source Code Reconstitution
+
+The data stored in the database allow the exact reconstitution
+of the original source code.
+All that is required is to run an appropriate query and filter
+its results to recreate the original line breaks from irs output.
+Elements modified in the database, such as identifier names or
+comment contents, will be correctly mirrored in the generated output.
+
+	The following is the required SQL query for the SQLite database
+	to reconstitute the contents of the file with
+	file identifier (`fid`) 4.
+
+```sql
+.print "Starting dump"
+
+SELECT s FROM (
+  SELECT name AS s, foffset
+    FROM ids
+    INNER JOIN tokens ON ids.eid = tokens.eid
+    WHERE fid = 4
+  UNION SELECT code AS s, foffset FROM rest WHERE fid = 4
+  UNION SELECT comment AS s, foffset FROM comments WHERE fid = 4
+  UNION SELECT string AS s, foffset FROM strings WHERE fid = 4
+  )
+ORDER BY foffset;
+```
+
+The query's output needs to be pipped to the following commands
+to adjust it as needed.
+
+```bash
+# Remove header and footer lines
+sed -e '1,/^Starting dump/d;/^[0-9][0-9]* rows/d' |
+
+# Remove line breaks added by the database engine
+tr -d '\n\r' |
+
+# Add line breaks appearing in the database output as Unicode escapes
+perl -pe 's/\\u0000d\\u0000a/\n/g;s/\\u0000a/\n/g' >test/chunk/$NAME
+```
