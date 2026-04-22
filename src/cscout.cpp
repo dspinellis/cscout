@@ -1065,37 +1065,7 @@ xfilequery_page(FILE *of,  void *)
 		if (query.eval(*i))
 			sorted_files.insert(*i);
 	}
-<<<<<<< feat/gui-query-option
 	bool plain_text = !!swill_getvar("txt");
-=======
-	html_file_begin(of);
-	if (modification_state != ms_subst && !browse_only)
-		fprintf(of, "<th></th>\n");
-	if (query.get_sort_order() != -1)
-		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
-	Pager pager(of, Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
-	html_file_set_begin(of);
-	for (multiset <Fileid, FileQuery::FileComparator>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
-		Fileid f = *i;
-		if (current_project && !Filedetails::get_attribute(f, current_project))
-			continue;
-		if (pager.show_next()) {
-			html_file(of, *i);
-			if (modification_state != ms_subst && !browse_only)
-				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
-				i->get_id());
-			if (query.get_sort_order() != -1)
-				fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
-			html_file_record_end(of);
-		}
-	}
-	html_file_end(of);
-	pager.end();
-	timer.print_elapsed(of);
-	html_tail(of);
-	return 0;
-}
->>>>>>> master
 
 	if (json_output) {
 		Pagination_data p = pagination_data();
@@ -1461,18 +1431,10 @@ xiquery_page(FILE *of,  void *)
 		display_sorted(of, query, sorted_ids);
 	} else if (q_file)
 		display_files(of, query, sorted_files);
-<<<<<<< feat/gui-query-option
 	else if (q_fun) {
 		if (!json_output)
 			fputs("<h2>Matching Functions</h2>\n", of);
 		Sfuns sorted_funs;
-=======
-	if (q_fun) {
-		fputs("<h2>Matching Functions</h2>\n", of);
-		Sfuns sorted_funs([](const Call *a, const Call *b) {
-			return Query::string_bi_compare(a->get_name(), b->get_name());
-		});
->>>>>>> master
 		sorted_funs.insert(funs.begin(), funs.end());
 		display_sorted(of, query, sorted_funs);
 	}
