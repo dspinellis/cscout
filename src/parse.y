@@ -436,6 +436,7 @@ primary_expression:
 			}
         | constant
         | string_literal_list
+        | NULLPTR               { $$ = pointer_to(basic(b_void)); }
         | '(' comma_expression ')'
 			{ $$ = $2; }
 	/* gcc extension */
@@ -1211,6 +1212,7 @@ storage_class:
         | AUTO		{ $$ = basic(b_abstract, s_none, c_unspecified, sd_auto); }
         | REGISTER	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_auto); }
         | THREAD_LOCAL	{ $$ = basic(b_abstract, s_none, c_unspecified, sd_thread); }
+        | CONSTEXPR     { $$ = basic(b_abstract, s_none, c_unspecified, sd_static); }
         ;
 
 basic_type_name:
