@@ -2401,6 +2401,10 @@ graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 	char *outfile;
 	if (swill_getargs("i(output)s(outfile)", &output, &outfile) && output && strlen(outfile)) {
 		FILE *ofile = fopen(outfile, "w+");
+		if (ofile == NULL) {
+			html_perror(fo, "Unable to open " + string(outfile) + " for writing");
+			return 0;
+		}
 		GDTxt gdout(ofile);
 		graph_fun(&gdout);
 		fclose(ofile);
@@ -2505,6 +2509,10 @@ produce_call_graphs(const vector <string> &call_graphs)
 		}
 
 		FILE *target = fopen(split_base_and_opts[0].c_str() , "w+");
+		if (target == NULL) {
+			perror(split_base_and_opts[0].c_str());
+			continue;
+		}
 		string base = split_base_and_opts[0];
 		GDTxt gd(target);
 		// Disable swill
