@@ -183,7 +183,7 @@ Fchar::getnext()
 		simple_getnext();
 
 		static int oval;
-		if (val == EOF && oval != '\n')
+		if (val == EOF && oval != '\n') {
 			/*
 			 * @error
 			 * An included file does not end with a newline
@@ -192,6 +192,10 @@ Fchar::getnext()
 			 * command is unspecified.
 			 */
 			Error::error(E_WARN, "Included file does not end with a newline.");
+			// Inject a newline to prevent line concatenation
+			val = '\n';
+			line_number++;
+		}
 		if (val != EOF)
 			oval = val;
 		if (val == EOF) {
