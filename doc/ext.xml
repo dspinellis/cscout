@@ -34,6 +34,8 @@ identifiers should not be reported as unused (GCC).
 <li> Indirect <code>goto</code> targets and the label address-of operator (GCC).
 <li> <code>typeof</code> (C23) and <code>__typeof</code>, <code>__typeof__</code> keywords (GCC)
 <li> <code>typeof_unqual</code> (C23) and <code>__typeof_unqual__</code> keyword (GCC)
+<li> <code>constexpr</code> storage class specifier (C23)
+<li> <code>nullptr</code> null pointer literal (C23)
 <li> The ‘##’ token paste operator deletes the comma when placed between a comma and an empty variable argument (GCC)
 <li> <code>__VA_OPT__ </code> function macro (C23)
 <li> <code>auto</code> (C23) and <code>__auto_type</code> (GCC)

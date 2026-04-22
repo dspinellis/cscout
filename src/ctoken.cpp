@@ -161,6 +161,8 @@ make_keymap()
 	/* C23 */
 	m["typeof"] = TYPEOF;
 	m["typeof_unqual"] = TYPEOF_UNQUAL;
+	m["constexpr"] = CONSTEXPR;
+	m["nullptr"] = NULLPTR;
 
 	/* Microsoft */
 	m["_asm"] = MSC_ASM;
