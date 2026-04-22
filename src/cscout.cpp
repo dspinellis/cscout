@@ -35,6 +35,7 @@
 #include <utility>
 #include <functional>
 #include <algorithm>		// set_difference
+#include <climits>
 #include <cctype>
 #include <sstream>		// ostringstream
 #include <cstdio>		// perror, rename
@@ -86,6 +87,8 @@
 #include "timer.h"
 #include "dbtoken.h"
 #include "macro_arg_processor.h"
+#include "query_pagination.h"
+#include "query_text_output.h"
 
 #ifdef PICO_QL
 #include "pico_ql_search.h"
@@ -1033,6 +1036,7 @@ filequery_page(FILE *of,  void *)
 	"<INPUT TYPE=\"text\" NAME=\"fre\" SIZE=20 MAXLENGTH=256>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
 	, of);
@@ -1045,6 +1049,7 @@ static int
 xfilequery_page(FILE *of,  void *)
 {
 	Timer timer;
+	bool json_output = json_output_requested();
 	char *qname = swill_getvar("n");
 	FileQuery query(of, Option::file_icase->get(), current_project);
 
@@ -1053,69 +1058,83 @@ xfilequery_page(FILE *of,  void *)
 
 	multiset <Fileid, FileQuery::FileComparator> sorted_files(query.get_comparator());
 
-	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
+	if (!json_output)
+		html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
 
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
 		if (query.eval(*i))
 			sorted_files.insert(*i);
 	}
-	html_file_begin(of);
-	if (modification_state != ms_subst && !browse_only)
-		fprintf(of, "<th></th>\n");
-	if (query.get_sort_order() != -1)
-		fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
-	Pager pager(of, Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
-	html_file_set_begin(of);
-	for (multiset <Fileid, FileQuery::FileComparator>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
-		Fileid f = *i;
-		if (current_project && !Filedetails::get_attribute(f, current_project))
-			continue;
-		if (pager.show_next()) {
-			html_file(of, *i);
-			if (modification_state != ms_subst && !browse_only)
-				fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
-				i->get_id());
-			if (query.get_sort_order() != -1)
-				fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
-			html_file_record_end(of);
+	bool plain_text = !!swill_getvar("txt");
+
+	if (json_output) {
+		Pagination_data p = pagination_data();
+		int total = 0;
+		int returned = 0;
+
+		fputs("{", of);
+		for (multiset <Fileid, FileQuery::FileComparator>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !Filedetails::get_attribute(f, current_project))
+				continue;
+			if (in_page(p, total)) {
+				if (returned++ == 0)
+					fputs("\"results\":[", of);
+				else
+					fputc(',', of);
+				json_puts(of, f.get_path());
+			}
+			total++;
 		}
+		if (returned == 0)
+			fputs("\"results\":[", of);
+		fputc(']', of);
+		fputc(',', of);
+		json_output_pagination(of, query.base_url(), p, total, returned);
+		fputc('}', of);
+	} else if (plain_text) {
+		Pager pager(of, INT_MAX, query.base_url(), query.bookmarkable());
+		for (multiset <Fileid, FileQuery::FileComparator>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !Filedetails::get_attribute(f, current_project))
+				continue;
+			if (pager.show_next())
+				fprintf(of, "%s\n", f.get_path().c_str());
+		}
+		pager.end();
+		timer.print_elapsed(of);
+		html_tail(of);
+	} else {
+		html_file_begin(of);
+		if (modification_state != ms_subst && !browse_only)
+			fprintf(of, "<th></th>\n");
+		if (query.get_sort_order() != -1)
+			fprintf(of, "<th>%s</th>\n", Metrics::get_name<FileMetrics>(query.get_sort_order()).c_str());
+
+		Pager pager(of, Option::entries_per_page->get(), query.base_url(), query.bookmarkable());
+		html_file_set_begin(of);
+		for (multiset <Fileid, FileQuery::FileComparator>::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !Filedetails::get_attribute(f, current_project))
+				continue;
+			if (pager.show_next()) {
+				html_file(of, *i);
+				if (modification_state != ms_subst && !browse_only)
+					fprintf(of, "<td><a href=\"fedit.html?id=%u\">edit</a></td>",
+					i->get_id());
+				if (query.get_sort_order() != -1)
+					fprintf(of, "<td align=\"right\">%g</td>", Filedetails::get_pre_cpp_const_metrics(*i).get_metric(query.get_sort_order()));
+				html_file_record_end(of);
+			}
+		}
+		html_file_end(of);
+		pager.end();
+		timer.print_elapsed(of);
+		html_tail(of);
 	}
-	html_file_end(of);
-	pager.end();
-	timer.print_elapsed(of);
-	html_tail(of);
 	return 0;
 }
 
-
-/*
- * Display the sorted identifiers or functions, taking into account the reverse sort property
- * for properly aligning the output.
- */
-template <typename container>
-static void
-display_sorted(FILE *of, const Query &query, const container &sorted_ids)
-{
-	if (Option::sort_rev->get())
-		fputs("<table><tr><td width=\"50%\" align=\"right\">\n", of);
-	else
-		fputs("<p>\n", of);
-
-	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
-	typename container::const_iterator i;
-	for (i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
-		if (pager.show_next()) {
-			html(of, **i);
-			fputs("<br>\n", of);
-		}
-	}
-
-	if (Option::sort_rev->get())
-		fputs("</td> <td width=\"50%\"> </td></tr></table>\n", of);
-	else
-		fputs("</p>\n", of);
-	pager.end();
-}
 
 /*
  * Display the sorted functions with their metrics,
@@ -1125,22 +1144,62 @@ display_sorted(FILE *of, const Query &query, const container &sorted_ids)
 static void
 display_sorted_function_metrics(FILE *of, const FunQuery &query, const Sfuns &sorted_ids)
 {
-	fprintf(of, "<table class=\"metrics\"><tr>"
-	    "<th width='50%%' align='left'>Name</th>"
-	    "<th width='50%%' align='right'>%s</th>\n",
-	    Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
+	bool plain_text = !!swill_getvar("txt");
+	bool json_output = json_output_requested();
 
-	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
-	for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
-		if (pager.show_next()) {
-			fputs("<tr><td witdh='50%'>", of);
-			html(of, **i);
-			fprintf(of, "</td><td witdh='50%%' align='right'>%g</td></tr>\n",
-			    (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+	if (json_output) {
+		Pagination_data p = pagination_data();
+		int total = 0;
+		int returned = 0;
+
+		fputs("{\"results\":[", of);
+		for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
+			if (in_page(p, total)) {
+				if (returned++)
+					fputc(',', of);
+				fputs("{\"name\":", of);
+				json_puts(of, (*i)->get_name());
+				fprintf(of, ",\"metric\":%g}", (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+			}
+			total++;
 		}
+		fputs("],\"metric_name\":", of);
+		json_puts(of, Metrics::get_name<FunMetrics>(query.get_sort_order()));
+		fputc(',', of);
+		json_output_pagination(of, query.base_url() + "&qi=1", p, total, returned);
+		fputc('}', of);
+		return;
 	}
-	fputs("</table>\n", of);
-	pager.end();
+
+	if (plain_text) {
+		fprintf(of, "Function Name\t%s\n", Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
+
+		Pager pager(of, INT_MAX, query.base_url() + "&qi=1", query.bookmarkable());
+		for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
+			if (pager.show_next()) {
+				fputs((*i)->get_name().c_str(), of);
+				fprintf(of, "\t%g\n", (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+			}
+		}
+	} else
+		fprintf(of, "<table class=\"metrics\"><tr>"
+		    "<th width='50%%' align='left'>Name</th>"
+		    "<th width='50%%' align='right'>%s</th>\n",
+		    Metrics::get_name<FunMetrics>(query.get_sort_order()).c_str());
+
+	if (!plain_text) {
+		Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qi=1", query.bookmarkable());
+		for (Sfuns::const_iterator i = sorted_ids.begin(); i != sorted_ids.end(); i++) {
+			if (pager.show_next()) {
+				fputs("<tr><td witdh='50%'>", of);
+				html(of, **i);
+				fprintf(of, "</td><td witdh='50%%' align='right'>%g</td></tr>\n",
+				    (*i)->get_pre_cpp_const_metrics().get_metric(query.get_sort_order()));
+			}
+		}
+		fputs("</table>\n", of);
+		pager.end();
+	}
 }
 
 
@@ -1184,6 +1243,7 @@ iquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show identifiers\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qfun\" VALUE=\"Show functions\">\n"
@@ -1262,6 +1322,7 @@ funquery_page(FILE *of,  void *)
 	"</table>\n"
 	"<hr>\n"
 	"<p>Query title <INPUT TYPE=\"text\" NAME=\"n\" SIZE=60 MAXLENGTH=256>\n"
+	"&nbsp;&nbsp;<INPUT TYPE=\"checkbox\" NAME=\"txt\" VALUE=\"1\"> Plain text output\n"
 	"&nbsp;&nbsp;<INPUT TYPE=\"submit\" NAME=\"qi\" VALUE=\"Show functions\">\n"
 	"<INPUT TYPE=\"submit\" NAME=\"qf\" VALUE=\"Show files\">\n"
 	"</FORM>\n"
@@ -1274,6 +1335,30 @@ void
 display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 {
 	const string query_url(query.param_url());
+	bool json_output = json_output_requested();
+
+	if (json_output) {
+		Pagination_data p = pagination_data();
+		int total = 0;
+		int returned = 0;
+
+		fputs("{\"results\":[", of);
+		for (IFSet::iterator i = sorted_files.begin(); i != sorted_files.end(); i++) {
+			Fileid f = *i;
+			if (current_project && !Filedetails::get_attribute(f, current_project))
+				continue;
+			if (in_page(p, total)) {
+				if (returned++)
+					fputc(',', of);
+				json_puts(of, f.get_path());
+			}
+			total++;
+		}
+		fputs("],", of);
+		json_output_pagination(of, query.base_url() + "&qf=1", p, total, returned);
+		fputc('}', of);
+		return;
+	}
 
 	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
@@ -1304,6 +1389,7 @@ xiquery_page(FILE *of,  void *)
 {
 	Timer timer;
 	prohibit_remote_access(of);
+	bool json_output = json_output_requested();
 
 	Sids sorted_ids;
 	IFSet sorted_files;
@@ -1315,13 +1401,14 @@ xiquery_page(FILE *of,  void *)
 	IdQuery query(of, Option::file_icase->get(), current_project);
 
 	if (!query.is_valid()) {
-		html_tail(of);
+		if (!json_output)
+			html_tail(of);
 		return 0;
 	}
 
-	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
-	if (!quiet)
-	    cerr << "Evaluating identifier query" << endl;
+	if (!json_output)
+		html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
+	cerr << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (!query.eval(*i))
@@ -1339,22 +1426,23 @@ xiquery_page(FILE *of,  void *)
 	if (!quiet)
 	    cerr << endl;
 	if (q_id) {
-		fputs("<h2>Matching Identifiers</h2>\n", of);
+		if (!json_output)
+			fputs("<h2>Matching Identifiers</h2>\n", of);
 		display_sorted(of, query, sorted_ids);
-	}
-	if (q_file)
+	} else if (q_file)
 		display_files(of, query, sorted_files);
-	if (q_fun) {
-		fputs("<h2>Matching Functions</h2>\n", of);
-		Sfuns sorted_funs([](const Call *a, const Call *b) {
-			return Query::string_bi_compare(a->get_name(), b->get_name());
-		});
+	else if (q_fun) {
+		if (!json_output)
+			fputs("<h2>Matching Functions</h2>\n", of);
+		Sfuns sorted_funs;
 		sorted_funs.insert(funs.begin(), funs.end());
 		display_sorted(of, query, sorted_funs);
 	}
 
-	timer.print_elapsed(of);
-	html_tail(of);
+	if (!json_output) {
+		timer.print_elapsed(of);
+		html_tail(of);
+	}
 	return 0;
 }
 
@@ -1364,6 +1452,7 @@ xfunquery_page(FILE *of,  void *)
 {
 	prohibit_remote_access(of);
 	Timer timer;
+	bool json_output = json_output_requested();
 
 	IFSet sorted_files;
 	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
@@ -1375,9 +1464,9 @@ xfunquery_page(FILE *of,  void *)
 	if (!query.is_valid())
 		return 0;
 
-	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
-	if (!quiet)
-	    cerr << "Evaluating function query" << endl;
+	if (!json_output)
+		html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
+	cerr << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 		progress(i, Call::functions());
 		if (!query.eval(i->second))
@@ -1390,16 +1479,18 @@ xfunquery_page(FILE *of,  void *)
 	if (!quiet)
 	    cerr << endl;
 	if (q_id) {
-		fputs("<h2>Matching Functions</h2>\n", of);
+		if (!json_output)
+			fputs("<h2>Matching Functions</h2>\n", of);
 		if (query.get_sort_order() != -1)
 			display_sorted_function_metrics(of, query, sorted_funs);
 		else
 			display_sorted(of, query, sorted_funs);
-	}
-	if (q_file)
+	} else if (q_file)
 		display_files(of, query, sorted_files);
-	timer.print_elapsed(of);
-	html_tail(of);
+	if (!json_output) {
+		timer.print_elapsed(of);
+		html_tail(of);
+	}
 	return 0;
 }
 
