@@ -518,12 +518,7 @@ Dbtoken::dump_id(ostream &of, Eclass *e, const string &name)
 	     e->get_attribute(is_cfunction) << ',' <<
 	     e->get_attribute(is_cscope) << ',' <<
 	     e->get_attribute(is_lscope) << ',' <<
-	     /*
-	      * Simplified version of is_unused.
-	      * This can be improved by saving and merging is_declared_unused
-	      * attribute and the identical files table.
-	      */
-	     (e->get_size() == 1) <<
+	     e->is_unused() <<
 	     '\n';
 }
 
