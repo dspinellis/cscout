@@ -200,11 +200,6 @@ ceescape (swill) front end:
 
 Allow interruptions in id queries
 
-lex preprocessor / hooks
-	(Partly implemented)
-	#pragma sync "filename" offset
-	#pragma nosync (default. Input is parsed, but unify is a null op)
-
 C99 extensions
 
 errno monitoring
