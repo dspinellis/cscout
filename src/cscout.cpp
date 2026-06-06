@@ -95,6 +95,7 @@ using namespace picoQL;
 #include "sql.h"
 #include "workdb.h"
 #include "obfuscate.h"
+#include "util.h"
 
 #define ids Identifier::ids
 
@@ -2478,20 +2479,6 @@ graph_pdf_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 }
 
 
-// Split a string by delimiter
-vector<string> split_by_delimiter(string &s, char delim) {
-	string buf;                 // Have a buffer string
-	stringstream ss(s);       // Insert the string into a stream
-
-	vector<string> tokens; // Create vector to hold our words
-
-	while (getline(ss, buf, delim))
-		tokens.push_back(buf);
-
-	return tokens;
-}
-
-
 // Produce call graphs with -R option
 static void
 produce_call_graphs(const vector <string> &call_graphs)
@@ -2610,47 +2597,6 @@ set_project_page(FILE *fo, void *p)
 	}
 	index_page(fo, p);
 	return 0;
-}
-
-// Return version information
-static string
-version_info(bool html)
-{
-	ostringstream v;
-
-	string end = html ? "<br />" : "\n";
-	string fold = html ? " " : "\n";
-
-	v << "CScout version " <<
-	Version::get_revision() << " - " <<
-	Version::get_date() << end << end <<
-	// 80 column terminal width---------------------------------------------------
-	"(c) Copyright 2003-" << ((char *)__DATE__ + string(__DATE__).length() - 4) <<
-				 // Current year
-	" Diomidis Spinelllis." << end <<
-	end <<
-	// C grammar
-	"Portions Copyright (c) 1989, 1990 James A. Roskind." << end <<
-	// MD-5
-	"Portions derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm." << end <<
-
-	"Includes the SWILL (Simple Web Interface Link Library) library written by David" << fold <<
-	"Beazley and Sotiria Lampoudi.  Copyright (c) 1998-2002 University of Chicago." << fold <<
-	"SWILL is distributed under the terms of the GNU Lesser General Public License" << fold <<
-	"version 2.1 available " <<
-	(html ? "<a href=\"http://www.gnu.org/licenses/lgpl-2.1.html\">online</a>." : "online at http://www.gnu.org/licenses/lgpl-2.1.html.") << end <<
-
-	end <<
-	"CScout is distributed as open source software under the GNU" << fold <<
-	"General Public License, available in the CScout documentation and ";
-	if (html)
-		v << "<a href=\"http://www.gnu.org/licenses/\">online</a>.";
-	else
-		v << "online at" << end <<
-		"http://www.gnu.org/licenses/." << end;
-	v << "Other licensing options and professional support are available"
-		" on request." << end;
-	return v.str();
 }
 
 // Display information about CScout
