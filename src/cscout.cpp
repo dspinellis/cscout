@@ -95,6 +95,7 @@ using namespace picoQL;
 #include "sql.h"
 #include "workdb.h"
 #include "obfuscate.h"
+#include "progress.h"
 
 #define ids Identifier::ids
 
@@ -209,22 +210,6 @@ graph_suffix()
 	case 'f': return ".pdf";
 	}
 	return "";
-}
-
-// Display loop progress (non-reentant)
-template <typename container>
-static void
-progress(typename container::const_iterator i, const container &c)
-{
-	static int count, opercent;
-
-	if (i == c.begin())
-		count = 0;
-	int percent = ++count * 100 / c.size();
-	if (percent != opercent) {
-		cerr << '\r' << percent << '%' << flush;
-		opercent = percent;
-	}
 }
 
 // Display an identifier hyperlink
