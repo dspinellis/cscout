@@ -99,6 +99,7 @@ using namespace picoQL;
 #include "progress.h"
 #include "options.h"
 #include "engine.h"
+#include "progress.h"
 
 CscoutOptions opts;
 CscoutEngine engine(opts);
