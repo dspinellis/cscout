@@ -25,6 +25,8 @@
 #define OPTIONS_H
 
 #include "idquery.h"
+#include <vector>
+#include <string>
 
 // Processing mode set by command line flags
 enum e_process {
@@ -45,12 +47,24 @@ public:
 	bool quiet;
 	std::string db_engine;
 	IdQuery monitor;
+	bool browse_only;
+	std::vector<std::string> call_graphs;
+	std::string log_file;
+	bool do_merge;
+    bool pico_ql;
 
 	CscoutOptions() :
 		process_mode(pm_unspecified),
 		portno(8081),
-		quiet(false)
+		quiet(false),
+		browse_only(false),
+		do_merge(false),
+        pico_ql(false)
 	{}
+
+	void parse_args(int argc, char *argv[]);
 };
+
+void usage(char *fname);
 
 #endif /* OPTIONS_H */

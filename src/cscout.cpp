@@ -95,13 +95,10 @@ using namespace picoQL;
 #include "sql.h"
 #include "workdb.h"
 #include "obfuscate.h"
-<<<<<<< HEAD
 #include "progress.h"
 #include "util.h"
-=======
 #include "options.h"
 CscoutOptions opts;
->>>>>>> 1779a5a (Group invocation options into CscoutOptions)
 
 #define ids Identifier::ids
 
@@ -3272,74 +3269,7 @@ warning_report()
 	}
 }
 
-// Report usage information and exit
-static void
-usage(char *fname)
-{
-	cerr << "usage: " << fname <<
-		" ["
-#ifndef WIN32
-		"-b|"	// browse-only
-#endif
-		"-C|-c|-d D|-d H|-E RE|-o|-M files|"
-		"-q|-R URL|-r|-S db|-s db|-v] "
-		"[-l file] "
 
-#ifdef PICO_QL
-#define PICO_QL_OPTIONS "q"
-		"-q|"
-#else
-#define PICO_QL_OPTIONS ""
-#endif
-
-		"[-P RE] [-p port] [-m spec] [-t table ...] file\n"
-#ifndef WIN32
-		"\t-b\tRun in multiuser browse-only mode\n"
-#endif
-		"\t-C\tCreate a ctags(1)-compatible tags file\n"
-		"\t-c\tProcess the file and exit\n"
-		"\t-R URL\tOutput the call graphs specified by the URLs exit\n"
-		"\t-d D\tOutput the #defines being processed\n"
-		"\t-d H\tOutput the names of included files being processed\n"
-		"\t-E RE\tOutput preprocessed results and exit\n"
-		"\t\t(Will process file(s) matched by the regular expression)\n"
-		"\t-l file\tSpecify access log file\n"
-		"\t-M files\tMerge specified EC files\n"
-		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
-		"\t-o\tCreate obfuscated versions of the processed files\n"
-		"\t-P RE\tProcess only file(s) matched by the regular expression\n"
-		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
-		"\t\t(the port number must be in the range 1024-32767)\n"
-#ifdef PICO_QL
-		"\t-q\tProvide a PiCO_QL query interface\n"
-#else
-		"\t-q\tSuppress progress messages on standard error\n"
-#endif
-		"\t-r\tGenerate an identifier and include file warning report\n"
-		"\t-S db\tGenerate the SQL schema for the specified RDBMS\n"
-		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
-		"\t-t table\tEnable population of the specified RDBMS table\n"
-		"\t\t(All enabled by default. Option can be provided multiple times)\n"
-		"\t-v\tDisplay version and copyright information and exit\n"
-		"\t-3\tEnable the handling of trigraph characters\n"
-		;
-	exit(1);
-}
-
-
-// Return a compiled RE for the string s, verifying its correctness
-static CompiledRE
-verified_compiled_re(const char *s)
-{
-	CompiledRE pre(s, REG_EXTENDED | REG_NOSUB);
-
-	if (!pre.isCorrect()) {
-		cerr << "Filename regular expression error:" <<
-			pre.getError() << '\n';
-		exit(1);
-	}
-	return pre;
-}
 
 /*
  * Read files with tokens classes and identifier attributes
@@ -3400,137 +3330,21 @@ int
 main(int argc, char *argv[])
 {
 	Pdtoken t;
-	int c;
-	CompiledRE pre;
-#ifdef PICO_QL
-	bool pico_ql = false;
-#endif
-
-	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:Mm:l:oR:S:s:t:q" PICO_QL_OPTIONS)) != EOF)  //added q for quiet
-		switch (c) {
-		case '3':
-			Fchar::enable_trigraphs();
-			break;
-		case 'E':
-			if (!optarg || opts.process_mode)
-				usage(argv[0]);
-			// Preprocess the specified file
-			Pdtoken::set_preprocessed_output(verified_compiled_re(optarg));
-			opts.process_mode = pm_preprocess;
-			break;
-		case 'C':
-			CTag::enable();
-			break;
-		#ifdef PICO_QL
-		case 'q':
-			pico_ql = true;
-			/* FALLTHROUGH */
-		#endif
-		case 'c':
-			if (opts.process_mode)
-				usage(argv[0]);
-			opts.process_mode = pm_compile;
-			break;
-		case 'd':
-			if (!optarg)
-				usage(argv[0]);
-			switch (*optarg) {
-			case 'D':	// Similar to gcc -dD
-				Pdtoken::set_output_defines();
-				break;
-			case 'H':	// Similar to gcc -H
-				Fchar::set_output_headers();
-				break;
-			default:
-				usage(argv[0]);
-			}
-			break;
-		case 'p':
-			if (!optarg)
-				usage(argv[0]);
-			opts.portno = atoi(optarg);
-			if (opts.portno < 1024 || opts.portno > 32767)
-				usage(argv[0]);
-			break;
-		case 'M':
-			merge_tokens(argv);
-			break;
-		case 'm':
-			if (!optarg)
-				usage(argv[0]);
-			opts.monitor = IdQuery(optarg);
-			break;
-		case 'r':
-			if (opts.process_mode)
-				usage(argv[0]);
-			opts.process_mode = pm_report;
-			break;
-		case 'v':
-			cout << version_info(false);
-			exit(0);
-		case 'b':
-			browse_only = true;
-			break;
-		case 'q':
-			opts.quiet = true;
-			break;
-		case 'l':
-			if (!optarg)
-				usage(argv[0]);
-			FILE *logfile;
-			if ((logfile = fopen(optarg, "a")) == NULL) {
-				perror(optarg);
-				exit(1);
-			}
-			swill_log(logfile);
-			break;
-		case 'o':
-			if (opts.process_mode)
-				usage(argv[0]);
-			opts.process_mode = pm_obfuscation;
-			break;
-		case 'P':
-			if (!optarg)
-				usage(argv[0]);
-			// Process the specified file(s)
-			Pdtoken::set_processed_files(verified_compiled_re(optarg));
-			break;
-		case 'S':
-			if (opts.process_mode)
-				usage(argv[0]);
-			if (!optarg)
-				usage(argv[0]);
-			opts.db_engine = optarg;
-			if (!Sql::setEngine(optarg))
-				return 1;
-			workdb_schema(Sql::getInterface(), cout);
-			exit(0);
-		case 's':
-			if (opts.process_mode)
-				usage(argv[0]);
-			if (!optarg)
-				usage(argv[0]);
-			opts.process_mode = pm_database;
-			opts.db_engine = optarg;
-			break;
-		case 't':
-			if (!optarg)
-				usage(argv[0]);
-			table_enable(optarg);
-			break;
-		case 'R':
-			if (!optarg)
-				usage(argv[0]);
-			opts.process_mode = pm_call_graph;
-			call_graphs.push_back(string(optarg));
-			break;
-		case '?':
-			usage(argv[0]);
-		}
+	opts.parse_args(argc, argv);
 
+	if (opts.do_merge)
+		merge_tokens(argv);
+
+	if (!opts.log_file.empty()) {
+		FILE *logfile;
+		if ((logfile = fopen(opts.log_file.c_str(), "a")) == NULL) {
+			perror(opts.log_file.c_str());
+			exit(1);
+		}
+		swill_log(logfile);
+	}
 
 	// We require exactly one argument
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
@@ -3704,7 +3518,7 @@ main(int argc, char *argv[])
 	}
 
 #ifdef PICO_QL
-	if (pico_ql) {
+	if (opts.pico_ql) {
 		pico_ql_register(&files, "files");
 		pico_ql_register(&Identifier::ids, "ids");
 		pico_ql_register(&Tokid::tm, "tm");
@@ -3717,9 +3531,9 @@ main(int argc, char *argv[])
 
 	if (opts.process_mode == pm_call_graph) {
 		cerr << "Producing call graphs for: ";
-		for (string d : call_graphs) cerr << d << " ";
+		for (string d : opts.call_graphs) cerr << d << " ";
 		cerr << endl;
-		produce_call_graphs(call_graphs);
+		produce_call_graphs(opts.call_graphs);
 
 		return (0);
 	}
