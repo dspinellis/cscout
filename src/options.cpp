@@ -40,19 +40,7 @@
 #include "compiledre.h"
 #include "dbtoken.h"
 #include "options.h"
-
-// Temporary - will use util.h once that PR merges
-#include "version.h"
-#include <sstream>
-
-static std::string
-version_info(bool html)
-{
-    std::ostringstream v;
-    std::string end = html ? "<br />" : "\n";
-    v << "CScout version " << Version::get_revision() << " - " << Version::get_date() << end;
-    return v.str();
-}
+#include "util.h"
 
 using namespace std;
 
