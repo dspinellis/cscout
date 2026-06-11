@@ -158,6 +158,11 @@ make_keymap()
 	m["_Noreturn"] = NORETURN;
 	m["_Static_assert"] = STATIC_ASSERT;
 	m["_Atomic"] = ATOMIC;
+	/* C23 */
+	m["typeof"] = TYPEOF;
+	m["typeof_unqual"] = TYPEOF_UNQUAL;
+	m["constexpr"] = CONSTEXPR;
+	m["nullptr"] = NULLPTR;
 
 	/* Microsoft */
 	m["_asm"] = MSC_ASM;
