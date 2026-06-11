@@ -28,20 +28,20 @@
 #include <vector>
 #include <string>
 
-// Processing mode set by command line flags
-enum e_process {
-	pm_unspecified,		// Default (web front-end) must be 0
-	pm_preprocess,		// Preprocess-only (-E)
-	pm_compile,		// Compile-only (-c)
-	pm_report,		// Generate a warning report
-	pm_database,		// Generate SQL database
-	pm_obfuscation,		// Obfuscate source
-	pm_call_graph		// Generate call graphs
-};
-
 // Invocation options parsed from command line arguments
 class CscoutOptions {
 public:
+	// Processing mode set by command line flags
+	enum e_process {
+		pm_unspecified,		// Default (web front-end) must be 0
+		pm_preprocess,		// Preprocess-only (-E)
+		pm_compile,		// Compile-only (-c)
+		pm_report,		// Generate a warning report
+		pm_database,		// Generate SQL database
+		pm_obfuscation,		// Obfuscate source
+		pm_call_graph		// Generate call graphs
+	};
+
 	enum e_process process_mode;
 	int portno;
 	bool quiet;
@@ -63,6 +63,15 @@ public:
 	{}
 
 	void parse_args(int argc, char *argv[]);
+
+	bool is_quiet() const { return quiet; }
+
+	bool is_web_server_mode() const {
+		return process_mode != pm_compile
+			&& process_mode != pm_database
+			&& process_mode != pm_obfuscation
+			&& process_mode != pm_preprocess;
+	}
 };
 
 void usage(char *fname);
