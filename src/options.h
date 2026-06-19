@@ -33,7 +33,7 @@ class CscoutOptions {
 public:
 	// Processing mode set by command line flags
 	enum e_process {
-		pm_unspecified,		// Default (web front-end) must be 0
+		pm_server,		// Default (web front-end) must be 0
 		pm_preprocess,		// Preprocess-only (-E)
 		pm_compile,			// Compile-only (-c)
 		pm_report,			// Generate a warning report
@@ -54,7 +54,7 @@ public:
 	bool pico_ql;
 
 	CscoutOptions() :
-		process_mode(pm_unspecified),
+		process_mode(pm_server),
 		portno(8081),
 		quiet(false),
 		browse_only(false),
@@ -66,12 +66,7 @@ public:
 
 	bool is_quiet() const { return quiet; }
 
-	bool is_web_server_mode() const {
-		return process_mode != pm_compile
-			&& process_mode != pm_database
-			&& process_mode != pm_obfuscation
-			&& process_mode != pm_preprocess;
-	}
+	bool is_web_server_mode() const { return process_mode == pm_server; }
 };
 
 void usage(char *fname);
