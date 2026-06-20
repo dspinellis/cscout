@@ -33,6 +33,7 @@
 #include "compiledre.h"
 #include "call.h"
 #include "eclass.h"
+#include "fifstream.h"
 
 // Forward declaration - defined in options.h
 class CscoutOptions;
@@ -72,19 +73,24 @@ bool file_analyze(Fileid fi);
 bool file_refactor(Fileid fid, std::string &error_msg);
 bool is_function_call_replacement_valid(std::string::const_iterator begin, std::string::const_iterator end, const char **error);
 void garbage_collect(Fileid root);
+std::string get_refactored_part(fifstream &in, Fileid fid);
 
 class CscoutEngine {
 private:
-	const CscoutOptions &opts;		// Invocation options controlling monitor and process mode
+	CscoutOptions &opts;			// Invocation options controlling monitor and process mode
 	std::vector<Fileid> files;		// All files in the analyzed workspace
 	Fileid input_file_id;			// Root input file passed on the command line
-	CompiledRE sfile_re;		 	// RE for mapping source file names to replacement paths
+	CompiledRE sfile_re;			// RE for mapping source file names to replacement paths
 
 	void establish_argument_boundaries(const std::string &fname);
+	std::string get_refactored_part(fifstream &in, Fileid fid);
 
 public:
-	CscoutEngine(const CscoutOptions &opts) : opts(opts) {}
+	CscoutEngine(CscoutOptions &opts) : opts(opts) {}
 
+	bool file_analyze(Fileid fi);
+	bool file_refactor(Fileid fid, std::string &error_msg);
+	void garbage_collect(Fileid root);
 	void analyze_files(Fileid input);
 	// Return all files collected during workspace analysis
 	const std::vector<Fileid> &get_files() const { return files; }

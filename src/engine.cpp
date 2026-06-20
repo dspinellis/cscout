@@ -102,7 +102,7 @@ int num_fun_call_refactorings = 0;
 // Populate the file's accociated files set
 // Return true if the file contains unused identifiers
 bool
-file_analyze(Fileid fi)
+CscoutEngine::file_analyze(Fileid fi)
 {
 	using namespace std::rel_ops;
 
@@ -242,8 +242,8 @@ file_analyze(Fileid fi)
 
 // Set the function argument boundaries for refactored
 // function calls for the specified file
-static void
-establish_argument_boundaries(const string &fname)
+void
+CscoutEngine::establish_argument_boundaries(const string &fname)
 {
 	Pltoken::set_context(cpp_normal);
 	Fchar::set_input(fname);
@@ -504,8 +504,8 @@ function_argument_replace(string::const_iterator begin, string::const_iterator e
  * Otherwise, return the part suitably renamed and with the
  * function arguments reordered.
  */
-static string
-get_refactored_part(fifstream &in, Fileid fid)
+std::string
+CscoutEngine::get_refactored_part(fifstream &in, Fileid fid)
 {
 	Tokid ti;
 	int val;
@@ -564,7 +564,7 @@ get_refactored_part(fifstream &in, Fileid fid)
 
 // Go through the file doing any refactorings needed
 bool
-file_refactor(Fileid fid, string &error_msg)
+CscoutEngine::file_refactor(Fileid fid, string &error_msg)
 {
 	string plain;
 	fifstream in;
@@ -652,7 +652,7 @@ file_refactor(Fileid fid, string &error_msg)
  * Called after processing each input file, for that file.
  */
 void
-garbage_collect(Fileid root)
+CscoutEngine::garbage_collect(Fileid root)
 {
 	vector <Fileid> files(Fileid::files(false));
 	set <Fileid> touched_files;
@@ -729,4 +729,11 @@ garbage_collect(Fileid root)
 	Fdep::reset();
 
 	return;
+}
+
+extern CscoutEngine engine;
+
+void garbage_collect(Fileid root)
+{
+    engine.garbage_collect(root);
 }

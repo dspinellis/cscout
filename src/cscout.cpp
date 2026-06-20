@@ -100,6 +100,7 @@ using namespace picoQL;
 #include "options.h"
 #include "engine.h"
 CscoutOptions opts;
+CscoutEngine engine(opts);
 
 #define ids Identifier::ids
 
@@ -441,7 +442,7 @@ xfilequery_page(FILE *of,  void *)
 
 	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
 
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+	for (vector <Fileid>::const_iterator i = engine.get_files().begin(); i != engine.get_files().end(); i++) {
 		if (query.eval(*i))
 			sorted_files.insert(*i);
 	}
@@ -1676,7 +1677,7 @@ fgraph_page(GraphDisplay *gd)
 			edges.insert(edges.begin(), size, vector<bool>(size, 0));
 			// Fill the edges for all files
 			Filedetails::clear_all_visited();
-			for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+			for (vector <Fileid>::const_iterator i = engine.get_files().begin(); i != engine.get_files().end(); i++) {
 				if (Filedetails::is_visited(*i))
 					continue;
 				if (!all && i->get_readonly())
@@ -1700,8 +1701,7 @@ fgraph_page(GraphDisplay *gd)
 	}
 	int count = 0;
 	// First generate the node labels
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if (!all && i->get_readonly())
+	for (vector <Fileid>::const_iterator i = engine.get_files().begin(); i != engine.get_files().end(); i++) {		if (!all && i->get_readonly())
 			continue;
 		if (only_visited && !Filedetails::is_visited(*i))
 			continue;
@@ -1710,7 +1710,7 @@ fgraph_page(GraphDisplay *gd)
 			goto end;
 	}
 	// Now the edges
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
+	for (vector <Fileid>::const_iterator i = engine.get_files().begin(); i != engine.get_files().end(); i++) {
 		if (!all && i->get_readonly())
 			continue;
 		if (only_visited && !Filedetails::is_visited(*i))
@@ -1735,7 +1735,7 @@ fgraph_page(GraphDisplay *gd)
 			break;
 		}
 		case 'F':		// Function call graph (control dependency)
-			for (vector <Fileid>::iterator j = files.begin(); j != files.end(); j++) {
+			for (vector <Fileid>::const_iterator j = engine.get_files().begin(); j != engine.get_files().end(); j++) {				
 				if (!all && j->get_readonly())
 					continue;
 				if (only_visited && !Filedetails::is_visited(*j))
@@ -2523,7 +2523,7 @@ write_quit_page(FILE *of, void *exit)
 	    cerr << "Processing files" << endl;
     for (IFSet::const_iterator i = process.begin(); i != process.end(); i++) {
         string err;
-        if (!file_refactor(*i, err))
+        if (!engine.file_refactor(*i, err))
             html_perror(of, err);
     }
 	fprintf(of, "A total of %d replacements and %d function call refactorings were made in %d files.",
@@ -2834,7 +2834,7 @@ main(int argc, char *argv[])
 	 */
 	Call::populate_macro_map();
 	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		file_analyze(*i);
+		engine.file_analyze(*i);
 		dir_add_file(*i);
 	}
 
