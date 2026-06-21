@@ -73,16 +73,13 @@
 #include "engine.h"
 #include "macro_arg_processor.h"
 
-extern CscoutOptions opts;
 #define ids Identifier::ids
 
 using namespace std;
 
-Fileid input_file_id;
-CompiledRE sfile_re;			// Saved files replacement location RE
-vector <Fileid> files;
 
 RefFunCall::store_type RefFunCall::store;
+CscoutEngine *CscoutEngine::instance = nullptr;
 
 
 // Boundaries of a function argument
@@ -92,10 +89,6 @@ struct ArgBound {
 
 typedef map <Tokid, vector <ArgBound> > ArgBoundMap;
 static ArgBoundMap argbounds_map;
-
-// Keep track of the number of replacements made when saving the files
-int num_id_replacements = 0;
-int num_fun_call_refactorings = 0;
 
 // Add identifiers of the file fi into ids
 // Collect metrics for the file and its functions
@@ -731,9 +724,15 @@ CscoutEngine::garbage_collect(Fileid root)
 	return;
 }
 
-extern CscoutEngine engine;
+void
+CscoutEngine::collect_active_files()
+{
+	files = Fileid::files(true);
+}
 
+// Free function wrapper for garbage_collect to maintain compatibility
+// with callers outside the engine (such as pdtoken.cpp)
 void garbage_collect(Fileid root)
 {
-    engine.garbage_collect(root);
+	CscoutEngine::get_instance().garbage_collect(root);
 }
