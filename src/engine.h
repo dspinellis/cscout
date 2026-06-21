@@ -61,32 +61,29 @@ public:
 
 typedef std::vector<std::vector<bool>> EdgeMatrix;
 
-// Keep track of the number of replacements made when saving the files
-extern int num_id_replacements;
-extern int num_fun_call_refactorings;
-extern Fileid input_file_id;
-extern CompiledRE sfile_re;				// Saved files replacement location RE
-extern std::vector<Fileid> files;
-
 // Analysis functions - defined in engine.cpp, called from cscout.cpp
-bool file_analyze(Fileid fi);
-bool file_refactor(Fileid fid, std::string &error_msg);
 bool is_function_call_replacement_valid(std::string::const_iterator begin, std::string::const_iterator end, const char **error);
 void garbage_collect(Fileid root);
-std::string get_refactored_part(fifstream &in, Fileid fid);
 
 class CscoutEngine {
 private:
+	static CscoutEngine *instance;	// Static pointer to the active engine instance
 	CscoutOptions &opts;			// Invocation options controlling monitor and process mode
 	std::vector<Fileid> files;		// All files in the analyzed workspace
 	Fileid input_file_id;			// Root input file passed on the command line
-	CompiledRE sfile_re;			// RE for mapping source file names to replacement paths
+	CompiledRE sfile_re;		 	// RE for mapping source file names to replacement paths
+	int num_id_replacements;		// Count of identifier replacements made during refactoring
+	int num_fun_call_refactorings;	// Count of function call argument reorderings made
 
 	void establish_argument_boundaries(const std::string &fname);
 	std::string get_refactored_part(fifstream &in, Fileid fid);
 
 public:
-	CscoutEngine(CscoutOptions &opts) : opts(opts) {}
+	CscoutEngine(CscoutOptions &opts) : opts(opts), num_id_replacements(0), num_fun_call_refactorings(0) {
+		instance = this;
+	}
+
+	static CscoutEngine &get_instance() { return *instance; }
 
 	bool file_analyze(Fileid fi);
 	bool file_refactor(Fileid fid, std::string &error_msg);
@@ -94,6 +91,17 @@ public:
 	void analyze_files(Fileid input);
 	// Return all files collected during workspace analysis
 	const std::vector<Fileid> &get_files() const { return files; }
+	// Return the root input file
+	const Fileid &get_input_file_id() const { return input_file_id; }
+	// Return the path of the root input file
+	const std::string &get_input_file_path() const { return input_file_id.get_path(); }
+	// Return identifier replacement count
+	int get_num_id_replacements() const { return num_id_replacements; }
+	// Return function call refactoring count
+	int get_num_fun_call_refactorings() const { return num_fun_call_refactorings; }
+	void collect_active_files();
+	void set_input_file_id(const Fileid &fid) { input_file_id = fid; }
+	void set_sfile_re(const CompiledRE &re) { sfile_re = re; }
 };
 
 #endif /* ENGINE_H */

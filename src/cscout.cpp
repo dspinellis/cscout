@@ -99,6 +99,7 @@ using namespace picoQL;
 #include "util.h"
 #include "options.h"
 #include "engine.h"
+
 CscoutOptions opts;
 CscoutEngine engine(opts);
 
@@ -442,9 +443,9 @@ xfilequery_page(FILE *of,  void *)
 
 	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
 
-	for (vector <Fileid>::const_iterator i = engine.get_files().begin(); i != engine.get_files().end(); i++) {
-		if (query.eval(*i))
-			sorted_files.insert(*i);
+	for (auto file : engine.get_files()) {
+		if (query.eval(file))
+			sorted_files.insert(file);
 	}
 	html_file_begin(of);
 	if (modification_state != ms_subst && !browse_only)
@@ -1373,13 +1374,14 @@ set_options_page(FILE *fo, void *p)
 	}
 	Option::set_all();
 	if (Option::sfile_re_string->get().length()) {
-		sfile_re = CompiledRE(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
+		CompiledRE sfile_re(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
 		if (!sfile_re.isCorrect()) {
 			html_head(fo, "regerror", "Regular Expression Error");
 			fprintf(fo, "<h2>Filename regular expression error</h2>%s", sfile_re.getError().c_str());
 			html_tail(fo);
 			return 0;
 		}
+		engine.set_sfile_re(sfile_re);
 	}
 	if (string(swill_getvar("set")) == "Apply")
 		return options_page(fo, p);
@@ -1422,10 +1424,12 @@ options_load()
 	}
 	Option::load_all(in);
 	if (Option::sfile_re_string->get().length()) {
-		sfile_re = CompiledRE(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
+		CompiledRE sfile_re(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
 		if (!sfile_re.isCorrect()) {
 			fprintf(stderr, "Filename regular expression error: %s", sfile_re.getError().c_str());
 			Option::sfile_re_string->erase();
+		} else {
+			engine.set_sfile_re(sfile_re);
 		}
 	}
 	in.close();
@@ -1677,17 +1681,17 @@ fgraph_page(GraphDisplay *gd)
 			edges.insert(edges.begin(), size, vector<bool>(size, 0));
 			// Fill the edges for all files
 			Filedetails::clear_all_visited();
-			for (vector <Fileid>::const_iterator i = engine.get_files().begin(); i != engine.get_files().end(); i++) {
-				if (Filedetails::is_visited(*i))
+			for (const auto &file : engine.get_files()) {
+				if (Filedetails::is_visited(file))
 					continue;
-				if (!all && i->get_readonly())
+				if (!all && file.get_readonly())
 					continue;
 				switch (*ltype) {
 				case 'D':
-					visit_fcall_files(*i, &Call::call_begin, &Call::call_end, Option::cgraph_depth->get(), edges);
+					visit_fcall_files(file, &Call::call_begin, &Call::call_end, Option::cgraph_depth->get(), edges);
 					break;
 				case 'U':
-					visit_fcall_files(*i, &Call::caller_begin, &Call::caller_end, Option::cgraph_depth->get(), edges);
+					visit_fcall_files(file, &Call::caller_begin, &Call::caller_end, Option::cgraph_depth->get(), edges);
 					break;
 				}
 			}
@@ -1701,24 +1705,25 @@ fgraph_page(GraphDisplay *gd)
 	}
 	int count = 0;
 	// First generate the node labels
-	for (vector <Fileid>::const_iterator i = engine.get_files().begin(); i != engine.get_files().end(); i++) {		if (!all && i->get_readonly())
+	for (const auto &file : engine.get_files()) {
+		if (!all && file.get_readonly())
 			continue;
-		if (only_visited && !Filedetails::is_visited(*i))
+		if (only_visited && !Filedetails::is_visited(file))
 			continue;
-		gd->node(*i);
+		gd->node(file);
 		if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
 			goto end;
 	}
 	// Now the edges
-	for (vector <Fileid>::const_iterator i = engine.get_files().begin(); i != engine.get_files().end(); i++) {
-		if (!all && i->get_readonly())
+	for (const auto &file : engine.get_files()) {
+		if (!all && file.get_readonly())
 			continue;
-		if (only_visited && !Filedetails::is_visited(*i))
+		if (only_visited && !Filedetails::is_visited(file))
 			continue;
 		switch (*gtype) {
 		case 'C':		// Compile-time dependency graph
 		case 'I': {		// Include graph
-			const FileIncMap &m(Filedetails::get_includes(*i));
+			const FileIncMap &m(Filedetails::get_includes(file));
 			for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
 				if (*gtype == 'I' && !j->second.is_directly_included())
 					continue;
@@ -1728,29 +1733,29 @@ fgraph_page(GraphDisplay *gd)
 					continue;
 				if (only_visited && !Filedetails::is_visited(j->first))
 					continue;
-				gd->edge(j->first, *i);
+				gd->edge(j->first, file);
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
 					goto end;
 			}
 			break;
 		}
 		case 'F':		// Function call graph (control dependency)
-			for (vector <Fileid>::const_iterator j = engine.get_files().begin(); j != engine.get_files().end(); j++) {				
-				if (!all && j->get_readonly())
+			for (const auto &file2 : engine.get_files()) {				
+				if (!all && file2.get_readonly())
 					continue;
-				if (only_visited && !Filedetails::is_visited(*j))
+				if (only_visited && !Filedetails::is_visited(file2))
 					continue;
-				if (*i == *j)
+				if (file == file2)
 					continue;
 				if (DP())
-					cout << "Checking " << i->get_fname() << " - " << j->get_fname() << endl;
-				if (edges[i->get_id()][j->get_id()])
+					cout << "Checking " << file.get_fname() << " - " << file2.get_fname() << endl;
+				if (edges[file.get_id()][file2.get_id()])
 					switch (*ltype) {
 					case 'D':
-						gd->edge(*j, *i);
+						gd->edge(file2, file);
 						break;
 					case 'U':
-						gd->edge(*i, *j);
+						gd->edge(file, file2);
 						break;
 					}
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
@@ -1758,12 +1763,12 @@ fgraph_page(GraphDisplay *gd)
 			}
 			break;
 		case 'G':		// Global object def/ref graph (data dependency)
-			for (Fileidset::const_iterator j = Filedetails::get_glob_uses(*i).begin(); j != Filedetails::get_glob_uses(*i).end(); j++) {
+			for (Fileidset::const_iterator j = Filedetails::get_glob_uses(file).begin(); j != Filedetails::get_glob_uses(file).end(); j++) {
 				if (!all && j->get_readonly())
 					continue;
 				if (only_visited && !Filedetails::is_visited(*j))
 					continue;
-				gd->edge(*j, *i);
+				gd->edge(*j, file);
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
 					goto end;
 			}
@@ -2490,7 +2495,7 @@ write_quit_page(FILE *of, void *exit)
 		    cerr << "Checking rename refactorings for name clashes." << endl;
 		Token::check_clashes = true;
 		// Reparse everything
-		Fchar::set_input(input_file_id.get_path());
+		Fchar::set_input(engine.get_input_file_path());
 		Error::set_parsing(true);
 		Pdtoken t;
 		do
@@ -2527,7 +2532,7 @@ write_quit_page(FILE *of, void *exit)
             html_perror(of, err);
     }
 	fprintf(of, "A total of %d replacements and %d function call refactorings were made in %d files.",
-	    num_id_replacements, num_fun_call_refactorings, (unsigned)(process.size()));
+		engine.get_num_id_replacements(), engine.get_num_fun_call_refactorings(), (unsigned)(process.size()));
 	if (exit) {
 		fprintf(of, "<p>Bye...</body></html>");
 		must_exit = true;
@@ -2645,14 +2650,14 @@ warning_report()
 	typedef map <int, SiteInfo> Sites;
 	Sites include_sites;
 
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if (i->get_readonly() ||		// Don't report on RO files
-		    !Filedetails::is_compilation_unit(*i) ||		// Algorithm only works for CUs
-		    *i == input_file_id ||		// Don't report on main file
-		    Filedetails::get_includers(*i).size() > 1)	// For files that are both CUs and included
+	for (const auto &file : engine.get_files()) {
+		if (file.get_readonly() ||		// Don't report on RO files
+		    !Filedetails::is_compilation_unit(file) ||		// Algorithm only works for CUs
+		    file == engine.get_input_file_id() ||		// Don't report on main file
+		    Filedetails::get_includers(file).size() > 1)	// For files that are both CUs and included
 							// by others all bets are off
 			continue;
-		const FileIncMap &m = Filedetails::get_includes(*i);
+		const FileIncMap &m = Filedetails::get_includes(file);
 		// Find the status of our include sites
 		include_sites.clear();
 		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
@@ -2676,9 +2681,9 @@ warning_report()
 				const set <Fileid> &sf = (*si).second.get_files();
 				int line = (*si).first;
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
-					cerr << i->get_path() << ':' <<
+					cerr << file.get_path() << ':' <<
 						line << ": " <<
-						"(" << Filedetails::get_pre_cpp_const_metrics(*i).get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
+						"(" << Filedetails::get_pre_cpp_const_metrics(file).get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
 						" unused included file " <<
 						fi->get_path() <<
 						endl;
@@ -2802,7 +2807,7 @@ main(int argc, char *argv[])
 	if (opts.process_mode == CscoutOptions::pm_preprocess)
 		return 0;
 
-	input_file_id = Fileid(argv[optind]);
+	engine.set_input_file_id(Fileid(argv[optind]));
 
 	Filedetails::unify_identical_files();
 
@@ -2810,7 +2815,7 @@ main(int argc, char *argv[])
 		return obfuscate();
 
 	// Pass 2: Create web pages
-	files = Fileid::files(true);
+	engine.collect_active_files();
 
 
 
@@ -2833,9 +2838,9 @@ main(int argc, char *argv[])
 	 * Set several file and function metrics.
 	 */
 	Call::populate_macro_map();
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		engine.file_analyze(*i);
-		dir_add_file(*i);
+	for (const auto &file : engine.get_files()) {
+		engine.file_analyze(file);
+		dir_add_file(file);
 	}
 
 	// Update file and function metrics
