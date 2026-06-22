@@ -207,12 +207,12 @@ public:
 		em_npid,	// Number of project-scope identifiers
 		em_nfid,	// Number of file-scope (static) identifiers
 		em_nmid,	// Number of macro identifiers
-		em_nid,		// Total number of object and object-like identifiers
+		em_nid,		// Total number of object, object-like, and macro identifiers
 		// The following four lines must match the previous four
 		em_nupid,	// Number of project-scope identifiers
 		em_nufid,	// Number of file-scope (static) identifiers
 		em_numid,	// Number of macro identifiers
-		em_nuid,	// Number of unique object and object-like identifiers
+		em_nuid,	// Number of unique object, object-like, and macro identifiers
 		em_nlabid,	// (INT) Number of label identifiers
 		// Metrics tallied at macro expansion
 		em_nmacrointoken, // Tokens supplied for macro expansion
