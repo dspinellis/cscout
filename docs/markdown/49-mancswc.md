@@ -1,0 +1,157 @@
+# The cswc Command Manual Page
+
+
+## Name
+
+cswc - CScout workspace compiler
+
+## Synopsis
+
+**cswc** 
+[**-gv**]
+[**-d** *directory*]
+[*file*]
+
+## Description
+
+*cswc* is a workspace compiler for the *CScout* C source code analyzer
+and refactoring browser.
+*CScout* integrates in a single process the functionality of 
+a multi-project build engine,
+an ANSI C preprocessor, and
+the parts of a C compiler up to and including the semantic analysis
+based on types.
+The build engine functionality is required to allow the user to process 
+multiple compilation and link units as a single batch.
+Only thus can *CScout* detect dependencies across different files and
+projects.
+Each compilation unit can reside in a different directory and can require
+processing using different macro definitions or a different include file path.
+In a normal build process these options are typically specified in a 
+*Makefile*.
+The *CScout* operation is similarly guided by a 
+declarative workspace definition file.
+To decouple the complexity of the *CScout* workspace processing
+specification from its actual operation, and to encouriage experimentation
+with alternative (e.g. IDE-based) workspace specification mechanisms,
+*CScout* is guided by a very simple imperative script typically
+generated from more sophisticated workspace definitions by 
+*cswc*, the *CScout* workspace compiler.
+
+This manual page describes the *cswc* invocation and command-line
+options.
+Details about its input and output formats, setup, and configuration can be
+found in the online hypertext documentation and at the project's home page
+http://www.spinellis.gr/cscout.
+
+
+## Options
+
+Specify the directory to use for locating the *CScout* configuration files.
+Compile the project as generic rather than host-specific C code.
+This means that the generated files will include CScout's standard-C include
+and macro definition files (*stdc-incs.h* and *stdc-defs.h*),
+rather than the host-specific ones (*host-incs.h* and *host-defs.h*).
+Display  the *cswc* version and copyright information and exit.
+
+
+## Example
+
+The following is a configuration file used for processing the
+*apache* web server.
+
+.DS
+.ft C
+.nf
+workspace apache {
+    cd "/usr/local/src/apache/src"
+    ro_prefix "/usr/local/src/apache/src/include/ap_config"
+    # Global project definitions
+    define HTTPD_ROOT "/usr/local/apache"
+    define SUEXEC_BIN "/usr/local/apache/bin/suexec"
+    define SHARED_CORE_DIR "/usr/local/apache/libexec"
+    define DEFAULT_PIDLOG "logs/httpd.pid"
+    define DEFAULT_SCOREBOARD "logs/httpd.scoreboard"
+    define DEFAULT_LOCKFILE "logs/httpd.lock"
+    define DEFAULT_XFERLOG "logs/access_log"
+    define DEFAULT_ERRORLOG "logs/error_log"
+    define TYPES_CONFIG_FILE "conf/mime.types"
+    define SERVER_CONFIG_FILE "conf/httpd.conf"
+    define ACCESS_CONFIG_FILE "conf/access.conf"
+    define RESOURCE_CONFIG_FILE "conf/srm.conf"
+    define AUX_CFLAGS
+    define LINUX 22 
+    define USE_HSREGEX 
+    define NO_DL_NEEDED
+    # Give project-specific directory and include path properties
+    project gen_uri_delims {
+        cd "main"
+        ipath "../os/unix"
+        ipath "../include"
+        file gen_uri_delims.c
+    }
+    # Alternative formulation; specify per-file properties
+    project gen_test_char {
+        file gen_test_char.c {
+            cd "main"
+            ipath "../os/unix"
+            ipath "../include"
+        }
+    }
+    # httpd executable; specify directory-based properties
+    project httpd {
+        directory main {
+            ipath "../os/unix"
+            ipath "../include"
+            file alloc.c buff.c http_config.c http_core.c
+            file http_log.c http_main.c http_protocol.c
+            file http_request.c http_vhost.c util.c util_date.c
+            file util_script.c util_uri.c util_md5.c rfc1413.c
+        }
+        directory regex {
+            ipath "."
+            ipath "../os/unix"
+            ipath "../include"
+            define POSIX_MISTAKE
+            file regcomp.c regexec.c regerror.c regfree.c
+        }
+        directory os/unix {
+            ipath "../../os/unix"
+            ipath "../../include"
+            file os.c os-inline.c
+        }
+        directory ap {
+            ipath "../os/unix"
+            ipath "../include"
+            file ap_cpystrn.c ap_execve.c ap_fnmatch.c ap_getpass.c 
+            file ap_md5c.c ap_signal.c ap_slack.c ap_snprintf.c 
+            file ap_sha1.c ap_checkpass.c ap_base64.c ap_ebcdic.c
+        }
+        directory modules/standard {
+            ipath "../../os/unix"
+            ipath "../../include"
+            file mod_env.c mod_log_config.c mod_mime.c
+            file mod_negotiation.c mod_status.c mod_include.c
+            file mod_autoindex.c mod_dir.c mod_cgi.c mod_asis.c
+            file mod_imap.c mod_actions.c mod_userdir.c
+            file mod_alias.c mod_access.c mod_auth.c mod_setenvif.c
+        }
+        directory . {
+            ipath "./os/unix"
+            ipath "./include"
+            file modules.c buildmark.c
+        }
+    }
+}
+.ft P
+.fi
+.DE
+
+
+## See Also
+
+cscout(1)
+
+## Author
+
+(C) Copyright 2003 Diomidis Spinellis.
