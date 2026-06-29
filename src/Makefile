@@ -282,6 +282,7 @@ uninstall:
 	rm -f "$(PREFIX)/bin/cswc"
 	rm -f "$(PREFIX)/bin/cscut"
 	rm -f "$(PREFIX)/bin/cssplit"
+	rm -f "$(PREFIX)/bin/cscoco"
 	rm -f "$(PREFIX)/bin/csreconst"
 	rm -rf "$(PREFIX)/include/cscout"
 	rm -rf "$(PREFIX)/lib/csmerge"

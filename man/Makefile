@@ -1,5 +1,5 @@
 all: cscout.pdf cswc.pdf csmake.pdf cscc.pdf cscut.pdf cssplit.pdf \
-	csreconst.pdf csmerge.pdf
+	csreconst.pdf csmerge.pdf cscoco.pdf
 
 %.pdf: %.1
 	groff -Tps -man <$< >$$.ps
