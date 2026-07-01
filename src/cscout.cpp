@@ -95,8 +95,14 @@ using namespace picoQL;
 #include "sql.h"
 #include "workdb.h"
 #include "obfuscate.h"
+#include "progress.h"
 #include "util.h"
 #include "progress.h"
+#include "options.h"
+#include "engine.h"
+
+CscoutOptions opts;
+CscoutEngine engine(opts);
 
 #define ids Identifier::ids
 
@@ -110,18 +116,6 @@ using namespace picoQL;
 	} while (0)
 
 
-// Global command-line options
-static enum e_process {
-	pm_unspecified,			// Default (web front-end) must be 0
-	pm_preprocess,			// Preprocess-only (-E)
-	pm_compile,			// Compile-only (-c)
-	pm_report,			// Generate a warning report
-	pm_database,
-	pm_obfuscation,
-	pm_call_graph
-} process_mode;
-static int portno = 8081;		// Port number (-p n)
-static string db_engine;		// Create SQL output for a specific db_iface
 
 // Workspace modification state
 static enum e_modification_state {
@@ -130,7 +124,6 @@ static enum e_modification_state {
 	ms_hand_edit			// A file has been hand-edited; only further hand-edits are allowed
 } modification_state;
 
-static Fileid input_file_id;
 
 // This uses many of the above, and is therefore included here
 #include "gdisplay.h"
@@ -144,56 +137,10 @@ static bool browse_only = false;
 // Maximum number of nodes and edges allowed to browsing-only clients
 #define MAX_BROWSING_GRAPH_ELEMENTS 1000
 
-static bool quiet = false;           //added a global variable for quiet 
 
-static CompiledRE sfile_re;			// Saved files replacement location RE
 
-// Identifiers to monitor (-m parameter)
-static IdQuery monitor;
-
-static vector <Fileid> files;
 
 Attributes::size_type current_project;
-
-
-/*
- * A map from an equivallence class to the string
- * specifying the arguments of the corresponding
- * refactored function call (e.g. "@2, @1")
- */
-class RefFunCall {
-private:
-	Call *fun;		// Function
-	string repl;		// Replacement patttern
-	bool active;		// True if active
-public:
-	typedef map <Eclass *, RefFunCall> store_type;	// Store of all refactorings
-	static store_type store;
-	RefFunCall(Call *f, string s) : fun(f), repl(s), active(true) {}
-	const Call *get_function() const { return fun; }
-	const string &get_replacement() const { return repl; }
-	void set_replacement(const string &s) { repl = s; }
-	bool is_active() const { return active; }
-	void set_active(bool a) { active = a; }
-};
-
-RefFunCall::store_type RefFunCall::store;
-
-// Matrix used to store graph edges
-typedef vector<vector<bool> > EdgeMatrix;
-
-// Boundaries of a function argument
-struct ArgBound {
-	streampos start, end;
-};
-
-typedef map <Tokid, vector <ArgBound> > ArgBoundMap;
-static ArgBoundMap argbounds_map;
-
-// Keep track of the number of replacements made when saving the files
-static int num_id_replacements = 0;
-static int num_fun_call_refactorings = 0;
-
 
 static int index_page(FILE *of, void *data);
 
@@ -259,149 +206,6 @@ html_string(FILE *of, const Call *f)
 		putc(']', of);
 		start += i->get_len();
 	}
-}
-
-// Add identifiers of the file fi into ids
-// Collect metrics for the file and its functions
-// Populate the file's accociated files set
-// Return true if the file contains unused identifiers
-static bool
-file_analyze(Fileid fi)
-{
-	using namespace std::rel_ops;
-
-	fifstream in;
-	bool has_unused = false;
-	const string &fname = fi.get_path();
-	int line_number = 0;
-
-
-	FCallSet &fc = Filedetails::get_functions(fi);	// File's functions
-	FCallSet::iterator fci = fc.begin();	// Iterator through them
-	Call *cfun = NULL;			// Current function
-	stack <Call *> fun_nesting;
-
-	if (!quiet)
-	    cerr << "Post-processing " << fname << endl;
-	in.open(fname.c_str(), ios::binary);
-	if (in.fail()) {
-		perror(fname.c_str());
-		exit(1);
-	}
-
-	MacroArgProcessor ma_proc;
-
-	// Go through the file character by character
-	for (;;) {
-		Tokid ti;
-		int val;
-
-		ti = Tokid(fi, in.tellg());
-		if ((val = in.get()) == EOF)
-			break;
-
-		// Update current_function
-		if (cfun && ti > cfun->get_end().get_tokid()) {
-			cfun->get_pre_cpp_metrics().summarize_identifiers();
-			if (cfun->is_cfun())
-				cfun->get_pre_cpp_metrics().adjust_cfun_metrics();
-			if (fun_nesting.empty())
-				cfun = NULL;
-			else {
-				cfun = fun_nesting.top();
-				fun_nesting.pop();
-			}
-		}
-		// See if entering a new function
-		if (fci != fc.end() && ti >= (*fci)->get_begin().get_tokid()) {
-			if (cfun)
-				fun_nesting.push(cfun);
-			cfun = *fci;
-			fci++;
-		}
-
-		char c = (char)val;
-		mapTokidEclass::iterator ei;
-		enum e_cfile_state cstate = Filedetails::get_pre_cpp_metrics(fi).get_state();
-
-		ma_proc.process_char(cstate, c);
-
-		// Mark identifiers
-		if (cstate != s_block_comment &&
-		    cstate != s_string &&
-		    cstate != s_cpp_comment &&
-		    (isalnum(c) || c == '_') &&
-		    (ei = ti.find_ec()) != ti.end_ec()) {
-			Eclass *ec = (*ei).second;
-			// Remove identifiers we are not supposed to monitor
-			if (monitor.is_valid()) {
-				IdPropElem ec_id(ec, Identifier());
-				if (!monitor.eval(ec_id)) {
-					ec->remove_from_tokid_map();
-					delete ec;
-					continue;
-				}
-			}
-
-			string s(1, c);
-			int len = ec->get_len();
-			for (int j = 1; j < len; j++)
-				s += (char)in.get();
-
-			// Identifiers we can mark
-			if (ec->is_identifier()) {
-				// Update metrics
-				id_msum.add_pre_cpp_id(ec);
-				// Add to the map
-				Filedetails::get_pre_cpp_metrics(fi).process_identifier(s, ec);
-				if (cfun)
-					cfun->get_pre_cpp_metrics().process_identifier(s, ec);
-				/*
-				 * ids[ec] = Identifier(ec, s);
-				 * Efficiently add s to ids, if needed.
-				 * See Meyers, effective STL, Item 24.
-				 */
-				IdProp::iterator idi = ids.lower_bound(ec);
-				if (idi == ids.end() || idi->first != ec)
-					ids.insert(idi, IdProp::value_type(ec, Identifier(ec, s)));
-				if (ec->is_unused())
-					has_unused = true;
-				else {
-					; // TODO fi.set_associated_files(ec);
-				}
-			} else {
-				/*
-				 * This equivalence class is not needed.
-				 * (All potential identifier tokens,
-				 * even reserved words get an EC. These are
-				 * cleared here.)
-				 */
-				ec->remove_from_tokid_map();
-				delete ec;
-				ec = NULL;
-			}
-			ma_proc.process_ec(ec, s);
-		}
-		Filedetails::get_pre_cpp_metrics(fi).process_char((char)val);
-		if (cfun)
-			cfun->get_pre_cpp_metrics().process_char((char)val);
-		if (c == '\n') {
-			Filedetails::add_line_end(fi, ti.get_streampos());
-			if (!Filedetails::is_line_processed(fi, ++line_number))
-				Filedetails::get_pre_cpp_metrics(fi).add_unprocessed();
-		}
-	}
-	if (cfun) {
-		cfun->get_pre_cpp_metrics().summarize_identifiers();
-		if (cfun->is_cfun())
-			cfun->get_pre_cpp_metrics().adjust_cfun_metrics();
-	}
-	Filedetails::get_pre_cpp_metrics(fi).summarize_identifiers();
-	Filedetails::get_pre_cpp_metrics(fi).set_ncopies(Filedetails::get_identical_files(fi).size());
-	if (DP())
-		cout << "nchar = " << Filedetails::get_pre_cpp_metrics(fi).get_metric(Metrics::em_nchar) << endl;
-	in.close();
-	return has_unused;
 }
 
 // Display the contents of a file in hypertext form
@@ -520,407 +324,6 @@ file_hypertext(FILE *of, Fileid fi, bool eval_query)
 	fputs("<hr></code>", of);
 }
 
-
-// Set the function argument boundaries for refactored
-// function calls for the specified file
-static void
-establish_argument_boundaries(const string &fname)
-{
-	Pltoken::set_context(cpp_normal);
-	Fchar::set_input(fname);
-
-	for (;;) {
-		Pltoken t;
-again:
-		t.getnext<Fchar>();
-		if (t.get_code() == EOF)
-			break;
-
-		Tokid ti;
-		Eclass *ec;
-		RefFunCall::store_type::const_iterator rfc;
-		if (t.get_code() == IDENTIFIER &&
-		    (ti = t.get_parts_begin()->get_tokid(), ec = ti.check_ec()) &&
-		    (rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end() &&
-		    rfc->second.is_active() &&
-		    (int)t.get_val().length() == ec->get_len()) {
-			Tokid call = t.get_parts_begin()->get_tokid();
-			// Gather args
-			FcharContext fc = Fchar::get_context();		// Save position to scan for another function
-			// Move just before the first arg
-			for (;;) {
-				t.getnext<Fchar>();
-				if (t.get_code() == EOF) {
-					/*
-					 * @error
-					 * End of file encountered while scanning the opening
-					 * bracket in a refactored function call
-					 */
-					Error::error(E_WARN, "Missing open bracket in refactored function call");
-					break;
-				}
-				if (t.get_code() == '(')
-					break;
-				if (!isspace(t.get_code())) {
-					Fchar::set_context(fc);		// Restore saved position
-					goto again;
-				}
-			}
-			// Gather the boundaries of all arguments of a single function
-			vector <ArgBound> abv;
-			for (;;) {
-				ArgBound ab;
-				// Set position of argument's first token part the delimiter read
-				ab.start = t.get_delimiter_tokid().get_streampos();
-				ab.start += 1;
-				if (DP())
-					cerr << "arg.start: " << ab.start << endl;
-				t.getnext<Fchar>();	// We just read the delimiter; move past it
-				int bracket = 0;
-				// Scan to argument's end
-				for (;;) {
-					if (bracket == 0 && (t.get_code() == ',' || t.get_code() == ')')) {
-						// End of arg
-						ab.end = t.get_delimiter_tokid().get_streampos();
-						abv.push_back(ab);
-						if (DP())
-							cerr << "arg.end: " << ab.end << endl;
-						if (t.get_code() == ')') {
-							// Done with this call
-							argbounds_map.insert(pair<ArgBoundMap::key_type, ArgBoundMap::mapped_type>(call, abv));
-							if (DP())
-								cerr << "Finish function" << endl;
-							Fchar::set_context(fc);		// Restore saved position
-							goto again;			// Scan again from the token following the function's name
-						}
-						break;	// Next argument
-					}
-					switch (t.get_code()) {
-					case '(':
-						bracket++;
-						break;
-					case ')':
-						bracket--;
-						break;
-					case EOF:
-						/*
-						 * @error
-						 * The end of file was reached while
-						 * gathering a refactored function call's arguments
-						 */
-						Error::error(E_WARN, "EOF while reading refactored function call arguments");
-						Fchar::set_context(fc);
-						goto again;
-					}
-					t.getnext<Fchar>();
-				}
-			}
-			/* NOTREACHED */
-		} // If refactored function call
-	} // For all the file's tokens
-}
-
-// Trim whitespace at the left of the string
-static string
-ltrim(const string &s)
-{
-	string::const_iterator i;
-
-	for (i = s.begin(); i != s.end(); i++)
-		if (!isspace(*i))
-			break;
-	return string(i, s.end());
-}
-
-/*
- * Return (through the out params n and op) the value of
- * an @ template replacement operator and the corresponding modifier.
- * Update i to point to the first character after the @ sequence.
- * For conditional modifiers (+ and -) set b2 and e2 to the enclosed text,
- * otherwise set the two to point to end.
- * Return true if the operator's syntax is correct, false if not.
- * Set error to the corresponding error message.
- */
-static bool
-parse_function_call_replacement(string::const_iterator &i, string::const_iterator end, vector<string>::size_type &n,
-    char &mod, string::const_iterator &b2, string::const_iterator &e2, const char **error)
-{
-	if (DP())
-		cerr << "Scan replacement \"" << string(i, end) << '"' << endl;
-	csassert(*i == '@');
-	if (++i == end) {
-		*error = "Missing argument to @";
-		return false;
-	}
-	switch (*i) {
-	case '.':
-	case '+':
-	case '-':
-		mod = *i++;
-		break;
-	default:
-		mod = '=';
-		break;
-	}
-	int val, nchar;
-	if (DP())
-		cerr << "Scan number \"" << string(i, end) << '"' << endl;
-	int nconv = sscanf(string(i, end).c_str(), "%d%n", &val, &nchar);
-	if (nconv != 1 || val <= 0) {
-		*error = "Invalid numerical value to @";
-		return false;
-	}
-	i += nchar;
-	n = (unsigned)val;
-	if (mod == '+' || mod == '-') {
-		// Set b2, e2 to the limits argument in braces and update i past them
-		if (*i != '{') {
-			*error = "Missing opening brace";
-			return false;
-		}
-		b2 = i + 1;
-		int nbrace = 0;
-		for (; i != end; i++) {
-			if (*i == '{') nbrace++;
-			if (*i == '}') nbrace--;
-			if (nbrace == 0)
-				break;
-		}
-		if (i == end) {
-			*error = "Non-terminated argument in braces (missing closing brace)";
-			return false;
-		} else
-			e2 = i++;
-		if (DP())
-			cerr << "Enclosed range: \"" << string(b2, e2) << '"' << endl;
-	} else
-		b2 = e2 = end;
-	if (DP())
-		cerr << "nchar= " << nchar << " val=" << n << " remain: \"" << string(i, end) << '"' << endl;
-	csassert(i <= end);
-	*error = "No error";
-	return true;
-}
-
-
-/*
- * Return true if a function call substitution string in the range is valid
- * Set error to the corresponding error value
- */
-static bool
-is_function_call_replacement_valid(string::const_iterator begin, string::const_iterator end, const char **error)
-{
-	if (DP())
-		cerr << "Call valid for \"" << string(begin, end) << '"' << endl;
-	for (string::const_iterator i = begin; i != end;)
-		if (*i == '@') {
-			vector<string>::size_type n;
-			char modifier;
-			string::const_iterator b2, e2;
-			if (!parse_function_call_replacement(i, end, n, modifier, b2, e2, error))
-				return false;
-			if ((b2 != e2) && !is_function_call_replacement_valid(b2, e2, error))
-			    	return false;
-		} else
-			i++;
-	return true;
-}
-
-/*
- * Set arguments in the new order as specified by the template begin..end
- * @N  : use argument N
- * @.N : use argument N and append a comma-separated list of all arguments following N
- * @+N{...} : if argument N exists, substitute text in braces
- * @-N{...} : if argument N doesn't exist, substitute text in braces
- */
-string
-function_argument_replace(string::const_iterator begin, string::const_iterator end, const vector <string> &args)
-{
-	string ret;
-
-	for (string::const_iterator i = begin; i != end;)
-		if (*i == '@') {
-			vector<string>::size_type n;
-			char modifier = '=';
-			string::const_iterator b2, e2;
-			const char *error;
-			bool valid = parse_function_call_replacement(i, end, n, modifier, b2, e2, &error);
-			csassert(valid);
-			switch (modifier) {
-			case '.':	// Append comma-separated varargs
-				if (n <= args.size())
-					ret += ltrim(args[n - 1]);
-				for (vector<string>::size_type j = n; j < args.size(); j++) {
-					ret += ", ";
-					ret += ltrim(args[j]);
-				}
-				break;
-			case '+':	// if argument N exists, substitute text in braces
-				if (n <= args.size())
-					ret += function_argument_replace(b2, e2, args);
-				break;
-			case '-':	// if argument N doesn't exist, substitute text in braces
-				if (n > args.size())
-					ret += function_argument_replace(b2, e2, args);
-				break;
-			case '=':	// Exact argument
-				if (n <= args.size())
-					ret += ltrim(args[n - 1]);
-				break;
-			}
-		} else
-			ret += *i++;
-	return ret;
-}
-
-/*
- * Return the smallest part of the file that can be chunked
- * without renaming or having to reorder function arguments.
- * Otherwise, return the part suitably renamed and with the
- * function arguments reordered.
- */
-static string
-get_refactored_part(fifstream &in, Fileid fid)
-{
-	Tokid ti;
-	int val;
-	string ret;
-
-	ti = Tokid(fid, in.tellg());
-	if ((val = in.get()) == EOF)
-		return ret;
-	Eclass *ec;
-
-	// Identifiers that should be replaced
-	IdProp::const_iterator idi;
-	if ((ec = ti.check_ec()) &&
-	    ec->is_identifier() &&
-	    (idi = ids.find(ec)) != ids.end() &&
-	    idi->second.get_replaced() &&
-	    idi->second.get_active()) {
-		int len = ec->get_len();
-		for (int j = 1; j < len; j++)
-			(void)in.get();
-		ret += (*idi).second.get_newid();
-		num_id_replacements++;
-	} else
-		ret = (char)val;
-
-	// Functions whose arguments need reordering
-	RefFunCall::store_type::const_iterator rfc;
-	ArgBoundMap::const_iterator abi;
-	if ((ec = ti.check_ec()) &&
-	    ec->is_identifier() &&
-	    (rfc = RefFunCall::store.find(ec)) != RefFunCall::store.end() &&
-	    rfc->second.is_active() &&
-	    (abi = argbounds_map.find(ti)) != argbounds_map.end()) {
-		const ArgBoundMap::mapped_type &argbounds = abi->second;
-		csassert (in.tellg() < argbounds[0].start);
-		// Gather material until first argument
-		while (in.tellg() < argbounds[0].start)
-			ret += get_refactored_part(in, fid);
-		// Gather arguments
-		vector<string> arg(argbounds.size());
-		for (ArgBoundMap::mapped_type::size_type i = 0; i < argbounds.size(); i++) {
-			while (in.tellg() < argbounds[i].end)
-				arg[i] += get_refactored_part(in, fid);
-			int endchar = in.get();
-			if (DP())
-			cerr << "arg[" << i << "] = \"" << arg[i] << "\" endchar: '" << (char)endchar << '\'' << endl;
-			csassert ((i == argbounds.size() - 1 && endchar == ')') ||
-			    (i < argbounds.size() - 1 && endchar == ','));
-		}
-		ret += function_argument_replace(rfc->second.get_replacement().begin(), rfc->second.get_replacement().end(), arg);
-		ret += ')';
-		num_fun_call_refactorings++;
-	} // Replaced function call
-	return ret;
-}
-
-// Go through the file doing any refactorings needed
-static void
-file_refactor(FILE *of, Fileid fid)
-{
-	string plain;
-	fifstream in;
-	ofstream out;
-
-	if (!quiet)
-	    cerr << "Processing file " << fid.get_path() << endl;
-
-	if (RefFunCall::store.size())
-		establish_argument_boundaries(fid.get_path());
-	in.open(fid.get_path().c_str(), ios::binary);
-	if (in.fail()) {
-		html_perror(of, "Unable to open " + fid.get_path() + " for reading");
-		return;
-	}
-	string ofname(fid.get_path() + ".repl");
-	out.open(ofname.c_str(), ios::binary);
-	if (out.fail()) {
-		html_perror(of, "Unable to open " + ofname + " for writing");
-		return;
-	}
-
-	while (!in.eof())
-		out << get_refactored_part(in, fid);
-	argbounds_map.clear();
-
-	// Needed for Windows
-	in.close();
-	out.close();
-
-	if (Option::sfile_re_string->get().length()) {
-		regmatch_t be;
-		if (sfile_re.exec(fid.get_path().c_str(), 1, &be, 0) == REG_NOMATCH ||
-		    be.rm_so == -1 || be.rm_eo == -1)
-			fprintf(of, "File %s does not match file replacement RE."
-				"Replacements will be saved in %s.repl.<br>\n",
-				ofname.c_str(), ofname.c_str());
-		else {
-			string newname(fid.get_path().c_str());
-			newname.replace(be.rm_so, be.rm_eo - be.rm_so, Option::sfile_repl_string->get());
-			string cmd("cscout_checkout " + newname);
-			if (system(cmd.c_str()) != 0) {
-				html_error(of, "Changes are saved in " + ofname + ", because executing the checkout command cscout_checkout failed");
-				return;
-			}
-			if (unlink(newname) < 0) {
-				html_perror(of, "Changes are saved in " + ofname + ", because deleting the target file " + newname + " failed");
-				return;
-			}
-			if (rename(ofname.c_str(), newname.c_str()) < 0) {
-				html_perror(of, "Changes are saved in " + ofname + ", because renaming the file " + ofname + " to " + newname + " failed");
-				return;
-			}
-			string cmd2("cscout_checkin " + newname);
-			if (system(cmd2.c_str()) != 0) {
-				html_error(of, "Checking in the file " + newname + " failed");
-				return;
-			}
-		}
-	} else {
-		string cmd("cscout_checkout " + fid.get_path());
-		if (system(cmd.c_str()) != 0) {
-			html_error(of, "Changes are saved in " + ofname + ", because checking out " + fid.get_path() + " failed");
-			return;
-		}
-		if (unlink(fid.get_path()) < 0) {
-			html_perror(of, "Changes are saved in " + ofname + ", because deleting the target file " + fid.get_path() + " failed");
-			return;
-		}
-		if (rename(ofname.c_str(), fid.get_path().c_str()) < 0) {
-			html_perror(of, "Changes are saved in " + ofname + ", because renaming the file " + ofname + " to " + fid.get_path() + " failed");
-			return;
-		}
-		string cmd2("cscout_checkin " + fid.get_path());
-		if (system(cmd2.c_str()) != 0) {
-			html_error(of, "Checking in the file " + fid.get_path() + " failed");
-			return;
-		}
-	}
-	return;
-}
 
 static void
 change_prohibited(FILE *fo)
@@ -1041,9 +444,9 @@ xfilequery_page(FILE *of,  void *)
 
 	html_head(of, "xfilequery", (qname && *qname) ? qname : "File Query Results");
 
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if (query.eval(*i))
-			sorted_files.insert(*i);
+	for (auto file : engine.get_files()) {
+		if (query.eval(file))
+			sorted_files.insert(file);
 	}
 	html_file_begin(of);
 	if (modification_state != ms_subst && !browse_only)
@@ -1306,7 +709,7 @@ xiquery_page(FILE *of,  void *)
 	}
 
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << "Evaluating identifier query" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
@@ -1322,7 +725,7 @@ xiquery_page(FILE *of,  void *)
 			funs.insert(ecfuns.begin(), ecfuns.end());
 		}
 	}
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << endl;
 	if (q_id) {
 		fputs("<h2>Matching Identifiers</h2>\n", of);
@@ -1362,7 +765,7 @@ xfunquery_page(FILE *of,  void *)
 		return 0;
 
 	html_head(of, "xfunquery", (qname && *qname) ? qname : "Function Query Results");
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << "Evaluating function query" << endl;
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
 		progress(i, Call::functions());
@@ -1373,7 +776,7 @@ xfunquery_page(FILE *of,  void *)
 		if (q_file)
 			sorted_files.insert(i->second->get_fileid());
 	}
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << endl;
 	if (q_id) {
 		fputs("<h2>Matching Functions</h2>\n", of);
@@ -1972,13 +1375,14 @@ set_options_page(FILE *fo, void *p)
 	}
 	Option::set_all();
 	if (Option::sfile_re_string->get().length()) {
-		sfile_re = CompiledRE(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
+		CompiledRE sfile_re(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
 		if (!sfile_re.isCorrect()) {
 			html_head(fo, "regerror", "Regular Expression Error");
 			fprintf(fo, "<h2>Filename regular expression error</h2>%s", sfile_re.getError().c_str());
 			html_tail(fo);
 			return 0;
 		}
+		engine.set_sfile_re(sfile_re);
 	}
 	if (string(swill_getvar("set")) == "Apply")
 		return options_page(fo, p);
@@ -2021,10 +1425,12 @@ options_load()
 	}
 	Option::load_all(in);
 	if (Option::sfile_re_string->get().length()) {
-		sfile_re = CompiledRE(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
+		CompiledRE sfile_re(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
 		if (!sfile_re.isCorrect()) {
 			fprintf(stderr, "Filename regular expression error: %s", sfile_re.getError().c_str());
 			Option::sfile_re_string->erase();
+		} else {
+			engine.set_sfile_re(sfile_re);
 		}
 	}
 	in.close();
@@ -2276,17 +1682,17 @@ fgraph_page(GraphDisplay *gd)
 			edges.insert(edges.begin(), size, vector<bool>(size, 0));
 			// Fill the edges for all files
 			Filedetails::clear_all_visited();
-			for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-				if (Filedetails::is_visited(*i))
+			for (const auto &file : engine.get_files()) {
+				if (Filedetails::is_visited(file))
 					continue;
-				if (!all && i->get_readonly())
+				if (!all && file.get_readonly())
 					continue;
 				switch (*ltype) {
 				case 'D':
-					visit_fcall_files(*i, &Call::call_begin, &Call::call_end, Option::cgraph_depth->get(), edges);
+					visit_fcall_files(file, &Call::call_begin, &Call::call_end, Option::cgraph_depth->get(), edges);
 					break;
 				case 'U':
-					visit_fcall_files(*i, &Call::caller_begin, &Call::caller_end, Option::cgraph_depth->get(), edges);
+					visit_fcall_files(file, &Call::caller_begin, &Call::caller_end, Option::cgraph_depth->get(), edges);
 					break;
 				}
 			}
@@ -2300,25 +1706,25 @@ fgraph_page(GraphDisplay *gd)
 	}
 	int count = 0;
 	// First generate the node labels
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if (!all && i->get_readonly())
+	for (const auto &file : engine.get_files()) {
+		if (!all && file.get_readonly())
 			continue;
-		if (only_visited && !Filedetails::is_visited(*i))
+		if (only_visited && !Filedetails::is_visited(file))
 			continue;
-		gd->node(*i);
+		gd->node(file);
 		if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
 			goto end;
 	}
 	// Now the edges
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if (!all && i->get_readonly())
+	for (const auto &file : engine.get_files()) {
+		if (!all && file.get_readonly())
 			continue;
-		if (only_visited && !Filedetails::is_visited(*i))
+		if (only_visited && !Filedetails::is_visited(file))
 			continue;
 		switch (*gtype) {
 		case 'C':		// Compile-time dependency graph
 		case 'I': {		// Include graph
-			const FileIncMap &m(Filedetails::get_includes(*i));
+			const FileIncMap &m(Filedetails::get_includes(file));
 			for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
 				if (*gtype == 'I' && !j->second.is_directly_included())
 					continue;
@@ -2328,29 +1734,29 @@ fgraph_page(GraphDisplay *gd)
 					continue;
 				if (only_visited && !Filedetails::is_visited(j->first))
 					continue;
-				gd->edge(j->first, *i);
+				gd->edge(j->first, file);
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
 					goto end;
 			}
 			break;
 		}
 		case 'F':		// Function call graph (control dependency)
-			for (vector <Fileid>::iterator j = files.begin(); j != files.end(); j++) {
-				if (!all && j->get_readonly())
+			for (const auto &file2 : engine.get_files()) {				
+				if (!all && file2.get_readonly())
 					continue;
-				if (only_visited && !Filedetails::is_visited(*j))
+				if (only_visited && !Filedetails::is_visited(file2))
 					continue;
-				if (*i == *j)
+				if (file == file2)
 					continue;
 				if (DP())
-					cout << "Checking " << i->get_fname() << " - " << j->get_fname() << endl;
-				if (edges[i->get_id()][j->get_id()])
+					cout << "Checking " << file.get_fname() << " - " << file2.get_fname() << endl;
+				if (edges[file.get_id()][file2.get_id()])
 					switch (*ltype) {
 					case 'D':
-						gd->edge(*j, *i);
+						gd->edge(file2, file);
 						break;
 					case 'U':
-						gd->edge(*i, *j);
+						gd->edge(file, file2);
 						break;
 					}
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
@@ -2358,12 +1764,12 @@ fgraph_page(GraphDisplay *gd)
 			}
 			break;
 		case 'G':		// Global object def/ref graph (data dependency)
-			for (Fileidset::const_iterator j = Filedetails::get_glob_uses(*i).begin(); j != Filedetails::get_glob_uses(*i).end(); j++) {
+			for (Fileidset::const_iterator j = Filedetails::get_glob_uses(file).begin(); j != Filedetails::get_glob_uses(file).end(); j++) {
 				if (!all && j->get_readonly())
 					continue;
 				if (only_visited && !Filedetails::is_visited(*j))
 					continue;
-				gd->edge(*j, *i);
+				gd->edge(*j, file);
 				if (browse_only && count++ >= MAX_BROWSING_GRAPH_ELEMENTS)
 					goto end;
 			}
@@ -2396,7 +1802,7 @@ graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *))
 		fclose(ofile);
 	}
 
-	if (process_mode != pm_call_graph) {
+	if (opts.process_mode != CscoutOptions::pm_call_graph) {
 		GDTxt gd(fo);
 		graph_fun(&gd);
 	}
@@ -2943,7 +2349,7 @@ replacements_page(FILE *of, void *)
 	prohibit_remote_access(of);
 	html_head(of, "replacements", "Identifier Replacements");
 	
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << "Creating identifier list" << endl;
 	fputs("<p><form action=\"xreplacements.html\" method=\"get\">\n"
 		"<table><tr><th>Identifier</th><th>Replacement</th><th>Active</th></tr>\n"
@@ -2961,7 +2367,7 @@ replacements_page(FILE *of, void *)
 				(void *)&(i->second), i->second.get_active() ? "checked" : "");
 		}
 	}
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << endl;
 	fputs("</table><p><INPUT TYPE=\"submit\" name=\"repl\" value=\"OK\">\n", of);
 	html_tail(of);
@@ -2975,7 +2381,7 @@ xreplacements_page(FILE *of,  void *p)
 	prohibit_browsers(of);
 	prohibit_remote_access(of);
 
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << "Creating identifier list" << endl;
 
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
@@ -2993,7 +2399,7 @@ xreplacements_page(FILE *of,  void *p)
 			i->second.set_active(!!swill_getvar(varname));
 		}
 	}
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << endl;
 	index_page(of, p);
 	return 0;
@@ -3070,7 +2476,7 @@ write_quit_page(FILE *of, void *exit)
 
 	// Determine files we need to process
 	IFSet process;
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << "Examining identifiers for renaming" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
@@ -3080,17 +2486,17 @@ write_quit_page(FILE *of, void *exit)
 			process.insert(ifiles.begin(), ifiles.end());
 		}
 	}
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << endl;
 
 	// Check for identifier clashes
 	Token::found_clashes = false;
 	if (Option::refactor_check_clashes->get() && process.size()) {
-		if (!quiet)
+		if (!opts.is_quiet())
 		    cerr << "Checking rename refactorings for name clashes." << endl;
 		Token::check_clashes = true;
 		// Reparse everything
-		Fchar::set_input(input_file_id.get_path());
+		Fchar::set_input(engine.get_input_file_path());
 		Error::set_parsing(true);
 		Pdtoken t;
 		do
@@ -3105,7 +2511,7 @@ write_quit_page(FILE *of, void *exit)
 		return 0;
 	}
 
-	if (!quiet) 
+	if (!opts.is_quiet()) 
 	    cerr << "Examining function calls for refactoring" << endl;
 	for (RefFunCall::store_type::iterator i = RefFunCall::store.begin(); i != RefFunCall::store.end(); i++) {
 		progress(i, RefFunCall::store);
@@ -3115,16 +2521,19 @@ write_quit_page(FILE *of, void *exit)
 		IFSet ifiles = e->sorted_files();
 		process.insert(ifiles.begin(), ifiles.end());
 	}
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << endl;
 
 	// Now do the replacements
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << "Processing files" << endl;
-	for (IFSet::const_iterator i = process.begin(); i != process.end(); i++)
-		file_refactor(of, *i);
+    for (IFSet::const_iterator i = process.begin(); i != process.end(); i++) {
+        string err;
+        if (!engine.file_refactor(*i, err))
+            html_perror(of, err);
+    }
 	fprintf(of, "A total of %d replacements and %d function call refactorings were made in %d files.",
-	    num_id_replacements, num_fun_call_refactorings, (unsigned)(process.size()));
+		engine.get_num_id_replacements(), engine.get_num_fun_call_refactorings(), (unsigned)(process.size()));
 	if (exit) {
 		fprintf(of, "<p>Bye...</body></html>");
 		must_exit = true;
@@ -3242,14 +2651,14 @@ warning_report()
 	typedef map <int, SiteInfo> Sites;
 	Sites include_sites;
 
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		if (i->get_readonly() ||		// Don't report on RO files
-		    !Filedetails::is_compilation_unit(*i) ||		// Algorithm only works for CUs
-		    *i == input_file_id ||		// Don't report on main file
-		    Filedetails::get_includers(*i).size() > 1)	// For files that are both CUs and included
+	for (const auto &file : engine.get_files()) {
+		if (file.get_readonly() ||		// Don't report on RO files
+		    !Filedetails::is_compilation_unit(file) ||		// Algorithm only works for CUs
+		    file == engine.get_input_file_id() ||		// Don't report on main file
+		    Filedetails::get_includers(file).size() > 1)	// For files that are both CUs and included
 							// by others all bets are off
 			continue;
-		const FileIncMap &m = Filedetails::get_includes(*i);
+		const FileIncMap &m = Filedetails::get_includes(file);
 		// Find the status of our include sites
 		include_sites.clear();
 		for (FileIncMap::const_iterator j = m.begin(); j != m.end(); j++) {
@@ -3273,9 +2682,9 @@ warning_report()
 				const set <Fileid> &sf = (*si).second.get_files();
 				int line = (*si).first;
 				for (set <Fileid>::const_iterator fi = sf.begin(); fi != sf.end(); fi++)
-					cerr << i->get_path() << ':' <<
+					cerr << file.get_path() << ':' <<
 						line << ": " <<
-						"(" << Filedetails::get_pre_cpp_const_metrics(*i).get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
+						"(" << Filedetails::get_pre_cpp_const_metrics(file).get_int_metric(Metrics::em_nuline) << " unprocessed lines)"
 						" unused included file " <<
 						fi->get_path() <<
 						endl;
@@ -3283,74 +2692,7 @@ warning_report()
 	}
 }
 
-// Report usage information and exit
-static void
-usage(char *fname)
-{
-	cerr << "usage: " << fname <<
-		" ["
-#ifndef WIN32
-		"-b|"	// browse-only
-#endif
-		"-C|-c|-d D|-d H|-E RE|-o|-M files|"
-		"-q|-R URL|-r|-S db|-s db|-v] "
-		"[-l file] "
 
-#ifdef PICO_QL
-#define PICO_QL_OPTIONS "q"
-		"-q|"
-#else
-#define PICO_QL_OPTIONS ""
-#endif
-
-		"[-P RE] [-p port] [-m spec] [-t table ...] file\n"
-#ifndef WIN32
-		"\t-b\tRun in multiuser browse-only mode\n"
-#endif
-		"\t-C\tCreate a ctags(1)-compatible tags file\n"
-		"\t-c\tProcess the file and exit\n"
-		"\t-R URL\tOutput the call graphs specified by the URLs exit\n"
-		"\t-d D\tOutput the #defines being processed\n"
-		"\t-d H\tOutput the names of included files being processed\n"
-		"\t-E RE\tOutput preprocessed results and exit\n"
-		"\t\t(Will process file(s) matched by the regular expression)\n"
-		"\t-l file\tSpecify access log file\n"
-		"\t-M files\tMerge specified EC files\n"
-		"\t-m spec\tSpecify identifiers to monitor (unsound)\n"
-		"\t-o\tCreate obfuscated versions of the processed files\n"
-		"\t-P RE\tProcess only file(s) matched by the regular expression\n"
-		"\t-p port\tSpecify TCP port for serving the CScout web pages\n"
-		"\t\t(the port number must be in the range 1024-32767)\n"
-#ifdef PICO_QL
-		"\t-q\tProvide a PiCO_QL query interface\n"
-#else
-		"\t-q\tSuppress progress messages on standard error\n"
-#endif
-		"\t-r\tGenerate an identifier and include file warning report\n"
-		"\t-S db\tGenerate the SQL schema for the specified RDBMS\n"
-		"\t-s db\tGenerate SQL output for the specified RDBMS\n"
-		"\t-t table\tEnable population of the specified RDBMS table\n"
-		"\t\t(All enabled by default. Option can be provided multiple times)\n"
-		"\t-v\tDisplay version and copyright information and exit\n"
-		"\t-3\tEnable the handling of trigraph characters\n"
-		;
-	exit(1);
-}
-
-
-// Return a compiled RE for the string s, verifying its correctness
-static CompiledRE
-verified_compiled_re(const char *s)
-{
-	CompiledRE pre(s, REG_EXTENDED | REG_NOSUB);
-
-	if (!pre.isCorrect()) {
-		cerr << "Filename regular expression error:" <<
-			pre.getError() << '\n';
-		exit(1);
-	}
-	return pre;
-}
 
 /*
  * Read files with tokens classes and identifier attributes
@@ -3411,148 +2753,29 @@ int
 main(int argc, char *argv[])
 {
 	Pdtoken t;
-	int c;
-	CompiledRE pre;
-#ifdef PICO_QL
-	bool pico_ql = false;
-#endif
-
-	vector<string> call_graphs;
 	Debug::db_read();
 
-	while ((c = getopt(argc, argv, "3bCcd:rvE:P:p:Mm:l:oR:S:s:t:q" PICO_QL_OPTIONS)) != EOF)  //added q for quiet
-		switch (c) {
-		case '3':
-			Fchar::enable_trigraphs();
-			break;
-		case 'E':
-			if (!optarg || process_mode)
-				usage(argv[0]);
-			// Preprocess the specified file
-			Pdtoken::set_preprocessed_output(verified_compiled_re(optarg));
-			process_mode = pm_preprocess;
-			break;
-		case 'C':
-			CTag::enable();
-			break;
-		#ifdef PICO_QL
-		case 'q':
-			pico_ql = true;
-			/* FALLTHROUGH */
-		#endif
-		case 'c':
-			if (process_mode)
-				usage(argv[0]);
-			process_mode = pm_compile;
-			break;
-		case 'd':
-			if (!optarg)
-				usage(argv[0]);
-			switch (*optarg) {
-			case 'D':	// Similar to gcc -dD
-				Pdtoken::set_output_defines();
-				break;
-			case 'H':	// Similar to gcc -H
-				Fchar::set_output_headers();
-				break;
-			default:
-				usage(argv[0]);
-			}
-			break;
-		case 'p':
-			if (!optarg)
-				usage(argv[0]);
-			portno = atoi(optarg);
-			if (portno < 1024 || portno > 32767)
-				usage(argv[0]);
-			break;
-		case 'M':
-			merge_tokens(argv);
-			break;
-		case 'm':
-			if (!optarg)
-				usage(argv[0]);
-			monitor = IdQuery(optarg);
-			break;
-		case 'r':
-			if (process_mode)
-				usage(argv[0]);
-			process_mode = pm_report;
-			break;
-		case 'v':
-			cout << version_info(false);
-			exit(0);
-		case 'b':
-			browse_only = true;
-			break;
-		case 'q':
-			quiet = true;
-			break;
-		case 'l':
-			if (!optarg)
-				usage(argv[0]);
-			FILE *logfile;
-			if ((logfile = fopen(optarg, "a")) == NULL) {
-				perror(optarg);
-				exit(1);
-			}
-			swill_log(logfile);
-			break;
-		case 'o':
-			if (process_mode)
-				usage(argv[0]);
-			process_mode = pm_obfuscation;
-			break;
-		case 'P':
-			if (!optarg)
-				usage(argv[0]);
-			// Process the specified file(s)
-			Pdtoken::set_processed_files(verified_compiled_re(optarg));
-			break;
-		case 'S':
-			if (process_mode)
-				usage(argv[0]);
-			if (!optarg)
-				usage(argv[0]);
-			db_engine = optarg;
-			if (!Sql::setEngine(optarg))
-				return 1;
-			workdb_schema(Sql::getInterface(), cout);
-			exit(0);
-		case 's':
-			if (process_mode)
-				usage(argv[0]);
-			if (!optarg)
-				usage(argv[0]);
-			process_mode = pm_database;
-			db_engine = optarg;
-			break;
-		case 't':
-			if (!optarg)
-				usage(argv[0]);
-			table_enable(optarg);
-			break;
-		case 'R':
-			if (!optarg)
-				usage(argv[0]);
-			process_mode = pm_call_graph;
-			call_graphs.push_back(string(optarg));
-			break;
-		case '?':
-			usage(argv[0]);
-		}
+	opts.parse_args(argc, argv);
 
+	if (opts.do_merge)
+		merge_tokens(argv);
+
+	if (!opts.log_file.empty()) {
+		FILE *logfile;
+		if ((logfile = fopen(opts.log_file.c_str(), "a")) == NULL) {
+			perror(opts.log_file.c_str());
+			exit(1);
+		}
+		swill_log(logfile);
+	}
 
 	// We require exactly one argument
 	if (argv[optind] == NULL || argv[optind + 1] != NULL)
 		usage(argv[0]);
 
-	if (process_mode != pm_compile
-	    && process_mode != pm_database
-	    && process_mode != pm_obfuscation
-	    && process_mode != pm_preprocess) {
-		if (!swill_init(portno)) {
-			cerr << "Couldn't initialize our web server on port " << portno << endl;
+	if (opts.is_web_server_mode()) {
+		if (!swill_init(opts.portno)) {
+			cerr << "Couldn't initialize our web server on port " << opts.portno << endl;
 			exit(1);
 		}
 
@@ -3561,8 +2784,8 @@ main(int argc, char *argv[])
 		parse_acl();
 	}
 
-	if (process_mode == pm_database) {
-		if (!Sql::setEngine(db_engine))
+	if (opts.process_mode == CscoutOptions::pm_database) {
+		if (!Sql::setEngine(opts.db_engine))
 			return 1;
 		cout << Sql::getInterface()->begin_commands();
 		workdb_schema(Sql::getInterface(), cout);
@@ -3582,22 +2805,22 @@ main(int argc, char *argv[])
 	while (t.get_code() != EOF);
 	Error::set_parsing(false);
 
-	if (process_mode == pm_preprocess)
+	if (opts.process_mode == CscoutOptions::pm_preprocess)
 		return 0;
 
-	input_file_id = Fileid(argv[optind]);
+	engine.set_input_file_id(Fileid(argv[optind]));
 
 	Filedetails::unify_identical_files();
 
-	if (process_mode == pm_obfuscation)
+	if (opts.process_mode == CscoutOptions::pm_obfuscation)
 		return obfuscate();
 
 	// Pass 2: Create web pages
-	files = Fileid::files(true);
+	engine.collect_active_files();
 
 
 
-	if (process_mode != pm_compile) {
+	if (opts.process_mode != CscoutOptions::pm_compile) {
 		swill_handle("sproject.html", select_project_page, 0);
 		swill_handle("replacements.html", replacements_page, 0);
 		swill_handle("xreplacements.html", xreplacements_page, NULL);
@@ -3616,9 +2839,9 @@ main(int argc, char *argv[])
 	 * Set several file and function metrics.
 	 */
 	Call::populate_macro_map();
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		file_analyze(*i);
-		dir_add_file(*i);
+	for (const auto &file : engine.get_files()) {
+		engine.file_analyze(file);
+		dir_add_file(file);
 	}
 
 	// Update file and function metrics
@@ -3629,7 +2852,7 @@ main(int argc, char *argv[])
 	GlobObj::set_file_dependencies();
 
 	// Set xfile and  metrics for each identifier
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << "Processing identifiers" << endl;
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
@@ -3639,13 +2862,13 @@ main(int argc, char *argv[])
 		// Update metrics
 		id_msum.add_unique_id(e);
 	}
-	if (!quiet)
+	if (!opts.is_quiet())
 	    cerr << endl;
 
 	if (DP())
 		cout << "Size " << file_msum.get_pre_cpp_total(Metrics::em_nchar) << endl;
 
-	if (process_mode == pm_database) {
+	if (opts.process_mode == CscoutOptions::pm_database) {
 		workdb_rest(Sql::getInterface(), cout);
 		Call::dumpSql(Sql::getInterface(), cout);
 		cout << Sql::getInterface()->end_commands();
@@ -3660,7 +2883,7 @@ main(int argc, char *argv[])
 		return 0;
 	}
 
-	if (process_mode != pm_compile) {
+	if (opts.process_mode != CscoutOptions::pm_compile) {
 		swill_handle("src.html", source_page, NULL);
 		swill_handle("qsrc.html", query_source_page, NULL);
 		swill_handle("fedit.html", fedit_page, NULL);
@@ -3708,40 +2931,40 @@ main(int argc, char *argv[])
 	}
 
 	CTag::save();
-	if (process_mode == pm_report) {
+	if (opts.process_mode == CscoutOptions::pm_report) {
 		if (!must_exit)
 			warning_report();
 		return (0);
 	}
 
 #ifdef PICO_QL
-	if (pico_ql) {
+	if (opts.pico_ql) {
 		pico_ql_register(&files, "files");
 		pico_ql_register(&Identifier::ids, "ids");
 		pico_ql_register(&Tokid::tm, "tm");
 		pico_ql_register(&Call::functions(), "fun_map");
-		while (pico_ql_serve(portno))
+		while (pico_ql_serve(opts.portno))
 			;
 		return (0);
 	}
 #endif
 
-	if (process_mode == pm_call_graph) {
+	if (opts.process_mode == CscoutOptions::pm_call_graph) {
 		cerr << "Producing call graphs for: ";
-		for (string d : call_graphs) cerr << d << " ";
+		for (string d : opts.call_graphs) cerr << d << " ";
 		cerr << endl;
-		produce_call_graphs(call_graphs);
+		produce_call_graphs(opts.call_graphs);
 
 		return (0);
 	}
 
 	if (DP())
 		cout  << "Tokid EC map size is " << Tokid::map_size() << endl;
-	if (process_mode == pm_compile)
+	if (opts.process_mode == CscoutOptions::pm_compile)
 		return (0);
 	// Serve web pages
 	if (!must_exit)
-		cerr << "CScout is now ready to serve you at http://localhost:" << portno << endl;
+		cerr << "CScout is now ready to serve you at http://localhost:" << opts.portno << endl;
 	if (browse_only)
 		swill_setfork();
 	while (!must_exit)
@@ -3751,89 +2974,4 @@ main(int argc, char *argv[])
 	cout << "Type node count = " << Type_node::get_count() << endl;
 #endif
 	return (0);
-}
-
-
-/*
- * Clear equivalence classes that do not satisfy the monitoring criteria.
- * Called after processing each input file, for that file.
- */
-void
-garbage_collect(Fileid root)
-{
-	vector <Fileid> files(Fileid::files(false));
-	set <Fileid> touched_files;
-
-	int count = 0;
-	int sum = 0;
-
-	Filedetails::set_compilation_unit(root, true);
-	for (vector <Fileid>::iterator i = files.begin(); i != files.end(); i++) {
-		Fileid fi = (*i);
-
-		/*
-		 * All files from which we input data during parsing
-		 * are marked as in need for GC. Therefore all the files
-		 * our parsing touched are marked as dirty
-		 * (and will be marked clean again at the end of this loop)
-		 */
-		if (Filedetails::is_garbage_collected(fi))
-			continue;
-
-		Filedetails::set_required(fi, false);	// Mark the file as not being required
-		touched_files.insert(fi);
-
-		if (!monitor.is_valid()) {
-			Filedetails::set_garbage_collected(fi, true);	// Mark the file as garbage collected
-			continue;
-		}
-
-		const string &fname = fi.get_path();
-		fifstream in;
-
-		in.open(fname.c_str(), ios::binary);
-		if (in.fail()) {
-			perror(fname.c_str());
-			exit(1);
-		}
-		// Go through the file character by character
-		for (;;) {
-			Tokid ti;
-			int val;
-
-			ti = Tokid(fi, in.tellg());
-			if ((val = in.get()) == EOF)
-				break;
-			mapTokidEclass::iterator ei = ti.find_ec();
-			if (ei != ti.end_ec()) {
-				sum++;
-				Eclass *ec = ei->second;
-				IdPropElem ec_id(ec, Identifier());
-				if (!monitor.eval(ec_id)) {
-					count++;
-					ec->remove_from_tokid_map();
-					delete ec;
-				}
-			}
-		}
-		in.close();
-		Filedetails::set_garbage_collected(fi, true);	// Mark the file as garbage collected
-	}
-	if (DP())
-		cout << "Garbage collected " << count << " out of " << sum << " ECs" << endl;
-
-	// Monitor dependencies
-	set <Fileid> required_files;
-
-	// Recursively mark all the files containing definitions for us
-	Fdep::mark_required(root);
-	// Store them in a set to calculate set difference
-	for (set <Fileid>::const_iterator i = touched_files.begin(); i != touched_files.end(); i++)
-		if (*i != root && *i != input_file_id)
-			Filedetails::set_includes(root, *i, /* directly included (conservatively) */ false, Filedetails::is_required(*i));
-	if (process_mode == pm_database)
-		Fdep::dumpSql(Sql::getInterface(), cout, root);
-	Fdep::reset();
-
-	return;
 }
