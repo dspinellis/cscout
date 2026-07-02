@@ -67,7 +67,7 @@ void garbage_collect(Fileid root);
 
 class CscoutEngine {
 private:
-	static CscoutEngine *instance;	// Static pointer to the active engine instance
+	static CscoutEngine *instance;	// Class pointer to the active engine instance
 	CscoutOptions &opts;			// Invocation options controlling monitor and process mode
 	std::vector<Fileid> files;		// All files in the analyzed workspace
 	Fileid input_file_id;			// Root input file passed on the command line
@@ -101,7 +101,7 @@ public:
 	int get_num_fun_call_refactorings() const { return num_fun_call_refactorings; }
 	void collect_active_files();
 	void set_input_file_id(const Fileid &fid) { input_file_id = fid; }
-	void set_sfile_re(const CompiledRE &re) { sfile_re = re; }
+	bool set_sfile_re(const std::string &re_str, std::string &error_msg);
 };
 
 #endif /* ENGINE_H */

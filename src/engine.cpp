@@ -730,6 +730,18 @@ CscoutEngine::collect_active_files()
 	files = Fileid::files(true);
 }
 
+bool
+CscoutEngine::set_sfile_re(const std::string &re_str, std::string &error_msg)
+{
+	CompiledRE re(re_str.c_str(), REG_EXTENDED);
+	if (!re.isCorrect()) {
+		error_msg = re.getError();
+		return false;
+	}
+	sfile_re = re;
+	return true;
+}
+
 // Free function wrapper for garbage_collect to maintain compatibility
 // with callers outside the engine (such as pdtoken.cpp)
 void garbage_collect(Fileid root)
