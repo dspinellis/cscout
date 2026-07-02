@@ -68,7 +68,6 @@
 #include "call.h"
 #include "fcall.h"
 #include "mcall.h"
-#include "compiledre.h"
 #include "option.h"
 #include "query.h"
 #include "mquery.h"
@@ -1376,14 +1375,13 @@ set_options_page(FILE *fo, void *p)
 	}
 	Option::set_all();
 	if (Option::sfile_re_string->get().length()) {
-		CompiledRE sfile_re(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
-		if (!sfile_re.isCorrect()) {
+		string error_msg;
+		if (!engine.set_sfile_re(Option::sfile_re_string->get(), error_msg)) {
 			html_head(fo, "regerror", "Regular Expression Error");
-			fprintf(fo, "<h2>Filename regular expression error</h2>%s", sfile_re.getError().c_str());
+			fprintf(fo, "<h2>Filename regular expression error</h2>%s", error_msg.c_str());
 			html_tail(fo);
 			return 0;
 		}
-		engine.set_sfile_re(sfile_re);
 	}
 	if (string(swill_getvar("set")) == "Apply")
 		return options_page(fo, p);
@@ -1426,12 +1424,10 @@ options_load()
 	}
 	Option::load_all(in);
 	if (Option::sfile_re_string->get().length()) {
-		CompiledRE sfile_re(Option::sfile_re_string->get().c_str(), REG_EXTENDED);
-		if (!sfile_re.isCorrect()) {
-			fprintf(stderr, "Filename regular expression error: %s", sfile_re.getError().c_str());
+		string error_msg;
+		if (!engine.set_sfile_re(Option::sfile_re_string->get(), error_msg)) {
+			fprintf(stderr, "Filename regular expression error: %s", error_msg.c_str());
 			Option::sfile_re_string->erase();
-		} else {
-			engine.set_sfile_re(sfile_re);
 		}
 	}
 	in.close();

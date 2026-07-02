@@ -101,7 +101,7 @@ public:
 	int get_num_fun_call_refactorings() const { return num_fun_call_refactorings; }
 	void collect_active_files();
 	void set_input_file_id(const Fileid &fid) { input_file_id = fid; }
-	void set_sfile_re(const CompiledRE &re) { sfile_re = re; }
+	bool set_sfile_re(const std::string &re_str, std::string &error_msg);
 };
 
 #endif /* ENGINE_H */
