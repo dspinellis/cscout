@@ -47,7 +47,6 @@ string file_label(Fileid f, bool hyperlink);
 
 class GraphDisplay;
 
-// Serves CScout's HTML web UI pages via SWILL.
 class HtmlServer {
 public:
 	HtmlServer();
@@ -58,7 +57,6 @@ public:
 	void register_handlers();
 
 private:
-	// Page handlers (before analysis)
 	int select_project_page(FILE *of);
 	int replacements_page(FILE *of);
 	int xreplacements_page(FILE *of);
@@ -67,11 +65,9 @@ private:
 	int options_page(FILE *of);
 	int set_options_page(FILE *of);
 	int save_options_page(FILE *of);
-	// exit: true for sexit.html (quit after save), false for save.html (save only)
 	int write_quit_page(FILE *of, bool exit);
 	int quit_page(FILE *of);
 
-	// Page handlers (after analysis)
 	int source_page(FILE *of);
 	int query_source_page(FILE *of);
 	int fedit_page(FILE *of);
@@ -94,9 +90,6 @@ private:
 	int logo_page(FILE *of);
 	int index_page(FILE *of);
 
-	// Static wrappers: SWILL needs a plain function pointer, not a class method.
-	// Each wrapper receives "this" via SWILL's data slot and forwards to the
-	// real instance method.
 	static int select_project_page_wrapper(FILE *of, void *data);
 	static int replacements_page_wrapper(FILE *of, void *data);
 	static int xreplacements_page_wrapper(FILE *of, void *data);
@@ -130,9 +123,6 @@ private:
 	static int logo_page_wrapper(FILE *of, void *data);
 	static int index_page_wrapper(FILE *of, void *data);
 
-	// Graph handlers: SWILL's data slot here is genuinely used for a callback
-	// function pointer (graph_fun), not "this" - so these stay plain static
-	// methods, registered directly with SWILL, unchanged from before the move.
 	static void graph_handle(string name, int (*graph_fun)(GraphDisplay *));
 	static int graph_html_page(FILE *fo, void (*graph_fun)(GraphDisplay *));
 	static int graph_txt_page(FILE *fo, void (*graph_fun)(GraphDisplay *));
