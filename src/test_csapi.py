@@ -22,7 +22,9 @@
 import json
 import os
 import sqlite3
+import subprocess
 import tempfile
+import textwrap
 import threading
 import unittest
 import urllib.request
@@ -35,123 +37,86 @@ import csapi
 class TestCsapi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Create a temporary SQLite database
         cls.db_fd, cls.db_path = tempfile.mkstemp()
+        os.close(cls.db_fd)
         csapi._db_path = cls.db_path
 
-        # Populate SQLite database with mock CScout schema and data
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        cscout_bin = os.environ.get("CSCOUT", os.path.join(base_dir, "build", "cscout"))
+
+        cls.c_file_path = os.path.join(base_dir, "test", "c", "test_csapi_sample.c")
+        with open(cls.c_file_path, "w") as f:
+            f.write(textwrap.dedent("""\
+                int sample_global_var = 1;
+                void sample_global_func(void) {
+                }
+                #define SAMPLE_MACRO 42
+                static void sample_static_func(void) {
+                    sample_global_func();
+                }
+            """))
+
+        cls.ws_spec_path = os.path.join(base_dir, "test_ws.ws")
+        with open(cls.ws_spec_path, "w") as f:
+            f.write(textwrap.dedent("""\
+                workspace TestWS {
+                    ipath "../include/stdc"
+                    directory test/c {
+                        project TestProject {
+                            file test_csapi_sample.c
+                        }
+                    }
+                }
+            """))
+
+        cls.project_cs_path = os.path.join(base_dir, "test_project.cs")
+        cswc_res = subprocess.run(
+            ["perl", "cswc.pl", "-d", "../example/.cscout", "test_ws.ws"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            cwd=base_dir
+        )
+        if cswc_res.returncode != 0:
+            raise RuntimeError(f"cswc.pl failed: {cswc_res.stderr}")
+
+        with open(cls.project_cs_path, "w") as f:
+            f.write(cswc_res.stdout)
+
+        cscout_res = subprocess.run(
+            [cscout_bin, "-s", "sqlite", "test_project.cs"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            cwd=base_dir
+        )
+        if cscout_res.returncode != 0:
+            raise RuntimeError(f"cscout failed: {cscout_res.stderr}")
+
         conn = sqlite3.connect(cls.db_path)
-        
-        conn.execute("""
-            CREATE TABLE IDS(
-                EID INTEGER PRIMARY KEY,
-                NAME TEXT,
-                UNUSED INTEGER,
-                MACRO INTEGER,
-                FUN INTEGER,
-                READONLY INTEGER,
-                ORDINARY INTEGER,
-                CSCOPE INTEGER
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE FILES(
-                FID INTEGER PRIMARY KEY,
-                NAME TEXT,
-                RO INTEGER
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE TOKENS(
-                FID INTEGER,
-                EID INTEGER,
-                FOFFSET INTEGER
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE LINEPOS(
-                FID INTEGER,
-                FOFFSET INTEGER,
-                LNUM INTEGER
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE FILEMETRICS(
-                FID INTEGER,
-                PRECPP INTEGER,
-                POSTCPP INTEGER,
-                NONSPACE INTEGER,
-                STATEMENTS INTEGER,
-                FUNCTIONS INTEGER,
-                MAXNESTING INTEGER
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE FUNCTIONS(
-                ID INTEGER PRIMARY KEY,
-                NAME TEXT,
-                FID INTEGER,
-                FOFFSET INTEGER,
-                DEFINED INTEGER,
-                FILESCOPED INTEGER
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE FUNCTIONMETRICS(
-                FUNCTIONID INTEGER,
-                PRECPP INTEGER,
-                POSTCPP INTEGER,
-                NONSPACE INTEGER,
-                STATEMENTS INTEGER,
-                MAXNESTING INTEGER,
-                FANOUT INTEGER,
-                METRICID INTEGER
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE FCALLS(
-                SOURCEID INTEGER,
-                DESTID INTEGER
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE PROJECTS(
-                PID INTEGER PRIMARY KEY,
-                NAME TEXT
-            )
-        """)
-
-        # Insert dummy data
-        conn.execute("INSERT INTO IDS VALUES (1, 'my_var', 1, 0, 0, 0, 1, 1)")
-        conn.execute("INSERT INTO IDS VALUES (2, 'my_func', 0, 0, 1, 0, 1, 0)")
-        conn.execute("INSERT INTO IDS VALUES (3, 'macro_name', 0, 1, 0, 0, 0, 0)")
-
-        conn.execute("INSERT INTO FILES VALUES (1, 'main.c', 0)")
-        conn.execute("INSERT INTO FILES VALUES (2, 'utils.c', 0)")
-
-        conn.execute("INSERT INTO TOKENS VALUES (1, 1, 10)")
-        conn.execute("INSERT INTO TOKENS VALUES (1, 1, 50)")
-        conn.execute("INSERT INTO TOKENS VALUES (1, 2, 20)")
-
-        conn.execute("INSERT INTO LINEPOS VALUES (1, 0, 1)")
-        conn.execute("INSERT INTO LINEPOS VALUES (1, 15, 2)")
-        conn.execute("INSERT INTO LINEPOS VALUES (1, 45, 3)")
-
-        conn.execute("INSERT INTO FILEMETRICS VALUES (1, 100, 150, 80, 10, 1, 2)")
-
-        conn.execute("INSERT INTO FUNCTIONS VALUES (10, 'my_func', 1, 20, 1, 0)")
-        conn.execute("INSERT INTO FUNCTIONS VALUES (11, 'static_func', 2, 5, 1, 1)")
-
-        conn.execute("INSERT INTO FUNCTIONMETRICS VALUES (10, 20, 30, 15, 5, 2, 2, 1)")
-
-        conn.execute("INSERT INTO FCALLS VALUES (11, 10)")
-
-        conn.execute("INSERT INTO PROJECTS VALUES (1, 'TestProject')")
-
+        conn.executescript(cscout_res.stdout)
         conn.commit()
+
+        cursor = conn.cursor()
+        cursor.execute("SELECT EID FROM IDS WHERE NAME = 'sample_global_var'")
+        cls.eid_global_var = cursor.fetchone()[0]
+        cursor.execute("SELECT EID FROM IDS WHERE NAME = 'sample_global_func'")
+        cls.eid_global_func = cursor.fetchone()[0]
+        cursor.execute("SELECT EID FROM IDS WHERE NAME = 'SAMPLE_MACRO'")
+        cls.eid_sample_macro = cursor.fetchone()[0]
+        cursor.execute("SELECT EID FROM IDS WHERE NAME = 'sample_static_func'")
+        cls.eid_static_func = cursor.fetchone()[0]
+
+        cursor.execute("SELECT FID FROM FILES WHERE NAME LIKE '%test_csapi_sample.c'")
+        cls.fid_sample = cursor.fetchone()[0]
+
+        cursor.execute("SELECT ID FROM FUNCTIONS WHERE NAME = 'sample_global_func'")
+        cls.fnid_global_func = cursor.fetchone()[0]
+        cursor.execute("SELECT ID FROM FUNCTIONS WHERE NAME = 'sample_static_func'")
+        cls.fnid_static_func = cursor.fetchone()[0]
+
         conn.close()
 
-        # Start the HTTP server on a dynamically allocated free port
         cls.server = HTTPServer(("127.0.0.1", 0), csapi.Handler)
         cls.port = cls.server.server_address[1]
         cls.server_thread = threading.Thread(target=cls.server.serve_forever)
@@ -160,7 +125,8 @@ class TestCsapi(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # Gracefully shut down the server by hitting the /quit endpoint
+        # Hit /quit first because the server checks an internal flag on that
+        # endpoint; server.shutdown() alone does not trigger it.
         try:
             req = urllib.request.Request(f"http://127.0.0.1:{cls.port}/quit")
             with urllib.request.urlopen(req) as response:
@@ -168,18 +134,17 @@ class TestCsapi(unittest.TestCase):
         except Exception:
             pass
 
-        # Stop HTTP server if still running
         try:
             cls.server.shutdown()
             cls.server_thread.join(timeout=2)
         except Exception:
             pass
-        # Clean up database file
-        try:
-            os.close(cls.db_fd)
-            os.remove(cls.db_path)
-        except Exception:
-            pass
+
+        for path in (cls.db_path, cls.c_file_path, cls.ws_spec_path, cls.project_cs_path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
 
     def get_url(self, path):
         return f"http://127.0.0.1:{self.port}{path}"
@@ -197,86 +162,154 @@ class TestCsapi(unittest.TestCase):
 
     def test_identifiers(self):
         data = self.get_json("/identifiers")
-        self.assertEqual(len(data), 3)
-        
-        # Test unused filter
+        self.assertGreater(len(data), 0)
+
         data_unused = self.get_json("/identifiers?unused=1")
-        self.assertEqual(len(data_unused), 1)
-        self.assertEqual(data_unused[0]["NAME"], "my_var")
+        self.assertTrue(any(r["NAME"] == "sample_global_var" for r in data_unused))
 
-        # Test name search filter
-        data_search = self.get_json("/identifiers?name=func")
+        data_search = self.get_json("/identifiers?name=sample_global_func")
         self.assertEqual(len(data_search), 1)
-        self.assertEqual(data_search[0]["NAME"], "my_func")
+        self.assertEqual(data_search[0]["NAME"], "sample_global_func")
 
-        # Test limit and offset paging
         data_paged = self.get_json("/identifiers?limit=1&offset=1")
         self.assertEqual(len(data_paged), 1)
 
     def test_identifier(self):
-        data = self.get_json("/identifier?eid=1")
-        self.assertEqual(data["identifier"]["NAME"], "my_var")
-        self.assertEqual(len(data["locations"]), 2)
-        # Verify LNUM mapping calculation
-        self.assertEqual(data["locations"][0]["LNUM"], 1) # offset 10 <= 15
-        self.assertEqual(data["locations"][1]["LNUM"], 3) # offset 50 >= 45
+        data = self.get_json(f"/identifier?eid={self.eid_global_var}")
+        self.assertEqual(data["identifier"]["NAME"], "sample_global_var")
+        self.assertEqual(len(data["locations"]), 1)
+        self.assertEqual(data["locations"][0]["LNUM"], 1)
 
-        # Check 404 for missing eid
         with self.assertRaises(urllib.error.HTTPError) as cm:
-            self.get_json("/identifier?eid=999")
+            self.get_json("/identifier?eid=999999999")
         self.assertEqual(cm.exception.code, 404)
 
-        # Check 400 for missing parameter
         with self.assertRaises(urllib.error.HTTPError) as cm:
             self.get_json("/identifier")
         self.assertEqual(cm.exception.code, 400)
 
     def test_files(self):
         data = self.get_json("/files")
-        self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]["NAME"], "main.c")
+        self.assertTrue(any(f["NAME"].endswith("test_csapi_sample.c") for f in data))
 
     def test_filemetrics(self):
-        data = self.get_json("/filemetrics?fid=1")
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["STATEMENTS"], 10)
+        data = self.get_json(f"/filemetrics?fid={self.fid_sample}")
+        self.assertEqual(len(data), 2)
+        self.assertIn("NSTMT", data[0])
 
     def test_functions(self):
         data = self.get_json("/functions")
-        self.assertEqual(len(data), 2)
+        self.assertTrue(any(f["NAME"] == "sample_global_func" for f in data))
+        self.assertTrue(any(f["NAME"] == "sample_static_func" for f in data))
 
-        # Test filescoped filter
         data_scoped = self.get_json("/functions?filescoped=1")
-        self.assertEqual(len(data_scoped), 1)
-        self.assertEqual(data_scoped[0]["NAME"], "static_func")
+        self.assertTrue(any(f["NAME"] == "sample_static_func" for f in data_scoped))
 
     def test_funmetrics(self):
-        data = self.get_json("/funmetrics?fnid=10")
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["FANOUT"], 2)
+        data = self.get_json(f"/funmetrics?fnid={self.fnid_static_func}")
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["FANOUT"], 1)
 
     def test_callers(self):
-        data = self.get_json("/callers?fnid=10")
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["NAME"], "static_func")
+        data = self.get_json(f"/callers?fnid={self.fnid_global_func}")
+        self.assertTrue(any(f["NAME"] == "sample_static_func" for f in data))
 
     def test_callees(self):
-        data = self.get_json("/callees?fnid=11")
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["NAME"], "my_func")
+        data = self.get_json(f"/callees?fnid={self.fnid_static_func}")
+        self.assertTrue(any(f["NAME"] == "sample_global_func" for f in data))
 
     def test_projects(self):
         data = self.get_json("/projects")
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["NAME"], "TestProject")
+        self.assertTrue(any(p["NAME"] == "TestProject" for p in data))
 
     def test_refactor_preview(self):
-        data = self.get_json("/refactor/preview?eid=1&newname=renamed_var")
-        self.assertEqual(data["eid"], 1)
-        self.assertEqual(data["old_name"], "my_var")
+        data = self.get_json(f"/refactor/preview?eid={self.eid_global_var}&newname=renamed_var")
+        self.assertEqual(data["eid"], self.eid_global_var)
+        self.assertEqual(data["old_name"], "sample_global_var")
         self.assertEqual(data["new_name"], "renamed_var")
-        self.assertEqual(data["total_replacements"], 2)
-        self.assertEqual(len(data["locations"]), 2)
+        self.assertEqual(data["total_replacements"], 1)
+        self.assertEqual(len(data["locations"]), 1)
+
+
+class TestCsapiHelpers(unittest.TestCase):
+    def test_rows_to_list(self):
+        conn = sqlite3.connect(":memory:")
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE t (a INT, b TEXT)")
+        cursor.execute("INSERT INTO t VALUES (1, 'hello')")
+        row = cursor.execute("SELECT * FROM t").fetchone()
+        res = csapi.rows_to_list([row])
+        self.assertEqual(res, [{"a": 1, "b": "hello"}])
+        conn.close()
+
+    def test_get_param(self):
+        qs = {"a": ["first", "second"], "b": []}
+        self.assertEqual(csapi.get_param(qs, "a"), "first")
+        self.assertEqual(csapi.get_param(qs, "b"), None)
+        self.assertEqual(csapi.get_param(qs, "c", "default_val"), "default_val")
+
+    def test_get_bool_param(self):
+        qs = {
+            "a": ["1"],
+            "b": ["true"],
+            "c": ["yes"],
+            "d": ["0"],
+            "e": ["false"],
+            "f": ["other"]
+        }
+        self.assertTrue(csapi.get_bool_param(qs, "a"))
+        self.assertTrue(csapi.get_bool_param(qs, "b"))
+        self.assertTrue(csapi.get_bool_param(qs, "c"))
+        self.assertFalse(csapi.get_bool_param(qs, "d"))
+        self.assertFalse(csapi.get_bool_param(qs, "e"))
+        self.assertFalse(csapi.get_bool_param(qs, "f"))
+        self.assertIsNone(csapi.get_bool_param(qs, "missing"))
+
+    def test_get_int_param(self):
+        qs = {"a": ["42"], "b": ["not_an_int"]}
+        self.assertEqual(csapi.get_int_param(qs, "a", 10), 42)
+        self.assertEqual(csapi.get_int_param(qs, "b", 10), 10)
+        self.assertEqual(csapi.get_int_param(qs, "missing", 10), 10)
+
+    def test_get_required_param(self):
+        qs = {"a": ["hello"]}
+        self.assertEqual(csapi.get_required_param(qs, "a"), "hello")
+        with self.assertRaises(csapi.MissingParameterError):
+            csapi.get_required_param(qs, "missing")
+
+    def test_get_required_int_param(self):
+        qs = {"a": ["42"], "b": ["not_an_int"]}
+        self.assertEqual(csapi.get_required_int_param(qs, "a"), 42)
+        with self.assertRaises(csapi.MissingParameterError):
+            csapi.get_required_int_param(qs, "b")
+        with self.assertRaises(csapi.MissingParameterError):
+            csapi.get_required_int_param(qs, "missing")
+
+    def test_get_paging_params(self):
+        qs = {"limit": ["10"], "offset": ["20"]}
+        limit, offset = csapi.get_paging_params(qs)
+        self.assertEqual(limit, 10)
+        self.assertEqual(offset, 20)
+
+        limit, offset = csapi.get_paging_params({})
+        self.assertEqual(limit, 1000)
+        self.assertEqual(offset, 0)
+
+    def test_build_where_clause(self):
+        qs = {
+            "unused": ["1"],
+            "name": ["func"],
+            "missing": ["123"]
+        }
+        filters = [
+            ("unused", "UNUSED = ?", "bool"),
+            ("macro", "MACRO = ?", "bool"),
+            ("name", "NAME LIKE ?", "like"),
+        ]
+        conditions, params = csapi.build_where_clause(qs, filters)
+        self.assertEqual(conditions, ["UNUSED = ?", "NAME LIKE ?"])
+        self.assertEqual(params, [1, "%func%"])
 
 
 if __name__ == "__main__":

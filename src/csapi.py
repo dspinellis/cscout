@@ -40,7 +40,9 @@ import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
-_db_path: str = ""
+class MissingParameterError(ValueError):
+    """Exception raised when a required query parameter is missing or invalid."""
+    pass
 
 
 def get_db() -> sqlite3.Connection:
@@ -90,6 +92,25 @@ def get_int_param(qs, name, default):
         return int(v) if v is not None else default
     except ValueError:
         return default
+
+
+def get_required_param(qs, name) -> str:
+    """Get a single string query parameter or raise MissingParameterError."""
+    v = get_param(qs, name)
+    if v is None:
+        raise MissingParameterError(f"{name} parameter required")
+    return v
+
+
+def get_required_int_param(qs, name) -> int:
+    """Get a query parameter converted to an integer, or raise MissingParameterError."""
+    v = get_param(qs, name)
+    if v is None:
+        raise MissingParameterError(f"{name} parameter required")
+    try:
+        return int(v)
+    except ValueError:
+        raise MissingParameterError(f"{name} parameter must be an integer")
 
 
 def get_paging_params(qs) -> tuple:
@@ -191,6 +212,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.handle_refactor_preview(conn, qs)
             else:
                 self.send_error_json(404, f"Unknown endpoint: {path}")
+        except MissingParameterError as e:
+            self.send_error_json(400, str(e))
         except Exception as e:
             self.send_error_json(500, str(e))
         finally:
@@ -221,7 +244,7 @@ class Handler(BaseHTTPRequestHandler):
         conditions, params = build_where_clause(qs, filters)
 
         if get_bool_param(qs, "should_be_static"):
-            conditions.append("READONLY = 0 AND ORDINARY = 1 AND CSCOPE = 1")
+            conditions.append("READONLY = 0 AND ORDINARY = 1 AND LSCOPE = 1 AND NAME != 'main' AND EID NOT IN (SELECT EID FROM TOKENS GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)")
 
         limit, offset = get_paging_params(qs)
 
@@ -235,10 +258,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_identifier(self, conn, qs):
         """Handle /identifier requests."""
-        eid = get_int_param(qs, "eid", None)
-        if eid is None:
-            self.send_error_json(400, "eid parameter required")
-            return
+        eid = get_required_int_param(qs, "eid")
         row = conn.execute(
             "SELECT * FROM IDS WHERE EID = ?",
             (eid,)).fetchone()
@@ -274,10 +294,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_filemetrics(self, conn, qs):
         """Handle /filemetrics requests."""
-        fid = get_int_param(qs, "fid", None)
-        if fid is None:
-            self.send_error_json(400, "fid parameter required")
-            return
+        fid = get_required_int_param(qs, "fid")
         rows = conn.execute(
             "SELECT * FROM FILEMETRICS WHERE FID = ?",
             (fid,)).fetchall()
@@ -300,16 +317,13 @@ class Handler(BaseHTTPRequestHandler):
                  if conditions else "")
         params += [limit, offset]
         rows = conn.execute(
-            f"SELECT * FROM FUNCTIONS {where} LIMIT ? OFFSET ?",
+            f"""SELECT f.ID, f.NAME, f.ISMACRO, f.DEFINED, f.DECLARED, f.FILESCOPED, f.FID, f.FOFFSET, f.FANIN, fm.FANOUT, fm.CCYCL1 FROM FUNCTIONS f LEFT JOIN FUNCTIONMETRICS fm ON fm.FUNCTIONID = f.ID AND fm.PRECPP = 0 {where} LIMIT ? OFFSET ?""",
             params).fetchall()
         self.send_json(rows_to_list(rows))
 
     def handle_funmetrics(self, conn, qs):
         """Handle /funmetrics requests."""
-        fnid = get_int_param(qs, "fnid", None)
-        if fnid is None:
-            self.send_error_json(400, "fnid parameter required")
-            return
+        fnid = get_required_int_param(qs, "fnid")
         rows = conn.execute(
             "SELECT * FROM FUNCTIONMETRICS WHERE FUNCTIONID = ?",
             (fnid,)).fetchall()
@@ -320,10 +334,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_callers(self, conn, qs):
         """Handle /callers requests."""
-        fnid = get_int_param(qs, "fnid", None)
-        if fnid is None:
-            self.send_error_json(400, "fnid parameter required")
-            return
+        fnid = get_required_int_param(qs, "fnid")
         rows = conn.execute(
             """
             SELECT f.ID, f.NAME, f.FID, f.FOFFSET,
@@ -339,10 +350,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_callees(self, conn, qs):
         """Handle /callees requests."""
-        fnid = get_int_param(qs, "fnid", None)
-        if fnid is None:
-            self.send_error_json(400, "fnid parameter required")
-            return
+        fnid = get_required_int_param(qs, "fnid")
         rows = conn.execute(
             """
             SELECT f.ID, f.NAME, f.FID, f.FOFFSET,
@@ -364,12 +372,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_refactor_preview(self, conn, qs):
         """Handle /refactor/preview requests."""
-        eid = get_int_param(qs, "eid", None)
-        newname = get_param(qs, "newname")
-        if eid is None or newname is None:
-            self.send_error_json(
-                400, "eid and newname parameters required")
-            return
+        eid = get_required_int_param(qs, "eid")
+        newname = get_required_param(qs, "newname")
         id_row = conn.execute(
             "SELECT NAME FROM IDS WHERE EID = ?",
             (eid,)).fetchone()
