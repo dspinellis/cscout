@@ -663,7 +663,6 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 {
 	const string query_url(query.param_url());
 
-	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
 	html_file_set_begin(of);
 	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qf=1", query.bookmarkable());
@@ -686,30 +685,80 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 	pager.end();
 }
 
-IdQueryResult
-run_id_query(IdQuery &query, bool q_id, bool q_file, bool q_fun, const char *qname)
+class HtmlQueryOutput : public QueryOutput {
+private:
+	FILE *of;
+	IdQuery &query;
+	Sids collected_ids;
+	IFSet collected_files;
+	Sfuns collected_funs;
+public:
+	HtmlQueryOutput(FILE *f, IdQuery &q) : of(f), query(q),
+		collected_funs([](const Call *a, const Call *b) {
+			return Query::string_bi_compare(a->get_name(), b->get_name());
+		}) {}
+
+	void begin_id_list(const std::string &title) override {
+		fprintf(of, "<h2>%s</h2>\n", title.c_str());
+	}
+	void write_id(const IdPropElem &id) override {
+		collected_ids.insert(&id);
+	}
+	void end_id_list() override {
+		display_sorted(of, query, collected_ids);
+	}
+	void begin_file_list() override {
+		fputs("<h2>Matching Files</h2>\n", of);
+	}
+	void write_file(const Fileid &f) override {
+		collected_files.insert(f);
+	}
+	void end_file_list() override {
+		display_files(of, query, collected_files);
+	}
+	void begin_fun_list() override {
+		fputs("<h2>Matching Functions</h2>\n", of);
+	}
+	void write_fun(const Call *f) override {
+		collected_funs.insert(f);
+	}
+	void end_fun_list() override {
+		display_sorted(of, query, collected_funs);
+	}
+};
+
+void
+run_id_query(IdQuery &query, bool q_id, bool q_file, bool q_fun, const char *qname, QueryOutput &out)
 {
-	IdQueryResult result;
-	result.q_id = q_id;
-	result.q_file = q_file;
-	result.q_fun = q_fun;
-	result.qname = qname ? qname : "";
+	if (q_id)
+		out.begin_id_list(qname ? qname : "Identifier Query Results");
+	else if (q_file)
+		out.begin_file_list();
+	else if (q_fun)
+		out.begin_fun_list();
 
 	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
 		progress(i, ids);
 		if (!query.eval(*i))
 			continue;
 		if (q_id)
-			result.sorted_ids.insert(&*i);
+			out.write_id(*i);
 		else if (q_file) {
-			IFSet f = i->first->sorted_files();
-			result.sorted_files.insert(f.begin(), f.end());
+			for (const auto &f : i->first->sorted_files())
+				out.write_file(f);
 		} else if (q_fun) {
-			set <Call *> ecfuns(i->first->functions());
-			result.funs.insert(ecfuns.begin(), ecfuns.end());
+			set<Call *> ecfuns(i->first->functions());
+			for (auto f : ecfuns)
+				out.write_fun(f);
 		}
 	}
-	return result;
+
+	if (q_id)
+		out.end_id_list();
+	else if (q_file)
+		out.end_file_list();
+	else if (q_fun)
+		out.end_fun_list();
 }
 
 // Process an identifier query
@@ -719,9 +768,9 @@ xiquery_page(FILE *of, void *)
 	Timer timer;
 	prohibit_remote_access(of);
 
-	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
-	bool q_file = !!swill_getvar("qf");	// Show matching files
-	bool q_fun = !!swill_getvar("qfun");	// Show matching functions
+	bool q_id = !!swill_getvar("qi");
+	bool q_file = !!swill_getvar("qf");
+	bool q_fun = !!swill_getvar("qfun");
 	char *qname = swill_getvar("n");
 	IdQuery query(of, Option::file_icase->get(), current_project);
 
@@ -734,25 +783,11 @@ xiquery_page(FILE *of, void *)
 	if (!opts.is_quiet())
 		cerr << "Evaluating identifier query" << endl;
 
-	IdQueryResult result = run_id_query(query, q_id, q_file, q_fun, qname);
+	HtmlQueryOutput out(of, query);
+	run_id_query(query, q_id, q_file, q_fun, qname, out);
 
 	if (!opts.is_quiet())
 		cerr << endl;
-
-	if (q_id) {
-		fputs("<h2>Matching Identifiers</h2>\n", of);
-		display_sorted(of, query, result.sorted_ids);
-	}
-	if (q_file)
-		display_files(of, query, result.sorted_files);
-	if (q_fun) {
-		fputs("<h2>Matching Functions</h2>\n", of);
-		Sfuns sorted_funs([](const Call *a, const Call *b) {
-			return Query::string_bi_compare(a->get_name(), b->get_name());
-		});
-		sorted_funs.insert(result.funs.begin(), result.funs.end());
-		display_sorted(of, query, sorted_funs);
-	}
 
 	timer.print_elapsed(of);
 	html_tail(of);
@@ -797,8 +832,10 @@ xfunquery_page(FILE *of,  void *)
 		else
 			display_sorted(of, query, sorted_funs);
 	}
-	if (q_file)
+	if (q_file) {
+		fputs("<h2>Matching Files</h2>\n", of);
 		display_files(of, query, sorted_files);
+	}
 	timer.print_elapsed(of);
 	html_tail(of);
 	return 0;
@@ -838,7 +875,6 @@ get_identifier_info(Eclass *e)
 	info.ec = e;
 	Identifier &id = ids[e];
 
-	// Attributes
 	for (int i = attr_begin; i < attr_end; i++)
 		info.attributes.push_back({Attributes::name(i), e->get_attribute(i)});
 	info.xfile = id.get_xfile();
@@ -846,17 +882,14 @@ get_identifier_info(Eclass *e)
 	info.is_macro = e->get_attribute(is_macro);
 	info.occurrence_count = e->get_size();
 
-	// Projects
 	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
 		if (e->get_attribute(j))
 			info.projects.push_back(Project::get_projname(j));
 
-	// Associated functions
 	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++)
-		if (i->second->contains(e))
-			info.functions.push_back({i->second->get_name(), i->second});
+			if (i->second->contains(e))
+				info.functions.push_back({i->second->get_name(), i->second});
 
-	// Rename state
 	info.replaced = id.get_replaced();
 	info.new_id = id.get_replaced() ? id.get_newid() : id.get_id();
 	info.active = id.get_active();
@@ -2592,93 +2625,6 @@ quit_page(FILE *of, void *)
 	return 0;
 }
 
-// REST endpoint for identifier query
-static int
-api_xiquery(FILE *of, void *)
-{
-	swill_setheader("content-type", "application/json");
-	bool q_id = !!swill_getvar("qi");
-	bool q_file = !!swill_getvar("qf");
-	bool q_fun = !!swill_getvar("qfun");
-	char *qname = swill_getvar("n");
-	IdQuery query(of, Option::file_icase->get(), current_project);
-
-	if (!query.is_valid()) {
-		fprintf(of, "{\"error\":\"Invalid query\"}");
-		return 0;
-	}
-
-	IdQueryResult result = run_id_query(query, q_id, q_file, q_fun, qname);
-
-	fprintf(of, "{\"query\":\"%s\"", result.qname.c_str());
-	if (q_id) {
-		fprintf(of, ",\"identifiers\":[");
-		bool first = true;
-		for (auto &id : result.sorted_ids) {
-			if (!first) fprintf(of, ",");
-			fprintf(of, "{\"name\":\"%s\",\"eid\":\"%p\"}",
-				id->second.get_id().c_str(), (void *)id->first);
-			first = false;
-		}
-		fprintf(of, "]");
-	}
-	if (q_file) {
-		fprintf(of, ",\"files\":[");
-		bool first = true;
-		for (auto &f : result.sorted_files) {
-			if (!first) fprintf(of, ",");
-			fprintf(of, "\"%s\"", f.get_path().c_str());
-			first = false;
-		}
-		fprintf(of, "]");
-	}
-	if (q_fun) {
-		fprintf(of, ",\"functions\":[");
-		bool first = true;
-		for (auto &f : result.funs) {
-			if (!first) fprintf(of, ",");
-			fprintf(of, "\"%s\"", f->get_name().c_str());
-			first = false;
-		}
-		fprintf(of, "]");
-	}
-	fprintf(of, "}");
-	return 0;
-}
-
-// REST endpoint for identifier details
-static int
-api_identifier(FILE *of, void *)
-{
-	swill_setheader("content-type", "application/json");
-	Eclass *e;
-	if (!swill_getargs("p(id)", &e)) {
-		fprintf(of, "{\"error\":\"Missing identifier\"}");
-		return 0;
-	}
-
-	IdentifierInfo info = get_identifier_info(e);
-
-	fprintf(of, "{\"name\":\"%s\",\"occurrences\":%d,",
-		info.current_id.c_str(), info.occurrence_count);
-	fprintf(of, "\"xfile\":%s,\"unused\":%s,\"is_macro\":%s,",
-		info.xfile ? "true" : "false",
-		info.unused ? "true" : "false",
-		info.is_macro ? "true" : "false");
-	fprintf(of, "\"replaced\":%s,\"new_id\":\"%s\",\"active\":%s,",
-		info.replaced ? "true" : "false",
-		info.new_id.c_str(),
-		info.active ? "true" : "false");
-	fprintf(of, "\"projects\":[");
-	bool first = true;
-	for (auto &proj : info.projects) {
-		if (!first) fprintf(of, ",");
-		fprintf(of, "\"%s\"", proj.c_str());
-		first = false;
-	}
-	fprintf(of, "]}");
-	return 0;
-}
 
 // Parse the access control list acl.
 static void
@@ -3018,7 +2964,6 @@ main(int argc, char *argv[])
 		// Identifier query and execution
 		swill_handle("iquery.html", iquery_page, NULL);
 		swill_handle("xiquery.html", xiquery_page, NULL);
-		swill_handle("api/xiquery", api_xiquery, NULL);
 		// File query and execution
 		swill_handle("filequery.html", filequery_page, NULL);
 		swill_handle("xfilequery.html", xfilequery_page, NULL);
@@ -3029,7 +2974,6 @@ main(int argc, char *argv[])
 		swill_handle("xfunquery.html", xfunquery_page, NULL);
 
 		swill_handle("id.html", identifier_page, NULL);
-		swill_handle("api/identifier", api_identifier, NULL);
 		swill_handle("fun.html", function_page, NULL);
 		swill_handle("funlist.html", funlist_page, NULL);
 		swill_handle("funmetrics.html", function_metrics_page, NULL);

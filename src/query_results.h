@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2026 Diomidis Spinellis
+ * (C) Copyright 2026 Diomidis Spinellis
  * (C) Copyright 2026 Ujjwal Aggarwal
  *
  * This file is part of CScout.
@@ -29,6 +29,21 @@
 #include "call.h"
 #include "fileid.h"
 
+// Interface for rendering query results in any output format
+class QueryOutput {
+public:
+    virtual void begin_id_list(const std::string &title) = 0;
+    virtual void write_id(const IdPropElem &id) = 0;
+    virtual void end_id_list() = 0;
+    virtual void begin_file_list() = 0;
+    virtual void write_file(const Fileid &f) = 0;
+    virtual void end_file_list() = 0;
+    virtual void begin_fun_list() = 0;
+    virtual void write_fun(const Call *f) = 0;
+    virtual void end_fun_list() = 0;
+    virtual ~QueryOutput() {}
+};
+
 struct IdQueryResult {
     Sids sorted_ids;        // Matching identifiers
     IFSet sorted_files;     // Matching files
@@ -39,8 +54,8 @@ struct IdQueryResult {
     std::string qname;      // Query name for display
 };
 
-// Called by both HTML and REST handlers to avoid duplicating query logic
-IdQueryResult run_id_query(IdQuery &query, bool q_id, bool q_file, bool q_fun, const char *qname);
+// Evaluate an identifier query, streaming results to the given output
+void run_id_query(IdQuery &query, bool q_id, bool q_file, bool q_fun, const char *qname, QueryOutput &out);
 
 struct IdentifierInfo {
     Eclass *ec;
@@ -58,7 +73,6 @@ struct IdentifierInfo {
     std::string current_id;  // Current identifier name
 };
 
-// Called by both HTML and REST handlers to avoid duplicating identifier lookup
 IdentifierInfo get_identifier_info(Eclass *e);
 
 #endif /* QUERY_RESULTS_H */
