@@ -98,6 +98,7 @@ using namespace picoQL;
 #include "util.h"
 #include "options.h"
 #include "engine.h"
+#include "query_results.h"
 
 CscoutOptions opts;
 CscoutEngine engine(opts);
@@ -662,7 +663,6 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 {
 	const string query_url(query.param_url());
 
-	fputs("<h2>Matching Files</h2>\n", of);
 	html_file_begin(of);
 	html_file_set_begin(of);
 	Pager pager(of, Option::entries_per_page->get(), query.base_url() + "&qf=1", query.bookmarkable());
@@ -685,19 +685,92 @@ display_files(FILE *of, const Query &query, const IFSet &sorted_files)
 	pager.end();
 }
 
+class HtmlQueryOutput : public QueryOutput {
+private:
+	FILE *of;
+	IdQuery &query;
+	Sids collected_ids;
+	IFSet collected_files;
+	Sfuns collected_funs;
+public:
+	HtmlQueryOutput(FILE *f, IdQuery &q) : of(f), query(q),
+		collected_funs([](const Call *a, const Call *b) {
+			return Query::string_bi_compare(a->get_name(), b->get_name());
+		}) {}
+
+	void begin_id_list(const std::string &title) override {
+		fprintf(of, "<h2>%s</h2>\n", title.c_str());
+	}
+	void write_id(const IdPropElem &id) override {
+		collected_ids.insert(&id);
+	}
+	void end_id_list() override {
+		display_sorted(of, query, collected_ids);
+	}
+	void begin_file_list() override {
+		fputs("<h2>Matching Files</h2>\n", of);
+	}
+	void write_file(const Fileid &f) override {
+		collected_files.insert(f);
+	}
+	void end_file_list() override {
+		display_files(of, query, collected_files);
+	}
+	void begin_fun_list() override {
+		fputs("<h2>Matching Functions</h2>\n", of);
+	}
+	void write_fun(const Call *f) override {
+		collected_funs.insert(f);
+	}
+	void end_fun_list() override {
+		display_sorted(of, query, collected_funs);
+	}
+};
+
+void
+run_id_query(IdQuery &query, bool q_id, bool q_file, bool q_fun, const char *qname, QueryOutput &out)
+{
+	if (q_id)
+		out.begin_id_list(qname ? qname : "Identifier Query Results");
+	else if (q_file)
+		out.begin_file_list();
+	else if (q_fun)
+		out.begin_fun_list();
+
+	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
+		progress(i, ids);
+		if (!query.eval(*i))
+			continue;
+		if (q_id)
+			out.write_id(*i);
+		else if (q_file) {
+			for (const auto &f : i->first->sorted_files())
+				out.write_file(f);
+		} else if (q_fun) {
+			set<Call *> ecfuns(i->first->functions());
+			for (auto f : ecfuns)
+				out.write_fun(f);
+		}
+	}
+
+	if (q_id)
+		out.end_id_list();
+	else if (q_file)
+		out.end_file_list();
+	else if (q_fun)
+		out.end_fun_list();
+}
+
 // Process an identifier query
 static int
-xiquery_page(FILE *of,  void *)
+xiquery_page(FILE *of, void *)
 {
 	Timer timer;
 	prohibit_remote_access(of);
 
-	Sids sorted_ids;
-	IFSet sorted_files;
-	set <Call *> funs;
-	bool q_id = !!swill_getvar("qi");	// Show matching identifiers
-	bool q_file = !!swill_getvar("qf");	// Show matching files
-	bool q_fun = !!swill_getvar("qfun");	// Show matching functions
+	bool q_id = !!swill_getvar("qi");
+	bool q_file = !!swill_getvar("qf");
+	bool q_fun = !!swill_getvar("qfun");
 	char *qname = swill_getvar("n");
 	IdQuery query(of, Option::file_icase->get(), current_project);
 
@@ -708,37 +781,13 @@ xiquery_page(FILE *of,  void *)
 
 	html_head(of, "xiquery", (qname && *qname) ? qname : "Identifier Query Results");
 	if (!opts.is_quiet())
-	    cerr << "Evaluating identifier query" << endl;
-	for (IdProp::iterator i = ids.begin(); i != ids.end(); i++) {
-		progress(i, ids);
-		if (!query.eval(*i))
-			continue;
-		if (q_id)
-			sorted_ids.insert(&*i);
-		else if (q_file) {
-			IFSet f = i->first->sorted_files();
-			sorted_files.insert(f.begin(), f.end());
-		} else if (q_fun) {
-			set <Call *> ecfuns(i->first->functions());
-			funs.insert(ecfuns.begin(), ecfuns.end());
-		}
-	}
+		cerr << "Evaluating identifier query" << endl;
+
+	HtmlQueryOutput out(of, query);
+	run_id_query(query, q_id, q_file, q_fun, qname, out);
+
 	if (!opts.is_quiet())
-	    cerr << endl;
-	if (q_id) {
-		fputs("<h2>Matching Identifiers</h2>\n", of);
-		display_sorted(of, query, sorted_ids);
-	}
-	if (q_file)
-		display_files(of, query, sorted_files);
-	if (q_fun) {
-		fputs("<h2>Matching Functions</h2>\n", of);
-		Sfuns sorted_funs([](const Call *a, const Call *b) {
-			return Query::string_bi_compare(a->get_name(), b->get_name());
-		});
-		sorted_funs.insert(funs.begin(), funs.end());
-		display_sorted(of, query, sorted_funs);
-	}
+		cerr << endl;
 
 	timer.print_elapsed(of);
 	html_tail(of);
@@ -783,8 +832,10 @@ xfunquery_page(FILE *of,  void *)
 		else
 			display_sorted(of, query, sorted_funs);
 	}
-	if (q_file)
+	if (q_file) {
+		fputs("<h2>Matching Files</h2>\n", of);
 		display_files(of, query, sorted_files);
+	}
 	timer.print_elapsed(of);
 	html_tail(of);
 	return 0;
@@ -817,6 +868,36 @@ show_c_const(FILE *fo, Eclass *e)
 	fprintf(fo, "</ul></li>\n");
 }
 
+IdentifierInfo
+get_identifier_info(Eclass *e)
+{
+	IdentifierInfo info;
+	info.ec = e;
+	Identifier &id = ids[e];
+
+	for (int i = attr_begin; i < attr_end; i++)
+		info.attributes.push_back({Attributes::name(i), e->get_attribute(i)});
+	info.xfile = id.get_xfile();
+	info.unused = e->is_unused();
+	info.is_macro = e->get_attribute(is_macro);
+	info.occurrence_count = e->get_size();
+
+	for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
+		if (e->get_attribute(j))
+			info.projects.push_back(Project::get_projname(j));
+
+	for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++)
+			if (i->second->contains(e))
+				info.functions.push_back({i->second->get_name(), i->second});
+
+	info.replaced = id.get_replaced();
+	info.new_id = id.get_replaced() ? id.get_newid() : id.get_id();
+	info.active = id.get_active();
+	info.current_id = id.get_id();
+
+	return info;
+}
+
 // Details for each identifier
 static int
 identifier_page(FILE *fo, void *)
@@ -842,41 +923,35 @@ identifier_page(FILE *fo, void *)
 		id.set_newid(ssubst);
 		modification_state = ms_subst;
 	}
-	html_head(fo, "id", string("Identifier: ") + html(id.get_id()));
+	IdentifierInfo info = get_identifier_info(e);
+
+	html_head(fo, "id", string("Identifier: ") + html(info.current_id));
 	fprintf(fo, "<FORM ACTION=\"id.html\" METHOD=\"GET\">\n<ul>\n");
-	for (int i = attr_begin; i < attr_end; i++)
-		show_id_prop(fo, Attributes::name(i), e->get_attribute(i));
-	show_id_prop(fo, "Crosses file boundary", id.get_xfile());
-	show_id_prop(fo, "Unused", e->is_unused());
-	if (e->get_attribute(is_macro))
+	for (auto &attr : info.attributes)
+		show_id_prop(fo, attr.first, attr.second);
+	show_id_prop(fo, "Crosses file boundary", info.xfile);
+	show_id_prop(fo, "Unused", info.unused);
+	if (info.is_macro)
 		show_c_const(fo, e);
-	fprintf(fo, "<li> Matches %d occurence(s)\n", e->get_size());
+	fprintf(fo, "<li> Matches %d occurence(s)\n", info.occurrence_count);
 	if (Option::show_projects->get()) {
 		fprintf(fo, "<li> Appears in project(s): \n<ul>\n");
-		if (DP()) {
-			cout << "First project " << attr_end << endl;
-			cout << "Last project " <<  Attributes::get_num_attributes() - 1 << endl;
-		}
-		for (Attributes::size_type j = attr_end; j < Attributes::get_num_attributes(); j++)
-			if (e->get_attribute(j))
-				fprintf(fo, "<li>%s\n", Project::get_projname(j).c_str());
+		for (auto &proj : info.projects)
+			fprintf(fo, "<li>%s\n", proj.c_str());
 		fprintf(fo, "</ul>\n");
 	}
-	fprintf(fo, "<li><a href=\"xiquery.html?ec=%p&n=Dependent+Files+for+Identifier+%s&qf=1\">Dependent files</a>", (void *)e, id.get_id().c_str());
-	fprintf(fo, "<li><a href=\"xfunquery.html?ec=%p&qi=1&n=Functions+Containing+Identifier+%s\">Associated functions</a>", (void *)e, id.get_id().c_str());
-	if (e->get_attribute(is_cfunction) || e->get_attribute(is_macro)) {
+	fprintf(fo, "<li><a href=\"xiquery.html?ec=%p&n=Dependent+Files+for+Identifier+%s&qf=1\">Dependent files</a>", (void *)e, info.current_id.c_str());
+	fprintf(fo, "<li><a href=\"xfunquery.html?ec=%p&qi=1&n=Functions+Containing+Identifier+%s\">Associated functions</a>", (void *)e, info.current_id.c_str());
+	if (e->get_attribute(is_cfunction) || info.is_macro) {
 		bool found = false;
-		// Loop through all declared functions
-		for (Call::const_fmap_iterator_type i = Call::fbegin(); i != Call::fend(); i++) {
-			if (i->second->contains(e)) {
-				if (!found) {
-					fprintf(fo, "<li> The identifier occurs (wholy or in part) in function name(s): \n<ol>\n");
-					found = true;
-				}
-				fprintf(fo, "\n<li>");
-				html_string(fo, i->second);
-				fprintf(fo, " &mdash; <a href=\"fun.html?f=%p\">function page</a>", (void *)i->second);
+		for (auto &fun : info.functions) {
+			if (!found) {
+				fprintf(fo, "<li> The identifier occurs (wholy or in part) in function name(s): \n<ol>\n");
+				found = true;
 			}
+			fprintf(fo, "\n<li>");
+			html_string(fo, fun.second);
+			fprintf(fo, " &mdash; <a href=\"fun.html?f=%p\">function page</a>", (void *)fun.second);
 		}
 		if (found)
 			fprintf(fo, "</ol><br />\n");
@@ -888,9 +963,9 @@ identifier_page(FILE *fo, void *)
 		fprintf(fo, "<li> Substitute with: \n"
 			"<INPUT TYPE=\"text\" NAME=\"sname\" VALUE=\"%s\" SIZE=10 MAXLENGTH=256> "
 			"<INPUT TYPE=\"submit\" NAME=\"repl\" VALUE=\"Save\">\n",
-			(id.get_replaced() ? id.get_newid() : id.get_id()).c_str());
+			info.new_id.c_str());
 		fprintf(fo, "<INPUT TYPE=\"hidden\" NAME=\"id\" VALUE=\"%p\">\n", (void *)e);
-		if (!id.get_active())
+		if (!info.active)
 			fputs("<br>(This substitution is inactive.  Visit the <a href='replacements.html'>replacements page</a> to activate it again.)", fo);
 	}
 	fprintf(fo, "</ul>\n");
@@ -2549,6 +2624,7 @@ quit_page(FILE *of, void *)
 	must_exit = true;
 	return 0;
 }
+
 
 // Parse the access control list acl.
 static void
