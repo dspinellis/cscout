@@ -1,11 +1,19 @@
 <?xml version="1.0" ?>
 <notes>
-The following sections provide details for some of
+<p>
+The following sections provide details for
 the collected function and file metrics.
 Although the metrics collected by <em>CScout</em> are considerably
 more accurate than those collected by programs that either
 do not parse the source code or parse the preprocessed code,
 they still employ approximations.
+</p>
+<p>
+Where appropriate file and function metrics are collected both before and after
+preprocessing.
+In the database tables they appear as two records for each entity that
+are distinguished by the value of the <code>precpp</code> column.
+</p>
 
 <h2>Metrics Common to Files and Functions</h2>
 <dl>
