@@ -159,6 +159,7 @@ insert_eclass(Sql *db, ostream &of, Eclass *e, const string &name)
 		     name << "'," <<
 		     db->boolval(e->get_attribute(is_readonly)) << ',' <<
 		     db->boolval(e->get_attribute(is_undefined_macro)) << ',' <<
+		     db->boolval(e->get_attribute(is_undefed)) << ',' <<
 		     db->boolval(e->get_attribute(is_macro)) << ',' <<
 		     db->boolval(e->get_attribute(is_fun_macro)) << ',' <<
 		     db->boolval(e->get_attribute(is_macro_arg)) << ',' <<
@@ -414,6 +415,7 @@ workdb_schema(Sql *db, ostream &of)
 		"  NAME " << db->varchar() << ", -- Identifier name\n"
 		"  READONLY " << db->booltype() << ", -- True if it appears in at least one read-only file\n"
 		"  UNDEFMACRO " << db->booltype() << ", -- True if it is apparantly an undefined macro\n"
+		"  UNDEFED " << db->booltype() << ", -- True if the macro has been undefed\n"
 		"  MACRO " << db->booltype() << ", -- True if it a preprocessor macro\n"
 		"  FUNMACRO " << db->booltype() << ", -- True if it a preprocessor function-like macro\n"
 		"  MACROARG " << db->booltype() << ", -- True if it a preprocessor macro argument\n"
