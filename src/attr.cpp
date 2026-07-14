@@ -70,6 +70,7 @@ string Attributes::attribute_names[] = {
 
 	"Macro",
 	"Undefined macro",
+	"Undefed macro",
 	"Macro argument",
 
 	"File scope",
@@ -103,6 +104,7 @@ string Attributes::attribute_short_names[] = {
 
 	"macro",
 	"umacro",
+	"undefed",
 	"macroarg",
 
 	"fscope",

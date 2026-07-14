@@ -64,6 +64,7 @@ enum e_attribute {
 
 	is_macro,		// Name of an object or function-like macro
 	is_undefined_macro,	// Macro (heuristic: ifdef, defined)
+	is_undefed,		// Macro that has been undefed
 	is_macro_arg,		// Macro argument
 
 	// The following are valid if is_ordinary is true:
@@ -112,6 +113,7 @@ public:
 			attr[is_macro] ||
 			attr[is_macro_arg] ||
 			attr[is_undefined_macro] ||
+			attr[is_undefed] ||
 			attr[is_label] ||
 			attr[is_yacc];
 	}

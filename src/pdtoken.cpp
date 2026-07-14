@@ -1013,6 +1013,7 @@ Pdtoken::process_undef()
 	mapMacro::iterator mi;
 	if ((mi = Pdtoken::macros.find(t.get_val())) != Pdtoken::macros.end()) {
 		Token::unify((*mi).second.get_name_token(), t);
+		t.set_ec_attribute(is_undefed);
 		if (!(*mi).second.get_is_immutable())
 			Pdtoken::macros.erase(mi);
 	}
