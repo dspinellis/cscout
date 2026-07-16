@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2025 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -399,6 +399,7 @@ public:
 
 	static inline void queue_post_cpp_identifier(const Ctoken &t) {
 		auto& metrics = get_post_cpp_metrics(Fchar::get_fileid());
+		// Avoid the insertion cost if file already processed.
 		if (!metrics.is_processed())
 			metrics.queue_identifier(t);
 	}

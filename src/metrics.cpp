@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2024 Diomidis Spinellis
+ * (C) Copyright 2002-2026 Diomidis Spinellis
  *
  * You may only use this code if you agree to the terms of the CScout
  * Source Code License agreement (see License.txt).
@@ -210,13 +210,13 @@ IdCount::add(Eclass *ec, UnaryFunction f)
 void
 IdMetricsSummary::add_pre_cpp_id(Eclass *ec)
 {
-	rw[ec->get_attribute(is_readonly)].all[IdMetricsSet::pp_pre].add(ec, add_one());
+	rw[ec->get_attribute(is_readonly)].all[Metrics::pp_pre].add(ec, add_one());
 }
 
 void
 IdMetricsSummary::add_post_cpp_id(Eclass *ec)
 {
-	rw[ec->get_attribute(is_readonly)].all[IdMetricsSet::pp_post].add(ec, add_one());
+	rw[ec->get_attribute(is_readonly)].all[Metrics::pp_post].add(ec, add_one());
 }
 
 // Called for each unique identifier occurence (EC)
@@ -246,8 +246,8 @@ operator<<(ostream& o, const IdMetricsSet &mi)
 
 	const string tdnum("<td style='text-align: right;'>");
 	o << "<tr><td>" "All identifiers" "</td>"
-	    << tdnum << m.all[IdMetricsSet::pp_pre].total << "</td>"
-	    << tdnum << m.all[IdMetricsSet::pp_post].total << "</td>"
+	    << tdnum << m.all[Metrics::pp_pre].total << "</td>"
+	    << tdnum << m.all[Metrics::pp_post].total << "</td>"
 	    << tdnum << m.once.total << "</td>"
 	    << tdnum << avg(m.len.total, m.once.total) << "</td>"
 	    << tdnum << m.minlen.total << "</td>"
@@ -255,8 +255,8 @@ operator<<(ostream& o, const IdMetricsSet &mi)
 	    << "</tr>\n";
 	for (int i = is_readonly + 1; i < attr_end; i++) {
 		o << "<tr><td>" << Attributes::name(i) << "</td>"
-		    << tdnum << m.all[IdMetricsSet::pp_pre].get_count(i) << "</td>"
-		    << tdnum << m.all[IdMetricsSet::pp_post].get_count(i) << "</td>"
+		    << tdnum << m.all[Metrics::pp_pre].get_count(i) << "</td>"
+		    << tdnum << m.all[Metrics::pp_post].get_count(i) << "</td>"
 		    << tdnum << m.once.get_count(i) << "</td>"
 		    << tdnum << avg(m.len.get_count(i), m.once.get_count(i)) << "</td>"
 		    << tdnum << m.minlen.get_count(i) << "</td>"
@@ -400,6 +400,8 @@ Metrics::make_is_operator()
 void
 Metrics::process_queued_identifiers()
 {
+	if (DP())
+		cout << "Processing " << queued_identifiers.size() << " queued ids\n";
 	for (auto i = queued_identifiers.begin(); i != queued_identifiers.end();
 	    ++i) {
 		const auto& tparts(i->constituents());
@@ -432,18 +434,36 @@ Metrics::get_metric(int n) const
 
 // Summarize the identifiers collected by process_identifier
 void
-Metrics::summarize_identifiers()
+Metrics::summarize_identifiers(enum e_pre_post phase)
 {
 	process_queued_identifiers();
 
-	count[em_nupid] = pids.size();
-	pids.clear();
-	count[em_nufid] = fids.size();
-	fids.clear();
-	count[em_numid] = mids.size();
-	mids.clear();
-	count[em_nuid] = ids.size();
-	ids.clear();
+	/*
+	 * The handling here is a bit subtle.
+	 * When tallying metrics in the phase *before* the C-preprocessor
+	 * takes effect, each file is processed exactly once by going
+	 * through it through engine.cpp:analyze_file().
+	 * When tallying metrics in the phase *after* the C-preprocessor
+	 * takes effect, each file is processed at the end of each
+	 * compilation unit through stab.cpp:Block::exit.
+	 * We cannot use is_processed() to process each file exactly
+	 * once, because this has already been set at file EOF through
+	 * fchar.cpp:Fchar::getnext.  Instead, we use non-empty
+	 * queued_identifiers as a signal to set the metrics.
+	 */
+	if (phase == pp_pre || queued_identifiers.size() > 0) {
+		count[em_nupid] = pids.size();
+		pids.clear();
+		count[em_nufid] = fids.size();
+		fids.clear();
+		count[em_numid] = mids.size();
+		mids.clear();
+		count[em_nuid] = ids.size();
+		ids.clear();
+	}
+
+	// Garbage collection
+	queued_identifiers.clear();
 }
 
 // Called for every identifier

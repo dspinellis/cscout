@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2024 Diomidis Spinellis
+ * (C) Copyright 2002-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -125,7 +125,7 @@ private:
 	// Initialize map
 	static vector<bool> make_is_operator();
 
-	// Process the queued identifiers
+	// Process the identifiers queued to tally for after cpp-processing.
 	void process_queued_identifiers();
 
 protected:
@@ -144,6 +144,9 @@ public:
 		cstate(s_normal),
 		processed(false)
 	{}
+
+	// Distinguish metrics before or after cpp processing
+	enum e_pre_post { pp_pre, pp_post, pp_max };
 
 	// Metrics we collect
 	enum e_metric {
@@ -225,7 +228,7 @@ public:
 	};
 
 	// Queue an identifier token for processing its constituent
-	// parts when the function/file is processed
+	// parts (finalized) when the function/file is processed.
 	void queue_identifier(const Ctoken &t) {
 		queued_identifiers.emplace_back(t);
 	}
@@ -238,7 +241,8 @@ public:
 		process_identifier(s.length(), ec);
 	}
 	// Summarize the identifiers collected by process_idendifier
-	void summarize_identifiers();
+	// for a complete compilation unit.
+	void summarize_identifiers(enum e_pre_post phase);
 	// Called when encountering unprocessed lines
 	void add_unprocessed() { count[em_nuline]++; }
 
@@ -449,11 +453,10 @@ class Fileid;
 class IdMetricsSet {
 	friend class IdMetricsSummary;
 public:
-	enum e_pre_post { pp_pre, pp_post, pp_max };
 	friend ostream& operator<<(ostream& o, const IdMetricsSet &m);
 private:
 	// Total metrics before (pp_pre) and after (pp_post) cpp
-	IdCount all[pp_max];
+	IdCount all[Metrics::pp_max];
 
 	IdCount once;	// Each identifier EC is counted once
 	IdCount len;	// Use the len of each EC
