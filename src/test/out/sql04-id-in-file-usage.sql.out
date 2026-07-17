@@ -4,7 +4,6 @@ Cell	example/awk/run.c	109
 Node	example/awk/parse.c	83
 tempfree	example/awk/run.c	83
 execute	example/awk/run.c	82
-pattern	example/awk/awkgram.y	64
 RET	example/awk/lex.c	58
 Cell	example/awk/proto.h	57
 FATAL	example/awk/run.c	56
@@ -28,7 +27,6 @@ NUM	example/awk/run.c	32
 f	example/awk/b.c	32
 tval	example/awk/run.c	32
 recsize	example/awk/run.c	31
-term	example/awk/awkgram.y	30
 uschar	example/awk/b.c	30
 getfval	example/awk/run.c	29
 i	example/awk/lib.c	29
@@ -41,7 +39,6 @@ True	example/awk/run.c	27
 posns	example/awk/b.c	27
 x	example/awk/run.c	27
 STR	example/awk/run.c	26
-comma	example/awk/awkgram.y	26
 fp	example/awk/run.c	26
 setvec	example/awk/b.c	26
 buf	example/awk/run.c	25
@@ -103,7 +100,6 @@ buf	example/awk/lex.c	17
 fval	example/awk/tran.c	17
 i	example/awk/run.c	17
 n	example/awk/run.c	17
-ppattern	example/awk/awkgram.y	17
 Array	example/awk/run.c	16
 NULL	example/awk/tran.c	16
 buf	example/awk/lib.c	16
@@ -127,7 +123,6 @@ nval	example/awk/run.c	15
 re	example/awk/b.c	15
 rr	example/awk/lib.c	15
 sprintf	example/awk/run.c	15
-varname	example/awk/awkgram.y	15
 x	example/awk/run.c	15
 Array	example/awk/tran.c	14
 BLTIN	example/awk/lex.c	14
@@ -149,7 +144,6 @@ overflo	example/awk/b.c	14
 p	example/awk/b.c	14
 size_t	include/stdc/stdlib.h	14
 sptr	example/awk/run.c	14
-var	example/awk/awkgram.y	14
 vp	example/awk/tran.c	14
 x	example/awk/run.c	14
 xf	example/awk/run.c	14
@@ -203,8 +197,6 @@ narg	example/awk/parse.c	12
 p	example/awk/b.c	12
 s	example/awk/run.c	12
 setsymtab	example/awk/run.c	12
-st	example/awk/awkgram.y	12
-stmt	example/awk/awkgram.y	12
 t	example/awk/run.c	12
 tab	example/awk/tran.c	12
 tmps	example/awk/run.c	12
@@ -224,7 +216,6 @@ itonp	example/awk/awkgram.y	11
 makearr	example/awk/awkgram.y	11
 n	example/awk/run.c	11
 ntype	example/awk/parse.c	11
-p	include/stdc/stdio.h	11
 patlen	example/awk/b.c	11
 rec	example/awk/lib.c	11
 s	example/awk/lib.c	11
@@ -244,18 +235,15 @@ i	example/awk/b.c	10
 i	example/awk/lib.c	10
 j	example/awk/lib.c	10
 lastre	example/awk/b.c	10
-lbrace	example/awk/awkgram.y	10
 malloc	example/awk/run.c	10
 ndef	example/awk/run.c	10
 nextarg	example/awk/run.c	10
 p	example/awk/b.c	10
 p	example/awk/lib.c	10
 recsize	example/awk/lib.c	10
-reg_expr	example/awk/awkgram.y	10
 right	example/awk/b.c	10
 s	example/awk/b.c	10
 s	example/awk/b.c	10
-stmtlist	example/awk/awkgram.y	10
 tp	example/awk/tran.c	10
 tval	example/awk/lib.c	10
 vp	example/awk/tran.c	10

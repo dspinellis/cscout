@@ -1727,7 +1727,6 @@ NULL	include/stdc/stdlib.h	example/awk/run.c
 NULL	include/stdc/stdlib.h	example/awk/tran.c
 NULL	include/stdc/stdlib.h	include/stdc/string.h
 RAND_MAX	include/stdc/stdlib.h	example/awk/run.c
-_CSCOUT_SIZE_T_	include/stdc/stdlib.h	include/stdc/string.h
 abort	include/stdc/stdlib.h	example/awk/lib.c
 atof	include/stdc/stdlib.h	example/awk/lex.c
 atof	include/stdc/stdlib.h	example/awk/lib.c
@@ -1771,8 +1770,6 @@ NULL	include/stdc/string.h	example/awk/run.c
 NULL	include/stdc/string.h	example/awk/tran.c
 NULL	include/stdc/string.h	include/stdc/stdlib.h
 NULL	include/stdc/string.h	include/stdc/time.h
-_CSCOUT_SIZE_T_	include/stdc/string.h	include/stdc/stdlib.h
-_CSCOUT_SIZE_T_	include/stdc/string.h	include/stdc/time.h
 size_t	include/stdc/string.h	include/stdc/stdlib.h
 size_t	include/stdc/string.h	include/stdc/time.h
 strcat	include/stdc/string.h	example/awk/run.c

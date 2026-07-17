@@ -391,7 +391,9 @@ Dbtoken::read_ids(const char *in_path)
 	string name;
 	bool v_readonly;
 	bool v_undefined_macro;
-	bool v_undefed;
+	bool v_undefed_macro;
+	bool v_redefined_same_macro;
+	bool v_redefined_diff_macro;
 	bool v_macro;
 	bool v_fun_macro;
 	bool v_macro_arg;
@@ -420,7 +422,9 @@ Dbtoken::read_ids(const char *in_path)
 	while (input >> dbid >> fid >> offset >> ecid >> name
 		>> v_readonly
 		>> v_undefined_macro
-		>> v_undefed
+		>> v_undefed_macro
+		>> v_redefined_same_macro
+		>> v_redefined_diff_macro
 		>> v_macro
 		>> v_fun_macro
 		>> v_macro_arg
@@ -457,7 +461,9 @@ Dbtoken::read_ids(const char *in_path)
 
 			if (v_readonly) ec->set_attribute(is_readonly);
 			if (v_undefined_macro) ec->set_attribute(is_undefined_macro);
-			if (v_undefed) ec->set_attribute(is_undefed);
+			if (v_undefed_macro) ec->set_attribute(is_undefed_macro);
+			if (v_redefined_same_macro) ec->set_attribute(is_redefined_same_macro);
+			if (v_redefined_diff_macro) ec->set_attribute(is_redefined_diff_macro);
 			if (v_macro) ec->set_attribute(is_macro);
 			if (v_fun_macro) ec->set_attribute(is_fun_macro);
 			if (v_macro_arg) ec->set_attribute(is_macro_arg);
@@ -501,7 +507,9 @@ Dbtoken::dump_id(ostream &of, Eclass *e, const string &name)
 	     name << ',' <<
 	     e->get_attribute(is_readonly) << ',' <<
 	     e->get_attribute(is_undefined_macro) << ',' <<
-	     e->get_attribute(is_undefed) << ',' <<
+	     e->get_attribute(is_undefed_macro) << ',' <<
+	     e->get_attribute(is_redefined_same_macro) << ',' <<
+	     e->get_attribute(is_redefined_diff_macro) << ',' <<
 	     e->get_attribute(is_macro) << ',' <<
 	     e->get_attribute(is_fun_macro) << ',' <<
 	     e->get_attribute(is_macro_arg) << ',' <<
