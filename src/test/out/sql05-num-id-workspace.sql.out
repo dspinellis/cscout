@@ -8,6 +8,7 @@ execute	83
 tempfree	83
 tval	75
 STR	65
+pattern	64
 fldtab	59
 NUM	58
 RET	58
@@ -45,12 +46,14 @@ DONTFREE	30
 nnext	30
 patlen	30
 symtab	30
+term	30
 i	29
 pb	29
 yylval	29
 posns	28
 True	27
 x	27
+comma	26
 fp	26
 fprintf	26
 setvec	26
@@ -106,6 +109,7 @@ free	17
 i	17
 n	17
 out	17
+ppattern	17
 relex	17
 setsval	17
 strcmp	17
@@ -134,6 +138,7 @@ i	15
 ntype	15
 overflo	15
 rr	15
+varname	15
 x	15
 NN	14
 atof	14
@@ -155,6 +160,7 @@ p	14
 sptr	14
 tab	14
 unary	14
+var	14
 vp	14
 x	14
 xf	14
@@ -209,6 +215,8 @@ istrue	12
 p	12
 realloc	12
 s	12
+st	12
+stmt	12
 t	12
 tmps	12
 v	12
@@ -231,6 +239,7 @@ lineno	11
 linkum	11
 n	11
 op4	11
+p	11
 rec	11
 rectonode	11
 s	11
@@ -270,6 +279,7 @@ infunc	10
 inputFS	10
 j	10
 lastre	10
+lbrace	10
 makesymtab	10
 ndef	10
 nextarg	10
@@ -277,6 +287,7 @@ nobj	10
 p	10
 p	10
 ptoi	10
+reg_expr	10
 right	10
 s	10
 s	10
@@ -285,6 +296,7 @@ stat1	10
 stat3	10
 stdin	10
 stdout	10
+stmtlist	10
 time_t	10
 tp	10
 unput	10
