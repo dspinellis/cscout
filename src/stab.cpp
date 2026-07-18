@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2024 Diomidis Spinellis
+ * (C) Copyright 2001-2026 Diomidis Spinellis
  *
  * This file is part of CScout.
  *
@@ -107,8 +107,13 @@ Block::exit()
 	scope_block.pop_back();
 	current_block--;
 	param_clear();
-	if (get_scope_level() == lu_block)
-		Filedetails::get_post_cpp_metrics(cu_file_id).summarize_identifiers();
+	if (get_scope_level() == lu_block) {
+		// Finished processing a compilation unit
+		if (DP())
+			cout << "Summarize post-cpp identifiers for " << cu_file_id.get_id() << '\n';
+
+		Filedetails::get_post_cpp_metrics(cu_file_id).summarize_identifiers(Metrics::pp_post);
+	}
 }
 
 // Called when exiting a function parameter list

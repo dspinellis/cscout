@@ -96,8 +96,10 @@ using namespace picoQL;
 #include "obfuscate.h"
 #include "progress.h"
 #include "util.h"
+#include "progress.h"
 #include "options.h"
 #include "engine.h"
+#include "progress.h"
 
 CscoutOptions opts;
 CscoutEngine engine(opts);
@@ -805,6 +807,9 @@ show_c_const(FILE *fo, Eclass *e)
 	bool val = !e->get_attribute(is_fun_macro)
 		&& !e->get_attribute(is_cpp_const)
 		&& !e->get_attribute(is_cpp_str_val)
+		&& !e->get_attribute(is_undefed_macro)
+		&& !e->get_attribute(is_redefined_same_macro)
+		&& !e->get_attribute(is_redefined_diff_macro)
 		&& ((e->get_attribute(is_def_c_const)
 			    && !e->get_attribute(is_def_not_c_const))
 		    || (e->get_attribute(is_exp_c_const)

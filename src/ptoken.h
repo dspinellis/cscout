@@ -119,6 +119,9 @@ template <typename TokenSequence> bool
 is_c_const(const TokenSequence& ts)
 {
 	int bracket_nesting = 0;
+	int n_question = 0;
+	int n_colon = 0;
+
 	for (const auto &tok : ts)
 		switch (tok.get_code()) {
 		case '(':
@@ -146,11 +149,21 @@ is_c_const(const TokenSequence& ts)
 		case '|':
 		case AND_OP:
 		case OR_OP:
-		case '?': case ':':
+			continue;
+		/*
+		 * Avoid unbalanced elements of ternary operators, as the
+		 * following definition in the Linux kernel v6.19 
+		 * #define LINE_LINES_POINT0_X 15:0
+		 */
+		case '?':
+			n_question++;
+			continue;
+		case ':':
+			n_colon++;
 			continue;
 		default:
 			return false;
 		}
-	return bracket_nesting == 0;
+	return bracket_nesting == 0 && n_question == n_colon;
 }
 #endif /* PTOKEN_ */

@@ -73,6 +73,9 @@ CREATE STRUCT VIEW Eclass (
 
 	isMacro BOOLEAN FROM get_attribute(is_macro),				// Name of an object or function-like macro
 	isUndefined_macro BOOLEAN FROM get_attribute(is_undefined_macro),	// Macro (heuristic: ifdef, defined)
+	isUndefedMacro BOOLEAN FROM get_attribute(is_undefed_macro),		// Macro that has been undefed
+	isRedefinedSameMacro) BOOLEAN FROM get_attribute(is_redefined_same_macro),// Macro that has been redefined with same value
+	isRedefinedDiffMacro) BOOLEAN FROM get_attribute(is_redefined_diff_macro),// Macro that has been redefined with different value
 	isMacro_arg BOOLEAN FROM get_attribute(is_macro_arg),			// Macro argument
 	// The following are valid if isOrdinary is true:
 	isCscope BOOLEAN FROM get_attribute(is_cscope),			// Compilation-unit (file) scoped

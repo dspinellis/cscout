@@ -1,0 +1,465 @@
+openapi: 3.0.0
+info:
+  title: CScout REST API
+  description: REST API server for querying a CScout SQLite database.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+    description: Default local development server
+paths:
+  /status:
+    get:
+      summary: Get server status
+      description: Returns the health status of the server and whether the database indexes have been built.
+      responses:
+        '200':
+          description: Server is online
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  indexes_ready:
+                    type: boolean
+                    example: true
+
+  /quit:
+    get:
+      summary: Stop the server
+      description: Gracefully shuts down the HTTP server.
+      responses:
+        '200':
+          description: Shutdown requested successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: quit
+
+  /identifiers:
+    get:
+      summary: Search identifiers
+      description: List identifiers matching the specified query filters.
+      parameters:
+        - name: unused
+          in: query
+          description: Filter by unused identifiers.
+          schema:
+            type: boolean
+        - name: macro
+          in: query
+          description: Filter by macro definitions.
+          schema:
+            type: boolean
+        - name: fun
+          in: query
+          description: Filter by function names.
+          schema:
+            type: boolean
+        - name: readonly
+          in: query
+          description: Filter by readonly identifiers (e.g. library symbols).
+          schema:
+            type: boolean
+        - name: should_be_static
+          in: query
+          description: Filter by identifiers that could be static.
+          schema:
+            type: boolean
+        - name: name
+          in: query
+          description: Filter by partial identifier name (substring matching).
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of results to return.
+          schema:
+            type: integer
+            default: 1000
+        - name: offset
+          in: query
+          description: Number of results to skip.
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: A list of identifiers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Identifier'
+
+  /identifier:
+    get:
+      summary: Get identifier details
+      description: Get detailed information and paged occurrence locations for a specific identifier.
+      parameters:
+        - name: eid
+          in: query
+          required: true
+          description: The Equivalence ID (EID) of the identifier.
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Maximum number of token locations to return.
+          schema:
+            type: integer
+            default: 1000
+        - name: offset
+          in: query
+          description: Number of token locations to skip.
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Detailed identifier information and occurrences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identifier:
+                    $ref: '#/components/schemas/Identifier'
+                  locations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+        '400':
+          description: Missing or invalid query parameters
+        '404':
+          description: Identifier not found
+
+  /files:
+    get:
+      summary: List files
+      description: List all source and header files in the CScout workspace.
+      responses:
+        '200':
+          description: A list of files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
+
+  /filemetrics:
+    get:
+      summary: Get file metrics
+      description: Get complexity and size metrics collected for a specific file.
+      parameters:
+        - name: fid
+          in: query
+          required: true
+          description: The File ID (FID).
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Metrics for the file
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileMetrics'
+        '400':
+          description: Missing or invalid fid parameter
+        '404':
+          description: File not found
+
+  /functions:
+    get:
+      summary: Search functions
+      description: List functions matching the specified filters.
+      parameters:
+        - name: defined
+          in: query
+          description: Filter by whether the function is defined in the workspace.
+          schema:
+            type: boolean
+        - name: filescoped
+          in: query
+          description: Filter by whether the function is file-scoped (static).
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          description: Maximum number of results to return.
+          schema:
+            type: integer
+            default: 1000
+        - name: offset
+          in: query
+          description: Number of results to skip.
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: A list of functions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Function'
+
+  /funmetrics:
+    get:
+      summary: Get function metrics
+      description: Get complexity and size metrics collected for a specific function.
+      parameters:
+        - name: fnid
+          in: query
+          required: true
+          description: The Function ID (FNID).
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Metrics for the function
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FunctionMetrics'
+        '400':
+          description: Missing or invalid fnid parameter
+        '404':
+          description: Function not found
+
+  /callers:
+    get:
+      summary: Get function callers
+      description: Get a list of functions calling the specified function.
+      parameters:
+        - name: fnid
+          in: query
+          required: true
+          description: The Function ID (FNID) of the destination function.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of calling functions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CallInfo'
+        '400':
+          description: Missing or invalid fnid parameter
+
+  /callees:
+    get:
+      summary: Get function callees
+      description: Get a list of functions called by the specified function.
+      parameters:
+        - name: fnid
+          in: query
+          required: true
+          description: The Function ID (FNID) of the source function.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of called functions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CallInfo'
+        '400':
+          description: Missing or invalid fnid parameter
+
+  /projects:
+    get:
+      summary: List projects
+      description: List all projects defined in the CScout workspace.
+      responses:
+        '200':
+          description: A list of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+
+  /refactor/preview:
+    get:
+      summary: Preview refactoring renaming
+      description: Preview identifier renaming replacements across the workspace without modifying files.
+      parameters:
+        - name: eid
+          in: query
+          required: true
+          description: The Equivalence ID (EID) of the identifier to rename.
+          schema:
+            type: integer
+        - name: newname
+          in: query
+          required: true
+          description: The new name proposed for the identifier.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rename preview information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eid:
+                    type: integer
+                  old_name:
+                    type: string
+                  new_name:
+                    type: string
+                  total_replacements:
+                    type: integer
+                  locations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+        '400':
+          description: Missing or invalid query parameters
+        '404':
+          description: Identifier not found
+
+components:
+  schemas:
+    Identifier:
+      type: object
+      properties:
+        EID:
+          type: integer
+        NAME:
+          type: string
+        UNUSED:
+          type: integer
+        MACRO:
+          type: integer
+        FUN:
+          type: integer
+        READONLY:
+          type: integer
+        ORDINARY:
+          type: integer
+        CSCOPE:
+          type: integer
+
+    Location:
+      type: object
+      properties:
+        FID:
+          type: integer
+        FILE:
+          type: string
+        FOFFSET:
+          type: integer
+        LNUM:
+          type: integer
+
+    File:
+      type: object
+      properties:
+        FID:
+          type: integer
+        NAME:
+          type: string
+        RO:
+          type: integer
+
+    FileMetrics:
+      type: object
+      properties:
+        FID:
+          type: integer
+        PRECPP:
+          type: integer
+        POSTCPP:
+          type: integer
+        NONSPACE:
+          type: integer
+        STATEMENTS:
+          type: integer
+        FUNCTIONS:
+          type: integer
+        MAXNESTING:
+          type: integer
+
+    Function:
+      type: object
+      properties:
+        ID:
+          type: integer
+        NAME:
+          type: string
+        FID:
+          type: integer
+        FOFFSET:
+          type: integer
+        DEFINED:
+          type: integer
+        FILESCOPED:
+          type: integer
+
+    FunctionMetrics:
+      type: object
+      properties:
+        FUNCTIONID:
+          type: integer
+        PRECPP:
+          type: integer
+        POSTCPP:
+          type: integer
+        NONSPACE:
+          type: integer
+        STATEMENTS:
+          type: integer
+        MAXNESTING:
+          type: integer
+        FANOUT:
+          type: integer
+        METRICID:
+          type: integer
+
+    CallInfo:
+      type: object
+      properties:
+        ID:
+          type: integer
+        NAME:
+          type: string
+        FID:
+          type: integer
+        FOFFSET:
+          type: integer
+        FILE:
+          type: string
+
+    Project:
+      type: object
+      properties:
+        PID:
+          type: integer
+        NAME:
+          type: string

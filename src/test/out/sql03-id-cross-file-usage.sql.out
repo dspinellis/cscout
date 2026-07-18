@@ -212,7 +212,6 @@ SUBSEP	3
 VAR	3
 XBEGIN	3
 XEND	3
-_CSCOUT_SIZE_T_	3
 arg	3
 arginit	3
 arith	3
