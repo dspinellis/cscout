@@ -45,21 +45,24 @@ class MissingParameterError(ValueError):
     pass
 
 
+def ensure_index(conn: sqlite3.Connection, table: str, columns: list) -> None:
+    """Ensure that an index exists on the specified table and columns.
+    
+    SQLite DDL statements run in autocommit mode, so no commit is necessary.
+    """
+    index_name = f"idx_{table.lower()}_{'_'.join(columns).lower()}"
+    columns_str = ", ".join(columns)
+    conn.execute(f"CREATE INDEX IF NOT EXISTS {index_name} ON {table}({columns_str})")
+
+
 def get_db() -> sqlite3.Connection:
-    """Open a database connection and ensure indexes exist.
+    """Open a database connection.
 
     Setting check_same_thread=False allows requests to be queried across
     multiple handler threads.
     """
     conn = sqlite3.connect(_db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
-
-    # Dynamically build indexes if they do not exist
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_ids_name ON IDS(NAME)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_tokens_eid ON TOKENS(EID)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_linepos ON LINEPOS(FID, FOFFSET)")
-    conn.commit()
-
     return conn
 
 
@@ -234,6 +237,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_identifiers(self, conn, qs):
         """Handle /identifiers requests."""
+        ensure_index(conn, "IDS", ["NAME"])
         filters = [
             ("unused", "UNUSED = ?", "bool"),
             ("macro", "MACRO = ?", "bool"),
@@ -258,6 +262,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_identifier(self, conn, qs):
         """Handle /identifier requests."""
+        ensure_index(conn, "TOKENS", ["EID"])
+        ensure_index(conn, "LINEPOS", ["FID", "FOFFSET"])
         eid = get_required_int_param(qs, "eid")
         row = conn.execute(
             "SELECT * FROM IDS WHERE EID = ?",
@@ -294,6 +300,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_filemetrics(self, conn, qs):
         """Handle /filemetrics requests."""
+        ensure_index(conn, "FILEMETRICS", ["FID"])
         fid = get_required_int_param(qs, "fid")
         rows = conn.execute(
             "SELECT * FROM FILEMETRICS WHERE FID = ?",
@@ -305,6 +312,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_functions(self, conn, qs):
         """Handle /functions requests."""
+        ensure_index(conn, "LINEPOS", ["FID", "FOFFSET"])
         filters = [
             ("defined", "DEFINED = ?", "bool"),
             ("filescoped", "FILESCOPED = ?", "bool"),
@@ -323,6 +331,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_funmetrics(self, conn, qs):
         """Handle /funmetrics requests."""
+        ensure_index(conn, "FUNCTIONMETRICS", ["FUNCTIONID"])
         fnid = get_required_int_param(qs, "fnid")
         rows = conn.execute(
             "SELECT * FROM FUNCTIONMETRICS WHERE FUNCTIONID = ?",
@@ -334,6 +343,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_callers(self, conn, qs):
         """Handle /callers requests."""
+        ensure_index(conn, "FCALLS", ["DESTID"])
         fnid = get_required_int_param(qs, "fnid")
         rows = conn.execute(
             """
@@ -350,6 +360,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_callees(self, conn, qs):
         """Handle /callees requests."""
+        ensure_index(conn, "FCALLS", ["SOURCEID"])
         fnid = get_required_int_param(qs, "fnid")
         rows = conn.execute(
             """
@@ -372,6 +383,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_refactor_preview(self, conn, qs):
         """Handle /refactor/preview requests."""
+        ensure_index(conn, "TOKENS", ["EID"])
+        ensure_index(conn, "LINEPOS", ["FID", "FOFFSET"])
         eid = get_required_int_param(qs, "eid")
         newname = get_required_param(qs, "newname")
         id_row = conn.execute(

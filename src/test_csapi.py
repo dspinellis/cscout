@@ -208,7 +208,8 @@ class TestCsapi(unittest.TestCase):
     def test_funmetrics(self):
         data = self.get_json(f"/funmetrics?fnid={self.fnid_static_func}")
         self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]["FANOUT"], 1)
+        post_cpp = next(r for r in data if r["PRECPP"] == 0)
+        self.assertEqual(post_cpp["FANOUT"], 1)
 
     def test_callers(self):
         data = self.get_json(f"/callers?fnid={self.fnid_global_func}")
