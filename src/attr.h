@@ -63,7 +63,10 @@ enum e_attribute {
 	is_ordinary,		// Ordinary identifier
 
 	is_macro,		// Name of an object or function-like macro
-	is_undefined_macro,	// Macro (heuristic: ifdef, defined)
+	is_undefined_macro,	// Never-defined macro (heuristic: ifdef, defined)
+	is_undefed_macro,	// Macro that has been #undefed
+	is_redefined_same_macro,// Macro redefined with same value
+	is_redefined_diff_macro,// Macro redefined with different value
 	is_macro_arg,		// Macro argument
 
 	// The following are valid if is_ordinary is true:
@@ -111,7 +114,7 @@ public:
 			attr[is_suetag] ||
 			attr[is_macro] ||
 			attr[is_macro_arg] ||
-			attr[is_undefined_macro] ||
+			attr[is_undefed_macro] ||
 			attr[is_label] ||
 			attr[is_yacc];
 	}

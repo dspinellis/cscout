@@ -250,7 +250,7 @@ Call::unset_current_fun()
 	auto& metrics = current_fun->post_cpp_metrics;
 	if (!metrics.is_processed()) {
 		metrics.summarize_operators();
-		metrics.summarize_identifiers();
+		metrics.summarize_identifiers(Metrics::pp_post);
 		metrics.done_processing();
 	}
 	if (nesting.empty())

@@ -67,7 +67,7 @@ void garbage_collect(Fileid root);
 
 class CscoutEngine {
 private:
-	static CscoutEngine *instance;	// Class pointer to the active engine instance
+	static CscoutEngine *instance;		// Class pointer to the active engine instance
 	CscoutOptions &opts;			// Invocation options controlling monitor and process mode
 	std::vector<Fileid> files;		// All files in the analyzed workspace
 	Fileid input_file_id;			// Root input file passed on the command line

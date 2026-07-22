@@ -131,7 +131,7 @@ CscoutEngine::file_analyze(Fileid fi)
 
 		// Update current_function
 		if (cfun && ti > cfun->get_end().get_tokid()) {
-			cfun->get_pre_cpp_metrics().summarize_identifiers();
+			cfun->get_pre_cpp_metrics().summarize_identifiers(Metrics::pp_pre);
 			if (cfun->is_cfun())
 				cfun->get_pre_cpp_metrics().adjust_cfun_metrics();
 			if (fun_nesting.empty())
@@ -221,11 +221,11 @@ CscoutEngine::file_analyze(Fileid fi)
 		}
 	}
 	if (cfun) {
-		cfun->get_pre_cpp_metrics().summarize_identifiers();
+		cfun->get_pre_cpp_metrics().summarize_identifiers(Metrics::pp_pre);
 		if (cfun->is_cfun())
 			cfun->get_pre_cpp_metrics().adjust_cfun_metrics();
 	}
-	Filedetails::get_pre_cpp_metrics(fi).summarize_identifiers();
+	Filedetails::get_pre_cpp_metrics(fi).summarize_identifiers(Metrics::pp_pre);
 	Filedetails::get_pre_cpp_metrics(fi).set_ncopies(Filedetails::get_identical_files(fi).size());
 	if (DP())
 		cout << "nchar = " << Filedetails::get_pre_cpp_metrics(fi).get_metric(Metrics::em_nchar) << endl;
