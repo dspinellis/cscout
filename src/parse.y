@@ -1321,6 +1321,8 @@ member_declaration:
 		{ $$ = $1; }
         | member_default_declaring_list ';'
 		{ $$ = $1; }
+	| static_assert_declaration
+		{ $$ = basic(b_undeclared); }
 	| ';'
 		{ $$ = basic(b_undeclared); }
 	;
