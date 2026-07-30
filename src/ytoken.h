@@ -73,6 +73,8 @@
 /* gcc extensions */
 /* __asm__ directive */
 %token GNUC_ASM
+/* __auto_type specifier */
+%token AUTO_TYPE
 /* __typeof operators */
 %token TYPEOF
 /* __typeof_unqual__ operator */

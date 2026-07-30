@@ -553,6 +553,7 @@ Tbasic::print(ostream &o) const
 
 	switch (type) {
 	case b_abstract: o << "ABSTRACT "; break;
+	case b_auto_type: o << "__auto_type "; break;
 	case b_bool: o << "_Bool "; break;
 	case b_void: o << "void "; break;
 	case b_char: o << "char "; break;
