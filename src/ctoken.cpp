@@ -163,6 +163,7 @@ make_keymap()
 	m["typeof_unqual"] = TYPEOF_UNQUAL;
 	m["constexpr"] = CONSTEXPR;
 	m["nullptr"] = NULLPTR;
+	m["_Alignof"] = ALIGNOF;
 
 	/* Microsoft */
 	m["_asm"] = MSC_ASM;
@@ -171,14 +172,18 @@ make_keymap()
 	m["__finally"] = FINALLY;
 	m["__leave"] = LEAVE;
 	/* gcc; from c-parse.in */
+	m["__alignof"] = ALIGNOF;
+	m["__alignof__"] = ALIGNOF;
 	m["__asm"] = GNUC_ASM;
 	m["__asm__"] = GNUC_ASM;
 	m["__attribute"] = ATTRIBUTE;
 	m["__attribute__"] = ATTRIBUTE;
 	m["__auto_type"] = AUTO;
 	m["__builtin_choose_expr"] = CHOOSE_EXPR;
+	m["__complex__"] = COMPLEX;
 	m["__const"] = TCONST;
 	m["__const__"] = TCONST;
+	m["__imag__"] = IMAGINARY;
 	m["__inline"] = INLINE;
 	m["__inline__"] = INLINE;
 	m["__label"] = LABEL;
@@ -190,8 +195,6 @@ make_keymap()
 	m["__typeof"] = TYPEOF;
 	m["__typeof__"] = TYPEOF;
 	m["__typeof_unqual__"] = TYPEOF_UNQUAL;
-	m["__alignof"] = ALIGNOF;
-	m["__alignof__"] = ALIGNOF;
 	m["__volatile"] = VOLATILE;
 	m["__volatile__"] = VOLATILE;
 	// CScout
