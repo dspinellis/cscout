@@ -35,8 +35,9 @@ enum e_btype {
 	b_padbit,
 	b_undeclared,		// Undeclared object
 	b_llong,		// long long
-	b_complex,      // complex
-	b_imaginary,      // imaginary
+	b_complex,		// complex
+	b_imaginary,		// imaginary
+	b_auto_type,		// __auto_type
 };
 
 enum e_sign {
@@ -119,6 +120,7 @@ protected:
 	virtual Id const* member(const string& name) const;	// Structure and union
 	virtual Type member(int n);	// For > 0 on structure, union, array
 	virtual bool is_abstract() const { return false; }	// True for abstract types
+	virtual bool is_auto_type() const { return false; }	// True for __auto_type
 	virtual bool is_array() const { return false; }	// True for arrays
 	virtual bool is_subscriptable() const { return false; }	// True for arrays, pointers, and SIMD elements
 	virtual bool is_basic() const { return false; }// False for undeclared
@@ -237,6 +239,7 @@ public:
 	bool is_valid() const { return type != b_undeclared && type != b_padbit; }
 	bool is_undeclared() const { return type == b_undeclared; }
 	bool is_abstract() const { return type == b_abstract; }
+	bool is_auto_type() const { return type == b_auto_type; }
 	bool is_basic() const { return true; }// False for undeclared
 	bool is_void() const { return type == b_void; }
 	bool is_padbit() const { return type == b_padbit; }
@@ -346,6 +349,7 @@ public:
 	void set_union(bool v)		{ p->set_union(v); }
 	void set_value(CTConst v)	{ p->set_value(v); }
 	bool is_abstract() const	{ return p->is_abstract(); }
+	bool is_auto_type() const	{ return p->is_auto_type(); }
 	bool is_subscriptable() const	{ return p->is_subscriptable(); }
 	bool is_array() const	{ return p->is_array(); }
 	bool is_basic() const		{ return p->is_basic(); }

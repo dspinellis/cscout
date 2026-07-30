@@ -301,6 +301,11 @@ yacc_type_define(Type name, Type type, enum e_yacc_symbol_type ytype)
 %type <t> parameter_list
 %type <t> parameter_declaration
 
+/* To handle __auto_type based on initializers */
+%type <t> initializer_opt
+%type <t> initializer
+%type <t> initializer_open
+
 /* Needed to avoid increasing nesting for expanded macros */
 %type <t> IF
 %type <t> SWITCH
@@ -947,7 +952,13 @@ static_assert_declaration:
     /* Note that if a typedef were  redeclared,  then  a  declaration
     specifier must be supplied */
 
-default_declaring_list:  /* Can't  redeclare typedef names */
+/*
+ * A declaring list without an explicit type (e.g. int).
+ * This relies on the default type handling rules.
+ * As such, it can't  redeclare typedef names and doesn't
+ * need to support __auto_type.
+ */
+default_declaring_list:
 	/* static volatile @ a[3] @ = { 1, 2, 3} */
         declaration_qualifier_list attributed_identifier_declarator
 		{
@@ -994,30 +1005,58 @@ label_name_list:
 	;
 
 declaring_list:
-	/* static int @ FILE @ = 42 (note reuse of typedef name) */
+	/*
+	 * static int @ x @ = 42
+	 * __auto_type @ x @ = 42
+	 * But also:
+	 * static int @ FILE @ = 42 (note reuse of typedef name)
+	 */
         declaration_specifier declarator
+		// Establish declarator before parsing initializer
 		{
-			$2.set_abstract($1);
-			$2.declare();
-			Initializer::expect($2);
+			if (!$1.is_auto_type()) {
+				$2.set_abstract($1);
+				$2.declare();
+				Initializer::expect($2);
+			}
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
-		{ $$ = $1; /* Pass-on qualifier */ }
+		{
+			if ($1.is_auto_type()) {
+				if (DP())
+					cout << "Set __auto_type to " << $4 << "\n";
+				$2.set_abstract($4);
+				$2.declare();
+			}
+			$$ = $1; /* Pass-on qualifier */
+		}
 	/* int @ FILE @ = 42 */
         | type_specifier declarator
 		{
-			$2.set_abstract($1);
-			$2.declare();
-			Initializer::expect($2);
+			if (!$1.is_auto_type()) {
+				$2.set_abstract($1);
+				$2.declare();
+				Initializer::expect($2);
+			}
 			if ($1.qualified_unused() || $2.qualified_unused())
 				$2.get_token().set_ec_attribute(is_declared_unused);
 		}
 						 initializer_opt
-		{ $$ = $1; /* Pass-on qualifier */ }
+		{
+			if ($1.is_auto_type()) {
+				if (DP())
+					cout << "Set __auto_type to " << $4 << "\n";
+				$2.set_abstract($4);
+				$2.declare();
+			}
+			$$ = $1; /* Pass-on qualifier */
+		}
+	/* int a @ , @ b @ = 42 */
         | declaring_list ',' declarator
 		{
+			// __auto_type not legal in this case
 			$3.set_abstract($1);
 			$3.declare();
 			Initializer::expect($3);
@@ -1226,8 +1265,9 @@ basic_type_name:
         | UNSIGNED	{ $$ = basic(b_abstract, s_unsigned); }
         | TVOID		{ $$ = basic(b_void); }
         | BOOL		{ $$ = basic(b_bool); }
-        | COMPLEX   { $$ = basic(b_complex); }
-        | IMAGINARY { $$ = basic(b_imaginary); }
+        | COMPLEX	{ $$ = basic(b_complex); }
+        | IMAGINARY	{ $$ = basic(b_imaginary); }
+        | AUTO_TYPE	{ $$ = basic(b_auto_type); }
         ;
 
 elaborated_type_name:
@@ -1623,7 +1663,17 @@ type_name:
 
 initializer_opt:
         /* nothing */
+		{
+			if (DP())
+				cout << "Empty initializer\n";
+			$$ = basic(b_abstract, s_none, c_unspecified, sd_none, lk_none, q_none);
+		}
         | '=' initializer
+		{
+			if (DP())
+				cout << "Initializer: " << $2 << "\n";
+			$$ = $2;
+		}
         ;
 
 initializer_open:
@@ -1635,12 +1685,15 @@ initializer_open:
 				cout << "Top initializer before initializer_open: " << ITOS;
 			}
 			Initializer::clear_used_elements();
-			Initializer::element_stack.push(Initializer(
-			    Initializer::element_stack.empty() ?
+			Type t(Initializer::element_stack.empty() ?
 			    Initializer::upcoming_element :
-			    ITOS.t.member(ITOS.pos), true));
-			if (DP())
+			    ITOS.t.member(ITOS.pos));
+			Initializer::element_stack.push(Initializer(t, true));
+			if (DP()) {
 				cout << "New initializer: " << ITOS;
+				cout << "initializer type: " << t;
+			}
+			$$ = t;
 		}
 	;
 
@@ -1668,8 +1721,11 @@ braced_initializer:
 
 initializer:
         initializer_open initializer_close
+		{ $$ = basic(); }
         | initializer_open initializer_list initializer_close
+		{ $$ = $1; }
         | initializer_open initializer_list ',' initializer_close
+		{ $$ = $1; }
         | assignment_expression
 		{
 			// Remove from the stack all slots that can't hold this expression.
@@ -1722,6 +1778,7 @@ initializer:
 			}
 			if (DP() && !Initializer::element_stack.empty())
 				cout << "After assignment expression ITOS: " << ITOS;
+			$$ = $1;
 		}
         ;
 
