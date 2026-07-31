@@ -462,6 +462,44 @@ static PtokenSequence glue(PtokenSequence ls, PtokenSequence rs);
 static bool fill_in(PtokenSequence &ts, bool get_more, PtokenSequence &removed);
 
 /*
+ * Cached macro argument expansions.
+ * The cache is used to match GCC documentation:
+ * "Macro arguments are completely macro-expanded before they are
+ * substituted into a macro body, unless they are stringized or pasted
+ * with other tokens."
+ * This caching is required, so that __COUNTER__ works as expected.
+ */
+struct ExpandedArg {
+	PtokenSequence value;	// Once-expanded argument tokens to reuse
+	int intoken = 0;	// Captured em_nmacrointoken delta
+	int outtoken = 0;	// Captured em_nmacroouttoken delta
+};
+
+// Active expanded argument metric captures, including nested expansions.
+static vector<ExpandedArg *> macro_expansion_metric_captures;
+
+// Tally macro expansion metrics and mirror them into active captures.
+static void
+add_macro_expand_metric(int metric, int value, int ExpandedArg::*captured)
+{
+	Metrics::add_pre_cpp_metric(metric, value);
+	for (auto capture : macro_expansion_metric_captures)
+		capture->*captured += value;
+}
+
+struct MacroExpansionMetricCapture {
+	ExpandedArg arg;	// Expanded argument and its metric deltas
+
+	MacroExpansionMetricCapture() {
+		macro_expansion_metric_captures.push_back(&arg);
+	}
+
+	~MacroExpansionMetricCapture() {
+		macro_expansion_metric_captures.pop_back();
+	}
+};
+
+/*
  * Expand a token sequence
  * This is an implementation of Dave Prosser's algorithm, listed in
  * X3J11/86-196 and in https://www.spinellis.gr/blog/20060626/.
@@ -598,8 +636,8 @@ macro_expand(PtokenSequence ts,
 	}
 	if (DP()) cout << "macro_expand: result: " << r << endl;
 
-	Metrics::add_pre_cpp_metric(Metrics::em_nmacrointoken, ts_size);
-	Metrics::add_pre_cpp_metric(Metrics::em_nmacroouttoken, r.size());
+	add_macro_expand_metric(Metrics::em_nmacrointoken, ts_size, &ExpandedArg::intoken);
+	add_macro_expand_metric(Metrics::em_nmacroouttoken, r.size(), &ExpandedArg::outtoken);
 
 	/*
 	 * After all macros have been expanded, mark the expanded macros
@@ -645,6 +683,7 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 {
 	dequePtoken is(m.get_value());// Input sequence
 	PtokenSequence os;	// Output sequence
+	map<string, ExpandedArg> expanded_args;	// Fully-expanded ordinary arguments
 	static const Ptoken VA_ARGS(IDENTIFIER, "__VA_ARGS__");
 
 
@@ -751,8 +790,18 @@ subst(const Macro &m, const mapArgval &args, HideSet hs, bool skip_defined, Macr
 			if ((ai = find_formal_argument(args, head)) == args.end())
 				break;
 
-			// Othewise expand the formal argument's value
-			PtokenSequence expanded(macro_expand(ai->second,  Macro::TokenSourceOption::use_supplied, skip_defined ? Macro::DefinedHandlingOption::skip : Macro::DefinedHandlingOption::process, context));
+			// Otherwise use the formal argument's cached value.
+			map<string, ExpandedArg>::const_iterator pi = expanded_args.find(ai->first);
+			if (pi == expanded_args.end()) {
+				MacroExpansionMetricCapture capture;
+				PtokenSequence expanded(macro_expand(ai->second,  Macro::TokenSourceOption::use_supplied, skip_defined ? Macro::DefinedHandlingOption::skip : Macro::DefinedHandlingOption::process, context));
+				capture.arg.value = expanded;
+				pi = expanded_args.emplace(ai->first, capture.arg).first;
+			} else {
+				add_macro_expand_metric(Metrics::em_nmacrointoken, pi->second.intoken, &ExpandedArg::intoken);
+				add_macro_expand_metric(Metrics::em_nmacroouttoken, pi->second.outtoken, &ExpandedArg::outtoken);
+			}
+			PtokenSequence expanded(pi->second.value);
 			os.splice(os.end(), expanded);
 			continue;
 		}
