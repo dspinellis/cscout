@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #define PASTE_IMPL(a, b) a##b
 #define PASTE(a, b) PASTE_IMPL(a, b)
 #define COUNTER_UNIQUE_ID(prefix) PASTE(prefix, __COUNTER__)
