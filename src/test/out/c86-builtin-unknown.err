@@ -1,0 +1,26 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c86-builtin-unknown.c
+/cscout/src/test/c/c86-builtin-unknown.c:4: warning: undeclared identifier: undeclared_function
+The text leading to this warning is: [undeclared_function(]
+/cscout/src/test/c/c86-builtin-unknown.c:4: warning: assuming declaration int undeclared_function(...)
+The text leading to this warning is: [undeclared_function()]
+Done processing file c86-builtin-unknown.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c86-builtin-unknown.c
+/cscout/src/test/c/c86-builtin-unknown.c:4: warning: undeclared identifier: undeclared_function
+The text leading to this warning is: [undeclared_function(]
+/cscout/src/test/c/c86-builtin-unknown.c:4: warning: assuming declaration int undeclared_function(...)
+The text leading to this warning is: [undeclared_function()]
+Done processing file c86-builtin-unknown.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Processing identifiers
+6%12%18%25%31%37%43%50%56%62%68%75%81%87%93%100%

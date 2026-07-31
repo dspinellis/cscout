@@ -399,7 +399,7 @@ primary_expression:
 						cout << "Lookup " << $1.get_name() << " is " << $$ << "\n";
 					if ($$.is_cfunction())
 						FCall::register_call($1.get_token(), id);
-				} else {
+				} else if ($1.get_name().compare(0, 10, "__builtin_") != 0) {
 					/*
 					 * @error
 					 * An undeclared identifier was used
@@ -407,7 +407,8 @@ primary_expression:
 					 */
 					Error::error(E_WARN, "undeclared identifier: " + $1.get_name());
 					$$ = $1;
-				}
+				} else
+					$$ = $1;
 			}
 	| yacc_variable
 			{

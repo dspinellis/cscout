@@ -153,17 +153,18 @@ Tidentifier::call() const
 	// extern int f(...) at the file scope level
 	int old_scope = Block::get_scope_level();
 	Block::set_scope_level(Block::cu_block);
-	obj_define(this->get_token(), function_returning(basic(b_int), -1));
+	obj_define(get_token(), function_returning(basic(b_int), -1));
 	Block::set_scope_level(old_scope);
 
-	Id const *id = obj_lookup(this->get_name());
+	Id const *id = obj_lookup(get_name());
 	csassert(id);
-	FCall::register_call(this->get_token(), id);
-	/*
-	 * @error
-	 * An undeclared identifier is used as a function
-	 */
-	Error::error(E_WARN, "assuming declaration int " + this->get_name() + "(...)");
+	FCall::register_call(get_token(), id);
+	if (get_name().compare(0, 10, "__builtin_") != 0)
+		/*
+		 * @error
+		 * An undeclared identifier is used as a function
+		 */
+		Error::error(E_WARN, "assuming declaration int " + get_name() + "(...)");
 	return basic(b_int);
 }
 
