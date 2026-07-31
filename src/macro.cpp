@@ -518,6 +518,21 @@ macro_expand(PtokenSequence ts,
 		}
 
 		const string name = head.get_val();
+
+		if (name == "__COUNTER__") {
+			static int counter = 0;
+			Ptoken str(PP_NUMBER, to_string(counter));
+			counter += 1;
+			r.push_back(str);
+			continue;
+		}
+
+		if (name == "__LINE__") {
+			Ptoken str(PP_NUMBER, to_string(Fchar::get_line_num()));
+			r.push_back(str);
+			continue;
+		}
+
 		mapMacro::const_iterator mi(Pdtoken::macros_find(name));
 		if (!Pdtoken::macro_is_defined(mi)) {
 			// Nothing to do if the identifier is not a macro

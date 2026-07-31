@@ -48,6 +48,7 @@ identifiers should not be reported as unused (GCC).
 <li> Variable number of arguments preprocessor macros
 (support for both the GCC and the C99 syntax)
 <li> Allow empty member declarations in aggregates (GCC)
+<li> <code>__COUNTER__</code> unique numbering (common extension)
 <li> <code>long long</code> type (common extension)
 <li> A semicolon can appear as a declatation (common extension)
 <li> An aggregate declaration body can be empty (GCC)
