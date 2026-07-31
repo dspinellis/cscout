@@ -21,6 +21,7 @@
 #define __DATE__  "Jan 01 1970"
 #define __TIME__ "12:34:56"
 #define __FILE__ "UNKNOWN.c"
+// Handled internally, but allow defined() to return true.
 #define __LINE__ 1
 #define __FUNCTION__ "UNKNOWN"
 #define __func__ "UNKNOWN"

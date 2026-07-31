@@ -226,6 +226,7 @@ extern void __builtin_unreachable(void);
 extern int __builtin___vprintf_chk(int, const char *, void *);
 extern int __builtin___vsnprintf_chk(char *, unsigned int, int, unsigned int, const char *, void *);
 extern int __builtin___vsprintf_chk(char *, int, unsigned int, const char *, void *);
+// Handled internally, but allow defined() to return true.
 #define __COUNTER__ 0
 #define __extension
 #pragma define_immutable __extension__
