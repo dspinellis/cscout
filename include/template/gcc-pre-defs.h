@@ -100,122 +100,122 @@
 #define __atomic_is_lock_free(size, ptr) (1)
 
 
+extern void *__builtin_alloca(unsigned int);
+extern void *__builtin_alloca_with_align(unsigned int, unsigned int);
+extern void *__builtin_alloca_with_align_and_max(unsigned int, unsigned int, unsigned int);
+extern void *__builtin_assume_aligned(const void *, unsigned int, ...);
+#define __builtin_assoc_barrier(x) (x)
+extern unsigned short __builtin_bswap16(unsigned short);
+extern unsigned int __builtin_bswap32(unsigned int);
+extern unsigned long long __builtin_bswap64(unsigned long long);
 #define __builtin_add_overflow(x,y,z) ((x), (y), (z), 1)
 #define __builtin_add_overflow_p(x,y,z) ((x), (y), 1)
-#define __builtin_alloca_with_align_and_max (x,y,z) ((x), (y), (z), 1)
-#define __builtin_alloca_with_align (x,y) ((x), (y), 1)
-#define __builtin_alloca(x) ((x), 1)
-#define __builtin_assume_aligned(x,y,...) ((x), (y), 1)
-#define __builtin_assoc_barrier(x) (x)
-#define __builtin_bswap16(x) (x)
-#define __builtin_bswap32(x) (x)
-#define __builtin_bswap64(x) (x)
 #define __builtin_call_with_static_chain(x,y) ((x), (y), 0)
-#define __builtin___clear_cache(x,y) ((x), (y))
-#define __builtin_clrsbll(x) (x)
-#define __builtin_clrsbl(x) (x)
-#define __builtin_clrsb(x) (x)
-#define __builtin_clz(z) (z)
-#define __builtin_clzl(z) ((z),1)
-#define __builtin_clzll(z) ((z),1)
+extern void __builtin___clear_cache(void *, void *);
+extern int __builtin_clrsb(int);
+extern int __builtin_clrsbl(long);
+extern int __builtin_clrsbll(long long);
+extern int __builtin_clz(unsigned int);
+extern int __builtin_clzl(unsigned long);
+extern int __builtin_clzll(unsigned long long);
 #define __builtin_complex(x,y) ((x), (y))
 #define __builtin_classify_type(x) ((x), 0)
-#define __builtin_clear_padding(x) ((void)(x))
+extern void __builtin_clear_padding(void *);
 #define __builtin_counted_by_ref(x) ((x), (void *)0)
 #define __builtin_constant_p(_x) ((_x), 0)
 #define __builtin_constant(x) ((x), 0)
-#define __builtin_ctzll(x) ((x),1)
-#define __builtin_ctzl(x) ((x),1)
-#define __builtin_ctz(z) ((z),1)
-#define __builtin_expect_with_probability(x,y) 1
-#define __builtin_expect(_x, _v) ((_v), (_x))
-#define __builtin_extend_pointer(x) ((x), 1)
-#define __builtin_fabsf(_x) (float)(_x)
-#define __builtin_fabsl(_x) (long double)(_x)
-#define __builtin_fabs( _x) (double)(_x)
-#define __builtin_ffsll(x) (x)
-#define __builtin_ffsl(x) (x)
-#define __builtin_ffs(x) (x)
-#define __builtin_FILE() 1
-#define __builtin_fpclassify(x,y,z,w,r, ...)  ((x), (y), (z), (w), (r), 1)
-#define __builtin___fprintf_chk(x,y,z,...) ((x), (y), (z), 1)
-#define __builtin_frame_address(_x) (_x, (void *)0)
-#define __builtin_FUNCTION() 1
-#define __builtin_goacc_parlevel_id(x) (x)
-#define __builtin_goacc_parlevel_size(x) (x)
+extern int __builtin_ctz(unsigned int);
+extern int __builtin_ctzl(unsigned long);
+extern int __builtin_ctzll(unsigned long long);
+extern long __builtin_expect(long, long);
+extern long __builtin_expect_with_probability(long, long, double);
+extern unsigned long __builtin_extend_pointer(void *);
+extern double __builtin_fabs(double);
+extern float __builtin_fabsf(float);
+extern long double __builtin_fabsl(long double);
+extern int __builtin_ffs(int);
+extern int __builtin_ffsl(long);
+extern int __builtin_ffsll(long long);
+extern const char *__builtin_FILE(void);
+extern int __builtin_fpclassify(int, int, int, int, int, ...);
+extern int __builtin___fprintf_chk(void *, int, const char *, ...);
+extern void *__builtin_frame_address(unsigned int);
+extern const char *__builtin_FUNCTION(void);
+extern int __builtin_goacc_parlevel_id(int);
+extern int __builtin_goacc_parlevel_size(int);
 #define __builtin_has_attribute(x, a) (1)
-#define __builtin_huge_val() 1
-#define __builtin_huge_valf() 1
+extern double __builtin_huge_val(void);
+extern float __builtin_huge_valf(void);
 #define __builtin_huge_valfn() 1
 #define __builtin_huge_valfnx() 1
-#define __builtin_huge_vall() 1
-#define __builtin_infd32() 1
-#define __builtin_infd64() 1
-#define __builtin_inf()     (double)0
-#define __builtin_inff()    (float)0
+extern long double __builtin_huge_vall(void);
+extern _Decimal32 __builtin_infd32(void);
+extern _Decimal64 __builtin_infd64(void);
+extern double __builtin_inf(void);
+extern float __builtin_inff(void);
 #define __builtin_inffnx() 1
-#define __builtin_infl()    (long double)0
-#define __builtin_isinf_sign(...) 1
-#define __builtin_LINE() 1
-#define __builtin_memchr(_s, _c, _n) ((_n), (_c), (_s))
-#define __builtin_memcmp(_s1, _s2, _n) ((_s1), (_s2), (_n), 0)
-#define __builtin___memcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
-#define __builtin_memcpy(_d, _s, _n) (_s, _n, _d)
-#define __builtin_memmove(_d, _s, _n) ((_s), (_n), (_d))
-#define __builtin___memmove_chk(x,y,z,w) ((x), (y), (z), (w), 1)
-#define __builtin___mempcpy_chk(x,y,z,w) ((x), (y), (z), (w), 0)
-#define __builtin_memset(x,y,z) ((x), (y), (z), 1)
-#define __builtin___memset_chk(x,y,z,w) ((x), (y), (z), (w), 0)
+extern long double __builtin_infl(void);
+extern int __builtin_isinf_sign(...);
+extern int __builtin_LINE(void);
+extern void *__builtin_memchr(const void *, int, unsigned int);
+extern int __builtin_memcmp(const void *, const void *, unsigned int);
+extern void *__builtin___memcpy_chk(void *, const void *, unsigned int, unsigned int);
+extern void *__builtin_memcpy(void *, const void *, unsigned int);
+extern void *__builtin_memmove(void *, const void *, unsigned int);
+extern void *__builtin___memmove_chk(void *, const void *, unsigned int, unsigned int);
+extern void *__builtin___mempcpy_chk(void *, const void *, unsigned int, unsigned int);
+extern void *__builtin_memset(void *, int, unsigned int);
+extern void *__builtin___memset_chk(void *, int, unsigned int, unsigned int);
 #define __builtin_mul_overflow(x,y,z) ((x), (y), (z), 1)
 #define __builtin_mul_overflow_p(x,y,z) ((x), (y), 1)
-#define __builtin_nand128(x) ((x), 1.)
-#define __builtin_nand32(x) ((x), 1f)
-#define __builtin_nand64(x) ((x), 1.)
+extern _Decimal128 __builtin_nand128(const char *);
+extern _Decimal32 __builtin_nand32(const char *);
+extern _Decimal64 __builtin_nand64(const char *);
 #define __builtin_nanfn(x) ((x), 1.)
 #define __builtin_nanfnx(x) ((x), 1.)
-#define __builtin_nanf(x)  ((x), 1.)
-#define __builtin_nanl(x) ((x), 1)
-#define __builtin_nansfn(x) ((x), 1f)
+extern double __builtin_nan(const char *);
+extern float __builtin_nanf(const char *);
+extern long double __builtin_nanl(const char *);
+extern double __builtin_nans(const char *);
+extern float __builtin_nansf(const char *);
 #define __builtin_nansfnx(x) ((x), 1)
-#define __builtin_nansl(x) ((x), 1)
-#define __builtin_nans(x) ((x), 1)
-#define __builtin_nan(x) ((x), 1)
+extern long double __builtin_nansl(const char *);
 #define __builtin_next_arg(_x) (_x, 0)
-#define __builtin_object_size(x,y)  ((x), (y), 1)
+extern unsigned int __builtin_object_size(const void *, int);
 #define __builtin_offsetof(_t, _m) (((size_t) &((_t *)0)->_m))
-#define __builtin_parityll(x) ((x), 1ll)
-#define __builtin_parityl(x) ((x), 1l)
-#define __builtin_parity(x) ((x), 1)
-#define __builtin_popcountll(x) ((x), 1ll)
-#define __builtin_popcountl(x) ((x), 1l)
-#define __builtin_popcount(x) ((x), 1)
-#define __builtin_powi(x) ((x), 1)
-#define __builtin_powl(x) ((x), 1l)
-#define __builtin_prefetch(x,...) ((x), 0)
-#define __builtin___printf_chk(x,y,...) ((x), (y), 1)
-#define __builtin_return_address(x) ((x), 0)
-#define __builtin___snprintf_chk(x,y,z,w)  ((x), (y), (z), (w), 1)
+extern int __builtin_parity(unsigned int);
+extern int __builtin_parityl(unsigned long);
+extern int __builtin_parityll(unsigned long long);
+extern int __builtin_popcount(unsigned int);
+extern int __builtin_popcountl(unsigned long);
+extern int __builtin_popcountll(unsigned long long);
+extern double __builtin_powi(double, int);
+extern long double __builtin_powl(long double, long double);
+extern void __builtin_prefetch(const void *, ...);
+extern int __builtin___printf_chk(int, const char *, ...);
+extern void *__builtin_return_address(unsigned int);
+extern int __builtin___snprintf_chk(char *, unsigned int, int, unsigned int, const char *, ...);
 #define __builtin_speculation_safe_value(x,y) ((x), (y), 1)
-#define __builtin___sprintf_chk(x,y,z,w,...) ((x), (y), (z), (w), 1)
+extern int __builtin___sprintf_chk(char *, int, unsigned int, const char *, ...);
 #define __builtin_stdarg_start
-#define __builtin___stpcpy_chk(x,y,z) ((x), (y), (z), 0)
-#define __builtin___strcat_chk(x,y,z) ((x), (y), (z), 0)
-#define __builtin_strchr(x,y) ((x), (y), 0)
-#define __builtin_strcmp(x,y) ((x), (y), 0)
-#define __builtin_strcpy(_d, _s) ((_s), (_d))
-#define __builtin___strcpy_chk(x,y,z) ((x), (y), (z), 0)
-#define __builtin_strcspn(x,y) ((x), (y), 0)
-#define __builtin_strlen(x) ((x), 1)
-#define __builtin_strncat(_d, _s, _n) ((_s), (_n), (_d))
-#define __builtin_strncpy(_d, _s, _n) ((_s), (_n), (_d))
-#define __builtin___strncat_chk(x,y,z,w) ((x), (y), (z), (w), 1)
-#define __builtin___strncpy_chk(x,y,z,w) ((x), (y), (z), (w), 1)
+extern char *__builtin___stpcpy_chk(char *, const char *, unsigned int);
+extern char *__builtin___strcat_chk(char *, const char *, unsigned int);
+extern char *__builtin_strchr(const char *, int);
+extern int __builtin_strcmp(const char *, const char *);
+extern char *__builtin_strcpy(char *, const char *);
+extern char *__builtin___strcpy_chk(char *, const char *, unsigned int);
+extern unsigned int __builtin_strcspn(const char *, const char *);
+extern unsigned int __builtin_strlen(const char *);
+extern char *__builtin_strncat(char *, const char *, unsigned int);
+extern char *__builtin_strncpy(char *, const char *, unsigned int);
+extern char *__builtin___strncat_chk(char *, const char *, unsigned int, unsigned int);
+extern char *__builtin___strncpy_chk(char *, const char *, unsigned int, unsigned int);
 #define __builtin_sub_overflow(x,y,z) ((x), (y), (z), 1)
 #define __builtin_sub_overflow_p(x,y,z) ((x), (y), 1)
 #define __builtin_tgmath(x, y) ((x), (y), 0)
-#define __builtin_trap() 1
+extern void __builtin_trap(void);
 #define __builtin_types_compatible_p(x,y) (1)
-#define __builtin_unreachable() 1
+extern void __builtin_unreachable(void);
 #define __builtin_va_arg(_ap, _type) (*(_type *)(_ap))
 #define __builtin_va_arg_pack() 1
 #define __builtin_va_arg_pack_len() 1
@@ -223,9 +223,9 @@
 #define __builtin_va_end(_v) ((void)(_v))
 #define __builtin_va_list void *
 #define __builtin_va_start(_ap, _arg) ((void)(_ap),(void)(_arg))
-#define __builtin___vprintf_chk(x,y,z) ((x), (y), (z), 1)
-#define __builtin___vsnprintf_chk(x,y,z,w,r) ((x), (y), (z), (w), (r), 1)
-#define __builtin___vsprintf_chk(x,y,z,w,r) ((x), (y), (z), (w), (r), 1)
+extern int __builtin___vprintf_chk(int, const char *, void *);
+extern int __builtin___vsnprintf_chk(char *, unsigned int, int, unsigned int, const char *, void *);
+extern int __builtin___vsprintf_chk(char *, int, unsigned int, const char *, void *);
 #define __COUNTER__ 0
 #define __extension
 #pragma define_immutable __extension__
@@ -243,4 +243,3 @@
 #define __seg_gs
 #define __PRETTY_FUNCTION__ "UNKNOWN"
 #pragma define_immutable __restrict
-
