@@ -29,3 +29,18 @@ struct ss ss_a_ok[3] = {1, 2, 3, 4};
 
 // This should produce a too many initializers warning
 struct ss ss_a_err[3] = {1, 2, 3, 4, 5, 6, 7};
+
+struct property_entry {
+	union {
+		const void *pointer;
+		union {
+			unsigned int u32_data[2];
+		} value;
+	};
+};
+
+struct property_entry nested_anon_union_ok[] = {
+	{
+		{ .value = { .u32_data[0] = 50 } },
+	},
+};
