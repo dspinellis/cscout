@@ -60,6 +60,8 @@ public:
 	 * isn't a keyword.
 	 */
 	static int lookup_keyword(const string& s);
+	// Define a new keyword as an alias for an existing keyword
+	static bool define_keyword(const string& name, const string& existing);
 	void getnext();
 };
 

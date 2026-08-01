@@ -32,6 +32,16 @@ mark the definition as one that cannot be later be undefined or redefined.
 This is useful for defining macros that handle compiler extensions
 so that code cannot change them.
 
+<dt><code>#pragma keyword "<em>NEW</em>" "<em>EXISTING</em>"</code><dd>
+Will define <em>NEW</em> as an alias for the already known keyword
+<em>EXISTING</em>.
+This is useful for handling compiler-specific keywords without defining
+macros for them.
+<p>Example:
+<fmtcode ext="c">
+#pragma keyword "asm" "__asm__"
+</fmtcode>
+
 <dt><code>#pragma project "<em>STRING</em>"</code><dd>
 Will set the current project to <em>STRING</em>.
 All identifiers and files processed from then on will belong to the given
@@ -85,7 +95,7 @@ The number  of
 <code>popd</code> pragmas.
 <p>
 
-<dt><code>#pragma set_dp "<em>STRING</em> <em>INTEGER</em></code><dd>
+<dt><code>#pragma set_dp "<em>STRING</em>" <em>INTEGER</em></code><dd>
 Enable the debug point for the file named <em>STRING</em>
 at line <em>INTEGER</em>.
 This can be used for targetted troubleshooting and debugging:

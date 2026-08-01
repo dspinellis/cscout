@@ -1274,6 +1274,23 @@ Pdtoken::process_pragma()
 		Block::enter();
 	else if (t.get_val() == "block_exit")
 		Block::exit();
+	else if (t.get_val() == "keyword") {
+		t.getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma keyword: new keyword string expected");
+			eat_to_eol();
+			return;
+		}
+		string name(t.get_val());
+		t.getnext_nospc<Fchar>();
+		if (t.get_code() != STRING_LITERAL) {
+			Error::error(E_ERR, "#pragma keyword: existing keyword string expected");
+			eat_to_eol();
+			return;
+		}
+		if (!Ctoken::define_keyword(name, t.get_val()))
+			Error::error(E_ERR, "#pragma keyword: unknown existing keyword " + t.get_val());
+	}
 	else if (t.get_val() == "define_immutable") {
 		// Define a macro that cannot be redefined or undefined
 		process_define(true);

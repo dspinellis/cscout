@@ -423,6 +423,16 @@ Ctoken::lookup_keyword(const string& s)
 	return ik->second;
 }
 
+bool
+Ctoken::define_keyword(const string& name, const string& existing)
+{
+	auto ik = keymap.find(existing);
+	if (ik == keymap.end())
+		return false;
+	keymap[name] = ik->second;
+	return true;
+}
+
 // Lexical analysis function for yacc
 // Used for debugging
 int
