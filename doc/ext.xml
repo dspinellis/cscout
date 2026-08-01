@@ -54,6 +54,7 @@ identifiers should not be reported as unused (GCC).
 <li> An aggregate declaration body can be empty (GCC)
 <li> Aggregate member initialization using the member: value syntax (GCC)
 <li> Statement labels do not require a statement following them (GCC)
+<li> <code>\e</code> character escape (GCC)
 <li> #ident preprocessor directive (GCC)
 <li> Allow assignment to case expressions (common extension)
 <li> Accept an empty translation unit (common extension).

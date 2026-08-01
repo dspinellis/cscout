@@ -78,6 +78,7 @@ unescape_char(const string& s, string::const_iterator& si)
 	case '\\': return '\\';
 	case 'a': return '\a';
 	case 'b': return '\b';
+	case 'e': return '\033'; // GCC extension
 	case 'f': return '\f';
 	case 'n': return '\n';
 	case 'r': return '\r';
