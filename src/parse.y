@@ -1761,6 +1761,7 @@ initializer:
 						    // Other case: non-struct initializer into non-struct non-array
 						    (!$1.is_su() && !currt.is_su() && !currt.is_array())) {
 							ITOS.pos++;
+							ITOS.designated = false;
 							if (DP()) cout << "Plain element assigned" << endl;
 							break;
 						} else if (currt.is_su() || currt.is_array()) {

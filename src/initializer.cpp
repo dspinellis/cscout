@@ -45,7 +45,7 @@ stack <InitializerContext> Initializer::saved_stacks;
 ostream&
 operator<<(ostream& o,const Initializer &i)
 {
-	o << i.t << " pos:" << i.pos << " end:" << i.end << " space:" << i.space << " braced:" << i.braced << endl;
+	o << i.t << " pos:" << i.pos << " end:" << i.end << " space:" << i.space << " braced:" << i.braced << " designated:" << i.designated << endl;
 	return o;
 }
 
@@ -86,19 +86,11 @@ Initializer::move_top_pos_recursive(Id const *id)
 			element_stack.pop(); // Backtrack
 		} else if (id->get_name() == i->get_name()) {
 			// Found match
-			CTConst indexes(ITOS.t.get_indexed_elements());
-			CTConst initializers(ITOS.t.get_initializer_elements());
-			if (indexes.is_const() &&
-			    indexes.get_int_value() == initializers.get_int_value())
-				ITOS.pos = count;
-			else
-				// Union: only the first element will get initialized
-				ITOS.pos = initializers.get_int_value() - 1;
+			ITOS.pos = count;
+			ITOS.designated = true;
 			if (DP() && !element_stack.empty()) {
 				cout << "After move_top_pos to " << id->get_name() << ": " << ITOS;
-				cout << "count:" << count
-				    << " initializers.get_int_value():" << initializers.get_int_value()
-				    << " indexes.get_int_value():" << indexes.get_int_value() << '\n';
+				cout << "count:" << count << '\n';
 			}
 			return true;
 		}
@@ -122,12 +114,15 @@ Initializer::clear_used_elements()
 	if (DP() && !element_stack.empty())
 		cout << "Before clear used elements: " << ITOS;
 	while (element_stack.size() > 1 &&
+	    !ITOS.designated &&
 	    ITOS.space.is_const() &&
-	    ITOS.pos == ITOS.space.get_int_value() &&
+	    ITOS.pos >= ITOS.space.get_int_value() &&
 	    !ITOS.braced) {
 		element_stack.pop();
 		ITOS.pos++;
 	}
+	if (!element_stack.empty())
+		ITOS.designated = false;
 	if (DP() && !element_stack.empty())
 		cout << "After clear used elements: " << ITOS;
 }

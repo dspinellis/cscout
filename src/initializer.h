@@ -47,12 +47,14 @@ public:
 	CTConst space;		// Space for initializer elements (unions == 1)
 	Type t;			// Initialized element's type
 	bool braced;		// True if we entered this element through a brace
+	bool designated;	// True when pos was set by a designator
 	Initializer(Type typ, bool b) :
 		pos(0),
 		end(typ.get_indexed_elements()),
 		space(typ.get_initializer_elements()),
 		t(typ),
-		braced(b) {}
+		braced(b),
+		designated(false) {}
 	friend ostream& operator<<(ostream& o, const Initializer &i);
 
 	// The current element we expect is at the stack's top
