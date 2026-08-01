@@ -11,4 +11,6 @@ int foo()
         __asm volatile("1:" : :  "i" (key), "i" (branch) : "x", "y");
         __asm volatile goto("1:" : :  "i" (key), "i" (branch) : : a);
 a: ;
+#pragma keyword "asm" "__asm__"
+        asm ("");
 }

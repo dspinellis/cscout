@@ -26,7 +26,7 @@
 #endif
 
 /* GCC __builtin_* funtions and misc */
-#define asm __asm__
+#pragma keyword "asm" "__asm__"
 #define __alignof__(x) (sizeof(x) & 0xf)
 #define _Alignof(x) (sizeof(x) & 0xf)
 
