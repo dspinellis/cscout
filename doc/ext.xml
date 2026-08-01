@@ -60,6 +60,7 @@ identifiers should not be reported as unused (GCC).
 <li> Support locally declared labels (<code>__label__</code>) (GCC).
 <li> The second argument of a conditional expression can be omitted (GCC).
 <li> Dereferencing a function yields a function (common extension).
+<li> Structures can contain empty member declarations (common extension).
 <li> The <code>__simd</code> type qualifier can be used to define
      basic types that are also indexable, similarly to the GCC
      extension <code>__attribute__((__vector_size__(…)))</code>.

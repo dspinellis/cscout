@@ -1350,10 +1350,16 @@ member_declaration_list:
 				cout << "$1: " << $1 << "\n";
 				cout << "$2: " << $2 << "\n";
 			}
-			// To avoid internal errors
-			if ($1.is_valid() && $2.is_valid())
+			// Avoid internal errors and ignore empty or
+			// padding member declarations (GCC extension)
+			// while preserving valid declarations.
+			if ($1.is_valid() && $2.is_valid()) {
 				$1.merge_with($2);
-			$$ = $1;
+				$$ = $1;
+			} else if ($1.is_valid())
+				$$ = $1;
+			else
+				$$ = $2;
 		}
         ;
 
@@ -2855,4 +2861,3 @@ assisted in discussions during it's preparation.  These reviewers are
 certainly not responsible for the errors I have committed  here,  but
 they  are responsible for allowing me to provide fewer errors.  These
 colleagues include: Bruce Blodgett, and Mark Langley. */
-
