@@ -2,12 +2,12 @@ Processing workspace TestWS
 Processing directory test/c
 Entering directory test/c
 Processing project Prj1
-Processing file c78-uchar.c
-Done processing file c78-uchar.c
+Processing file c89-encoded-literals.c
+Done processing file c89-encoded-literals.c
 Done processing project Prj1
 Processing project Prj2
-Processing file c78-uchar.c
-Done processing file c78-uchar.c
+Processing file c89-encoded-literals.c
+Done processing file c89-encoded-literals.c
 Processing file prj2.c
 Done processing file prj2.c
 Done processing project Prj2
@@ -15,4 +15,4 @@ Exiting directory test/c
 Done processing directory test/c
 Done processing workspace TestWS
 Processing identifiers
-2%4%6%9%11%13%16%18%20%23%25%27%30%32%34%37%39%41%44%46%48%51%53%55%58%60%62%65%67%69%72%74%76%79%81%83%86%88%90%93%95%97%100%
+5%11%17%23%29%35%41%47%52%58%64%70%76%82%88%94%100%

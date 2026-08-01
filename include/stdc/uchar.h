@@ -1,5 +1,6 @@
 /*
  * ISO C11: 7.28 Unicode utilities <uchar.h>
+ * and char8_t from C23
  */
 
 #ifndef _UCHAR_H
@@ -7,6 +8,7 @@
 
 #include <stddef.h>
 
+typedef unsigned char	char8_t;
 typedef unsigned short	char16_t;
 typedef unsigned int	char32_t;
 typedef int		mbstate_t;

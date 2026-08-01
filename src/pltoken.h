@@ -96,7 +96,7 @@ void
 Pltoken::getnext_analyze()
 {
 	int n;
-	C c0, c1;
+	C c0, c1, c2;
 	Tokid base, follow;
 	dequeTpart new_tokids;
 
@@ -398,8 +398,9 @@ Pltoken::getnext_analyze()
 		val = " ";
 		code = SPACE;
 		break;
-	/* Could be a long character or string */
-	case 'L':
+	/* Could be an encoded character or string */
+	case 'L': // wchar_t
+	case 'U': // char32_t
 		c1.getnext();
 		switch (c1.get_char()) {
 		case '\'':
@@ -410,13 +411,36 @@ Pltoken::getnext_analyze()
 			C::putback(c1);
 			goto identifier;
 		}
+	/* Could be an encoded character or string */
+	case 'u': // char16_t or char8_t
+		c1.getnext();
+		switch (c1.get_char()) {
+		case '\'': // char16_t
+			goto char_literal;
+		case '"': // char16_t
+			goto string_literal;
+		case '8': // char8_t
+			c2.getnext();
+			switch (c2.get_char()) {
+			case '\'':
+				goto char_literal;
+			case '"':
+				goto string_literal;
+			default:
+				C::putback(c2);
+			}
+			/* FALLTHROUGH */
+		default:
+			C::putback(c1);
+			goto identifier;
+		}
 	case '_': case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
 	case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm':
 	case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't':
-	case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
+	case 'v': case 'w': case 'x': case 'y': case 'z':
 	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
 	case 'H': case 'I': case 'J': case 'K': case 'M': case 'N': case 'O':
-	case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V':
+	case 'P': case 'Q': case 'R': case 'S': case 'T': case 'V':
 	case 'W': case 'X': case 'Y': case 'Z':
 	identifier:
 		{
