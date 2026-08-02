@@ -59,7 +59,10 @@
 #include "type.h"
 #include "stab.h"
 #include "sql.h"
+#include "version.h"
 #include "workdb.h"
+#include <ctime>
+#include <sys/stat.h>
 
 // Tables that are disabled (by default none)
 static bool disabled_tables[table_max];
@@ -99,6 +102,7 @@ table_enable(const char *name)
 		table_enum["FUNCTIONID"] = t_functionid;
 		table_enum["FCALLS"] = t_fcalls;
 		table_enum["FILECOPIES"] = t_filecopies;
+		table_enum["METADATA"] = t_metadata;
 
 		initialized = true;
 	}
@@ -704,6 +708,13 @@ workdb_schema(Sql *db, ostream &of)
 		"  PRIMARY KEY(GROUPID, FID),\n"
 		"  FOREIGN KEY(FID) REFERENCES FILES(FID)\n"
 		");\n";
+
+	if (table_is_enabled(t_metadata)) of <<
+		"\n\n-- CScout analysis metadata\n"
+		"CREATE TABLE METADATA(\n"
+		"  KEY " << db->varchar() << " PRIMARY KEY, -- Metadata key\n"
+		"  VALUE " << db->varchar() << " -- Metadata value\n"
+		");\n";
 }
 
 void
@@ -777,4 +788,61 @@ workdb_rest(Sql *db, ostream &of)
 			groupnum++;
 		}
 	}
+}
+
+void
+workdb_metadata(Sql *db, ostream &of, const string &input_file_path)
+{
+	if (!table_is_enabled(t_metadata))
+		return;
+
+	of << "INSERT INTO METADATA VALUES('CScoutVersion','"
+	   << db->escape(Version::get_revision()) << "');\n";
+
+	of << "INSERT INTO METADATA VALUES('InputFilePath','"
+	   << db->escape(input_file_path) << "');\n";
+
+	// Use the input file's modification time as the timestamp
+	struct stat st;
+	if (stat(input_file_path.c_str(), &st) == 0) {
+		char tsbuf[32];
+		strftime(tsbuf, sizeof(tsbuf), "%Y-%m-%dT%H:%M:%S",
+		    gmtime(&st.st_mtime));
+		of << "INSERT INTO METADATA VALUES('InputFileTimestamp','"
+		   << tsbuf << "');\n";
+	}
+
+	string file_fields;
+	for (int j = 0; j < FileMetrics::metric_max; j++) {
+		if (Metrics::is_internal<FileMetrics>(j))
+			continue;
+		if (!file_fields.empty())
+			file_fields += ',';
+		file_fields += Metrics::get_name<FileMetrics>(j);
+	}
+
+	of << "INSERT INTO METADATA VALUES('FileMetricFields','"
+	   << db->escape(file_fields) << "');\n";
+
+	string fun_fields;
+	for (int j = 0; j < FunMetrics::metric_max; j++) {
+		if (Metrics::is_internal<FunMetrics>(j))
+			continue;
+		if (!fun_fields.empty())
+			fun_fields += ',';
+		fun_fields += Metrics::get_name<FunMetrics>(j);
+	}
+
+	of << "INSERT INTO METADATA VALUES('FunctionMetricFields','"
+	   << db->escape(fun_fields) << "');\n";
+
+	string id_attrs;
+	for (int i = attr_begin; i < attr_end; i++) {
+		if (!id_attrs.empty())
+			id_attrs += ',';
+		id_attrs += Attributes::name(i);
+	}
+
+	of << "INSERT INTO METADATA VALUES('IdentifierAttributes','"
+	   << db->escape(id_attrs) << "');\n";
 }
