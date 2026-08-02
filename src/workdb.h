@@ -54,6 +54,7 @@ enum e_table {
 	t_functionid,
 	t_fcalls,
 	t_filecopies,
+	t_metadata,
 	table_max
 };
 
@@ -68,5 +69,7 @@ void workdb_schema(Sql *db, ostream &of);
 
 // Output database data
 void workdb_rest(Sql *db, ostream &of);
+// Output database metadata
+void workdb_metadata(Sql *db, ostream &of, const string &input_file_path);
 
 #endif // WORKDB_
