@@ -65,7 +65,7 @@ The HTTP GET endpoints exposed by the server (such as
 .B /files\fR,
 .B /functions\fR,
 and
-.B /refactor/preview\fR)
+.B /rename/preview\fR)
 are documented in detail using the OpenAPI standard.
 For a complete reference of all endpoints, parameters, and response schemas, see the OpenAPI specification file:
 .I doc/csapi.yaml
@@ -99,7 +99,7 @@ Preview renaming an identifier:
 .DS
 .ft C
 .nf
-curl "http://localhost:8080/refactor/preview?eid=12345&newname=new_name"
+curl "http://localhost:8080/rename/preview?eid=12345&newname=new_name"
 .ft P
 .fi
 .DE

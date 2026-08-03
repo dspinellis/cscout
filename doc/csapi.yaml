@@ -73,13 +73,17 @@ paths:
           in: query
           description: Identifiers appearing in more than one file.
           schema: { type: boolean }
-        - name: should_be_static
+        - name: not_file_spanning
           in: query
-          description: Writable ordinary project-scope identifiers that do not span files.
+          description: Identifiers that do not span files.
           schema: { type: boolean }
         - name: name
           in: query
           description: Substring match on identifier name.
+          schema: { type: string }
+        - name: name_ne
+          in: query
+          description: Exact negative match on identifier name.
           schema: { type: string }
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/offset'
@@ -229,96 +233,43 @@ paths:
 
   /files:
     get:
-      summary: List all files
+      summary: List all files with optional filters
+      parameters:
+        - name: writable
+          in: query
+          description: Writable files only (RO=0)
+          schema: { type: integer }
+        - name: ro
+          in: query
+          description: Read-only files only (RO=1)
+          schema: { type: integer }
+        - name: fre
+          in: query
+          description: Filter filenames matching SQL LIKE pattern
+          schema: { type: string }
+        - name: has_unused
+          in: query
+          description: Files containing unused writable identifiers
+          schema: { type: integer }
+        - name: no_statements
+          in: query
+          description: Writable .c files with no statements (NSTMT=0)
+          schema: { type: integer }
+        - name: unprocessed
+          in: query
+          description: Files with unprocessed lines (NULINE>0)
+          schema: { type: integer }
+        - name: has_strings
+          in: query
+          description: Files containing string literals (NSTRING>0)
+          schema: { type: integer }
+        - name: h_with_includes
+          in: query
+          description: Writable .h files with #include directives
+          schema: { type: integer }
       responses:
         '200':
-          description: List of all files in the workspace
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/File'
-
-  /files/writable:
-    get:
-      summary: Writable files
-      responses:
-        '200':
-          description: Files with RO=0
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/File'
-
-  /files/readonly:
-    get:
-      summary: Read-only files
-      responses:
-        '200':
-          description: Files with RO=1
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/File'
-
-  /files/with-unused:
-    get:
-      summary: Writable files containing unused identifiers
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/File'
-
-  /files/no-statements:
-    get:
-      summary: Writable .c files with no statements
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/File'
-
-  /files/unprocessed:
-    get:
-      summary: Writable files with unprocessed lines
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/File'
-
-  /files/with-strings:
-    get:
-      summary: Writable files containing string literals
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/File'
-
-  /files/h-with-includes:
-    get:
-      summary: Writable .h files with #include directives
-      responses:
-        '200':
+          description: List of files matching the filters
           content:
             application/json:
               schema:
@@ -667,7 +618,7 @@ paths:
         '400':
           description: Missing pid parameter
 
-  /refactor/preview:
+  /rename/preview:
     get:
       summary: Preview identifier rename
       description: Shows all token locations that would be changed. Does not modify files.
@@ -700,7 +651,7 @@ paths:
         '404':
           description: Identifier not found
 
-  /refactor/apply:
+  /rename/apply:
     get:
       summary: Apply identifier rename
       description: Performs byte-precise rename across all writable source files. Modifies files on disk.

@@ -222,8 +222,8 @@ class TestCsapi(unittest.TestCase):
         data = self.get_json("/projects")
         self.assertTrue(any(p["NAME"] == "TestProject" for p in data))
 
-    def test_refactor_preview(self):
-        data = self.get_json(f"/refactor/preview?eid={self.eid_global_var}&newname=renamed_var")
+    def test_rename_preview(self):
+        data = self.get_json(f"/rename/preview?eid={self.eid_global_var}&newname=renamed_var")
         self.assertEqual(data["eid"], self.eid_global_var)
         self.assertEqual(data["old_name"], "sample_global_var")
         self.assertEqual(data["new_name"], "renamed_var")

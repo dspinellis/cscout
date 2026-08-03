@@ -189,20 +189,6 @@ class Handler(BaseHTTPRequestHandler):
                 self.handle_attributes_files(conn, qs)
             elif path == "/files":
                 self.handle_files(conn, qs)
-            elif path == "/files/writable":
-                self.handle_files_writable(conn, qs)
-            elif path == "/files/readonly":
-                self.handle_files_readonly(conn, qs)
-            elif path == "/files/with-unused":
-                self.handle_files_with_unused(conn, qs)
-            elif path == "/files/no-statements":
-                self.handle_files_no_statements(conn, qs)
-            elif path == "/files/unprocessed":
-                self.handle_files_unprocessed(conn, qs)
-            elif path == "/files/with-strings":
-                self.handle_files_with_strings(conn, qs)
-            elif path == "/files/h-with-includes":
-                self.handle_files_h_with_includes(conn, qs)
             elif path == "/filegraph/include":
                 self.handle_filegraph_include(conn, qs)
             elif path == "/filegraph/compile":
@@ -225,10 +211,10 @@ class Handler(BaseHTTPRequestHandler):
                 self.handle_callees(conn, qs)
             elif path == "/projects":
                 self.handle_projects(conn, qs)
-            elif path == "/refactor/preview":
-                self.handle_refactor_preview(conn, qs)
-            elif path == "/refactor/apply":
-                self.handle_refactor_apply(conn, qs)
+            elif path == "/rename/preview":
+                self.handle_rename_preview(conn, qs)
+            elif path == "/rename/apply":
+                self.handle_rename_apply(conn, qs)
             elif path == "/identifier/detail":
                 self.handle_identifier_detail(conn, qs)
             elif path == "/filemetrics/aggregate":
@@ -282,6 +268,7 @@ class Handler(BaseHTTPRequestHandler):
             ("macroarg", "MACROARG = ?", "bool"),
             ("ordinary", "ORDINARY = ?", "bool"),
             ("name", "NAME LIKE ?", "like"),
+            ("name_ne", "NAME != ?", "str"),
         ]
         conditions, params = build_where_clause(qs, filters)
 
@@ -292,9 +279,11 @@ class Handler(BaseHTTPRequestHandler):
                 "  SELECT EID FROM TOKENS"
                 "  GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)")
 
-        if get_bool_param(qs, "should_be_static"):
-            conditions.append("READONLY = 0 AND ORDINARY = 1 AND LSCOPE = 1 AND NAME != 'main' AND EID NOT IN (SELECT EID FROM TOKENS GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)")
-
+        if get_bool_param(qs, "not_file_spanning"):
+            conditions.append(
+                "EID NOT IN ("
+                "  SELECT EID FROM TOKENS"
+                "  GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)")
         limit, offset = get_paging_params(qs)
 
         where = ("WHERE " + " AND ".join(conditions)
@@ -383,9 +372,70 @@ class Handler(BaseHTTPRequestHandler):
         })
 
     def handle_files(self, conn, qs):
-        """Handle /files requests."""
+        """Handle /files requests with optional filters.
+
+        Parameters mirror the CScout web file query (xfilequery.html):
+        writable=1       — writable files only (RO=0)
+        ro=1             — read-only files only (RO=1)
+        fre=<regex>      — filter filenames matching SQL LIKE pattern
+        has_unused=1     — files containing unused writable identifiers
+        no_statements=1  — writable .c files with no statements (NSTMT=0)
+        unprocessed=1    — files with unprocessed lines (NULINE>0)
+        has_strings=1    — files containing string literals (NSTRING>0)
+        h_with_includes=1 — writable .h files with #include directives
+        """
+        conditions = []
+        params = []
+        joins = []
+
+        if get_bool_param(qs, "writable"):
+            conditions.append("f.RO = 0")
+        if get_bool_param(qs, "ro"):
+            conditions.append("f.RO = 1")
+
+        fre = get_param(qs, "fre")
+        if fre:
+            conditions.append("f.NAME LIKE ?")
+            params.append(f"%{fre}%")
+
+        if get_bool_param(qs, "has_unused"):
+            joins.append(
+                "JOIN TOKENS t ON t.FID = f.FID "
+                "JOIN IDS i ON i.EID = t.EID")
+            conditions.append("i.UNUSED = 1 AND i.READONLY = 0")
+
+        needs_metrics = any(get_bool_param(qs, p) for p in
+                            ("no_statements", "unprocessed", "has_strings"))
+        if needs_metrics:
+            joins.append("JOIN FILEMETRICS fm ON fm.FID = f.FID")
+            conditions.append("fm.PRECPP = 0")
+
+        if get_bool_param(qs, "no_statements"):
+            conditions.append("f.NAME LIKE '%.c'")
+            conditions.append("(fm.NSTMT = 0 OR fm.NSTMT IS NULL)")
+
+        if get_bool_param(qs, "unprocessed"):
+            conditions.append("fm.NULINE > 0")
+
+        if get_bool_param(qs, "has_strings"):
+            conditions.append("fm.NSTRING > 0")
+
+        if get_bool_param(qs, "h_with_includes"):
+            # NINCFILE is a pre-cpp metric, handled via subquery
+            conditions.append("f.NAME LIKE '%.h'")
+            conditions.append(
+                "f.FID IN (SELECT fm2.FID FROM FILEMETRICS fm2 "
+                "WHERE fm2.PRECPP = 1 AND fm2.NINCFILE > 0)")
+
+        join_str = " ".join(joins)
+        where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+
+        distinct = "DISTINCT" if get_bool_param(qs, "has_unused") else ""
+
         rows = conn.execute(
-            "SELECT * FROM FILES ORDER BY NAME").fetchall()
+            f"SELECT {distinct} f.FID, f.NAME, f.RO "
+            f"FROM FILES f {join_str} {where} ORDER BY f.NAME",
+            params).fetchall()
         self.send_json(rows_to_list(rows))
 
     def handle_filemetrics(self, conn, qs):
@@ -534,54 +584,38 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(dict(row))
 
     def handle_files_counts(self, conn, qs):
-        """Handle /files/counts — returns COUNT(*) per file sidebar category.
-
-        Replaces 8 separate API calls at panel open with one SQL query.
-        """
-        row = conn.execute("""
-            SELECT
-              COUNT(*) AS all_files,
-              SUM(CASE WHEN RO=1 THEN 1 ELSE 0 END) AS readonly,
-              SUM(CASE WHEN RO=0 THEN 1 ELSE 0 END) AS writable
-            FROM FILES
-        """).fetchone()
-        with_unused = conn.execute("""
-            SELECT COUNT(DISTINCT f.FID) FROM FILES f
-            JOIN TOKENS t ON t.FID = f.FID
-            JOIN IDS i ON i.EID = t.EID
-            WHERE f.RO=0 AND i.UNUSED=1 AND i.READONLY=0
-        """).fetchone()[0]
-        no_stmts = conn.execute("""
-            SELECT COUNT(*) FROM FILES f
-            JOIN FILEMETRICS fm ON fm.FID = f.FID
-            WHERE f.RO=0 AND f.NAME LIKE '%.c' AND fm.PRECPP=0
-            AND (fm.NSTMT=0 OR fm.NSTMT IS NULL)
-        """).fetchone()[0]
-        unprocessed = conn.execute("""
-            SELECT COUNT(*) FROM FILES f
-            JOIN FILEMETRICS fm ON fm.FID = f.FID
-            WHERE f.RO=0 AND fm.PRECPP=0 AND fm.NULINE > 0
-        """).fetchone()[0]
-        with_strings = conn.execute("""
-            SELECT COUNT(*) FROM FILES f
-            JOIN FILEMETRICS fm ON fm.FID = f.FID
-            WHERE f.RO=0 AND fm.PRECPP=0 AND fm.NSTRING > 0
-        """).fetchone()[0]
-        h_with_includes = conn.execute("""
-            SELECT COUNT(DISTINCT f.FID) FROM FILES f
-            JOIN INCLUDERS i ON i.INCLUDERID = f.FID
-            WHERE f.RO=0 AND f.NAME LIKE '%.h'
-        """).fetchone()[0]
-        self.send_json({
-            "all": row["all_files"],
-            "readonly": row["readonly"],
-            "writable": row["writable"],
-            "with_unused": with_unused,
-            "no_statements": no_stmts,
-            "unprocessed": unprocessed,
-            "with_strings": with_strings,
-            "h_with_includes": h_with_includes,
-        })
+        """Handle /files/counts — returns COUNT(*) per file sidebar category."""
+        rows = conn.execute("""
+            SELECT 'all' AS name, COUNT(*) AS value FROM FILES
+            UNION
+            SELECT 'readonly', COUNT(*) FROM FILES WHERE RO=1
+            UNION
+            SELECT 'writable', COUNT(*) FROM FILES WHERE RO=0
+            UNION
+            SELECT 'with_unused', COUNT(DISTINCT f.FID) FROM FILES f
+                JOIN TOKENS t ON t.FID = f.FID
+                JOIN IDS i ON i.EID = t.EID
+                WHERE f.RO=0 AND i.UNUSED=1 AND i.READONLY=0
+            UNION
+            SELECT 'no_statements', COUNT(*) FROM FILES f
+                JOIN FILEMETRICS fm ON fm.FID = f.FID
+                WHERE f.RO=0 AND f.NAME LIKE '%.c' AND fm.PRECPP=0
+                AND (fm.NSTMT=0 OR fm.NSTMT IS NULL)
+            UNION
+            SELECT 'unprocessed', COUNT(*) FROM FILES f
+                JOIN FILEMETRICS fm ON fm.FID = f.FID
+                WHERE f.RO=0 AND fm.PRECPP=0 AND fm.NULINE > 0
+            UNION
+            SELECT 'with_strings', COUNT(*) FROM FILES f
+                JOIN FILEMETRICS fm ON fm.FID = f.FID
+                WHERE f.RO=0 AND fm.PRECPP=0 AND fm.NSTRING > 0
+            UNION
+            SELECT 'h_with_includes', COUNT(DISTINCT f.FID) FROM FILES f
+                JOIN FILEMETRICS fm ON fm.FID = f.FID
+                WHERE f.RO=0 AND f.NAME LIKE '%.h'
+                AND fm.PRECPP=1 AND fm.NINCFILE > 0
+        """).fetchall()
+        self.send_json({row["name"]: row["value"] for row in rows})
 
     def handle_funmetrics(self, conn, qs):
         """Handle /funmetrics requests."""
@@ -635,8 +669,8 @@ class Handler(BaseHTTPRequestHandler):
             "SELECT * FROM PROJECTS").fetchall()
         self.send_json(rows_to_list(rows))
 
-    def handle_refactor_preview(self, conn, qs):
-        """Handle /refactor/preview requests."""
+    def handle_rename_preview(self, conn, qs):
+        """Handle /rename/preview requests."""
         ensure_index(conn, "TOKENS", ["EID"])
         ensure_index(conn, "LINEPOS", ["FID", "FOFFSET"])
         eid = get_required_int_param(qs, "eid")
@@ -998,8 +1032,8 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def handle_refactor_apply(self, conn, qs):
-        """Handle /refactor/apply requests.
+    def handle_rename_apply(self, conn, qs):
+        """Handle /rename/apply requests.
 
         Performs byte-precise rename using token offsets from the DB.
         Modifies source files on disk. Only modifies writable files.
@@ -1056,88 +1090,6 @@ class Handler(BaseHTTPRequestHandler):
             "modified_files": modified_files,
             "total_replacements": len(tokens),
         })
-
-    def handle_files_writable(self, conn, qs):
-        """Writable files — RO=0."""
-        rows = conn.execute(
-            "SELECT * FROM FILES WHERE RO = 0 ORDER BY NAME"
-        ).fetchall()
-        self.send_json(rows_to_list(rows))
-
-    def handle_files_readonly(self, conn, qs):
-        """Read-only files — RO=1."""
-        rows = conn.execute(
-            "SELECT * FROM FILES WHERE RO = 1 ORDER BY NAME"
-        ).fetchall()
-        self.send_json(rows_to_list(rows))
-
-    def handle_files_with_unused(self, conn, qs):
-        """Writable files containing unused writable identifiers."""
-        rows = conn.execute(
-            """SELECT DISTINCT f.FID, f.NAME, f.RO
-            FROM FILES f
-            JOIN TOKENS t ON t.FID = f.FID
-            JOIN IDS i ON i.EID = t.EID
-            WHERE f.RO = 0
-                AND i.UNUSED = 1
-                AND i.READONLY = 0
-            ORDER BY f.NAME"""
-        ).fetchall()
-        self.send_json(rows_to_list(rows))
-
-    def handle_files_no_statements(self, conn, qs):
-        """Writable .c files without any statements (NSTMT=0, post-cpp)."""
-        rows = conn.execute(
-            """SELECT f.FID, f.NAME, f.RO
-            FROM FILES f
-            JOIN FILEMETRICS fm ON fm.FID = f.FID
-            WHERE f.RO = 0
-                AND f.NAME LIKE '%.c'
-                AND fm.PRECPP = 0
-                AND (fm.NSTMT = 0 OR fm.NSTMT IS NULL)
-            ORDER BY f.NAME"""
-        ).fetchall()
-        self.send_json(rows_to_list(rows))
-
-    def handle_files_unprocessed(self, conn, qs):
-        """Writable files containing unprocessed lines."""
-        rows = conn.execute(
-            """SELECT f.FID, f.NAME, f.RO
-            FROM FILES f
-            JOIN FILEMETRICS fm ON fm.FID = f.FID
-            WHERE f.RO = 0
-                AND fm.PRECPP = 0
-                AND fm.NULINE > 0
-            ORDER BY f.NAME"""
-        ).fetchall()
-        self.send_json(rows_to_list(rows))
-
-    def handle_files_with_strings(self, conn, qs):
-        """Writable files containing string literals."""
-        rows = conn.execute(
-            """SELECT f.FID, f.NAME, f.RO
-            FROM FILES f
-            JOIN FILEMETRICS fm ON fm.FID = f.FID
-            WHERE f.RO = 0
-                AND fm.PRECPP = 0
-                AND fm.NSTRING > 0
-            ORDER BY f.NAME"""
-        ).fetchall()
-        self.send_json(rows_to_list(rows))
-
-    def handle_files_h_with_includes(self, conn, qs):
-        """Writable .h files with #include directives."""
-        rows = conn.execute(
-            """SELECT f.FID, f.NAME, f.RO
-            FROM FILES f
-            JOIN FILEMETRICS fm ON fm.FID = f.FID
-            WHERE f.RO = 0
-                AND f.NAME LIKE '%.h'
-                AND fm.PRECPP = 1
-                AND fm.NINCFILE > 0
-            ORDER BY f.NAME"""
-        ).fetchall()
-        self.send_json(rows_to_list(rows))
 
     def handle_filegraph_include(self, conn, qs):
         """File include graph via graphviz."""
