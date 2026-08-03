@@ -171,8 +171,8 @@ merge()
   if [ "${#files[@]}" -eq 2 ]; then
     output="$TEMP_DIR/temp-$(get_dbid).db"
     create_empty "$output"
-    merge_onto $output "${files[0]}"
-    merge_onto $output "${files[1]}"
+    merge_onto "$output" "${files[0]}"
+    merge_onto "$output" "${files[1]}"
     echo $output
     return
   fi
@@ -197,7 +197,7 @@ merge()
   right_output_db=$(<$right_output)
   rm $right_output
 
-  merge_onto $left_output_db $right_output_db
+  merge_onto "$left_output_db" "$right_output_db"
   echo $left_output_db
 }
 
