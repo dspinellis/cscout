@@ -796,126 +796,41 @@ class Handler(BaseHTTPRequestHandler):
         })
 
     def handle_attributes_identifiers(self, conn, qs):
-        """Return identifier attribute names and DB column ids.
-        Read from METADATA table if available, otherwise use built-in defaults.
-        """
-        try:
-            row = conn.execute(
-                "SELECT VALUE FROM METADATA WHERE KEY = 'IdentifierAttributes'"
-            ).fetchone()
-            if row:
-                names = row["VALUE"].split(',')
-                # Map names to DB column ids, in the same order as the METADATA value
-                ids = ["WRITABLE", "READONLY", "SUETAG", "SUMEMBER", "LABEL", "ORDINARY",
-                       "MACRO", "UNDEFMACRO", "MACROARG", "CSCOPE", "LSCOPE",
-                       "TYPEDEF", "ENUM", "YACC", "FUN", "UNUSED", "XFILE"]
-                result = [{"id": ids[i], "name": names[i]}
-                          for i in range(min(len(ids), len(names)))]
-                self.send_json(result)
-                return
-        except Exception:
-            pass
-        # Fallback to hardcoded list
-        self.send_json([
-            {"id": "WRITABLE",   "name": "Writable"},
-            {"id": "READONLY",   "name": "Read-only"},
-            {"id": "ORDINARY",   "name": "Ordinary identifier"},
-            {"id": "MACRO",      "name": "Macro"},
-            {"id": "FUNMACRO",   "name": "Function-like macro"},
-            {"id": "UNDEFMACRO", "name": "Undefined macro"},
-            {"id": "MACROARG",   "name": "Macro argument"},
-            {"id": "SUETAG",     "name": "Tag for struct/union/enum"},
-            {"id": "SUMEMBER",   "name": "Member of struct/union"},
-            {"id": "LABEL",      "name": "Label"},
-            {"id": "TYPEDEF",    "name": "Typedef"},
-            {"id": "ENUM",       "name": "Enumeration constant"},
-            {"id": "YACC",       "name": "Yacc identifier"},
-            {"id": "FUN",        "name": "Function"},
-            {"id": "CSCOPE",     "name": "File scope"},
-            {"id": "LSCOPE",     "name": "Project scope"},
-            {"id": "UNUSED",     "name": "Unused"},
-            {"id": "XFILE",      "name": "Crosses file boundary"},
-        ])
+        """Return identifier attribute names and DB column ids from METADATA."""
+        row = conn.execute(
+            "SELECT VALUE FROM METADATA WHERE KEY = 'IdentifierAttributes'"
+        ).fetchone()
+        if row is None:
+            self.send_error_json(404, "IdentifierAttributes not found in METADATA")
+            return
+        names = row["VALUE"].split(',')
+        ids = ["WRITABLE", "READONLY", "SUETAG", "SUMEMBER", "LABEL", "ORDINARY",
+               "MACRO", "UNDEFMACRO", "MACROARG", "CSCOPE", "LSCOPE",
+               "TYPEDEF", "ENUM", "YACC", "FUN", "UNUSED", "XFILE"]
+        self.send_json([{"id": ids[i], "name": names[i]}
+                        for i in range(min(len(ids), len(names)))])
 
     def handle_attributes_files(self, conn, qs):
-        """Return file metric names and DB column ids.
-        Read from METADATA table if available, otherwise use built-in defaults.
-        """
-        try:
-            row = conn.execute(
-                "SELECT VALUE FROM METADATA WHERE KEY = 'FileMetricFields'"
-            ).fetchone()
-            if row:
-                names = row["VALUE"].split(',')
-                ids = ["NCHAR","NCCOMMENT","NSPACE","NLCOMMENT","NBCOMMENT",
-                       "NLINE","MAXLINELEN","MAXSTMTLEN","MAXSTMTNEST",
-                       "MAXBRACENEST","MAXBRACKNEST","BRACENEST","BRACKNEST",
-                       "NULINE","NPPDIRECTIVE","NPPCOND","NPPFMACRO","NPPOMACRO",
-                       "NTOKEN","NSTMT","NOP","NUOP","NNCONST","NCLIT","NSTRING",
-                       "NPPCONCATOP","NPPSTRINGOP","NIF","NELSE","NSWITCH","NCASE",
-                       "NDEFAULT","NBREAK","NFOR","NWHILE","NDO","NCONTINUE",
-                       "NGOTO","NRETURN","NASM","NTYPEOF","NPID","NFID","NMID",
-                       "NID","NUPID","NUFID","NUMID","NUID","NLABEL",
-                       "NMACROEXPANDTOKEN"]
-                result = [{"id": ids[i], "name": names[i]}
-                          for i in range(min(len(ids), len(names)))]
-                self.send_json(result)
-                return
-        except Exception:
-            pass
-        self.send_json([
-            {"id": "NCHAR",             "name": "Number of characters"},
-            {"id": "NCCOMMENT",         "name": "Number of comment characters"},
-            {"id": "NSPACE",            "name": "Number of space characters"},
-            {"id": "NLCOMMENT",         "name": "Number of line comments"},
-            {"id": "NBCOMMENT",         "name": "Number of block comments"},
-            {"id": "NLINE",             "name": "Number of lines"},
-            {"id": "MAXLINELEN",        "name": "Maximum number of characters in a line"},
-            {"id": "MAXSTMTLEN",        "name": "Maximum number of tokens in a statement"},
-            {"id": "MAXSTMTNEST",       "name": "Maximum level of statement nesting"},
-            {"id": "MAXBRACENEST",      "name": "Maximum level of brace nesting"},
-            {"id": "MAXBRACKNEST",      "name": "Maximum level of bracket nesting"},
-            {"id": "BRACENEST",         "name": "Dangling brace nesting"},
-            {"id": "BRACKNEST",         "name": "Dangling bracket nesting"},
-            {"id": "NULINE",            "name": "Number of unprocessed lines"},
-            {"id": "NTOKEN",            "name": "Number of tokens"},
-            {"id": "NPPDIRECTIVE",      "name": "Number of C preprocessor directives"},
-            {"id": "NPPCOND",           "name": "Number of processed C preprocessor conditionals (ifdef, if, elif)"},
-            {"id": "NPPFMACRO",         "name": "Number of defined C preprocessor function-like macros"},
-            {"id": "NPPOMACRO",         "name": "Number of defined C preprocessor object-like macros"},
-            {"id": "NPPCONCATOP",       "name": "Number of token concatenation operators (##)"},
-            {"id": "NPPSTRINGOP",       "name": "Number of token stringification operators (#)"},
-            {"id": "NSTMT",             "name": "Number of statements or declarations"},
-            {"id": "NOP",               "name": "Number of operators"},
-            {"id": "NUOP",              "name": "Number of unique operators"},
-            {"id": "NNCONST",           "name": "Number of numeric constants"},
-            {"id": "NCLIT",             "name": "Number of character literals"},
-            {"id": "NSTRING",           "name": "Number of character strings"},
-            {"id": "NIF",               "name": "Number of if statements"},
-            {"id": "NELSE",             "name": "Number of else clauses"},
-            {"id": "NSWITCH",           "name": "Number of switch statements"},
-            {"id": "NCASE",             "name": "Number of case labels"},
-            {"id": "NDEFAULT",          "name": "Number of default labels"},
-            {"id": "NBREAK",            "name": "Number of break statements"},
-            {"id": "NFOR",              "name": "Number of for statements"},
-            {"id": "NWHILE",            "name": "Number of while statements"},
-            {"id": "NDO",               "name": "Number of do statements"},
-            {"id": "NCONTINUE",         "name": "Number of continue statements"},
-            {"id": "NGOTO",             "name": "Number of goto statements"},
-            {"id": "NRETURN",           "name": "Number of return statements"},
-            {"id": "NASM",              "name": "Number of assembly statements"},
-            {"id": "NTYPEOF",           "name": "Number of typeof operators"},
-            {"id": "NPID",              "name": "Number of project-scope identifiers"},
-            {"id": "NFID",              "name": "Number of file-scope (static) identifiers"},
-            {"id": "NMID",              "name": "Number of macro identifiers"},
-            {"id": "NID",               "name": "Total number of object and object-like identifiers"},
-            {"id": "NUPID",             "name": "Number of unique project-scope identifiers"},
-            {"id": "NUFID",             "name": "Number of unique file-scope (static) identifiers"},
-            {"id": "NUMID",             "name": "Number of unique macro identifiers"},
-            {"id": "NUID",              "name": "Number of unique object and object-like identifiers"},
-            {"id": "NLABEL",            "name": "Number of goto labels"},
-            {"id": "NMACROEXPANDTOKEN", "name": "Tokens added by macro expansion"},
-        ])
+        """Return file metric names and DB column ids from METADATA."""
+        row = conn.execute(
+            "SELECT VALUE FROM METADATA WHERE KEY = 'FileMetricFields'"
+        ).fetchone()
+        if row is None:
+            self.send_error_json(404, "FileMetricFields not found in METADATA")
+            return
+        names = row["VALUE"].split(',')
+        ids = ["NCHAR","NCCOMMENT","NSPACE","NLCOMMENT","NBCOMMENT",
+               "NLINE","MAXLINELEN","MAXSTMTLEN","MAXSTMTNEST",
+               "MAXBRACENEST","MAXBRACKNEST","BRACENEST","BRACKNEST",
+               "NULINE","NPPDIRECTIVE","NPPCOND","NPPFMACRO","NPPOMACRO",
+               "NTOKEN","NSTMT","NOP","NUOP","NNCONST","NCLIT","NSTRING",
+               "NPPCONCATOP","NPPSTRINGOP","NIF","NELSE","NSWITCH","NCASE",
+               "NDEFAULT","NBREAK","NFOR","NWHILE","NDO","NCONTINUE",
+               "NGOTO","NRETURN","NASM","NTYPEOF","NPID","NFID","NMID",
+               "NID","NUPID","NUFID","NUMID","NUID","NLABEL",
+               "NMACROEXPANDTOKEN"]
+        self.send_json([{"id": ids[i], "name": names[i]}
+                        for i in range(min(len(ids), len(names)))])
 
     def handle_filemetrics_aggregate(self, conn, qs):
         """Handle /filemetrics/aggregate requests.
