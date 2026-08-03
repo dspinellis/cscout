@@ -125,7 +125,7 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 .output stdout
 
 -- Invoke CScout to merge and unify the output elements
-.shell sh -c '../build/cscout -M ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-a-5.txt ././functionid-o-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv ././functionid-to-global-map-5.csv'
+.shell sh -c 'cscout -M ././eclasses-a-5.txt ././eclasses-o-5.txt ././ids-5.txt ././functionid-a-5.txt ././functionid-o-5.txt ././idproj-5.txt ././new-eclasses-5.csv ././new-ids-5.csv ././new-functionid-5.csv ././new-idproj-5.csv ././functionid-to-global-map-5.csv'
 
 DELETE FROM tokens;
 DELETE FROM ids;
