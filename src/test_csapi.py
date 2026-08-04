@@ -234,7 +234,7 @@ class TestCsapi(unittest.TestCase):
     def test_attributes_identifiers(self):
         data = self.get_json("/attributes/identifiers")
         self.assertGreater(len(data), 0)
-        self.assertTrue(any(a["id"] == "XFILE" for a in data))
+        self.assertTrue(any(a["id"] == "READONLY" for a in data))
         self.assertTrue(any(a["id"] == "FUN" for a in data))
 
     def test_attributes_files(self):

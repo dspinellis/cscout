@@ -804,9 +804,10 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error_json(404, "IdentifierAttributes not found in METADATA")
             return
         names = row["VALUE"].split(',')
-        ids = ["WRITABLE", "READONLY", "SUETAG", "SUMEMBER", "LABEL", "ORDINARY",
-               "MACRO", "UNDEFMACRO", "MACROARG", "CSCOPE", "LSCOPE",
-               "TYPEDEF", "ENUM", "YACC", "FUN", "UNUSED", "XFILE"]
+        ids = ["READONLY", "SUETAG", "SUMEMBER", "LABEL", "ORDINARY",
+               "MACRO", "UNDEFMACRO", "UNDEFEDMACRO", "REDEFEDSAMEMACRO",
+               "REDEFEDDIFFMACRO", "MACROARG", "CSCOPE", "LSCOPE",
+               "TYPEDEF", "ENUM", "YACC", "FUN"]
         self.send_json([{"id": ids[i], "name": names[i]}
                         for i in range(min(len(ids), len(names)))])
 
