@@ -1,0 +1,68 @@
+BEGIN SETUP
+
+fileid_to_global_map:
+dbid	fid	global_fid
+2	1	1
+5	51	1
+
+# Will be populated by CScout
+functionid_to_global_map:
+dbid	id	global_id
+99	99	99
+
+tokens:
+fid	foffset	eid
+1	1000	1000
+1	2000	2000
+
+ids:
+eid	name
+1000	f
+2000	old
+
+functionid:
+functionid	ordinal	fid	foffset	len
+1		0	1	2000	3
+
+functions:
+id	name ismacro defined declared filescoped fid foffset fanin
+1   	old  0       1       1        1          1   2000    0
+
+adb.tokens:
+fid	foffset	eid
+51	1000	100
+
+adb.ids:
+eid	name
+100	f
+
+# Two functions can share the same functionid token location when
+# generated from a macro, while their function rows carry distinct names.
+adb.functionid:
+functionid	ordinal	fid	foffset	len
+51		0	51	1000	1
+52		0	51	1000	1
+
+adb.functions:
+id	name ismacro defined declared filescoped fid foffset fanin
+51  	f0   0       1       1        1          51  1000    0
+52  	f1   0       1       1        1          51  1000    0
+END
+
+INCLUDE CREATE extend-ids.sql
+INCLUDE CREATE empty-idproj.sql
+INCLUDE CREATE eclasses.sql
+INCLUDE CREATE functions.sql
+
+BEGIN SELECT
+  SELECT name, fid, foffset
+    FROM functions
+    ORDER BY name;
+END
+
+BEGIN RESULT
+name fid foffset
+f0   1   1000
+f1   1   1000
+old  1   2000
+END

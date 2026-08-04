@@ -41,6 +41,12 @@ functionid	ordinal	fid	foffset	len
 3	   	0       2	3000	2
 3	   	1       2	3002	6
 
+functions:
+id	name ismacro defined declared filescoped fid foffset fanin
+1   	abcdef  0       1       1        1          1   1000    0
+2   	hello   0       1       1        1          1   2000    0
+3   	snprintf 0      1       1        1          2   3000    0
+
 
 # Database 5: Table to be imported, with local eids
 adb.tokens:
@@ -64,6 +70,12 @@ functionid	ordinal	fid	foffset	len
 351	   	1	51	1002	4
 353	   	0       52	3000	8
 354	   	0       51	4000	4
+
+adb.functions:
+id	name ismacro defined declared filescoped fid foffset fanin
+351 	abcdef  0       1       1        1          51  1000    0
+353 	snprintf 0      1       1        1          52  3000    0
+354 	sqrt    0       1       1        1          51  4000    0
 END
 
 # Extend ids with all their fields

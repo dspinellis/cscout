@@ -603,10 +603,12 @@ Dbtoken::read_write_functionids(
     const char *map_out_path)
 {
 	Dbtoken token;
-	// Keep track of new assigned functionids. Map
-	// constituent token parts (as read from functionids)
-	// into the new functionid
-	map <dequeTpart, int> fnid;
+	// Keep track of new assigned functionids. Map the
+	// constituent token parts (as read from functionids) and
+	// the function name into the new functionid. The name is
+	// needed for macro-generated functions that share a file
+	// and offset while expanding to different identifiers.
+	map <pair<dequeTpart, string>, int> fnid;
 
 	// New functionid: id, ordinal, eid
 	ofstream fid_out(fid_out_path);
@@ -617,7 +619,7 @@ Dbtoken::read_write_functionids(
 	verify_open(map_out_path, map_out);
 
 	// Called for each complete functionid read.
-	auto complete_functionid = [&](intptr_t functionid, int dbid) {
+	auto complete_functionid = [&](intptr_t functionid, int dbid, const string& name) {
 		if (functionid == -1)
 			return;
 
@@ -632,7 +634,7 @@ Dbtoken::read_write_functionids(
 		// to keep the map key unique and to write out
 		// canonical tokids.
 		dequeTpart parts(untwin(token.constituents()));
-		auto [it, inserted] = fnid.insert({parts, new_id});
+		auto [it, inserted] = fnid.insert({{parts, name}, new_id});
 		if (DP())
 			cout << "Function " << functionid << " inserted: " << inserted << '\n';
 		int global_functionid = it->second;
@@ -676,6 +678,7 @@ Dbtoken::read_write_functionids(
 		line_number = 0;
 		intptr_t prev_functionid = -1;
 		int prev_dbid = -1;
+		string prev_name;
 
 
 		while (getline(in, line_record)) {
@@ -690,13 +693,15 @@ Dbtoken::read_write_functionids(
 			unsigned long offset;
 
 			istringstream line_stream(line_record);
+			string name;
 			if (!(line_stream >> dbid >> functionid >> fileid >> offset >>len)) {
 				warn(fid_in_path, line_record);
 				continue;
 			}
+			line_stream >> name;
 
 			if (functionid != prev_functionid) {
-				complete_functionid(prev_functionid, prev_dbid);
+				complete_functionid(prev_functionid, prev_dbid, prev_name);
 				token.clear();
 			}
 			Tokid ti(Fileid(fileid), offset);
@@ -713,8 +718,9 @@ Dbtoken::read_write_functionids(
 
 			prev_functionid = functionid;
 			prev_dbid = dbid;
+			prev_name = name;
 		}
-		complete_functionid(prev_functionid, prev_dbid);
+		complete_functionid(prev_functionid, prev_dbid, prev_name);
 	};
 
 	read_functionid(fid_in_path_attached, false);

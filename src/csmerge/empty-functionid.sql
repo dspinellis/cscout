@@ -24,3 +24,13 @@ CREATE TABLE functionid_to_global_map(
   global_id INTEGER,     -- Corresponding id used across all databases
   PRIMARY KEY(dbid, id)
 );
+
+CREATE TABLE functions(
+  id BIGINT PRIMARY KEY,
+  name TEXT
+);
+
+CREATE TABLE adb.functions(
+  id BIGINT PRIMARY KEY,
+  name TEXT
+);
