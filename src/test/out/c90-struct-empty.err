@@ -1,0 +1,18 @@
+Processing workspace TestWS
+Processing directory test/c
+Entering directory test/c
+Processing project Prj1
+Processing file c90-struct-empty.c
+Done processing file c90-struct-empty.c
+Done processing project Prj1
+Processing project Prj2
+Processing file c90-struct-empty.c
+Done processing file c90-struct-empty.c
+Processing file prj2.c
+Done processing file prj2.c
+Done processing project Prj2
+Exiting directory test/c
+Done processing directory test/c
+Done processing workspace TestWS
+Processing identifiers
+4%9%14%19%23%28%33%38%42%47%52%57%61%66%71%76%80%85%90%95%100%

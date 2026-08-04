@@ -1324,6 +1324,7 @@ aggregate_name:
 			$$ = struct_union();
 			if (!$$.is_undeclared())
 				$$.set_union((bool)$1.get_nparam());
+			tag_define($2.get_token(), $$);
 		}
         | aggregate_key '{'  /* EMPTY member_declaration_list */ '}'
 		{

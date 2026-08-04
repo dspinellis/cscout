@@ -51,7 +51,8 @@ identifiers should not be reported as unused (GCC).
 <li> <code>__COUNTER__</code> unique numbering (common extension)
 <li> <code>long long</code> type (common extension)
 <li> A semicolon can appear as a declatation (common extension)
-<li> An aggregate declaration body can be empty (GCC)
+<li> An aggregate declaration body can be empty, yielding a zero-sized
+<code>struct</code> or <code>union</code> (GCC)
 <li> Aggregate member initialization using the member: value syntax (GCC)
 <li> Statement labels do not require a statement following them (GCC)
 <li> <code>\e</code> character escape (GCC)
