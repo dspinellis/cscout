@@ -1209,7 +1209,8 @@ int Type_node::get_count()
 
 size_t Tsu::get_sizeof() const {
 	// Approximate C layout by accounting for member alignment/padding.
-	// Member alignment is obtained from each member type's get_alignof().
+	// Zero-sized members are valid for empty structures (GCC extension);
+	// zero alignment still denotes an unknown layout.
 	if (members_by_ordinal.empty())
 		return 0;
 
@@ -1227,8 +1228,8 @@ size_t Tsu::get_sizeof() const {
 			Type member_type = members_by_ordinal[i].get_type();
 			size_t member_size = member_type.get_sizeof();
 			size_t member_align = member_type.get_alignof();
-			if (member_size == 0 || member_align == 0)
-				return 0; // Unknown member size -> unknown union size
+			if (member_align == 0)
+				return 0; // Unknown member alignment -> unknown union size
 			if (member_size > max_size)
 				max_size = member_size;
 			if (member_align > max_align)
@@ -1242,8 +1243,8 @@ size_t Tsu::get_sizeof() const {
 		Type member_type = members_by_ordinal[i].get_type();
 		size_t member_size = member_type.get_sizeof();
 		size_t member_align = member_type.get_alignof();
-		if (member_size == 0 || member_align == 0)
-			return 0; // Unknown member size -> unknown struct size
+		if (member_align == 0)
+			return 0; // Unknown member alignment -> unknown struct size
 		if (member_align > max_align)
 			max_align = member_align;
 		total_size = align_up(total_size, member_align);
@@ -1255,7 +1256,7 @@ size_t Tsu::get_sizeof() const {
 
 size_t Tsu::get_alignof() const {
 	if (members_by_ordinal.empty())
-		return 0;
+		return 1;
 
 	size_t max_align = 1;
 	for (unsigned i = 0; i < members_by_ordinal.size(); i++) {
