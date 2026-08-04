@@ -46,6 +46,14 @@ adb.functionid:
 functionid	ordinal	fid	foffset	len
 99		0	1	8000	2
 
+functions:
+id	name
+99	dummy
+
+adb.functions:
+id	name
+99	dummy
+
 # Will be completed by eclasses
 functionid_to_global_map:
 dbid	id	global_id

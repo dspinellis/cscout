@@ -80,11 +80,14 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 .output ././functionid-a-5.txt
   -- Ordinal implied by position
   SELECT 5 AS dbid,
-        functionid,
+        afunctionid.functionid,
         fid_map.global_fid,
-        foffset,
-        len
+        afunctionid.foffset,
+        afunctionid.len,
+        COALESCE(f.name, '')
     FROM adb.functionid AS afunctionid
+    LEFT JOIN adb.functions AS f
+      ON f.id = afunctionid.functionid
     INNER JOIN fileid_to_global_map AS fid_map
       ON fid_map.dbid = 5 AND fid_map.fid = afunctionid.fid
     ORDER BY functionid, ordinal;
@@ -92,11 +95,14 @@ SELECT 5 AS dbid, fid, foffset, ai.*
 -- Continue with the original functionids
 .output ././functionid-o-5.txt
   SELECT 0 AS dbid,
-        functionid,
-        fid,
-        foffset,
-        len
+        functionid.functionid,
+        functionid.fid,
+        functionid.foffset,
+        functionid.len,
+        COALESCE(f.name, '')
     FROM functionid
+    LEFT JOIN functions AS f
+      ON f.id = functionid.functionid
     ORDER BY functionid, ordinal;
 
 .output ././idproj-5.txt
