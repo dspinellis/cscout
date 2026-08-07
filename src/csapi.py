@@ -46,6 +46,50 @@ class MissingParameterError(ValueError):
     """Exception raised when a required query parameter is missing or invalid."""
     pass
 
+SAVED_QUERIES_FILES = {
+    "writable": {"where": "f.RO = 0"},
+    "readonly": {"where": "f.RO = 1"},
+    "with_unused": {
+        "join": "JOIN TOKENS t ON t.FID = f.FID JOIN IDS i ON i.EID = t.EID",
+        "where": "i.UNUSED = 1 AND i.READONLY = 0",
+        "distinct": True
+    },
+    "no_statements": {
+        "join": "JOIN FILEMETRICS fm ON fm.FID = f.FID",
+        "where": "fm.PRECPP = 0 AND f.NAME LIKE '%.c' AND (fm.NSTMT = 0 OR fm.NSTMT IS NULL)"
+    },
+    "unprocessed": {
+        "join": "JOIN FILEMETRICS fm ON fm.FID = f.FID",
+        "where": "fm.PRECPP = 0 AND fm.NULINE > 0"
+    },
+    "with_strings": {
+        "join": "JOIN FILEMETRICS fm ON fm.FID = f.FID",
+        "where": "fm.PRECPP = 0 AND fm.NSTRING > 0"
+    },
+    "h_with_includes": {
+        "join": "JOIN FILEMETRICS fm ON fm.FID = f.FID",
+        "where": "f.NAME LIKE '%.h' AND fm.PRECPP = 1 AND fm.NINCFILE > 0"
+    }
+}
+
+SAVED_QUERIES_IDS = {
+    "readonly": {"where": "i.READONLY = 1 AND i.MACROARG = 0"},
+    "writable": {"where": "i.READONLY = 0 AND i.MACROARG = 0"},
+    "unused_project": {"where": "i.UNUSED = 1 AND i.LSCOPE = 1 AND i.READONLY = 0 AND i.MACROARG = 0"},
+    "unused_file": {"where": "i.UNUSED = 1 AND i.CSCOPE = 1 AND i.READONLY = 0 AND i.MACROARG = 0"},
+    "unused_macros": {"where": "i.UNUSED = 1 AND i.MACRO = 1 AND i.READONLY = 0 AND i.MACROARG = 0"},
+    "file_spanning": {"where": "i.READONLY = 0 AND i.EID IN (SELECT EID FROM TOKENS GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)"},
+    "static_vars": {"where": "i.READONLY = 0 AND i.ORDINARY = 1 AND i.LSCOPE = 1 AND i.NAME != 'main' AND i.EID NOT IN (SELECT EID FROM TOKENS GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)"},
+    "static_funs": {"where": "i.FUN = 1 AND i.READONLY = 0 AND i.ORDINARY = 1 AND i.LSCOPE = 1 AND i.NAME != 'main' AND i.EID NOT IN (SELECT EID FROM TOKENS GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)"},
+}
+
+SAVED_QUERIES_FUNCTIONS = {
+    "project_scoped": {"where": "f.FILESCOPED = 0 AND f.ISMACRO = 0"},
+    "file_scoped": {"where": "f.FILESCOPED = 1 AND f.ISMACRO = 0"},
+    "not_called": {"where": "f.FANIN = 0 AND f.ISMACRO = 0"},
+    "called_once": {"where": "f.FANIN = 1 AND f.ISMACRO = 0"},
+}
+
 
 def ensure_index(conn: sqlite3.Connection, table: str, columns: list) -> None:
     """Ensure that an index exists on the specified table and columns."""
@@ -258,39 +302,36 @@ class Handler(BaseHTTPRequestHandler):
     def handle_identifiers(self, conn, qs):
         """Handle /identifiers requests."""
         ensure_index(conn, "IDS", ["NAME"])
+        query = get_param(qs, "query")
+
         filters = [
-            ("unused", "UNUSED = ?", "bool"),
-            ("macro", "MACRO = ?", "bool"),
-            ("fun", "FUN = ?", "bool"),
-            ("readonly", "READONLY = ?", "bool"),
-            ("lscope", "LSCOPE = ?", "bool"),
-            ("cscope", "CSCOPE = ?", "bool"),
-            ("macroarg", "MACROARG = ?", "bool"),
-            ("ordinary", "ORDINARY = ?", "bool"),
-            ("name", "NAME LIKE ?", "like"),
-            ("name_ne", "NAME != ?", "str"),
+            ("name", "i.NAME LIKE ?", "like"),
+            ("name_ne", "i.NAME != ?", "str"),
         ]
         conditions, params = build_where_clause(qs, filters)
 
-        if get_bool_param(qs, "file_spanning"):
-            conditions.append(
-                "READONLY = 0"
-                " AND EID IN ("
-                "  SELECT EID FROM TOKENS"
-                "  GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)")
+        joins = []
+        distinct = False
 
-        if get_bool_param(qs, "not_file_spanning"):
-            conditions.append(
-                "EID NOT IN ("
-                "  SELECT EID FROM TOKENS"
-                "  GROUP BY EID HAVING COUNT(DISTINCT FID) > 1)")
+        if query and query in SAVED_QUERIES_IDS:
+            sq = SAVED_QUERIES_IDS[query]
+            if "join" in sq:
+                joins.append(sq["join"])
+            if "where" in sq:
+                conditions.append(sq["where"])
+            if "distinct" in sq:
+                distinct = True
+
         limit, offset = get_paging_params(qs)
 
-        where = ("WHERE " + " AND ".join(conditions)
-                 if conditions else "")
+        join_str = " ".join(joins)
+        where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
         params += [limit, offset]
+        
+        distinct_str = "DISTINCT " if distinct else ""
+
         rows = conn.execute(
-            f"SELECT * FROM IDS {where} LIMIT ? OFFSET ?",
+            f"SELECT {distinct_str}i.* FROM IDS i {join_str} {where} LIMIT ? OFFSET ?",
             params).fetchall()
         self.send_json(rows_to_list(rows))
 
@@ -384,56 +425,34 @@ class Handler(BaseHTTPRequestHandler):
         has_strings=1    — files containing string literals (NSTRING>0)
         h_with_includes=1 — writable .h files with #include directives
         """
+        query = get_param(qs, "query")
+
         conditions = []
         params = []
         joins = []
-
-        if get_bool_param(qs, "writable"):
-            conditions.append("f.RO = 0")
-        if get_bool_param(qs, "ro"):
-            conditions.append("f.RO = 1")
+        distinct = False
 
         fre = get_param(qs, "fre")
         if fre:
             conditions.append("f.NAME LIKE ?")
             params.append(f"%{fre}%")
 
-        if get_bool_param(qs, "has_unused"):
-            joins.append(
-                "JOIN TOKENS t ON t.FID = f.FID "
-                "JOIN IDS i ON i.EID = t.EID")
-            conditions.append("i.UNUSED = 1 AND i.READONLY = 0")
-
-        needs_metrics = any(get_bool_param(qs, p) for p in
-                            ("no_statements", "unprocessed", "has_strings"))
-        if needs_metrics:
-            joins.append("JOIN FILEMETRICS fm ON fm.FID = f.FID")
-            conditions.append("fm.PRECPP = 0")
-
-        if get_bool_param(qs, "no_statements"):
-            conditions.append("f.NAME LIKE '%.c'")
-            conditions.append("(fm.NSTMT = 0 OR fm.NSTMT IS NULL)")
-
-        if get_bool_param(qs, "unprocessed"):
-            conditions.append("fm.NULINE > 0")
-
-        if get_bool_param(qs, "has_strings"):
-            conditions.append("fm.NSTRING > 0")
-
-        if get_bool_param(qs, "h_with_includes"):
-            # NINCFILE is a pre-cpp metric, handled via subquery
-            conditions.append("f.NAME LIKE '%.h'")
-            conditions.append(
-                "f.FID IN (SELECT fm2.FID FROM FILEMETRICS fm2 "
-                "WHERE fm2.PRECPP = 1 AND fm2.NINCFILE > 0)")
+        if query and query in SAVED_QUERIES_FILES:
+            sq = SAVED_QUERIES_FILES[query]
+            if "join" in sq:
+                joins.append(sq["join"])
+            if "where" in sq:
+                conditions.append(sq["where"])
+            if "distinct" in sq:
+                distinct = True
 
         join_str = " ".join(joins)
         where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
 
-        distinct = "DISTINCT" if get_bool_param(qs, "has_unused") else ""
+        distinct_str = "DISTINCT " if distinct else ""
 
         rows = conn.execute(
-            f"SELECT {distinct} f.FID, f.NAME, f.RO "
+            f"SELECT {distinct_str}f.FID, f.NAME, f.RO "
             f"FROM FILES f {join_str} {where} ORDER BY f.NAME",
             params).fetchall()
         self.send_json(rows_to_list(rows))
@@ -503,22 +522,32 @@ class Handler(BaseHTTPRequestHandler):
     def handle_functions(self, conn, qs):
         """Handle /functions requests."""
         ensure_index(conn, "LINEPOS", ["FID", "FOFFSET"])
+        query = get_param(qs, "query")
+
         filters = [
-            ("defined", "DEFINED = ?", "bool"),
-            ("filescoped", "FILESCOPED = ?", "bool"),
-            ("ismacro", "f.ISMACRO = ?", "bool"),
-            ("fanin", "f.FANIN = ?", "int"),
-            ("max_fanin", "f.FANIN <= ?", "int"),
+            ("name", "f.NAME LIKE ?", "like"),
         ]
         conditions, params = build_where_clause(qs, filters)
 
+        conditions.append("f.DEFINED = 1")
+        distinct = False
+
+        if query and query in SAVED_QUERIES_FUNCTIONS:
+            sq = SAVED_QUERIES_FUNCTIONS[query]
+            if "where" in sq:
+                conditions.append(sq["where"])
+            if "distinct" in sq:
+                distinct = True
+
         limit, offset = get_paging_params(qs)
 
-        where = ("WHERE " + " AND ".join(conditions)
-                 if conditions else "")
+        where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
         params += [limit, offset]
+        
+        distinct_str = "DISTINCT " if distinct else ""
+
         rows = conn.execute(
-            f"""SELECT f.ID, f.NAME, f.ISMACRO, f.DEFINED, f.DECLARED,
+            f"""SELECT {distinct_str}f.ID, f.NAME, f.ISMACRO, f.DEFINED, f.DECLARED,
                       f.FILESCOPED, f.FID, f.FOFFSET, f.FANIN,
                       fm.FANOUT, fm.CCYCL1, fi.NAME AS FILE, l.LNUM
                FROM FUNCTIONS f
